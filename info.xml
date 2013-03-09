@@ -1,0 +1,21 @@
+<?xml version="1.0"?>
+<extension key="org.project60.banking" type="module">
+  <file>banking</file>
+  <name>Banking integration</name>
+  <description>Implements handling of bank accounts for contacts, as well as handling of bank files (and individual bank payements extracted from the files). Bank files can be imported, payments matched to CiviCRM entities, and the resulting data exported. Specific handlers for all of these actions are provided through plugins, some of which are shipped with the core banking extension, while some more complex ones are provided in separate extensions.</description>
+  <license>GNU AGPL v3 or later</license>
+  <maintainer>
+    <author>CiviCRM banking integration working group ("Project 60")</author>
+    <email>project-60@ml.foebud.org</email>
+  </maintainer>
+  <releaseDate>2013-03-09</releaseDate>
+  <version>0.1</version>
+  <develStage>alpha</develStage>
+  <compatibility>
+    <ver>4.3</ver>
+  </compatibility>
+  <comments></comments>
+  <civix>
+    <namespace>CRM/Banking</namespace>
+  </civix>
+</extension>

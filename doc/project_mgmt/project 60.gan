@@ -1,15 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project name="Project 60" company="" webLink="http://" view-date="2013-03-01" view-index="0" gantt-divider-location="631" resource-divider-location="300" version="2.0" locale="de">
+<project name="Project 60" company="" webLink="http://" view-date="2013-03-01" view-index="0" gantt-divider-location="711" resource-divider-location="300" version="2.0">
     <description/>
-    <view zooming-state="default:9" id="gantt-chart">
-        <field id="tpd3" name="Vorgang" width="50" order="0"/>
-        <field id="tpd4" name="Anfang" width="11" order="1"/>
-        <field id="tpd5" name="Ende" width="11" order="2"/>
-        <field id="tpd8" name="Verantwortlich" width="16" order="3"/>
-        <field id="tpd7" name="Fortschritt" width="10" order="4"/>
-    </view>
+    <view zooming-state="default:9" id="gantt-chart"/>
     <view id="resource-table">
-        <field id="0" name="Ressource" width="100" order="0"/>
+        <field id="0" name="Name" width="100" order="0"/>
     </view>
     <!-- -->
     <calendars>
@@ -24,7 +18,7 @@
             </calendar>
         </day-types>
     </calendars>
-    <tasks empty-milestones="true">
+    <tasks>
         <taskproperties>
             <taskproperty id="tpd0" name="type" type="default" valuetype="icon"/>
             <taskproperty id="tpd1" name="priority" type="default" valuetype="icon"/>
@@ -42,90 +36,105 @@
             <task id="7" name="User &amp; required Features delius" color="#8cb6ce" meeting="false" start="2013-04-01" duration="17" complete="100" expand="true"/>
             <task id="6" name="User &amp; required Features SfE" color="#8cb6ce" meeting="false" start="2013-04-01" duration="17" complete="100" expand="true"/>
         </task>
-        <task id="0" name="Data Model" color="#8cb6ce" meeting="false" start="2013-04-01" duration="28" complete="47" expand="true">
-            <task id="9" name="data model SEPA" color="#8cb6ce" meeting="false" start="2013-04-01" duration="23" complete="70" expand="true">
-                <depend id="11" type="2" difference="0" hardness="Rubber"/>
-                <depend id="79" type="2" difference="0" hardness="Rubber"/>
+        <task id="1" name="CiviBanking" color="#8cb6ce" meeting="false" start="2013-03-01" duration="131" complete="11" expand="false">
+            <task id="121" name="CiviBanking extension framework" color="#8cb6ce" meeting="false" start="2013-03-01" duration="74" complete="21" expand="false">
+                <task id="125" name="CiviBanking extension" color="#8cb6ce" meeting="false" start="2013-03-01" duration="1" complete="0" expand="true"/>
+                <task id="114" name="CiviBanking data model" color="#8cb6ce" meeting="false" start="2013-04-01" duration="23" complete="25" expand="true"/>
+                <task id="79" name="CiviBanking XML &amp; DAO generation" color="#cc3300" meeting="false" start="2013-05-02" duration="3" complete="0" expand="true"/>
+                <task id="124" name="CiviBanking API" color="#8cb6ce" meeting="false" start="2013-05-23" duration="15" complete="0" expand="true">
+                    <task id="40" name="accounts API" color="#cc0000" meeting="false" start="2013-05-23" duration="3" complete="0" expand="true">
+                        <depend id="31" type="2" difference="0" hardness="Strong"/>
+                    </task>
+                    <task id="43" name="payments / statements API" color="#cc3300" meeting="false" start="2013-05-23" duration="15" complete="0" expand="true">
+                        <depend id="25" type="2" difference="0" hardness="Rubber"/>
+                        <depend id="27" type="2" difference="0" hardness="Rubber"/>
+                        <depend id="30" type="2" difference="0" hardness="Rubber"/>
+                        <depend id="32" type="2" difference="0" hardness="Rubber"/>
+                        <depend id="33" type="2" difference="0" hardness="Rubber"/>
+                    </task>
+                </task>
             </task>
-            <task id="114" name="data model CiviBanking" color="#8cb6ce" meeting="false" start="2013-04-01" duration="23" complete="25" expand="true"/>
-            <task id="11" name="XML &amp; DAO generation SEPA" color="#8cb6ce" meeting="false" start="2013-05-02" duration="5" complete="80" expand="true">
-                <depend id="3" type="2" difference="0" hardness="Strong"/>
-                <depend id="40" type="2" difference="0" hardness="Rubber"/>
-                <depend id="43" type="2" difference="0" hardness="Rubber"/>
-                <depend id="48" type="2" difference="0" hardness="Rubber"/>
-            </task>
-            <task id="79" name="XML &amp; DAO generation CiviBanking" color="#cc3300" meeting="false" start="2013-05-02" duration="3" complete="0" expand="true"/>
-        </task>
-        <task id="8" name="API / Interfaces" color="#8cb6ce" meeting="false" start="2013-05-06" duration="28" complete="0" expand="true">
-            <depend id="3" type="2" difference="0" hardness="Strong"/>
-            <task id="40" name="accounts API" color="#cc0000" meeting="false" start="2013-05-23" duration="3" complete="0" expand="true">
-                <depend id="31" type="2" difference="0" hardness="Strong"/>
-            </task>
-            <task id="43" name="payments / statements API" color="#cc3300" meeting="false" start="2013-05-23" duration="15" complete="0" expand="true">
-                <depend id="25" type="2" difference="0" hardness="Rubber"/>
-                <depend id="27" type="2" difference="0" hardness="Rubber"/>
-                <depend id="30" type="2" difference="0" hardness="Rubber"/>
-                <depend id="32" type="2" difference="0" hardness="Rubber"/>
-                <depend id="33" type="2" difference="0" hardness="Rubber"/>
-            </task>
-            <task id="48" name="SEPA API? (mandates, transactions, modes...)" color="#8cb6ce" meeting="false" start="2013-05-23" duration="1" complete="0" expand="true">
-                <depend id="25" type="2" difference="0" hardness="Rubber"/>
-                <depend id="28" type="2" difference="0" hardness="Strong"/>
-                <depend id="29" type="2" difference="0" hardness="Rubber"/>
-                <depend id="35" type="2" difference="0" hardness="Rubber"/>
-                <depend id="36" type="2" difference="0" hardness="Rubber"/>
-                <depend id="37" type="2" difference="0" hardness="Rubber"/>
-                <depend id="38" type="2" difference="0" hardness="Rubber"/>
-                <depend id="39" type="2" difference="0" hardness="Rubber"/>
-            </task>
-            <task id="54" name="import / export plugin interfaces" color="#8cb6ce" meeting="false" start="2013-05-06" duration="5" complete="0" expand="true"/>
-            <task id="55" name="matcher plugin interfaces" color="#8cb6ce" meeting="false" start="2013-05-06" duration="5" complete="0" expand="true">
-                <depend id="32" type="2" difference="0" hardness="Rubber"/>
-            </task>
-        </task>
-        <task id="1" name="CiviBanking" color="#8cb6ce" meeting="false" start="2013-04-01" duration="119" complete="12" expand="true">
             <task id="19" name="design mockups" color="#8cb6ce" meeting="false" start="2013-04-01" duration="12" complete="100" expand="true"/>
-            <task id="28" name="Payment Importer" color="#8cb6ce" meeting="false" start="2013-05-24" duration="15" complete="0" expand="true">
+            <task id="28" name="Payment Importer" color="#8cb6ce" meeting="false" start="2013-05-24" duration="1" complete="0" expand="true">
                 <depend id="30" type="2" difference="0" hardness="Rubber"/>
+                <task id="131" name="Payment Importer plugin architecture" color="#8cb6ce" meeting="false" start="2013-05-24" duration="1" complete="0" expand="true"/>
+                <task id="132" name="Payment Importer plugin base class" color="#8cb6ce" meeting="false" start="2013-05-24" duration="1" complete="0" expand="true"/>
+                <task id="133" name="Basic Payment Importer plugins" color="#8cb6ce" meeting="false" start="2013-05-24" duration="1" complete="0" expand="true">
+                    <task id="134" name="BE:CODA plugin" color="#8cb6ce" meeting="false" start="2013-05-24" duration="1" complete="0" expand="true"/>
+                </task>
             </task>
+            <task id="31" name="BankAccount Manager" color="#8cb6ce" meeting="false" start="2013-05-28" duration="15" complete="0" expand="true"/>
             <task id="30" name="Payment Manager" color="#8cb6ce" meeting="false" start="2013-06-14" duration="10" complete="0" expand="true">
                 <depend id="33" type="2" difference="0" hardness="Rubber"/>
-            </task>
-            <task id="33" name="Matching engine" color="#8cb6ce" meeting="false" start="2013-06-28" duration="10" complete="0" expand="true">
-                <depend id="32" type="2" difference="0" hardness="Rubber"/>
-            </task>
-            <task id="32" name="Suggestion Workbench" color="#8cb6ce" meeting="false" start="2013-07-12" duration="20" complete="0" expand="true">
-                <depend id="27" type="2" difference="0" hardness="Rubber"/>
             </task>
             <task id="27" name="Statement Manager" color="#8cb6ce" meeting="false" start="2013-08-09" duration="15" complete="0" expand="true">
                 <depend id="29" type="2" difference="0" hardness="Rubber"/>
             </task>
-            <task id="29" name="Payment Exporter" color="#8cb6ce" meeting="false" start="2013-08-30" duration="10" complete="0" expand="true"/>
-            <task id="31" name="BankAccount Manager" color="#8cb6ce" meeting="false" start="2013-05-28" duration="15" complete="0" expand="true"/>
-        </task>
-        <task id="2" name="CiviSEPA" color="#8cb6ce" meeting="false" start="2013-06-13" duration="73" complete="0" expand="true">
-            <task id="25" name="mandate manager" color="#8cb6ce" meeting="false" start="2013-06-13" duration="15" complete="0" expand="true">
-                <depend id="36" type="2" difference="0" hardness="Rubber"/>
+            <task id="33" name="Matching engine" color="#8cb6ce" meeting="false" start="2013-06-28" duration="1" complete="0" expand="true">
+                <depend id="32" type="2" difference="0" hardness="Rubber"/>
+                <task id="141" name="Matcher plugin architecture" color="#8cb6ce" meeting="false" start="2013-06-28" duration="1" complete="0" expand="true"/>
+                <task id="142" name="Matcher plugin base class" color="#8cb6ce" meeting="false" start="2013-06-28" duration="1" complete="0" expand="true"/>
             </task>
-            <task id="36" name="SDD Payment Processor basics" color="#8cb6ce" meeting="false" start="2013-07-04" duration="10" complete="0" expand="true">
-                <depend id="39" type="2" difference="0" hardness="Rubber"/>
+            <task id="32" name="Suggestion Workbench" color="#8cb6ce" meeting="false" start="2013-07-12" duration="20" complete="0" expand="true">
+                <depend id="27" type="2" difference="0" hardness="Rubber"/>
+            </task>
+            <task id="29" name="Payment Exporter" color="#8cb6ce" meeting="false" start="2013-08-30" duration="1" complete="0" expand="true">
+                <task id="136" name="Payment Exporter plugin architecture" color="#8cb6ce" meeting="false" start="2013-08-30" duration="1" complete="0" expand="true"/>
+                <task id="138" name="Payment Exporter plugin base class" color="#8cb6ce" meeting="false" start="2013-08-30" duration="1" complete="0" expand="true"/>
+                <task id="139" name="Basic PaymentExporter plugins" color="#8cb6ce" meeting="false" start="2013-08-30" duration="1" complete="0" expand="true"/>
+            </task>
+        </task>
+        <task id="2" name="CiviSDD" color="#8cb6ce" meeting="false" start="2013-03-01" duration="147" complete="22" expand="true">
+            <task id="126" name="CiviSDD extension framework" color="#8cb6ce" meeting="false" start="2013-03-01" duration="60" complete="64" expand="true">
+                <task id="129" name="CiviSDD extension" color="#8cb6ce" meeting="false" start="2013-03-01" duration="1" complete="0" expand="true"/>
+                <task id="9" name="CiviSDD data model" color="#8cb6ce" meeting="false" start="2013-04-01" duration="23" complete="70" expand="true">
+                    <depend id="11" type="2" difference="0" hardness="Rubber"/>
+                    <depend id="79" type="2" difference="0" hardness="Rubber"/>
+                </task>
+                <task id="11" name="CiviSDD XML &amp; DAO generation" color="#8cb6ce" meeting="false" start="2013-05-02" duration="5" complete="80" expand="true">
+                    <depend id="3" type="2" difference="0" hardness="Strong"/>
+                    <depend id="40" type="2" difference="0" hardness="Rubber"/>
+                    <depend id="43" type="2" difference="0" hardness="Rubber"/>
+                    <depend id="48" type="2" difference="0" hardness="Rubber"/>
+                </task>
+                <task id="130" name="CiviSDD API" color="#8cb6ce" meeting="false" start="2013-05-23" duration="1" complete="0" expand="true">
+                    <task id="48" name="SEPA API? (mandates, transactions, modes...)" color="#8cb6ce" meeting="false" start="2013-05-23" duration="1" complete="0" expand="true">
+                        <depend id="25" type="2" difference="0" hardness="Rubber"/>
+                        <depend id="28" type="2" difference="0" hardness="Strong"/>
+                        <depend id="29" type="2" difference="0" hardness="Rubber"/>
+                        <depend id="35" type="2" difference="0" hardness="Rubber"/>
+                        <depend id="36" type="2" difference="0" hardness="Rubber"/>
+                        <depend id="37" type="2" difference="0" hardness="Rubber"/>
+                        <depend id="38" type="2" difference="0" hardness="Rubber"/>
+                        <depend id="39" type="2" difference="0" hardness="Rubber"/>
+                    </task>
+                </task>
+                <task id="148" name="CiviSDDLogic class" color="#8cb6ce" meeting="false" start="2013-03-01" duration="1" complete="0" expand="true"/>
+            </task>
+            <task id="37" name="Mandate Importer" color="#8cb6ce" meeting="false" start="2013-08-27" duration="10" complete="0" expand="true">
                 <depend id="90" type="2" difference="0" hardness="Rubber"/>
             </task>
-            <task id="39" name="XML Exporter" color="#8cb6ce" meeting="false" start="2013-07-18" duration="5" complete="0" expand="true">
-                <depend id="38" type="2" difference="0" hardness="Rubber"/>
-            </task>
-            <task id="38" name="Batch Manager" color="#8cb6ce" meeting="false" start="2013-07-25" duration="13" complete="0" expand="true">
-                <depend id="35" type="2" difference="0" hardness="Rubber"/>
+            <task id="25" name="Mandate Manager" color="#8cb6ce" meeting="false" start="2013-06-13" duration="15" complete="0" expand="true">
+                <depend id="36" type="2" difference="0" hardness="Rubber"/>
             </task>
             <task id="35" name="Mandate Documenter" color="#8cb6ce" meeting="false" start="2013-08-13" duration="10" complete="0" expand="true">
                 <depend id="37" type="2" difference="0" hardness="Rubber"/>
             </task>
-            <task id="37" name="Mandate Import" color="#8cb6ce" meeting="false" start="2013-08-27" duration="10" complete="0" expand="true">
-                <depend id="90" type="2" difference="0" hardness="Rubber"/>
+            <task id="146" name="SDD Payment Processor" color="#8cb6ce" meeting="false" start="2013-07-04" duration="58" complete="0" expand="true">
+                <task id="36" name="SDD Payment Processor basics" color="#8cb6ce" meeting="false" start="2013-07-04" duration="10" complete="0" expand="true">
+                    <depend id="39" type="2" difference="0" hardness="Rubber"/>
+                    <depend id="90" type="2" difference="0" hardness="Rubber"/>
+                </task>
+                <task id="90" name="finish SDD Payment Processor" color="#8cb6ce" meeting="false" start="2013-09-10" duration="10" complete="0" expand="true"/>
             </task>
-            <task id="90" name="finish SDD Payment Processor" color="#8cb6ce" meeting="false" start="2013-09-10" duration="10" complete="0" expand="true"/>
+            <task id="38" name="Batch Manager" color="#8cb6ce" meeting="false" start="2013-07-25" duration="13" complete="0" expand="true">
+                <depend id="35" type="2" difference="0" hardness="Rubber"/>
+            </task>
+            <task id="39" name="XML Exporter" color="#8cb6ce" meeting="false" start="2013-07-18" duration="5" complete="0" expand="true">
+                <depend id="38" type="2" difference="0" hardness="Rubber"/>
+            </task>
         </task>
-        <task id="3" name="Code Sprint" color="#8cb6ce" meeting="false" start="2013-06-13" duration="2" complete="0" expand="true">
+        <task id="3" name="Code Sprint" color="#8cb6ce" meeting="false" start="2013-05-09" duration="2" complete="0" expand="true">
             <depend id="85" type="2" difference="0" hardness="Rubber"/>
         </task>
         <task id="85" name="automate pre-notification" color="#8cb6ce" meeting="false" start="2013-06-17" duration="10" complete="0" expand="true"/>
@@ -137,22 +146,23 @@
         <resource id="3" name="Xavier (TttP)" function="SoftwareDevelopment:2" contacts="xavier@sydesy.com" phone=""/>
         <resource id="4" name="Joe (JMA Consulting)" function="SoftwareDevelopment:2" contacts="joe.murray@jmaconsulting.biz" phone=""/>
         <resource id="5" name="Fabian (SYSTOPIA)" function="Default:1" contacts="schuttenberg@systopia.de" phone="0228 961004990; 0179 1098548"/>
+        <resource id="6" name="Chris (delius)" function="SoftwareDevelopment:2" contacts="chris.madou@delius.be" phone=""/>
     </resources>
     <allocations>
         <allocation task-id="79" resource-id="0" function="SoftwareDevelopment:2" responsible="true" load="100.0"/>
         <allocation task-id="40" resource-id="0" function="SoftwareDevelopment:2" responsible="true" load="100.0"/>
         <allocation task-id="43" resource-id="0" function="SoftwareDevelopment:2" responsible="true" load="100.0"/>
-        <allocation task-id="54" resource-id="0" function="SoftwareDevelopment:2" responsible="true" load="100.0"/>
-        <allocation task-id="55" resource-id="0" function="SoftwareDevelopment:2" responsible="true" load="100.0"/>
         <allocation task-id="27" resource-id="0" function="SoftwareDevelopment:2" responsible="true" load="100.0"/>
         <allocation task-id="30" resource-id="0" function="SoftwareDevelopment:2" responsible="true" load="100.0"/>
         <allocation task-id="28" resource-id="0" function="SoftwareDevelopment:2" responsible="true" load="100.0"/>
         <allocation task-id="29" resource-id="0" function="SoftwareDevelopment:2" responsible="true" load="100.0"/>
         <allocation task-id="33" resource-id="0" function="SoftwareDevelopment:2" responsible="true" load="100.0"/>
         <allocation task-id="32" resource-id="0" function="SoftwareDevelopment:2" responsible="true" load="100.0"/>
+        <allocation task-id="141" resource-id="0" function="SoftwareDevelopment:2" responsible="true" load="100.0"/>
         <allocation task-id="9" resource-id="1" function="SoftwareDevelopment:2" responsible="true" load="100.0"/>
-        <allocation task-id="11" resource-id="1" function="SoftwareDevelopment:2" responsible="true" load="100.0"/>
         <allocation task-id="39" resource-id="1" function="SoftwareDevelopment:2" responsible="true" load="100.0"/>
+        <allocation task-id="114" resource-id="1" function="SoftwareDevelopment:2" responsible="true" load="100.0"/>
+        <allocation task-id="134" resource-id="1" function="SoftwareDevelopment:2" responsible="true" load="100.0"/>
         <allocation task-id="48" resource-id="2" function="SoftwareDevelopment:2" responsible="true" load="100.0"/>
         <allocation task-id="31" resource-id="2" function="SoftwareDevelopment:2" responsible="true" load="100.0"/>
         <allocation task-id="25" resource-id="2" function="SoftwareDevelopment:2" responsible="true" load="100.0"/>
@@ -164,21 +174,22 @@
         <allocation task-id="90" resource-id="2" function="SoftwareDevelopment:2" responsible="true" load="100.0"/>
         <allocation task-id="40" resource-id="3" function="Default:0" responsible="false" load="100.0"/>
         <allocation task-id="43" resource-id="3" function="SoftwareDevelopment:2" responsible="false" load="100.0"/>
+        <allocation task-id="11" resource-id="3" function="SoftwareDevelopment:2" responsible="true" load="100.0"/>
+        <allocation task-id="134" resource-id="6" function="SoftwareDevelopment:2" responsible="false" load="100.0"/>
     </allocations>
     <vacations/>
     <taskdisplaycolumns>
+        <displaycolumn property-id="tpd2" order="-1" width="75" visible="false"/>
         <displaycolumn property-id="tpd6" order="-1" width="75" visible="false"/>
-        <displaycolumn property-id="tpd11" order="-1" width="75" visible="false"/>
         <displaycolumn property-id="tpd10" order="-1" width="75" visible="false"/>
+        <displaycolumn property-id="tpd9" order="-1" width="75" visible="false"/>
         <displaycolumn property-id="tpd1" order="-1" width="75" visible="false"/>
         <displaycolumn property-id="tpd0" order="-1" width="75" visible="false"/>
-        <displaycolumn property-id="tpd9" order="-1" width="75" visible="false"/>
-        <displaycolumn property-id="tpd2" order="-1" width="75" visible="false"/>
-        <displaycolumn property-id="tpd3" order="0" width="317" visible="true"/>
-        <displaycolumn property-id="tpd4" order="1" width="71" visible="true"/>
-        <displaycolumn property-id="tpd5" order="2" width="69" visible="true"/>
-        <displaycolumn property-id="tpd8" order="3" width="104" visible="true"/>
-        <displaycolumn property-id="tpd7" order="4" width="64" visible="true"/>
+        <displaycolumn property-id="tpd3" order="0" width="333" visible="true"/>
+        <displaycolumn property-id="tpd4" order="1" width="87" visible="true"/>
+        <displaycolumn property-id="tpd5" order="2" width="85" visible="true"/>
+        <displaycolumn property-id="tpd8" order="3" width="120" visible="true"/>
+        <displaycolumn property-id="tpd7" order="4" width="80" visible="true"/>
     </taskdisplaycolumns>
     <previous/>
     <roles roleset-name="Default"/>

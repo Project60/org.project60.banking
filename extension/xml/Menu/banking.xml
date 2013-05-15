@@ -1,0 +1,39 @@
+<?xml version="1.0"?>
+<menu>
+  <item>
+    <path>civicrm/banking/payments</path>
+    <page_callback>CRM_Banking_Page_Payments</page_callback>
+    <title>Payments</title>
+    <access_arguments>access CiviCRM</access_arguments>
+  </item>
+  <item>
+    <path>civicrm/banking/accounts</path>
+    <page_callback>CRM_Banking_Page_Accounts</page_callback>
+    <title>Accounts</title>
+    <access_arguments>access CiviCRM</access_arguments>
+  </item>
+  <item>
+    <path>civicrm/banking/mandates</path>
+    <page_callback>CRM_Banking_Page_SEPAMandates</page_callback>
+    <title>SEPAMandates</title>
+    <access_arguments>access CiviCRM</access_arguments>
+  </item>
+  <item>
+    <path>civicrm/banking/import</path>
+    <page_callback>CRM_Banking_Page_Import</page_callback>
+    <title>Import</title>
+    <access_arguments>access CiviCRM</access_arguments>
+  </item>
+  <item>
+    <path>civicrm/banking/review</path>
+    <page_callback>CRM_Banking_Page_Review</page_callback>
+    <title>Review</title>
+    <access_arguments>access CiviCRM</access_arguments>
+  </item>
+  <item>
+    <path>civicrm/banking/manager</path>
+    <page_callback>CRM_Banking_Page_Manager</page_callback>
+    <title>Manager</title>
+    <access_arguments>access CiviCRM</access_arguments>
+  </item>
+</menu>

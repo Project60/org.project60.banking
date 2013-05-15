@@ -1,0 +1,4 @@
+CiviBanking
+===========
+
+CiviCRM banking extension

@@ -1,0 +1,161 @@
+<?xml version="1.0" encoding="iso-8859-1" ?>
+
+<table>
+    <base>CRM/Banking</base>
+    <class>BankTransaction</class>
+    <name>civicrm_bank_tx</name>
+    <add>4.3</add>
+    <log>true</log>
+    <field>
+        <name>id</name>
+        <type>int unsigned</type>
+        <required>true</required>
+        <comment>ID</comment>
+        <add>4.3</add>
+        <export>true</export>
+    </field>
+    <primaryKey>
+        <name>id</name>
+        <autoincrement>true</autoincrement>
+    </primaryKey>
+
+    <field>
+        <name>bank_reference</name>
+        <title>Unique Statement Reference</title>
+        <export>true</export>
+        <type>varchar</type>
+        <length>64</length>
+        <required>true</required>
+        <unique>true</unique>
+        <comment>The unique reference for this transaction</comment>
+        <add>4.3</add>
+    </field>
+
+    <index>
+        <name>bank_reference</name>
+        <fieldName>bank_reference</fieldName>
+        <unique>unique</unique>
+        <add>4.3</add>
+    </index>
+
+    <field>
+        <name>value_date</name>
+        <title>Value date</title>
+        <type>datetime</type>
+        <required>true</required>
+        <comment>Value date for this bank transaction</comment>
+        <add>4.3</add>
+    </field>
+    <field>
+        <name>booking_date</name>
+        <title>Booking date</title>
+        <type>datetime</type>
+        <required>true</required>
+        <comment>Booking date for this bank transaction</comment>
+        <add>4.3</add>
+    </field>
+
+    <field>
+        <name>amount</name>
+        <title>Transaction amount</title>
+        <type>decimal</type>
+        <required>true</required>
+        <comment>Transaction amount (positive or negative)</comment>
+        <add>4.3</add>
+    </field>
+    <field>
+        <name>currency</name>
+        <title>Currency</title>
+        <type>varchar</type>
+        <length>3</length>
+        <comment>Currency for the amount of the transaction</comment>
+        <dataPattern>/^[A-Z]{3}$/i</dataPattern>
+        <add>4.3</add>
+    </field>
+
+    <field>
+        <name>type_id</name>
+        <type>int unsigned</type>
+        <title>Bank Transaction Type</title>
+        <required>true</required>
+        <comment>Link to an option list</comment>
+        <add>4.3</add>
+    </field>
+    
+    <field>
+        <name>status_id</name>
+        <type>int unsigned</type>
+        <title>Bank Transaction Status</title>
+        <required>true</required>
+        <comment>Link to an option list</comment>
+        <add>4.3</add>
+    </field>
+
+    <field>
+        <name>data_raw</name>
+        <type>text</type>
+        <comment>The complete information received for this transaction</comment>
+        <add>4.3</add>
+    </field>
+
+    <field>
+        <name>data_parsed</name>
+        <type>text</type>
+        <comment>A JSON-formatted array containing decoded fields</comment>
+        <add>4.3</add>
+    </field>
+
+    <field>
+        <name>ba_id</name>
+        <title>Bank Account ID</title>
+        <type>int unsigned</type>
+        <comment>FK to bank_account of target account</comment>
+        <add>4.3</add>
+    </field>
+    <foreignKey>
+        <name>ba_id</name>
+        <table>civicrm_bank_account</table>
+        <key>id</key>
+        <add>4.3</add>
+        <onDelete>SET NULL</onDelete>
+    </foreignKey>
+
+    <field>
+        <name>party_ba_id</name>
+        <title>Party Bank Account ID</title>
+        <type>int unsigned</type>
+        <comment>FK to bank_account of party account</comment>
+        <add>4.3</add>
+    </field>
+    <foreignKey>
+        <name>party_ba_id</name>
+        <table>civicrm_bank_account</table>
+        <key>id</key>
+        <add>4.3</add>
+        <onDelete>SET NULL</onDelete>
+    </foreignKey>
+
+    <field>
+        <name>tx_batch_id</name>
+        <title>Bank Transaction Batch ID</title>
+        <type>int unsigned</type>
+        <comment>FK to parent bank_tx_batch</comment>
+        <add>4.3</add>
+    </field>
+    <foreignKey>
+        <name>tx_batch_id</name>
+        <table>civicrm_bank_tx_batch</table>
+        <key>id</key>
+        <add>4.3</add>
+        <onDelete>SET NULL</onDelete>
+    </foreignKey>
+
+    <field>
+        <name>sequence</name>
+        <type>int unsigned</type>
+        <title>Sequence in statement</title>
+        <comment>Numbering local to the tx_batch_id</comment>
+        <add>4.3</add>
+    </field>
+
+</table>

@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="iso-8859-1" ?>
+
+<table>
+    <base>CRM/Banking</base>
+    <class>BankAccount</class>
+    <name>civicrm_bank_account</name>
+    <add>4.3</add>
+    <log>true</log>
+    <field>
+        <name>id</name>
+        <type>int unsigned</type>
+        <required>true</required>
+        <comment>ID</comment>
+        <add>4.3</add>
+        <export>true</export>
+    </field>
+    <primaryKey>
+        <name>id</name>
+        <autoincrement>true</autoincrement>
+    </primaryKey>
+
+    <field>
+        <name>description</name>
+        <title>Description</title>
+        <type>varchar</type>
+        <length>255</length>
+        <comment>Purpose or use of the bank account</comment>
+        <add>4.3</add>
+    </field>
+    
+    <field>
+        <name>created_date</name>
+        <title>Date created</title>
+        <type>datetime</type>
+        <required>true</required>
+        <add>4.3</add>
+    </field>
+    <field>
+        <name>modified_date</name>
+        <title>Date modified</title>
+        <type>datetime</type>
+        <required>true</required>
+        <add>4.3</add>
+    </field>
+
+    <field>
+        <name>data_raw</name>
+        <type>text</type>
+        <comment>The complete information received for this bank account</comment>
+        <add>4.3</add>
+    </field>
+
+    <field>
+        <name>data_parsed</name>
+        <type>text</type>
+        <comment>A JSON-formatted array containing decoded fields</comment>
+        <add>4.3</add>
+    </field>
+
+
+    <field>
+        <name>contact_id</name>
+        <title>Contact ID</title>
+        <type>int unsigned</type>
+        <comment>FK to contact owning this account</comment>
+        <add>4.3</add>
+    </field>
+    <foreignKey>
+        <name>contact_id</name>
+        <table>civicrm_contact</table>
+        <key>id</key>
+        <add>4.3</add>
+        <onDelete>SET NULL</onDelete>
+    </foreignKey>
+
+
+
+</table>

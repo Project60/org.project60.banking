@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="iso-8859-1" ?>
+
+<table>
+    <base>CRM/Banking</base>
+    <class>BankTransactionBatch</class>
+    <name>civicrm_bank_tx_batch</name>
+    <add>4.3</add>
+    <log>true</log>
+    <field>
+        <name>id</name>
+        <type>int unsigned</type>
+        <required>true</required>
+        <comment>ID</comment>
+        <add>4.3</add>
+        <export>true</export>
+    </field>
+    <primaryKey>
+        <name>id</name>
+        <autoincrement>true</autoincrement>
+    </primaryKey>
+
+    <field>
+        <name>issue_date</name>
+        <title>Issue date</title>
+        <type>datetime</type>
+        <required>true</required>
+        <comment>When the statement was issued</comment>
+        <add>4.3</add>
+    </field>
+
+    <field>
+        <name>reference</name>
+        <title>Statement Reference</title>
+        <export>true</export>
+        <type>varchar</type>
+        <length>64</length>
+        <required>true</required>
+        <unique>true</unique>
+        <comment>The unique reference for this statement</comment>
+        <add>4.3</add>
+    </field>
+    <index>
+        <name>reference</name>
+        <fieldName>reference</fieldName>
+        <unique>unique</unique>
+        <add>4.3</add>
+    </index>
+
+
+    <field>
+        <name>sequence</name>
+        <type>int</type>
+        <title>Bank Statement sequence</title>
+        <required>true</required>
+        <comment>Used to maintain ordering and consistency</comment>
+        <add>4.3</add>
+    </field>
+
+
+    <field>
+        <name>starting_balance</name>
+        <title>Starting Balance</title>
+        <type>decimal</type>
+        <add>4.3</add>
+    </field>
+    <field>
+        <name>ending_balance</name>
+        <title>Ending Balance</title>
+        <type>decimal</type>
+        <add>4.3</add>
+    </field>
+    <field>
+        <name>currency</name>
+        <title>Currency</title>
+        <type>varchar</type>
+        <length>3</length>
+        <comment>Currency</comment>
+        <dataPattern>/^[A-Z]{3}$/i</dataPattern>
+        <add>4.3</add>
+    </field>
+
+    <field>
+        <name>tx_count</name>
+        <type>int</type>
+        <title>Transaction Count</title>
+        <required>true</required>
+        <add>4.3</add>
+    </field>
+    
+        <field>
+        <name>starting_date</name>
+        <title>Start date</title>
+        <type>datetime</type>
+        <comment>Start date of the statement period</comment>
+        <add>4.3</add>
+    </field>   
+        <field>
+        <name>ending_date</name>
+        <title>End date</title>
+        <type>datetime</type>
+        <comment>End date of the statement period</comment>
+        <add>4.3</add>
+    </field>   
+
+</table>

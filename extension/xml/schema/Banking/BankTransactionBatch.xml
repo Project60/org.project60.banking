@@ -87,14 +87,14 @@
         <add>4.3</add>
     </field>
     
-        <field>
+    <field>
         <name>starting_date</name>
         <title>Start date</title>
         <type>datetime</type>
         <comment>Start date of the statement period</comment>
         <add>4.3</add>
     </field>   
-        <field>
+    <field>
         <name>ending_date</name>
         <title>End date</title>
         <type>datetime</type>

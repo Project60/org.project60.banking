@@ -32,22 +32,36 @@ abstract class CRM_Banking_Plugin {
    * @protected
    */
   protected $_plugin_id;
+  protected $_plugin_weight;
   protected $_plugin_config;
+  protected $_progress_callback;
 
   /**
    * class constructor
-   */ function __construct($config_name) {
+   */ function __construct($instance_id) {
     parent::__construct();
+    $this->$_plugin_id = $instance_id;
 
-    // load config
-    // TODO: replace dummy:
-    $this->$_plugin_id = 'dummy';
+    // TODO: load plugin instance entity, and read the configuration
     $this->$_plugin_config = array('dummy' => 'dummy');
+    $this->$_plugin_weight = 1.0;
   }
 
   // ------------------------------------------------------
   // utility functions provided to the plugin implementations
   // ------------------------------------------------------
+  /** 
+   * Set a callback for progress reports (reported by match(), import_*() and export()_*)
+   * 
+   * TODO: data format? float [0..1]?   
+   */
+  function setProgressCallback($callback)
+  {
+    // TODO: sanity checks?
+    $this->_progress_callback = $callback;
+  }
+
+
   /** 
    * Report progress of the import/export/matching process
    * 
@@ -55,8 +69,12 @@ abstract class CRM_Banking_Plugin {
    */
   function reportProgress($progress)
   {
-    // TODO: implement
-    print_r($progress);
+    if (isset($_progress_callback)) {
+      $_progress_callback->reportProgress($progress);
+    } else {
+      // TODO: implement    
+      print_r($progress);
+    }
   }
 
   /** 
@@ -66,10 +84,42 @@ abstract class CRM_Banking_Plugin {
    */
   function reportDone($error=None)
   {
-    // TODO: implement
-    print_r("Done!");
-    print_r($error);
+    if (isset($_progress_callback)) {
+      $_progress_callback->reportProgress($progress);
+    } else {
+      // TODO: implement
+      print_r("Done!");
+      print_r($error);
+    }
+  }
+
+  // -------------------------------------------------------
+  // search functions provided to the plugin implementations
+  // -------------------------------------------------------
+  /** 
+   * Look up contact with the given attributes
+   * 
+   * This method is to be preferred over BAO or API calls, since results will be cached in future versions
+   *
+   * @return array of contacts
+   */
+  function findContact( $attributes )
+  {
+    // TODO implement
+    return array();
+  }
+
+  /** 
+   * Look up contributions with the given attributes
+   * 
+   * This method is to be preferred over BAO or API calls, since results will be cached in future versions
+   *
+   * @return array of contacts
+   */
+  function findContribution( $attributes )
+  {
+    // TODO implement
+    return array();
   }
 
 }
-

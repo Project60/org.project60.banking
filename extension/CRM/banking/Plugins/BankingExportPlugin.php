@@ -16,7 +16,7 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-require_once 'BankingImportPlugin.php';
+require_once 'BankingIOPlugin.php';
 
 /**
  *
@@ -25,56 +25,31 @@ require_once 'BankingImportPlugin.php';
  * $Id$
  *
  */
-class CRM_Banking_Import_Plugin_Dummy extends CRM_Banking_Import_Plugin {
+abstract class CRM_Banking_Import_Plugin extends CRM_Banking_IO_Plugin {
 
-  /**
-   * class constructor
-   */ function __construct($config_name) {
-    parent::__construct($config_name);
-  }
-
+  // ------------------------------------------------------
+  // Functions to be provided by the plugin implementations
+  // ------------------------------------------------------
   /** 
-   * Report if the plugin is capable of importing files
+   * Report if the plugin is capable of exporting files
    * 
    * @return bool
    */
-  function does_import_files()
-  {
-    return FALSE;
-  }
+  abstract function does_export_files();
 
   /** 
-   * Report if the plugin is capable of importing streams, i.e. data from a non-file source, e.g. the web
+   * Report if the plugin is capable of exporting streams, i.e. data from a non-file source, e.g. the web
    * 
    * @return bool
    */
-  function does_import_stream()
-  {
-    return TRUE;
-  }
-
-  /** 
-   * Test if the given file can be imported
-   * 
-   * @var 
-   * @return TODO: data format? 
-   */
-  function probe_file( $file_path )
-  {
-    return FALSE;
-  }
-
+  abstract function does_export_stream();
 
   /** 
    * Import the given file
    * 
    * @return TODO: data format? 
    */
-  function import_file( $file_path )
-  {
-    $this->reportDone(array());
-    return FALSE;
-  }
+  abstract function export_file( $btx_list, $file_path, $parameters );
 
   /** 
    * Test if the configured source is available and ready
@@ -82,22 +57,14 @@ class CRM_Banking_Import_Plugin_Dummy extends CRM_Banking_Import_Plugin {
    * @var 
    * @return TODO: data format?
    */
-  function probe_stream()
-  {
-    return TRUE;
-  }
+  abstract function export_stream( $btx_list, $parameters );
 
-  /** 
-   * Import the given file
-   * 
-   * @return TODO: data format? 
-   */
-  function import_stream()
-  {
-    // TODO: import dummy data
+
+  /**
+   * class constructor
+   */ function __construct($config_name) {
+    parent::__construct($config_name);
 
   }
-
-
 }
 

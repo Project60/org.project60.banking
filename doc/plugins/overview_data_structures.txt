@@ -1,0 +1,49 @@
+CiviBanking :: data structures
+==============================
+
+Defines the required/expected fields for the various data structures used in the CiviBanking extension. 
+
+All of them are multi-level dictionaries (php arrays), which will be json-encoded when stored in the DB.
+
+
+I/O plugin config
+=================
+{
+//optional:
+	'stream_id'	=>	'<id string>',			// identifies the stream/channel ID
+}
+
+
+
+matcher plugin config
+=====================
+{
+	'cut_off'	=>	[true|false]			// if the matcher produces quality 100% match, no further matcher will be consulted
+	'auto_exec'	=>	[true|false]			// if the matcher produces quality 100% match, it will be automatically executed w/o user supervision
+}
+
+
+
+matcher: match data
+===================
+{
+// obligatory/expected:
+	'source'	=>	'<plugin id>',			// the matcher instance, that generated this match
+	'quality'	=>	'(0..1]',				// the confidence or quality of the match, interpreted as (0...100]X
+// optional:
+	'contact'	=>	'<contact_id>',			// related contact
+	'contrib'	=>	'<contribution_id>',	// related contribution
+
+	...										// lots of plugin specific parameters, oviously
+}
+
+
+
+
+table banking_plugin_instances:
+ - primary key (int)
+ - class (varchar)
+ - status (varchar : [enabled | disabled | error_code?])
+ - weight (float?)
+ - config (json blob)
+ - state (json blob)

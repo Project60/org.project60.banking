@@ -6,4 +6,3 @@ add into xml/Schema.xml
 to generate the DAO+xml, you need to 
 $cd civicrm_root/xml
 $php Gencode.php
-$php Gencode.php BankingSchema.xml

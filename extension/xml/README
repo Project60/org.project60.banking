@@ -6,3 +6,11 @@ add into xml/Schema.xml
 to generate the DAO+xml, you need to 
 $cd civicrm_root/xml
 $php Gencode.php
+
+
+Alternatively, you can just run my shell script in the civicrm folder:
+```
+> sh ~/Documents/workspace/CiviBanking/tools/generate_banking_daos.sh
+```
+
+It will do all the steps above, and (hopefully) remove all traces in your civicrm installation. Except for the DAOs being regenerated.

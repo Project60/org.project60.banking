@@ -26,6 +26,59 @@ function banking_civicrm_install() {
   //create the tables
   $sql = file_get_contents(dirname( __FILE__ ) .'/sql/banking.sql', true);
   CRM_Utils_File::sourceSQLFile($config->dsn, $sql, NULL, true);
+  
+  //add the required option groups
+  $params = array(
+      'name' => 'civicrm_banking.plugin_types',
+      'version' => 3,
+  );
+  $result = civicrm_api('option_group', 'get', $params);
+  if ($params['is_error']) {
+    $params = array(
+        'version' => 3,
+        'sequential' => 1,
+        'name' => 'civicrm_banking.plugin_types',
+        'is_reserved' => 1,
+        'is_active' => 1,
+        'api.OptionValue.create' => array(
+            array(
+                'label' => 'import',
+                'value' => 1,
+                'is_default' => 0,
+                'is_active' => 1,
+            ),
+            array(
+                'label' => 'match',
+                'value' => 2,
+                'is_default' => 0,
+                'is_active' => 1,
+            ),
+            array(
+                'label' => 'export',
+                'value' => 3,
+                'is_default' => 0,
+                'is_active' => 1,
+            ),
+        ),
+    );
+    $result = civicrm_api('option_group', 'create', $params);    
+  }
+  
+    $params = array(
+      'name' => 'civicrm_banking.plugin_classes',
+      'version' => 3,
+  );
+  $result = civicrm_api('option_group', 'get', $params);
+  if ($params['is_error']) {
+    $params = array(
+        'version' => 3,
+        'sequential' => 1,
+        'name' => 'civicrm_banking.plugin_classes',
+        'is_reserved' => 1,
+        'is_active' => 1,
+    );
+    $result = civicrm_api('option_group', 'create', $params);    
+  }
 
   return _banking_civix_civicrm_install();
 }

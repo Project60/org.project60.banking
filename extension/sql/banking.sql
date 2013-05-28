@@ -108,7 +108,7 @@ CREATE TABLE IF NOT EXISTS `civicrm_bank_tx` (
 -- * civicrm_bank_plugin_instance
 -- *
 -- *******************************************************/
-CREATE TABLE `civicrm_bank_plugin_instance` (
+CREATE TABLE IF NOT EXISTS `civicrm_bank_plugin_instance` (
 
 
      `id` INT UNSIGNED NOT NULL AUTO_INCREMENT  COMMENT 'ID',

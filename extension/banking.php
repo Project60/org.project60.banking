@@ -22,8 +22,14 @@ function banking_civicrm_xmlMenu(&$files) {
  * Implementation of hook_civicrm_install
  */
 function banking_civicrm_install() {
+  $config = CRM_Core_Config::singleton();
+  //create the tables
+  $sql = file_get_contents(dirname( __FILE__ ) .'/sql/banking.sql', true);
+  CRM_Utils_File::sourceSQLFile($config->dsn, $sql, NULL, true);
+
   return _banking_civix_civicrm_install();
 }
+
 
 /**
  * Implementation of hook_civicrm_uninstall

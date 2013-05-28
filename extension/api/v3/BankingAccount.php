@@ -40,7 +40,19 @@
  * @access public
  */
 function civicrm_api3_banking_account_create($params) {
-  return civicrm_api3_create_error('not implemented!');
+  return _civicrm_api3_basic_create("CRM_Banking_BAO_BankAccount", $params);
+}
+  
+/**
+ * Adjust Metadata for Create action
+ * 
+ * The metadata is used for setting defaults, documentation & validation
+ * @param array $params array or parameters determined by getfields
+ */
+function _civicrm_api3_banking_account_create_spec(&$params) {
+    $params['description']['api.default'] = "";
+    $params['data_raw']['api.default'] = "{}";
+    $params['data_parsed']['api.default'] = "{}";
 }
 
 /**
@@ -52,7 +64,7 @@ function civicrm_api3_banking_account_create($params) {
  * @access public
  */
 function civicrm_api3_banking_account_get($params) {
-	return civicrm_api3_create_error('not implemented!');
+  return _civicrm_api3_basic_get(_civicrm_api3_get_BAO( 'civicrm_api3_bank_account_get' ), $params);
 }
 
 /**
@@ -64,6 +76,6 @@ function civicrm_api3_banking_account_get($params) {
  * @access public
  */
 function civicrm_api3_banking_account_delete($params) {
-	return civicrm_api3_create_error('not implemented!');
+  return _civicrm_api3_basic_get(_civicrm_api3_get_BAO(__FUNCTION__), $params);
 }
 

@@ -32,14 +32,16 @@ function banking_civicrm_install() {
       'name' => 'civicrm_banking.plugin_types',
       'version' => 3,
   );
-  $result = civicrm_api('option_group', 'get', $params);
-  if ($params['is_error']) {
+  $result = civicrm_api('option_group', 'getsingle', $params);
+  if ($result['is_error']) {
     $params = array(
         'version' => 3,
         'sequential' => 1,
         'name' => 'civicrm_banking.plugin_types',
         'is_reserved' => 1,
         'is_active' => 1,
+        'title' => 'CiviBanking plugin types',
+        'description' => 'The set of possible CiviBanking plugin types',
         'api.OptionValue.create' => array(
             array(
                 'label' => 'import',
@@ -64,18 +66,20 @@ function banking_civicrm_install() {
     $result = civicrm_api('option_group', 'create', $params);    
   }
   
-    $params = array(
+  $params = array(
       'name' => 'civicrm_banking.plugin_classes',
       'version' => 3,
   );
-  $result = civicrm_api('option_group', 'get', $params);
-  if ($params['is_error']) {
+  $result = civicrm_api('option_group', 'getsingle', $params);
+  if ($result['is_error']) {
     $params = array(
         'version' => 3,
         'sequential' => 1,
         'name' => 'civicrm_banking.plugin_classes',
         'is_reserved' => 1,
         'is_active' => 1,
+        'title' => 'CiviBanking plugin classes',
+        'description' => 'The set of existing CiviBanking plugin types',
     );
     $result = civicrm_api('option_group', 'create', $params);    
   }

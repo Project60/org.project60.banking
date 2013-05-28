@@ -29,15 +29,26 @@ class CRM_Banking_BAO_PluginInstance extends CRM_Banking_DAO_PluginInstance {
    */
   function getInstance() {
     $classNameId = $this->plugin_class_id;
-    $className = CRM_Core_OptionGroup::getValue('civicrm_banking.plugin_classes', $classNameId);
-    if (trim($className) == '') {
-      CRM_Core_Error::fatal(sprintf(ts('Could not locate the class name for civicrm_banking.plugin_classes member %d.'), $classNameId));
-    }
+    //$classGroup = civicrm_api( 'option_group','get', array( 'version' => 3, 'name' => 'civicrm_banking.plugin_classes' ) );
+    //if ($classGroup['is_error']) {
+    //  CRM_Core_Error::fatal( ts('Option group civicrm_banking.plugin_classes does not exist. Reinstall the extension.'));
+    //}
 
-    if (!class_exists($className)) {
-      CRM_Core_Error::fatal(sprintf(ts('This plugin requires class %s which does not seem to exist.'), $className));
+    //$classGroupId = $classGroup['id'];
+    $className = civicrm_api( 'OptionValue','getsingle', array( 
+        'version' => 3, 
+        //'option_group_id' => $classGroupId,
+        'id' => $classNameId) );
+    print_r($className);
+    if (isset($className['is_error']) && $className['is_error']) {
+      CRM_Core_Error::fatal( sprintf( ts('Could not locate the class name for civicrm_banking.plugin_classes member %d.'), $classNameId ) );
     }
-    return new $className($this);
+    
+    $class = $className['value'];
+    if (!class_exists($class)) {
+      CRM_Core_Error::fatal(sprintf( ts('This plugin requires class %s which does not seem to exist.'), $class));
+    }
+    return new $class( $this );
   }
 
 }

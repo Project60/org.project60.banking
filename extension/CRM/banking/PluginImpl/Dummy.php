@@ -32,11 +32,21 @@ class CRM_Banking_PluginImpl_Dummy extends CRM_Banking_PluginModel_Importer {
   }
 
   /** 
+   * the plugin's user readable name
+   * 
+   * @return string
+   */
+  static function displayName()
+  {
+    return 'Dummy Importer';
+  }
+
+  /** 
    * Report if the plugin is capable of importing files
    * 
    * @return bool
    */
-  function does_import_files()
+  static function does_import_files()
   {
     return FALSE;
   }
@@ -46,7 +56,7 @@ class CRM_Banking_PluginImpl_Dummy extends CRM_Banking_PluginModel_Importer {
    * 
    * @return bool
    */
-  function does_import_stream()
+  static function does_import_stream()
   {
     return TRUE;
   }
@@ -92,8 +102,11 @@ class CRM_Banking_PluginImpl_Dummy extends CRM_Banking_PluginModel_Importer {
    */
   function import_stream()
   {
+    $this->reportProgress(0.0);
     // TODO: import dummy data
+    print_r("Olé!");
 
+    $this->reportProgress(1.0);
   }
 
 

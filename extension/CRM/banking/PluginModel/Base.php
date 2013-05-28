@@ -31,20 +31,32 @@ abstract class CRM_Banking_PluginModel_Base {
    * @var string
    * @protected
    */
+  protected $_plugin_dao;
   protected $_plugin_id;
   protected $_plugin_weight;
   protected $_plugin_config;
   protected $_progress_callback;
 
+  /** 
+   * the plugin's user readable name
+   * 
+   * @return string
+   */
+  static function displayName() {
+    return "Unknown";
+  }
+
   /**
    * class constructor
-   */ function __construct($instance_id) {
-    parent::__construct();
-    $this->$_plugin_id = $instance_id;
+   */ 
+  function __construct($plugin_dao) {
+    //parent::__construct();
+    $this->_plugin_dao = $plugin_dao;
+    $this->_plugin_id = $plugin_dao->id;
 
     // TODO: load plugin instance entity, and read the configuration
-    $this->$_plugin_config = array('dummy' => 'dummy');
-    $this->$_plugin_weight = 1.0;
+    $this->_plugin_config = array('dummy' => 'dummy');
+    $this->_plugin_weight = 1.0;
   }
 
   // ------------------------------------------------------
@@ -61,13 +73,12 @@ abstract class CRM_Banking_PluginModel_Base {
     $this->_progress_callback = $callback;
   }
 
-
   /** 
    * Report progress of the import/export/matching process
    * 
    * TODO: data format? float [0..1]?   
    */
-  function reportProgress($progress)
+  function reportProgress($progress, $message)
   {
     if (isset($_progress_callback)) {
       $_progress_callback->reportProgress($progress);

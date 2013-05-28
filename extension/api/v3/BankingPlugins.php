@@ -63,14 +63,21 @@ function civicrm_api3_banking_plugins_list($params) {
     }
   }
 
-  $filtered_classes = array();
+  $entries = array();
   foreach ($all_classes as $entry) {
     if (is_subclass_of($entry, $filter)) {
-      array_push($filtered_classes, $entry);
+      array_push($entries, array( 
+                                  'id' => 1,    // TODO: change! 
+                                  'class' => $entry,
+                                  'name' => $entry::displayName(),
+                                  'files' => $entry::does_import_files(),
+                                  'stream' => $entry::does_import_stream(),
+                                )
+      );
     }
   }
 
-  return array('values'   => $filtered_classes,
+  return array('values'   => $entries,
                'is_error' => 0);
 }
 

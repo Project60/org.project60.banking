@@ -33,14 +33,18 @@ abstract class CRM_Banking_PluginModel_Importer extends CRM_Banking_PluginModel_
    * 
    * @return bool
    */
-  abstract function does_import_files();
+  static function does_import_files() {
+    return false;
+  }
 
   /** 
    * Report if the plugin is capable of importing streams, i.e. data from a non-file source, e.g. the web
    * 
    * @return bool
    */
-  abstract function does_import_stream();
+  static function does_import_stream() {
+    return false;
+  }
 
   /** 
    * Test if the given file can be imported

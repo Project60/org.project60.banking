@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="iso-8859-1" ?>
+
+<table>
+  <base>CRM/Banking</base>
+  <class>PluginInstance</class>
+  <name>civicrm_plugin_instance</name>
+  <add>4.3</add>
+  <log>true</log>
+  <field>
+    <name>id</name>
+    <type>int unsigned</type>
+    <required>true</required>
+    <comment>ID</comment>
+    <add>4.3</add>
+    <export>true</export>
+  </field>
+  <primaryKey>
+    <name>id</name>
+    <autoincrement>true</autoincrement>
+  </primaryKey>
+
+  <field>
+    <name>plugin_type_id</name>
+    <type>int unsigned</type>
+    <title>Plugin type</title>
+    <required>true</required>
+    <comment>Link to an option list of plugin types</comment>
+    <add>4.3</add>
+  </field>
+
+  <field>
+    <name>plugin_class_id</name>
+    <type>int unsigned</type>
+    <title>Plugin class name</title>
+    <required>true</required>
+    <comment>Link to an option list of plugin class names</comment>
+    <add>4.3</add>
+  </field>
+
+  <field>
+    <name>name</name>
+    <title>Name</title>
+    <type>varchar</type>
+    <length>255</length>
+    <comment>Name of the plugin</comment>
+    <add>4.3</add>
+  </field>
+
+  <field>
+    <name>description</name>
+    <title>Description</title>
+    <type>text</type>
+    <comment>Short description of what the plugin does</comment>
+    <add>4.3</add>
+  </field>
+
+  <field>  
+    <name>enabled</name>  
+    <type>boolean</type>  
+    <required>true</required>  
+    <default>1</default> 
+    <add>4.3</add>
+    <comment>If this plugin is enabled</comment>
+  </field>
+      
+  <field>  
+    <name>weight</name>
+    <type>float</type>  
+    <required>true</required>  
+    <default>100.0</default> 
+    <add>4.3</add>
+    <comment>Relative weight of this plugin</comment>
+  </field>
+  
+  <field>
+    <name>config</name>
+    <type>text</type>
+    <comment>Configuration JSON</comment>
+    <add>4.3</add>
+  </field>
+
+  <field>
+    <name>state</name>
+    <type>text</type>
+    <comment>State JSON</comment>
+    <add>4.3</add>
+  </field>
+          
+</table>
+

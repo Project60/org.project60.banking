@@ -16,8 +16,6 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-require_once '../Plugins/BankingImportPlugin.php';
-
 /**
  *
  * @package org.project60.banking
@@ -25,7 +23,7 @@ require_once '../Plugins/BankingImportPlugin.php';
  * $Id$
  *
  */
-class CRM_Banking_Import_Plugin_Dummy extends CRM_Banking_Import_Plugin {
+class CRM_Banking_PluginImpl_Dummy extends CRM_Banking_PluginModel_Importer {
 
   /**
    * class constructor

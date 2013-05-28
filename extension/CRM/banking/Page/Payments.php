@@ -26,7 +26,23 @@ class CRM_Banking_Page_Payments extends CRM_Core_Page {
     // Example: Assign a variable for use in a template
     $this->assign('currentTime', date('Y-m-d H:i:s'));
 
-    // inject sample data
+    // read all transactions
+    $params = array('version' => 3);
+    $result = civicrm_api('BankingTransaction', 'get', $params);
+    $payment_rows = array();
+    foreach ($result['values'] as $entry) {
+        array_push($payment_rows, 
+            array(  'date' => $entry['value_date'], 
+                    'amount' => (isset($entry['amount'])?$entry['amount']:"unknown"), 
+                    'account_owner' => 'TODO', 
+                    'source' => (isset($entry['party_ba_id'])?$entry['party_ba_id']:"unknown"),
+                    'target' => (isset($entry['ba_id'])?$entry['ba_id']:"unknown"),
+                    'state' => (isset($entry['status_id'])?$entry['status_id']:"unknown"),
+                )
+        );
+    }
+
+    /* inject sample data
     $payment_rows = array(
         array('date' => 'March 25th, 2013 1:30 PM', 'amount' => '35,00 €', 'account_owner' => 'Endres, Björn', 'source' => '8213749934', 'target' => '2143988492', 'state' => 'processed'),
         array('date' => 'March 21th, 2013 2:13 PM', 'amount' => '99,00 €', 'account_owner' => 'Unknown', 'source' => '235345345', 'target' => '2143988492', 'state' => 'needs Review'),
@@ -35,7 +51,7 @@ class CRM_Banking_Page_Payments extends CRM_Core_Page {
         array('date' => 'March 21st, 2013 4:30 PM', 'amount' => '1000,00 €', 'account_owner' => 'Unknown', 'source' => '5345234', 'target' => '2143988492', 'state' => 'needs Review'),
         array('date' => 'March 20th, 2013 3:10 PM', 'amount' => '20,00 €', 'account_owner' => 'Unknown', 'source' => '123423534', 'target' => '2143988492', 'state' => 'needs Review'),
         array('date' => 'March 30th, 2013 11:11 AM', 'amount' => '35,00 €', 'account_owner' => 'Unknown', 'source' => '5435234345', 'target' => '2143988492', 'state' => 'needs Review'),
-    );
+    );*/
     $statement_rows  = array(
         array('date' => 'April 15th, 2013 1:30 PM', 'id' => 'GLS-2013-3', 'count' => '52', 'target' => '2143988492', 'processed' => '0%', 'completed' => '0%'),
         array('date' => 'March 15th, 2013 1:30 PM', 'id' => 'GLS-2013-2', 'count' => '34', 'target' => '2143988492', 'processed' => '100%', 'completed' => '82%'),
@@ -44,11 +60,11 @@ class CRM_Banking_Page_Payments extends CRM_Core_Page {
 
     if (isset($_GET['show']) && $_GET['show']=="payments") {
         $this->assign('rows', $payment_rows);
-        $this->assign('status_message', '7 unprocessed payments.');
+        $this->assign('status_message', sizeof($payment_rows).' unprocessed payments.');
         $this->assign('show', 'payments');        
     } else {
         $this->assign('rows', $statement_rows);
-        $this->assign('status_message', '2 incomplete statements.');
+        $this->assign('status_message', sizeof($statement_rows).' incomplete statements.');
         $this->assign('show', 'statements');        
     }
 

@@ -23,7 +23,7 @@
  * $Id$
  *
  */
-abstract class CRM_Banking_Plugin {
+abstract class CRM_Banking_PluginModel_Base {
 
   /**
    * The task that the wizard is currently processing

@@ -16,8 +16,6 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-require_once 'BankingPlugin.php';
-
 /**
  * Abstract base class for importer and exporter plugins
  *
@@ -26,7 +24,7 @@ require_once 'BankingPlugin.php';
  * $Id$
  *
  */
-abstract class CRM_Banking_IO_Plugin extends CRM_Banking_Plugin {
+abstract class CRM_Banking_PluginModel_IOPlugin extends CRM_Banking_PluginModel_Base {
 
   /**
    * class constructor

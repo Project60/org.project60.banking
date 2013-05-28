@@ -16,8 +16,6 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-require_once 'BankingIOPlugin.php';
-
 /**
  *
  * @package org.project60.banking
@@ -25,7 +23,7 @@ require_once 'BankingIOPlugin.php';
  * $Id$
  *
  */
-abstract class CRM_Banking_Import_Plugin extends CRM_Banking_IO_Plugin {
+abstract class CRM_Banking_PluginModel_Exporter extends CRM_Banking_PluginModel_IOPlugin {
 
   // ------------------------------------------------------
   // Functions to be provided by the plugin implementations

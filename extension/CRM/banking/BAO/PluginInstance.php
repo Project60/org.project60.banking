@@ -32,7 +32,7 @@ class CRM_Banking_BAO_PluginInstance extends CRM_Banking_DAO_PluginInstance {
     $classGroup = civicrm_api( 'option_group','get', array( 'version' => 3, 'name' => 'civicrm_banking.plugin_classes' ) );
     if ($classGroup)
     if (!class_exists($className)) {
-      CRM_Core_Error::fatal(sprintf(ts('This plugin requires class %s which does not seem to exist.', $cl)));
+      CRM_Core_Error::fatal(sprintf( ts('This plugin requires class %s which does not seem to exist.'), $cl));
     }
     return new $className($this);
   }

@@ -3,7 +3,7 @@
 <table>
   <base>CRM/Banking</base>
   <class>PluginInstance</class>
-  <name>civicrm_plugin_instance</name>
+  <name>civicrm_bank_plugin_instance</name>
   <add>4.3</add>
   <log>true</log>
   <field>

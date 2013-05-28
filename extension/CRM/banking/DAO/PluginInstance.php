@@ -42,7 +42,7 @@ class CRM_Banking_DAO_PluginInstance extends CRM_Core_DAO
    * @var string
    * @static
    */
-  static $_tableName = 'civicrm_plugin_instance';
+  static $_tableName = 'civicrm_bank_plugin_instance';
   /**
    * static instance to hold the field values
    *
@@ -139,11 +139,11 @@ class CRM_Banking_DAO_PluginInstance extends CRM_Core_DAO
    * class constructor
    *
    * @access public
-   * @return civicrm_plugin_instance
+   * @return civicrm_bank_plugin_instance
    */
   function __construct()
   {
-    $this->__table = 'civicrm_plugin_instance';
+    $this->__table = 'civicrm_bank_plugin_instance';
     parent::__construct();
   }
   /**
@@ -161,7 +161,7 @@ class CRM_Banking_DAO_PluginInstance extends CRM_Core_DAO
           'type' => CRM_Utils_Type::T_INT,
           'required' => true,
           'export' => true,
-          'where' => 'civicrm_plugin_instance.id',
+          'where' => 'civicrm_bank_plugin_instance.id',
           'headerPattern' => '',
           'dataPattern' => '',
         ) ,
@@ -253,7 +253,7 @@ class CRM_Banking_DAO_PluginInstance extends CRM_Core_DAO
       foreach($fields as $name => $field) {
         if (CRM_Utils_Array::value('import', $field)) {
           if ($prefix) {
-            self::$_import['plugin_instance'] = & $fields[$name];
+            self::$_import['bank_plugin_instance'] = & $fields[$name];
           } else {
             self::$_import[$name] = & $fields[$name];
           }
@@ -277,7 +277,7 @@ class CRM_Banking_DAO_PluginInstance extends CRM_Core_DAO
       foreach($fields as $name => $field) {
         if (CRM_Utils_Array::value('export', $field)) {
           if ($prefix) {
-            self::$_export['plugin_instance'] = & $fields[$name];
+            self::$_export['bank_plugin_instance'] = & $fields[$name];
           } else {
             self::$_export[$name] = & $fields[$name];
           }

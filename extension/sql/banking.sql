@@ -102,3 +102,27 @@ CREATE TABLE IF NOT EXISTS `civicrm_bank_tx` (
   
 ,          CONSTRAINT FK_civicrm_bank_tx_ba_id FOREIGN KEY (`ba_id`) REFERENCES `civicrm_bank_account`(`id`) ON DELETE SET NULL,          CONSTRAINT FK_civicrm_bank_tx_party_ba_id FOREIGN KEY (`party_ba_id`) REFERENCES `civicrm_bank_account`(`id`) ON DELETE SET NULL,          CONSTRAINT FK_civicrm_bank_tx_tx_batch_id FOREIGN KEY (`tx_batch_id`) REFERENCES `civicrm_bank_tx_batch`(`id`) ON DELETE SET NULL  
 )  ENGINE=InnoDB DEFAULT CHARACTER SET utf8 COLLATE utf8_unicode_ci  ;
+
+-- /*******************************************************
+-- *
+-- * civicrm_bank_plugin_instance
+-- *
+-- *******************************************************/
+CREATE TABLE `civicrm_bank_plugin_instance` (
+
+
+     `id` INT UNSIGNED NOT NULL AUTO_INCREMENT  COMMENT 'ID',
+     `plugin_type_id` INT UNSIGNED NOT NULL   COMMENT 'Link to an option list of plugin types',
+     `plugin_class_id` INT UNSIGNED NOT NULL   COMMENT 'Link to an option list of plugin class names',
+     `name` VARCHAR(255)    COMMENT 'Name of the plugin',
+     `description` TEXT    COMMENT 'Short description of what the plugin does',
+     `enabled` TINYINT NOT NULL  DEFAULT 1 COMMENT 'If this plugin is enabled',
+     `weight` DOUBLE NOT NULL  DEFAULT 100.0 COMMENT 'Relative weight of this plugin',
+     `config` TEXT    COMMENT 'Configuration JSON',
+     `state` TEXT    COMMENT 'State JSON' 
+,
+    PRIMARY KEY ( `id` )
+ 
+ 
+ 
+)  ENGINE=INNODB DEFAULT CHARACTER SET utf8 COLLATE utf8_unicode_ci  ;

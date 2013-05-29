@@ -5,7 +5,7 @@
  */
 class CRM_Banking_BAO_BankTransaction extends CRM_Banking_DAO_BankTransaction {
 
-  protected $suggestion_objects;
+  protected $suggestion_objects = array();
 
   /**
    * @param array  $params         (reference ) an assoc array of name/value pairs
@@ -35,13 +35,17 @@ class CRM_Banking_BAO_BankTransaction extends CRM_Banking_DAO_BankTransaction {
 
   /**
    * TODO: after a load/retrieve, need to convert the suggestions/data_parsed from JSON to array
-   */
+   */  
+  public function getSuggestions() {
+    return $this->suggestion_objects;
+  }
 
-  public function resetSuggestions() {
+public function resetSuggestions() {
     $this->suggestion_objects = array();
   }
 
   public function addSuggestion( $suggestion ) {
+    print_r($suggestion);
     $this->suggestion_objects[ $suggestion->getProbability() ][] = $suggestion;
   }
 

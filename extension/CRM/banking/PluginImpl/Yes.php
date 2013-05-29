@@ -18,7 +18,7 @@ class CRM_Banking_PluginImpl_Yes extends CRM_Banking_PluginModel_Matcher {
   }
 
   public function match($btx, $context) {
-    $suggestion = new CRM_Banking_Matcher_Suggestion($this);
+    $suggestion = new CRM_Banking_Matcher_Suggestion($this, $btx);
     $suggestion->addEvidence( 1.0, "Yes we can" );
     return array($suggestion);
   }

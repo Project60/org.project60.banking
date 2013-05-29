@@ -16,6 +16,13 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+/*  Example config file:
+{
+  "amounts":  [ "35.00", "(rand(0,20000)-10000)/100" ],
+  "purposes": [ "membership", "donation", "buy yourself something nice" ]
+}
+*/
+
 /**
  *
  * @package org.project60.banking
@@ -110,7 +117,7 @@ class CRM_Banking_PluginImpl_Dummy extends CRM_Banking_PluginModel_Importer {
     $params = array(
       'version' => 3,
       'option.sort' => 'rand()',
-      'option.limit' => $count,
+      'option.limit' => 2*$count,
     );
     $result = civicrm_api('Contact', 'get', $params);
     if ($result['is_error']) {
@@ -118,11 +125,25 @@ class CRM_Banking_PluginImpl_Dummy extends CRM_Banking_PluginModel_Importer {
       return;
     }
     $contacts = $result['values'];
-    $gibberish = explode(" ", "Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.");
-    $purposes = array( 'membership', 'donation', 'buy yourself something nice', 'spende', 'birthday', 'campaign sadsca', '2013/'.rand(1000,10000));
-
-    // TODO: import dummy data
+    
+    // set up gibberish, purposes, reference number
     $reference = rand(1000,10000);
+    $gibberish = explode(" ", "Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.");
+    print_r($config);
+    if (isset($config->purposes)) {
+      $purposes = $config->purposes;
+    } else {
+      $purposes = array( 'membership', 'donation', 'buy yourself something nice', 'spende', 'birthday', 'campaign sadsca', '2013/'.rand(1000,10000));
+    }
+
+    // set up amounts
+    if (isset($config->amounts)) {
+      $amounts = $config->amounts;
+    } else {
+      $amounts = ["(rand(0,20000)-10000)/100"];
+    }
+
+    // now create <$count> entries
     for ($i = 1; $i <= $count; $i++) {
       // pick a contact to work with
       $contact = $contacts[array_rand($contacts)];
@@ -138,11 +159,15 @@ class CRM_Banking_PluginImpl_Dummy extends CRM_Banking_PluginModel_Importer {
                             'purpose' => $purposes[array_rand($purposes)],
                             );
 
+      // create the amount
+      $amount_selection = $amounts[array_rand($amounts)];
+      $amount = eval('return '.$amount_selection.";");  // I know...sorry about eval(). !!!!DO NOT USE THIS PLUGIN BEYOND TESTING!!!
+      
       // generate entry data
       $btx = array(
         'version' => 3,
         'debug' => 1,
-        'amount' => (rand(0,20000)-10000)/100,        // random amount between -100 and 100 *or* from config
+        'amount' => $amount,                          // taken from config
         'bank_reference' => $reference.'-'.$i,        // random(4)-seq
         'value_date' => date('YmdHis', $timestamp),   // last two weeks
         'booking_date' => date('YmdHis', $timestamp), // last two weeks (do we want an offset?)

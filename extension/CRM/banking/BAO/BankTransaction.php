@@ -34,8 +34,13 @@ class CRM_Banking_BAO_BankTransaction extends CRM_Banking_DAO_BankTransaction {
   /**
    * TODO: after a load/retrieve, need to convert the suggestions/data_parsed from JSON to array
    */
+
   public function resetSuggestions() {
     $this->suggestions = array();
+  }
+
+  public function addSuggestion( $suggestion ) {
+    $this->suggestions[ $suggestion->probability ][] = $suggestion;
   }
 
   public function saveSuggestions() {

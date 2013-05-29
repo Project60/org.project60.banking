@@ -95,18 +95,18 @@ class CRM_Banking_Matcher_Engine {
     $btx = $context->btx;
     
     // match() returns an instance of CRM_Banking_Matcher_Suggestion
-    $matches = $plugin->match( $btx, $context );
-    if ($matches !== null) {
+    $suggestions = $plugin->match( $btx, $context );
+    if ($suggestions !== null) {
       // handle the possibility to get multiple matches in return
-      if (!is_array($matches)) $matches = array( $matches->probability => $matches );
+      if (!is_array($suggestions)) $suggestions = array( $suggestions->probability => $suggestions );
       
       // process matches
-      foreach ($matches as $probability => $match ) {
-        $btx->matches[] = $match;
-        if ($probability >= $plugin->threshold) {
+      foreach ($suggestions as $probability => $suggestion ) {
+        $btx->addSuggestion( $suggestion );
+        if ($suggestion->probability >= $plugin->threshold) {
           if ($plugin->auto_execute == 1) {
-            $btx->saveSuggestions;
-            $continue = $match->execute( $btx, $plugin );
+            $btx->saveSuggestions();
+            $continue = $suggestion->execute( $btx, $plugin );
             if (!$continue) return false;
           }
         }

@@ -92,7 +92,8 @@ CREATE TABLE IF NOT EXISTS `civicrm_bank_tx` (
      `ba_id` int unsigned    COMMENT 'FK to bank_account of target account',
      `party_ba_id` int unsigned    COMMENT 'FK to bank_account of party account',
      `tx_batch_id` int unsigned    COMMENT 'FK to parent bank_tx_batch',
-     `sequence` int unsigned    COMMENT 'Numbering local to the tx_batch_id' 
+     `sequence` int unsigned    COMMENT 'Numbering local to the tx_batch_id',
+     `suggestions` text    COMMENT 'A JSON-formatted array containing suggestions' 
 ,
     PRIMARY KEY ( `id` )
  
@@ -102,6 +103,8 @@ CREATE TABLE IF NOT EXISTS `civicrm_bank_tx` (
   
 ,          CONSTRAINT FK_civicrm_bank_tx_ba_id FOREIGN KEY (`ba_id`) REFERENCES `civicrm_bank_account`(`id`) ON DELETE SET NULL,          CONSTRAINT FK_civicrm_bank_tx_party_ba_id FOREIGN KEY (`party_ba_id`) REFERENCES `civicrm_bank_account`(`id`) ON DELETE SET NULL,          CONSTRAINT FK_civicrm_bank_tx_tx_batch_id FOREIGN KEY (`tx_batch_id`) REFERENCES `civicrm_bank_tx_batch`(`id`) ON DELETE SET NULL  
 )  ENGINE=InnoDB DEFAULT CHARACTER SET utf8 COLLATE utf8_unicode_ci  ;
+
+
 
 -- /*******************************************************
 -- *

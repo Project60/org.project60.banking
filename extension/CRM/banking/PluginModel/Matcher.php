@@ -40,7 +40,7 @@ abstract class CRM_Banking_PluginModel_Matcher extends CRM_Banking_PluginModel_B
    * 
    * @return array(match structures)
    */
-  abstract function generate_matches($btx);
+  abstract function match( $btx, $context);
 
   /** 
    * Executes a previously generated match, i.e. the suggestion is accepted and realized
@@ -49,7 +49,7 @@ abstract class CRM_Banking_PluginModel_Matcher extends CRM_Banking_PluginModel_B
    * @val $btx      the bank transaction the match refers to
    * @return TODO: what?
    */
-  abstract function execute_match( $match, $btx );
+  abstract function execute( $match, $btx );
 
 
   /** 

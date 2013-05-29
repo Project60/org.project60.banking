@@ -158,4 +158,12 @@
         <add>4.3</add>
     </field>
 
+
+    <field>
+        <name>suggestions</name>
+        <type>text</type>
+        <comment>A JSON-formatted array containing suggestions</comment>
+        <add>4.3</add>
+    </field>
+    
 </table>

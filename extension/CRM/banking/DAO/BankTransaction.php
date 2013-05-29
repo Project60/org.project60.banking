@@ -166,6 +166,12 @@ class CRM_Banking_DAO_BankTransaction extends CRM_Core_DAO
    */
   public $sequence;
   /**
+   * A JSON-formatted array containing suggestions
+   *
+   * @var text
+   */
+  public $suggestions;
+  /**
    * class constructor
    *
    * @access public
@@ -294,6 +300,11 @@ class CRM_Banking_DAO_BankTransaction extends CRM_Core_DAO
           'name' => 'sequence',
           'type' => CRM_Utils_Type::T_INT,
           'title' => ts('Sequence in statement') ,
+        ) ,
+        'suggestions' => array(
+          'name' => 'suggestions',
+          'type' => CRM_Utils_Type::T_TEXT,
+          'title' => ts('Suggestions') ,
         ) ,
       );
     }

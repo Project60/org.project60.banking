@@ -60,6 +60,9 @@
 		<th colspan="1" rowspan="1" class="ccrm-banking-payment_state ui-state-default">
 			<div class="DataTables_sort_wrapper">State<span class="DataTables_sort_icon css_right ui-icon ui-icon-carat-2-n-s"></span></div>
 		</th>
+    <th colspan="1" rowspan="1" class="ui-state-default">
+      <div class="DataTables_sort_wrapper"><span></span></div>
+    </th>
 		<th colspan="1" rowspan="1" class="hiddenElement ui-state-default">
 			<div class="DataTables_sort_wrapper">&nbsp;<span class="DataTables_sort_icon"></span></div>
 		</th>
@@ -75,6 +78,7 @@
     <td class="crm-contact-activity-source_contact">{$field.source}</td>
     <td class="crm-contact-activity-source_contact">{$field.target}</td>
     <td class="crm-contact-activity_subject">{$field.state}</td>
+    <td class="crm-contact-activity_link"><a href="{$config->civiRelativeURL}civicrm/banking/review?id={$field.id}">view</a></td>
     <td class="hiddenElement">status-overdue</td>
   </tr>
   {/foreach}

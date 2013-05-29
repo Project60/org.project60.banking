@@ -32,7 +32,9 @@ class CRM_Banking_Page_Payments extends CRM_Core_Page {
     $payment_rows = array();
     foreach ($result['values'] as $entry) {
         array_push($payment_rows, 
-            array(  'date' => $entry['value_date'], 
+            array(  
+                    'id' => $entry['id'], 
+                    'date' => $entry['value_date'], 
                     'amount' => (isset($entry['amount'])?$entry['amount']:"unknown"), 
                     'account_owner' => 'TODO', 
                     'source' => (isset($entry['party_ba_id'])?$entry['party_ba_id']:"unknown"),
@@ -42,16 +44,6 @@ class CRM_Banking_Page_Payments extends CRM_Core_Page {
         );
     }
 
-    /* inject sample data
-    $payment_rows = array(
-        array('date' => 'March 25th, 2013 1:30 PM', 'amount' => '35,00 €', 'account_owner' => 'Endres, Björn', 'source' => '8213749934', 'target' => '2143988492', 'state' => 'processed'),
-        array('date' => 'March 21th, 2013 2:13 PM', 'amount' => '99,00 €', 'account_owner' => 'Unknown', 'source' => '235345345', 'target' => '2143988492', 'state' => 'needs Review'),
-        array('date' => 'April 4th, 2013 10:30 AM', 'amount' => '35,00 €', 'account_owner' => 'Siebert, Detlev', 'source' => '34524325345', 'target' => '2143988492', 'state' => 'processed'),
-        array('date' => 'March 25th, 2013 1:30 PM', 'amount' => '3,00 €', 'account_owner' => 'Schuttenberg, F.', 'source' => '432553245', 'target' => '2143988492', 'state' => 'needs Review'),
-        array('date' => 'March 21st, 2013 4:30 PM', 'amount' => '1000,00 €', 'account_owner' => 'Unknown', 'source' => '5345234', 'target' => '2143988492', 'state' => 'needs Review'),
-        array('date' => 'March 20th, 2013 3:10 PM', 'amount' => '20,00 €', 'account_owner' => 'Unknown', 'source' => '123423534', 'target' => '2143988492', 'state' => 'needs Review'),
-        array('date' => 'March 30th, 2013 11:11 AM', 'amount' => '35,00 €', 'account_owner' => 'Unknown', 'source' => '5435234345', 'target' => '2143988492', 'state' => 'needs Review'),
-    );*/
     $statement_rows  = array(
         array('date' => 'April 15th, 2013 1:30 PM', 'id' => 'GLS-2013-3', 'count' => '52', 'target' => '2143988492', 'processed' => '0%', 'completed' => '0%'),
         array('date' => 'March 15th, 2013 1:30 PM', 'id' => 'GLS-2013-2', 'count' => '34', 'target' => '2143988492', 'processed' => '100%', 'completed' => '82%'),

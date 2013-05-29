@@ -33,7 +33,7 @@ class CRM_Banking_Matcher_Engine {
   
   public static function getInstance() {
     if (self::$singleton === null) {
-      $bm = new BankingMatcher();
+      $bm = new CRM_Banking_Matcher_Engine();
       $bm->init();
       self::$singleton = $bm;
     }
@@ -57,7 +57,12 @@ class CRM_Banking_Matcher_Engine {
    * Initialize the list of plugins
    */
   private function initPlugins() {
-    // perform a BAO query to select all active match plugins and insert instances for them into the matchers array by weight, then ksort descending
+    // perform a BAO query to select all active match plugins and insert instances for them into 
+    //    the matchers array by weight, then ksort descending
+    $this->plugins = array();
+
+    //CRM_Utils_URL
+    // TODO: init $this->plugins
   }
   
   /**
@@ -73,13 +78,16 @@ class CRM_Banking_Matcher_Engine {
     $context = new CRM_Banking_Matcher_Context( $btx );
     
     // run through the list of matchers
-    foreach ($this->plugins as $weight => $plugins) {
-      foreach ($plugins as $plugin) {
-        $continue = $this->matchPlugin( $plugin, $context );
-        if (!$continue) return true;
+    if (empty($this->plugins)) {
+      CRM_Core_Session::setStatus(ts("No matcher plugins configured!"), ts('No processors'), 'alert');
+    } else {
+      foreach ($this->plugins as $weight => $plugins) {
+        foreach ($plugins as $plugin) {
+          $continue = $this->matchPlugin( $plugin, $context );
+          if (!$continue) return true;
+        }
       }
-    }
-    
+    }    
     $btx->saveSuggestions();
     return false;
   }

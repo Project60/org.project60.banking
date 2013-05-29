@@ -37,7 +37,7 @@ function banking_civicrm_install_options($data) {
   foreach ($data as $groupName => $group) {
     // check group existence
     $result = civicrm_api('option_group', 'getsingle', array('version' => 3, 'name' => $groupName));
-    if ($result['is_error']) {
+    if (isset($result['is_error']) && $result['is_error']) {
       $params = array(
           'version' => 3,
           'sequential' => 1,
@@ -58,7 +58,7 @@ function banking_civicrm_install_options($data) {
       print_r(array_keys($groupValues));
       foreach ($groupValues as $valueName => $value) {
         $result = civicrm_api('option_value', 'getsingle', array('version' => 3, 'name' => $valueName));
-        if ($result['is_error']) {
+        if (isset($result['is_error']) && $result['is_error']) {
           $params = array(
               'version' => 3,
               'sequential' => 1,

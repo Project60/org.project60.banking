@@ -4,9 +4,12 @@ class CRM_Banking_Matcher_Suggestion {
 
   private $_probability;
   private $_reasons;
+  private $_btx;
+  private $_plugin;
 
-  public function __construct() {
+  public function __construct($blob, $btx) {
     $this->_probability = 0;
+    $this->_reasons = array();
     $this->_reasons = array();
   }
 

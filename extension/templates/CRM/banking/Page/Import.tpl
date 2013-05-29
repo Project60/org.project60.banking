@@ -1,10 +1,11 @@
+{debug}
 <form action="/drupal/civicrm/banking/import" method="POST">
 <div class="crm-block crm-form-block crm-import-datasource-form-block" id="choose-data-source">
-  <h3>Select Import Method</h3>
+  <h3>Select Importer</h3>
     <table class="form-layout">
       <tbody>
         <tr class="crm-import-datasource-form-block-dataSource">
-          <td class="label"><label for="dataSource">Import Plugin<span title="This field is required." class="crm-marker">*</span></label>
+          <td class="label"><label for="dataSource">Choose configuration<span title="This field is required." class="crm-marker">*</span></label>
           </td>
           <td>
             <select class="form-select required" id="banking-importer-plugin" name="importer-plugin" onchange="todo(this.value);" 
@@ -15,22 +16,21 @@
             </select>
           </td>
         </tr>
-        <tr class="crm-import-datasource-form-block-dataSource">
+        <!--tr class="crm-import-datasource-form-block-dataSource">
           <td class="label"><label for="dataSource">Plugin Configuration<span title="This field is required." class="crm-marker">*</span></label>
           </td>
           <td>
             <select class="form-select required" id="banking-importer-plugin-configuration" name="importer-config" onchange="todo(this.value);" 
                       {if $page_mode == 'run'}disabled{/if}>
               <option selected="selected" value="Default">Default</option>
-              <!--option value="GLS Online Banking">GLS Online Banking</option-->
             </select>
           </td>
-        </tr>
+        </tr-->
     </tbody>
   </table>
 </div>
 
-<!--div class="crm-block crm-form-block crm-import-datasource-form-block">
+<div class="crm-block crm-form-block crm-import-datasource-form-block">
   <h3>Upload File</h3>
   <table class="form-layout">
     <tbody>
@@ -39,12 +39,12 @@
           <label for="uploadFile">  Import Data File<span title="This field is required." class="crm-marker">*</span></label>
         </td>
         <td>
-          <input type="file" class="form-file required" id="uploadFile" name="uploadFile" maxlength="255" size="30"><br>
+          <input type="file" class="form-file required" id="uploadFile" name="uploadFile" maxlength="255" size="30" disabled><br>
         </td>
       </tr>
     </tbody>
   </table>
-</div-->
+</div>
 
 <div class="crm-block crm-form-block crm-import-datasource-form-block" id="import options">
   <h3>Import Options</h3>
@@ -52,14 +52,18 @@
       <tbody>
         <tr class="crm-import-datasource-form-block-dataSource">
           <td>
-            <input type="checkbox" class="form-checkbox" selected="selected" name="dry_run" 
-                      {if $page_mode == 'run'}disabled{/if}>Dry run</input>
+            <input type="checkbox" class="form-checkbox" value="on" name="dry_run" id="dry_run"
+                      {if $page_mode == 'run'} disabled {/if}
+                      {if $dry_run == 'on'} checked {/if}>
+                    Dry run</input>
           </td>
         </tr>
         <tr class="crm-import-datasource-form-block-dataSource">
           <td>
-            <input type="checkbox" class="form-checkbox" value="1" selected="selected" name="process" 
-                      {if $page_mode == 'run'}disabled{/if}>Process payments right away</input>
+            <input type="checkbox" class="form-checkbox" value="on" name="process" id="process" 
+                      {if $page_mode == 'run'} disabled {/if}
+                      {if $process == 'on'} checked {/if}>
+                    Process payments right away</input>
           </td>
         </tr>
     </tbody>
@@ -77,7 +81,6 @@
   </div>
 {/if}
 
-
   
 <div class="crm-submit-buttons">
   {if $page_mode == 'config'}
@@ -85,7 +88,9 @@
     <input type="submit" value="Import!" class="validate form-submit default">
   </span>
   {else}
-  {* quit button? *}
+  <a class="button" href="{$config->civiRelativeURL}civicrm/banking/payments?show=payments">
+    <span align="right"><div class="icon details-icon"></div>See Results</span>
+  </a>
   {/if}
 
 

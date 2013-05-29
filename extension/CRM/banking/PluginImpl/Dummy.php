@@ -74,7 +74,7 @@ class CRM_Banking_PluginImpl_Dummy extends CRM_Banking_PluginModel_Importer {
    * @var 
    * @return TODO: data format? 
    */
-  function probe_file( $file_path )
+  function probe_file( $file_path, $params )
   {
     return FALSE;
   }
@@ -85,7 +85,7 @@ class CRM_Banking_PluginImpl_Dummy extends CRM_Banking_PluginModel_Importer {
    * 
    * @return TODO: data format? 
    */
-  function import_file( $file_path )
+  function import_file( $file_path, $params )
   {
     $this->reportDone(array());
     return FALSE;
@@ -97,7 +97,7 @@ class CRM_Banking_PluginImpl_Dummy extends CRM_Banking_PluginModel_Importer {
    * @var 
    * @return TODO: data format?
    */
-  function probe_stream()
+  function probe_stream( $params )
   {
     return TRUE;
   }
@@ -107,19 +107,19 @@ class CRM_Banking_PluginImpl_Dummy extends CRM_Banking_PluginModel_Importer {
    * 
    * @return TODO: data format? 
    */
-  function import_stream()
+  function import_stream( $params )
   {
     $config = $this->_plugin_config;
     $count = rand ( 5 , 10 );
     $this->reportProgress(0.0, "Creating ".$count." fake bank transactions.");
 
     // fetch $count random contacts
-    $params = array(
+    $query_params = array(
       'version' => 3,
       'option.sort' => 'rand()',
       'option.limit' => 2*$count,
     );
-    $result = civicrm_api('Contact', 'get', $params);
+    $result = civicrm_api('Contact', 'get', $query_params);
     if ($result['is_error']) {
       $this->reportDone("Error while fetching contacts.");
       return;
@@ -129,7 +129,6 @@ class CRM_Banking_PluginImpl_Dummy extends CRM_Banking_PluginModel_Importer {
     // set up gibberish, purposes, reference number
     $reference = rand(1000,10000);
     $gibberish = explode(" ", "Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.");
-    print_r($config);
     if (isset($config->purposes)) {
       $purposes = $config->purposes;
     } else {
@@ -162,7 +161,7 @@ class CRM_Banking_PluginImpl_Dummy extends CRM_Banking_PluginModel_Importer {
       // create the amount
       $amount_selection = $amounts[array_rand($amounts)];
       $amount = eval('return '.$amount_selection.";");  // I know...sorry about eval(). !!!!DO NOT USE THIS PLUGIN BEYOND TESTING!!!
-      
+
       // generate entry data
       $btx = array(
         'version' => 3,
@@ -181,20 +180,22 @@ class CRM_Banking_PluginImpl_Dummy extends CRM_Banking_PluginModel_Importer {
         'tx_batch_id' => NULL,                        // TODO: create batch
         'sequence' => $i,                             // sequence number
       );
-      $result = civicrm_api('BankingTransaction', 'create', $btx);
-      if ($result['is_error']) {
-        $this->reportDone("Error while storing BTX: ".implode("<br>",$result));
-        return;
+      
+      if (isset($params['dry_run']) && $params['dry_run']=="on") {
+        // DRY RUN ENABLED
+        $this->reportProgress(($i/$count), "NOT created fake bank transactions for ".$contact['display_name']);
+      } else {
+        $result = civicrm_api('BankingTransaction', 'create', $btx);
+        if ($result['is_error']) {
+          $this->reportDone("Error while storing BTX: ".implode("<br>",$result));
+          return;
+        }
+        $this->reportProgress(($i/$count), "Created fake bank transactions for ".$contact['display_name']);
       }
-
-
-      $this->reportProgress(($i/$count), "Created fake bank transactions for ".$contact['display_name']);
     }
 
     $this->reportDone();
 
   }
-
-
 }
 

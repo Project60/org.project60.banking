@@ -7,44 +7,48 @@ class CRM_Banking_Page_Import extends CRM_Core_Page {
     // Example: Set the page-title dynamically; alternatively, declare a static title in xml/Menu/*.xml
     CRM_Utils_System::setTitle(ts('Bank Payment Importer'));
 
-    // Example: Assign a variable for use in a template
-    $this->assign('currentTime', date('Y-m-d H:i:s'));
-
     // find plugins
-    $params = array(
-  		'version' => 3,
-  		'type' => 'import',
-  	);
-  	$result = civicrm_api('BankingPlugins', 'list', $params);
-  	if ($result['is_error']) {
-  		CRM_Core_Error::fatal($r["Couldn't query plugin list from API!"]);
-  		$this->assign('plugin_list', array());
-  	} else {
-  		$this->assign('plugin_list', $result['values']);
-  	}
-
+    $result = civicrm_api('BankingPlugins', 'list', array('version' => 3, 'type' => 'import'));
+    $plugin_list = array();
+    if ($result['is_error']) {
+      CRM_Core_Error::fatal(ts("Couldn't query plugin list from API!"));
+    } else {
+      $plugin_list = $result['values'];
+    }
 
     // check for the page mode
     if (isset($_POST['importer-plugin'])) {
       // RUN MODE
       $this->assign('page_mode', 'run');
+      $plugin_id = $_POST['importer-plugin'];
 
-      // TODO: fix up test code:
+      // assign values
+      $this->assign('dry_run', isset($_POST['dry_run'])?$_POST['dry_run']:"off");
+      $this->assign('process', isset($_POST['process'])?$_POST['process']:"off");
+      foreach ($plugin_list as $plugin) {
+        if ($plugin['id'] == $plugin_id) {
+          $this->assign('plugin_list', array($plugin));
+          break;
+        } 
+      }
+
+      // RUN the importer
       $bao = new CRM_Banking_BAO_PluginInstance();
-      $bao->get('id', 1);
+      $bao->get('id', $plugin_id);
       $plugin_instance = $bao->getInstance();
-      $plugin_instance->import_stream();
+      $plugin_instance->import_stream(array('dry_run' => (isset($_POST['dry_run'])?$_POST['dry_run']:"off")));
       
-      // 
+      // TODO: RUN the importer
+      if (isset($_POST['process']) && $_POST['process']=="on") {
+        CRM_Core_Session::setStatus(ts('Automated running not yet implemented'), ts('Not implemented'), 'alert');
+      }
+
+      // add the resulting log
       $this->assign('log', $plugin_instance->getLog());
-
-
-
     } else {
-      // CONFIGURATION MODE
-      
+      // CONFIGURATION MODE:
       $this->assign('page_mode', 'config');
-
+      $this->assign('plugin_list', $plugin_list);
 
     }
 

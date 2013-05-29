@@ -52,14 +52,14 @@ abstract class CRM_Banking_PluginModel_Importer extends CRM_Banking_PluginModel_
    * @var 
    * @return TODO: data format? 
    */
-  abstract function probe_file( $file_path );
+  abstract function probe_file( $file_path, $params );
 
   /** 
    * Import the given file
    * 
    * @return TODO: data format? 
    */
-  abstract function import_file( $file_path );
+  abstract function import_file( $file_path, $params );
 
   /** 
    * Test if the configured source is available and ready
@@ -67,14 +67,14 @@ abstract class CRM_Banking_PluginModel_Importer extends CRM_Banking_PluginModel_
    * @var 
    * @return TODO: data format?
    */
-  abstract function probe_stream();
+  abstract function probe_stream( $params );
 
   /** 
    * Import from the configured source
    * 
    * @return TODO: data format?
    */
-  abstract function import_stream();
+  abstract function import_stream( $params );
 
 
 

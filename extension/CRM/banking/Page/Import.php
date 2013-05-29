@@ -23,26 +23,30 @@ class CRM_Banking_Page_Import extends CRM_Core_Page {
   		$this->assign('plugin_list', $result['values']);
   	}
 
+
+    // check for the page mode
     if (isset($_POST['importer-plugin'])) {
-      // run 
+      // RUN MODE
+      $this->assign('page_mode', 'run');
+
+      // TODO: fix up test code:
       $bao = new CRM_Banking_BAO_PluginInstance();
       $bao->get('id', 1);
       $plugin_instance = $bao->getInstance();
-      //print_r($plugin_instance);
       $plugin_instance->import_stream();
+      
+      // 
+      $this->assign('log', $plugin_instance->getLog());
 
-
-      //$bao = _civicrm_api3_get_BAO( 'civicrm_api3_bank_plugin_instance_get' );
-      //print_r($bao);
-      $this->assign('page_mode', 'run');
 
 
     } else {
-      $this->assign('page_mode', 'config');  
-    }
+      // CONFIGURATION MODE
+      
+      $this->assign('page_mode', 'config');
 
-    print_r($_POST);
-    //importer-plugin
+
+    }
 
     parent::run();
   }

@@ -37,6 +37,7 @@ abstract class CRM_Banking_PluginModel_Base {
   protected $_plugin_weight;
   protected $_plugin_config;
   protected $_progress_callback;
+  protected $_progress_log = array();
 
   /**
    * the plugin's user readable name
@@ -54,11 +55,13 @@ abstract class CRM_Banking_PluginModel_Base {
     $this->__setDAO($plugin_dao);
   }
 
-  protected function __setDAO($dao) {
+  protected function __setDAO($plugin_dao) {
     $this->_plugin_dao = $plugin_dao;
     $this->_plugin_id = $plugin_dao->id;
-    $this->_plugin_config = json_decode( $plugin_dao->config );
     $this->_plugin_weight = $plugin_dao->weight;
+    $this->_plugin_config = json_decode( $plugin_dao->config );
+    if ($this->_plugin_config==false)
+      CRM_Core_Error::fatal("Configuration for CiviBanking plugin (id: ".$plugin_dao->id.") is not a valid JSON string.");
   }
 
   // ------------------------------------------------------
@@ -72,6 +75,7 @@ abstract class CRM_Banking_PluginModel_Base {
   function setProgressCallback($callback) {
     // TODO: sanity checks?
     $this->_progress_callback = $callback;
+    $this->_progress_log = array();
   }
 
   /**
@@ -79,29 +83,33 @@ abstract class CRM_Banking_PluginModel_Base {
    * 
    * TODO: data format? float [0..1]?   
    */
-  function reportProgress($progress, $message) {
+  function reportProgress($progress, $message=None) {
     if (isset($_progress_callback)) {
-      $_progress_callback->reportProgress($progress);
-    } else {
-      // TODO: implement    
-      print_r($progress);
+      $_progress_callback->reportProgress($progress, $message);
     }
+    // log internally
+    array_push($this->_progress_log, array(date('Y-m-d H:i:s'), $progress, $message));
   }
 
   /**
-   * Report progress of the import/export/matching process
-   * 
-   * TODO: data format? float [0..1]?   
+   * Report completion import/export/matching process
    */
-  function reportDone($error = None) {
+  function reportDone($error = 'Done') {
     if (isset($_progress_callback)) {
-      $_progress_callback->reportProgress($progress);
-    } else {
-      // TODO: implement
-      print_r("Done!");
-      print_r($error);
+      $_progress_callback->reportProgress($progress, $error);
     }
+
+    // log internally
+    array_push($this->_progress_log, array(date('Y-m-d H:i:s'), 1.0, $error));
   }
+
+  /**
+   * Get the internal log of the last reports. Reset by calling setProgressCallback(None)
+   */
+  function getLog() {
+    return $this->_progress_log;
+  }
+
 
   // -------------------------------------------------------
   // search functions provided to the plugin implementations

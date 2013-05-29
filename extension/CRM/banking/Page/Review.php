@@ -33,9 +33,6 @@ class CRM_Banking_Page_Review extends CRM_Core_Page {
     $this->assign('payment', $btx);
     $this->assign('payment_data_parsed', json_decode($btx['data_parsed'], true));
 
-    print_r($btx);
-
-
     /*
   	// Sample data
     $payment_rows = array(

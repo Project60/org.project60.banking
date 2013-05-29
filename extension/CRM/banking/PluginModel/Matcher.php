@@ -68,5 +68,39 @@ abstract class CRM_Banking_PluginModel_Matcher extends CRM_Banking_PluginModel_B
     parent::__construct($config_name);
 
   }
+
+  /** 
+   * Returns the threshold for automatic execution as set in the config
+   * 
+   * @return float ([0..1]) 
+   */
+  function getThreshold() { 
+    if (isset($this->_plugin_config->threshold)) {
+      $threshold = $this->_plugin_config->threshold;
+      if ($threshold >= 1.0) {
+        return 1.0;
+      } elseif ($threshold <= 0.0) {
+        return 0.0;
+      } else {
+        return $threshold;
+      }
+    }
+    return 1.0; 
+  }
+
+ /** 
+   * Returns whether the plugin is configured to execute unsupervised
+   * 
+   * @return bool
+   */
+  function autoExecute() { 
+    if (isset($this->_plugin_config->auto_exec)) {
+      $value = $this->_plugin_config->auto_exec;
+      return ($value==true || $value=='true');
+    } else {
+      return false;
+    }
+  }
+
 }
 

@@ -60,9 +60,22 @@ class CRM_Banking_Matcher_Engine {
     // perform a BAO query to select all active match plugins and insert instances for them into 
     //    the matchers array by weight, then ksort descending
     $this->plugins = array();
+    
+    $matcher_type_id = 717; // FIXME: lookup
+    $params = array('version' => 3, 'plugin_type_id' => $matcher_type_id);
+    $result = civicrm_api('BankingPluginInstance', 'get', $params);
+    if (isset($result['is_error']) && $result['is_error']) {
+      CRM_Core_Session::setStatus(ts("Error while trying to query database for matcher plugins!"), ts('No processors'), 'alert');
+    } else {
+      foreach ($result['values'] as $instance) {
+        $pi_bao = new CRM_Banking_BAO_PluginInstance();
+        $pi_bao->get('id', $instance['id']);
 
-    //CRM_Utils_URL
-    // TODO: init $this->plugins
+        // add to array wrt the weight
+        if (!isset($this->plugins[$pi_bao->weight])) $this->plugins[$pi_bao->weight] = array();
+        array_push($this->plugins[$pi_bao->weight], $pi_bao->getInstance());
+      }
+    }
   }
   
   /**
@@ -111,8 +124,8 @@ class CRM_Banking_Matcher_Engine {
       // process matches
       foreach ($suggestions as $probability => $suggestion ) {
         $btx->addSuggestion( $suggestion );
-        if ($suggestion->probability >= $plugin->threshold) {
-          if ($plugin->auto_execute == 1) {
+        if ($suggestion->getProbability() > $plugin->getThreshold()) {
+          if ($plugin->autoExecute()) {
             $btx->saveSuggestions();
             $continue = $suggestion->execute( $btx, $plugin );
             if (!$continue) return false;

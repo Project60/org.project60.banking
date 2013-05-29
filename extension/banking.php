@@ -55,7 +55,7 @@ function banking_civicrm_install_options($data) {
     if (is_array($group['values'])) {
       $groupValues = $group['values'];
       $weight = 1;
-      print_r(array_keys($groupValues));
+      //print_r(array_keys($groupValues));
       foreach ($groupValues as $valueName => $value) {
         $result = civicrm_api('option_value', 'getsingle', array('version' => 3, 'name' => $valueName));
         if (isset($result['is_error']) && $result['is_error']) {
@@ -86,6 +86,32 @@ function banking_civicrm_options() {
           'title' => 'CiviBanking plugin types',
           'description' => 'The set of possible CiviBanking plugin types',
           'values' => array(
+              'dummy' => array(
+                  'label' => 'Dummy Data Importer Plugin',
+                  'value' => 'CRM_Banking_PluginImpl_Dummy',
+                  'is_default' => 0,
+              ),
+              'generic' => array(
+                  'label' => 'Generic Matcher Plugin',
+                  'value' => 'CRM_Banking_PluginImpl_Generic',
+                  'is_default' => 0,
+              ),
+              'yes' => array(
+                  'label' => 'Dummy Matcher Test Plugin',
+                  'value' => 'CRM_Banking_PluginImpl_Yes',
+                  'is_default' => 0,
+              ),
+              'csv_import' => array(
+                  'label' => 'Configurable CSV Importer',
+                  'value' => 'CRM_Banking_PluginImpl_CSVImporter',
+                  'is_default' => 0,
+              ),
+          ),
+      ),
+      'civicrm_banking.plugin_classes' => array(
+          'title' => 'CiviBanking plugin classes',
+          'description' => 'The set of existing CiviBanking plugin types',
+          'values' => array(
               'import' => array(
                   'label' => 'Import plugin',
                   'value' => 1,
@@ -102,10 +128,6 @@ function banking_civicrm_options() {
                   'is_default' => 0,
               ),
           ),
-      ),
-      'civicrm_banking.plugin_classes' => array(
-          'title' => 'CiviBanking plugin classes',
-          'description' => 'The set of existing CiviBanking plugin types',
       ),
       'civicrm_banking.bank_tx_status' => array(
           'title' => 'CiviBanking bank transaction processing status',

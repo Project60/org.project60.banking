@@ -7,10 +7,16 @@ class CRM_Banking_Matcher_Suggestion {
   private $_btx;
   private $_plugin;
 
-  public function __construct($blob, $btx) {
-    $this->_probability = 0;
-    $this->_reasons = array();
-    $this->_reasons = array();
+  public function __construct($btx, $blob=null) {
+    if ($blob!=null) {
+      // we are loading this from a blob
+
+
+    } else {
+      // this is newly generated
+      $this->_probability = 0;
+      $this->_reasons = array();
+    }
   }
 
   public function getProbability() {

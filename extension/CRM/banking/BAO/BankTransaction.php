@@ -5,6 +5,8 @@
  */
 class CRM_Banking_BAO_BankTransaction extends CRM_Banking_DAO_BankTransaction {
 
+  protected $suggestion_objects;
+
   /**
    * @param array  $params         (reference ) an assoc array of name/value pairs
    *
@@ -36,11 +38,11 @@ class CRM_Banking_BAO_BankTransaction extends CRM_Banking_DAO_BankTransaction {
    */
 
   public function resetSuggestions() {
-    $this->suggestions = array();
+    $this->suggestion_objects = array();
   }
 
   public function addSuggestion( $suggestion ) {
-    $this->suggestions[ $suggestion->probability ][] = $suggestion;
+    $this->suggestion_objects[ $suggestion->getProbability() ][] = $suggestion;
   }
 
   public function saveSuggestions() {

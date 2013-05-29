@@ -1,4 +1,3 @@
-{debug}
 <form action="/drupal/civicrm/banking/import" method="POST">
 <div class="crm-block crm-form-block crm-import-datasource-form-block" id="choose-data-source">
   <h3>Select Import Method</h3>
@@ -70,6 +69,11 @@
 {if $page_mode == 'run'}
   <div class="crm-block crm-form-block crm-import-datasource-form-block" id="import options">
     <h3>Execution log</h3>
+    <table>
+      {foreach from=$log item=field}
+      <tr><td>{$field[0]}</td><td>{$field[1]*100|string_format:"%.2f"}%</td><td width="80%">{$field[2]}</td></tr>
+      {/foreach}
+    </table>
   </div>
 {/if}
 

@@ -39,7 +39,6 @@ class CRM_Banking_BAO_PluginInstance extends CRM_Banking_DAO_PluginInstance {
         'version' => 3, 
         //'option_group_id' => $classGroupId,
         'id' => $classNameId) );
-    print_r($className);
     if (isset($className['is_error']) && $className['is_error']) {
       CRM_Core_Error::fatal( sprintf( ts('Could not locate the class name for civicrm_banking.plugin_classes member %d.'), $classNameId ) );
     }

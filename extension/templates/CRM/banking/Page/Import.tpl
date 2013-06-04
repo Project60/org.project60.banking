@@ -1,5 +1,4 @@
-{debug}
-<form action="/drupal/civicrm/banking/import" method="POST">
+<form action="{$url_action}" method="POST">
 <div class="crm-block crm-form-block crm-import-datasource-form-block" id="choose-data-source">
   <h3>Select Importer</h3>
     <table class="form-layout">
@@ -88,14 +87,9 @@
     <input type="submit" value="Import!" class="validate form-submit default">
   </span>
   {else}
-  <a class="button" href="{$config->civiRelativeURL}civicrm/banking/payments?show=payments">
+  <a class="button" href="{$url_payments}">
     <span align="right"><div class="icon details-icon"></div>See Results</span>
   </a>
   {/if}
-
-
-  <!--span class="crm-button crm-button-type-cancel crm-button_qf_DataSource_cancel">
-    <input type="submit" id="_qf_DataSource_cancel-bottom" value="Cancel" name="_qf_DataSource_cancel" class="cancel form-submit">
-  </span-->
 </div>
 </form>

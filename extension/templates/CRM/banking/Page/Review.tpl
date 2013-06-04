@@ -3,16 +3,16 @@
 
 <form>
 <div align="right">
-	<a href="{$config->civiRelativeURL}civicrm/banking/review?id={$payment->id}&amp;run" class="button"><span title="Process (again)"><div class="icon preview-icon"></div>Process (again)</span></a>
-	{if isset($next_pid)}
-	<a href="{$config->civiRelativeURL}civicrm/banking/review?id={$next_pid}" class="button"><span title="Confirm and Continue"><div class="icon next-icon"></div>Confirm and Continue</span></a>
-	<a href="{$config->civiRelativeURL}civicrm/banking/review?id={$next_pid}" class="button"><span title="Skip"><div class="icon next-icon"></div>Skip</span></a>
+	<a href="{$url_run}" class="button"><span title="Process (again)"><div class="icon preview-icon"></div>Process (again)</span></a>
+	{if isset($url_next)}
+	<a href="{$url_next}" class="button"><span title="Confirm and Continue"><div class="icon next-icon"></div>Confirm and Continue</span></a>
+	<a href="{$url_next}" class="button"><span title="Skip"><div class="icon next-icon"></div>Skip</span></a>
 	{else}
 	<!--span class="crm-button">
     	<input type="submit" value="Confirm and Exit" class="validate form-submit default">
   	</span-->
-	<a href="{$config->civiRelativeURL}civicrm/banking/payments" class="button"><span title="Confirm and Exit"><div class="icon next-icon"></div>Confirm and Exit</span></a>
-	<a href="{$config->civiRelativeURL}civicrm/banking/payments" class="button"><span title="Skip and Exit"><div class="icon next-icon"></div>Skip and Exit</span></a>
+	<a href="{$url_back}" class="button"><span title="Confirm and Exit"><div class="icon next-icon"></div>Confirm and Exit</span></a>
+	<a href="{$url_back}" class="button"><span title="Skip and Exit"><div class="icon next-icon"></div>Skip and Exit</span></a>
 	{/if}
 </div>
 <br/><br/>

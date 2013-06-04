@@ -40,6 +40,7 @@ class CRM_Banking_Page_Payments extends CRM_Core_Page {
                     'source' => (isset($entry['party_ba_id'])?$entry['party_ba_id']:"unknown"),
                     'target' => (isset($entry['ba_id'])?$entry['ba_id']:"unknown"),
                     'state' => (isset($entry['status_id'])?$entry['status_id']:"unknown"),
+                    'url_link' => CRM_Utils_System::url('civicrm/banking/review', 'id='.$entry['id']),
                 )
         );
     }
@@ -59,6 +60,11 @@ class CRM_Banking_Page_Payments extends CRM_Core_Page {
         $this->assign('status_message', sizeof($payment_rows).' unprocessed payments.');
         $this->assign('show', 'payments');        
     }
+
+    // URLs
+    $this->assign('url_show_payments', CRM_Utils_System::url('civicrm/banking/payments', 'show=payments'));
+    $this->assign('url_show_statements', CRM_Utils_System::url('civicrm/banking/payments', 'show=statements'));
+    $this->assign('url_show_all', CRM_Utils_System::url('civicrm/banking/review', sprintf('id=%d&list=%s', $entry['id'], 'all')));
 
     parent::run();
   }

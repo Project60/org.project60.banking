@@ -37,6 +37,22 @@ class CRM_Banking_Page_Review extends CRM_Core_Page {
     }
     $this->assign('suggestions', $suggestions);
     
+    // URLs
+    if (isset($_REQUEST['list'])) {
+        $list = explode(",", $_REQUEST['list']);
+        $index = array_search($pid, $list);
+        if ($index!=FALSE && isset($list[($index+1)])) {
+            $next_pid = $list[($index+1)];
+            $this->assign('url_next', CRM_Utils_System::url('civicrm/banking/review', sprintf('id=%d', $next_pid)));
+        }
+    }
+
+    $this->assign('url_run', CRM_Utils_System::url('civicrm/banking/review', sprintf('id=%d&run', $pid)));
+    $this->assign('url_back', CRM_Utils_System::url('civicrm/banking/payments'));
+    
+    //$this->assign('url_confirm', CRM_Utils_System::url('civicrm/banking/review', sprintf('id=%d&run', $pid)));
+    //$this->assign('url_confirm_next', CRM_Utils_System::url('civicrm/banking/review', sprintf('id=%d&run', $pid)));
+
     /*
   	// Sample data
     $payment_rows = array(

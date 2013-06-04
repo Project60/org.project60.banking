@@ -38,7 +38,7 @@ class CRM_Banking_Page_Import extends CRM_Core_Page {
       $plugin_instance = $bao->getInstance();
       $plugin_instance->import_stream(array('dry_run' => (isset($_POST['dry_run'])?$_POST['dry_run']:"off")));
       
-      // TODO: RUN the importer
+      // TODO: RUN the processor
       if (isset($_POST['process']) && $_POST['process']=="on") {
         CRM_Core_Session::setStatus(ts('Automated running not yet implemented'), ts('Not implemented'), 'alert');
       }
@@ -49,8 +49,11 @@ class CRM_Banking_Page_Import extends CRM_Core_Page {
       // CONFIGURATION MODE:
       $this->assign('page_mode', 'config');
       $this->assign('plugin_list', $plugin_list);
-
     }
+
+    // URLs
+    $this->assign('url_action', CRM_Utils_System::url('civicrm/banking/import'));
+    $this->assign('url_payments', CRM_Utils_System::url('civicrm/banking/payments', 'show=payments'));
 
     parent::run();
   }

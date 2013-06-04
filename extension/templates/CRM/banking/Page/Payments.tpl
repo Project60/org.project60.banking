@@ -13,11 +13,11 @@
 </ul-->
 
 {if $show=='payments'}
-  <a class="button" href="{$config->civiRelativeURL}civicrm/banking/payments?show=statements">
+  <a class="button" href="{$url_show_statements}">
     <span><div class="icon details-icon"></div>Show Statements</span>
   </a>
 {else}
-  <a class="button" href="{$config->civiRelativeURL}civicrm/banking/payments?show=payments">
+  <a class="button" href="{$url_show_payments}">
     <span><div class="icon details-icon"></div>Show Payments</span>
   </a>
 {/if}
@@ -78,7 +78,7 @@
     <td class="crm-contact-activity-source_contact">{$field.source}</td>
     <td class="crm-contact-activity-source_contact">{$field.target}</td>
     <td class="crm-contact-activity_subject">{$field.state}</td>
-    <td class="crm-contact-activity_link"><a href="{$config->civiRelativeURL}civicrm/banking/review?id={$field.id}">view</a></td>
+    <td class="crm-contact-activity_link"><a href="{$field.url_link}">view</a></td>
     <td class="hiddenElement">status-overdue</td>
   </tr>
   {/foreach}
@@ -132,7 +132,7 @@
 <input id="" class="form-submit" type="submit" value="Select all" width="200" name=""></input>
 <input id="" class="form-submit" type="submit" value="Select none" width="200" name=""></input>	
 <p>With selected items perform:<br/>
-<a class="button" href="{$config->civiRelativeURL}civicrm/banking/review?pid=1&amp;set_id=213124"><span>Review</span></a>
+<a class="button" href="{$url_show_all}"><span>Review</span></a>
 <a class="button" href="#"><span>Process</span></a>
 <a class="button" href="#"><span>Export</span></a>
 <a class="button" href="#"><span>Delete</span></a>

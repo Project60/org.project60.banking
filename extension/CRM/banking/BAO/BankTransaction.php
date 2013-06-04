@@ -5,6 +5,10 @@
  */
 class CRM_Banking_BAO_BankTransaction extends CRM_Banking_DAO_BankTransaction {
 
+  /**
+   * an array of the structure
+   * <probability> => array(<CRM_Banking_Matcher_Suggestion>)
+   */
   protected $suggestion_objects = array();
 
   /**
@@ -34,18 +38,36 @@ class CRM_Banking_BAO_BankTransaction extends CRM_Banking_DAO_BankTransaction {
   }
 
   /**
+   * an array of the structure
+   * <probability> => array(<CRM_Banking_Matcher_Suggestion>)
+   *
    * TODO: after a load/retrieve, need to convert the suggestions/data_parsed from JSON to array
-   */  
+   */
   public function getSuggestions() {
     return $this->suggestion_objects;
   }
+
+  /**
+   * get a flat list of CRM_Banking_Matcher_Suggestion
+   *
+   * @see: getSuggestions()
+   */
+  public function getSuggestionList() {
+    $suggestions = array();
+    foreach ($this->suggestion_objects as $probability => $list) {
+      foreach ($list as $item) {
+        array_push($suggestions, $item);
+      }
+    }
+    return $suggestions;
+  }
+
 
 public function resetSuggestions() {
     $this->suggestion_objects = array();
   }
 
   public function addSuggestion( $suggestion ) {
-    print_r($suggestion);
     $this->suggestion_objects[ $suggestion->getProbability() ][] = $suggestion;
   }
 

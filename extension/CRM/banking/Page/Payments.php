@@ -50,14 +50,14 @@ class CRM_Banking_Page_Payments extends CRM_Core_Page {
         array('date' => 'February 15th, 2013 1:30 PM', 'id' => 'GLS-2013-1', 'count' => '19', 'target' => '2143988492', 'processed' => '100%', 'completed' => '100%'),
     );
 
-    if (isset($_GET['show']) && $_GET['show']=="payments") {
-        $this->assign('rows', $payment_rows);
-        $this->assign('status_message', sizeof($payment_rows).' unprocessed payments.');
-        $this->assign('show', 'payments');        
-    } else {
+    if (isset($_GET['show']) && $_GET['show']=="statements") {
         $this->assign('rows', $statement_rows);
         $this->assign('status_message', sizeof($statement_rows).' incomplete statements.');
         $this->assign('show', 'statements');        
+    } else {
+        $this->assign('rows', $payment_rows);
+        $this->assign('status_message', sizeof($payment_rows).' unprocessed payments.');
+        $this->assign('show', 'payments');        
     }
 
     parent::run();

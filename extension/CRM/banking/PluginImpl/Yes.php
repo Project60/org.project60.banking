@@ -33,8 +33,17 @@ class CRM_Banking_PluginImpl_Yes extends CRM_Banking_PluginModel_Matcher {
     
   }
 
-  function visualize_match($match, $btx) {
-    return "Yes !!";
+  public function visualize_match($match, $btx) {
+    return '<div style="background-color:gray;text-align:center">
+            <font size="+1">
+            <font color="#ccff66">Y</font>
+            <font color="#84ed42">E</font>
+            <font color="#54e12a">S</font>
+            <font color="#3cdb1e">!</font>
+            <font color="#24d512">!</font>
+            <font color="#0ccf06">!</font>
+            </font>
+            </div>';
   }
 
 }

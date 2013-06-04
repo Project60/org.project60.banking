@@ -24,7 +24,18 @@ class CRM_Banking_Page_Review extends CRM_Core_Page {
     // parse structured data
     $this->assign('payment', $btx_bao);
     $this->assign('payment_data_parsed', json_decode($btx_bao->data_parsed, true));
-    $this->assign('suggestions', $btx_bao->getSuggestions());
+
+    // create suggestion list
+    $suggestions = array();
+    $suggestion_objects = $btx_bao->getSuggestionList();
+    foreach ($suggestion_objects as $suggestion) {
+        array_push($suggestions, array(
+                'probability' => sprintf('%d %%', ($suggestion->getProbability()*100)),
+                'visualization' => $suggestion->visualize($btx_bao),
+                'title' => $suggestion->getTitle(),
+            ));
+    }
+    $this->assign('suggestions', $suggestions);
     
     /*
   	// Sample data

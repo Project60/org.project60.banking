@@ -7,6 +7,7 @@ class CRM_Banking_Matcher_Suggestion {
   private $_blob = array();
 
   private $_probability;
+  private $_title = "Title not set";
   private $_reasons;
 
   public function __construct($plugin, $btx, $blob=null) {
@@ -46,7 +47,7 @@ class CRM_Banking_Matcher_Suggestion {
         }
       }
       $this->_btx = $btx;
-    } else {
+    } elseif ($this->_btx==null) {
       // load BTX
       if ($this->_blob!=null && isset($this->_blob['btx_id'])) {
         $this->_btx = new CRM_Banking_BAO_BankTransaction();
@@ -57,11 +58,33 @@ class CRM_Banking_Matcher_Suggestion {
 
     }
 
-
+    // provide plugin
+    if ($plugin!=null) {
+      // see if we can use this...
+      if ($this->_plugin != null) {
+        if ($this->_plugin->id != $plugin->id) {
+          CRM_Core_Session::setStatus(ts('Matcher tried to override plugin object with different entity'), ts('Matcher Failure'), 'alert');
+        }
+      }
+      $this->_plugin = $plugin;
+    } elseif ($this->_plugin==null) {
+      // load BTX
+      if ($this->_blob!=null && isset($this->_blob['matcher_id'])) {
+        $plugin_instance = CRM_Banking_BAO_PluginInstance();
+        $plugin_instance->get('id', $this->_blob['matcher_id']);
+        $this->_plugin = $plugin_instance->getInstance();
+      } else {
+        CRM_Core_Session::setStatus(ts('Could not load plugin object, no id stored.'), ts('Matcher Failure'), 'alert');
+      }
+    }
   }
 
   public function getProbability() {
     return $this->_probability;
+  }
+
+  public function getTitle() {
+    return $this->_title;
   }
 
   /**
@@ -90,8 +113,6 @@ class CRM_Banking_Matcher_Suggestion {
   public function visualize(CRM_Banking_BAO_BankTransaction $btx = null, CRM_Banking_PluginModel_Matcher $plugin = null) {
     // if btx/plugin is not supplied (by the matcher engine), recreate it
     $this->_updateObjects($btx, $plugin);
-
-    // TODO: implement
-    return "<p>NOT YET IMPLEMENTED</p>";
+    return $this->_plugin->visualize_match($this, $this->_plugin);
   }
 }

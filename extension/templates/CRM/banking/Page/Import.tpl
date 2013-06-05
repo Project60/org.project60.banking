@@ -1,4 +1,4 @@
-<form action="{$url_action}" method="POST">
+<form action="{$url_action}" method="post" name="DataSource" id="DataSource" enctype="multipart/form-data" >
   <div class="crm-block crm-form-block crm-import-datasource-form-block" id="choose-data-source">
   <h3>Select Importer</h3>
     <table class="form-layout">
@@ -34,6 +34,9 @@
   <table class="form-layout">
     <tbody>
       <tr>
+        {if isset($file_info)}
+        <td>Processed file "{$file_info.name}"...</td>
+        {else}        
         <td class="label">
           <label for="uploadFile">  Import Data File<span title="This field is required." class="crm-marker">*</span></label>
         </td>
@@ -44,6 +47,7 @@
           {elseif $has_file_source[0] == 'false'}
             disabled
           {/if}><br>
+        {/if}
         </td>
       </tr>
     </tbody>
@@ -94,6 +98,9 @@
   {else}
   <a class="button" href="{$url_payments}">
     <span align="right"><div class="icon details-icon"></div>See Results</span>
+  </a>
+  <a class="button" href="{$url_action}">
+    <span align="right"><div class="icon details-icon"></div>Import More</span>
   </a>
   {/if}
 </div>

@@ -11,14 +11,14 @@ class CRM_Banking_Page_Import extends CRM_Core_Page {
     $plugin_list = CRM_Banking_BAO_PluginInstance::listInstances('import');
 
     // check for the page mode
-    if (isset($_POST['importer-plugin'])) {
+    if (isset($_REQUEST['importer-plugin'])) {
       // RUN MODE
       $this->assign('page_mode', 'run');
-      $plugin_id = $_POST['importer-plugin'];
+      $plugin_id = $_REQUEST['importer-plugin'];
 
       // assign values
-      $this->assign('dry_run', isset($_POST['dry_run'])?$_POST['dry_run']:"off");
-      $this->assign('process', isset($_POST['process'])?$_POST['process']:"off");
+      $this->assign('dry_run', isset($_REQUEST['dry_run'])?$_REQUEST['dry_run']:"off");
+      $this->assign('process', isset($_REQUEST['process'])?$_REQUEST['process']:"off");
       foreach ($plugin_list as $plugin) {
         if ($plugin->id == $plugin_id) {
           $this->assign('plugin_list', array($plugin));
@@ -27,11 +27,34 @@ class CRM_Banking_Page_Import extends CRM_Core_Page {
       }
 
       // RUN the importer
+      $file_info = isset($_FILES['uploadFile'])?$_FILES['uploadFile']:null;
+      $this->assign('file_info', $file_info);
       $plugin_instance = $plugin->getInstance();
-      $plugin_instance->import_stream(array('dry_run' => (isset($_POST['dry_run'])?$_POST['dry_run']:"off")));
+      $import_parameters = array( 'dry_run' => (isset($_REQUEST['dry_run'])?$_REQUEST['dry_run']:"off"),
+                                  'source' => (isset($file_info['name'])?$file_info['name']:'stream'),
+                                  );
+      if ($file_info!=null && $plugin_instance::does_import_files()) {
+        // run file import
+        $file = $file_info['tmp_name'];
+        if ($plugin_instance->probe_file($file, $import_parameters)) {
+          $plugin_instance->import_file($file, $import_parameters);
+        } else {
+          CRM_Core_Session::setStatus(ts('File rejected by importer!'), ts('Bad input file'), 'alert');
+        }
+
+      } else if ($plugin_instance::does_import_stream()) {
+        // run stream import
+        if ($plugin_instance->probe_stream($import_parameters)) {
+          $plugin_instance->import_stream($import_parameters);
+        } else {
+          CRM_Core_Session::setStatus(ts('Import stream rejected by importer, maybe not ready!'), ts('Bad input stream'), 'alert');
+        }
+      } else {
+        CRM_Core_Session::setStatus(ts('Importer needs a file to proceed.'), ts('No input file'), 'alert');
+      }
       
       // TODO: RUN the processor
-      if (isset($_POST['process']) && $_POST['process']=="on") {
+      if (isset($_REQUEST['process']) && $_REQUEST['process']=="on") {
         CRM_Core_Session::setStatus(ts('Automated running not yet implemented'), ts('Not implemented'), 'alert');
       }
 

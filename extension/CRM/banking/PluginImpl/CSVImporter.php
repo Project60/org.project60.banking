@@ -23,6 +23,11 @@
 }
 */
 
+// utility function
+function _startswith($string, $prefix) {
+  return substr($string, 0, strlen($prefix)) === $prefix;
+}
+
 /**
  *
  * @package org.project60.banking
@@ -32,10 +37,20 @@
  */
 class CRM_Banking_PluginImpl_CSVImporter extends CRM_Banking_PluginModel_Importer {
 
+  // these are the fields valid for a BTX record.
+  protected $_primary_btx_fields = ['version', 'debug', 'amount', 'bank_reference', 'value_date', 'booking_date', 'currency', 'type_id', 'status_id', 'data_raw', 'data_parsed', 'ba_id', 'party_ba_id', 'tx_batch_id', 'sequence' ];
+
   /**
    * class constructor
    */ function __construct($config_name) {
     parent::__construct($config_name);
+
+    // read config, set defaults
+    $config = $this->_plugin_config;
+    if (!isset($config->delimiter)) $config->delimiter = ',';
+    if (!isset($config->header)) $config->header = 1;
+    if (!isset($config->defaults)) $config->defaults = array();
+    if (!isset($config->rules)) $config->rules = array();
   }
 
   /** 
@@ -88,94 +103,159 @@ class CRM_Banking_PluginImpl_CSVImporter extends CRM_Banking_PluginModel_Importe
    */
   function import_file( $file_path, $params )
   {
-    // TODO: implement
+
+    // begin
     $config = $this->_plugin_config;
-    $count = rand ( 5 , 10 );
-    $this->reportProgress(0.0, "Creating ".$count." fake bank transactions.");
+    $this->reportProgress(0.0, sprintf("Starting to read file '%s'...", $params['source']));
+    $file_size = filesize($file_path);
+    $file = fopen($file_path, 'r');
+    $line_nr = 0;
+    $bytes_read = 0;
+    $header = array();
 
-    // fetch $count random contacts
-    $query_params = array(
-      'version' => 3,
-      'option.sort' => 'rand()',
-      'option.limit' => 2*$count,
-    );
-    $result = civicrm_api('Contact', 'get', $query_params);
-    if ($result['is_error']) {
-      $this->reportDone("Error while fetching contacts.");
-      return;
-    }
-    $contacts = $result['values'];
-    
-    // set up gibberish, purposes, reference number
-    $reference = rand(1000,10000);
-    $gibberish = explode(" ", "Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.");
-    if (isset($config->purposes)) {
-      $purposes = $config->purposes;
-    } else {
-      $purposes = array( 'membership', 'donation', 'buy yourself something nice', 'spende', 'birthday', 'campaign sadsca', '2013/'.rand(1000,10000));
-    }
+    while (($line = fgetcsv($file, 0, $config->delimiter)) !== FALSE) {
+      // update stats
+      $line_nr += 1;
+      foreach ($line as $item) $bytes_read += strlen($item);
+      $bytes_read += sizeof($line) * sizeof($config->delimiter);
 
-    // set up amounts
-    if (isset($config->amounts)) {
-      $amounts = $config->amounts;
-    } else {
-      $amounts = ["(rand(0,20000)-10000)/100"];
-    }
-
-    // now create <$count> entries
-    for ($i = 1; $i <= $count; $i++) {
-      // pick a contact to work with
-      $contact = $contacts[array_rand($contacts)];
-      
-      $timestamp = rand(strtotime("-14 days"), strtotime("now"));
-
-      // create the data blobs
-      shuffle($gibberish);
-      $mygibberish =      implode(" ", array_slice($gibberish, 0, rand(0,5)))."\n"
-                          .$contact['display_name']."\n"
-                          .implode(" ", array_slice($gibberish, 0, rand(0,5)));
-      $data_parsed = array( 'name' => $contact['display_name'],
-                            'purpose' => $purposes[array_rand($purposes)],
-                            );
-
-      // create the amount
-      $amount_selection = $amounts[array_rand($amounts)];
-      $amount = eval('return '.$amount_selection.";");  // I know...sorry about eval(). !!!!DO NOT USE THIS PLUGIN BEYOND TESTING!!!
-
-      // generate entry data
-      $btx = array(
-        'version' => 3,
-        'debug' => 1,
-        'amount' => $amount,                          // taken from config
-        'bank_reference' => $reference.'-'.$i,        // random(4)-seq
-        'value_date' => date('YmdHis', $timestamp),   // last two weeks
-        'booking_date' => date('YmdHis', $timestamp), // last two weeks (do we want an offset?)
-        'currency' => 'EUR',                          // EUR
-        'type_id' => 0,                               // TODO: lookup type ?
-        'status_id' => 0,                             // TODO: lookup status new
-        'data_raw' => $mygibberish,                   // gibberish + name
-        'data_parsed' => json_encode($data_parsed),   // name, purpose
-        'ba_id' => '',                                // TODO: config
-        'party_ba_id' => '',                          // TODO: config
-        'tx_batch_id' => NULL,                        // TODO: create batch
-        'sequence' => $i,                             // sequence number
-      );
-      
-      if (isset($params['dry_run']) && $params['dry_run']=="on") {
-        // DRY RUN ENABLED
-        $this->reportProgress(($i/$count), "NOT created fake bank transactions for ".$contact['display_name']);
-      } else {
-        $result = civicrm_api('BankingTransaction', 'create', $btx);
-        if ($result['is_error']) {
-          $this->reportDone("Error while storing BTX: ".implode("<br>",$result));
-          return;
+      // check encoding if necessary
+      if (isset($config->encoding)) {
+        $decoded_line = array();
+        foreach ($line as $item) {
+          array_push($decoded_line, mb_convert_encoding($item, mb_internal_encoding(), $config->encoding));
         }
-        $this->reportProgress(($i/$count), "Created fake bank transactions for ".$contact['display_name']);
+        $line = $decoded_line;
+      }
+
+      if ($line_nr <= $config->header) {
+        // parse header
+        if (sizeof($header)==0) {
+          $header = $line;  
+        }
+      } else {
+        // import lime
+        $this->import_line($line, $line_nr, ($bytes_read/$file_size), $header);
+      }
+    }
+    fclose($file); 
+    $this->reportDone();
+  }
+
+  protected function import_line($line, $line_nr, $progress, $header) {
+    $config = $this->_plugin_config;
+    $this->reportProgress($progress, sprintf("Imported line %d", $line_nr-$config->header));
+    
+    // generate entry data
+    $btx = array(
+      'version' => 3,
+      'currency' => 'EUR',
+      'type_id' => 0,                               // TODO: lookup type ?
+      'status_id' => 0,                             // TODO: lookup status new
+      'data_raw' => implode(";", $line),
+      'sequence' => $line_nr-$config->header,
+      'bank_reference' => rand(1000,10000),         // TODO: what is this?
+    );
+
+    // set default values from config:
+    foreach ($config->defaults as $key => $value) {
+      $btx[$key] = $value;
+    }
+
+    // execute rules from config:
+    foreach ($config->rules as $rule) {
+      try {
+        $this->apply_rule($rule, $line, $btx, $header);
+      } catch (Exception $e) {
+        $this->reportProgress($progress, sprintf(ts("Rule '%s' failed. Exception was %s"), $rule, $e->getMessage()));
       }
     }
 
-    $this->reportDone();
+    // prepare $btx: put all entries, that are not for the basic object, into parsed data
+    $btx_parsed_data = array();
+    foreach ($btx as $key => $value) {
+      if (!in_array($key, $this->_primary_btx_fields)) {
+        // this entry has to be moved to the $btx_parsed_data records
+        $btx_parsed_data[$key] = $value;
+        unset($btx[$key]);
+      }
+    }
+    $btx['data_parsed'] = json_encode($btx_parsed_data);
+
+
+    // and finally write it into the DB
+    if (isset($params['dry_run']) && $params['dry_run']=="on") {
+      // DRY RUN ENABLED
+      $this->reportProgress($progress, sprintf(ts("NOT Created bank transactions for line %d."), $line_nr));
+    } else {
+      $result = civicrm_api('BankingTransaction', 'create', $btx);
+      if ($result['is_error']) {
+        $this->reportProgress($progress, "Error while storing BTX: ".implode("<br>", $result));
+      } else {
+        $this->reportProgress($progress, sprintf(ts("Created bank transactions for line %d."), $line_nr));
+      }
+    }
   }
+
+  /**
+   * executes an import rule
+   */
+  protected function apply_rule($rule, $line, &$btx, $header) {
+
+    // get value
+    if (is_int($rule->from)) {
+      $value = $line[$rule->from];
+    } else {
+      $index = array_search($rule->from, $header);
+      $value = $line[$index];
+    }
+
+    // execute the rule
+    if (_startswith($rule->type, 'set')) {
+      // SET is a simple copy command:
+      $btx[$rule->to] = $value;
+
+    } elseif (_startswith($rule->type, 'append')) {
+      // APPEND appends the string to a give value
+      $params = explode(":", $rule->type);
+      if (isset($params[1])) {
+        // the user defined a concat string
+        $btx[$rule->to] = $btx[$rule->to].$params[1].$value;
+      } else {
+        // default concat string is " "
+        $btx[$rule->to] = $btx[$rule->to]." ".$value;
+      }
+
+    } elseif (_startswith($rule->type, 'strtotime')) {
+      // STRTOTIME is a date parser
+      $params = explode(":", $rule->type);
+      if (isset($params[1])) {
+        // the user provided a date format
+        $datetime = DateTime::createFromFormat($params[1], $value);
+        $btx[$rule->to] = $datetime->format('YmdHis');
+      } else {
+        $datetime = strtotime($value);
+        date('YmdHis', $datetime);
+      }
+
+    } elseif (_startswith($rule->type, 'amount')) {
+      // AMOUNT will take care of currency issues, like "," instead of "."
+      $btx[$rule->to] = str_replace(",", ".", $value);
+
+    } elseif (_startswith($rule->type, 'regex')) {
+      // REGEX will extract certain values from the line
+      print_r("REGEX NOT YET IMPLEMENTED");
+    
+    } else {
+      print_r("RULE TYPE NOT YET IMPLEMENTED");
+    }
+    
+    //print_r("<br/><h2>Executing Rule:</h2>");
+    //print_r($rule);
+    //print_r("<br/>");
+    //print_r($btx);
+  }
+
 
   /** 
    * Test if the configured source is available and ready

@@ -7,14 +7,8 @@ class CRM_Banking_Page_Import extends CRM_Core_Page {
     // Example: Set the page-title dynamically; alternatively, declare a static title in xml/Menu/*.xml
     CRM_Utils_System::setTitle(ts('Bank Payment Importer'));
 
-    // find plugins
-    $result = civicrm_api('BankingPlugins', 'list', array('version' => 3, 'type' => 'import'));
-    $plugin_list = array();
-    if ($result['is_error']) {
-      CRM_Core_Error::fatal(ts("Couldn't query plugin list from API!"));
-    } else {
-      $plugin_list = $result['values'];
-    }
+    // get the plugins
+    $plugin_list = CRM_Banking_BAO_PluginInstance::listInstances('import');
 
     // check for the page mode
     if (isset($_POST['importer-plugin'])) {
@@ -26,16 +20,14 @@ class CRM_Banking_Page_Import extends CRM_Core_Page {
       $this->assign('dry_run', isset($_POST['dry_run'])?$_POST['dry_run']:"off");
       $this->assign('process', isset($_POST['process'])?$_POST['process']:"off");
       foreach ($plugin_list as $plugin) {
-        if ($plugin['id'] == $plugin_id) {
+        if ($plugin->id == $plugin_id) {
           $this->assign('plugin_list', array($plugin));
           break;
         } 
       }
 
       // RUN the importer
-      $bao = new CRM_Banking_BAO_PluginInstance();
-      $bao->get('id', $plugin_id);
-      $plugin_instance = $bao->getInstance();
+      $plugin_instance = $plugin->getInstance();
       $plugin_instance->import_stream(array('dry_run' => (isset($_POST['dry_run'])?$_POST['dry_run']:"off")));
       
       // TODO: RUN the processor
@@ -49,6 +41,19 @@ class CRM_Banking_Page_Import extends CRM_Core_Page {
       // CONFIGURATION MODE:
       $this->assign('page_mode', 'config');
       $this->assign('plugin_list', $plugin_list);
+
+      // extract the sources for the plugins
+      $has_file_source = array();
+      foreach ($plugin_list as $plugin) {
+        $class = $plugin->getClass();
+        if ($class::does_import_files()) {
+          $has_file_source[$plugin->id] = 'true';  
+        } else {
+          $has_file_source[$plugin->id] = 'false';  
+        }
+        
+      }
+      $this->assign('has_file_source', $has_file_source);
     }
 
     // URLs

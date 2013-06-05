@@ -1,5 +1,5 @@
 <form action="{$url_action}" method="POST">
-<div class="crm-block crm-form-block crm-import-datasource-form-block" id="choose-data-source">
+  <div class="crm-block crm-form-block crm-import-datasource-form-block" id="choose-data-source">
   <h3>Select Importer</h3>
     <table class="form-layout">
       <tbody>
@@ -7,10 +7,10 @@
           <td class="label"><label for="dataSource">Choose configuration<span title="This field is required." class="crm-marker">*</span></label>
           </td>
           <td>
-            <select class="form-select required" id="banking-importer-plugin" name="importer-plugin" onchange="todo(this.value);" 
+            <select class="form-select required" id="banking-importer-plugin" name="importer-plugin" onchange="selected_plugin_changed(this.value);" 
                       {if $page_mode == 'run'}disabled{/if}>
               {foreach from=$plugin_list item=field key=fieldName}
-              <option value="{$field.id}">{$field.name}</option>
+              <option value="{$field->id}">{$field->name}</option>
               {/foreach}
             </select>
           </td>
@@ -38,7 +38,12 @@
           <label for="uploadFile">  Import Data File<span title="This field is required." class="crm-marker">*</span></label>
         </td>
         <td>
-          <input type="file" class="form-file required" id="uploadFile" name="uploadFile" maxlength="255" size="30" disabled><br>
+          <input type="file" class="form-file required" id="uploadFile" name="uploadFile" maxlength="255" size="30" 
+          {if $page_mode == 'run'}
+            disabled
+          {elseif $has_file_source[0] == 'false'}
+            disabled
+          {/if}><br>
         </td>
       </tr>
     </tbody>
@@ -93,3 +98,21 @@
   {/if}
 </div>
 </form>
+
+
+<script type="text/javascript">
+{literal} 
+var has_file_source = {
+{/literal}
+{foreach from=$has_file_source item=field key=fieldName}
+  {$fieldName} : {$field},
+{/foreach}
+{literal}
+};
+
+function selected_plugin_changed(new_id) {
+  // enable/disable the file input field dending of the selected importer
+  document.getElementById('uploadFile').disabled = !has_file_source[new_id];
+}
+{/literal} 
+</script>

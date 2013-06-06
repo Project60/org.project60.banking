@@ -37,9 +37,6 @@ function _startswith($string, $prefix) {
  */
 class CRM_Banking_PluginImpl_CSVImporter extends CRM_Banking_PluginModel_Importer {
 
-  // these are the fields valid for a BTX record.
-  protected $_primary_btx_fields = ['version', 'debug', 'amount', 'bank_reference', 'value_date', 'booking_date', 'currency', 'type_id', 'status_id', 'data_raw', 'data_parsed', 'ba_id', 'party_ba_id', 'tx_batch_id', 'sequence' ];
-
   /**
    * class constructor
    */ function __construct($config_name) {
@@ -51,6 +48,7 @@ class CRM_Banking_PluginImpl_CSVImporter extends CRM_Banking_PluginModel_Importe
     if (!isset($config->header)) $config->header = 1;
     if (!isset($config->defaults)) $config->defaults = array();
     if (!isset($config->rules)) $config->rules = array();
+    if (!isset($config->BIC)) $config->BIC = rand(1000,10000);
   }
 
   /** 
@@ -135,14 +133,14 @@ class CRM_Banking_PluginImpl_CSVImporter extends CRM_Banking_PluginModel_Importe
         }
       } else {
         // import lime
-        $this->import_line($line, $line_nr, ($bytes_read/$file_size), $header);
+        $this->import_line($line, $line_nr, ($bytes_read/$file_size), $header, $params);
       }
     }
     fclose($file); 
     $this->reportDone();
   }
 
-  protected function import_line($line, $line_nr, $progress, $header) {
+  protected function import_line($line, $line_nr, $progress, $header, $params) {
     $config = $this->_plugin_config;
     $this->reportProgress($progress, sprintf("Imported line %d", $line_nr-$config->header));
     
@@ -154,7 +152,7 @@ class CRM_Banking_PluginImpl_CSVImporter extends CRM_Banking_PluginModel_Importe
       'status_id' => 0,                             // TODO: lookup status new
       'data_raw' => implode(";", $line),
       'sequence' => $line_nr-$config->header,
-      'bank_reference' => rand(1000,10000),         // TODO: what is this?
+      'bank_reference' => $config->BIC.'-'.rand(1,10000).'-'.($line_nr-$config->header),
     );
 
     // set default values from config:
@@ -182,19 +180,9 @@ class CRM_Banking_PluginImpl_CSVImporter extends CRM_Banking_PluginModel_Importe
     }
     $btx['data_parsed'] = json_encode($btx_parsed_data);
 
-
     // and finally write it into the DB
-    if (isset($params['dry_run']) && $params['dry_run']=="on") {
-      // DRY RUN ENABLED
-      $this->reportProgress($progress, sprintf(ts("NOT Created bank transactions for line %d."), $line_nr));
-    } else {
-      $result = civicrm_api('BankingTransaction', 'create', $btx);
-      if ($result['is_error']) {
-        $this->reportProgress($progress, "Error while storing BTX: ".implode("<br>", $result));
-      } else {
-        $this->reportProgress($progress, sprintf(ts("Created bank transactions for line %d."), $line_nr));
-      }
-    }
+    $duplicate = $this->checkAndStoreBTX($btx, $progress, $params);
+    // TODO: process duplicates or failures?
   }
 
   /**
@@ -232,10 +220,10 @@ class CRM_Banking_PluginImpl_CSVImporter extends CRM_Banking_PluginModel_Importe
       if (isset($params[1])) {
         // the user provided a date format
         $datetime = DateTime::createFromFormat($params[1], $value);
-        $btx[$rule->to] = $datetime->format('YmdHis');
+        $btx[$rule->to] = $datetime->format('Ymd120000');
       } else {
         $datetime = strtotime($value);
-        date('YmdHis', $datetime);
+        date('Ymd120000', $datetime);
       }
 
     } elseif (_startswith($rule->type, 'amount')) {

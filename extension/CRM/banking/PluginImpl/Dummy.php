@@ -181,17 +181,9 @@ class CRM_Banking_PluginImpl_Dummy extends CRM_Banking_PluginModel_Importer {
         'sequence' => $i,                             // sequence number
       );
       
-      if (isset($params['dry_run']) && $params['dry_run']=="on") {
-        // DRY RUN ENABLED
-        $this->reportProgress(($i/$count), "NOT created fake bank transactions for ".$contact['display_name']);
-      } else {
-        $result = civicrm_api('BankingTransaction', 'create', $btx);
-        if ($result['is_error']) {
-          $this->reportDone("Error while storing BTX: ".implode("<br>",$result));
-          return;
-        }
-        $this->reportProgress(($i/$count), "Created fake bank transactions for ".$contact['display_name']);
-      }
+      // and finally write it into the DB
+      $duplicate = $this->checkAndStoreBTX($btx, ($i/$count), $params);
+      // TODO: process duplicates or failures?
     }
 
     $this->reportDone();

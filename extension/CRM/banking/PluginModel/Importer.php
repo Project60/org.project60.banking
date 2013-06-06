@@ -25,6 +25,13 @@
  */
 abstract class CRM_Banking_PluginModel_Importer extends CRM_Banking_PluginModel_IOPlugin {
 
+  // these are the fields valid for a BTX record.
+  protected $_primary_btx_fields = ['version', 'debug', 'amount', 'bank_reference', 'value_date', 'booking_date', 'currency', 'type_id', 'status_id', 'data_raw', 'data_parsed', 'ba_id', 'party_ba_id', 'tx_batch_id', 'sequence' ];
+
+  // these fields will be used to determine, if this is a duplicate record... the primary keys if you want
+  protected $_compare_btx_fields = ['version'=>3, 'amount'=>0, /*'bank_reference'=>0,*/ 'value_date'=>0, 'booking_date'=>0, 'currency'=>0];
+  protected $_compare_btx_fields_weak = ['ba_id', 'party_ba_id', 'bank_reference'];   // weak fields will only be compared if set
+
   // ------------------------------------------------------
   // Functions to be provided by the plugin implementations
   // ------------------------------------------------------
@@ -76,6 +83,73 @@ abstract class CRM_Banking_PluginModel_Importer extends CRM_Banking_PluginModel_
    */
   abstract function import_stream( $params );
 
+
+  // ------------------------------------------------------
+  //            utility functions
+  // ------------------------------------------------------
+
+  /**
+   * This method will take an array with all the attributes for a bank transaction object,
+   * check whether this object already exists, and create a new data entry if not.
+   * In case the object exists, the existing entry is returned.
+   * If the client wants to merge the data, this has to be done by the client.
+   *
+   * @return TRUE, if successful, FALSE if not, or a duplicate existing BTX as property array
+   */
+  function checkAndStoreBTX($btx, $progress, $params=array()) {
+    // first, test for duplicates:
+    $duplicate_test = array_intersect_key($btx, $this->_compare_btx_fields);
+    $result = civicrm_api('BankingTransaction', 'get', $duplicate_test);
+    if (isset($result['is_error']) && $result['is_error']) {
+      $this->reportProgress($progress, 
+                            ts("Failed to query BTX."), 
+                            CRM_Banking_PluginModel_Base::REPORT_LEVEL_ERROR);
+      return FALSE;
+    }
+
+    if ($result['count']>0) {
+      // there might be another BTX...check the accounts
+      foreach ($result['values'] as $potential_duplicate) {
+        $is_duplicate = FALSE;  // TODO: FixME!
+        foreach ($this->_compare_btx_fields_weak as $weak_compare_key) {
+          if (    isset($btx_value[$weak_compare_key])
+              &&  $btx_value[$weak_compare_key]
+              &&  isset($potential_duplicate_value[$weak_compare_key])
+              &&  $potential_duplicate_value[$weak_compare_key]
+              &&  $btx_value[$weak_compare_key] != $potential_duplicate_value[$weak_compare_key]) 
+          {
+            $is_duplicate = FALSE;
+          }
+        }
+        if ($is_duplicate) {
+          $this->reportProgress($progress, 
+                            ts("Duplicate BTX entry detected. Not imported!"), 
+                            CRM_Banking_PluginModel_Base::REPORT_LEVEL_WARN);
+          return $potential_duplicate;
+        }
+      }
+    }
+
+    // now store 
+    if (isset($params['dry_run']) && $params['dry_run']=="on") {
+      // DRY RUN ENABLED
+      $this->reportProgress($progress, 
+                            sprintf(ts("DRY RUN: Did not create bank transaction '%d' (%f %s on %s)"), $result['id'], $btx['amount'], $btx['currency'], $btx['booking_date']));
+      return TRUE;
+    } else {
+      $result = civicrm_api('BankingTransaction', 'create', $btx);
+      if ($result['is_error']) {
+        $this->reportProgress($progress, 
+                              sprintf(ts("Error while storing BTX: %s") ,implode("<br>", $result)),
+                              CRM_Banking_PluginModel_Base::REPORT_LEVEL_ERROR);
+        return FALSE;
+      } else {
+        $this->reportProgress($progress, 
+                              sprintf(ts("Created bank transaction '%d' (%f %s on %s)"), $result['id'], $btx['amount'], $btx['currency'], $btx['booking_date']));
+        return TRUE;
+      }
+    }
+  }
 
 
   /**

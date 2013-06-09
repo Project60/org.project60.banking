@@ -145,14 +145,15 @@ class CRM_Banking_PluginImpl_CSVImporter extends CRM_Banking_PluginModel_Importe
     $this->reportProgress($progress, sprintf("Imported line %d", $line_nr-$config->header));
     
     // generate entry data
+    $raw_data = implode(";", $line);
     $btx = array(
       'version' => 3,
       'currency' => 'EUR',
       'type_id' => 0,                               // TODO: lookup type ?
       'status_id' => 0,                             // TODO: lookup status new
-      'data_raw' => implode(";", $line),
+      'data_raw' => $raw_data,
       'sequence' => $line_nr-$config->header,
-      'bank_reference' => $config->BIC.'-'.rand(1,10000).'-'.($line_nr-$config->header),
+      'bank_reference' => md5($raw_data),           // Paul: if no other reference available, use MD5 of raw line to find duplicates
     );
 
     // set default values from config:

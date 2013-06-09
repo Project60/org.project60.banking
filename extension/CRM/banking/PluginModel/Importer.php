@@ -29,9 +29,8 @@ abstract class CRM_Banking_PluginModel_Importer extends CRM_Banking_PluginModel_
   protected $_primary_btx_fields = ['version', 'debug', 'amount', 'bank_reference', 'value_date', 'booking_date', 'currency', 'type_id', 'status_id', 'data_raw', 'data_parsed', 'ba_id', 'party_ba_id', 'tx_batch_id', 'sequence' ];
 
   // these fields will be used to determine, if this is a duplicate record... the primary keys if you want
-  protected $_compare_btx_fields = ['version'=>3, 'amount'=>0, /*'bank_reference'=>0,*/ 'value_date'=>0, 'booking_date'=>0, 'currency'=>0];
-  protected $_compare_btx_fields_weak = ['ba_id', 'party_ba_id', 'bank_reference'];   // weak fields will only be compared if set
-
+  protected $_compare_btx_fields = ['bank_reference'=>TRUE, 'amount'=>TRUE, 'value_date'=>TRUE, 'booking_date'=>TRUE, 'currency'=>TRUE, 'version'=>3];
+  
   // ------------------------------------------------------
   // Functions to be provided by the plugin implementations
   // ------------------------------------------------------
@@ -109,25 +108,11 @@ abstract class CRM_Banking_PluginModel_Importer extends CRM_Banking_PluginModel_
 
     if ($result['count']>0) {
       // there might be another BTX...check the accounts
-      foreach ($result['values'] as $potential_duplicate) {
-        $is_duplicate = FALSE;  // TODO: FixME!
-        foreach ($this->_compare_btx_fields_weak as $weak_compare_key) {
-          if (    isset($btx_value[$weak_compare_key])
-              &&  $btx_value[$weak_compare_key]
-              &&  isset($potential_duplicate_value[$weak_compare_key])
-              &&  $potential_duplicate_value[$weak_compare_key]
-              &&  $btx_value[$weak_compare_key] != $potential_duplicate_value[$weak_compare_key]) 
-          {
-            $is_duplicate = FALSE;
-          }
-        }
-        if ($is_duplicate) {
-          $this->reportProgress($progress, 
-                            ts("Duplicate BTX entry detected. Not imported!"), 
-                            CRM_Banking_PluginModel_Base::REPORT_LEVEL_WARN);
-          return $potential_duplicate;
-        }
-      }
+      $duplicates = $result['values'];
+      $this->reportProgress($progress, 
+                        ts("Duplicate BTX entry detected. Not imported!"), 
+                        CRM_Banking_PluginModel_Base::REPORT_LEVEL_WARN);
+      return reset($duplicates); // RETURN FIRST ENTRY
     }
 
     // now store 

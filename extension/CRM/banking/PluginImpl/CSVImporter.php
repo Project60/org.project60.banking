@@ -231,10 +231,18 @@ class CRM_Banking_PluginImpl_CSVImporter extends CRM_Banking_PluginModel_Importe
       // AMOUNT will take care of currency issues, like "," instead of "."
       $btx[$rule->to] = str_replace(",", ".", $value);
 
-    } elseif (_startswith($rule->type, 'regex')) {
+    } elseif (_startswith($rule->type, 'regex:')) {
       // REGEX will extract certain values from the line
-      print_r("REGEX NOT YET IMPLEMENTED");
-    
+      $pattern = substr($rule->type, 6);
+      $matches = array();
+      if (preg_match($pattern, $value, $matches)) {
+        // we found it!
+        $btx[$rule->to] = $matches[1];
+      } else {
+        $this->reportProgress(CRM_Banking_PluginModel_Base::REPORT_PROGRESS_NONE, 
+          sprintf(ts("Pattern '%s' was not found in entry '%s'."), $pattern, $value));
+      }
+
     } else {
       print_r("RULE TYPE NOT YET IMPLEMENTED");
     }

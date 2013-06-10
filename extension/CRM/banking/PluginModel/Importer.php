@@ -119,7 +119,7 @@ abstract class CRM_Banking_PluginModel_Importer extends CRM_Banking_PluginModel_
     if (isset($params['dry_run']) && $params['dry_run']=="on") {
       // DRY RUN ENABLED
       $this->reportProgress($progress, 
-                            sprintf(ts("DRY RUN: Did not create bank transaction '%d' (%f %s on %s)"), $result['id'], $btx['amount'], $btx['currency'], $btx['booking_date']));
+                            sprintf(ts("DRY RUN: Did not create bank transaction '%d' (%s %s on %s)"), $result['id'], number_format((float)$btx['amount'], 2), $btx['currency'], $btx['booking_date']));
       return TRUE;
     } else {
       $result = civicrm_api('BankingTransaction', 'create', $btx);
@@ -130,7 +130,7 @@ abstract class CRM_Banking_PluginModel_Importer extends CRM_Banking_PluginModel_
         return FALSE;
       } else {
         $this->reportProgress($progress, 
-                              sprintf(ts("Created bank transaction '%d' (%f %s on %s)"), $result['id'], $btx['amount'], $btx['currency'], $btx['booking_date']));
+                              sprintf(ts("Created bank transaction '%d' (%s %s on %s)"), $result['id'], number_format((float)$btx['amount'], 2), $btx['currency'], $btx['booking_date']));
         return TRUE;
       }
     }

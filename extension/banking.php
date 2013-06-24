@@ -287,3 +287,24 @@ function banking_civicrm_navigationMenu(&$params) {
 
   $params = array_merge(array_slice($params, 0, $insert_at), array($banking_entry), array_slice($params, $insert_at));
 }
+
+
+
+function banking_civicrm_entityTypes(&$entityTypes) {
+  // add my DAO's
+  $entityTypes[] = array(
+      'name' => 'BankAccount',
+      'class' => 'CRM_Banking_DAO_BankAccount',
+      'table' => 'civicrm_bank_account',
+  );
+  $entityTypes[] = array(
+      'name' => 'BankTransaction',
+      'class' => 'CRM_Banking_DAO_BankTransaction',
+      'table' => 'civicrm_bank_tx',
+  );
+  $entityTypes[] = array(
+      'name' => 'PluginInstance',
+      'class' => 'CRM_Banking_DAO_PluginInstance',
+      'table' => 'civicrm_bank_plugin_instabce',
+  );
+}

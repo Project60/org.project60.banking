@@ -25,6 +25,14 @@
  */
 abstract class CRM_Banking_PluginModel_Matcher extends CRM_Banking_PluginModel_Base {
 
+    
+  protected $_suggestions;
+
+  protected function addSuggestion( $suggestion )
+  {
+      $this->_suggestions[] = $suggestion;
+    }
+        
   // ------------------------------------------------------
   // Functions to be provided by the plugin implementations
   // ------------------------------------------------------
@@ -65,6 +73,7 @@ abstract class CRM_Banking_PluginModel_Matcher extends CRM_Banking_PluginModel_B
   /**
    * class constructor
    */ function __construct($config_name) {
+        $this->_suggestions = array();
     parent::__construct($config_name);
 
   }

@@ -29,6 +29,10 @@
 	        	<div class="crm-content crm-contact-job_title">{$payment->amount} {$payment->currency}</div>
 			</div>
 	      	<div class="crm-summary-row">
+	        	<div class="crm-label">Purpose</div>
+	        	<div class="crm-content crm-contact-job_title">{$payment_data_parsed.purpose}</div>
+			</div>
+	      	<div class="crm-summary-row">
 	        	<div class="crm-label">To Account</div>
 	        	<div class="crm-content crm-contact-job_title">Unknown</div>
 			</div>

@@ -97,7 +97,7 @@ abstract class CRM_Banking_PluginModel_Base {
       // this means, no new progress has been made, simple take the last one
       $last_entry = array_slice( $this->_progress_log, -1, 1, TRUE );
       if (count($last_entry)>0) {
-        $progress = reset($last_entry)[1];
+//        $progress = reset($last_entry)[1];    // I have no clue what this does
       } else {
         $progress = 0.0;
       }

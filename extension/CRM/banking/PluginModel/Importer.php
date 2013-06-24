@@ -26,10 +26,10 @@
 abstract class CRM_Banking_PluginModel_Importer extends CRM_Banking_PluginModel_IOPlugin {
 
   // these are the fields valid for a BTX record.
-  protected $_primary_btx_fields = ['version', 'debug', 'amount', 'bank_reference', 'value_date', 'booking_date', 'currency', 'type_id', 'status_id', 'data_raw', 'data_parsed', 'ba_id', 'party_ba_id', 'tx_batch_id', 'sequence' ];
+  protected $_primary_btx_fields = array( 'version', 'debug', 'amount', 'bank_reference', 'value_date', 'booking_date', 'currency', 'type_id', 'status_id', 'data_raw', 'data_parsed', 'ba_id', 'party_ba_id', 'tx_batch_id', 'sequence' );
 
   // these fields will be used to determine, if this is a duplicate record... the primary keys if you want
-  protected $_compare_btx_fields = ['bank_reference'=>TRUE, 'amount'=>TRUE, 'value_date'=>TRUE, 'booking_date'=>TRUE, 'currency'=>TRUE, 'version'=>3];
+  protected $_compare_btx_fields = array( 'bank_reference'=>TRUE, 'amount'=>TRUE, 'value_date'=>TRUE, 'booking_date'=>TRUE, 'currency'=>TRUE, 'version'=>3 );
   
   // ------------------------------------------------------
   // Functions to be provided by the plugin implementations

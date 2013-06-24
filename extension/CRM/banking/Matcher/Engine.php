@@ -61,7 +61,7 @@ class CRM_Banking_Matcher_Engine {
     //    the matchers array by weight, then ksort descending
     $this->plugins = array();
     
-    $matcher_type_id = 717; // FIXME: lookup
+    $matcher_type_id = 718; // FIXME: lookup
     $params = array('version' => 3, 'plugin_type_id' => $matcher_type_id);
     $result = civicrm_api('BankingPluginInstance', 'get', $params);
     if (isset($result['is_error']) && $result['is_error']) {
@@ -94,7 +94,7 @@ class CRM_Banking_Matcher_Engine {
     if (empty($this->plugins)) {
       CRM_Core_Session::setStatus(ts("No matcher plugins configured!"), ts('No processors'), 'alert');
     } else {
-      foreach ($this->plugins as $weight => $plugins) {
+        foreach ($this->plugins as $weight => $plugins) {
         foreach ($plugins as $plugin) {
           $continue = $this->matchPlugin( $plugin, $context );
           if (!$continue) return true;
@@ -112,9 +112,11 @@ class CRM_Banking_Matcher_Engine {
    * @param type $btx
    * @param type $context
    */
-  private function matchPlugin( CRM_Banking_PluginModel_Matcher $plugin, CRM_Banking_Matcher_Context $context ) {
+   protected function matchPlugin( CRM_Banking_PluginModel_Matcher $plugin, CRM_Banking_Matcher_Context $context ) {
+            echo '<hr>';
+
     $btx = $context->btx;
-    
+
     // match() returns an instance of CRM_Banking_Matcher_Suggestion
     $suggestions = $plugin->match( $btx, $context );
     if ($suggestions !== null) {

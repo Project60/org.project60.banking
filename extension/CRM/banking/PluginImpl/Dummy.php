@@ -139,7 +139,7 @@ class CRM_Banking_PluginImpl_Dummy extends CRM_Banking_PluginModel_Importer {
     if (isset($config->amounts)) {
       $amounts = $config->amounts;
     } else {
-      $amounts = ["(rand(0,20000)-10000)/100"];
+      $amounts = array("(rand(0,20000)-10000)/100");
     }
 
     // now create <$count> entries

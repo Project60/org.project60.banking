@@ -97,12 +97,12 @@ function banking_civicrm_options() {
               ),
               'generic' => array(
                   'label' => 'Generic Matcher Plugin',
-                  'value' => 'CRM_Banking_PluginImpl_Generic',
+                  'value' => 'CRM_Banking_PluginImpl_Matcher_Generic',
                   'is_default' => 0,
               ),
               'yes' => array(
                   'label' => 'Dummy Matcher Test Plugin',
-                  'value' => 'CRM_Banking_PluginImpl_Yes',
+                  'value' => 'CRM_Banking_PluginImpl_Matcher_Yes',
                   'is_default' => 0,
               ),
               'csv_import' => array(

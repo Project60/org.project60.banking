@@ -6,7 +6,7 @@
  * - check the transaction date to be inside a range
  * - check the communication using a regex
  */
-class CRM_Banking_PluginImpl_Generic extends CRM_Banking_PluginModel_Matcher {
+class CRM_Banking_PluginImpl_Matcher_Generic extends CRM_Banking_PluginModel_Matcher {
 
     /**
      * class constructor
@@ -93,8 +93,14 @@ class CRM_Banking_PluginImpl_Generic extends CRM_Banking_PluginModel_Matcher {
         
     }
 
-    function visualize_match($match, $btx) {
-        return "Generic match, dude ...";
+    function visualize_match( CRM_Banking_Matcher_Suggestion $match, $btx) {
+        $s = '<ul>Because :';
+        $evidence = $match->getEvidence();
+        foreach ($evidence as $ev) {
+            $s .= '<li>' . $ev . '</li>';
+        }
+        $s .= '</ul>';
+        return $s;
     }
 
 }

@@ -6,9 +6,7 @@
  * - check the transaction date to be inside a range
  * - check the communication using a regex
  */
-class CRM_Banking_PluginImpl_Yes extends CRM_Banking_PluginModel_Matcher {
-
-  private $suggestions;
+class CRM_Banking_PluginImpl_Matcher_Yes extends CRM_Banking_PluginModel_Matcher {
 
   /**
    * class constructor
@@ -33,7 +31,7 @@ class CRM_Banking_PluginImpl_Yes extends CRM_Banking_PluginModel_Matcher {
     
   }
 
-  public function visualize_match($match, $btx) {
+  public function visualize_match(CRM_Banking_Matcher_Suggestion $match, $btx) {
     return '<div style="background-color:gray;text-align:center">
             <font size="+1">
             <font color="#ccff66">Y</font>

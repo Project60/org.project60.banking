@@ -72,7 +72,9 @@ public function resetSuggestions() {
   }
 
   public function saveSuggestions() {
-    // TODO: discover how to save ONLY this field
+      $this->suggestions = json_encode( $this->suggestion_objects);
+      // rhis still crashes with the SQL syntax issue
+      //$this->save();
   }
 
 }

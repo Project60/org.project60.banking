@@ -235,11 +235,13 @@ class CRM_Banking_DAO_BankTransaction extends CRM_Core_DAO
           'name' => 'value_date',
           'type' => CRM_Utils_Type::T_DATE + CRM_Utils_Type::T_TIME,
           'title' => ts('Value date') ,
+            'dataPattern' => '/^\d{4}-?\d{2}-?\d{2} ?(\d{2}:?\d{2}:?(\d{2})?)?$/',
           'required' => true,
         ) ,
         'booking_date' => array(
           'name' => 'booking_date',
           'type' => CRM_Utils_Type::T_DATE + CRM_Utils_Type::T_TIME,
+            'dataPattern' => '/^\d{4}-?\d{2}-?\d{2} ?(\d{2}:?\d{2}:?(\d{2})?)?$/',
           'title' => ts('Booking date') ,
           'required' => true,
         ) ,

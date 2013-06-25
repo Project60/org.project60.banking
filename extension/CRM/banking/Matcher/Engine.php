@@ -113,7 +113,6 @@ class CRM_Banking_Matcher_Engine {
    * @param type $context
    */
    protected function matchPlugin( CRM_Banking_PluginModel_Matcher $plugin, CRM_Banking_Matcher_Context $context ) {
-            echo '<hr>';
 
     $btx = $context->btx;
 

@@ -42,6 +42,7 @@ abstract class CRM_Banking_PluginModel_Base {
   protected $_plugin_dao;
   protected $_plugin_id;
   protected $_plugin_weight;
+  protected $_plugin_title;
   protected $_plugin_config;
   protected $_progress_callback;
   protected $_progress_log = array();
@@ -66,6 +67,7 @@ abstract class CRM_Banking_PluginModel_Base {
     $this->_plugin_dao = $plugin_dao;
     $this->_plugin_id = $plugin_dao->id;
     $this->_plugin_weight = $plugin_dao->weight;
+    $this->_plugin_title = $plugin_dao->description;
     $this->_plugin_config = json_decode( $plugin_dao->config );
     if ($this->_plugin_config==false) {
       CRM_Core_Error::fatal("Configuration for CiviBanking plugin (id: ".$plugin_dao->id.") is not a valid JSON string.");
@@ -131,6 +133,9 @@ abstract class CRM_Banking_PluginModel_Base {
     return $this->_progress_log;
   }
 
+  function getTitle() {
+      return $this->_plugin_title;
+  }
 
   // -------------------------------------------------------
   // search functions provided to the plugin implementations

@@ -67,7 +67,7 @@ abstract class CRM_Banking_PluginModel_Matcher extends CRM_Banking_PluginModel_B
    * @val $btx      the bank transaction the match refers to
    * @return html code snippet
    */
-  public abstract function visualize_match( $match, $btx );
+  public abstract function visualize_match( CRM_Banking_Matcher_Suggestion $match, $btx );
 
 
   /**

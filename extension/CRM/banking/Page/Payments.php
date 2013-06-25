@@ -26,22 +26,22 @@ class CRM_Banking_Page_Payments extends CRM_Core_Page {
     // Example: Assign a variable for use in a template
     $this->assign('currentTime', date('Y-m-d H:i:s'));
 
-
-
     if (isset($_REQUEST['show']) && $_REQUEST['show']=="statements") {
         // read all batches
         $params = array('version' => 3);
         $result = civicrm_api('BankingTransactionBatch', 'get', $params);
         $statement_rows = array();
         foreach ($result['values'] as $entry) {
-            array_push($statement_rows, 
+            $info = $this->investigate($entry['id']);
+            print_r($info);
+            array_push($statement_rows,
                 array(  
                         'id' => $entry['reference'], 
                         'date' => $entry['starting_date'], 
                         'count' => $entry['tx_count'], 
-                        'target' => 'Unknown',
-                        'processed' => '0%', 
-                        'completed' => '0%', 
+                        'target' => $info['target_account'],
+                        'processed' => $info['processed'].'%',
+                        'completed' => $info['completed'].'%',
                     )
             );
         }
@@ -82,5 +82,48 @@ class CRM_Banking_Page_Payments extends CRM_Core_Page {
     $this->assign('url_show_all', CRM_Utils_System::url('civicrm/banking/review', sprintf('id=%d&list=%s', $entry['id'], 'all')));
 
     parent::run();
+  }
+
+  /**
+   * will iterate through all transactions in the given statements and
+   * return an array with some further information:
+   *   'processed'      => percentage of processed statements
+   *   'completed'      => percentage of completed statements
+   *   'target_account' => the target account
+   */
+  function investigate($stmt_id) {
+    // go over all transactions to find out rates and data
+    $target_account = "Unknown";
+    $processed_count = 0;
+    $completed_count = 0;
+    $count = 0;
+
+    $btx_query = array('version' => 3, 'tx_batch_id' => $stmt_id);
+    $btx_result = civicrm_api('BankingTransaction', 'get', $btx_query);
+    foreach ($btx_result['values'] as $btx) {
+        $count += 1.0;
+        if (isset($btx['ba_id']))
+            $target_account = $btx['ba_id'];
+
+        // TODO: use states
+        if (isset($btx['suggestions']))
+            $processed_count += 1;
+        if (isset($btx['suggestions']))
+            $completed_count += 1;
+    }
+    
+    if ($count) {
+      return array(
+        'processed'      => ($processed_count / $count * 100.0),
+        'completed'      => ($completed_count / $count * 100.0),
+        'target_account' => $target_account
+        );
+    } else {
+      return array(
+        'processed'      => 0,
+        'completed'      => 0,
+        'target_account' => $target_account
+        );
+    }
   }
 }

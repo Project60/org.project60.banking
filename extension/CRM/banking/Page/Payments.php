@@ -26,36 +26,51 @@ class CRM_Banking_Page_Payments extends CRM_Core_Page {
     // Example: Assign a variable for use in a template
     $this->assign('currentTime', date('Y-m-d H:i:s'));
 
-    // read all transactions
-    $params = array('version' => 3);
-    $result = civicrm_api('BankingTransaction', 'get', $params);
-    $payment_rows = array();
-    foreach ($result['values'] as $entry) {
-        array_push($payment_rows, 
-            array(  
-                    'id' => $entry['id'], 
-                    'date' => $entry['value_date'], 
-                    'amount' => (isset($entry['amount'])?$entry['amount']:"unknown"), 
-                    'account_owner' => 'TODO', 
-                    'source' => (isset($entry['party_ba_id'])?$entry['party_ba_id']:"unknown"),
-                    'target' => (isset($entry['ba_id'])?$entry['ba_id']:"unknown"),
-                    'state' => (isset($entry['status_id'])?$entry['status_id']:"unknown"),
-                    'url_link' => CRM_Utils_System::url('civicrm/banking/review', 'id='.$entry['id']),
-                )
-        );
-    }
 
-    $statement_rows  = array(
-        array('date' => 'April 15th, 2013 1:30 PM', 'id' => 'GLS-2013-3', 'count' => '52', 'target' => '2143988492', 'processed' => '0%', 'completed' => '0%'),
-        array('date' => 'March 15th, 2013 1:30 PM', 'id' => 'GLS-2013-2', 'count' => '34', 'target' => '2143988492', 'processed' => '100%', 'completed' => '82%'),
-        array('date' => 'February 15th, 2013 1:30 PM', 'id' => 'GLS-2013-1', 'count' => '19', 'target' => '2143988492', 'processed' => '100%', 'completed' => '100%'),
-    );
 
-    if (isset($_GET['show']) && $_GET['show']=="statements") {
+    if (isset($_REQUEST['show']) && $_REQUEST['show']=="statements") {
+        // read all batches
+        $params = array('version' => 3);
+        $result = civicrm_api('BankingTransactionBatch', 'get', $params);
+        $statement_rows = array();
+        foreach ($result['values'] as $entry) {
+            array_push($statement_rows, 
+                array(  
+                        'id' => $entry['reference'], 
+                        'date' => $entry['starting_date'], 
+                        'count' => $entry['tx_count'], 
+                        'target' => 'Unknown',
+                        'processed' => '0%', 
+                        'completed' => '0%', 
+                    )
+            );
+        }
+
         $this->assign('rows', $statement_rows);
         $this->assign('status_message', sizeof($statement_rows).' incomplete statements.');
         $this->assign('show', 'statements');        
+
+
     } else {
+        // read all transactions
+        $params = array('version' => 3);
+        $result = civicrm_api('BankingTransaction', 'get', $params);
+        $payment_rows = array();
+        foreach ($result['values'] as $entry) {
+            array_push($payment_rows, 
+                array(  
+                        'id' => $entry['id'], 
+                        'date' => $entry['value_date'], 
+                        'amount' => (isset($entry['amount'])?$entry['amount']:"unknown"), 
+                        'account_owner' => 'TODO', 
+                        'source' => (isset($entry['party_ba_id'])?$entry['party_ba_id']:"unknown"),
+                        'target' => (isset($entry['ba_id'])?$entry['ba_id']:"unknown"),
+                        'state' => (isset($entry['status_id'])?$entry['status_id']:"unknown"),
+                        'url_link' => CRM_Utils_System::url('civicrm/banking/review', 'id='.$entry['id']),
+                    )
+            );
+        }
+
         $this->assign('rows', $payment_rows);
         $this->assign('status_message', sizeof($payment_rows).' unprocessed payments.');
         $this->assign('show', 'payments');        

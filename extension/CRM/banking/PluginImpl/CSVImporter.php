@@ -101,7 +101,6 @@ class CRM_Banking_PluginImpl_CSVImporter extends CRM_Banking_PluginModel_Importe
    */
   function import_file( $file_path, $params )
   {
-
     // begin
     $config = $this->_plugin_config;
     $this->reportProgress(0.0, sprintf("Starting to read file '%s'...", $params['source']));

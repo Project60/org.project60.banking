@@ -63,13 +63,14 @@ class CRM_Banking_BAO_PluginInstance extends CRM_Banking_DAO_PluginInstance {
 
       // insert with ascending weight
       // PD: I think this code is really complex - are you trying to sort on weight ? we can do that with a usort call
-//      for ($index=0; $index < count($plugin_list); $index++) {
-//        if ($plugin->weight > $plugin_list[$index]->weight) {
-//          array_splice($plugin_list, $index, 0, array($plugin));
-//          $index = count($plugin_list)-1; // for the after-loop condition
-//          break;
-//        }
-//      }
+      //  BE: go ahead and replace it! But if you just comment it out, it stops working, and I get warnings (Undefined variable, below)
+      for ($index=0; $index < count($plugin_list); $index++) {
+        if ($plugin->weight > $plugin_list[$index]->weight) {
+          array_splice($plugin_list, $index, 0, array($plugin));
+          $index = count($plugin_list)-1; // for the after-loop condition
+          break;
+        }
+      }
       if ($index==count($plugin_list)) {
         // i.e. it was not added during the loop
         array_push($plugin_list, $plugin);

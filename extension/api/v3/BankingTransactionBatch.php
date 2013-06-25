@@ -26,7 +26,7 @@
 */
 
 /**
- * File for the CiviCRM APIv3 banking_payment functions
+ * File for the CiviCRM APIv3 banking_payment_batch functions
  *
  * @package CiviBanking
  *
@@ -34,18 +34,18 @@
 
 
 /**
- * Add an BankingTransaction for a contact
+ * Add an BankingTransactionBatch
  *
  * Allowed @params array keys are:
  *
- * @example BankingTransaction.php Standard Create Example
+ * @example BankingTransactionBatch.php Standard Create Example
  *
  * @return array API result array
  * {@getfields banking_transaction_create}
  * @access public
  */
-function civicrm_api3_banking_transaction_create($params) {
-  return _civicrm_api3_basic_create("CRM_Banking_BAO_BankTransaction", $params);
+function civicrm_api3_banking_transaction_batch_create($params) {
+  return _civicrm_api3_basic_create('CRM_Banking_BAO_BankTransactionBatch', $params);
 }
 
 /**
@@ -54,13 +54,12 @@ function civicrm_api3_banking_transaction_create($params) {
  * The metadata is used for setting defaults, documentation & validation
  * @param array $params array or parameters determined by getfields
  */
-function _civicrm_api3_banking_transaction_create_spec(&$params) {
-    $params['bank_reference']['api.required'] = 1;
-    $params['amount']['api.default'] = "666";
-    $params['type_id']['api.default'] = "0";
-    $params['status_id']['api.default'] = "0";
-    $params['data_raw']['api.default'] = "{}";
-    $params['data_parsed']['api.default'] = "{}";
+function _civicrm_api3_banking_transaction_batch_create_spec(&$params) {
+    // TODO: adjust
+    $params['issue_date']['api.required'] = 1;
+    $params['reference']['api.required'] = 1;
+    $params['sequence']['api.default'] = 0;
+    $params['tx_count']['api.default'] = 0;
 }
 
 /**
@@ -74,8 +73,8 @@ function _civicrm_api3_banking_transaction_create_spec(&$params) {
  * {@getfields banking_transaction_delete}
  * @access public
  */
-function civicrm_api3_banking_transaction_delete($params) {
-  return _civicrm_api3_basic_delete('CRM_Banking_BAO_BankTransaction', $params);
+function civicrm_api3_banking_transaction_batch_delete($params) {
+  return _civicrm_api3_basic_delete('CRM_Banking_BAO_BankTransactionBatch', $params);
 }
 
 /**
@@ -92,8 +91,9 @@ function civicrm_api3_banking_transaction_delete($params) {
  * {@getfields banking_transaction_get}
  * @access public
  */
-function civicrm_api3_banking_transaction_get($params) {
-  return _civicrm_api3_basic_get('CRM_Banking_BAO_BankTransaction', $params);
+function civicrm_api3_banking_transaction_batch_get($params) {
+  return _civicrm_api3_basic_get('CRM_Banking_BAO_BankTransactionBatch', $params);
 }
+
 
 

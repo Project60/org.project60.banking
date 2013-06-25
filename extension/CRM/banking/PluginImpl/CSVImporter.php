@@ -111,6 +111,7 @@ class CRM_Banking_PluginImpl_CSVImporter extends CRM_Banking_PluginModel_Importe
     $bytes_read = 0;
     $header = array();
 
+    $batch = $this->openTransactionBatch();
     while (($line = fgetcsv($file, 0, $config->delimiter)) !== FALSE) {
       // update stats
       $line_nr += 1;
@@ -137,6 +138,17 @@ class CRM_Banking_PluginImpl_CSVImporter extends CRM_Banking_PluginModel_Importe
       }
     }
     fclose($file); 
+
+    //TODO: customize batch params
+    
+    if ($this->getCurrentTransactionBatch()->tx_count) {
+      // we have transactions in the batch -> save
+      //$this->getCurrentTransactionBatch()->starting_date = 0;
+      //$this->getCurrentTransactionBatch()->ending_date = 0;
+      $this->closeTransactionBatch(TRUE);
+    } else {
+      $this->closeTransactionBatch(FALSE);
+    }
     $this->reportDone();
   }
 
@@ -209,6 +221,7 @@ class CRM_Banking_PluginImpl_CSVImporter extends CRM_Banking_PluginModel_Importe
       $params = explode(":", $rule->type);
       if (isset($params[1])) {
         // the user defined a concat string
+        if (!isset($btx[$rule->to])) $btx[$rule->to] = '';
         $btx[$rule->to] = $btx[$rule->to].$params[1].$value;
       } else {
         // default concat string is " "

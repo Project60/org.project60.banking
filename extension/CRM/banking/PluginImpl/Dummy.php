@@ -142,6 +142,9 @@ class CRM_Banking_PluginImpl_Dummy extends CRM_Banking_PluginModel_Importer {
       $amounts = array("(rand(0,20000)-10000)/100");
     }
 
+    // create batch
+    $batch = $this->openTransactionBatch();
+
     // now create <$count> entries
     for ($i = 1; $i <= $count; $i++) {
       // pick a contact to work with
@@ -186,8 +189,11 @@ class CRM_Banking_PluginImpl_Dummy extends CRM_Banking_PluginModel_Importer {
       // TODO: process duplicates or failures?
     }
 
-    $this->reportDone();
+    //TODO: customize batch params
+    
+    $batch = $this->closeTransactionBatch();
 
+    $this->reportDone();
   }
 }
 

@@ -39,8 +39,8 @@
  * @return array (reference )        
  * @access public
  */
-function civicrm_api3_banking_account_create($params) {
-  return _civicrm_api3_basic_create("CRM_Banking_BAO_BankAccount", $params);
+function civicrm_api3_banking_account_reference_create($params) {
+  return _civicrm_api3_basic_create("CRM_Banking_BAO_BankAccountReference", $params);
 }
   
 /**
@@ -49,12 +49,9 @@ function civicrm_api3_banking_account_create($params) {
  * The metadata is used for setting defaults, documentation & validation
  * @param array $params array or parameters determined by getfields
  */
-function _civicrm_api3_banking_account_create_spec(&$params) {
-    $params['created_date']['api.required'] = 1;
-    $params['modified_date']['api.required'] = 1;
-    $params['description']['api.default'] = "";
-    $params['data_raw']['api.default'] = "{}";
-    $params['data_parsed']['api.default'] = "{}";
+function _civicrm_api3_banking_account_reference_create_spec(&$params) {
+    $params['reference_type_id']['api.required'] = 1;
+    $params['reference']['api.required'] = 1;
 }
 
 /**
@@ -65,8 +62,8 @@ function _civicrm_api3_banking_account_create_spec(&$params) {
  * @return array (reference )        
  * @access public
  */
-function civicrm_api3_banking_account_get($params) {
-  return _civicrm_api3_basic_get("CRM_Banking_BAO_BankAccount", $params);
+function civicrm_api3_banking_account_reference_get($params) {
+  return _civicrm_api3_basic_get("CRM_Banking_BAO_BankAccountReference", $params);
 }
 
 /**
@@ -77,7 +74,7 @@ function civicrm_api3_banking_account_get($params) {
  * @return array (reference )        
  * @access public
  */
-function civicrm_api3_banking_account_delete($params) {
-  return _civicrm_api3_basic_get("CRM_Banking_BAO_BankAccount", $params);
+function civicrm_api3_banking_account_reference_delete($params) {
+  return _civicrm_api3_basic_get("CRM_Banking_BAO_BankAccountReference", $params);
 }
 

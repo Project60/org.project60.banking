@@ -16,6 +16,7 @@ class CRM_Banking_BAO_BankAccount extends CRM_Banking_DAO_BankAccount {
     // default values
     if (empty($params['id'])) {
       $params['created_date'] = date('YmdHis');
+      $params['modified_date'] = date('YmdHis');
     } else {
       $params['modified_date'] = date('YmdHis');
     }

@@ -22,14 +22,14 @@
   </a>
 {/if}
 
-<a class="button" href="#">
-  <span><div class="icon inform-icon"></div>Unreviewed</span>
+<a class="button" href="{$url_show_payments_new}">
+  <span><div class="icon inform-icon"></div>New</span>
 </a>
-<a class="button" href="#">
-  <span><div class="icon inform-icon"></div>Unprocessed</span>
-</a>
-<a class="button" href="#">
+<a class="button" href="{$url_show_payments_analysed}">
   <span><div class="icon inform-icon"></div>Analysed</span>
+</a>
+<a class="button" href="{$url_show_payments_completed}">
+  <span><div class="icon inform-icon"></div>Completed</span>
 </a>
 <a class="button" href="#">
   <span><div class="icon edit-icon"></div>Custom Filter</span>

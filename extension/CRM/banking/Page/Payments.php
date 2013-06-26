@@ -18,6 +18,7 @@
     
 require_once 'CRM/Core/Page.php';
 require_once 'CRM/Banking/Helpers/OptionValue.php';
+require_once 'CRM/Banking/Helpers/URLBuilder.php';
 
 class CRM_Banking_Page_Payments extends CRM_Core_Page {
   function run() {
@@ -53,10 +54,13 @@ class CRM_Banking_Page_Payments extends CRM_Core_Page {
 
     } else {
         // read all transactions
-        $params = array('version' => 3);
-        $result = civicrm_api('BankingTransaction', 'get', $params);
+        $btxs = $this->load_btx($payment_states);
+        //$params = array('version' => 3);
+        //$result = civicrm_api('BankingTransaction', 'get', $params);
         $payment_rows = array();
-        foreach ($result['values'] as $entry) {
+        //foreach ($result['values'] as $entry) {
+        //print_r($btxs );
+        foreach ($btxs as $entry) {
             $status = $payment_states[$entry['status_id']]['label'];
             array_push($payment_rows, 
                 array(  
@@ -78,12 +82,20 @@ class CRM_Banking_Page_Payments extends CRM_Core_Page {
     }
 
     // URLs
-    $this->assign('url_show_payments', CRM_Utils_System::url('civicrm/banking/payments', 'show=payments'));
-    $this->assign('url_show_statements', CRM_Utils_System::url('civicrm/banking/payments', 'show=statements'));
-    $this->assign('url_show_all', CRM_Utils_System::url('civicrm/banking/review', sprintf('id=%d&list=%s', $entry['id'], 'all')));
+
+    //$this->assign('url_show_payments', CRM_Utils_System::url('civicrm/banking/payments', 'show=payments'));
+    //$this->assign('url_show_statements', CRM_Utils_System::url('civicrm/banking/payments', 'show=statements'));
+    $this->assign('url_show_payments', banking_helper_buildURL('civicrm/banking/payments', array('show'=>'payments')));
+    $this->assign('url_show_statements', banking_helper_buildURL('civicrm/banking/payments', array('show'=>'statements')));
+
+    $this->assign('url_show_payments_new', banking_helper_buildURL('civicrm/banking/payments', array('status_ids'=>$payment_states['new']['id']), array('show')));
+    $this->assign('url_show_payments_analysed', banking_helper_buildURL('civicrm/banking/payments', array('status_ids'=>$payment_states['suggestions']['id']), array('show')));
+    $this->assign('url_show_payments_completed', banking_helper_buildURL('civicrm/banking/payments', array('status_ids'=>$payment_states['processed']['id'].",".$payment_states['ignored']['id']), array('show')));
 
     parent::run();
   }
+
+
 
   /**
    * will iterate through all transactions in the given statements and
@@ -128,6 +140,47 @@ class CRM_Banking_Page_Payments extends CRM_Core_Page {
         'completed'      => 0,
         'target_account' => $target_account
         );
+    }
+  }
+
+
+   /**
+   * load BTXs according to the 'status_ids' and 'batch_ids' values in $_REQUEST
+   *
+   * @return array of (later: up to $page_size) BTX objects (as arrays)
+   */
+  function load_btx($payment_states) {  // TODO: later add: $page_nr=0, $page_size=50) {
+    // set defaults
+    $status_ids = array($payment_states['new']['id']);
+    $batch_ids = array(NULL);
+
+    if (isset($_REQUEST['status_ids']))
+        $status_ids = explode(',', $_REQUEST['status_ids']);
+    if (isset($_REQUEST['batch_ids']))
+        $batch_ids = explode(',', $_REQUEST['batch_ids']);
+
+    // run the queries
+    $results = array();
+    foreach ($status_ids as $status_id) {
+        foreach ($batch_ids as $batch_id) {
+            //$results = array_merge($results, $this->_findBTX($status_id, $batch_id));
+            $results += $this->_findBTX($status_id, $batch_id);
+        }
+    }
+
+    return $results;
+  }
+
+  function _findBTX($status_id, $batch_id) {
+    $params = array('version' => 3);
+    if ($status_id!=NULL) $params['status_id'] = $status_id;
+    if ($batch_id!=NULL) $params['tx_batch_id'] = $batch_id;
+    $result = civicrm_api('BankingTransaction', 'get', $params);
+    if (isset($result['is_error']) && $result['is_error']) {
+      CRM_Core_Error::error(sprintf(ts("Error while querying BTX with parameters '%s'!"), implode(',', $params)));
+      return array();
+    } else {
+      return $result['values'];
     }
   }
 }

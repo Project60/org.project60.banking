@@ -29,7 +29,7 @@
   <span><div class="icon inform-icon"></div>Unprocessed</span>
 </a>
 <a class="button" href="#">
-  <span><div class="icon inform-icon"></div>Processed</span>
+  <span><div class="icon inform-icon"></div>Analysed</span>
 </a>
 <a class="button" href="#">
   <span><div class="icon edit-icon"></div>Custom Filter</span>
@@ -102,7 +102,7 @@
       <div class="DataTables_sort_wrapper">Target Account<span class="DataTables_sort_icon css_right ui-icon ui-icon-carat-2-n-s"></span></div>
     </th>
     <th colspan="1" rowspan="1" class="crm-banking-payment_source_account nosort ui-state-default">
-      <div class="DataTables_sort_wrapper">Processed<span class="DataTables_sort_icon css_right ui-icon ui-icon-carat-2-n-s"></span></div>
+      <div class="DataTables_sort_wrapper">Analysed<span class="DataTables_sort_icon css_right ui-icon ui-icon-carat-2-n-s"></span></div>
     </th>
     <th colspan="1" rowspan="1" class="crm-banking-payment_source_account nosort ui-state-default">
       <div class="DataTables_sort_wrapper">Completed<span class="DataTables_sort_icon css_right ui-icon ui-icon-carat-2-n-s"></span></div>
@@ -120,7 +120,7 @@
     <td class="crm-contact-activity-activity_type">{$field.date}</td>
     <td class="crm-contact-activity-source_contact">{$field.count}</td>
     <td class="crm-contact-activity-source_contact">{$field.target}</td>
-    <td class="crm-contact-activity-source_contact">{$field.processed}</td>
+    <td class="crm-contact-activity-source_contact">{$field.analysed}</td>
     <td class="crm-contact-activity-source_contact">{$field.completed}</td>
     <td class="crm-contact-activity_subject">{$field.state}</td>
     <td class="hiddenElement">status-overdue</td>

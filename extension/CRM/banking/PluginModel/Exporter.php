@@ -57,12 +57,5 @@ abstract class CRM_Banking_PluginModel_Exporter extends CRM_Banking_PluginModel_
    */
   abstract function export_stream( $btx_list, $parameters );
 
-
-  /**
-   * class constructor
-   */ function __construct($config_name) {
-    parent::__construct($config_name);
-
-  }
 }
 

@@ -16,6 +16,8 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+require_once 'CRM/Banking/Helpers/OptionValue.php';
+
 /**
  *
  * @package org.project60.banking
@@ -34,7 +36,7 @@ abstract class CRM_Banking_PluginModel_Importer extends CRM_Banking_PluginModel_
   // if this is set, all checkAndStoreBTX() methods will be added to it
   protected $_current_transaction_batch = NULL;
   protected $_current_transaction_batch_attributes = array();
-
+  protected $_default_btx_state_id = 0;
   
   // ------------------------------------------------------
   // Functions to be provided by the plugin implementations
@@ -87,6 +89,13 @@ abstract class CRM_Banking_PluginModel_Importer extends CRM_Banking_PluginModel_
    */
   abstract function import_stream( $params );
 
+  /**
+   * class constructor
+   */ 
+  function __construct($plugin_dao) {
+    parent::__construct($plugin_dao);
+    $this->_default_btx_state_id = banking_helper_optionvalueid_by_groupname_and_name('civicrm_banking.bank_tx_status', 'new');
+  }
 
   // ------------------------------------------------------
   //            utility functions
@@ -263,6 +272,11 @@ abstract class CRM_Banking_PluginModel_Importer extends CRM_Banking_PluginModel_
       return reset($duplicates); // RETURN FIRST ENTRY
     }
 
+    // set default state
+    if (!isset($btx['status_id']) || $btx['status_id']<=0) {
+      $btx['status_id'] = $this->_default_btx_state_id;
+    }
+
 
     // now store...
 
@@ -296,12 +310,5 @@ abstract class CRM_Banking_PluginModel_Importer extends CRM_Banking_PluginModel_
     }
   }
 
-
-  /**
-   * class constructor
-   */ function __construct($config_name) {
-    parent::__construct($config_name);
-
-  }
 }
 

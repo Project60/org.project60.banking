@@ -17,14 +17,15 @@
 */
     
 require_once 'CRM/Core/Page.php';
+require_once 'CRM/Banking/Helpers/OptionValue.php';
 
 class CRM_Banking_Page_Payments extends CRM_Core_Page {
   function run() {
     // Example: Set the page-title dynamically; alternatively, declare a static title in xml/Menu/*.xml
     CRM_Utils_System::setTitle(ts('Payments'));
 
-    // Example: Assign a variable for use in a template
-    $this->assign('currentTime', date('Y-m-d H:i:s'));
+    // look up the payment states
+    $payment_states = banking_helper_optiongroup_id_name_mapping('civicrm_banking.bank_tx_status');
 
     if (isset($_REQUEST['show']) && $_REQUEST['show']=="statements") {
         // read all batches
@@ -32,15 +33,14 @@ class CRM_Banking_Page_Payments extends CRM_Core_Page {
         $result = civicrm_api('BankingTransactionBatch', 'get', $params);
         $statement_rows = array();
         foreach ($result['values'] as $entry) {
-            $info = $this->investigate($entry['id']);
-            print_r($info);
+            $info = $this->investigate($entry['id'], $payment_states);
             array_push($statement_rows,
                 array(  
                         'id' => $entry['reference'], 
                         'date' => $entry['starting_date'], 
                         'count' => $entry['tx_count'], 
                         'target' => $info['target_account'],
-                        'processed' => $info['processed'].'%',
+                        'analysed' => $info['analysed'].'%',
                         'completed' => $info['completed'].'%',
                     )
             );
@@ -57,6 +57,7 @@ class CRM_Banking_Page_Payments extends CRM_Core_Page {
         $result = civicrm_api('BankingTransaction', 'get', $params);
         $payment_rows = array();
         foreach ($result['values'] as $entry) {
+            $status = $payment_states[$entry['status_id']]['label'];
             array_push($payment_rows, 
                 array(  
                         'id' => $entry['id'], 
@@ -65,7 +66,7 @@ class CRM_Banking_Page_Payments extends CRM_Core_Page {
                         'account_owner' => 'TODO', 
                         'source' => (isset($entry['party_ba_id'])?$entry['party_ba_id']:"unknown"),
                         'target' => (isset($entry['ba_id'])?$entry['ba_id']:"unknown"),
-                        'state' => (isset($entry['status_id'])?$entry['status_id']:"unknown"),
+                        'state' => $status,
                         'url_link' => CRM_Utils_System::url('civicrm/banking/review', 'id='.$entry['id']),
                     )
             );
@@ -87,16 +88,19 @@ class CRM_Banking_Page_Payments extends CRM_Core_Page {
   /**
    * will iterate through all transactions in the given statements and
    * return an array with some further information:
-   *   'processed'      => percentage of processed statements
+   *   'analysed'      => percentage of analysed statements
    *   'completed'      => percentage of completed statements
    *   'target_account' => the target account
    */
-  function investigate($stmt_id) {
+  function investigate($stmt_id, $payment_states) {
     // go over all transactions to find out rates and data
     $target_account = "Unknown";
-    $processed_count = 0;
+    $analysed_state_id = $payment_states['suggestions']['id'];
+    $analysed_count = 0;
+    $completed_state_id = $payment_states['processed']['id'];
     $completed_count = 0;
     $count = 0;
+
 
     $btx_query = array('version' => 3, 'tx_batch_id' => $stmt_id);
     $btx_result = civicrm_api('BankingTransaction', 'get', $btx_query);
@@ -105,22 +109,22 @@ class CRM_Banking_Page_Payments extends CRM_Core_Page {
         if (isset($btx['ba_id']))
             $target_account = $btx['ba_id'];
 
-        // TODO: use states
-        if (isset($btx['suggestions']))
-            $processed_count += 1;
-        if (isset($btx['suggestions']))
+        if ($btx['status_id']==$completed_state_id) {
             $completed_count += 1;
+        } else if ($btx['status_id']==$analysed_state_id) {
+            $analysed_count += 1;
+        }
     }
     
     if ($count) {
       return array(
-        'processed'      => ($processed_count / $count * 100.0),
+        'analysed'       => ($analysed_count / $count * 100.0),
         'completed'      => ($completed_count / $count * 100.0),
         'target_account' => $target_account
         );
     } else {
       return array(
-        'processed'      => 0,
+        'analysed'       => 0,
         'completed'      => 0,
         'target_account' => $target_account
         );

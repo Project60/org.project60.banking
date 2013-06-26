@@ -28,8 +28,9 @@ abstract class CRM_Banking_PluginModel_IOPlugin extends CRM_Banking_PluginModel_
 
   /**
    * class constructor
-   */ function __construct($config_name) {
-    parent::__construct( $config_name );
+   */
+  function __construct($plugin_dao) {
+    parent::__construct($plugin_dao);
   }
 
 

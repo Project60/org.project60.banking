@@ -9,9 +9,22 @@ class CRM_Banking_Page_Review extends CRM_Core_Page {
         // Set the page-title dynamically; alternatively, declare a static title in xml/Menu/*.xml
         CRM_Utils_System::setTitle(ts('Review Bank Transaction'));
 
-        $pid = $_REQUEST['id'];
+        if (isset($_REQUEST['list'])) {
+          $list = explode(",", $_REQUEST['list']);
+        } else {
+          $list = array();
+          array_push($list, $_REQUEST['id']);
+        }
+
+        if (isset($_REQUEST['id'])) {
+          $pid = $_REQUEST['id'];
+        } else {
+          $pid = $list[0];
+        }
+
         $btx_bao = new CRM_Banking_BAO_BankTransaction();
-        $btx_bao->get('id', $pid);
+        $btx_bao->get('id', $pid);        
+
 
         // check if we are requested to run the matchers again        
         if (isset($_REQUEST['run'])) {
@@ -21,6 +34,13 @@ class CRM_Banking_Page_Review extends CRM_Core_Page {
             $btx_bao->get('id', $pid);
         }
 
+        if (isset($_REQUEST['list'])) {
+            $index = array_search($pid, $list);
+            if ($index != FALSE && isset($list[($index + 1)])) {
+                $next_pid = $list[($index + 1)];
+                $this->assign('url_next', CRM_Utils_System::url('civicrm/banking/review', sprintf('id=%d', $next_pid)));
+            }
+        }
 
         // parse structured data
         $this->assign('payment', $btx_bao);
@@ -39,14 +59,6 @@ class CRM_Banking_Page_Review extends CRM_Core_Page {
         $this->assign('suggestions', $suggestions);
 
         // URLs
-        if (isset($_REQUEST['list'])) {
-            $list = explode(",", $_REQUEST['list']);
-            $index = array_search($pid, $list);
-            if ($index != FALSE && isset($list[($index + 1)])) {
-                $next_pid = $list[($index + 1)];
-                $this->assign('url_next', CRM_Utils_System::url('civicrm/banking/review', sprintf('id=%d', $next_pid)));
-            }
-        }
 
         $this->assign('url_run', CRM_Utils_System::url('civicrm/banking/review', sprintf('id=%d&run', $pid)));
         $this->assign('url_back', CRM_Utils_System::url('civicrm/banking/payments'));

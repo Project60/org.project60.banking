@@ -13,16 +13,16 @@
 {/if}
 
 <a class="button" href="{$url_show_payments_new}">
-  <span><div class="icon inform-icon"></div>New</span>
+  <span style="{$button_style_new}"><div class="icon inform-icon"></div>New</span>
 </a>
 <a class="button" href="{$url_show_payments_analysed}">
-  <span><div class="icon inform-icon"></div>Analysed</span>
+  <span style="{$button_style_analysed}"><div class="icon inform-icon"></div>Analysed</span>
 </a>
 <a class="button" href="{$url_show_payments_completed}">
-  <span><div class="icon inform-icon"></div>Completed</span>
+  <span style="{$button_style_completed}"><div class="icon inform-icon"></div>Completed</span>
 </a>
 <a class="button" href="#">
-  <span><div class="icon edit-icon"></div>Custom Filter</span>
+  <span style="{$button_style_custom}"><div class="icon edit-icon"></div>Custom Filter</span>
 </a>
 
 <table id="contact-activity-selector-dashlet">

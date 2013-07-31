@@ -40,8 +40,8 @@ class CRM_Banking_BAO_PluginInstance extends CRM_Banking_DAO_PluginInstance {
     }
 
     // then, find the correct plugin type
-    $import_plugin_type = civicrm_api('OptionValue', 'get', array('version' => 3, 'name' => $type_name, 'option_group_id' => $plugin_types['id']));
-    if (isset($result['is_error']) && $result['is_error']) {
+    $import_plugin_type = civicrm_api('OptionValue', 'get', array('version' => 3, 'name' => $type_name, 'group_id' => $plugin_types['id']));
+    if ((isset($result['is_error']) && $result['is_error']) || (!isset($import_plugin_type['id']) || !$import_plugin_type['id'])) {
       CRM_Core_Error::fatal(sprintf(ts("Couldn't find type '%s' in group %d!"), $type_name, $plugin_types['id']));
       return array();
     }

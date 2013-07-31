@@ -24,6 +24,7 @@
  *
  */
 
+require_once 'CRM/Banking/Helpers/OptionValue.php';
 
 class CRM_Banking_Matcher_Engine {
   
@@ -61,7 +62,7 @@ class CRM_Banking_Matcher_Engine {
     //    the matchers array by weight, then ksort descending
     $this->plugins = array();
     
-    $matcher_type_id = 718; // FIXME: lookup
+    $matcher_type_id = banking_helper_optionvalueid_by_groupname_and_name('civicrm_banking.plugin_classes', 'match');
     $params = array('version' => 3, 'plugin_type_id' => $matcher_type_id);
     $result = civicrm_api('BankingPluginInstance', 'get', $params);
     if (isset($result['is_error']) && $result['is_error']) {

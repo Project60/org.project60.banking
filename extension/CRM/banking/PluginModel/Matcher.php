@@ -48,7 +48,7 @@ abstract class CRM_Banking_PluginModel_Matcher extends CRM_Banking_PluginModel_B
    * 
    * @return array(match structures)
    */
-  abstract function match( $btx, $context);
+  public abstract function match(CRM_Banking_BAO_BankTransaction $btx, CRM_Banking_Matcher_Context $context);
 
   /** 
    * Executes a previously generated match, i.e. the suggestion is accepted and realized

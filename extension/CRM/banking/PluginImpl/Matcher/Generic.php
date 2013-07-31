@@ -15,7 +15,7 @@ class CRM_Banking_PluginImpl_Matcher_Generic extends CRM_Banking_PluginModel_Mat
         parent::__construct($config_name);
     }
 
-    public function match($btx, $context) {
+  public function match(CRM_Banking_BAO_BankTransaction $btx, CRM_Banking_Matcher_Context $context) {
 
         // this section will be refactored to use different conditions, but for now, this is hardcoded
         $suggestion = new CRM_Banking_Matcher_Suggestion($this,$btx);

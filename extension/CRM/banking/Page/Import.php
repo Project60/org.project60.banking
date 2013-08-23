@@ -28,6 +28,7 @@ class CRM_Banking_Page_Import extends CRM_Core_Page {
 
       // RUN the importer
       $file_info = isset($_FILES['uploadFile'])?$_FILES['uploadFile']:null;
+
       $this->assign('file_info', $file_info);
       $plugin_instance = $plugin->getInstance();
       $import_parameters = array( 'dry_run' => (isset($_REQUEST['dry_run'])?$_REQUEST['dry_run']:"off"),

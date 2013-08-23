@@ -36,4 +36,10 @@
     <title>Manager</title>
     <access_arguments>access CiviCRM</access_arguments>
   </item>
+  <item>
+    <path>civicrm/banking/dashboard</path>
+    <page_callback>CRM_Banking_Page_Dashboard</page_callback>
+    <title>Dashboard</title>
+    <access_arguments>access CiviCRM</access_arguments>
+  </item>
 </menu>

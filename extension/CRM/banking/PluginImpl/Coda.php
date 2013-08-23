@@ -36,7 +36,7 @@ class CRM_Banking_PluginImpl_Coda extends CRM_Banking_PluginModel_Importer {
     
     function __construct($config_name) {
         parent::__construct($config_name);
-        $this->_ba_ref_types = banking_helper_optiongroup_id_name_mapping('civicrm_banking.bank_account_reference_type');        
+        $this->_ba_ref_types = banking_helper_optiongroup_id_name_mapping('civicrm_banking.bank_account_reference_type');  
     }
 
      /** 
@@ -144,6 +144,7 @@ class CRM_Banking_PluginImpl_Coda extends CRM_Banking_PluginModel_Importer {
     function import_stream( $params ){
         $config = $this->_plugin_config;            
         $breftypeid = $this->_ba_ref_types[$config->bank_account_reference_type]['value'];
+        
         $baref = civicrm_api('banking_account_reference', 'get', array('version'=>3, 'reference'=>$config->account, 'reference_type_id'=>$breftypeid));
         $bankacc = civicrm_api('banking_account', 'get', array('version'=>3, 'id'=>$baref['values'][$baref['id']]['ba_id']));
         $this->bank_account_id = $bankacc['id'];
@@ -154,6 +155,7 @@ class CRM_Banking_PluginImpl_Coda extends CRM_Banking_PluginModel_Importer {
         $coda_batches = $this->get_coda_batch_all($config->bank_account_reference_type, $this->bank_reference);       
         $cnt = 0;
         foreach($coda_batches as $coda_batch) {
+          print_r($coda_batch);
             $batch_id = $this->openTransactionBatch(0, $coda_batch);
 
             if(!isset($state->balance)){
@@ -223,6 +225,8 @@ class CRM_Banking_PluginImpl_Coda extends CRM_Banking_PluginModel_Importer {
             if($cnt>10){
                 //return;   //!!testing
             }
+            
+            $this->close_coda_batch($coda_batch->id);
         }
         $this->reportDone();
 
@@ -236,7 +240,6 @@ class CRM_Banking_PluginImpl_Coda extends CRM_Banking_PluginModel_Importer {
               f.`status`="'.$status.'" AND
               r.`coda_batch_id`=f.id AND 
               f.'.$ba_reference_type.'="'.$ba_reference.'" GROUP BY f.id ORDER BY f.sequence, r.`sequence`';
-              
       $dao = CRM_Core_DAO::executeQuery($sql);
       $cnt_coda_batches = $cnt_total_tx = 0;
       while ($dao->fetch()) {      
@@ -247,6 +250,12 @@ class CRM_Banking_PluginImpl_Coda extends CRM_Banking_PluginModel_Importer {
       $this->cnt_coda_batches = $cnt_coda_batches;
       $this->cnt_total_tx = $cnt_total_tx;
       return $coda_batches;
+  }
+
+    
+  protected function close_coda_batch($id){
+      $sql = "UPDATE civicrm_coda_batch SET status = 'PROCESSED' WHERE id = $id";
+      $dao = CRM_Core_DAO::executeQuery($sql);
   }
    
   public function getOrCreateBankAccount(&$coda_tx){

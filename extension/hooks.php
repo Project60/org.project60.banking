@@ -14,6 +14,7 @@ function banking_civicrm_navigationMenu(&$params) {
   $maxKey = ( max(array_keys($params)) );
   $insert_at = min(4, max(array_keys($params)));
 
+  $level = 1;
   $banking_entry = array(
       'attributes' => array(
           'label' => 'Banking',
@@ -27,7 +28,21 @@ function banking_civicrm_navigationMenu(&$params) {
           'active' => 1
       ),
       'child' => array(
-          '1' => array(
+          $level => array(
+              'attributes' => array(
+                  'label' => 'Dashboard',
+                  'name' => 'Dashboard',
+                  'url' => 'civicrm/banking/dashboard',
+                  'permission' => 'access CiviContribute',
+                  'operator' => null,
+                  'separator' => 0,
+                  'parentID' => $insert_at,
+                  'navID' => $level++,
+                  'active' => 1
+              ),
+              'child' => null
+          ),
+          $level => array(
               'attributes' => array(
                   'label' => 'Payments',
                   'name' => 'Payments',
@@ -36,12 +51,12 @@ function banking_civicrm_navigationMenu(&$params) {
                   'operator' => null,
                   'separator' => 0,
                   'parentID' => $insert_at,
-                  'navID' => 1,
+                  'navID' => $level++,
                   'active' => 1
               ),
               'child' => null
           ),
-          '2' => array(
+          $level => array(
               'attributes' => array(
                   'label' => 'Import Payments',
                   'name' => 'Import Payments',
@@ -50,12 +65,12 @@ function banking_civicrm_navigationMenu(&$params) {
                   'operator' => null,
                   'separator' => 1,
                   'parentID' => $insert_at,
-                  'navID' => 2,
+                  'navID' => $level++,
                   'active' => 1
               ),
               'child' => null
           ),
-          '3' => array(
+          $level => array(
               'attributes' => array(
                   'label' => 'Accounts',
                   'name' => 'Accounts',
@@ -64,12 +79,12 @@ function banking_civicrm_navigationMenu(&$params) {
                   'operator' => null,
                   'separator' => 1,
                   'parentID' => $insert_at,
-                  'navID' => 3,
+                  'navID' => $level++,
                   'active' => 1
               ),
               'child' => null
           ),
-          '4' => array(
+          $level => array(
               'attributes' => array(
                   'label' => 'Manage Components',
                   'name' => 'Manage Components',
@@ -78,7 +93,7 @@ function banking_civicrm_navigationMenu(&$params) {
                   'operator' => null,
                   'separator' => 0,
                   'parentID' => $insert_at,
-                  'navID' => 4,
+                  'navID' => $level++,
                   'active' => 1
               ),
               'child' => null

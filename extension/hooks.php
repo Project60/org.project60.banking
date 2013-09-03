@@ -1,4 +1,5 @@
 <?php
+
 /**
  * CiviBanking hooks
  */
@@ -103,8 +104,6 @@ function banking_civicrm_navigationMenu(&$params) {
 
   $params = array_merge(array_slice($params, 0, $insert_at), array($banking_entry), array_slice($params, $insert_at));
 }
-
-
 
 function banking_civicrm_entityTypes(&$entityTypes) {
   // add my DAO's

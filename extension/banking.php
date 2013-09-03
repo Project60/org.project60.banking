@@ -1,8 +1,5 @@
 <?php
 
-    error_reporting(E_ALL);
-
-    
 require_once 'banking.civix.php';
 require_once 'hooks.php';
 

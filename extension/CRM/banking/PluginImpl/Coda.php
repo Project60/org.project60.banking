@@ -99,6 +99,8 @@ class CRM_Banking_PluginImpl_Coda extends CRM_Banking_PluginModel_Importer {
     
     
     function openTransactionBatch($batch_id=0, $coda_batch=null) {
+        $this->reportProgress(0,sprintf(ts("Processing CODA statement %s for account %s"),$coda_batch->sequence,$this->bank_reference));
+
         if ($this->_current_transaction_batch==NULL) {
             $reference = $coda_batch->sequence.' '.$coda_batch->file;
             $this->_current_transaction_batch = new CRM_Banking_BAO_BankTransactionBatch();
@@ -155,7 +157,6 @@ class CRM_Banking_PluginImpl_Coda extends CRM_Banking_PluginModel_Importer {
         $coda_batches = $this->get_coda_batch_all($config->bank_account_reference_type, $this->bank_reference);       
         $cnt = 0;
         foreach($coda_batches as $coda_batch) {
-          print_r($coda_batch);
             $batch_id = $this->openTransactionBatch(0, $coda_batch);
 
             if(!isset($state->balance)){
@@ -186,15 +187,16 @@ class CRM_Banking_PluginImpl_Coda extends CRM_Banking_PluginModel_Importer {
                 );
                 $data_parsed = array(
                     'name'=>$coda_tx->name,
-                    //'street_address'=>$coda_tx->streetname.' '.$coda_tx->streetnumber,
-                    //'postal_code'=>$coda_tx->postal_code,
-                    //'city'=>$coda_tx->city,
+                    'street_address'=>$coda_tx->streetname.' '.$coda_tx->streetnumber,
+                    'postal_code'=>$coda_tx->postal_code,
+                    'city'=>$coda_tx->city,
                     'bic'=>$coda_tx->bic,
                     'bban'=>$coda_tx->bban,
                     'iban'=>$coda_tx->iban,
                     'txncode'=>$coda_tx->txncode,
                     'customer_ref'=>$coda_tx->customer_ref,
                     'move_struct_code'=>$coda_tx->move_structured_code,
+                    'purpose'=>$coda_tx->move_message,                  
                     //...todo
                 );
                 $party_bank_account_id = $this->getOrCreateBankAccount($coda_tx);
@@ -204,7 +206,7 @@ class CRM_Banking_PluginImpl_Coda extends CRM_Banking_PluginModel_Importer {
                       'amount' => $coda_tx->amount,
                       'bank_reference' => 'Coda '.sprintf("%08s", $batch_id).'-'.$coda_batch->sequence.'-'.$coda_tx->sequence.' '.$coda_batch->file,       
                       'value_date' => date('YmdHis', strtotime($coda_tx->value_date)),   
-                      'booking_date' => date('YmdHis'),  //todo
+                      'booking_date' => date('YmdHis', strtotime($coda_tx->booking_date)), 
                       'currency' => 'EUR',                          // EUR
                       'type_id' => 0,                               // TODO: lookup type ?
                       'status_id' => 0,                             // TODO: lookup status new
@@ -215,6 +217,7 @@ class CRM_Banking_PluginImpl_Coda extends CRM_Banking_PluginModel_Importer {
                       'tx_batch_id' => $batch_id,                        // TODO: create batch
                       'sequence' => $coda_tx->sequence,                             
                     );
+                //echo '<hr>';print_r($btx);
                 //todo get progress
                 $progress = $cnt/$this->cnt_total_tx;
                 $duplicate = $this->checkAndStoreBTX($btx, $progress, $params);
@@ -272,8 +275,8 @@ class CRM_Banking_PluginImpl_Coda extends CRM_Banking_PluginModel_Importer {
     foreach($refs as $type=>$ref){
         $bank_account_refs = array();
         $breftypeid = $this->_ba_ref_types[$type]['value'];
-        $result = civicrm_api('banking_account_reference', 'get', array('reference_type_id'=>$breftypeid, 'reference'=>$ref, 'version'=>3));
-        
+        $options = array('reference_type_id'=>$breftypeid, 'reference'=>$ref, 'version'=>3);
+        $result = civicrm_api('banking_account_reference', 'get', $options);
         if($result['count']!=0){
             $bank_account_refs[$type] = $result['values'][$result['id']];            
         }
@@ -303,8 +306,12 @@ class CRM_Banking_PluginImpl_Coda extends CRM_Banking_PluginModel_Importer {
         $bank_account->data_raw = json_encode($data_raw);
         $bank_account->data_parsed = json_encode($data_parsed);
         $bank_account->save();
+        
+        $ma = new CRM_Banking_Helpers_MatchAddress($bank_account);
+        if($ma->findAddress()){
+            $ma->updateDataParsed();
+        }
     }else{
-        reset($bank_account);
         $ba_ref = each($bank_account_refs);
         $result = civicrm_api('banking_account', 'get', array('id'=>$ba_ref['id'], 'version'=>3));
         $bank_account = (object) $result['values'][$result['id']];        

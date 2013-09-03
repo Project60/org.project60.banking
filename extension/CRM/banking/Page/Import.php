@@ -15,6 +15,7 @@ class CRM_Banking_Page_Import extends CRM_Core_Page {
       // RUN MODE
       $this->assign('page_mode', 'run');
       $plugin_id = $_REQUEST['importer-plugin'];
+      $this->assign('plugin_id', $plugin_id);
 
       // assign values
       $this->assign('dry_run', isset($_REQUEST['dry_run'])?$_REQUEST['dry_run']:"off");

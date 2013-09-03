@@ -67,7 +67,16 @@ abstract class CRM_Banking_PluginModel_Matcher extends CRM_Banking_PluginModel_B
    * @val $btx      the bank transaction the match refers to
    * @return html code snippet
    */
-  public abstract function visualize_match( CRM_Banking_Matcher_Suggestion $match, $btx );
+  
+    function visualize_match( CRM_Banking_Matcher_Suggestion $match, $btx) {
+        $s = '<ul>Because :';
+        $evidence = $match->getEvidence();
+        foreach ($evidence as $ev) {
+            $s .= '<li>' . $ev . '</li>';
+        }
+        $s .= '</ul>';
+        return $s;
+    }
 
 
   /**
@@ -110,6 +119,40 @@ abstract class CRM_Banking_PluginModel_Matcher extends CRM_Banking_PluginModel_B
       return false;
     }
   }
+
+  
+  function translateAction($action,$params,$btx) {
+    $className = 'CRM_Banking_PluginModel_Action_' . $action;
+    if (class_exists($className)) {
+      $actor = new $className();
+      return $actor->describe($params,$btx);
+    }
+    return "Unknown action '{$action}'";      
+  }
+  
+  function executeAction($action,$params,$btx) {
+    $className = 'CRM_Banking_PluginModel_Action_' . $action;
+    if (class_exists($className)) {
+      $actor = new $className();
+      return $actor->execute($params,$btx);
+    }
+  }
+  
+
+    
+    function getActions( $btx ) {
+        $config = $this->_plugin_config;
+        $s = '';
+        if ($config->actions) {
+          $s = '<ul>I suggest :';
+          foreach ($config->actions as $action => $params) {
+              $s .= '<li>' . $this->translateAction($action,$params,$btx) . '</li>';
+          }
+          $s .= '</ul>';
+        }
+        return $s;
+      
+    }
 
 }
 

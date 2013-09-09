@@ -39,6 +39,9 @@ class CRM_Banking_Page_Payments extends CRM_Core_Page {
     }
 
     // URLs
+    global $base_url;
+    $this->assign('base_url', $base_url);
+
     $this->assign('url_show_payments', banking_helper_buildURL('civicrm/banking/payments', array('show'=>'payments')));
     $this->assign('url_show_statements', banking_helper_buildURL('civicrm/banking/payments', array('show'=>'statements')));
 
@@ -90,19 +93,21 @@ class CRM_Banking_Page_Payments extends CRM_Core_Page {
     $statement_rows = array();
     foreach ($result['values'] as $entry) {
         $info = $this->investigate($entry['id'], $payment_states);
+        $ba_id = $info['target_account'];
+        $params = array('version' => 3, 'id' => $ba_id);
+        $result = civicrm_api('BankingAccount', 'getsingle', $params);
         array_push($statement_rows,
             array(  
                     'id' => $entry['id'], 
                     'reference' => $entry['reference'], 
-                    'date' => $entry['starting_date'], 
+                    'date' => strtotime($entry['starting_date']), 
                     'count' => $entry['tx_count'], 
-                    'target' => $info['target_account'],
+                    'target' => $result['description'],
                     'analysed' => $info['analysed'].'%',
                     'completed' => $info['completed'].'%',
                 )
         );
     }
-
     $this->assign('rows', $statement_rows);
     $this->assign('status_message', sizeof($statement_rows).' incomplete statements.');
     $this->assign('show', 'statements');        
@@ -128,16 +133,35 @@ class CRM_Banking_Page_Payments extends CRM_Core_Page {
     $payment_rows = array();
     foreach ($btxs as $entry) {
         $status = $payment_states[$entry['status_id']]['label'];
+
+        $ba_id = $entry['ba_id'];
+        $params = array('version' => 3, 'id' => $ba_id);
+        $result = civicrm_api('BankingAccount', 'getsingle', $params);
+        
+        $pba_id = $entry['party_ba_id'];
+        $params = array('version' => 3, 'id' => $pba_id);
+        $result2 = civicrm_api('BankingAccount', 'getsingle', $params);
+        
+        $cid = $result2['contact_id'];
+        $contact = null;
+        if ($cid) {
+          $params = array('version' => 3, 'id' => $cid);
+          $contact = civicrm_api('Contact', 'getsingle', $params);
+        }
+        
         array_push($payment_rows, 
             array(  
                     'id' => $entry['id'], 
                     'date' => $entry['value_date'], 
+                    'sequence' => $entry['sequence'], 
+                    'currency' => $entry['currency'], 
                     'amount' => (isset($entry['amount'])?$entry['amount']:"unknown"), 
-                    'account_owner' => 'TODO', 
-                    'source' => (isset($entry['party_ba_id'])?$entry['party_ba_id']:"unknown"),
-                    'target' => (isset($entry['ba_id'])?$entry['ba_id']:"unknown"),
+                    'account_owner' => $result['description'], 
+                    'party' => (isset($result2['description'])?$result2['description']:''),
+                    'party_contact' => $contact,
                     'state' => $status,
                     'url_link' => CRM_Utils_System::url('civicrm/banking/review', 'id='.$entry['id']),
+                    'payment_data_parsed' =>  json_decode($entry['data_parsed'], true),
                 )
         );
     }
@@ -275,7 +299,7 @@ class CRM_Banking_Page_Payments extends CRM_Core_Page {
   }
 
   function _findBTX($status_id, $batch_id) {
-    $params = array('version' => 3);
+    $params = array('version' => 3,'option.limit'=>999);
     if ($status_id!=NULL) $params['status_id'] = $status_id;
     if ($batch_id!=NULL) $params['tx_batch_id'] = $batch_id;
     $result = civicrm_api('BankingTransaction', 'get', $params);

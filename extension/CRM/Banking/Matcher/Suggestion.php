@@ -5,16 +5,17 @@ class CRM_Banking_Matcher_Suggestion {
     private $_btx = null;
     private $_plugin = null;
     private $_blob = array();
-    private $_probability;
+    public $_probability;
     private $_title = "Title not set";
-    private $_reasons;
+    public $_reasons;
+    public $hash;
 
     public function __construct($plugin, $btx, $blob = null) {
         if ($blob != null) {
             // we are loading this from a blob
             $this->_blob = $blob;
 
-            // TODO: parse probabiliy & reasons
+            // TODO: parse probability & reasons
         } else {
             // this is newly generated
             $this->_probability = 0;
@@ -31,6 +32,13 @@ class CRM_Banking_Matcher_Suggestion {
             'btx_id' => $this->_btx->id,
             'plugin_id' => $this->_plugin->id,
         );
+    }
+    
+    public function setKey($key = '') {
+      if ($key == '') {
+        $key = 'default';
+      }
+      $this->hash = 'S-' . $this->_plugin->_plugin_id. '-' . $this->_btx->id . '-' . $key;
     }
 
     /**
@@ -85,6 +93,10 @@ class CRM_Banking_Matcher_Suggestion {
         return $this->_title;
     }
 
+    public function getActions() {
+      return $this->_plugin->getActions($this->_btx);
+    }
+
     /**
      * addEvidence computes the Bayesian combined evidence
      */
@@ -105,10 +117,10 @@ class CRM_Banking_Matcher_Suggestion {
 
     public function execute(CRM_Banking_BAO_BankTransaction $btx = null, CRM_Banking_PluginModel_Matcher $plugin = null) {
         // if btx/plugin is not supplied (by the matcher engine), recreate it
-        $this->_updateObjects($btx, $plugin);
+        //$this->_updateObjects($btx, $plugin);
 
         // perform execute
-        $continue = $plugin->execute($this, $btx);
+        $continue = $this->_plugin->execute($this, $btx);
         return $continue;
     }
 
@@ -116,6 +128,17 @@ class CRM_Banking_Matcher_Suggestion {
         // if btx/plugin is not supplied (by the matcher engine), recreate it
         $this->_updateObjects($btx, $plugin);
         return $this->_plugin->visualize_match($this, $this->_plugin);
+    }
+    
+    public function prepForJson() {
+      $prep = array();
+      $prep['probability'] = $this->_probability;
+      $prep['btx_id'] = $this->_btx->id;
+      $prep['plugin_id'] = $this->_plugin->_plugin_id;
+      $prep['reasons'] = $this->_reasons;
+      $prep['hash'] = $this->hash;
+
+      return $prep;
     }
 
 }

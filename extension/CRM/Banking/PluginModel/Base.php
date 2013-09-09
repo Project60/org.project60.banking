@@ -40,7 +40,7 @@ abstract class CRM_Banking_PluginModel_Base {
    * @protected
    */
   protected $_plugin_dao;
-  protected $_plugin_id;
+  public $_plugin_id;
   protected $_plugin_weight;
   protected $_plugin_title;
   protected $_plugin_config;

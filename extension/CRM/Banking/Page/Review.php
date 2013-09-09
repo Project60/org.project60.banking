@@ -1,7 +1,7 @@
 <?php
 
 require_once 'CRM/Core/Page.php';
-require_once 'CRM/Core/Page.php';
+require_once 'CRM/Banking/Helpers/OptionValue.php';
 require_once 'CRM/Banking/Helpers/URLBuilder.php';
 
 class CRM_Banking_Page_Review extends CRM_Core_Page {
@@ -38,7 +38,34 @@ class CRM_Banking_Page_Review extends CRM_Core_Page {
       $btx_bao = new CRM_Banking_BAO_BankTransaction();
       $btx_bao->get('id', $pid);        
 
+            if (isset($_REQUEST['hash'])) {
+        $hash = $_REQUEST['hash'];
+        foreach ($btx_bao->getSuggestionList() as $suggestion) {
+          if ($suggestion->hash == $hash) {
+            $suggestion->execute($btx_bao);
+            $newStatus = banking_helper_optionvalueid_by_groupname_and_name('civicrm_banking.bank_tx_status','Processed');
+            $btx_bao->setStatus( $newStatus );
+            $btx_bao->status_id = $newStatus;
+            $btx_bao->resetSuggestions();
+          }
+        }
+      }
+      
+      $my_bao = new CRM_Banking_BAO_BankAccount();
+      $my_bao->get('id', $btx_bao->ba_id);        
 
+      if ($btx_bao->party_ba_id) {
+        $ba_bao = new CRM_Banking_BAO_BankAccount();
+        $ba_bao->get('id', $btx_bao->party_ba_id);        
+        $ba_bao->parsed = json_decode($ba_bao->data_parsed, true);        
+        if ($ba_bao->contact_id) {
+          $contact = civicrm_api('Contact','getsingle',array('version'=>3,'id'=>$ba_bao->contact_id));        
+        }
+      }
+
+      
+
+      
       // check if we are requested to run the matchers again        
       if (isset($_REQUEST['run'])) {
           // run the matchers!
@@ -48,17 +75,36 @@ class CRM_Banking_Page_Review extends CRM_Core_Page {
       }
 
       // parse structured data
+      $choices = banking_helper_optiongroup_id_name_mapping('civicrm_banking.bank_tx_status');
+      $this->assign('btxstatus', $choices[$btx_bao->status_id]);
       $this->assign('payment', $btx_bao);
-      $this->assign('payment_data_parsed', json_decode($btx_bao->data_parsed, true));
+      $this->assign('my_bao', $my_bao);
+      $this->assign('party_ba', $ba_bao);
+      $this->assign('contact', $contact);
+      $this->assign('payment_data_raw', json_decode($btx_bao->data_raw, true));
+
+      $a = json_decode($btx_bao->data_parsed, true);
+      $a['iban'] = CRM_Banking_BAO_BankAccountReference::format('iban',$a['iban']);
+      $this->assign('payment_data_parsed', $a);
+      
+      $this->assign('extra_data', array_merge(
+              json_decode($btx_bao->data_raw, true),
+              json_decode($btx_bao->data_parsed, true)
+              ));
+      $this->assign('ba_data_parsed', json_decode($ba_bao->data_parsed, true));
 
       // create suggestion list
       $suggestions = array();
       $suggestion_objects = $btx_bao->getSuggestionList();
       foreach ($suggestion_objects as $suggestion) {
+        $color = $this->translateProbability($suggestion->getProbability() * 100);
           array_push($suggestions, array(
+              'hash' => $suggestion->hash,
               'probability' => sprintf('%d %%', ($suggestion->getProbability() * 100)),
+              'color' => $color,
               'visualization' => $suggestion->visualize($btx_bao),
               'title' => $suggestion->getTitle(),
+              'actions' => $suggestion->getActions(),
           ));
       }
       $this->assign('suggestions', $suggestions);
@@ -75,10 +121,21 @@ class CRM_Banking_Page_Review extends CRM_Core_Page {
       if (isset($prev_pid)) {
         $this->assign('url_skip_back', banking_helper_buildURL('civicrm/banking/review',  $this->_pageParameters(array('id'=>$prev_pid))));
       }
-
+      $this->assign('url_show_payments', banking_helper_buildURL('civicrm/banking/payments', array('show'=>'payments')));
+      
+      global $base_url;
+      $this->assign('base_url',$base_url);
       parent::run();
   }
 
+  
+  private function translateProbability( $pct ) {
+    if ($pct >= 90) return '#393';
+    if ($pct >= 80) return '#cc0';
+    if ($pct >= 60) return '#fc3';
+    if ($pct >= 30) return '#f90';
+    return '#900';
+  }
 
   /**
    * creates an array of all properties defining the current page's state

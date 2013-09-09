@@ -63,7 +63,7 @@ class CRM_Banking_Matcher_Engine {
     $this->plugins = array();
     
     $matcher_type_id = banking_helper_optionvalueid_by_groupname_and_name('civicrm_banking.plugin_classes', 'match');
-    $params = array('version' => 3, 'plugin_type_id' => $matcher_type_id);
+    $params = array('version' => 3, 'plugin_type_id' => $matcher_type_id, 'enabled' => 1);
     $result = civicrm_api('BankingPluginInstance', 'get', $params);
     if (isset($result['is_error']) && $result['is_error']) {
       CRM_Core_Session::setStatus(ts("Error while trying to query database for matcher plugins!"), ts('No processors'), 'alert');
@@ -102,8 +102,21 @@ class CRM_Banking_Matcher_Engine {
         }
       }
     }    
+    // process matches
+    foreach ($btx->getSuggestions() as $probability => $suggestions ) {
+      foreach ($suggestions as $suggestion) {
+        if ($suggestion->getProbability() > $plugin->getThreshold()) {
+          if ($plugin->autoExecute()) {
+            $btx->saveSuggestions();
+//            die('executing auto');
+            $continue = $suggestion->execute( $btx, $plugin );
+            if (!$continue) return false;
+          }
+        }
+      }
     $btx->saveSuggestions();
     return false;
+  }
   }
   
   /**
@@ -121,19 +134,7 @@ class CRM_Banking_Matcher_Engine {
     $suggestions = $plugin->match( $btx, $context );
     if ($suggestions !== null) {
       // handle the possibility to get multiple matches in return
-      if (!is_array($suggestions)) $suggestions = array( $suggestions->probability => $suggestions );
-      
-      // process matches
-      foreach ($suggestions as $probability => $suggestion ) {
-        $btx->addSuggestion( $suggestion );
-        if ($suggestion->getProbability() > $plugin->getThreshold()) {
-          if ($plugin->autoExecute()) {
-            $btx->saveSuggestions();
-            $continue = $suggestion->execute( $btx, $plugin );
-            if (!$continue) return false;
-          }
-        }
-      }
+      if (!is_array($suggestions)) $suggestions = array( $suggestions->probability => $suggestions );      
     }
     return true;
   }

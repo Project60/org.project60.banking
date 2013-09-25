@@ -1,0 +1,28 @@
+Helpful SQL-Statements
+======================
+
+get plugin class ID
+-------------------
+select id from civicrm_option_group where civicrm_option_group.name='civicrm_banking.plugin_classes';
+
+
+list plugin classes IDs
+-----------------------
+select civicrm_option_value.id, civicrm_option_value.label
+from 
+	civicrm_option_value, 
+	civicrm_option_group 
+where 
+		civicrm_option_group.name='civicrm_banking.plugin_classes' 
+	and civicrm_option_value.option_group_id=civicrm_option_group.id;
+
+
+list plugin type IDs
+--------------------
+select civicrm_option_value.id, civicrm_option_value.label
+from 
+	civicrm_option_value, 
+	civicrm_option_group 
+where 
+		civicrm_option_group.name='civicrm_banking.plugin_types' 
+	and civicrm_option_value.option_group_id=civicrm_option_group.id;

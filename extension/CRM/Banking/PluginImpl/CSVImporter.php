@@ -16,13 +16,6 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-/*  Example config file:
-{
-  "amounts":  [ "35.00", "(rand(0,20000)-10000)/100" ],
-  "purposes": [ "membership", "donation", "buy yourself something nice" ]
-}
-*/
-
 // utility function
 function _startswith($string, $prefix) {
   return substr($string, 0, strlen($prefix)) === $prefix;
@@ -164,7 +157,6 @@ class CRM_Banking_PluginImpl_CSVImporter extends CRM_Banking_PluginModel_Importe
       'status_id' => 0,                             // TODO: lookup status new
       'data_raw' => $raw_data,
       'sequence' => $line_nr-$config->header,
-      'bank_reference' => md5($raw_data),           // Paul: if no other reference available, use MD5 of raw line to find duplicates
     );
 
     // set default values from config:
@@ -180,6 +172,23 @@ class CRM_Banking_PluginImpl_CSVImporter extends CRM_Banking_PluginModel_Importe
         $this->reportProgress($progress, sprintf(ts("Rule '%s' failed. Exception was %s"), $rule, $e->getMessage()));
       }
     }
+
+    // do some post processing
+    if (!isset($config->bank_reference)) {
+      // set MD5 hash as unique reference
+      $btx['bank_reference'] = md5($raw_data);
+    } else {
+      // otherwise use the template
+      $bank_reference = $config->bank_reference;
+      $tokens = array(); 
+      preg_match('/\{([^\}]+)\}/', $bank_reference, $tokens);
+      foreach ($tokens as $key => $token_name) {
+        if (!$key) continue;  // match#0 is not relevant
+        $token_value = isset($btx[$token_name])?$btx[$token_name]:'';
+        $bank_reference = str_replace("{{$token_name}}", $token_value, $bank_reference);
+      }
+      $btx['bank_reference'] = $bank_reference;
+    }    
 
     // prepare $btx: put all entries, that are not for the basic object, into parsed data
     $btx_parsed_data = array();
@@ -217,14 +226,24 @@ class CRM_Banking_PluginImpl_CSVImporter extends CRM_Banking_PluginModel_Importe
 
     } elseif (_startswith($rule->type, 'append')) {
       // APPEND appends the string to a give value
+      if (!isset($btx[$rule->to])) $btx[$rule->to] = '';
       $params = explode(":", $rule->type);
       if (isset($params[1])) {
         // the user defined a concat string
-        if (!isset($btx[$rule->to])) $btx[$rule->to] = '';
         $btx[$rule->to] = $btx[$rule->to].$params[1].$value;
       } else {
         // default concat string is " "
         $btx[$rule->to] = $btx[$rule->to]." ".$value;
+      }
+
+    } elseif (_startswith($rule->type, 'trim')) {
+      // TRIM will strip the string of 
+      $params = explode(":", $rule->type);
+      if (isset($params[1])) {
+        // the user provided a date format
+        $btx[$rule->to] = trim($btx[$rule->from], $params[1]);
+      } else {
+        $btx[$rule->to] = trim($btx[$rule->from]);
       }
 
     } elseif (_startswith($rule->type, 'strtotime')) {
@@ -257,12 +276,7 @@ class CRM_Banking_PluginImpl_CSVImporter extends CRM_Banking_PluginModel_Importe
 
     } else {
       print_r("RULE TYPE NOT YET IMPLEMENTED");
-    }
-    
-    //print_r("<br/><h2>Executing Rule:</h2>");
-    //print_r($rule);
-    //print_r("<br/>");
-    //print_r($btx);
+    }    
   }
 
 

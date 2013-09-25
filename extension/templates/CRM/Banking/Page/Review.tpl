@@ -228,24 +228,28 @@
           <td>
             <div class="btxlabel">Account</div>
             <div class="btxvalue btxl">
-              <a href="">{$payment_data_parsed.iban}</a>
+              {if $ba_data_parsed.iban}
+                <a href="">{$ba_data_parsed.iban}</a>
+              {else}
+                {$payment_data_parsed._party_ba_id}&nbsp;
+              {/if}
             </div>
             <div class="btxlabel">Address</div>
             <div class="btxvalue btxl">
-              {$payment_data_parsed.street_address}
+              {$payment_data_parsed.street_address}&nbsp;
             </div>
             <div class="btxlabel">&nbsp;</div>
             <div class="btxvalue btxl">
-              {$payment_data_parsed.postal_code} {$payment_data_parsed.city}
+              {$payment_data_parsed.postal_code} {$payment_data_parsed.city}&nbsp;
             </div>
             <div class="btxlabel">Owner</div>
             <div class="btxvalue btxl">
-              {$ba_data_parsed.name}
+              {if $ba_data_parsed.name}{$ba_data_parsed.name}&nbsp;{else}{$payment_data_parsed.name}&nbsp;{/if}
             </div>
             {if $contact}
               <div class="btxlabel">Contact</div>
               <div class="btxvalue btxl">
-                <a href="{$base_url}/civicrm/contact/view?reset=1&cid={$contact.id}">{$contact.display_name}</a>
+                <a href="{$base_url}/civicrm/contact/view?reset=1&cid={$contact.id}">{$contact.display_name}&nbsp;</a>
               </div>
             {/if}
           </td>
@@ -256,7 +260,8 @@
           <td>
             <div class="btxlabel">Purpose</div>
             <div class="btxvalue btxl">
-              {$payment_data_raw.move_msg}&nbsp;
+              {*{$payment_data_raw.move_msg}&nbsp;*}
+              {$payment_data_parsed.purpose}
             </div>
           </td>
         </tr>

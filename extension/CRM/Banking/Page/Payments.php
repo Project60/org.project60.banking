@@ -127,12 +127,13 @@ class CRM_Banking_Page_Payments extends CRM_Core_Page {
     if (isset($_REQUEST['process'])) {
       $this->processItems($_REQUEST['process']);
     }
-    
+
     // read all transactions
     $btxs = $this->load_btx($payment_states);
     $payment_rows = array();
     foreach ($btxs as $entry) {
         $status = $payment_states[$entry['status_id']]['label'];
+        $data_parsed = json_decode($entry['data_parsed'], true);
 
         $ba_id = $entry['ba_id'];
         $params = array('version' => 3, 'id' => $ba_id);
@@ -140,13 +141,23 @@ class CRM_Banking_Page_Payments extends CRM_Core_Page {
         
         $pba_id = $entry['party_ba_id'];
         $params = array('version' => 3, 'id' => $pba_id);
-        $result2 = civicrm_api('BankingAccount', 'getsingle', $params);
+        $attached_ba = civicrm_api('BankingAccount', 'getsingle', $params);
         
-        $cid = $result2['contact_id'];
+        $cid = $attached_ba['contact_id'];
         $contact = null;
         if ($cid) {
           $params = array('version' => 3, 'id' => $cid);
           $contact = civicrm_api('Contact', 'getsingle', $params);
+        }
+
+        if (isset($attached_ba['description'])) {
+          $party = $attached_ba['description'];
+        } else {
+          if (isset($data_parsed['name'])) {
+            $party = "<i>".$data_parsed['name']."</i>";
+          } else {
+            $party = "<i>".ts("not yet identified.")."</i>";
+          }
         }
         
         array_push($payment_rows, 
@@ -157,11 +168,11 @@ class CRM_Banking_Page_Payments extends CRM_Core_Page {
                     'currency' => $entry['currency'], 
                     'amount' => (isset($entry['amount'])?$entry['amount']:"unknown"), 
                     'account_owner' => $result['description'], 
-                    'party' => (isset($result2['description'])?$result2['description']:''),
+                    'party' => $party,
                     'party_contact' => $contact,
                     'state' => $status,
                     'url_link' => CRM_Utils_System::url('civicrm/banking/review', 'id='.$entry['id']),
-                    'payment_data_parsed' =>  json_decode($entry['data_parsed'], true),
+                    'payment_data_parsed' => $data_parsed,
                 )
         );
     }

@@ -1,0 +1,18 @@
+{
+	"generate": 1,
+    "auto_exec": true,
+    "ignore": [
+        {
+            "field": "transaction_class",
+            "regex": "#^KONTOABRECHNUNG$#",
+            "message": "Dies sind Kontoführungsgebühren"
+        },
+        {
+            "field": "transaction_class",
+            "regex": "#^ZINSEN/KOSTEN/AUSLAGEN$#",
+            "message": "Dies sind Kontoführungsgebühren",
+            "precision": 1.0
+        }
+    ]
+}
+

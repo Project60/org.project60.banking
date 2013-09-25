@@ -95,13 +95,14 @@ class CRM_Banking_Matcher_Engine {
     if (empty($this->plugins)) {
       CRM_Core_Session::setStatus(ts("No matcher plugins configured!"), ts('No processors'), 'alert');
     } else {
-        foreach ($this->plugins as $weight => $plugins) {
+      foreach ($this->plugins as $weight => $plugins) {
         foreach ($plugins as $plugin) {
           $continue = $this->matchPlugin( $plugin, $context );
           if (!$continue) return true;
         }
       }
     }    
+    
     // process matches
     foreach ($btx->getSuggestions() as $probability => $suggestions ) {
       foreach ($suggestions as $suggestion) {
@@ -114,9 +115,9 @@ class CRM_Banking_Matcher_Engine {
           }
         }
       }
+    }
     $btx->saveSuggestions();
     return false;
-  }
   }
   
   /**

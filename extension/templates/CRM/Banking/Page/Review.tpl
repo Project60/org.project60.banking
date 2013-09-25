@@ -203,11 +203,11 @@
             </div>
             <div class="btxlabel">Stmt. #</div>
             <div class="btxvalue btxc">
-              388
+              {$payment->tx_batch_id}&nbsp;
             </div>
             <div class="btxlabel">Trans. #</div>
             <div class="btxvalue btxc">
-              003
+              {$payment->id}&nbsp;
             </div>
             <div class="btxlabel">Status</div>
             <div class="btxvalue btxc">

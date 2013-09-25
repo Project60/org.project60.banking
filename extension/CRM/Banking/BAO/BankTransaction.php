@@ -12,6 +12,11 @@ class CRM_Banking_BAO_BankTransaction extends CRM_Banking_DAO_BankTransaction {
   protected $suggestion_objects = array();
 
   /**
+   * caches a decoded version of the data_parsed field
+   */
+  protected $_decoded_data_parsed = NULL;
+
+  /**
    * @param array  $params         (reference ) an assoc array of name/value pairs
    *
    * @return object       CRM_Banking_BAO_BankTransaction object on success, null otherwise
@@ -39,6 +44,17 @@ class CRM_Banking_BAO_BankTransaction extends CRM_Banking_DAO_BankTransaction {
    */
   public function getSuggestions() {
     return $this->suggestion_objects;
+  }
+
+  /**
+   * will provide a cached version of the decoded data_parsed field
+   * if $update=true is given, it will be parsed again
+   */
+  public function getDataParsed($update=false) {
+    if ($this->_decoded_data_parsed==NULL || $update) {
+      $this->_decoded_data_parsed = json_decode($this->data_parsed, true);
+    }
+    return $this->_decoded_data_parsed;
   }
 
   /**
@@ -88,11 +104,10 @@ class CRM_Banking_BAO_BankTransaction extends CRM_Banking_DAO_BankTransaction {
       ";
     $dao = CRM_Core_DAO::executeQuery($sql);
 
-    if (count($this->suggestion_objects)) {
-      $newStatus = banking_helper_optionvalueid_by_groupname_and_name('civicrm_banking.bank_tx_status', 'Suggestions');
-      $this->setStatus($newStatus);
-      $this->status_id = $newStatus;
-    }
+    // this should be called anyways...removed: if (count($this->suggestion_objects)) {
+    $newStatus = banking_helper_optionvalueid_by_groupname_and_name('civicrm_banking.bank_tx_status', 'Suggestions');
+    $this->setStatus($newStatus);
+    $this->status_id = $newStatus;
   }
 
   /** 

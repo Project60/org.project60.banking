@@ -87,10 +87,16 @@ class CRM_Banking_Page_Review extends CRM_Core_Page {
       $a['iban'] = CRM_Banking_BAO_BankAccountReference::format('iban',$a['iban']);
       $this->assign('payment_data_parsed', $a);
       
-      $this->assign('extra_data', array_merge(
-              json_decode($btx_bao->data_raw, true),
-              json_decode($btx_bao->data_parsed, true)
-              ));
+      $extra_data = array();
+      $_data_raw = json_decode($btx_bao->data_raw, true);
+      if (is_array($_data_raw)) {
+        $extra_data = $_data_raw;
+      } else {
+        $extra_data['raw'] = $btx_bao->data_raw;
+      }
+      if (is_array($btx_bao->getDataParsed())) $extra_data = array_merge($extra_data, $btx_bao->getDataParsed());
+      $this->assign('extra_data', $extra_data);
+
       $this->assign('ba_data_parsed', json_decode($ba_bao->data_parsed, true));
 
       // create suggestion list

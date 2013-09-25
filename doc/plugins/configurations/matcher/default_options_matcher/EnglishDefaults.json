@@ -1,0 +1,15 @@
+{
+	"generate": 1,
+    "auto_exec": false,
+    "manual_enabled": true,
+    "manual_probability": "50%",
+    "manual_show_always": true,
+    "manual_title": "Manually processed",
+    "manual_message": "Select this <strong>after</strong> you have manually processed this transaction.",
+    "manual_contribution": "Please enter the resulting contribution ID here (if applicable):",
+    "ignore_enabled": true,
+    "ignore_show_always": true,
+    "ignore_probability": "0.1",
+    "ignore_title": "Not CiviCRM related",
+    "ignore_message": "Choose this option if you are positive that this transaction has nothing to do with CiviCRM."
+}

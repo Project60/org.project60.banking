@@ -1,0 +1,15 @@
+{
+	"generate": 1,
+    "auto_exec": false,
+    "manual_enabled": true,
+    "manual_probability": "50%",
+    "manual_show_always": true,
+    "manual_title": "Manuell verarbeitet",
+    "manual_message": "Wählen Sei diese Option <strong>nachdem</strong> Sie die Daten manuell im System verbucht haben.",
+    "manual_contribution": "Bitte tragen Sie hier die Zuwendungs-ID ein, falls eine erzeugt wurde: ",
+    "ignore_enabled": true,
+    "ignore_show_always": true,
+    "ignore_probability": "0.1",
+    "ignore_title": "Gehört nicht in CiviCRM",
+    "ignore_message": "Diese Buchung hat nichts mit CiviCRM zu tun."
+}

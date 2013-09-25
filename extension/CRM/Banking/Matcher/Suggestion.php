@@ -25,14 +25,6 @@ class CRM_Banking_Matcher_Suggestion {
             $this->_title = $plugin->getTitle();
         }
     }
-
-    public function exportToStruct() {
-        // TODO:
-        return array(
-            'btx_id' => $this->_btx->id,
-            'plugin_id' => $this->_plugin->id,
-        );
-    }
     
     public function setKey($key = '') {
       if ($key == '') {
@@ -91,6 +83,10 @@ class CRM_Banking_Matcher_Suggestion {
 
     public function getTitle() {
         return $this->_title;
+    }
+
+    public function setTitle($name) {
+        $this->_title = $name;
     }
 
     public function getActions() {

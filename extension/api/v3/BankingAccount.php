@@ -50,8 +50,8 @@ function civicrm_api3_banking_account_create($params) {
  * @param array $params array or parameters determined by getfields
  */
 function _civicrm_api3_banking_account_create_spec(&$params) {
-    $params['created_date']['api.required'] = 1;
-    $params['modified_date']['api.required'] = 1;
+    $params['created_date']['api.required'] = 0;
+    $params['modified_date']['api.required'] = 0;
     $params['description']['api.default'] = "";
     $params['data_raw']['api.default'] = "{}";
     $params['data_parsed']['api.default'] = "{}";

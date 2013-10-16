@@ -109,6 +109,27 @@ function banking_civicrm_options() {
               ),
           ),
       ),
+      'civicrm_banking.reference_types' => array(
+          'title' => 'CiviBanking bank account reference types',
+          'description' => 'The set of possible CiviBanking bank account reference types',
+          'values' => array(
+              'IBAN' => array(
+                  'label' => 'International Bank Account Number',
+                  'value' => 'IBAN',
+                  'is_default' => 1,
+              ),
+              'NBAN_DE' => array(
+                  'label' => 'German (national) Bank Account Number',
+                  'value' => 'NBAN_DE',
+                  'is_default' => 0,
+              ),
+              'NBAN_BE' => array(
+                  'label' => 'Belgian (national) Bank Account Number',
+                  'value' => 'NBAN_BE',
+                  'is_default' => 0,
+              ),
+          ),
+      ),
       'civicrm_banking.plugin_classes' => array(
           'title' => 'CiviBanking plugin classes',
           'description' => 'The set of existing CiviBanking plugin types',
@@ -170,6 +191,9 @@ function banking_civicrm_uninstall() {
  * Implementation of hook_civicrm_enable
  */
 function banking_civicrm_enable() {
+  //add the required option groups
+  banking_civicrm_install_options(banking_civicrm_options());
+
   return _banking_civix_civicrm_enable();
 }
 

@@ -17,25 +17,25 @@
 
 {if $show=='payments'}
   <a class="button" href="{$url_show_statements}">
-    <span><div class="icon details-icon"></div>Show Statements</span>
+    <span><div class="icon details-icon"></div>{ts}Show Statements{/ts}</span>
   </a>
 {else}
   <a class="button" href="{$url_show_payments}">
-    <span><div class="icon details-icon"></div>Show Payments</span>
+    <span><div class="icon details-icon"></div>{ts}Show Payments{/ts}</span>
   </a>
 {/if}
 
 <a class="button" href="{$url_show_payments_new}">
-  <span style="{$button_style_new}"><div class="icon inform-icon"></div>New</span>
+  <span style="{$button_style_new}"><div class="icon inform-icon"></div>{ts}New{/ts}</span>
 </a>
 <a class="button" href="{$url_show_payments_analysed}">
-  <span style="{$button_style_analysed}"><div class="icon inform-icon"></div>Analysed</span>
+  <span style="{$button_style_analysed}"><div class="icon inform-icon"></div>{ts}Analysed{/ts}</span>
 </a>
 <a class="button" href="{$url_show_payments_completed}">
-  <span style="{$button_style_completed}"><div class="icon inform-icon"></div>Completed</span>
+  <span style="{$button_style_completed}"><div class="icon inform-icon"></div>{ts}Completed{/ts}</span>
 </a>
 <a class="button" href="#">
-  <span style="{$button_style_custom}"><div class="icon edit-icon"></div>Custom Filter</span>
+  <span style="{$button_style_custom}"><div class="icon edit-icon"></div>{ts}Custom Filter{/ts}</span>
 </a>
 
 <table id="contact-activity-selector-dashlet">
@@ -46,22 +46,22 @@
 			<div class="DataTables_sort_wrapper"><span class="DataTables_sort_icon"></span></div>
 		</th>
 		<th colspan="1" rowspan="1" class="crm-banking-payment_target_owner ui-state-default">
-			<div class="DataTables_sort_wrapper">Account<span class="DataTables_sort_icon css_right ui-icon ui-icon-carat-2-n-s"></span></div>
+			<div class="DataTables_sort_wrapper">{ts}Account{/ts}<span class="DataTables_sort_icon css_right ui-icon ui-icon-carat-2-n-s"></span></div>
 		</th>
 		<th colspan="1" rowspan="1" class="crm-banking-payment_target_owner ui-state-default">
 			<div class="DataTables_sort_wrapper">#<span class="DataTables_sort_icon css_right ui-icon ui-icon-carat-2-n-s"></span></div>
 		</th>
 		<th colspan="1" rowspan="1" class="crm-banking-payment_date ui-state-default">
-			<div class="DataTables_sort_wrapper">Date<span class="DataTables_sort_icon css_right ui-icon ui-icon-carat-2-n-s"></span></div>
+			<div class="DataTables_sort_wrapper">{ts}Date{/ts}<span class="DataTables_sort_icon css_right ui-icon ui-icon-carat-2-n-s"></span></div>
 		</th>
 		<th colspan="1" rowspan="1" class="crm-banking-payment_amount ui-state-default">
-			<div class="DataTables_sort_wrapper">Amount<span class="DataTables_sort_icon css_right ui-icon ui-icon-carat-2-n-s"></span></div>
+			<div class="DataTables_sort_wrapper">{ts}Amount{/ts}<span class="DataTables_sort_icon css_right ui-icon ui-icon-carat-2-n-s"></span></div>
 		</th>
 		<th colspan="1" rowspan="1" class="crm-banking-payment_source_account nosort ui-state-default">
-			<div class="DataTables_sort_wrapper">Party<span class="DataTables_sort_icon css_right ui-icon ui-icon-carat-2-n-s"></span></div>
+			<div class="DataTables_sort_wrapper">{ts}Party{/ts}<span class="DataTables_sort_icon css_right ui-icon ui-icon-carat-2-n-s"></span></div>
 		</th>
 		<th colspan="1" rowspan="1" class="ccrm-banking-payment_state ui-state-default">
-			<div class="DataTables_sort_wrapper">State<span class="DataTables_sort_icon css_right ui-icon ui-icon-carat-2-n-s"></span></div>
+			<div class="DataTables_sort_wrapper">{ts}State{/ts}<span class="DataTables_sort_icon css_right ui-icon ui-icon-carat-2-n-s"></span></div>
 		</th>
     <th colspan="1" rowspan="1" class="ui-state-default">
       <div class="DataTables_sort_wrapper"><span></span></div>
@@ -147,13 +147,13 @@
 </table>
 
 
-<input onClick="selectAll(true)" class="form-submit" type="submit" value="Select all" width="200"></input>
-<input onClick="selectAll(false)" class="form-submit" type="submit" value="Select none" width="200"></input>	
-<p>With selected items perform:<br/>
-<a class="button" onClick="callWithSelected('{$url_review_selected_payments}')" ><span>Review</span></a>
-<a class="button" onClick="callWithSelected('{$url_process_selected_payments}')"><span>Process</span></a>
-<a class="button" onClick="callWithSelected('{$url_export_selected_payments}')"><span>Export</span></a>
-<a class="button" onClick="callWithSelected('{$url_delete_selected_payments}')"><span>Delete</span></a>
+<input onClick="selectAll(true)" class="form-submit" type="submit" value="{ts}Select all{/ts}" width="200"></input>
+<input onClick="selectAll(false)" class="form-submit" type="submit" value="{ts}Select none{/ts}" width="200"></input>	
+<p>{ts}With selected items perform:{/ts}<br/>
+<a class="button" onClick="callWithSelected('{$url_review_selected_payments}')" ><span>{ts}Review{/ts}</span></a>
+<a class="button" onClick="callWithSelected('{$url_process_selected_payments}')"><span>{ts}Process{/ts}</span></a>
+<a class="button" onClick="callWithSelected('{$url_export_selected_payments}')"><span>{ts}Export{/ts}</span></a>
+<a class="button" onClick="callWithSelected('{$url_delete_selected_payments}')"><span>{ts}Delete{/ts}</span></a>
 </p>
 
 

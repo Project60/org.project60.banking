@@ -167,7 +167,7 @@
         <tr>
           <td>
             <div class="btxheader">
-              BASIC INFO
+              {ts}BASIC INFO{/ts}
             </div>
           </td>
         </tr>
@@ -177,11 +177,11 @@
               <div class="btxcurr">{$payment->currency}</div>
               {$payment->amount}
             </div>
-            <div class="btxlabel">Booking</div>
+            <div class="btxlabel">{ts}Booking{/ts}</div>
             <div class="btxvalue btxc">
               {$payment->booking_date|truncate:10:''}
             </div>
-            <div class="btxlabel">Value</div>
+            <div class="btxlabel">{ts}Value{/ts}</div>
             <div class="btxvalue btxc">
               {$payment->value_date|truncate:10:''}
             </div>
@@ -192,7 +192,7 @@
         <tr>
           <td>
             <div class="btxheader">
-              TRANSACTION INFO
+              {ts}TRANSACTION INFO{/ts}
             </div>
           </td>
         </tr>
@@ -201,15 +201,15 @@
             <div class="btxvalue">
               {$my_bao->description}
             </div>
-            <div class="btxlabel">Stmt. #</div>
+            <div class="btxlabel">{ts}Stmt. #{/ts}</div>
             <div class="btxvalue btxc">
               {$payment->tx_batch_id}&nbsp;
             </div>
-            <div class="btxlabel">Trans. #</div>
+            <div class="btxlabel">{ts}Trans. #{/ts}</div>
             <div class="btxvalue btxc">
               {$payment->id}&nbsp;
             </div>
-            <div class="btxlabel">Status</div>
+            <div class="btxlabel">{ts}Status{/ts}</div>
             <div class="btxvalue btxc">
               {$btxstatus.label}
             </div>
@@ -220,13 +220,13 @@
         <tr>
           <td>
             <div class="btxheader">
-              DEBTOR INFO
+              {ts}DEBTOR INFO{/ts}
             </div>
           </td>
         </tr>
         <tr >
           <td>
-            <div class="btxlabel">Account</div>
+            <div class="btxlabel">{ts}Account{/ts}</div>
             <div class="btxvalue btxl">
               {if $ba_data_parsed.iban}
                 <a href="">{$ba_data_parsed.iban}</a>
@@ -234,7 +234,7 @@
                 {$payment_data_parsed._party_ba_id}&nbsp;
               {/if}
             </div>
-            <div class="btxlabel">Address</div>
+            <div class="btxlabel">{ts}Address{/ts}</div>
             <div class="btxvalue btxl">
               {$payment_data_parsed.street_address}&nbsp;
             </div>
@@ -242,7 +242,7 @@
             <div class="btxvalue btxl">
               {$payment_data_parsed.postal_code} {$payment_data_parsed.city}&nbsp;
             </div>
-            <div class="btxlabel">Owner</div>
+            <div class="btxlabel">{ts}Owner{/ts}</div>
             <div class="btxvalue btxl">
               {if $ba_data_parsed.name}{$ba_data_parsed.name}&nbsp;{else}{$payment_data_parsed.name}&nbsp;{/if}
             </div>
@@ -258,7 +258,7 @@
       <table id="btx-purpose">
         <tr >
           <td>
-            <div class="btxlabel">Purpose</div>
+            <div class="btxlabel">{ts}Purpose{/ts}</div>
             <div class="btxvalue btxl">
               {*{$payment_data_raw.move_msg}&nbsp;*}
               {$payment_data_parsed.purpose}
@@ -271,7 +271,7 @@
           <td>
             <div class="btxheader collapsible" onclick="cj('#extra').toggle();
                 cj(this).toggleClass('collapsible-closed');">
-              EXTRA <span style="font-weight: normal;">(click to see)</span>
+              {ts}EXTRA{/ts} <span style="font-weight: normal;">{ts}(click to see){/ts}</span>
             </div>
           </td>
         </tr>
@@ -291,22 +291,22 @@
 
     <div align="right" class="clearfix" style="width: 100%;">
       {if $btxstatus.label != 'Processed'}
-        <a href="{$url_run}" class="button"><span title="Match (again)"><div class="icon preview-icon"></div>Match (again)</span></a>
+        <a href="{$url_run}" class="button"><span title="{ts}Match (again){/ts}"><div class="icon preview-icon"></div>{ts}Match (again){/ts}</span></a>
         {if isset($url_skip_forward)}
-          <a href="#" class="button button-disabled"><span title="Confirm and Continue"><div class="icon next-icon"></div>Confirm and Continue</span></a>
-          <a href="{$url_skip_forward}" class="button"><span title="Skip"><div class="icon next-icon"></div>Skip</span></a>
+          <a href="#" class="button button-disabled"><span title="{ts}Confirm and Continue{/ts}"><div class="icon next-icon"></div>{ts}Confirm and Continue{/ts}</span></a>
+          <a href="{$url_skip_forward}" class="button"><span title="{ts}Skip{/ts}"><div class="icon next-icon"></div>{ts}Skip{/ts}</span></a>
         {else}
-          <a href="#" class="button button-disabled"><span title="Confirm and Exit"><div class="icon next-icon"></div>Confirm and Exit</span></a>
-          <a href="{$url_back}" class="button"><span title="Skip and Exit"><div class="icon next-icon"></div>Skip and Exit</span></a>
+          <a href="#" class="button button-disabled"><span title="{ts}Confirm and Exit{/ts}"><div class="icon next-icon"></div>{ts}Confirm and Exit{/ts}</span></a>
+          <a href="{$url_back}" class="button"><span title="{ts}Skip and Exit{/ts}"><div class="icon next-icon"></div>{ts}Skip and Exit{/ts}</span></a>
         {/if}
       {/if}
       <a href="{$url_back}" class="button" style="float:right;">
-        <span title="Back"><div class="icon back-icon"></div>Back to payment list</span>
+        <span title="Back"><div class="icon back-icon"></div>{ts}Back to payment list{/ts}</span>
       </a>
     </div>
 
     {if $btxstatus.label != 'Processed'}
-      <h2>Suggestions </h2>
+      <h2>{ts}Suggestions {/ts}</h2>
       <br/>
       <table class="suggestions">
         <tr>
@@ -326,7 +326,7 @@
                     {$suggestion.actions}
                     {if $suggestion.actions}
                       <a href="?id={$payment->id}&hash={$suggestion.hash}" class="button" style="float: right;">
-                        <span title="Go ahead"><div class="icon next-icon"></div> Go ahead as suggested</span>
+                        <span title="{ts}Go ahead{/ts}"><div class="icon next-icon"></div> {ts}Go ahead as suggested{/ts}</span>
                       </a>
                     {/if}
                   </td>

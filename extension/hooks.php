@@ -50,7 +50,35 @@ function banking_civicrm_navigationMenu(&$params) {
                   'url' => 'civicrm/banking/payments',
                   'permission' => 'access CiviContribute',
                   'operator' => null,
+                  'separator' => 1,
+                  'parentID' => $insert_at,
+                  'navID' => $level++,
+                  'active' => 1
+              ),
+              'child' => null
+          ),
+          $level => array(
+              'attributes' => array(
+                  'label' => 'Find Accounts',
+                  'name' => 'Find Accounts',
+                  'url' => 'civicrm/banking/search',
+                  'permission' => 'access CiviContribute',
+                  'operator' => null,
                   'separator' => 0,
+                  'parentID' => $insert_at,
+                  'navID' => $level++,
+                  'active' => 1
+              ),
+              'child' => null
+          ),
+          $level => array(
+              'attributes' => array(
+                  'label' => 'Manage Accounts',
+                  'name' => 'Manage Accounts',
+                  'url' => 'civicrm/banking/accounts',
+                  'permission' => 'access CiviContribute',
+                  'operator' => null,
+                  'separator' => 1,
                   'parentID' => $insert_at,
                   'navID' => $level++,
                   'active' => 1
@@ -73,22 +101,8 @@ function banking_civicrm_navigationMenu(&$params) {
           ),
           $level => array(
               'attributes' => array(
-                  'label' => 'Accounts',
-                  'name' => 'Accounts',
-                  'url' => 'civicrm/banking/accounts',
-                  'permission' => 'access CiviContribute',
-                  'operator' => null,
-                  'separator' => 1,
-                  'parentID' => $insert_at,
-                  'navID' => $level++,
-                  'active' => 1
-              ),
-              'child' => null
-          ),
-          $level => array(
-              'attributes' => array(
-                  'label' => 'Manage Components',
-                  'name' => 'Manage Components',
+                  'label' => 'Configuration',
+                  'name' => 'Configuration',
                   'url' => 'civicrm/banking/manager',
                   'permission' => 'access CiviContribute',
                   'operator' => null,

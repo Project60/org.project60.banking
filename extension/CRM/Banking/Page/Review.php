@@ -38,19 +38,6 @@ class CRM_Banking_Page_Review extends CRM_Core_Page {
       $btx_bao = new CRM_Banking_BAO_BankTransaction();
       $btx_bao->get('id', $pid);        
 
-            if (isset($_REQUEST['hash'])) {
-        $hash = $_REQUEST['hash'];
-        foreach ($btx_bao->getSuggestionList() as $suggestion) {
-          if ($suggestion->hash == $hash) {
-            $suggestion->execute($btx_bao);
-            $newStatus = banking_helper_optionvalueid_by_groupname_and_name('civicrm_banking.bank_tx_status','Processed');
-            $btx_bao->setStatus( $newStatus );
-            $btx_bao->status_id = $newStatus;
-            $btx_bao->resetSuggestions();
-          }
-        }
-      }
-      
       $my_bao = new CRM_Banking_BAO_BankAccount();
       $my_bao->get('id', $btx_bao->ba_id);        
 
@@ -116,12 +103,14 @@ class CRM_Banking_Page_Review extends CRM_Core_Page {
       $this->assign('suggestions', $suggestions);
 
       // URLs
-
       $this->assign('url_run', banking_helper_buildURL('civicrm/banking/review',  $this->_pageParameters(array('id'=>$pid, 'run'=>1))));
       $this->assign('url_back', banking_helper_buildURL('civicrm/banking/payments',  $this->_pageParameters()));
 
       if (isset($next_pid)) {
         $this->assign('url_skip_forward', banking_helper_buildURL('civicrm/banking/review',  $this->_pageParameters(array('id'=>$next_pid))));
+        $this->assign('url_execute', banking_helper_buildURL('civicrm/banking/review',  $this->_pageParameters(array('id'=>$next_pid, 'execute'=>$pid, 'execution_parameters' => '__execution_parameters__'))));
+      } else {
+        $this->assign('url_execute', banking_helper_buildURL('civicrm/banking/review',  $this->_pageParameters(array('execute'=>$pid, 'execution_parameters' => '__execution_parameters__'))));
       }
 
       if (isset($prev_pid)) {

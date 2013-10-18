@@ -175,14 +175,10 @@ class CRM_Banking_PluginImpl_CSVImporter extends CRM_Banking_PluginModel_Importe
 
     // look up the bank account via *BAN
     foreach ($btx as $key => $value) {
-      error_log("KEY is $key");
       if (substr($key, 1, 3)=="BAN") {
-        error_log("Trying $value");
         // this is a *BAN entry -> look it up
         $result = civicrm_api('BankingAccountReference', 'getsingle', array('version' => 3, 'reference' => $value));
         if ($result['is_error']==0) {
-          $baid = $result['ba_id'];
-          error_log("Resutl is $baid");
           $btx['party_ba_id'] = $result['ba_id'];
           break;
         }

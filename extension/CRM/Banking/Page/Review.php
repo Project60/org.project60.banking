@@ -50,8 +50,9 @@ class CRM_Banking_Page_Review extends CRM_Core_Page {
         }
       }
 
+      // look up some stuff regarding this btx
       $my_bao = new CRM_Banking_BAO_BankAccount();
-      $my_bao->get('id', $btx_bao->ba_id);        
+      $my_bao->get('id', $btx_bao->ba_id);
 
       if ($btx_bao->party_ba_id) {
         $ba_bao = new CRM_Banking_BAO_BankAccount();

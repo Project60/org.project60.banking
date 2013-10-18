@@ -57,7 +57,10 @@ abstract class CRM_Banking_PluginModel_Matcher extends CRM_Banking_PluginModel_B
    * @val $btx      the bank transaction the match refers to
    * @return TODO: what?
    */
-  public abstract function execute( $match, $btx );
+  public function execute( $match, $btx ) {
+    $match->setExecuted();
+    $btx->saveSuggestions();
+  }
 
 
   /** 

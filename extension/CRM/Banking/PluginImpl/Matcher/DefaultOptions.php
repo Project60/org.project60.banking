@@ -68,7 +68,9 @@ class CRM_Banking_PluginImpl_Matcher_DefaultOptions extends CRM_Banking_PluginMo
       $cid = $suggestion->getParameter('manual_contribution_id');
       if ($cid) {
         // TODO: verify the contribution ID
+        // if o.k., do: execute($suggestion, $btx)
         CRM_Core_Session::setStatus(ts("The contribution (id=$cid) is not valid. The payment is NOT completed."), ts('Payment NOT completed.'), 'alert');
+
       }  else {
         CRM_Core_Session::setStatus(ts("No contribution given. The payment is NOT completed."), ts('Payment NOT completed.'), 'alert');
       }
@@ -76,6 +78,7 @@ class CRM_Banking_PluginImpl_Matcher_DefaultOptions extends CRM_Banking_PluginMo
       // this is the IGNORE action. Simply set the status to ignored
       $newStatus = banking_helper_optionvalueid_by_groupname_and_name('civicrm_banking.bank_tx_status', 'Ignored');
       $btx->setStatus($newStatus);
+      parent::execute($suggestion, $btx);
     }
   }
 

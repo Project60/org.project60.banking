@@ -116,7 +116,14 @@ class CRM_Banking_Matcher_Engine {
         }
       }
     }
+    
     $btx->saveSuggestions();
+
+    // set the status
+    $newStatus = banking_helper_optionvalueid_by_groupname_and_name('civicrm_banking.bank_tx_status', 'Suggestions');
+    $btx->status_id = $newStatus;
+    $btx->setStatus($newStatus);
+
     return false;
   }
   

@@ -174,7 +174,6 @@ class CRM_Banking_Matcher_Suggestion {
 
         // perform execute
         $continue = $this->_plugin->execute($this, $btx);
-        $this->setExecuted();
         return $continue;
     }
 

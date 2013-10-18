@@ -117,11 +117,6 @@ class CRM_Banking_BAO_BankTransaction extends CRM_Banking_DAO_BankTransaction {
       WHERE id = {$this->id}
       ";
     $dao = CRM_Core_DAO::executeQuery($sql);
-
-    // this should be called anyways...removed: if (count($this->suggestion_objects)) {
-    $newStatus = banking_helper_optionvalueid_by_groupname_and_name('civicrm_banking.bank_tx_status', 'Suggestions');
-    $this->setStatus($newStatus);
-    $this->status_id = $newStatus;
   }
 
   /** 

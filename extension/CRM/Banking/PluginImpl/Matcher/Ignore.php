@@ -51,16 +51,10 @@ class CRM_Banking_PluginImpl_Matcher_Ignore extends CRM_Banking_PluginModel_Matc
    * @param type $btx
    */
   public function execute($suggestion, $btx) {
-    $config = $this->_plugin_config;
-    $s = '';
-    if ($config->actions) {
-      foreach ($config->actions as $action => $params) {
-        $this->executeAction($action, $params, $btx);
-      }
-    }
+    // this is the IGNORE action. Simply set the status to ignored
+    $newStatus = banking_helper_optionvalueid_by_groupname_and_name('civicrm_banking.bank_tx_status', 'Ignored');
+    $btx->setStatus($newStatus);
   }
-
-
 
 
   /**

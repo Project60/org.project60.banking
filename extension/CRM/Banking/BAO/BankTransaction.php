@@ -58,6 +58,22 @@ class CRM_Banking_BAO_BankTransaction extends CRM_Banking_DAO_BankTransaction {
   }
 
   /**
+   * get a suggestion by its hash key
+   */
+  public function getSuggestionByHash($hash) {
+    error_log("SUche: $hash");
+    foreach ($this->suggestion_objects as $probability => $list) {
+      foreach ($list as $suggestion) {
+        error_log("Es gibt: $suggestion->getHash()");
+        if ($suggestion->getHash() == $hash) {
+          return $suggestion;
+        }
+      }
+    }
+    return NULL;
+  }
+
+  /**
    * get a flat list of CRM_Banking_Matcher_Suggestion
    *
    * @see: getSuggestions()
@@ -75,11 +91,9 @@ class CRM_Banking_BAO_BankTransaction extends CRM_Banking_DAO_BankTransaction {
 
   public function resetSuggestions() {
     $this->suggestion_objects = array();
-    //echo 'RESET';
   }
 
-  public function addSuggestion($suggestion, $key = '') {
-    $suggestion->setKey($key);
+  public function addSuggestion($suggestion) {
     $this->suggestion_objects[floor(100 * $suggestion->getProbability())][] = $suggestion;
   }
 
@@ -136,18 +150,14 @@ class CRM_Banking_BAO_BankTransaction extends CRM_Banking_DAO_BankTransaction {
     if ($this->suggestion_objects == null && $this->suggestions) {
       $sugs = $this->suggestions;
       if ($sugs != '') {
-        $sugs = json_decode($sugs);
+        $sugs = json_decode($sugs, true);
         foreach ($sugs as $sug) {
           $pi_bao = new CRM_Banking_BAO_PluginInstance();
-          $pi_bao->get('id', $sug->plugin_id);
-          $s = new CRM_Banking_Matcher_Suggestion($pi_bao->getInstance(), $this);
-          $s->_probability = $sug->probability;
-          $s->_reasons = $sug->reasons;
-          $s->hash = $sug->hash;
+          $pi_bao->get('id', $sug['plugin_id']);
+          $s = new CRM_Banking_Matcher_Suggestion($pi_bao->getInstance(), $this, $sug);
           $this->addSuggestion($s);
         }
       }
-      //echo 'RESTORED';
     }
   }
 

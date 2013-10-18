@@ -148,7 +148,7 @@
 
 
 <input onClick="selectAll(true)" class="form-submit" type="submit" value="Select all" width="200"></input>
-<input onClick="selectAll(false)" class="form-submit" type="submit" value="Select none" width="200"></input>	
+<input onClick="selectAll(false)" class="form-submit" type="submit" value="Select none" width="200"></input>
 <p>With selected items perform:<br/>
 <a class="button" onClick="callWithSelected('{$url_review_selected_payments}')" ><span>Review</span></a>
 <a class="button" onClick="callWithSelected('{$url_process_selected_payments}')"><span>Process</span></a>

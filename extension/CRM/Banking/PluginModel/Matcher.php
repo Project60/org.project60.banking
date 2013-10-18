@@ -77,6 +77,17 @@ abstract class CRM_Banking_PluginModel_Matcher extends CRM_Banking_PluginModel_B
       return $s;
   }
 
+  /**
+   * If the user has modified the input fields provided by the "visualize" html code,
+   * the new values will be passed here BEFORE execution
+   *
+   * CAUTION: there might be more parameters than provided. Only process the ones that
+   *  'belong' to your suggestion.
+   */
+  public function update_parameters(CRM_Banking_Matcher_Suggestion $match, $parameters) {
+      // Noting to do in the abstract matcher. Override for a matcher that uses input fields
+  }
+
 
   /**
    * class constructor

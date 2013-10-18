@@ -4,33 +4,97 @@ class CRM_Banking_Matcher_Suggestion {
 
     private $_btx = null;
     private $_plugin = null;
+    
     private $_blob = array();
-    public $_probability;
-    private $_title = "Title not set";
-    public $_reasons;
-    public $hash;
-
+    
     public function __construct($plugin, $btx, $blob = null) {
+        $this->_btx = $btx;
+        $this->_plugin = $plugin;
+
         if ($blob != null) {
             // we are loading this from a blob
             $this->_blob = $blob;
 
-            // TODO: parse probability & reasons
         } else {
             // this is newly generated
-            $this->_probability = 0;
-            $this->_reasons = array();
-            $this->_plugin = $plugin;
-            $this->_btx = $btx;
-            $this->_title = $plugin->getTitle();
+            $this->setProbability(0.0);
+            $this->setEvidence(array());
+            $this->setTitle($plugin->getTitle());
+        }
+
+        if ($this->_btx) {
+            $this->setParameter('btx_id', $this->_btx->id);            
+        }
+
+        if ($this->_plugin) {
+            $this->setParameter('plugin_id', $this->_plugin->_plugin_id); 
         }
     }
     
-    public function setKey($key = '') {
-      if ($key == '') {
-        $key = 'default';
-      }
-      $this->hash = 'S-' . $this->_plugin->_plugin_id. '-' . $this->_btx->id . '-' . $key;
+    public function getParameter($key) {
+        if (isset($this->_blob[$key])) {
+            return $this->_blob[$key];
+        } else {
+            return null;
+        }
+    }
+
+    public function setParameter($key, $value) {
+        $this->_blob[$key] = $value;
+    }
+
+    public function getId() {
+        return $this->getParameter('id');
+    }
+
+    public function setId($identification) {
+        return $this->setParameter('id', $identification);
+    }
+
+    public function getHash() {
+        $hash = $this->getParameter('hash');
+        if (!$hash) {
+            // this is the HASH function for the keys
+            $hash = 'S-' . $this->_plugin->_plugin_id. '-' . $this->_btx->id . '-' . $this->getParameter('id');
+            $this->setParameter('hash', $hash);
+        }
+        return $hash;
+    }
+
+    public function getTitle() {
+        return $this->getParameter('title');
+    }
+
+    public function setTitle($name) {
+        return $this->setParameter('title', $name);
+    }
+
+    public function getProbability() {
+        return $this->getParameter('probability');
+    }
+
+    public function setProbability($probability) {
+        return $this->setParameter('probability', $probability);
+    }
+
+    public function getActions() {
+      return $this->_plugin->getActions($this->_btx);
+    }
+
+    public function getEvidence() {
+        return $this->getParameter('reasons');
+    }
+
+    public function setEvidence($reasons) {
+        return $this->setParameter('reasons', $reasons);
+    }
+
+    public function setExecuted() {
+        $this->setParameter('executed', date('YmdHis'));
+    }
+
+    public function isExecuted() {
+        return $this->getParameter('executed');
     }
 
     /**
@@ -77,22 +141,6 @@ class CRM_Banking_Matcher_Suggestion {
         }
     }
 
-    public function getProbability() {
-        return $this->_probability;
-    }
-
-    public function getTitle() {
-        return $this->_title;
-    }
-
-    public function setTitle($name) {
-        $this->_title = $name;
-    }
-
-    public function getActions() {
-      return $this->_plugin->getActions($this->_btx);
-    }
-
     /**
      * addEvidence computes the Bayesian combined evidence
      */
@@ -102,13 +150,22 @@ class CRM_Banking_Matcher_Suggestion {
             $factor = 1;
         }
 
-        $this->_probability = $this->_probability + (1 - $this->_probability) * $factor;
-        if ($reason)
-            $this->_reasons[] = $reason;
+        $probability = $this->getProbability();
+        $new_probability = $probability + (1 - probability) * $factor;
+        $this->setProbability($new_probability);
+        if ($reason) {
+            $this->setEvidence(array($reason));
+        }
     }
 
-    public function getEvidence() {
-        return $this->_reasons;
+    /**
+     * If the user has modified the input fields provided by the "visualize" html code,
+     * the new values will be passed here BEFORE execution
+     *
+     * this will be passed on to the plugin that generated the suggestion
+     */
+    public function update_parameters($parameters) {
+        return $this->_plugin->update_parameters($this, $parameters);
     }
 
     public function execute(CRM_Banking_BAO_BankTransaction $btx = null, CRM_Banking_PluginModel_Matcher $plugin = null) {
@@ -117,6 +174,7 @@ class CRM_Banking_Matcher_Suggestion {
 
         // perform execute
         $continue = $this->_plugin->execute($this, $btx);
+        $this->setExecuted();
         return $continue;
     }
 
@@ -127,14 +185,7 @@ class CRM_Banking_Matcher_Suggestion {
     }
     
     public function prepForJson() {
-      $prep = array();
-      $prep['probability'] = $this->_probability;
-      $prep['btx_id'] = $this->_btx->id;
-      $prep['plugin_id'] = $this->_plugin->_plugin_id;
-      $prep['reasons'] = $this->_reasons;
-      $prep['hash'] = $this->hash;
-
-      return $prep;
+        return $this->_blob;
     }
 
 }

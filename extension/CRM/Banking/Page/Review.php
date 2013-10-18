@@ -38,6 +38,18 @@ class CRM_Banking_Page_Review extends CRM_Core_Page {
       $btx_bao = new CRM_Banking_BAO_BankTransaction();
       $btx_bao->get('id', $pid);        
 
+      // If the exercution was triggered, run that first
+      if (isset($_REQUEST['execute'])) {
+        $execute_bao = ($_REQUEST['execute']==$pid) ? $btx_bao : NULL;
+        $this->execute_suggestion($_REQUEST['execute_suggestion'], $_REQUEST, $execute_bao);
+
+        if (!isset($next_pid)) {
+          // after execution -> exit if this was the last in the list
+          $forward_url = banking_helper_buildURL('civicrm/banking/payments',  $this->_pageParameters());
+          $this->assign('page_forward', '<script language="JavaScript">location.href = "'.$forward_url.'";</script>');
+        }
+      }
+
       $my_bao = new CRM_Banking_BAO_BankAccount();
       $my_bao->get('id', $btx_bao->ba_id);        
 
@@ -49,9 +61,6 @@ class CRM_Banking_Page_Review extends CRM_Core_Page {
           $contact = civicrm_api('Contact','getsingle',array('version'=>3,'id'=>$ba_bao->contact_id));        
         }
       }
-
-      
-
       
       // check if we are requested to run the matchers again        
       if (isset($_REQUEST['run'])) {
@@ -92,8 +101,8 @@ class CRM_Banking_Page_Review extends CRM_Core_Page {
       foreach ($suggestion_objects as $suggestion) {
         $color = $this->translateProbability($suggestion->getProbability() * 100);
           array_push($suggestions, array(
-              'hash' => $suggestion->hash,
-              'probability' => sprintf('%d %%', ($suggestion->getProbability() * 100)),
+              'hash' => $suggestion->getHash(),
+              'probability' => sprintf('%d&nbsp;%%', ($suggestion->getProbability() * 100)),
               'color' => $color,
               'visualization' => $suggestion->visualize($btx_bao),
               'title' => $suggestion->getTitle(),
@@ -108,9 +117,9 @@ class CRM_Banking_Page_Review extends CRM_Core_Page {
 
       if (isset($next_pid)) {
         $this->assign('url_skip_forward', banking_helper_buildURL('civicrm/banking/review',  $this->_pageParameters(array('id'=>$next_pid))));
-        $this->assign('url_execute', banking_helper_buildURL('civicrm/banking/review',  $this->_pageParameters(array('id'=>$next_pid, 'execute'=>$pid, 'execution_parameters' => '__execution_parameters__'))));
+        $this->assign('url_execute', banking_helper_buildURL('civicrm/banking/review',  $this->_pageParameters(array('id'=>$next_pid, 'execute'=>$pid))));
       } else {
-        $this->assign('url_execute', banking_helper_buildURL('civicrm/banking/review',  $this->_pageParameters(array('execute'=>$pid, 'execution_parameters' => '__execution_parameters__'))));
+        $this->assign('url_execute', banking_helper_buildURL('civicrm/banking/review',  $this->_pageParameters(array('execute'=>$pid))));
       }
 
       if (isset($prev_pid)) {
@@ -123,7 +132,13 @@ class CRM_Banking_Page_Review extends CRM_Core_Page {
       parent::run();
   }
 
-  
+
+
+
+
+  /**
+   * provides the color coding for the various probabilities
+   */
   private function translateProbability( $pct ) {
     if ($pct >= 90) return '#393';
     if ($pct >= 80) return '#cc0';
@@ -148,5 +163,25 @@ class CRM_Banking_Page_Review extends CRM_Core_Page {
         $params[$key] = $value;
     }
     return $params;
+  }
+
+  /**
+   * Will trigger the execution of the given suggestion (identified by its hash)
+   */
+  function execute_suggestion($suggestion_hash, $parameters, $btx_bao) {
+    // load BTX object if not provided
+    if (!$btx_bao) {
+      $btx_bao = new CRM_Banking_BAO_BankTransaction();
+      $btx_bao->get('id', $parameters['execute']);
+    }
+    error_log("btx id $btx_bao->id");
+    $suggestion = $btx_bao->getSuggestionByHash($suggestion_hash);
+    if ($suggestion) {
+      // update the parameters
+      $suggestion->update_parameters($parameters);
+      $suggestion->execute($btx_bao);
+    } else {
+      CRM_Core_Session::setStatus(ts("Selected suggestions disappeared. Suggestion NOT executed!"), ts("Internal Error"), 'error');
+    }
   }
 }

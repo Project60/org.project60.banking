@@ -174,7 +174,6 @@ class CRM_Banking_Page_Review extends CRM_Core_Page {
       $btx_bao = new CRM_Banking_BAO_BankTransaction();
       $btx_bao->get('id', $parameters['execute']);
     }
-    error_log("btx id $btx_bao->id");
     $suggestion = $btx_bao->getSuggestionByHash($suggestion_hash);
     if ($suggestion) {
       // update the parameters

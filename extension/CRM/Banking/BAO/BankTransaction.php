@@ -61,10 +61,8 @@ class CRM_Banking_BAO_BankTransaction extends CRM_Banking_DAO_BankTransaction {
    * get a suggestion by its hash key
    */
   public function getSuggestionByHash($hash) {
-    error_log("SUche: $hash");
     foreach ($this->suggestion_objects as $probability => $list) {
       foreach ($list as $suggestion) {
-        error_log("Es gibt: $suggestion->getHash()");
         if ($suggestion->getHash() == $hash) {
           return $suggestion;
         }

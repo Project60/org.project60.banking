@@ -13,6 +13,9 @@ class CRM_Banking_Page_Review extends CRM_Core_Page {
       // Get the current ID
       if (isset($_REQUEST['list'])) {
         $list = explode(",", $_REQUEST['list']);
+      } else if (isset($_REQUEST['s_list'])) {
+        $list = CRM_Banking_Page_Payments::getPaymentsForStatements($_REQUEST['s_list']);
+        $list = explode(",", $list);
       } else {
         $list = array();
         array_push($list, $_REQUEST['id']);
@@ -159,6 +162,8 @@ class CRM_Banking_Page_Review extends CRM_Core_Page {
         $params['id'] = $_REQUEST['id'];
     if (isset($_REQUEST['list']))
         $params['list'] = $_REQUEST['list'];
+    if (isset($_REQUEST['s_list']))
+        $params['s_list'] = $_REQUEST['s_list'];
 
     foreach ($override as $key => $value) {
         $params[$key] = $value;

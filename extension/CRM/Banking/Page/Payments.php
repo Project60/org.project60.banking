@@ -28,14 +28,18 @@ class CRM_Banking_Page_Payments extends CRM_Core_Page {
     // look up the payment states
     $payment_states = banking_helper_optiongroup_id_name_mapping('civicrm_banking.bank_tx_status');
 
-    if (isset($_REQUEST['show']) && $_REQUEST['show']=="statements") {
-        // STATEMENT MODE REQUESTED
-        $this->build_statementPage($payment_states);
-        $list_type = 's_list';
-    } else {
+    if (!isset($_REQUEST['status_ids'])) {
+      $_REQUEST['status_ids'] = $payment_states['new']['id'];
+    }
+
+    if (isset($_REQUEST['show']) && $_REQUEST['show']=="payments") {
         // PAYMENT MODE REQUESTED
         $this->build_paymentPage($payment_states);
         $list_type = 'list';
+    } else {
+        // STATEMENT MODE REQUESTED
+        $this->build_statementPage($payment_states);
+        $list_type = 's_list';
     }
 
     // URLs
@@ -76,40 +80,64 @@ class CRM_Banking_Page_Payments extends CRM_Core_Page {
   function build_statementPage($payment_states) {
     // DELETE ITEMS (if any)
     if (isset($_REQUEST['delete'])) {
-      $payment_list = $this->getPaymentsForStatements($_REQUEST['delete']);
+      $payment_list = CRM_Banking_Page_Payments::getPaymentsForStatements($_REQUEST['delete']);
       $this->deleteItems($payment_list, 'BankingTransaction', ts('payments'));
       $this->deleteItems($_REQUEST['delete'], 'BankingTransactionBatch', ts('statements'));
     }
 
     // RUN ITEMS (if any)
     if (isset($_REQUEST['process'])) {
-      $payment_list = $this->getPaymentsForStatements($_REQUEST['process']);
+      $payment_list = CRM_Banking_Page_Payments::getPaymentsForStatements($_REQUEST['process']);
       $this->processItems($payment_list);
     }
 
-    // read all batches
-    $params = array('version' => 3);
-    $result = civicrm_api('BankingTransactionBatch', 'get', $params);
-    $statement_rows = array();
-    foreach ($result['values'] as $entry) {
-        $info = $this->investigate($entry['id'], $payment_states);
-        $ba_id = $info['target_account'];
-        $params = array('version' => 3, 'id' => $ba_id);
-        $result = civicrm_api('BankingAccount', 'getsingle', $params);
-        array_push($statement_rows,
-            array(  
-                    'id' => $entry['id'], 
-                    'reference' => $entry['reference'], 
-                    'date' => strtotime($entry['starting_date']), 
-                    'count' => $entry['tx_count'], 
-                    'target' => $result['description'],
+    $statements_new = array();
+    $statements_analysed = array();
+    $statements_completed = array();
+
+    // TODO: WE NEED a tx_batch status field, see https://github.com/Project60/CiviBanking/issues/20
+    $sql_query = "SELECT * FROM civicrm_bank_tx_batch;";
+    $stmt = CRM_Core_DAO::executeQuery($sql_query);
+    while($stmt->fetch()) {
+      $info = $this->investigate($stmt->id, $payment_states);
+      $row = array(  
+                    'id' => $stmt->id, 
+                    'reference' => $stmt->reference, 
+                    'date' => strtotime($stmt->starting_date), 
+                    'count' => $stmt->tx_count, 
+                    'target' => ts("Unknown"),
                     'analysed' => $info['analysed'].'%',
                     'completed' => $info['completed'].'%',
-                )
-        );
+                );
+
+      // sort it
+      if ($info['completed']==100) {
+        array_push($statements_completed, $row);
+      } else {
+        if ($info['analysed']>0) {
+          array_push($statements_analysed, $row);
+        }
+        if ($info['analysed']<100) {
+          array_push($statements_new, $row);
+        }
+      }
     }
-    $this->assign('rows', $statement_rows);
-    $this->assign('status_message', sizeof($statement_rows).' incomplete statements.');
+
+    if ($_REQUEST['status_ids']==$payment_states['new']['id']) {
+      // 'NEW' mode will show all that have not been completely analysed
+      $this->assign('rows', $statements_new);
+      $this->assign('status_message', sizeof($statements_new).' incomplete statements.');
+
+    } elseif ($_REQUEST['status_ids']==$payment_states['suggestions']['id']) {
+      // 'ANALYSED' mode will show all that have been partially analysed, but not all completed
+      $this->assign('rows', $statements_analysed);
+      $this->assign('status_message', sizeof($statements_analysed).' analysed statements.');
+
+    } else {
+      // 'COMPLETE' mode will show all that have been entirely processed
+      $this->assign('rows', $statements_completed);
+      $this->assign('status_message', sizeof($statements_completed).' completed statements.');
+    }
     $this->assign('show', 'statements');        
   }
 
@@ -222,15 +250,24 @@ class CRM_Banking_Page_Payments extends CRM_Core_Page {
   /**
    * will take a comma separated list of statement IDs and create a list of the related payment ids in the same format
    */
-  function getPaymentsForStatements($statement_list) {
+  public static function getPaymentsForStatements($raw_statement_list) {
     $payments = array();
-    $statements = explode(",", $statement_list);
-    foreach ($statements as $stmt_id) {
-      $btx_query = array('version' => 3, 'tx_batch_id' => $stmt_id);
-      $btx_result = civicrm_api('BankingTransaction', 'get', $btx_query);
-      foreach ($btx_result['values'] as $btx) {
-        array_push($payments, $btx['id']);
-      }
+    $raw_statements = explode(",", $raw_statement_list);
+    if (count($raw_statements)==0) {
+      return '';
+    }
+
+    $statements = array();
+    # make sure, that the statments are all integers (SQL injection)
+    foreach ($raw_statements as $stmt_id) {
+      array_push($statements, intval($stmt_id));
+    }
+    $statement_list = implode(",", $statements);
+
+    $sql_query = "SELECT id FROM civicrm_bank_tx WHERE tx_batch_id IN ($statement_list);";
+    $stmt_ids = CRM_Core_DAO::executeQuery($sql_query);
+    while($stmt_ids->fetch()) {
+      array_push($payments, $stmt_ids->id);
     }
     return implode(",", $payments);
   }
@@ -244,39 +281,47 @@ class CRM_Banking_Page_Payments extends CRM_Core_Page {
    */
   function investigate($stmt_id, $payment_states) {
     // go over all transactions to find out rates and data
-    $target_account = "Unknown";
-    $analysed_state_id = $payment_states['suggestions']['id'];
-    $analysed_count = 0;
-    $completed_state_id = $payment_states['processed']['id'];
-    $completed_count = 0;
+    $stmt_id = intval($stmt_id);
     $count = 0;
 
-
-    $btx_query = array('version' => 3, 'tx_batch_id' => $stmt_id);
-    $btx_result = civicrm_api('BankingTransaction', 'get', $btx_query);
-    foreach ($btx_result['values'] as $btx) {
-        $count += 1.0;
-        if (isset($btx['ba_id']))
-            $target_account = $btx['ba_id'];
-
-        if ($btx['status_id']==$completed_state_id) {
-            $completed_count += 1;
-        } else if ($btx['status_id']==$analysed_state_id) {
-            $analysed_count += 1;
-        }
-    }
+    $sql_query = "SELECT status_id, COUNT(status_id) AS count FROM civicrm_bank_tx WHERE tx_batch_id=$stmt_id GROUP BY status_id;";
+    error_log($sql_query);
+    $stats = CRM_Core_DAO::executeQuery($sql_query);
+    // this creates a table: | status_id | count |
     
+    $status2count = array();
+    while ($stats->fetch()) {
+      $status2count[$stats->status_id] = $stats->count;
+      $count += $stats->count;
+    }
+
     if ($count) {
+      // count the individual values
+      $analysed_state_id = $payment_states['suggestions']['id'];
+      $analysed_count = 0;
+      if (isset($status2count[$analysed_state_id])) {
+        $analysed_count = $status2count[$analysed_state_id];
+      }
+      $completed_state_id = $payment_states['processed']['id'];
+      $completed_count = 0;
+      if (isset($status2count[$completed_state_id])) {
+        $completed_count = $status2count[$completed_state_id];
+      }
+      $ignored_state_id = $payment_states['ignored']['id'];
+      if (isset($status2count[$ignored_state_id])) {
+        $completed_count += $status2count[$ignored_state_id];
+      }
+
       return array(
-        'analysed'       => ($analysed_count / $count * 100.0),
-        'completed'      => ($completed_count / $count * 100.0),
-        'target_account' => $target_account
+        'analysed'       => round(($analysed_count+$completed_count) / $count * 100.0),
+        'completed'      => round($completed_count / $count * 100.0),
+        'target_account' => "Unknown"
         );
     } else {
       return array(
         'analysed'       => 0,
         'completed'      => 0,
-        'target_account' => $target_account
+        'target_account' => "Unknown"
         );
     }
   }
@@ -317,6 +362,9 @@ class CRM_Banking_Page_Payments extends CRM_Core_Page {
     if (isset($result['is_error']) && $result['is_error']) {
       CRM_Core_Error::error(sprintf(ts("Error while querying BTX with parameters '%s'!"), implode(',', $params)));
       return array();
+    } elseif (count($result['values'])>=999) {
+      CRM_Core_Session::setStatus(sprintf(ts('Internal limit of 1000 transactions hit. Please use smaller statments.'), $failed, count($list), $name), ts('Internal restriction'), 'alert');
+      return $result['values'];
     } else {
       return $result['values'];
     }

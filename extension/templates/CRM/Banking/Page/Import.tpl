@@ -75,7 +75,7 @@
     <tbody>
       <tr class="crm-import-datasource-form-block-dataSource">
         <td>
-          <input type="checkbox" class="form-checkbox" value="on" name="{ts}dry_run{/ts}" id="dry_run"
+          <input type="checkbox" class="form-checkbox" value="on" name="dry_run" id="dry_run"
           {if $page_mode == 'run'} disabled {/if}
         {if $dry_run == 'on'} checked {/if}>
       {ts}Dry run{/ts}</input>

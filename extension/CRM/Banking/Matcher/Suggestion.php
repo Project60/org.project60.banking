@@ -150,11 +150,14 @@ class CRM_Banking_Matcher_Suggestion {
             $factor = 1;
         }
 
+        // FIXME: I'm not sure, if this is the correct implementation of Bayes' rule...
         $probability = $this->getProbability();
-        $new_probability = $probability + (1 - probability) * $factor;
+        $new_probability = $probability + (1 - $probability) * $factor;
         $this->setProbability($new_probability);
         if ($reason) {
-            $this->setEvidence(array($reason));
+            $evidence = $this->getEvidence();
+            array_push($evidence, $reason);
+            $this->setEvidence($evidence);
         }
     }
 

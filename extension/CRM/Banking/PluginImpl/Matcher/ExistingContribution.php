@@ -59,7 +59,6 @@ class CRM_Banking_PluginImpl_Matcher_ExistingContribution extends CRM_Banking_Pl
       if (isset($result['values'])) {
         foreach ($result['values'] as $contribution_id => $contribution) {
           $contribution_probability = $context->rateContribution($contribution);
-          error_log($contribution_probability);
           if ($contact_probabiliy * $contribution_probability > $threshold) {
             $contributions[$contribution['id']] = $contribution_probability;
             $contribution2contact[$contribution['id']] = $contact_id;
@@ -105,6 +104,18 @@ class CRM_Banking_PluginImpl_Matcher_ExistingContribution extends CRM_Banking_Pl
    * @param type $btx
    */
   public function execute($suggestion, $btx) {
+    // set contribution status to completed
+    $completed_status = banking_helper_optionvalue_by_groupname_and_name('contribution_status', 'Completed');
+
+    $query = array('version' => 3, 'id' => $suggestion->getParameter('contribution_id'));
+    $query['contribution_status_id'] = $completed_status;
+    $query['receive_date'] = date('YmdHis', strtotime($btx->booking_date));
+
+    $result = civicrm_api('Contribution', 'create', $query);
+    if (isset($result['is_error']) && $result['is_error']) {
+      CRM_Core_Session::setStatus(ts("Couldn't modify contribution."), ts('Error'), 'error');
+    }
+
     parent::execute($suggestion, $btx);
   }
 
@@ -138,7 +149,7 @@ class CRM_Banking_PluginImpl_Matcher_ExistingContribution extends CRM_Banking_Pl
       $contact_link = CRM_Utils_System::url("civicrm/contact/view", "&reset=1&cid=$contact_id");
 
       // create base text
-      $text = "<div>There seems to be match:<ul>";
+      $text = "<div>There seems to be a match:<ul>";
       foreach ($match->getEvidence() as $reason) {
         $text .= "<li>$reason</li>";
       }

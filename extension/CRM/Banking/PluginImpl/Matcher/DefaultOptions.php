@@ -1,7 +1,9 @@
 <?php
 
 /**
- * The Default Options Matcher will provide the user
+ * The Default Options Matcher will provide the user with two default (last resort) options:
+ *  1) Mark the payment as "ignored"
+ *  2) Allow the manual assiciation of contributions
  */
 class CRM_Banking_PluginImpl_Matcher_DefaultOptions extends CRM_Banking_PluginModel_Matcher {
 

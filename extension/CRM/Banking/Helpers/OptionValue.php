@@ -68,6 +68,31 @@ function banking_helper_optionvalueid_by_name($group_id, $value_name) {
 }
 
 /**
+ * looks up an option value
+ * 
+ * the implementation is probably not optimal, but it'll do for the moment
+ * 
+ * @package org.project60.banking
+ * @copyright GNU Affero General Public License
+ * $Id$
+ *
+ */
+function banking_helper_optionvalue_by_name($group_id, $value_name) {
+    $result = civicrm_api('OptionValue', 'get', array('version' => 3, 'name' => $value_name, 'option_group_id' => $group_id));
+    if (isset($result['is_error']) && $result['is_error']) {
+      CRM_Core_Error::fatal(sprintf(ts("Error while looking up option value '%s'!"), $value_name));
+      return 0;
+    }
+
+    if (!isset($result['id'])) {
+        CRM_Core_Error::warn(sprintf(ts("Couldn't find value '%s'!"), $value_name));
+        return 0;    
+    }
+
+    return $result['values'][$result['id']]['value'];
+}
+
+/**
  * looks up an option value ID by group name and value name
  * 
  * the implementation is probably not optimal, but it'll do for the moment
@@ -81,6 +106,25 @@ function banking_helper_optionvalueid_by_groupname_and_name($group_name, $value_
     $group_id = banking_helper_optiongroupid_by_name($group_name);
     if ($group_id) {
         return banking_helper_optionvalueid_by_name($group_id, $value_name);
+    } else {
+        return 0;
+    }
+}
+
+/**
+ * looks up an option value by group name and value name
+ * 
+ * the implementation is probably not optimal, but it'll do for the moment
+ * 
+ * @package org.project60.banking
+ * @copyright GNU Affero General Public License
+ * $Id$
+ *
+ */
+function banking_helper_optionvalue_by_groupname_and_name($group_name, $value_name) {
+    $group_id = banking_helper_optiongroupid_by_name($group_name);
+    if ($group_id) {
+        return banking_helper_optionvalue_by_name($group_id, $value_name);
     } else {
         return 0;
     }

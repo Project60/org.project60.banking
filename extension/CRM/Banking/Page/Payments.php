@@ -285,7 +285,6 @@ class CRM_Banking_Page_Payments extends CRM_Core_Page {
     $count = 0;
 
     $sql_query = "SELECT status_id, COUNT(status_id) AS count FROM civicrm_bank_tx WHERE tx_batch_id=$stmt_id GROUP BY status_id;";
-    error_log($sql_query);
     $stats = CRM_Core_DAO::executeQuery($sql_query);
     // this creates a table: | status_id | count |
     

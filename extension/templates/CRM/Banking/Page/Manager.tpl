@@ -6,9 +6,9 @@
 	<thead>
 		<tr>
 			<th class="sorting" rowspan="1" colspan="1">Plugin</th>
-			<th class="sorting_disabled" rowspan="1" colspan="1">Description</th>
-			<th class="sorting_disabled" rowspan="1" colspan="1">Interface</th>
-			<th class="sorting_disabled" rowspan="1" colspan="1">Profiles</th>
+			<th class="sorting_disabled" rowspan="1" colspan="1">{ts}Description{/ts}</th>
+			<th class="sorting_disabled" rowspan="1" colspan="1">{ts}Interface{/ts}</th>
+			<th class="sorting_disabled" rowspan="1" colspan="1">{ts}Profiles{/ts}</th>
 		</tr>
 	</thead>
 	<tbody>
@@ -44,12 +44,12 @@
 <table class="display" id="option11">
 	<thead>
 		<tr>
-			<th class="sorting" rowspan="1" colspan="1">Matcher</th>
-			<th class="sorting" rowspan="1" colspan="1">Weight</th>
-			<th id="nosort" class="sorting_disabled" rowspan="1" colspan="1">Description</th>
+			<th class="sorting" rowspan="1" colspan="1">{ts}Matcher{/ts}</th>
+			<th class="sorting" rowspan="1" colspan="1">{ts}Weight{/ts}</th>
+			<th id="nosort" class="sorting_disabled" rowspan="1" colspan="1">{ts}Description{/ts}</th>
 			<th id="order" class="sorting" rowspan="1" colspan="1">Order</th>
-			<th class="sorting" rowspan="1" colspan="1">Review Required</th>
-			<th class="sorting" rowspan="1" colspan="1">Enabled?</th>
+			<th class="sorting" rowspan="1" colspan="1">{ts}Review Required{/ts}</th>
+			<th class="sorting" rowspan="1" colspan="1">{ts}Enabled?{/ts}</th>
 			<th class="hiddenElement sorting_disabled" rowspan="1" colspan="1"></th>
 		</tr>
 	</thead>
@@ -131,9 +131,9 @@
 	<thead>
 		<tr>
 			<th class="sorting" rowspan="1" colspan="1">Plugin</th>
-			<th class="sorting_disabled" rowspan="1" colspan="1">Description</th>
-			<th class="sorting_disabled" rowspan="1" colspan="1">Interface</th>
-			<th class="sorting_disabled" rowspan="1" colspan="1">Profiles</th>
+			<th class="sorting_disabled" rowspan="1" colspan="1">{ts}Description{/ts}</th>
+			<th class="sorting_disabled" rowspan="1" colspan="1">{ts}Interface{/ts}</th>
+			<th class="sorting_disabled" rowspan="1" colspan="1">{ts}Profiles{/ts}</th>
 		</tr>
 	</thead>
 	<tbody>
@@ -144,19 +144,19 @@
 			<td><a class="button" href="#"><span><div class="icon add-icon"></div>Add Profile</span></a></td>
 		</tr>
 		<tr class="odd-row">
-			<td><b>Default</b>&nbsp;&nbsp;<a href='#' class="crm-actions-view">Edit</a></td>
+			<td><b>Default</b>&nbsp;&nbsp;<a href='#' class="crm-actions-view">{ts}Edit{/ts}</a></td>
 		</tr>
 		<tr class="odd-row">
-			<td><b>GLS Online Banking</b>&nbsp;&nbsp;<a href='#' class="crm-actions-view">Edit</a>&nbsp;<a href='#' class="crm-actions-view">Delete</a></td>
+			<td><b>GLS Online Banking</b>&nbsp;&nbsp;<a href='#' class="crm-actions-view">Edit</a>&nbsp;<a href='#' class="crm-actions-view">{ts}Delete{/ts}</a></td>
 		</tr>
 		<tr class="even-row">
 			<td rowspan="2">SEPA XML</td>
 			<td rowspan="2">PAIN data processor</td>
 			<td rowspan="2">UI and API</td>
-			<td><a class="button" href="#"><span><div class="icon add-icon"></div>Add Profile</span></a></td>
+			<td><a class="button" href="#"><span><div class="icon add-icon"></div>{ts}Add Profile{/ts}</span></a></td>
 		</tr>
 		<tr class="even-row">
-			<td><b>Default</b>&nbsp;&nbsp;<a href='#' class="crm-actions-view">Edit</a></td>
+			<td><b>Default</b>&nbsp;&nbsp;<a href='#' class="crm-actions-view">{ts}Edit{/ts}</a></td>
 		</tr>
 	</tbody>
 </table>

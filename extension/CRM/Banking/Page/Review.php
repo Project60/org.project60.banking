@@ -13,6 +13,9 @@ class CRM_Banking_Page_Review extends CRM_Core_Page {
       // Get the current ID
       if (isset($_REQUEST['list'])) {
         $list = explode(",", $_REQUEST['list']);
+      } else if (isset($_REQUEST['s_list'])) {
+        $list = CRM_Banking_Page_Payments::getPaymentsForStatements($_REQUEST['s_list']);
+        $list = explode(",", $list);
       } else {
         $list = array();
         array_push($list, $_REQUEST['id']);
@@ -38,21 +41,21 @@ class CRM_Banking_Page_Review extends CRM_Core_Page {
       $btx_bao = new CRM_Banking_BAO_BankTransaction();
       $btx_bao->get('id', $pid);        
 
-            if (isset($_REQUEST['hash'])) {
-        $hash = $_REQUEST['hash'];
-        foreach ($btx_bao->getSuggestionList() as $suggestion) {
-          if ($suggestion->hash == $hash) {
-            $suggestion->execute($btx_bao);
-            $newStatus = banking_helper_optionvalueid_by_groupname_and_name('civicrm_banking.bank_tx_status','Processed');
-            $btx_bao->setStatus( $newStatus );
-            $btx_bao->status_id = $newStatus;
-            $btx_bao->resetSuggestions();
-          }
+      // If the exercution was triggered, run that first
+      if (isset($_REQUEST['execute'])) {
+        $execute_bao = ($_REQUEST['execute']==$pid) ? $btx_bao : NULL;
+        $this->execute_suggestion($_REQUEST['execute_suggestion'], $_REQUEST, $execute_bao);
+
+        if (!isset($next_pid)) {
+          // after execution -> exit if this was the last in the list
+          $forward_url = banking_helper_buildURL('civicrm/banking/payments',  $this->_pageParameters());
+          $this->assign('page_forward', '<script language="JavaScript">location.href = "'.$forward_url.'";</script>');
         }
       }
-      
+
+      // look up some stuff regarding this btx
       $my_bao = new CRM_Banking_BAO_BankAccount();
-      $my_bao->get('id', $btx_bao->ba_id);        
+      $my_bao->get('id', $btx_bao->ba_id);
 
       if ($btx_bao->party_ba_id) {
         $ba_bao = new CRM_Banking_BAO_BankAccount();
@@ -62,9 +65,6 @@ class CRM_Banking_Page_Review extends CRM_Core_Page {
           $contact = civicrm_api('Contact','getsingle',array('version'=>3,'id'=>$ba_bao->contact_id));        
         }
       }
-
-      
-
       
       // check if we are requested to run the matchers again        
       if (isset($_REQUEST['run'])) {
@@ -105,8 +105,8 @@ class CRM_Banking_Page_Review extends CRM_Core_Page {
       foreach ($suggestion_objects as $suggestion) {
         $color = $this->translateProbability($suggestion->getProbability() * 100);
           array_push($suggestions, array(
-              'hash' => $suggestion->hash,
-              'probability' => sprintf('%d %%', ($suggestion->getProbability() * 100)),
+              'hash' => $suggestion->getHash(),
+              'probability' => sprintf('%d&nbsp;%%', ($suggestion->getProbability() * 100)),
               'color' => $color,
               'visualization' => $suggestion->visualize($btx_bao),
               'title' => $suggestion->getTitle(),
@@ -116,12 +116,14 @@ class CRM_Banking_Page_Review extends CRM_Core_Page {
       $this->assign('suggestions', $suggestions);
 
       // URLs
-
       $this->assign('url_run', banking_helper_buildURL('civicrm/banking/review',  $this->_pageParameters(array('id'=>$pid, 'run'=>1))));
       $this->assign('url_back', banking_helper_buildURL('civicrm/banking/payments',  $this->_pageParameters()));
 
       if (isset($next_pid)) {
         $this->assign('url_skip_forward', banking_helper_buildURL('civicrm/banking/review',  $this->_pageParameters(array('id'=>$next_pid))));
+        $this->assign('url_execute', banking_helper_buildURL('civicrm/banking/review',  $this->_pageParameters(array('id'=>$next_pid, 'execute'=>$pid))));
+      } else {
+        $this->assign('url_execute', banking_helper_buildURL('civicrm/banking/review',  $this->_pageParameters(array('execute'=>$pid))));
       }
 
       if (isset($prev_pid)) {
@@ -134,7 +136,13 @@ class CRM_Banking_Page_Review extends CRM_Core_Page {
       parent::run();
   }
 
-  
+
+
+
+
+  /**
+   * provides the color coding for the various probabilities
+   */
   private function translateProbability( $pct ) {
     if ($pct >= 90) return '#393';
     if ($pct >= 80) return '#cc0';
@@ -154,10 +162,31 @@ class CRM_Banking_Page_Review extends CRM_Core_Page {
         $params['id'] = $_REQUEST['id'];
     if (isset($_REQUEST['list']))
         $params['list'] = $_REQUEST['list'];
+    if (isset($_REQUEST['s_list']))
+        $params['s_list'] = $_REQUEST['s_list'];
 
     foreach ($override as $key => $value) {
         $params[$key] = $value;
     }
     return $params;
+  }
+
+  /**
+   * Will trigger the execution of the given suggestion (identified by its hash)
+   */
+  function execute_suggestion($suggestion_hash, $parameters, $btx_bao) {
+    // load BTX object if not provided
+    if (!$btx_bao) {
+      $btx_bao = new CRM_Banking_BAO_BankTransaction();
+      $btx_bao->get('id', $parameters['execute']);
+    }
+    $suggestion = $btx_bao->getSuggestionByHash($suggestion_hash);
+    if ($suggestion) {
+      // update the parameters
+      $suggestion->update_parameters($parameters);
+      $suggestion->execute($btx_bao);
+    } else {
+      CRM_Core_Session::setStatus(ts("Selected suggestions disappeared. Suggestion NOT executed!"), ts("Internal Error"), 'error');
+    }
   }
 }

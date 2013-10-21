@@ -173,6 +173,18 @@ class CRM_Banking_PluginImpl_CSVImporter extends CRM_Banking_PluginModel_Importe
       }
     }
 
+    // look up the bank account via *BAN
+    foreach ($btx as $key => $value) {
+      if (substr($key, 1, 3)=="BAN") {
+        // this is a *BAN entry -> look it up
+        $result = civicrm_api('BankingAccountReference', 'getsingle', array('version' => 3, 'reference' => $value));
+        if ($result['is_error']==0) {
+          $btx['party_ba_id'] = $result['ba_id'];
+          break;
+        }
+      }
+    }
+
     // do some post processing
     if (!isset($config->bank_reference)) {
       // set MD5 hash as unique reference
@@ -216,7 +228,15 @@ class CRM_Banking_PluginImpl_CSVImporter extends CRM_Banking_PluginModel_Importe
       $value = $line[$rule->from];
     } else {
       $index = array_search($rule->from, $header);
-      $value = $line[$index];
+      if ($index!==FALSE) {
+        $value = $line[$index];
+      } elseif (isset($btx[$rule->from])) {
+        // this is not in the line, maybe it's already in the btx
+        $value = $btx[$rule->from];
+      } else {
+        error_log("Cannot find source '$rule->from' for rule.");
+        $value = '';
+      }
     }
 
     // execute the rule
@@ -241,10 +261,15 @@ class CRM_Banking_PluginImpl_CSVImporter extends CRM_Banking_PluginModel_Importe
       $params = explode(":", $rule->type);
       if (isset($params[1])) {
         // the user provided a date format
-        $btx[$rule->to] = trim($btx[$rule->from], $params[1]);
+        $btx[$rule->to] = trim($value, $params[1]);
       } else {
-        $btx[$rule->to] = trim($btx[$rule->from]);
+        $btx[$rule->to] = trim($value);
       }
+
+    } elseif (_startswith($rule->type, 'format')) {
+      // will use the sprintf format
+      $params = explode(":", $rule->type);
+      $btx[$rule->to] = sprintf($params[1], $value);
 
     } elseif (_startswith($rule->type, 'strtotime')) {
       // STRTOTIME is a date parser

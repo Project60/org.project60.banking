@@ -14,16 +14,16 @@
 
 <form action="{$url_action}" method="post" name="DataSource" id="DataSource" enctype="multipart/form-data" >
   <div class="crm-block crm-form-block crm-import-datasource-form-block" id="choose-data-source">
-    <h3>Select Importer</h3>
+    <h3>{ts}Select Importer{/ts}</h3>
     <table class="form-layout">
       <tbody>
         <tr class="crm-import-datasource-form-block-dataSource">
-          <td class="label"><label for="dataSource">Choose configuration<span title="This field is required." class="crm-marker">*</span></label>
+          <td class="label"><label for="dataSource">{ts}Choose configuration{/ts}<span title="This field is required." class="crm-marker">*</span></label>
           </td>
           <td>
             <select class="form-select required" id="banking-importer-plugin" name="importer-plugin" onchange="selected_plugin_changed(this.value);" 
             {if $page_mode == 'run'}disabled{/if}>
-              <option value="-9999">-- select --</option>
+              <option value="-9999">-- {ts}select{/ts} --</option>
             {foreach from=$plugin_list item=field key=fieldName}
               <option value="{$field->id}" {if $plugin_id == $field->id} selected{/if}>{$field->name}</option>
             {/foreach}
@@ -70,7 +70,7 @@
 </div>
 
 <div class="crm-block crm-form-block crm-import-datasource-form-block" id="import options">
-  <h3>Import Options</h3>
+  <h3>{ts}Import Options{/ts}</h3>
   <table class="form-layout">
     <tbody>
       <tr class="crm-import-datasource-form-block-dataSource">
@@ -78,7 +78,7 @@
           <input type="checkbox" class="form-checkbox" value="on" name="dry_run" id="dry_run"
           {if $page_mode == 'run'} disabled {/if}
         {if $dry_run == 'on'} checked {/if}>
-      Dry run</input>
+      {ts}Dry run{/ts}</input>
     </td>
   </tr>
   <tr class="crm-import-datasource-form-block-dataSource">
@@ -86,7 +86,7 @@
       <input type="checkbox" class="form-checkbox" value="on" name="process" id="process" 
       {if $page_mode == 'run'} disabled {/if}
     {if $process == 'on'} checked {/if}>
-  Process payments right away</input>
+  {ts}Process payments right away{/ts}</input>
 </td>
 </tr>
 </tbody>
@@ -118,7 +118,7 @@
 <div class="crm-submit-buttons">
   {if $page_mode == 'config'}
     <span class="crm-button crm-button-type-upload crm-button_qf_DataSource_upload">
-      <input type="submit" value="Import!" class="validate form-submit default">
+      <input type="submit" value="{ts}Import!{/ts}" class="validate form-submit default">
     </span>
   {else}
     <a class="button" href="{$url_payments}">

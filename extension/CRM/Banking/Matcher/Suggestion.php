@@ -183,7 +183,7 @@ class CRM_Banking_Matcher_Suggestion {
     public function visualize(CRM_Banking_BAO_BankTransaction $btx = null, CRM_Banking_PluginModel_Matcher $plugin = null) {
         // if btx/plugin is not supplied (by the matcher engine), recreate it
         $this->_updateObjects($btx, $plugin);
-        return $this->_plugin->visualize_match($this, $this->_plugin);
+        return $this->_plugin->visualize_match($this, $btx);
     }
     
     public function prepForJson() {

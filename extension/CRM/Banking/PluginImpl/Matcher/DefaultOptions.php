@@ -70,20 +70,16 @@ class CRM_Banking_PluginImpl_Matcher_DefaultOptions extends CRM_Banking_PluginMo
     if ($suggestion->getId()==="manual") {
       $cids = $suggestion->getParameter('contribution_ids');
       $contribution_count = 0;
-      error_log(print_r($cids, true));
       if ($cids) {
 
         $completed_status = banking_helper_optionvalue_by_groupname_and_name('contribution_status', 'Completed');
         foreach ($cids as $cid) {
-          error_log($cid);
           if ($cid) {
             $query = array('version' => 3, 'id' => $cid);
             $query['contribution_status_id'] = $completed_status;
             $query['is_test'] = 0;
             $query['receive_date'] = date('YmdHis', strtotime($btx->booking_date));
-            error_log(print_r($query, true));
             $result = civicrm_api('Contribution', 'create', $query);
-            error_log(print_r($result, true));
             if (isset($result['is_error']) && $result['is_error']) {
               CRM_Core_Session::setStatus(ts("Couldn't modify contribution."), ts('Error'), 'error');
             } else {
@@ -121,7 +117,6 @@ class CRM_Banking_PluginImpl_Matcher_DefaultOptions extends CRM_Banking_PluginMo
   public function update_parameters(CRM_Banking_Matcher_Suggestion $match, $parameters) {
     if ($match->getId() === "manual") {
       if (isset($parameters["manual_match_contributions"])) {
-        error_log("NASE: ".$parameters["manual_match_contributions"]);
         $contributions = explode(",", $parameters["manual_match_contributions"]);
         $match->setParameter('contribution_ids', $contributions);
       }
@@ -198,7 +193,6 @@ class CRM_Banking_PluginImpl_Matcher_DefaultOptions extends CRM_Banking_PluginMo
           function manual_match_add_data_to_list(data) {
             if (data.count>0) {
               var contribution = data.values[0];
-              console.log(contribution.id);
               manual_match_add_contribution_to_field(contribution.id);
               var row = "<tr id=\"manual_match_row_cid_" + contribution.id + "\">";
               row += "<td><a href=\"#\" onclick=\"manual_match_remove_contribution(" + contribution.id + ");\">['.ts('remove').']</a></td>";
@@ -311,13 +305,11 @@ class CRM_Banking_PluginImpl_Matcher_DefaultOptions extends CRM_Banking_PluginMo
 
           function manual_match_add_contribution_to_field(contribution_id) {
               // add to field
-              console.log("adding " + contribution_id);
               var list = cj("#manual_match_contributions").val().split(",");
               var index = cj.inArray(cid.toString(), list);
               if (index == -1) {
                 list.push(contribution_id);
                 cj("#manual_match_contributions").val(list.join());
-                console.log("added " + list.join());
               }
           }
 

@@ -195,7 +195,6 @@ function getSelected() {
       //selected.push(checkboxes[i].id.substring(6));
     }
   }
-  console.log(selected);
   return selected;
 }
 

@@ -67,11 +67,32 @@ class CRM_Banking_PluginImpl_Matcher_DefaultOptions extends CRM_Banking_PluginMo
    */
   public function execute($suggestion, $btx) {
     if ($suggestion->getId()==="manual") {
-      $cid = $suggestion->getParameter('manual_contribution_id');
-      if ($cid) {
-        // TODO: verify the contribution ID
-        // if o.k., do: execute($suggestion, $btx)
-        CRM_Core_Session::setStatus(ts("The contribution (id=$cid) is not valid. The payment is NOT completed."), ts('Payment NOT completed.'), 'alert');
+      $cids = $suggestion->getParameter('contribution_ids');
+      $contribution_count = 0;
+      if ($cids) {
+        $completed_status = banking_helper_optionvalue_by_groupname_and_name('contribution_status', 'Completed');
+        foreach ($cids as $cid) {
+          if ($cid) {
+            $query = array('version' => 3, 'id' => $cid);
+            $query['contribution_status_id'] = $completed_status;
+            $query['receive_date'] = date('YmdHis', strtotime($btx->booking_date));
+
+            $result = civicrm_api('Contribution', 'create', $query);
+            if (isset($result['is_error']) && $result['is_error']) {
+              CRM_Core_Session::setStatus(ts("Couldn't modify contribution."), ts('Error'), 'error');
+            } else {
+              $contribution_count += 1;
+            }
+          }
+        }
+
+        if ($contribution_count > 0) {
+          $newStatus = banking_helper_optionvalueid_by_groupname_and_name('civicrm_banking.bank_tx_status', 'Processed');
+          $btx->setStatus($newStatus);
+          parent::execute($suggestion, $btx);
+        } else {
+          CRM_Core_Session::setStatus(ts("The contribution (id=$cids) is not valid. The payment is NOT completed."), ts('Payment NOT completed.'), 'alert');
+        }
 
       }  else {
         CRM_Core_Session::setStatus(ts("No contribution given. The payment is NOT completed."), ts('Payment NOT completed.'), 'alert');
@@ -93,7 +114,10 @@ class CRM_Banking_PluginImpl_Matcher_DefaultOptions extends CRM_Banking_PluginMo
    */
   public function update_parameters(CRM_Banking_Matcher_Suggestion $match, $parameters) {
     if ($match->getId() === "manual") {
-      $match->setParameter('manual_contribution_id', $parameters['manual_contribution_id']);
+      if (isset($parameters["manual_match_contributions"])) {
+        $contributions = explode(",", $parameters["manual_match_contributions"]);
+        $match->setParameter('contribution_ids', $contributions);
+      }
     }
   }
 
@@ -106,9 +130,139 @@ class CRM_Banking_PluginImpl_Matcher_DefaultOptions extends CRM_Banking_PluginMo
    */  
   function visualize_match( CRM_Banking_Matcher_Suggestion $match, $btx) {
     if ($match->getId() === "manual") {
-      return  $this->_plugin_config->manual_message."<br/>".
-              $this->_plugin_config->manual_contribution.
-              '&nbsp;<input name="manual_contribution_id" class="form-text ac_input" type="text" style="width: 8em;" placeholder="contribution id" autocomplete="off"/>';
+      $new_contribution_link = CRM_Utils_System::url("civicrm/contribute/add", "reset=1&action=add&context=standalone");
+      $snippet  = "<div>" . ts("Please manually process this payment and <b>then</b> add the resulting contributions to this list.");
+      $snippet .= "<input type=\"hidden\" id=\"manual_match_contributions\" name=\"manual_match_contributions\" value=\"\"/></div>";    // this will hold the list of contribution ids
+
+      // add the buttons
+      $snippet .= "<br/><div>";
+      $snippet .= "<a class=\"button\" onclick=\"manual_match_refresh_list();\"><span><div class=\"icon refresh-icon\"></div>" . ts("refresh") . "</span></a>";
+      $snippet .= "<a class=\"button\" onclick=\"manual_match_create_contribution();\"><span><div class=\"icon add-icon\"></div>" . ts("create new") . "</span></a>";
+      $snippet .= "<a class=\"button\" onclick=\"manual_match_add_contribution();\"><span><div class=\"icon add-icon\"></div>" . ts("add by ID") . ":</span></a>";
+      $snippet .= "<input id=\"manual_match_add\" onkeydown=\"if (event.keyCode == 13) return manual_match_add_contribution();\" type=\"text\" style=\"width: 4em; height: 1.4em;\"></input>";
+      // FIXME: could somebody please replace this with sth that works?
+      $snippet .= "<span align=\"right\">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>";
+      $snippet .= "<span id=\"manual_match_contribution_sum\" align=\"right\" style=\"color: red; font-weight: bold;\"><b>".ts("Summe").": 0.00 EUR</b></span>";
+      $snippet .= "</div>";
+
+      // add the table
+      $snippet .= "<br/><table>";
+      $snippet .= "<th></th>";
+      $snippet .= "<th>".ts("Contact")."</th>";
+      $snippet .= "<th>".ts("Type")."</th>";
+      $snippet .= "<th>".ts("Date")."</th>";
+      $snippet .= "<th>".ts("Status")."</th>";
+      $snippet .= "<th align=\"right\">".ts("Amount")."</th>";
+      $snippet .= "<tbody id=\"manual_match_contribution_table\">";
+      $snippet .= "</tbody></table>";
+      
+      // add the java script
+      $snippet .= '
+        <script type="text/javascript">
+          function manual_match_refresh_list() {
+            // clear the table
+            cj("#manual_match_contribution_table tr").remove();
+
+            // then rebuild
+            var list = cj("#manual_match_contributions").val().split(",");
+            for (cid_idx in list) {
+              cid = parseInt(list[cid_idx]);
+              if (!isNaN(cid) && cid>0) {
+                // load the contribution
+                console.log(cid);
+                CRM.api("Contribution", "get", {"q": "civicrm/ajax/rest", "sequential": 1, "id": cid},
+                { success: function(data) {
+                    var contribution = data.values[0];
+                    console.log(contribution);
+                    var row = "<tr id=\"manual_match_row_cid_" + contribution.id + "\">";
+                    row += "<td><a href=\"#\" onclick=\"manual_match_remove_contribution(" + contribution.id + ");\">['.ts('remove').']</a></td>";
+                    row += "<td>" + contribution.display_name + "</td>";
+                    row += "<td>" + contribution.financial_type + "</td>";
+                    row += "<td>" + contribution.receive_date.replace(" 00:00:00","");  + "</td>";
+                    row += "<td>" + contribution.contribution_status + "</td>";
+                    row += "<td name=\"amount\" align=\"right\">" + parseFloat(contribution.total_amount).toFixed(2) + " " + contribution.currency + "</td>";
+                    row += "</tr>";
+                    cj("#manual_match_contribution_table").append(row);
+                    manual_match_update_sum();
+                  }
+                });
+              }
+            }
+          }
+
+          function manual_match_update_sum() {
+            // sum up the rows
+            var sum = 0.0;
+            cj("#manual_match_contribution_table tr").each(function() {
+              sum += parseFloat(cj("td[name=amount]", this).text());
+            });
+
+            // update the style...
+            if (sum == parseFloat('.$btx->amount.')) {
+              console.log("ANSE");
+              cj("#manual_match_contribution_sum").text("'.ts("Summe").': " + sum.toFixed(2) + " '.$btx->currency.' -- '.ts("OK").'");
+              cj("#manual_match_contribution_sum").css("color", "green");
+            } else {
+              cj("#manual_match_contribution_sum").text("'.ts("Summe").': " + sum.toFixed(2) + " '.$btx->currency.' -- '.ts("WARNING!").'");
+              cj("#manual_match_contribution_sum").css("color", "red");
+            }
+          }
+
+          function manual_match_create_contribution() {
+            // decode the value here (idk why...)
+            var link = cj("<div/>").html("'.$new_contribution_link.'").text();
+            // and open it in another tab/window
+            window.open(link, "_blank");
+          }
+
+          function manual_match_add_contribution() {
+            // we will try to extract an contribution id from the input field, add it to the (hidden) list of contributions and call refresh
+            var value = cj("#manual_match_add").val();
+            // maybe it`s only an ID:
+            var cid = parseInt(value);
+            if (isNaN(cid)) {
+              // if not, maybe it`s a URL and we can parse the cid...
+              var parts = value.split("&");
+              for (part in parts) {
+                if (parts[part].substring(0, 3)==="id=") {
+                  cid = parseInt(parts[part].substring(3));
+                  break;
+                }
+              }
+            }
+
+            if (isNaN(cid)) {
+              alert("'.ts("No valid contribution ID given.").'");
+            } else {
+              // add ID to the hidden field
+              var list = cj("#manual_match_contributions").val().split(",");
+              if (cj.inArray(cid.toString(), list) == -1) {
+                list.push(cid);
+                cj("#manual_match_contributions").val(list.join());
+              }
+              cj("#manual_match_add").val(cid);
+              manual_match_refresh_list();
+            }
+            return false;
+          }
+
+          function manual_match_remove_contribution(contribution_id) {
+              // remove ID from the hidden field
+              var list = cj("#manual_match_contributions").val().split(",");
+              var index = cj.inArray(cid.toString(), list);
+              if (index != -1) {
+                list.splice(index, 1);
+                cj("#manual_match_contributions").val(list.join());
+              }
+              manual_match_refresh_list();
+          }
+          
+          // call sum update once...
+          manual_match_update_sum();
+        </script>
+      ';
+
+      return $snippet;
 
     } else {
       return  $this->_plugin_config->ignore_message."<br/>".
@@ -116,7 +270,6 @@ class CRM_Banking_PluginImpl_Matcher_DefaultOptions extends CRM_Banking_PluginMo
 
     }
   }
-
 
 
 

@@ -7,6 +7,7 @@
     "manual_title": "Manuell verarbeitet",
     "manual_message": "Wählen Sei diese Option <strong>nachdem</strong> Sie die Daten manuell im System verbucht haben.",
     "manual_contribution": "Bitte tragen Sie hier die Zuwendungs-ID ein, falls eine erzeugt wurde: ",
+    "default_financial_type_id": 1,
     "ignore_enabled": true,
     "ignore_show_always": true,
     "ignore_probability": "0.1",

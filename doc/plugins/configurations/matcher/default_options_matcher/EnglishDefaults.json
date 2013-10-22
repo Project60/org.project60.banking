@@ -7,6 +7,7 @@
     "manual_title": "Manually processed",
     "manual_message": "Select this <strong>after</strong> you have manually processed this transaction.",
     "manual_contribution": "Please enter the resulting contribution ID here (if applicable):",
+    "default_financial_type_id": 1,
     "ignore_enabled": true,
     "ignore_show_always": true,
     "ignore_probability": "0.1",

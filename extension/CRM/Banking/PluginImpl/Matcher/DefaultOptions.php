@@ -21,6 +21,7 @@ class CRM_Banking_PluginImpl_Matcher_DefaultOptions extends CRM_Banking_PluginMo
     if (!isset($config->manual_title)) $config->manual_title = "Manually processed.";
     if (!isset($config->manual_message)) $config->manual_message = "Please configure";
     if (!isset($config->manual_contribution)) $config->manual_contribution = "Contribution:";
+    if (!isset($config->default_financial_type_id)) $config->default_financial_type_id = 1;
 
     if (!isset($config->ignore_enabled)) $config->ignore_enabled = true;
     if (!isset($config->ignore_probability)) $config->ignore_probability = 0.1;
@@ -69,15 +70,20 @@ class CRM_Banking_PluginImpl_Matcher_DefaultOptions extends CRM_Banking_PluginMo
     if ($suggestion->getId()==="manual") {
       $cids = $suggestion->getParameter('contribution_ids');
       $contribution_count = 0;
+      error_log(print_r($cids, true));
       if ($cids) {
+
         $completed_status = banking_helper_optionvalue_by_groupname_and_name('contribution_status', 'Completed');
         foreach ($cids as $cid) {
+          error_log($cid);
           if ($cid) {
             $query = array('version' => 3, 'id' => $cid);
             $query['contribution_status_id'] = $completed_status;
+            $query['is_test'] = 0;
             $query['receive_date'] = date('YmdHis', strtotime($btx->booking_date));
-
+            error_log(print_r($query, true));
             $result = civicrm_api('Contribution', 'create', $query);
+            error_log(print_r($result, true));
             if (isset($result['is_error']) && $result['is_error']) {
               CRM_Core_Session::setStatus(ts("Couldn't modify contribution."), ts('Error'), 'error');
             } else {
@@ -91,7 +97,7 @@ class CRM_Banking_PluginImpl_Matcher_DefaultOptions extends CRM_Banking_PluginMo
           $btx->setStatus($newStatus);
           parent::execute($suggestion, $btx);
         } else {
-          CRM_Core_Session::setStatus(ts("The contribution (id=$cids) is not valid. The payment is NOT completed."), ts('Payment NOT completed.'), 'alert');
+          CRM_Core_Session::setStatus(ts("The contribution is not valid. The payment is NOT completed."), ts('Payment NOT completed.'), 'alert');
         }
 
       }  else {
@@ -115,6 +121,7 @@ class CRM_Banking_PluginImpl_Matcher_DefaultOptions extends CRM_Banking_PluginMo
   public function update_parameters(CRM_Banking_Matcher_Suggestion $match, $parameters) {
     if ($match->getId() === "manual") {
       if (isset($parameters["manual_match_contributions"])) {
+        error_log("NASE: ".$parameters["manual_match_contributions"]);
         $contributions = explode(",", $parameters["manual_match_contributions"]);
         $match->setParameter('contribution_ids', $contributions);
       }
@@ -130,7 +137,12 @@ class CRM_Banking_PluginImpl_Matcher_DefaultOptions extends CRM_Banking_PluginMo
    */  
   function visualize_match( CRM_Banking_Matcher_Suggestion $match, $btx) {
     if ($match->getId() === "manual") {
+      $data_parsed = $btx->getDataParsed();
+      $booking_date = date('YmdHis', strtotime($btx->booking_date));
+      $status_pending = banking_helper_optionvalue_by_groupname_and_name('contribution_status', 'Pending');
       $new_contribution_link = CRM_Utils_System::url("civicrm/contribute/add", "reset=1&action=add&context=standalone");
+      $edit_contribution_link = CRM_Utils_System::url("civicrm/contact/view/contribution", "&action=update&reset=1&id=__contributionid__&cid=__contactid__&context=home");
+
       $snippet  = "<div>" . ts("Please manually process this payment and <b>then</b> add the resulting contributions to this list.");
       $snippet .= "<input type=\"hidden\" id=\"manual_match_contributions\" name=\"manual_match_contributions\" value=\"\"/></div>";    // this will hold the list of contribution ids
 
@@ -163,30 +175,41 @@ class CRM_Banking_PluginImpl_Matcher_DefaultOptions extends CRM_Banking_PluginMo
             // clear the table
             cj("#manual_match_contribution_table tr").remove();
 
-            // then rebuild
+            // then rebuild with the cids in the list
             var list = cj("#manual_match_contributions").val().split(",");
             for (cid_idx in list) {
               cid = parseInt(list[cid_idx]);
               if (!isNaN(cid) && cid>0) {
                 // load the contribution
-                console.log(cid);
                 CRM.api("Contribution", "get", {"q": "civicrm/ajax/rest", "sequential": 1, "id": cid},
-                { success: function(data) {
-                    var contribution = data.values[0];
-                    console.log(contribution);
-                    var row = "<tr id=\"manual_match_row_cid_" + contribution.id + "\">";
-                    row += "<td><a href=\"#\" onclick=\"manual_match_remove_contribution(" + contribution.id + ");\">['.ts('remove').']</a></td>";
-                    row += "<td>" + contribution.display_name + "</td>";
-                    row += "<td>" + contribution.financial_type + "</td>";
-                    row += "<td>" + contribution.receive_date.replace(" 00:00:00","");  + "</td>";
-                    row += "<td>" + contribution.contribution_status + "</td>";
-                    row += "<td name=\"amount\" align=\"right\">" + parseFloat(contribution.total_amount).toFixed(2) + " " + contribution.currency + "</td>";
-                    row += "</tr>";
-                    cj("#manual_match_contribution_table").append(row);
-                    manual_match_update_sum();
-                  }
-                });
+                  { success: manual_match_add_data_to_list });
               }
+            }
+
+            // also add a contribution with the give trxn_id
+            CRM.api("Contribution", "get", {"q": "civicrm/ajax/rest", "sequential": 1, "trxn_id": "'.$btx->bank_reference.'", "contribution_test": 1},
+              { success: manual_match_add_data_to_list });
+
+            // also add a contribution with the give trxn_id
+            CRM.api("Contribution", "get", {"q": "civicrm/ajax/rest", "sequential": 1, "trxn_id": "'.$btx->bank_reference.'"},
+              { success: manual_match_add_data_to_list });
+          }
+
+          function manual_match_add_data_to_list(data) {
+            if (data.count>0) {
+              var contribution = data.values[0];
+              console.log(contribution.id);
+              manual_match_add_contribution_to_field(contribution.id);
+              var row = "<tr id=\"manual_match_row_cid_" + contribution.id + "\">";
+              row += "<td><a href=\"#\" onclick=\"manual_match_remove_contribution(" + contribution.id + ");\">['.ts('remove').']</a></td>";
+              row += "<td>" + contribution.display_name + "</td>";
+              row += "<td>" + contribution.financial_type + "</td>";
+              row += "<td>" + contribution.receive_date.replace(" 00:00:00","");  + "</td>";
+              row += "<td>" + contribution.contribution_status + "</td>";
+              row += "<td name=\"amount\" align=\"right\">" + parseFloat(contribution.total_amount).toFixed(2) + " " + contribution.currency + "</td>";
+              row += "</tr>";
+              cj("#manual_match_contribution_table").append(row);
+              manual_match_update_sum();              
             }
           }
 
@@ -199,7 +222,6 @@ class CRM_Banking_PluginImpl_Matcher_DefaultOptions extends CRM_Banking_PluginMo
 
             // update the style...
             if (sum == parseFloat('.$btx->amount.')) {
-              console.log("ANSE");
               cj("#manual_match_contribution_sum").text("'.ts("Summe").': " + sum.toFixed(2) + " '.$btx->currency.' -- '.ts("OK").'");
               cj("#manual_match_contribution_sum").css("color", "green");
             } else {
@@ -209,10 +231,55 @@ class CRM_Banking_PluginImpl_Matcher_DefaultOptions extends CRM_Banking_PluginMo
           }
 
           function manual_match_create_contribution() {
+            // if we have a contact to tie it to, create a test_contribution and open an editor
+            var party_ba_id = "'.$btx->party_ba_id.'";
+            if (party_ba_id) {
+              // check if there is a contact attached
+              CRM.api("BankingAccount", "getsingle", {"q": "civicrm/ajax/rest", "sequential": 1, "id": party_ba_id},
+                {success: function(data) {
+                  if (data.contact_id) {
+                    // ok, we have a contact -> create a new (test) contribution
+                    CRM.api("Contribution", "create", { "q": "civicrm/ajax/rest", "sequential": 1, 
+                                                        "contact_id": data.contact_id, 
+                                                        "is_test": 1, 
+                                                        "total_amount": '.$btx->amount.', 
+                                                        "is_pay_later": 1,
+                                                        "receive_date": "'.$booking_date.'",
+                                                        "currency": "'.$btx->currency.'",
+                                                        "contribution_status_id": "'.$status_pending.'",
+                                                        "financial_type_id": "'.$this->_plugin_config->default_financial_type_id.'",
+                                                        "trxn_id": "'.$btx->bank_reference.'"
+                                                      },
+                      { success: function(data) {
+                        // succesfully created -> open editor
+                        var contribution = data.values[0];
+                        var link = cj("<div/>").html("'.$edit_contribution_link.'").text();
+                        link = link.replace("__contributionid__", contribution.id);
+                        link = link.replace("__contactid__", contribution.contact_id);
+                        window.open(link, "_blank");
+
+                        // also refresh the list
+                        manual_match_refresh_list();
+                      }
+                    });
+                    
+                  } else {
+                    // no contact_id, just open an editor for a new contribution
+                    manual_match_open_create_new_contribution();
+                  }
+                }
+              });
+            } else {
+              // no known account, just open an editor for a new contribution
+              manual_match_open_create_new_contribution();              
+            }
+          }
+
+          function manual_match_open_create_new_contribution() {
             // decode the value here (idk why...)
             var link = cj("<div/>").html("'.$new_contribution_link.'").text();
             // and open it in another tab/window
-            window.open(link, "_blank");
+            window.open(link, "_blank");            
           }
 
           function manual_match_add_contribution() {
@@ -235,15 +302,23 @@ class CRM_Banking_PluginImpl_Matcher_DefaultOptions extends CRM_Banking_PluginMo
               alert("'.ts("No valid contribution ID given.").'");
             } else {
               // add ID to the hidden field
-              var list = cj("#manual_match_contributions").val().split(",");
-              if (cj.inArray(cid.toString(), list) == -1) {
-                list.push(cid);
-                cj("#manual_match_contributions").val(list.join());
-              }
+              manual_match_add_contribution_to_field(cid);
               cj("#manual_match_add").val(cid);
               manual_match_refresh_list();
             }
             return false;
+          }
+
+          function manual_match_add_contribution_to_field(contribution_id) {
+              // add to field
+              console.log("adding " + contribution_id);
+              var list = cj("#manual_match_contributions").val().split(",");
+              var index = cj.inArray(cid.toString(), list);
+              if (index == -1) {
+                list.push(contribution_id);
+                cj("#manual_match_contributions").val(list.join());
+                console.log("added " + list.join());
+              }
           }
 
           function manual_match_remove_contribution(contribution_id) {
@@ -257,8 +332,9 @@ class CRM_Banking_PluginImpl_Matcher_DefaultOptions extends CRM_Banking_PluginMo
               manual_match_refresh_list();
           }
           
-          // call sum update once...
+          // call some updates once...
           manual_match_update_sum();
+          manual_match_refresh_list();
         </script>
       ';
 

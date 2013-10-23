@@ -136,7 +136,8 @@ class CRM_Banking_PluginImpl_Matcher_DefaultOptions extends CRM_Banking_PluginMo
       $booking_date = date('YmdHis', strtotime($btx->booking_date));
       $status_pending = banking_helper_optionvalue_by_groupname_and_name('contribution_status', 'Pending');
       $new_contribution_link = CRM_Utils_System::url("civicrm/contribute/add", "reset=1&action=add&context=standalone");
-      $edit_contribution_link = CRM_Utils_System::url("civicrm/contact/view/contribution", "&action=update&reset=1&id=__contributionid__&cid=__contactid__&context=home");
+      $edit_contribution_link = CRM_Utils_System::url("civicrm/contact/view/contribution", "action=update&reset=1&id=__contributionid__&cid=__contactid__&context=contribution");
+      $view_contribution_link = CRM_Utils_System::url("civicrm/contact/view/contribution", "action=view&reset=1&id=__contributionid__&cid=__contactid__&context=contribution");
 
       $snippet  = "<div>" . ts("Please manually process this payment and <b>then</b> add the resulting contributions to this list.");
       $snippet .= "<input type=\"hidden\" id=\"manual_match_contributions\" name=\"manual_match_contributions\" value=\"\"/></div>";    // this will hold the list of contribution ids
@@ -180,25 +181,22 @@ class CRM_Banking_PluginImpl_Matcher_DefaultOptions extends CRM_Banking_PluginMo
                   { success: manual_match_add_data_to_list });
               }
             }
-
-            // also add a contribution with the give trxn_id
-            CRM.api("Contribution", "get", {"q": "civicrm/ajax/rest", "sequential": 1, "trxn_id": "'.$btx->bank_reference.'", "contribution_test": 1},
-              { success: manual_match_add_data_to_list });
-
-            // also add a contribution with the give trxn_id
-            CRM.api("Contribution", "get", {"q": "civicrm/ajax/rest", "sequential": 1, "trxn_id": "'.$btx->bank_reference.'"},
-              { success: manual_match_add_data_to_list });
           }
 
           function manual_match_add_data_to_list(data) {
             if (data.count>0) {
               var contribution = data.values[0];
               manual_match_add_contribution_to_field(contribution.id);
-
+              
               // add to table, if not already there
               if (!cj("#manual_match_row_cid_" + contribution.id).length) {
+                var view_link = cj("<div/>").html("'.$view_contribution_link.'").text();
+                view_link = view_link.replace("__contributionid__", contribution.id);
+                view_link = view_link.replace("__contactid__", contribution.contact_id);
+
                 var row = "<tr id=\"manual_match_row_cid_" + contribution.id + "\">";
-                row += "<td><a href=\"#\" onclick=\"manual_match_remove_contribution(" + contribution.id + ");\">['.ts('remove').']</a></td>";
+                row += "<td><a href=\"#\" onclick=\"manual_match_remove_contribution(" + contribution.id + ");\">['.ts('remove').']</a>";
+                row += "&nbsp;<a href=\"" + view_link + "\" target=\"_blank\">['.ts('view').']</a></td>";
                 row += "<td>" + contribution.display_name + "</td>";
                 row += "<td>" + contribution.financial_type + "</td>";
                 row += "<td>" + contribution.receive_date.replace(" 00:00:00","");  + "</td>";
@@ -245,8 +243,8 @@ class CRM_Banking_PluginImpl_Matcher_DefaultOptions extends CRM_Banking_PluginMo
                                                         "receive_date": "'.$booking_date.'",
                                                         "currency": "'.$btx->currency.'",
                                                         "contribution_status_id": "'.$status_pending.'",
-                                                        "financial_type_id": "'.$this->_plugin_config->default_financial_type_id.'",
-                                                        "trxn_id": "'.$btx->bank_reference.'"
+                                                        //"trxn_id": "'.$btx->bank_reference.'",
+                                                        "financial_type_id": "'.$this->_plugin_config->default_financial_type_id.'"
                                                       },
                       { success: function(data) {
                         // succesfully created -> open editor
@@ -256,7 +254,8 @@ class CRM_Banking_PluginImpl_Matcher_DefaultOptions extends CRM_Banking_PluginMo
                         link = link.replace("__contactid__", contribution.contact_id);
                         window.open(link, "_blank");
 
-                        // also refresh the list
+                        // also add to out list
+                        manual_match_add_contribution_to_field(contribution.id);
                         manual_match_refresh_list();
                       }
                     });
@@ -308,13 +307,13 @@ class CRM_Banking_PluginImpl_Matcher_DefaultOptions extends CRM_Banking_PluginMo
           }
 
           function manual_match_add_contribution_to_field(contribution_id) {
-              // add to field
-              var list = cj("#manual_match_contributions").val().split(",");
-              var index = cj.inArray(cid.toString(), list);
-              if (index == -1) {
-                list.push(contribution_id);
-                cj("#manual_match_contributions").val(list.join());
-              }
+            // add to field
+            var list = cj("#manual_match_contributions").val().split(",");
+            var index = cj.inArray(contribution_id.toString(), list);
+            if (index == -1) {
+              list.push(contribution_id);
+              cj("#manual_match_contributions").val(list.join());
+            }
           }
 
           function manual_match_remove_contribution(contribution_id) {

@@ -715,7 +715,7 @@ msgid "add by ID"
 msgstr ""
 
 #: on/CRM/Banking/PluginImpl/Matcher/DefaultOptions.php
-msgid "Summe"
+msgid "sum"
 msgstr ""
 
 #: on/CRM/Banking/PluginImpl/Matcher/DefaultOptions.php
@@ -752,7 +752,7 @@ msgid "Matching contribution found"
 msgstr ""
 
 #: on/CRM/Banking/PluginImpl/Matcher/ExistingContribution.php
-msgid "A pending contribution matching the paymenty was found."
+msgid "A pending contribution matching the payment was found."
 msgstr ""
 
 #: on/CRM/Banking/PluginImpl/Matcher/ExistingContribution.php
@@ -760,7 +760,7 @@ msgid "Possible matching contribution found"
 msgstr ""
 
 #: on/CRM/Banking/PluginImpl/Matcher/ExistingContribution.php
-msgid "A pending contribution partially matching the paymenty was found."
+msgid "A pending contribution partially matching the payment was found."
 msgstr ""
 
 #: on/CRM/Banking/PluginImpl/Matcher/ExistingContribution.php
@@ -787,3 +787,14 @@ msgstr ""
 msgid "Back"
 msgstr ""
 
+#: menu entry
+msgid "Manage Accounts"
+msgstr ""
+
+#: menu entry
+msgid "Import Payments"
+msgstr ""
+
+#: menu entry
+msgid "Configuration"
+msgstr ""

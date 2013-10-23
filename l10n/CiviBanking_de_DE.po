@@ -31,7 +31,7 @@ msgstr ""
 #: on/CRM/Banking/DAO/BankAccountReference.php
 #: on/CRM/Banking/DAO/BankTransaction.php
 msgid "Bank Account ID"
-msgstr ""
+msgstr "Bankkonto ID"
 
 #: on/CRM/Banking/DAO/BankTransaction.php
 #: on/CRM/Banking/DAO/BankTransactionBatch.php
@@ -51,7 +51,8 @@ msgid "Couldn't query plugin list from API!"
 msgstr ""
 
 #: on/CRM/Banking/BAO/PluginInstance.php
-msgid "Could not locate the class name for civicrm_banking.plugin_classes member %d."
+msgid ""
+"Could not locate the class name for civicrm_banking.plugin_classes member %d."
 msgstr ""
 
 #: on/CRM/Banking/BAO/PluginInstance.php
@@ -206,7 +207,7 @@ msgstr "Keine Prozessoren"
 
 #: on/CRM/Banking/Matcher/Engine.php
 msgid "No matcher plugins configured!"
-msgstr ""
+msgstr "Keine Matcher Plugins konfiguriert!"
 
 #: on/CRM/Banking/Matcher/Suggestion.php
 msgid "Matcher tried to override BTX object with different entity"
@@ -214,7 +215,7 @@ msgstr ""
 
 #: on/CRM/Banking/Matcher/Suggestion.php
 msgid "Matcher Failure"
-msgstr ""
+msgstr "Matcher Fehler"
 
 #: on/CRM/Banking/Matcher/Suggestion.php
 msgid "Could not load BTX object, no id stored."
@@ -254,19 +255,19 @@ msgstr ""
 
 #: on/CRM/Banking/Page/Import.php
 msgid "File rejected by importer!"
-msgstr ""
+msgstr "Datei von Importer abgelehnt!"
 
 #: on/CRM/Banking/Page/Import.php
 msgid "Bad input file"
-msgstr ""
+msgstr "Fehlerhafte Eingabedatei"
 
 #: on/CRM/Banking/Page/Import.php
 msgid "Import stream rejected by importer, maybe not ready!"
-msgstr ""
+msgstr "Importstream von Importer nicht akzeptiert - evtl. nicht bereit!"
 
 #: on/CRM/Banking/Page/Import.php
 msgid "Bad input stream"
-msgstr ""
+msgstr "Fehlerhafter Eingabestream"
 
 #: on/CRM/Banking/Page/Import.php
 msgid "Importer needs a file to proceed."
@@ -286,7 +287,7 @@ msgstr "Nicht umgesetzt"
 
 #: on/CRM/Banking/Page/Manager.php
 msgid "Manage CiviBanking Components"
-msgstr ""
+msgstr "CiviBanking-Komponenten verwalten"
 
 #: on/CRM/Banking/Page/Payments.php
 msgid "Payments"
@@ -306,7 +307,7 @@ msgstr "noch nicht identifiziert."
 
 #: on/CRM/Banking/Page/Payments.php
 msgid "Failed to delete %d of %d selected %s."
-msgstr ""
+msgstr "Konnte %d von %d ausgewählten nicht löschen %s."
 
 #: on/CRM/Banking/Page/Payments.php
 msgid "Deletion problems"
@@ -350,23 +351,23 @@ msgstr ""
 
 #: on/CRM/Banking/PluginImpl/CSVImporter.php
 msgid "Importing streams not supported by this plugin."
-msgstr ""
+msgstr "Das Importieren von Streams wird von diesem Plugin nicht unterstützt."
 
 #: on/CRM/Banking/PluginImpl/Coda.php
 msgid "Processing CODA statement %s for account %s"
-msgstr ""
+msgstr "Verarbeite CODA statement %s für Konto %s"
 
 #: on/CRM/Banking/PluginImpl/Matcher/Generic.php
 msgid "the transaction amount is in the range [ "
-msgstr ""
+msgstr "Die Summe der Transaktion liegt zwischen ["
 
 #: on/CRM/Banking/PluginImpl/Matcher/Generic.php
 msgid "the transaction value date is in the range [ "
-msgstr ""
+msgstr " "
 
 #: on/CRM/Banking/PluginImpl/Matcher/Generic.php
 msgid "the transaction purpose matches the expression \"%s\""
-msgstr ""
+msgstr "Der Verwendungszweck stimmt überein mit: \"%s\""
 
 #: on/CRM/Banking/PluginModel/Importer.php
 msgid "Adjusted ending balance from %s to %s!"
@@ -544,7 +545,7 @@ msgstr "Mit der Auswahl durchführen:"
 
 #: templates/CRM/Banking/Page/Payments.tpl
 msgid "Review"
-msgstr "Überprüfen"
+msgstr "Durchgehen"
 
 #: templates/CRM/Banking/Page/Payments.tpl
 msgid "Process"
@@ -568,11 +569,11 @@ msgstr "Wertstellung"
 
 #: templates/CRM/Banking/Page/Review.tpl
 msgid "TRANSACTION INFO"
-msgstr "INFORMATIONEN ZUR TRANSAKTION"
+msgstr "TRANSAKTIONSINFO"
 
 #: templates/CRM/Banking/Page/Review.tpl
 msgid "Stmt. #"
-msgstr "Knt.Ausz. #"
+msgstr "Ausz. #"
 
 #: templates/CRM/Banking/Page/Review.tpl
 msgid "Trans. #"
@@ -584,7 +585,7 @@ msgstr "Status"
 
 #: templates/CRM/Banking/Page/Review.tpl
 msgid "DEBTOR INFO"
-msgstr "DEBiTOR INFO"
+msgstr "DEBITOR INFO"
 
 #: templates/CRM/Banking/Page/Review.tpl
 msgid "Address"
@@ -596,7 +597,7 @@ msgstr "Inhaber"
 
 #: templates/CRM/Banking/Page/Review.tpl
 msgid "Purpose"
-msgstr "Verwendungszweck"
+msgstr "Zweck"
 
 #: templates/CRM/Banking/Page/Review.tpl
 msgid "EXTRA"
@@ -608,7 +609,7 @@ msgstr "(klicken zum Ausklappen)"
 
 #: templates/CRM/Banking/Page/Review.tpl
 msgid "Match (again)"
-msgstr "(erneut) Matchen"
+msgstr "(erneut) Analysieren"
 
 #: templates/CRM/Banking/Page/Review.tpl
 msgid "Confirm and Continue"
@@ -650,12 +651,12 @@ msgstr ""
 #: on/CRM/Banking/PluginImpl/Matcher/DefaultOptions.php
 #: on/CRM/Banking/PluginImpl/Matcher/ExistingContribution.php
 msgid "Error"
-msgstr ""
+msgstr "Fehler"
 
 #: on/CRM/Banking/PluginImpl/Matcher/DefaultOptions.php
 #: on/CRM/Banking/PluginImpl/Matcher/ExistingContribution.php
 msgid "Couldn't modify contribution."
-msgstr ""
+msgstr "Konnte Zuwendung nicht bearbeiten"
 
 #: on/CRM/Banking/PluginImpl/Matcher/DefaultOptions.php
 #: on/CRM/Banking/PluginImpl/Matcher/ExistingContribution.php
@@ -664,15 +665,17 @@ msgstr ""
 
 #: on/CRM/Banking/Matcher/Context.php
 msgid "Internal error while looking up contacts."
-msgstr ""
+msgstr "Fehler beim Suchen nach Kontakten"
 
 #: on/CRM/Banking/Page/Payments.php
 msgid "Unknown"
-msgstr ""
+msgstr "Unbekannt"
 
 #: on/CRM/Banking/Page/Payments.php
 msgid "Internal limit of 1000 transactions hit. Please use smaller statments."
 msgstr ""
+"Internes Limit von 1000 Transaktionen erreicht. Bitte kleinere Auszüge "
+"verwenden"
 
 #: on/CRM/Banking/Page/Payments.php
 msgid "Internal restriction"
@@ -681,109 +684,131 @@ msgstr ""
 #: on/CRM/Banking/Page/Review.php
 msgid "Selected suggestions disappeared. Suggestion NOT executed!"
 msgstr ""
+"Der ausgewählte Vorschlag existiert nicht mehr. Vorschlag nicht umgesetzt."
 
 #: on/CRM/Banking/Page/Review.php
 msgid "Internal Error"
-msgstr ""
+msgstr "Interner Fehler"
 
 #: on/CRM/Banking/PluginImpl/Matcher/DefaultOptions.php
 msgid "The contribution is not valid. The payment is NOT completed."
-msgstr ""
+msgstr "Die Zuwendung ist ungültig. Die Zahlung wurde nicht abgeschlossen."
 
 #: on/CRM/Banking/PluginImpl/Matcher/DefaultOptions.php
 msgid "Payment NOT completed."
-msgstr ""
+msgstr "Zahlung NICHT abgeschlossen."
 
 #: on/CRM/Banking/PluginImpl/Matcher/DefaultOptions.php
 msgid "No contribution given. The payment is NOT completed."
 msgstr ""
 
 #: on/CRM/Banking/PluginImpl/Matcher/DefaultOptions.php
-msgid "Please manually process this payment and <b>then</b> add the resulting contributions to this list."
+msgid ""
+"Please manually process this payment and <b>then</b> add the resulting "
+"contributions to this list."
 msgstr ""
+"Bitte verarbeiten Sie diese zahlung zuerst manuell und fügen <b>erst dann</"
+"b> die daraus resultierenden Zuwendungen zu dieser iste"
 
 #: on/CRM/Banking/PluginImpl/Matcher/DefaultOptions.php
 msgid "refresh"
-msgstr ""
+msgstr "aktualisieren"
 
 #: on/CRM/Banking/PluginImpl/Matcher/DefaultOptions.php
 msgid "create new"
-msgstr ""
+msgstr "neu anlegen"
 
 #: on/CRM/Banking/PluginImpl/Matcher/DefaultOptions.php
 msgid "add by ID"
-msgstr ""
+msgstr "mit Hilfe von ID hinzufügen"
 
 #: on/CRM/Banking/PluginImpl/Matcher/DefaultOptions.php
-msgid "Summe"
-msgstr ""
+msgid "sum"
+msgstr "Summe"
 
 #: on/CRM/Banking/PluginImpl/Matcher/DefaultOptions.php
 #: templates/CRM/Banking/Page/Review.tpl
 msgid "Contact"
-msgstr ""
+msgstr "Kontakt"
 
 #: on/CRM/Banking/PluginImpl/Matcher/DefaultOptions.php
 msgid "remove"
-msgstr ""
+msgstr "entfernen"
 
 #: on/CRM/Banking/PluginImpl/Matcher/DefaultOptions.php
 msgid "OK"
-msgstr ""
+msgstr "OK"
 
 #: on/CRM/Banking/PluginImpl/Matcher/DefaultOptions.php
 msgid "WARNING!"
-msgstr ""
+msgstr "WARNUNG!"
 
 #: on/CRM/Banking/PluginImpl/Matcher/DefaultOptions.php
 msgid "No valid contribution ID given."
-msgstr ""
+msgstr "Keine gültige Zuwndungs-ID angeben."
 
 #: on/CRM/Banking/PluginImpl/Matcher/ExistingContribution.php
 msgid "Contact was positively identified."
-msgstr ""
+msgstr "Kontakt wurde eindeutig identifizert"
 
 #: on/CRM/Banking/PluginImpl/Matcher/ExistingContribution.php
 msgid "Contact was most likely identified."
-msgstr ""
+msgstr "Kontakt wurde sehr wahrscheinlich identifiziert"
 
 #: on/CRM/Banking/PluginImpl/Matcher/ExistingContribution.php
 msgid "Matching contribution found"
-msgstr ""
+msgstr "Übereinstimmende Zuwendung gefunden"
 
 #: on/CRM/Banking/PluginImpl/Matcher/ExistingContribution.php
-msgid "A pending contribution matching the paymenty was found."
+msgid "A pending contribution matching the payment was found."
 msgstr ""
 
 #: on/CRM/Banking/PluginImpl/Matcher/ExistingContribution.php
 msgid "Possible matching contribution found"
-msgstr ""
+msgstr "Möglicherweise übereinstimmende Zuwendung gefunden"
 
 #: on/CRM/Banking/PluginImpl/Matcher/ExistingContribution.php
-msgid "A pending contribution partially matching the paymenty was found."
+msgid "A pending contribution partially matching the payment was found."
 msgstr ""
+"Eine offene Zuwendung die teilweise mit einer Zahlung übereinstimmt wurde "
+"gefunden."
 
 #: on/CRM/Banking/PluginImpl/Matcher/ExistingContribution.php
 msgid "Donor"
-msgstr ""
+msgstr "Spender"
 
 #: on/CRM/Banking/PluginImpl/Matcher/ExistingContribution.php
 msgid "edit contribution"
-msgstr ""
+msgstr "Zuwendung bearbeiten"
 
 #: on/CRM/Banking/PluginImpl/Matcher/ExistingContribution.php
 msgid "Internal error! Cannot find contribution #"
 msgstr ""
 
 #: templates/CRM/Banking/Page/Payments.tpl
-msgid "No payments could be found with the requested status. Try the other status filter buttons above to find your imported payments."
+msgid ""
+"No payments could be found with the requested status. Try the other status "
+"filter buttons above to find your imported payments."
 msgstr ""
 
 #: templates/CRM/Banking/Page/Payments.tpl
-msgid "No statments could be found with the requested status. Try the other status filter buttons above to find your imported statements."
+msgid ""
+"No statments could be found with the requested status. Try the other status "
+"filter buttons above to find your imported statements."
 msgstr ""
 
 #: templates/CRM/Banking/Page/Review.tpl
 msgid "Back"
-msgstr ""
+msgstr "Zurück"
 
+#: menu entry
+msgid "Manage Accounts"
+msgstr "Konten verwalten"
+
+#: menu entry
+msgid "Import Payments"
+msgstr "Zahlungen importieren"
+
+#: menu entry
+msgid "Configuration"
+msgstr "Konfiguration"

@@ -492,7 +492,7 @@ msgstr "Profil hinzufügen"
 
 #: templates/CRM/Banking/Page/Payments.tpl
 msgid "Show Statements"
-msgstr "Kontoauszug anzeigen"
+msgstr "Kontoauszüge anzeigen"
 
 #: templates/CRM/Banking/Page/Payments.tpl
 msgid "Show Payments"
@@ -790,12 +790,16 @@ msgid ""
 "No payments could be found with the requested status. Try the other status "
 "filter buttons above to find your imported payments."
 msgstr ""
+"Keine Zahlungen mit dem gewählten Stats gefunden. Wählen Sie ggf. oben "
+"andere Filter um Ihre importierten Zahlungen zu finden."
 
 #: templates/CRM/Banking/Page/Payments.tpl
 msgid ""
 "No statments could be found with the requested status. Try the other status "
 "filter buttons above to find your imported statements."
 msgstr ""
+"Keine Kontoauszüge mit dem gewählten Stats gefunden. Wählen Sie ggf. oben "
+"andere Filter um Ihre importierten Kontoauszüge zu finden."
 
 #: templates/CRM/Banking/Page/Review.tpl
 msgid "Back"

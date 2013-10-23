@@ -646,3 +646,150 @@ msgstr "Vorschlag annehmen"
 #: templates/CRM/Banking/Page/SEPAMandates.tpl
 msgid "(In your native language) The current time is %1."
 msgstr ""
+
+#: on/CRM/Banking/Matcher/Context.php
+#: on/CRM/Banking/PluginImpl/Matcher/DefaultOptions.php
+#: on/CRM/Banking/PluginImpl/Matcher/ExistingContribution.php
+msgid "Error"
+msgstr ""
+
+#: on/CRM/Banking/PluginImpl/Matcher/DefaultOptions.php
+#: on/CRM/Banking/PluginImpl/Matcher/ExistingContribution.php
+msgid "Couldn't modify contribution."
+msgstr ""
+
+#: on/CRM/Banking/PluginImpl/Matcher/DefaultOptions.php
+#: on/CRM/Banking/PluginImpl/Matcher/ExistingContribution.php
+msgid "Type"
+msgstr ""
+
+#: on/CRM/Banking/Matcher/Context.php
+msgid "Internal error while looking up contacts."
+msgstr ""
+
+#: on/CRM/Banking/Page/Payments.php
+msgid "Unknown"
+msgstr ""
+
+#: on/CRM/Banking/Page/Payments.php
+msgid "Internal limit of 1000 transactions hit. Please use smaller statments."
+msgstr ""
+
+#: on/CRM/Banking/Page/Payments.php
+msgid "Internal restriction"
+msgstr ""
+
+#: on/CRM/Banking/Page/Review.php
+msgid "Selected suggestions disappeared. Suggestion NOT executed!"
+msgstr ""
+
+#: on/CRM/Banking/Page/Review.php
+msgid "Internal Error"
+msgstr ""
+
+#: on/CRM/Banking/PluginImpl/Matcher/DefaultOptions.php
+msgid "The contribution is not valid. The payment is NOT completed."
+msgstr ""
+
+#: on/CRM/Banking/PluginImpl/Matcher/DefaultOptions.php
+msgid "Payment NOT completed."
+msgstr ""
+
+#: on/CRM/Banking/PluginImpl/Matcher/DefaultOptions.php
+msgid "No contribution given. The payment is NOT completed."
+msgstr ""
+
+#: on/CRM/Banking/PluginImpl/Matcher/DefaultOptions.php
+msgid ""
+"Please manually process this payment and <b>then</b> add the resulting "
+"contributions to this list."
+msgstr ""
+
+#: on/CRM/Banking/PluginImpl/Matcher/DefaultOptions.php
+msgid "refresh"
+msgstr ""
+
+#: on/CRM/Banking/PluginImpl/Matcher/DefaultOptions.php
+msgid "create new"
+msgstr ""
+
+#: on/CRM/Banking/PluginImpl/Matcher/DefaultOptions.php
+msgid "add by ID"
+msgstr ""
+
+#: on/CRM/Banking/PluginImpl/Matcher/DefaultOptions.php
+msgid "Summe"
+msgstr ""
+
+#: on/CRM/Banking/PluginImpl/Matcher/DefaultOptions.php
+#: templates/CRM/Banking/Page/Review.tpl
+msgid "Contact"
+msgstr ""
+
+#: on/CRM/Banking/PluginImpl/Matcher/DefaultOptions.php
+msgid "remove"
+msgstr ""
+
+#: on/CRM/Banking/PluginImpl/Matcher/DefaultOptions.php
+msgid "OK"
+msgstr ""
+
+#: on/CRM/Banking/PluginImpl/Matcher/DefaultOptions.php
+msgid "WARNING!"
+msgstr ""
+
+#: on/CRM/Banking/PluginImpl/Matcher/DefaultOptions.php
+msgid "No valid contribution ID given."
+msgstr ""
+
+#: on/CRM/Banking/PluginImpl/Matcher/ExistingContribution.php
+msgid "Contact was positively identified."
+msgstr ""
+
+#: on/CRM/Banking/PluginImpl/Matcher/ExistingContribution.php
+msgid "Contact was most likely identified."
+msgstr ""
+
+#: on/CRM/Banking/PluginImpl/Matcher/ExistingContribution.php
+msgid "Matching contribution found"
+msgstr ""
+
+#: on/CRM/Banking/PluginImpl/Matcher/ExistingContribution.php
+msgid "A pending contribution matching the paymenty was found."
+msgstr ""
+
+#: on/CRM/Banking/PluginImpl/Matcher/ExistingContribution.php
+msgid "Possible matching contribution found"
+msgstr ""
+
+#: on/CRM/Banking/PluginImpl/Matcher/ExistingContribution.php
+msgid "A pending contribution partially matching the paymenty was found."
+msgstr ""
+
+#: on/CRM/Banking/PluginImpl/Matcher/ExistingContribution.php
+msgid "Donor"
+msgstr ""
+
+#: on/CRM/Banking/PluginImpl/Matcher/ExistingContribution.php
+msgid "edit contribution"
+msgstr ""
+
+#: on/CRM/Banking/PluginImpl/Matcher/ExistingContribution.php
+msgid "Internal error! Cannot find contribution #"
+msgstr ""
+
+#: templates/CRM/Banking/Page/Payments.tpl
+msgid ""
+"No payments could be found with the requested status. Try the other status "
+"filter buttons above to find your imported payments."
+msgstr ""
+
+#: templates/CRM/Banking/Page/Payments.tpl
+msgid ""
+"No statments could be found with the requested status. Try the other status "
+"filter buttons above to find your imported statements."
+msgstr ""
+
+#: templates/CRM/Banking/Page/Review.tpl
+msgid "Back"
+msgstr ""

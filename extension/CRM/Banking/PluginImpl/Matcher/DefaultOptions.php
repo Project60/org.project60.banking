@@ -136,8 +136,8 @@ class CRM_Banking_PluginImpl_Matcher_DefaultOptions extends CRM_Banking_PluginMo
       $booking_date = date('YmdHis', strtotime($btx->booking_date));
       $status_pending = banking_helper_optionvalue_by_groupname_and_name('contribution_status', 'Pending');
       $new_contribution_link = CRM_Utils_System::url("civicrm/contribute/add", "reset=1&action=add&context=standalone");
-      $edit_contribution_link = CRM_Utils_System::url("civicrm/contact/view/contribution", "action=update&reset=1&id=__contributionid__&cid=__contactid__&context=contribution");
-      $view_contribution_link = CRM_Utils_System::url("civicrm/contact/view/contribution", "action=view&reset=1&id=__contributionid__&cid=__contactid__&context=contribution");
+      $edit_contribution_link = CRM_Utils_System::url("civicrm/contact/view/contribution", "action=update&reset=1&id=__contributionid__&cid=__contactid__&context=home");
+      $view_contribution_link = CRM_Utils_System::url("civicrm/contact/view/contribution", "action=view&reset=1&id=__contributionid__&cid=__contactid__&context=home");
 
       $snippet  = "<div>" . ts("Please manually process this payment and <b>then</b> add the resulting contributions to this list.");
       $snippet .= "<input type=\"hidden\" id=\"manual_match_contributions\" name=\"manual_match_contributions\" value=\"\"/></div>";    // this will hold the list of contribution ids
@@ -195,7 +195,7 @@ class CRM_Banking_PluginImpl_Matcher_DefaultOptions extends CRM_Banking_PluginMo
                 view_link = view_link.replace("__contactid__", contribution.contact_id);
 
                 var row = "<tr id=\"manual_match_row_cid_" + contribution.id + "\">";
-                row += "<td><a href=\"#\" onclick=\"manual_match_remove_contribution(" + contribution.id + ");\">['.ts('remove').']</a>";
+                row += "<td><a href=\"\" onclick=\"manual_match_remove_contribution(" + contribution.id + ");\">['.ts('remove').']</a>";
                 row += "&nbsp;<a href=\"" + view_link + "\" target=\"_blank\">['.ts('view').']</a></td>";
                 row += "<td>" + contribution.display_name + "</td>";
                 row += "<td>" + contribution.financial_type + "</td>";
@@ -300,7 +300,7 @@ class CRM_Banking_PluginImpl_Matcher_DefaultOptions extends CRM_Banking_PluginMo
             } else {
               // add ID to the hidden field
               manual_match_add_contribution_to_field(cid);
-              cj("#manual_match_add").val(cid);
+              cj("#manual_match_add").val("");
               manual_match_refresh_list();
             }
             return false;
@@ -329,7 +329,8 @@ class CRM_Banking_PluginImpl_Matcher_DefaultOptions extends CRM_Banking_PluginMo
           
           // call some updates once...
           manual_match_update_sum();
-          manual_match_refresh_list();
+          // FIXME: Take care of previous onfocus handlers
+          window.onfocus=manual_match_refresh_list;
         </script>
       ';
 

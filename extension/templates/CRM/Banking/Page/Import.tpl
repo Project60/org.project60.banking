@@ -122,10 +122,10 @@
     </span>
   {else}
     <a class="button" href="{$url_payments}">
-      <span align="right"><div class="icon details-icon"></div>See Results</span>
+      <span align="right"><div class="icon details-icon"></div>{ts}See Results{/ts}</span>
     </a>
     <a class="button" href="{$url_action}">
-      <span align="right"><div class="icon details-icon"></div>Import More</span>
+      <span align="right"><div class="icon details-icon"></div>{ts}Import More{/ts}</span>
     </a>
   {/if}
 </div>

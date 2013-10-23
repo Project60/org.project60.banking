@@ -549,7 +549,7 @@ msgstr "Durchgehen"
 
 #: templates/CRM/Banking/Page/Payments.tpl
 msgid "Process"
-msgstr "Verarbeiten"
+msgstr "Analysieren"
 
 #: templates/CRM/Banking/Page/Payments.tpl
 msgid "Export"

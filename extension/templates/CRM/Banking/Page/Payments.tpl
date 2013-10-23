@@ -108,7 +108,7 @@
     <td class="status_{$field.state}">
       {$field.state}
     </td>
-    <td class=""><a href="{$field.url_link}">view</a></td>
+    <td class=""><a href="{$field.url_link}">{ts}view{/ts}</a></td>
     <td class="hiddenElement">status-overdue</td>
   </tr>
   {/foreach}
@@ -121,22 +121,22 @@
       <div class="DataTables_sort_wrapper"><span class="DataTables_sort_icon"></span></div>
     </th>
     <th colspan="1" rowspan="1" class="ccrm-banking-payment_target_account nosort ui-state-default">
-      <div class="DataTables_sort_wrapper">Target Account<!--span class="DataTables_sort_icon css_right ui-icon ui-icon-carat-2-n-s"></span--></div>
+      <div class="DataTables_sort_wrapper">{ts}Target Account{/ts}<!--span class="DataTables_sort_icon css_right ui-icon ui-icon-carat-2-n-s"></span--></div>
     </th>
     <th colspan="1" rowspan="1" class="crm-banking-payment_date ui-state-default">
-      <div class="DataTables_sort_wrapper">Statement<!--span class="DataTables_sort_icon css_right ui-icon ui-icon-carat-2-n-s"></span--></div>
+      <div class="DataTables_sort_wrapper">{ts}Statement{/ts}<!--span class="DataTables_sort_icon css_right ui-icon ui-icon-carat-2-n-s"></span--></div>
     </th>
     <th colspan="1" rowspan="1" class="crm-banking-payment_date ui-state-default">
-      <div class="DataTables_sort_wrapper">Date<!--span class="DataTables_sort_icon css_right ui-icon ui-icon-carat-2-n-s"></span--></div>
+      <div class="DataTables_sort_wrapper">{ts}Date{/ts}<!--span class="DataTables_sort_icon css_right ui-icon ui-icon-carat-2-n-s"></span--></div>
     </th>
     <th colspan="1" rowspan="1" class="crm-banking-payment_amount ui-state-default">
-      <div class="DataTables_sort_wrapper">Payment count<!--span class="DataTables_sort_icon css_right ui-icon ui-icon-carat-2-n-s"></span--></div>
+      <div class="DataTables_sort_wrapper">{ts}Payment count<{/ts}!--span class="DataTables_sort_icon css_right ui-icon ui-icon-carat-2-n-s"></span--></div>
     </th>
     <th colspan="1" rowspan="1" class="crm-banking-payment_source_account nosort ui-state-default">
-      <div class="DataTables_sort_wrapper">Analysed<!--span class="DataTables_sort_icon css_right ui-icon ui-icon-carat-2-n-s"></span--></div>
+      <div class="DataTables_sort_wrapper">{ts}Analysed<{/ts}!--span class="DataTables_sort_icon css_right ui-icon ui-icon-carat-2-n-s"></span--></div>
     </th>
     <th colspan="1" rowspan="1" class="crm-banking-payment_source_account nosort ui-state-default">
-      <div class="DataTables_sort_wrapper">Completed<!--span class="DataTables_sort_icon css_right ui-icon ui-icon-carat-2-n-s"></span--></div>
+      <div class="DataTables_sort_wrapper">{ts}Completed{/ts}<!--span class="DataTables_sort_icon css_right ui-icon ui-icon-carat-2-n-s"></span--></div>
     </th>
     <th colspan="1" rowspan="1" class="hiddenElement ui-state-default">
       <div class="DataTables_sort_wrapper">&nbsp;<!--span class="DataTables_sort_icon"></span--></div>

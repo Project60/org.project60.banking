@@ -149,7 +149,7 @@ class CRM_Banking_PluginImpl_Matcher_DefaultOptions extends CRM_Banking_PluginMo
       $snippet .= "<input id=\"manual_match_add\" onkeydown=\"if (event.keyCode == 13) return manual_match_add_contribution();\" type=\"text\" style=\"width: 4em; height: 1.4em;\"></input>";
       // FIXME: could somebody please replace this with sth that works?
       $snippet .= "<span align=\"right\">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>";
-      $snippet .= "<span id=\"manual_match_contribution_sum\" align=\"right\" style=\"color: red; font-weight: bold;\"><b>".ts("Summe").": 0.00 EUR</b></span>";
+      $snippet .= "<span id=\"manual_match_contribution_sum\" align=\"right\" style=\"color: red; font-weight: bold;\"><b>".ts("sum").": 0.00 EUR</b></span>";
       $snippet .= "</div>";
 
       // add the table
@@ -194,16 +194,20 @@ class CRM_Banking_PluginImpl_Matcher_DefaultOptions extends CRM_Banking_PluginMo
             if (data.count>0) {
               var contribution = data.values[0];
               manual_match_add_contribution_to_field(contribution.id);
-              var row = "<tr id=\"manual_match_row_cid_" + contribution.id + "\">";
-              row += "<td><a href=\"#\" onclick=\"manual_match_remove_contribution(" + contribution.id + ");\">['.ts('remove').']</a></td>";
-              row += "<td>" + contribution.display_name + "</td>";
-              row += "<td>" + contribution.financial_type + "</td>";
-              row += "<td>" + contribution.receive_date.replace(" 00:00:00","");  + "</td>";
-              row += "<td>" + contribution.contribution_status + "</td>";
-              row += "<td name=\"amount\" align=\"right\">" + parseFloat(contribution.total_amount).toFixed(2) + " " + contribution.currency + "</td>";
-              row += "</tr>";
-              cj("#manual_match_contribution_table").append(row);
-              manual_match_update_sum();              
+
+              // add to table, if not already there
+              if (!cj("#manual_match_row_cid_" + contribution.id).length) {
+                var row = "<tr id=\"manual_match_row_cid_" + contribution.id + "\">";
+                row += "<td><a href=\"#\" onclick=\"manual_match_remove_contribution(" + contribution.id + ");\">['.ts('remove').']</a></td>";
+                row += "<td>" + contribution.display_name + "</td>";
+                row += "<td>" + contribution.financial_type + "</td>";
+                row += "<td>" + contribution.receive_date.replace(" 00:00:00","");  + "</td>";
+                row += "<td>" + contribution.contribution_status + "</td>";
+                row += "<td name=\"amount\" align=\"right\">" + parseFloat(contribution.total_amount).toFixed(2) + " " + contribution.currency + "</td>";
+                row += "</tr>";
+                cj("#manual_match_contribution_table").append(row);
+                manual_match_update_sum();
+              }
             }
           }
 
@@ -216,10 +220,10 @@ class CRM_Banking_PluginImpl_Matcher_DefaultOptions extends CRM_Banking_PluginMo
 
             // update the style...
             if (sum == parseFloat('.$btx->amount.')) {
-              cj("#manual_match_contribution_sum").text("'.ts("Summe").': " + sum.toFixed(2) + " '.$btx->currency.' -- '.ts("OK").'");
+              cj("#manual_match_contribution_sum").text("'.ts("sum").': " + sum.toFixed(2) + " '.$btx->currency.' -- '.ts("OK").'");
               cj("#manual_match_contribution_sum").css("color", "green");
             } else {
-              cj("#manual_match_contribution_sum").text("'.ts("Summe").': " + sum.toFixed(2) + " '.$btx->currency.' -- '.ts("WARNING!").'");
+              cj("#manual_match_contribution_sum").text("'.ts("sum").': " + sum.toFixed(2) + " '.$btx->currency.' -- '.ts("WARNING!").'");
               cj("#manual_match_contribution_sum").css("color", "red");
             }
           }

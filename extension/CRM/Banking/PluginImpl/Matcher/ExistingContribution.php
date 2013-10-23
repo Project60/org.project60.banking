@@ -79,7 +79,7 @@ class CRM_Banking_PluginImpl_Matcher_ExistingContribution extends CRM_Banking_Pl
       
       if ($contribution_probability>=1.0) {
         $suggestion->setTitle(ts("Matching contribution found"));
-        $suggestion->addEvidence(1.0, ts("A pending contribution matching the paymenty was found."));
+        $suggestion->addEvidence(1.0, ts("A pending contribution matching the payment was found."));
       } else {
         $suggestion->setTitle(ts("Possible matching contribution found"));
         $suggestion->addEvidence($contacts_found[$contact_id], ts("A pending contribution partially matching the paymenty was found."));

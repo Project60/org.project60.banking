@@ -13,12 +13,12 @@ msgstr ""
 #: on/CRM/Banking/BAO/PluginInstance.php
 #: on/CRM/Banking/Helpers/OptionValue.php
 msgid "Couldn't find group '%s'!"
-msgstr ""
+msgstr "Gruppe nicht gefunden '%s'!"
 
 #: on/CRM/Banking/DAO/BankAccount.php on/CRM/Banking/DAO/PluginInstance.php
 #: templates/CRM/Banking/Page/Manager.tpl
 msgid "Description"
-msgstr ""
+msgstr "Beschreibung"
 
 #: on/CRM/Banking/DAO/BankAccount.php on/CRM/Banking/DAO/BankTransaction.php
 msgid "Data Raw"
@@ -36,7 +36,7 @@ msgstr ""
 #: on/CRM/Banking/DAO/BankTransaction.php
 #: on/CRM/Banking/DAO/BankTransactionBatch.php
 msgid "Currency"
-msgstr ""
+msgstr "Währung"
 
 #: on/CRM/Banking/PluginImpl/Coda.php on/CRM/Banking/PluginModel/Importer.php
 msgid "Internal error: trying to open BTX batch before closing an old one."
@@ -60,15 +60,15 @@ msgstr ""
 
 #: on/CRM/Banking/DAO/BankAccount.php
 msgid "Date created"
-msgstr ""
+msgstr "Datum angelegt"
 
 #: on/CRM/Banking/DAO/BankAccount.php
 msgid "Date modified"
-msgstr ""
+msgstr "Datum geändert"
 
 #: on/CRM/Banking/DAO/BankAccount.php
 msgid "Contact ID"
-msgstr ""
+msgstr "Kontakt ID"
 
 #: on/CRM/Banking/DAO/BankAccountReference.php
 msgid "Reference value"
@@ -84,15 +84,15 @@ msgstr ""
 
 #: on/CRM/Banking/DAO/BankTransaction.php
 msgid "Value date"
-msgstr ""
+msgstr "Wertstellungsdatum"
 
 #: on/CRM/Banking/DAO/BankTransaction.php
 msgid "Booking date"
-msgstr ""
+msgstr "Buchungsdatum"
 
 #: on/CRM/Banking/DAO/BankTransaction.php
 msgid "Transaction amount"
-msgstr ""
+msgstr "Summe der Transaktion"
 
 #: on/CRM/Banking/DAO/BankTransaction.php
 msgid "Bank Transaction Type"
@@ -116,11 +116,11 @@ msgstr ""
 
 #: on/CRM/Banking/DAO/BankTransaction.php
 msgid "Suggestions"
-msgstr ""
+msgstr "Vorschläge"
 
 #: on/CRM/Banking/DAO/BankTransactionBatch.php
 msgid "Issue date"
-msgstr ""
+msgstr "Ausstelldatum"
 
 #: on/CRM/Banking/DAO/BankTransactionBatch.php
 msgid "Statement Reference"
@@ -132,27 +132,27 @@ msgstr ""
 
 #: on/CRM/Banking/DAO/BankTransactionBatch.php
 msgid "Starting Balance"
-msgstr ""
+msgstr "Startsalso"
 
 #: on/CRM/Banking/DAO/BankTransactionBatch.php
 msgid "Ending Balance"
-msgstr ""
+msgstr "Endsaldo"
 
 #: on/CRM/Banking/DAO/BankTransactionBatch.php
 msgid "Transaction Count"
-msgstr ""
+msgstr "Anzahl Transaktionen"
 
 #: on/CRM/Banking/DAO/BankTransactionBatch.php
 msgid "Start date"
-msgstr ""
+msgstr "Anfangsdatum"
 
 #: on/CRM/Banking/DAO/BankTransactionBatch.php
 msgid "End date"
-msgstr ""
+msgstr "Enddatum"
 
 #: on/CRM/Banking/DAO/PluginInstance.php
 msgid "Plugin type"
-msgstr ""
+msgstr "Art des Plugins"
 
 #: on/CRM/Banking/DAO/PluginInstance.php
 msgid "Plugin class name"
@@ -160,16 +160,16 @@ msgstr ""
 
 #: on/CRM/Banking/DAO/PluginInstance.php
 msgid "Name"
-msgstr ""
+msgstr "Name"
 
 #: on/CRM/Banking/DAO/PluginInstance.php
 msgid "Enabled"
-msgstr ""
+msgstr "Aktiviert"
 
 #: on/CRM/Banking/DAO/PluginInstance.php
 #: templates/CRM/Banking/Page/Manager.tpl
 msgid "Weight"
-msgstr ""
+msgstr "Gewichtung"
 
 #: on/CRM/Banking/DAO/PluginInstance.php
 msgid "Config"
@@ -182,19 +182,19 @@ msgstr ""
 
 #: on/CRM/Banking/Helpers/OptionValue.php
 msgid "Error while looking up option group '%s'!"
-msgstr ""
+msgstr "Fehler beim Suchen nach option group '%s'!"
 
 #: on/CRM/Banking/Helpers/OptionValue.php
 msgid "Error while looking up option value '%s'!"
-msgstr ""
+msgstr "Fehler beim Suchen nach option value '%s'!"
 
 #: on/CRM/Banking/Helpers/OptionValue.php
 msgid "Couldn't find value '%s'!"
-msgstr ""
+msgstr "Konnte Wert '%s'! nicht finden"
 
 #: on/CRM/Banking/Helpers/OptionValue.php
 msgid "Error while looking up option values for group '%s'!"
-msgstr ""
+msgstr "Fehler beim Suchen nach option values für Gruppe '%s'!"
 
 #: on/CRM/Banking/Matcher/Engine.php
 msgid "Error while trying to query database for matcher plugins!"
@@ -202,7 +202,7 @@ msgstr ""
 
 #: on/CRM/Banking/Matcher/Engine.php
 msgid "No processors"
-msgstr ""
+msgstr "Keine Prozessoren"
 
 #: on/CRM/Banking/Matcher/Engine.php
 msgid "No matcher plugins configured!"
@@ -238,11 +238,11 @@ msgstr ""
 
 #: on/CRM/Banking/Page/AccountSearch.php
 msgid "Find Accounts"
-msgstr ""
+msgstr "Konten finden"
 
 #: on/CRM/Banking/Page/Accounts.php
 msgid "Accounts"
-msgstr ""
+msgstr "Konten"
 
 #: on/CRM/Banking/Page/Dashboard.php
 msgid "CiviBanking Dashboard"
@@ -270,11 +270,11 @@ msgstr ""
 
 #: on/CRM/Banking/Page/Import.php
 msgid "Importer needs a file to proceed."
-msgstr ""
+msgstr "Der Importer benötigt eine Datei um fortzufahren"
 
 #: on/CRM/Banking/Page/Import.php
 msgid "No input file"
-msgstr ""
+msgstr "Keine Eingabedatei"
 
 #: on/CRM/Banking/Page/Import.php
 msgid "Automated running not yet implemented"
@@ -282,7 +282,7 @@ msgstr ""
 
 #: on/CRM/Banking/Page/Import.php
 msgid "Not implemented"
-msgstr ""
+msgstr "Nicht umgesetzt"
 
 #: on/CRM/Banking/Page/Manager.php
 msgid "Manage CiviBanking Components"
@@ -290,19 +290,19 @@ msgstr ""
 
 #: on/CRM/Banking/Page/Payments.php
 msgid "Payments"
-msgstr ""
+msgstr "Zahlungen"
 
 #: on/CRM/Banking/Page/Payments.php
 msgid "payments"
-msgstr ""
+msgstr "Zahlungen"
 
 #: on/CRM/Banking/Page/Payments.php
 msgid "statements"
-msgstr ""
+msgstr "Auszüge"
 
 #: on/CRM/Banking/Page/Payments.php
 msgid "not yet identified."
-msgstr ""
+msgstr "noch nicht identifiziert."
 
 #: on/CRM/Banking/Page/Payments.php
 msgid "Failed to delete %d of %d selected %s."
@@ -310,23 +310,23 @@ msgstr ""
 
 #: on/CRM/Banking/Page/Payments.php
 msgid "Deletion problems"
-msgstr ""
+msgstr "Probleme beim Löschen"
 
 #: on/CRM/Banking/Page/Payments.php
 msgid "Deleted %d selected %s."
-msgstr ""
+msgstr "Gelöscht %d ausgewählt %s."
 
 #: on/CRM/Banking/Page/Payments.php
 msgid "Deletion succesfull"
-msgstr ""
+msgstr "Erfolgreich gelöscht"
 
 #: on/CRM/Banking/Page/Payments.php
 msgid "Analysed %d payments."
-msgstr ""
+msgstr "%d Zahlungen analysiert."
 
 #: on/CRM/Banking/Page/Payments.php
 msgid "Analysis completed."
-msgstr ""
+msgstr "Analyse abgeschlossen."
 
 #: on/CRM/Banking/Page/Payments.php
 msgid "Error while querying BTX with parameters '%s'!"
@@ -338,7 +338,7 @@ msgstr ""
 
 #: on/CRM/Banking/Page/SEPAMandates.php
 msgid "SEPAMandates"
-msgstr ""
+msgstr "SEPA Mandate"
 
 #: on/CRM/Banking/PluginImpl/CSVImporter.php
 msgid "Rule '%s' failed. Exception was %s"
@@ -370,7 +370,7 @@ msgstr ""
 
 #: on/CRM/Banking/PluginModel/Importer.php
 msgid "Adjusted ending balance from %s to %s!"
-msgstr ""
+msgstr "Endsaldo angepasst von %s zu %s!"
 
 #: on/CRM/Banking/PluginModel/Importer.php
 msgid "Internal error: trying to close a nonexisting BTX batch."
@@ -378,23 +378,23 @@ msgstr ""
 
 #: on/CRM/Banking/PluginModel/Importer.php
 msgid "WARNING: multiple currency batches not fully supported"
-msgstr ""
+msgstr "WARNUNG: Batches mit mehreren Währungen werden nicht voll unterstützt"
 
 #: on/CRM/Banking/PluginModel/Importer.php
 msgid "Failed to query BTX."
-msgstr ""
+msgstr "Fehler beim Abfragen von BTX."
 
 #: on/CRM/Banking/PluginModel/Importer.php
 msgid "Duplicate BTX entry detected. Not imported!"
-msgstr ""
+msgstr "BTX Dublette erkannt. Nicht importiert!"
 
 #: on/CRM/Banking/PluginModel/Importer.php
 msgid "DRY RUN: Did not create bank transaction '%d' (%s %s on %s)"
-msgstr ""
+msgstr "PROBELAUF: Keine Banktransaktionen wurden angelegt '%d' (%s %s on %s)"
 
 #: on/CRM/Banking/PluginModel/Importer.php
 msgid "Error while storing BTX: %s"
-msgstr ""
+msgstr "Fehler beim Ablegen von BTX: %s"
 
 #: on/CRM/Banking/PluginModel/Importer.php
 msgid "Created BTX <b>%d</b> for <b>%s %s</b> on %s"
@@ -402,43 +402,43 @@ msgstr ""
 
 #: templates/CRM/Banking/Page/AccountSearch.tpl
 msgid "Search Criteria"
-msgstr ""
+msgstr "Suchkriterien"
 
 #: templates/CRM/Banking/Page/AccountSearch.tpl
 msgid "Bank account number<br/>(or partials)"
-msgstr ""
+msgstr "Kontonummer<br/>(oder Teile davon)"
 
 #: templates/CRM/Banking/Page/AccountSearch.tpl
 msgid "Also search additional account information"
-msgstr ""
+msgstr "Erweiterte Informationen in Suche mit einbeziehen"
 
 #: templates/CRM/Banking/Page/AccountSearch.tpl
 msgid "Search"
-msgstr ""
+msgstr "Suchen"
 
 #: templates/CRM/Banking/Page/AccountSearch.tpl
 msgid "accounts match your search"
-msgstr ""
+msgstr "Konten entsprechen Ihrer Suche"
 
 #: templates/CRM/Banking/Page/AccountSearch.tpl
 msgid "Sorry, no accounts match your search!"
-msgstr ""
+msgstr "Entschuldigung, keine Konten entsprechen Ihrer Suche!"
 
 #: templates/CRM/Banking/Page/Import.tpl
 msgid "Select Importer"
-msgstr ""
+msgstr "Importer auswählen"
 
 #: templates/CRM/Banking/Page/Import.tpl
 msgid "Choose configuration"
-msgstr ""
+msgstr "Konfiguration auswählen"
 
 #: templates/CRM/Banking/Page/Import.tpl
 msgid "select"
-msgstr ""
+msgstr "auswählen"
 
 #: templates/CRM/Banking/Page/Import.tpl
 msgid "Import Options"
-msgstr ""
+msgstr "Importoptionen"
 
 #: templates/CRM/Banking/Page/Import.tpl
 msgid "dry_run"
@@ -446,85 +446,85 @@ msgstr ""
 
 #: templates/CRM/Banking/Page/Import.tpl
 msgid "Dry run"
-msgstr ""
+msgstr "Probelauf"
 
 #: templates/CRM/Banking/Page/Import.tpl
 msgid "Process payments right away"
-msgstr ""
+msgstr "Zahlungen sofort verarbeiten"
 
 #: templates/CRM/Banking/Page/Import.tpl
 msgid "Import!"
-msgstr ""
+msgstr "Importieren!"
 
 #: templates/CRM/Banking/Page/Manager.tpl
 msgid "Interface"
-msgstr ""
+msgstr "Oberfläche"
 
 #: templates/CRM/Banking/Page/Manager.tpl
 msgid "Profiles"
-msgstr ""
+msgstr "Profile"
 
 #: templates/CRM/Banking/Page/Manager.tpl
 msgid "Matcher"
-msgstr ""
+msgstr "Matcher"
 
 #: templates/CRM/Banking/Page/Manager.tpl
 msgid "Review Required"
-msgstr ""
+msgstr "Überprüfung erforderlich"
 
 #: templates/CRM/Banking/Page/Manager.tpl
 msgid "Enabled?"
-msgstr ""
+msgstr "Aktiviert?"
 
 #: templates/CRM/Banking/Page/Manager.tpl
 msgid "Edit"
-msgstr ""
+msgstr "Bearbeiten"
 
 #: templates/CRM/Banking/Page/Manager.tpl
 #: templates/CRM/Banking/Page/Payments.tpl
 msgid "Delete"
-msgstr ""
+msgstr "Löschen"
 
 #: templates/CRM/Banking/Page/Manager.tpl
 msgid "Add Profile"
-msgstr ""
+msgstr "Profil hinzufügen"
 
 #: templates/CRM/Banking/Page/Payments.tpl
 msgid "Show Statements"
-msgstr ""
+msgstr "Kontoauszug anzeigen"
 
 #: templates/CRM/Banking/Page/Payments.tpl
 msgid "Show Payments"
-msgstr ""
+msgstr "Zahlungen anzeigen"
 
 #: templates/CRM/Banking/Page/Payments.tpl
 msgid "New"
-msgstr ""
+msgstr "Neu"
 
 #: templates/CRM/Banking/Page/Payments.tpl
 msgid "Analysed"
-msgstr ""
+msgstr "Analysiert"
 
 #: templates/CRM/Banking/Page/Payments.tpl
 msgid "Completed"
-msgstr ""
+msgstr "Abgeschlossen"
 
 #: templates/CRM/Banking/Page/Payments.tpl
 msgid "Custom Filter"
-msgstr ""
+msgstr "Benutzerdefinierter Filter"
 
 #: templates/CRM/Banking/Page/Payments.tpl
 #: templates/CRM/Banking/Page/Review.tpl
 msgid "Account"
-msgstr ""
+msgstr "Konto"
 
 #: templates/CRM/Banking/Page/Payments.tpl
 msgid "Date"
-msgstr ""
+msgstr "Datum"
 
 #: templates/CRM/Banking/Page/Payments.tpl
 msgid "Amount"
-msgstr ""
+msgstr "Summe"
 
 #: templates/CRM/Banking/Page/Payments.tpl
 msgid "Party"
@@ -532,47 +532,47 @@ msgstr ""
 
 #: templates/CRM/Banking/Page/Payments.tpl
 msgid "Select all"
-msgstr ""
+msgstr "Alle auswählen"
 
 #: templates/CRM/Banking/Page/Payments.tpl
 msgid "Select none"
-msgstr ""
+msgstr "Alle abwählen"
 
 #: templates/CRM/Banking/Page/Payments.tpl
 msgid "With selected items perform:"
-msgstr ""
+msgstr "Mit der Auswahl durchführen:"
 
 #: templates/CRM/Banking/Page/Payments.tpl
 msgid "Review"
-msgstr ""
+msgstr "Überprüfen"
 
 #: templates/CRM/Banking/Page/Payments.tpl
 msgid "Process"
-msgstr ""
+msgstr "Verarbeiten"
 
 #: templates/CRM/Banking/Page/Payments.tpl
 msgid "Export"
-msgstr ""
+msgstr "Exportieren"
 
 #: templates/CRM/Banking/Page/Review.tpl
 msgid "BASIC INFO"
-msgstr ""
+msgstr "BASISINFORMATIONEN"
 
 #: templates/CRM/Banking/Page/Review.tpl
 msgid "Booking"
-msgstr ""
+msgstr "Buchung"
 
 #: templates/CRM/Banking/Page/Review.tpl
 msgid "Value"
-msgstr ""
+msgstr "Wertstellung"
 
 #: templates/CRM/Banking/Page/Review.tpl
 msgid "TRANSACTION INFO"
-msgstr ""
+msgstr "INFORMATIONEN ZUR TRANSAKTION"
 
 #: templates/CRM/Banking/Page/Review.tpl
 msgid "Stmt. #"
-msgstr ""
+msgstr "Knt.Ausz. #"
 
 #: templates/CRM/Banking/Page/Review.tpl
 msgid "Trans. #"
@@ -580,67 +580,67 @@ msgstr ""
 
 #: templates/CRM/Banking/Page/Review.tpl
 msgid "Status"
-msgstr ""
+msgstr "Status"
 
 #: templates/CRM/Banking/Page/Review.tpl
 msgid "DEBTOR INFO"
-msgstr ""
+msgstr "DEBiTOR INFO"
 
 #: templates/CRM/Banking/Page/Review.tpl
 msgid "Address"
-msgstr ""
+msgstr "Adresse"
 
 #: templates/CRM/Banking/Page/Review.tpl
 msgid "Owner"
-msgstr ""
+msgstr "Inhaber"
 
 #: templates/CRM/Banking/Page/Review.tpl
 msgid "Purpose"
-msgstr ""
+msgstr "Verwendungszweck"
 
 #: templates/CRM/Banking/Page/Review.tpl
 msgid "EXTRA"
-msgstr ""
+msgstr "ZUSATZINFORMATIONEN"
 
 #: templates/CRM/Banking/Page/Review.tpl
 msgid "(click to see)"
-msgstr ""
+msgstr "(klicken zum Ausklappen)"
 
 #: templates/CRM/Banking/Page/Review.tpl
 msgid "Match (again)"
-msgstr ""
+msgstr "(erneut) Matchen"
 
 #: templates/CRM/Banking/Page/Review.tpl
 msgid "Confirm and Continue"
-msgstr ""
+msgstr "Bestätigen und weiter"
 
 #: templates/CRM/Banking/Page/Review.tpl
 msgid "Skip"
-msgstr ""
+msgstr "Überspringen"
 
 #: templates/CRM/Banking/Page/Review.tpl
 msgid "Confirm and Exit"
-msgstr ""
+msgstr "Bestätigen und verlassen"
 
 #: templates/CRM/Banking/Page/Review.tpl
 msgid "Skip and Exit"
-msgstr ""
+msgstr "Überspringen und verlassen"
 
 #: templates/CRM/Banking/Page/Review.tpl
 msgid "Back to payment list"
-msgstr ""
+msgstr "Zurück zur Liste der Zahlungen"
 
 #: templates/CRM/Banking/Page/Review.tpl
 msgid "Suggestions "
-msgstr ""
+msgstr "Vorschläge"
 
 #: templates/CRM/Banking/Page/Review.tpl
 msgid "Go ahead"
-msgstr ""
+msgstr "Fortfahren"
 
 #: templates/CRM/Banking/Page/Review.tpl
 msgid "Go ahead as suggested"
-msgstr ""
+msgstr "Vorschlag annehmen"
 
 #: templates/CRM/Banking/Page/SEPAMandates.tpl
 msgid "(In your native language) The current time is %1."

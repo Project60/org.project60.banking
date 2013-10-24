@@ -25,6 +25,7 @@ class CRM_Banking_PluginImpl_Matcher_ExistingContribution extends CRM_Banking_Pl
   public function match(CRM_Banking_BAO_BankTransaction $btx, CRM_Banking_Matcher_Context $context) {
 
     $threshold = $this->_plugin_config->threshold;
+    $data_parsed = $btx->getDataParsed();
 
     // first: try to indentify the contact
     $contacts_found = array();
@@ -39,8 +40,8 @@ class CRM_Banking_PluginImpl_Matcher_ExistingContribution extends CRM_Banking_Pl
     }
 
     // otherwise try to find matching, open contributions
-    if (count($contacts_found)==0) {
-      $search_result = $context->lookupContactByName($btx->data_parsed);
+    if (count($contacts_found)>=0) {
+      $search_result = $context->lookupContactByName($data_parsed['name']);
       foreach ($search_result as $contact_id => $probability) {
         if ($probability > $threshold) {
           $contacts_found[$contact_id] = $probability;

@@ -135,8 +135,13 @@ class CRM_Banking_PluginImpl_CSVImporter extends CRM_Banking_PluginModel_Importe
     
     if ($this->getCurrentTransactionBatch()->tx_count) {
       // we have transactions in the batch -> save
-      //$this->getCurrentTransactionBatch()->starting_date = 0;
-      //$this->getCurrentTransactionBatch()->ending_date = 0;
+      if ($config->title) {
+        // the config defines a title, replace tokens
+        $this->getCurrentTransactionBatch()->reference = $config->title;
+      } else {
+        $this->getCurrentTransactionBatch()->reference = "CSV-File {md5}";
+      }
+
       $this->closeTransactionBatch(TRUE);
     } else {
       $this->closeTransactionBatch(FALSE);

@@ -1,4 +1,3 @@
-{debug}
 <style>
   #btx-details .btxheader.collapsible-closed {ldelim}
   background: url("{$base_url}/sites/all/modules/civicrm/i/TreeMinus.gif")  4px 4px no-repeat;

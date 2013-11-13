@@ -180,7 +180,6 @@ abstract class CRM_Banking_PluginModel_Importer extends CRM_Banking_PluginModel_
           $this->_current_transaction_batch->reference = "{md5}";
 
         // replace tokens
-        print_r($this->_current_transaction_batch->starting_date);
         $reference = $this->_current_transaction_batch->reference;
         $dateFormat = 'Y-m-d';  // FIXME: read config
         $reference = str_replace('{md5}', md5($this->_current_transaction_batch_attributes['references']), $reference);

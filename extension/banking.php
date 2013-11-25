@@ -128,6 +128,11 @@ function banking_civicrm_options() {
                   'value' => 'NBAN_BE',
                   'is_default' => 0,
               ),
+              'ENTITY' => array(
+                  'label' => 'Links a bank account to a CiviCRM entity, reference format is "<entity_table>:<entity_id>"',
+                  'value' => 'ENTITY',
+                  'is_default' => 0,
+              ),
           ),
       ),
       'civicrm_banking.plugin_classes' => array(

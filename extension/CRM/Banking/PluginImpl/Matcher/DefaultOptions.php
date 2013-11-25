@@ -132,6 +132,8 @@ class CRM_Banking_PluginImpl_Matcher_DefaultOptions extends CRM_Banking_PluginMo
    */  
   function visualize_match( CRM_Banking_Matcher_Suggestion $match, $btx) {
     if ($match->getId() === "manual") {
+      $contact_list = array("Björn (Björnstr. 12, Bonn)", "Simon (Simonstr. 12, Frankfurt)");
+
       $data_parsed = $btx->getDataParsed();
       $booking_date = date('YmdHis', strtotime($btx->booking_date));
       $status_pending = banking_helper_optionvalue_by_groupname_and_name('contribution_status', 'Pending');
@@ -139,19 +141,30 @@ class CRM_Banking_PluginImpl_Matcher_DefaultOptions extends CRM_Banking_PluginMo
       $edit_contribution_link = CRM_Utils_System::url("civicrm/contact/view/contribution", "action=update&reset=1&id=__contributionid__&cid=__contactid__&context=home");
       $view_contribution_link = CRM_Utils_System::url("civicrm/contact/view/contribution", "action=view&reset=1&id=__contributionid__&cid=__contactid__&context=home");
 
-      $snippet  = "<div>" . ts("Please manually process this payment and <b>then</b> add the resulting contributions to this list.");
+      $snippet  = "<div>" . ts("Please manually process this payment and <i>then</i> add the resulting contributions to this list, <b><i>before</i></b> confirming this option.");
       $snippet .= "<input type=\"hidden\" id=\"manual_match_contributions\" name=\"manual_match_contributions\" value=\"\"/></div>";    // this will hold the list of contribution ids
 
-      // add the buttons
-      $snippet .= "<br/><div>";
+      // add contact level
+      //$snippet .= "<br/><div style=\"float:left;\">".ts("Select contact:")."&nbsp;&nbsp;</div>";
+      $snippet .= "<br/><a class=\"button\" onclick=\"manual_match_create_contribution(true);\"><span><div class=\"icon add-icon\"></div>" . ts("create contribution for:") . "</span></a>";
+      $snippet .= "<select style=\"float:left;\" id=\"manual_match_contact_selector\">";
+      foreach ($contact_list as $option) {
+        $snippet .= "<option value=\"$option\">$option</option>";
+      }
+      $snippet .= "</select><div style=\"float:left;\">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</div>";
+      $snippet .= "<a class=\"button\" onclick=\"manual_match_add_contact();\"><span><div class=\"icon add-icon\"></div>" . ts("add contact to list") . ":</span></a>";
+      $snippet .= "<input id=\"manual_match_add_contact\" onkeydown=\"if (event.keyCode == 13) return manual_match_add_contact();\" type=\"text\" style=\"width: 4em; height: 1.4em;\"></input>";
+
+      // add contribution level
+      $snippet .= "<br/><br/><div>";
       $snippet .= "<a class=\"button\" onclick=\"manual_match_refresh_list();\"><span><div class=\"icon refresh-icon\"></div>" . ts("refresh") . "</span></a>";
-      $snippet .= "<a class=\"button\" onclick=\"manual_match_create_contribution();\"><span><div class=\"icon add-icon\"></div>" . ts("create new") . "</span></a>";
-      $snippet .= "<a class=\"button\" onclick=\"manual_match_add_contribution();\"><span><div class=\"icon add-icon\"></div>" . ts("add by ID") . ":</span></a>";
+      $snippet .= "<a class=\"button\" onclick=\"manual_match_create_contribution(false);\"><span><div class=\"icon add-icon\"></div>" . ts("create empty contribution") . "</span></a>";
+      $snippet .= "<a class=\"button\" onclick=\"manual_match_add_contribution();\"><span><div class=\"icon add-icon\"></div>" . ts("add contribution by ID") . ":</span></a>";
       $snippet .= "<input id=\"manual_match_add\" onkeydown=\"if (event.keyCode == 13) return manual_match_add_contribution();\" type=\"text\" style=\"width: 4em; height: 1.4em;\"></input>";
       // FIXME: could somebody please replace this with sth that works?
-      $snippet .= "<span align=\"right\">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>";
+      $snippet .= "<div style=\"float:right;\">";
       $snippet .= "<span id=\"manual_match_contribution_sum\" align=\"right\" style=\"color: red; font-weight: bold;\"><b>".ts("sum").": 0.00 EUR</b></span>";
-      $snippet .= "</div>";
+      $snippet .= "</div></div>";
 
       // add the table
       $snippet .= "<br/><table>";

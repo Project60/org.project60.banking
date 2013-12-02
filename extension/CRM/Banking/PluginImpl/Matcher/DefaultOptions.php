@@ -45,11 +45,8 @@ class CRM_Banking_PluginImpl_Matcher_DefaultOptions extends CRM_Banking_PluginMo
         // add related contacts
         $data_parsed = $btx->getDataParsed();
         $contacts = $context->lookupContactByName($data_parsed['name']);
-        error_log(print_r($contacts, true));
         arsort($contacts, SORT_NUMERIC);
-        error_log(print_r($contacts, true));
         $manually_processed->setParameter('contact_ids', implode(',', array_keys($contacts)));
-        error_log(implode(',', array_keys($contacts)));
 
         $btx->addSuggestion($manually_processed);
       }
@@ -253,7 +250,7 @@ class CRM_Banking_PluginImpl_Matcher_DefaultOptions extends CRM_Banking_PluginMo
           function manual_match_create_contact_list() {
             // clear the options
             cj("#manual_match_contact_selector").empty();
-            var dummy_item = "<option value=\"0\">'.ts("No contact found...").'</option>";
+            var dummy_item = "<option value=\"0\">'.ts("No contact found... add manually &nbsp;&nbsp;&nbsp;=>").'</option>";
             cj("#manual_match_contact_selector").append(dummy_item);
 
             var list = cj("#manual_match_contacts").val().split(",");

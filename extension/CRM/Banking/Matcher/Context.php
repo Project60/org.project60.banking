@@ -23,8 +23,12 @@ class CRM_Banking_Matcher_Context {
   public function lookupContactByName($name, $parameters=array()) {
 
   	// TODO: check for cached data
-
   	$contacts_found = array();
+
+    if (!$name) {
+      // no name given, no results:
+      return $contacts_found;
+    }
 
   	// create some mutations, since quick search is a bit picky
   	$name_bits = preg_split("( |,|&)", $name, 0, PREG_SPLIT_NO_EMPTY);
@@ -38,13 +42,12 @@ class CRM_Banking_Matcher_Context {
   		$name_mutations[] = $reduced_name;
   		$name_mutations[] = array_reverse($reduced_name);
   	}
-    error_log(print_r($name_mutations, true));
   	// query quicksearch for each combination
   	foreach ($name_mutations as $name_bits) {
 	  	$query = array('version' => 3);
 	  	$query['name'] = implode(', ', $name_bits);
 	  	$result = civicrm_api('Contact', 'getquick', $query);
-	  	if (isset($result['is_error']) && $result['is_error']) {
+	  	if ($result['is_error']) {
 	  		// that didn't go well...
 	  		CRM_Core_Session::setStatus(ts("Internal error while looking up contacts."), ts('Error'), 'alert');
 	  	} else {

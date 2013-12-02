@@ -41,6 +41,16 @@ class CRM_Banking_PluginImpl_Matcher_DefaultOptions extends CRM_Banking_PluginMo
         $manually_processed->addEvidence($this->get_probability($config->manual_probability, $btx));
         $manually_processed->setTitle($config->manual_title);
         $manually_processed->setId('manual');
+
+        // add related contacts
+        $data_parsed = $btx->getDataParsed();
+        $contacts = $context->lookupContactByName($data_parsed['name']);
+        error_log(print_r($contacts, true));
+        arsort($contacts, SORT_NUMERIC);
+        error_log(print_r($contacts, true));
+        $manually_processed->setParameter('contact_ids', implode(',', array_keys($contacts)));
+        error_log(implode(',', array_keys($contacts)));
+
         $btx->addSuggestion($manually_processed);
       }
     }
@@ -132,7 +142,8 @@ class CRM_Banking_PluginImpl_Matcher_DefaultOptions extends CRM_Banking_PluginMo
    */  
   function visualize_match( CRM_Banking_Matcher_Suggestion $match, $btx) {
     if ($match->getId() === "manual") {
-      $contact_list = array("Björn (Björnstr. 12, Bonn)", "Simon (Simonstr. 12, Frankfurt)");
+      $contact_ids = $match->getParameter('contact_ids');
+      //$contact_list = array("Björn Björnson (Björnstr. 12, Bonn)", "Simon Simonson (Simonstr. 12, Frankfurt)");
 
       $data_parsed = $btx->getDataParsed();
       $booking_date = date('YmdHis', strtotime($btx->booking_date));
@@ -143,25 +154,21 @@ class CRM_Banking_PluginImpl_Matcher_DefaultOptions extends CRM_Banking_PluginMo
 
       $snippet  = "<div>" . ts("Please manually process this payment and <i>then</i> add the resulting contributions to this list, <b><i>before</i></b> confirming this option.");
       $snippet .= "<input type=\"hidden\" id=\"manual_match_contributions\" name=\"manual_match_contributions\" value=\"\"/></div>";    // this will hold the list of contribution ids
+      $snippet .= "<input type=\"hidden\" id=\"manual_match_contacts\" name=\"manual_match_contacts\" value=\"$contact_ids\"/></div>";    // this will hold the list of contact ids
 
       // add contact level
-      //$snippet .= "<br/><div style=\"float:left;\">".ts("Select contact:")."&nbsp;&nbsp;</div>";
-      $snippet .= "<br/><a class=\"button\" onclick=\"manual_match_create_contribution(true);\"><span><div class=\"icon add-icon\"></div>" . ts("create contribution for:") . "</span></a>";
+      $snippet .= "<br/><a class=\"button\" onclick=\"manual_match_create_contribution();\"><span><div class=\"icon add-icon\"></div>" . ts("add new contribution for:") . "</span></a>";
       $snippet .= "<select style=\"float:left;\" id=\"manual_match_contact_selector\">";
-      foreach ($contact_list as $option) {
-        $snippet .= "<option value=\"$option\">$option</option>";
-      }
       $snippet .= "</select><div style=\"float:left;\">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</div>";
-      $snippet .= "<a class=\"button\" onclick=\"manual_match_add_contact();\"><span><div class=\"icon add-icon\"></div>" . ts("add contact to list") . ":</span></a>";
-      $snippet .= "<input id=\"manual_match_add_contact\" onkeydown=\"if (event.keyCode == 13) return manual_match_add_contact();\" type=\"text\" style=\"width: 4em; height: 1.4em;\"></input>";
+      $snippet .= "<a class=\"button\" onclick=\"manual_match_add_contact();\"><span><div class=\"icon add-icon\"></div>" . ts("add contact ID to list") . ":</span></a>";
+      $snippet .= "<input id=\"manual_match_add_contact_input\" onkeydown=\"if (event.keyCode == 13) return manual_match_add_contact();\" type=\"text\" style=\"width: 4em; height: 1.4em;\"></input>";
 
       // add contribution level
       $snippet .= "<br/><br/><div>";
       $snippet .= "<a class=\"button\" onclick=\"manual_match_refresh_list();\"><span><div class=\"icon refresh-icon\"></div>" . ts("refresh") . "</span></a>";
-      $snippet .= "<a class=\"button\" onclick=\"manual_match_create_contribution(false);\"><span><div class=\"icon add-icon\"></div>" . ts("create empty contribution") . "</span></a>";
-      $snippet .= "<a class=\"button\" onclick=\"manual_match_add_contribution();\"><span><div class=\"icon add-icon\"></div>" . ts("add contribution by ID") . ":</span></a>";
+      $snippet .= "<a class=\"button\" onclick=\"manual_match_open_create_new_contribution();\"><span><div class=\"icon add-icon\"></div>" . ts("add empty contribution") . "</span></a>";
+      $snippet .= "<a class=\"button\" onclick=\"manual_match_add_contribution();\"><span><div class=\"icon add-icon\"></div>" . ts("add existing contribution by ID") . ":</span></a>";
       $snippet .= "<input id=\"manual_match_add\" onkeydown=\"if (event.keyCode == 13) return manual_match_add_contribution();\" type=\"text\" style=\"width: 4em; height: 1.4em;\"></input>";
-      // FIXME: could somebody please replace this with sth that works?
       $snippet .= "<div style=\"float:right;\">";
       $snippet .= "<span id=\"manual_match_contribution_sum\" align=\"right\" style=\"color: red; font-weight: bold;\"><b>".ts("sum").": 0.00 EUR</b></span>";
       $snippet .= "</div></div>";
@@ -177,9 +184,12 @@ class CRM_Banking_PluginImpl_Matcher_DefaultOptions extends CRM_Banking_PluginMo
       $snippet .= "<tbody id=\"manual_match_contribution_table\">";
       $snippet .= "</tbody></table>";
       
-      // add the java script
+      // append the java script contributing the functionality
       $snippet .= '
         <script type="text/javascript">
+          /** 
+           * refresh the table showing the related contributions 
+           */
           function manual_match_refresh_list() {
             // clear the table
             cj("#manual_match_contribution_table tr").remove();
@@ -196,6 +206,65 @@ class CRM_Banking_PluginImpl_Matcher_DefaultOptions extends CRM_Banking_PluginMo
             }
           }
 
+          /** 
+           * Loads a contact into to the option list. 
+           * It also triggers loading the next id from the list in the hidden field 
+           */
+          function manual_match_load_contact_into_contact_list(contact_id, select=false) {
+            CRM.api("Contact", "get", {"q": "civicrm/ajax/rest", "sequential": 1, "id": contact_id},
+                { success: function(data) {
+                  if (data.count > 0) {
+                    // generate contact select option
+                    var contact = data.values[0];
+                    var item_label = contact.display_name;
+                    if (contact.street_address || contact.city) {
+                      item_label += " (" + contact.street_address + ", " + contact.city + ")";
+                    } else {
+                      item_label += " ('.ts("unknown address").')";
+                    }
+                    if (select) {
+                      var item = "<option selected =\"true\" value=\""+ contact.id + "\">"+item_label+"</option>";
+                    } else {
+                      var item = "<option value=\""+ contact.id + "\">"+item_label+"</option>";
+                    }
+
+                    // remove dummy if still in there...
+                    cj("#manual_match_contact_selector option[value=0]").remove();
+
+                    // ...add to selector list
+                    cj("#manual_match_contact_selector").append(item);
+
+                    // finally, trigger the next contact to be loaded
+                    var list = cj("#manual_match_contacts").val().split(",");
+                    var index = cj.inArray(contact_id.toString(), list);
+                    if (index != -1 && (index+1) < list.length) {
+                      manual_match_load_contact_into_contact_list(list[index+1], select);
+                    }
+                  } else {
+                    alert("Conact not found!");
+                  }
+                }
+              });
+          }
+
+          /** 
+           * create/refresh the table showing the related contacts 
+           */
+          function manual_match_create_contact_list() {
+            // clear the options
+            cj("#manual_match_contact_selector").empty();
+            var dummy_item = "<option value=\"0\">'.ts("No contact found...").'</option>";
+            cj("#manual_match_contact_selector").append(dummy_item);
+
+            var list = cj("#manual_match_contacts").val().split(",");
+            if (list.length > 0 && list[0]) {
+              manual_match_load_contact_into_contact_list(list[0], false);
+            }
+          }
+
+          /** 
+           * append the given contribution data set to the contribution list 
+           */
           function manual_match_add_data_to_list(data) {
             if (data.count>0) {
               var contribution = data.values[0];
@@ -222,6 +291,9 @@ class CRM_Banking_PluginImpl_Matcher_DefaultOptions extends CRM_Banking_PluginMo
             }
           }
 
+          /** 
+           * update the sum field, showing the total of all related contribtions
+           */
           function manual_match_update_sum() {
             // sum up the rows
             var sum = 0.0;
@@ -239,52 +311,50 @@ class CRM_Banking_PluginImpl_Matcher_DefaultOptions extends CRM_Banking_PluginMo
             }
           }
 
+          /** 
+           * create a new contribution with the selected contact
+           */
           function manual_match_create_contribution() {
-            // if we have a contact to tie it to, create a test_contribution and open an editor
-            var party_ba_id = "'.$btx->party_ba_id.'";
-            if (party_ba_id) {
-              // check if there is a contact attached
-              CRM.api("BankingAccount", "getsingle", {"q": "civicrm/ajax/rest", "sequential": 1, "id": party_ba_id},
-                {success: function(data) {
-                  if (data.contact_id) {
-                    // ok, we have a contact -> create a new (test) contribution
-                    CRM.api("Contribution", "create", { "q": "civicrm/ajax/rest", "sequential": 1, 
-                                                        "contact_id": data.contact_id, 
-                                                        "is_test": 1, 
-                                                        "total_amount": '.$btx->amount.', 
-                                                        "is_pay_later": 1,
-                                                        "receive_date": "'.$booking_date.'",
-                                                        "currency": "'.$btx->currency.'",
-                                                        "contribution_status_id": "'.$status_pending.'",
-                                                        //"trxn_id": "'.$btx->bank_reference.'",
-                                                        "financial_type_id": "'.$this->_plugin_config->default_financial_type_id.'"
-                                                      },
-                      { success: function(data) {
-                        // succesfully created -> open editor
-                        var contribution = data.values[0];
-                        var link = cj("<div/>").html("'.$edit_contribution_link.'").text();
-                        link = link.replace("__contributionid__", contribution.id);
-                        link = link.replace("__contactid__", contribution.contact_id);
-                        window.open(link, "_blank");
-
-                        // also add to out list
-                        manual_match_add_contribution_to_field(contribution.id);
-                        manual_match_refresh_list();
-                      }
-                    });
-                    
-                  } else {
-                    // no contact_id, just open an editor for a new contribution
-                    manual_match_open_create_new_contribution();
-                  }
-                }
-              });
-            } else {
-              // no known account, just open an editor for a new contribution
-              manual_match_open_create_new_contribution();              
+            // get selected contact
+            var contact_id = cj("#manual_match_contact_selector").val();
+            if (!contact_id) {
+              // TODO: set/translate message
+              alert("No ID set!");
+              return;
             }
+            // ok, we have a contact -> create a new (test) contribution
+            CRM.api("Contribution", "create", { "q": "civicrm/ajax/rest", "sequential": 1, 
+                                                "contact_id": contact_id, 
+                                                "is_test": 1, 
+                                                "total_amount": '.$btx->amount.', 
+                                                "is_pay_later": 1,
+                                                "receive_date": "'.$booking_date.'",
+                                                "currency": "'.$btx->currency.'",
+                                                "contribution_status_id": "'.$status_pending.'",
+                                                //"trxn_id": "'.$btx->bank_reference.'",
+                                                "source": "'.$this->_plugin_config->manual_default_source.'",
+                                                "financial_type_id": "'.$this->_plugin_config->manual_default_financial_type_id.'"
+                                              },
+              { success: function(data) {
+                var contribution = data.values[0];
+
+                // succesfully created -> add to our list
+                manual_match_add_contribution_to_field(contribution.id);
+                manual_match_refresh_list();
+
+                // also open editor
+                var link = cj("<div/>").html("'.$edit_contribution_link.'").text();
+                link = link.replace("__contributionid__", contribution.id);
+                link = link.replace("__contactid__", contribution.contact_id);
+                window.open(link, "_blank");
+              }
+            });                    
           }
 
+          /** 
+           * open a create contribution dialogue. Unfortunately it is not possible
+           * to automatically add this contribution to the list.
+           */
           function manual_match_open_create_new_contribution() {
             // decode the value here (idk why...)
             var link = cj("<div/>").html("'.$new_contribution_link.'").text();
@@ -292,6 +362,9 @@ class CRM_Banking_PluginImpl_Matcher_DefaultOptions extends CRM_Banking_PluginMo
             window.open(link, "_blank");            
           }
 
+          /** 
+           * triggered when the user wants to manually add a contribution as related
+           */
           function manual_match_add_contribution() {
             // we will try to extract an contribution id from the input field, add it to the (hidden) list of contributions and call refresh
             var value = cj("#manual_match_add").val();
@@ -319,6 +392,49 @@ class CRM_Banking_PluginImpl_Matcher_DefaultOptions extends CRM_Banking_PluginMo
             return false;
           }
 
+          /**
+           * triggered when "add contact to list" button is pressed.
+           * will add the content of the item to the list of selectable contact
+           */
+          function manual_match_add_contact() {
+            // we will try to extract an contact id from the input field, add it to the (hidden) list of contributions
+            var value = cj("#manual_match_add_contact_input").val();
+            // maybe it`s only an ID:
+            var contact_id = parseInt(value);
+            if (isNaN(contact_id)) {
+              // if not, maybe it`s a URL and we can parse the contact_id...
+              var parts = value.split("&");
+              for (part in parts) {
+                if (parts[part].substring(0, 4)==="cid=") {
+                  contact_id = parseInt(parts[part].substring(4));
+                  break;
+                }
+              }
+            }
+
+            if (isNaN(contact_id)) {
+              alert("'.ts("No valid contact ID given.").'");
+            } else {
+              // add ID to the hidden field
+              var list = cj("#manual_match_contacts").val().split(",");
+              var index = cj.inArray(contact_id.toString(), list);
+              if (index == -1) {
+                //list.splice(0, 0, contact_id.toString());   // insert at beginning
+                list.push(contact_id.toString());
+                cj("#manual_match_contacts").val(list.join());
+  
+                // load the contact and add to the selection
+                manual_match_load_contact_into_contact_list(contact_id, true);
+              }
+            }
+            
+            cj("#manual_match_add_contact_input").val("");            
+            return false;
+          }
+
+          /** 
+           * will add the given contribution_id to the (hidden) input field
+           */
           function manual_match_add_contribution_to_field(contribution_id) {
             // add to field
             var list = cj("#manual_match_contributions").val().split(",");
@@ -329,6 +445,9 @@ class CRM_Banking_PluginImpl_Matcher_DefaultOptions extends CRM_Banking_PluginMo
             }
           }
 
+          /** 
+           * will remove the given contribution from the list of related contributions
+           */
           function manual_match_remove_contribution(contribution_id) {
               // remove ID from the hidden field
               var list = cj("#manual_match_contributions").val().split(",");
@@ -342,6 +461,8 @@ class CRM_Banking_PluginImpl_Matcher_DefaultOptions extends CRM_Banking_PluginMo
           
           // call some updates once...
           manual_match_update_sum();
+          manual_match_create_contact_list();
+
           // FIXME: Take care of previous onfocus handlers
           window.onfocus=manual_match_refresh_list;
         </script>

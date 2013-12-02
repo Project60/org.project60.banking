@@ -83,8 +83,20 @@ class CRM_Banking_Matcher_Engine {
    * Run this BTX through the matchers
    * 
    * @param CRM_Banking_BAO_BankTransaction $btx
+   * @param bool $override_processed   Set this to TRUE if you want to re-match processed transactions. 
+   *                                    This will destroy all records of the execution!
    */
-  public function match( CRM_Banking_BAO_BankTransaction $btx ) {
+  public function match( CRM_Banking_BAO_BankTransaction $btx, $override_processed = FALSE ) {
+    if (!$override_processed) {
+      // don't match already executed transactions...
+      $processed_status_id = banking_helper_optionvalueid_by_groupname_and_name('civicrm_banking.bank_tx_status', 'Processed');
+      $ignored_status_id = banking_helper_optionvalueid_by_groupname_and_name('civicrm_banking.bank_tx_status', 'Ignored');
+      if ($btx->status_id == $processed_status_id || $btx->status_id == $ignored_status_id) {
+        // will not match already executed transactions
+        return true;
+      }
+    }
+
     // reset the BTX suggestion list
     $btx->resetSuggestions();
     

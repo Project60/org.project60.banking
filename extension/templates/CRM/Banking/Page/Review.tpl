@@ -288,22 +288,23 @@
   <br/>
 
   <div align="right" class="clearfix" style="width: 100%;">
-    {if $btxstatus.label != 'Processed'}
+    {if $btxstatus.label != 'Processed' AND $btxstatus.label != 'Ignored'}
       <a href="{$url_run}" class="button"><span title="{ts}Match (again){/ts}"><div class="icon preview-icon"></div>{ts}Match (again){/ts}</span></a>
       {if isset($url_skip_forward)}
         <a href="#" onClick="execute_selected()" class="button"><span title="{ts}Confirm and Continue{/ts}"><div class="icon next-icon"></div>{ts}Confirm and Continue{/ts}</span></a>
-        <a href="{$url_skip_forward}" class="button"><span title="{ts}Skip{/ts}"><div class="icon next-icon"></div>{ts}Skip{/ts}</span></a>
       {else}
         <a href="#" onClick="execute_selected()" class="button"><span title="{ts}Confirm and Exit{/ts}"><div class="icon next-icon"></div>{ts}Confirm and Exit{/ts}</span></a>
-        <a href="{$url_back}" class="button"><span title="{ts}Skip and Exit{/ts}"><div class="icon next-icon"></div>{ts}Skip and Exit{/ts}</span></a>
       {/if}
+    {else}
+      <a href="{$url_skip_forward}" class="button"><span title="{ts}Skip{/ts}"><div class="icon next-icon"></div>{ts}Next{/ts}</span></a>    
+      <a href="{$url_back}" class="button"><span title="{ts}Skip and Exit{/ts}"><div class="icon next-icon"></div>{ts}Exit{/ts}</span></a>
     {/if}
     <a href="{$url_back}" class="button" style="float:right;">
       <span title="{ts}Back{/ts}"><div class="icon back-icon"></div>{ts}Back to payment list{/ts}</span>
     </a>
   </div>
 
-  {if $btxstatus.label != 'Processed'}
+  {if $btxstatus.label != 'Processed' AND $btxstatus.label != 'Ignored'}
     <br/><br/>
     <h2>{ts}Suggestions{/ts} </h2>
     <br/>
@@ -336,6 +337,12 @@
         </td>
       </tr>
     </table>
+  
+  {else}
+    <br/><br/>
+    <h2>{ts}This payment was{/ts} <b>{ts}{$execution_info.status}{/ts}</b> {ts}on{/ts} {$execution_info.date|date_format:$config->dateformatDatetime}</h2>
+    <br/>
+    {$execution_info.visualization}
   {/if}
 
 

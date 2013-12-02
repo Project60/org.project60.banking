@@ -99,21 +99,42 @@ class CRM_Banking_Page_Review extends CRM_Core_Page {
 
       $this->assign('ba_data_parsed', json_decode($ba_bao->data_parsed, true));
 
-      // create suggestion list
-      $suggestions = array();
-      $suggestion_objects = $btx_bao->getSuggestionList();
-      foreach ($suggestion_objects as $suggestion) {
-        $color = $this->translateProbability($suggestion->getProbability() * 100);
-          array_push($suggestions, array(
-              'hash' => $suggestion->getHash(),
-              'probability' => sprintf('%d&nbsp;%%', ($suggestion->getProbability() * 100)),
-              'color' => $color,
-              'visualization' => $suggestion->visualize($btx_bao),
-              'title' => $suggestion->getTitle(),
-              'actions' => $suggestion->getActions(),
-          ));
+
+
+
+      // check if closed ('processed' or 'ignored')
+      if ($choices[$btx_bao->status_id]['name']=='processed' || $choices[$btx_bao->status_id]['name']=='ignored') {
+
+        // this is a closed BTX, generate execution information
+        $execution_info = array();
+        $execution_info['status'] = $choices[$btx_bao->status_id]['name'];
+        $suggestion_objects = $btx_bao->getSuggestionList();
+        foreach ($suggestion_objects as $suggestion) {
+          if ($suggestion->isExecuted()) {
+            $execution_info['date'] = $suggestion->isExecuted();
+            $execution_info['visualization'] = $suggestion->visualize_execution($btx_bao);
+            break;
+          }
+        }
+        $this->assign('execution_info', $execution_info);
+
+      } else {
+        // this is an open (new or analysed) BTX:  create suggestion list
+        $suggestions = array();
+        $suggestion_objects = $btx_bao->getSuggestionList();
+        foreach ($suggestion_objects as $suggestion) {
+          $color = $this->translateProbability($suggestion->getProbability() * 100);
+            array_push($suggestions, array(
+                'hash' => $suggestion->getHash(),
+                'probability' => sprintf('%d&nbsp;%%', ($suggestion->getProbability() * 100)),
+                'color' => $color,
+                'visualization' => $suggestion->visualize($btx_bao),
+                'title' => $suggestion->getTitle(),
+                'actions' => $suggestion->getActions(),
+            ));
+        }
+        $this->assign('suggestions', $suggestions);
       }
-      $this->assign('suggestions', $suggestions);
 
       // URLs
       $this->assign('url_run', banking_helper_buildURL('civicrm/banking/review',  $this->_pageParameters(array('id'=>$pid, 'run'=>1))));

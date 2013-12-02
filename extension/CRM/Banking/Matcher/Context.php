@@ -42,6 +42,7 @@ class CRM_Banking_Matcher_Context {
   		$name_mutations[] = $reduced_name;
   		$name_mutations[] = array_reverse($reduced_name);
   	}
+
   	// query quicksearch for each combination
   	foreach ($name_mutations as $name_bits) {
 	  	$query = array('version' => 3);

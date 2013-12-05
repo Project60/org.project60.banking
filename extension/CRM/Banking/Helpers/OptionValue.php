@@ -34,7 +34,7 @@ function banking_helper_optiongroupid_by_name($group_name) {
     }
 
     if (!isset($result['id'])) {
-        CRM_Core_Error::warn(sprintf(ts("Couldn't find group '%s'!"), $group_name));
+        error_log("org.project60.banking: Couldn't find option group '$group_name'!");
         return 0;    
     }
 
@@ -60,7 +60,7 @@ function banking_helper_optionvalueid_by_name($group_id, $value_name) {
     }
 
     if (!isset($result['id'])) {
-        CRM_Core_Error::warn(sprintf(ts("Couldn't find value '%s'!"), $value_name));
+        error_log("org.project60.banking: Couldn't find option value '$value_name'!");
         return 0;    
     }
 
@@ -85,7 +85,8 @@ function banking_helper_optionvalue_by_name($group_id, $value_name) {
     }
 
     if (!isset($result['id'])) {
-        CRM_Core_Error::warn(sprintf(ts("Couldn't find value '%s'!"), $value_name));
+        //CRM_Core_Error::error(sprintf(ts("Couldn't find value '%s'!"), $value_name));
+        error_log("org.project60.banking: Couldn't find option value '$value_name'!");
         return 0;    
     }
 

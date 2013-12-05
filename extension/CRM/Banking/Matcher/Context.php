@@ -21,13 +21,18 @@ class CRM_Banking_Matcher_Context {
    * @return array(contact_id => similarity), where similarity is from [0..1]
    */
   public function lookupContactByName($name, $parameters=array()) {
-
-  	// TODO: check for cached data
-  	$contacts_found = array();
-
     if (!$name) {
       // no name given, no results:
+      return array();
+    }
+
+    // check the cache first
+    $cache_key = "banking.matcher.context.name_lookup.$name";
+    $contacts_found = $this->getCachedEntry($cache_key);
+    if ($contacts_found!=NULL) {
       return $contacts_found;
+    } else {
+      $contacts_found = array();
     }
 
   	// create some mutations, since quick search is a bit picky
@@ -88,11 +93,32 @@ class CRM_Banking_Matcher_Context {
       }
     }
 
-    // TODO: cache results
+    // update the cache
+    $this->setCachedEntry($cache_key, $contacts_found);
 
   	return $contacts_found;
   }
 
+
+  /**
+   * Will check if the given key is set in the cache
+   *
+   * @return the previously stored value, or NULL
+   */
+  public function getCachedEntry($key) {
+    if (isset($_caches[$key])) {
+      return $_caches[$key];
+    } else {
+      return NULL;      
+    }
+  }
+
+  /**
+   * Set the given cache value
+   */
+  public function setCachedEntry($key, $value) {
+    $_caches[$key] = $value;
+  }
 
   /**
    * Will rate a contribution on whether it would match the bank payment

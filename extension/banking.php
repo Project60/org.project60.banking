@@ -87,24 +87,51 @@ function banking_civicrm_options() {
           'title' => 'CiviBanking plugin types',
           'description' => 'The set of possible CiviBanking plugin types',
           'values' => array(
-              'dummy' => array(
+              'importer_dummy' => array(
                   'label' => 'Dummy Data Importer Plugin',
                   'value' => 'CRM_Banking_PluginImpl_Dummy',
+                  'description' => 'For testing purposes only',
                   'is_default' => 0,
               ),
-              'generic' => array(
+              'importer_csv' => array(
+                  'label' => 'Configurable CSV Importer',
+                  'value' => 'CRM_Banking_PluginImpl_CSVImporter',
+                  'description' => 'This importer should be configurable to import any CSV based data.',
+                  'is_default' => 0,
+              ),
+              'matcher_generic' => array(
                   'label' => 'Generic Matcher Plugin',
                   'value' => 'CRM_Banking_PluginImpl_Matcher_Generic',
                   'is_default' => 0,
               ),
-              'yes' => array(
+              'matcher_yes' => array(
                   'label' => 'Dummy Matcher Test Plugin',
                   'value' => 'CRM_Banking_PluginImpl_Matcher_Yes',
+                  'description' => 'For testing purposes only',
                   'is_default' => 0,
               ),
-              'csv_import' => array(
-                  'label' => 'Configurable CSV Importer',
-                  'value' => 'CRM_Banking_PluginImpl_CSVImporter',
+              'matcher_default' => array(
+                  'label' => 'Default Options Matcher',
+                  'value' => 'CRM_Banking_PluginImpl_Matcher_DefaultOptions',
+                  'description' => 'Generates default options, namely "ignore" and "process manually"',
+                  'is_default' => 0,
+              ),
+              'matcher_ignore' => array(
+                  'label' => 'Ignore Matcher',
+                  'value' => 'CRM_Banking_PluginImpl_Matcher_Ignore',
+                  'description' => 'Can be configured to ignore a payment when certain patterns are detected.',
+                  'is_default' => 0,
+              ),
+              'matcher_contribution' => array(
+                  'label' => 'Contribution Matcher',
+                  'value' => 'CRM_Banking_PluginImpl_Matcher_ExistingContribution',
+                  'description' => 'Will match the payment to existing (pending) contributions.',
+                  'is_default' => 0,
+              ),
+              'matcher_batch' => array(
+                  'label' => 'Batch Matcher',
+                  'value' => 'CRM_Banking_PluginImpl_Matcher_Batches',
+                  'description' => 'Tries to identify payments that settle contribution batches.',
                   'is_default' => 0,
               ),
           ),

@@ -5,6 +5,6 @@
 	"export_date_to_payment_max": "+30 days",
 	"export_date_to_payment_delay": "+3 days",
 	"export_date_to_payment_tolerance": "2 days",
-	"total_amount_tolerance": 0.00,
+	"total_amount_tolerance": 0.10,
 	"exclude_batches_older_than": "1 year"
 }

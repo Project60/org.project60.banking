@@ -292,8 +292,10 @@
       <a href="{$url_run}" class="button"><span title="{ts}Match (again){/ts}"><div class="icon preview-icon"></div>{ts}Match (again){/ts}</span></a>
       {if isset($url_skip_forward)}
         <a href="#" onClick="execute_selected()" class="button"><span title="{ts}Confirm and Continue{/ts}"><div class="icon next-icon"></div>{ts}Confirm and Continue{/ts}</span></a>
+        <a href="{$url_skip_forward}" class="button"><span title="{ts}Skip{/ts}"><div class="icon next-icon"></div>{ts}Skip{/ts}</span></a>
       {else}
         <a href="#" onClick="execute_selected()" class="button"><span title="{ts}Confirm and Exit{/ts}"><div class="icon next-icon"></div>{ts}Confirm and Exit{/ts}</span></a>
+        <a href="{$url_back}" class="button"><span title="{ts}Skip and Exit{/ts}"><div class="icon next-icon"></div>{ts}Skip and Exit{/ts}</span></a>
       {/if}
     {else}
       <a href="{$url_skip_forward}" class="button"><span title="{ts}Skip{/ts}"><div class="icon next-icon"></div>{ts}Next{/ts}</span></a>    

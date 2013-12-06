@@ -957,3 +957,19 @@ msgstr ""
 #: templates/CRM/Banking/Page/Review.tpl
 msgid "on"
 msgstr ""
+
+#: on/CRM/Banking/Page/Review.php
+msgid "This payment was <b>processed</b> on %s."
+msgstr ""
+
+#: on/CRM/Banking/Page/Review.php
+msgid "This payment was marked to be <b>ignored</b> on %s."
+msgstr ""
+
+#: on/CRM/Banking/PluginImpl/Matcher/Rule.php
+msgid "Because :"
+msgstr ""
+
+#: templates/CRM/Banking/Page/Payments.tpl
+msgid "Payment count"
+msgstr ""

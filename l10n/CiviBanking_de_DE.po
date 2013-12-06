@@ -946,3 +946,19 @@ msgstr "Diese Zahlung ist"
 msgid "on"
 msgstr ""
 
+#: on/CRM/Banking/Page/Review.php
+msgid "This payment was <b>processed</b> on %s."
+msgstr "Diese Zahlung wurde bereits am %s verarbeitet."
+
+#: on/CRM/Banking/Page/Review.php
+msgid "This payment was marked to be <b>ignored</b> on %s."
+msgstr "Diese Zahlung wurde am %s als <b>irrelevant</b> markiert."
+
+#: on/CRM/Banking/PluginImpl/Matcher/Rule.php
+msgid "Because :"
+msgstr "Begründung:"
+
+#: templates/CRM/Banking/Page/Payments.tpl
+msgid "Payment count"
+msgstr "Anzahl"
+

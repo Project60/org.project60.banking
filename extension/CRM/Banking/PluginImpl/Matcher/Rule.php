@@ -121,7 +121,7 @@ class CRM_Banking_PluginImpl_Matcher_Rule extends CRM_Banking_PluginModel_Matche
   }
 
   function visualize_match(CRM_Banking_Matcher_Suggestion $match, $btx) {
-    $s = '<ul>Because :';
+    $s = '<ul>'.ts("Because :");
     $evidence = $match->getEvidence();
     foreach ($evidence as $ev) {
       $s .= '<li>' . $ev . '</li>';

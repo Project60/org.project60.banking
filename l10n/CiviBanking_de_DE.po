@@ -551,7 +551,7 @@ msgstr "Mit der Auswahl durchführen:"
 
 #: templates/CRM/Banking/Page/Payments.tpl
 msgid "Review"
-msgstr "Durchgehen"
+msgstr "Verarbeiten"
 
 #: templates/CRM/Banking/Page/Payments.tpl
 msgid "Process"
@@ -583,7 +583,7 @@ msgstr "Ausz. #"
 
 #: templates/CRM/Banking/Page/Review.tpl
 msgid "Trans. #"
-msgstr "Zahlg.#"
+msgstr "Zahlg. #"
 
 #: templates/CRM/Banking/Page/Review.tpl
 #: on/CRM/Banking/PluginImpl/Matcher/DefaultOptions.php
@@ -871,7 +871,7 @@ msgstr "Zuwendung erstellen für:"
 
 #: on/CRM/Banking/PluginImpl/Matcher/DefaultOptions.php
 msgid "add contact ID to list"
-msgstr "Kontakt ID hinzu"
+msgstr "Kontakt mit ID hinzufügen"
 
 #: on/CRM/Banking/PluginImpl/Matcher/DefaultOptions.php
 msgid "add empty contribution"
@@ -924,7 +924,7 @@ msgstr "Kontoauszug"
 
 #: templates/CRM/Banking/Page/Payments.tpl
 msgid "Payment count<"
-msgstr "Anzahl"
+msgstr "Anzahl<"
 
 #: templates/CRM/Banking/Page/Payments.tpl
 msgid "Analysed<"

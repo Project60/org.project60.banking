@@ -130,10 +130,10 @@
       <div class="DataTables_sort_wrapper">{ts}Date{/ts}<!--span class="DataTables_sort_icon css_right ui-icon ui-icon-carat-2-n-s"></span--></div>
     </th>
     <th colspan="1" rowspan="1" class="crm-banking-payment_amount ui-state-default">
-      <div class="DataTables_sort_wrapper">{ts}Payment count<{/ts}!--span class="DataTables_sort_icon css_right ui-icon ui-icon-carat-2-n-s"></span--></div>
+      <div class="DataTables_sort_wrapper">{ts}Payment count{/ts}<!--span class="DataTables_sort_icon css_right ui-icon ui-icon-carat-2-n-s"></span--></div>
     </th>
     <th colspan="1" rowspan="1" class="crm-banking-payment_source_account nosort ui-state-default">
-      <div class="DataTables_sort_wrapper">{ts}Analysed<{/ts}!--span class="DataTables_sort_icon css_right ui-icon ui-icon-carat-2-n-s"></span--></div>
+      <div class="DataTables_sort_wrapper">{ts}Analysed{/ts}<!--span class="DataTables_sort_icon css_right ui-icon ui-icon-carat-2-n-s"></span--></div>
     </th>
     <th colspan="1" rowspan="1" class="crm-banking-payment_source_account nosort ui-state-default">
       <div class="DataTables_sort_wrapper">{ts}Completed{/ts}<!--span class="DataTables_sort_icon css_right ui-icon ui-icon-carat-2-n-s"></span--></div>

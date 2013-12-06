@@ -104,7 +104,6 @@ class CRM_Banking_Page_Review extends CRM_Core_Page {
 
       // check if closed ('processed' or 'ignored')
       if ($choices[$btx_bao->status_id]['name']=='processed' || $choices[$btx_bao->status_id]['name']=='ignored') {
-
         // this is a closed BTX, generate execution information
         $execution_info = array();
         $execution_info['status'] = $choices[$btx_bao->status_id]['name'];
@@ -117,6 +116,16 @@ class CRM_Banking_Page_Review extends CRM_Core_Page {
           }
         }
         $this->assign('execution_info', $execution_info);
+
+        // generate message
+        // FIXME: Date formatting
+        $execution_date = $execution_info['date'];        
+        if ($choices[$btx_bao->status_id]['name']=='processed') {
+          $message = sprintf(ts("This payment was <b>processed</b> on %s."), $execution_date);
+        } else {
+          $message = sprintf(ts("This payment was marked to be <b>ignored</b> on %s."), $execution_date);
+        }
+        $this->assign('status_message', $message);
 
       } else {
         // this is an open (new or analysed) BTX:  create suggestion list

@@ -31,12 +31,9 @@ class CRM_Banking_PluginImpl_Matcher_ExistingContribution extends CRM_Banking_Pl
     $contacts_found = array();
 
     // ideally, we'd use the contact identified by the bank account
-    if ($btx->party_ba_id) {
-      $account = new CRM_Banking_BAO_BankAccount();
-      $account->get('id', $btx->party_ba_id);
-      if ($account->contact_id) {
-        $contacts_found[$account->contact_id] = 1.0;
-      }
+    $account_contact_id = $context->getAccountContact();
+    if ($account_contact_id) {
+      $contacts_found[$account_contact_id] = 1.0;
     }
 
     // otherwise try to find matching, open contributions

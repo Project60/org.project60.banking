@@ -99,6 +99,28 @@ class CRM_Banking_Matcher_Context {
   	return $contacts_found;
   }
 
+  /**
+   * If the payment was associated with a (source) account, this
+   *  function looks up the account's owner contact ID
+   */
+  public function getAccountContact() {
+    $contact_id = $this->getCachedEntry('_account_contact_id');
+    if ($contact_id===NULL) {
+      if ($this->btx->party_ba_id) {
+        $account = new CRM_Banking_BAO_BankAccount();
+        $account->get('id', $this->btx->party_ba_id);
+        if ($account->contact_id) {
+          $contact_id = $account->contact_id;
+        } else {
+          $contact_id = 0;
+        }
+      } else {
+        $contact_id = 0;
+      }
+      $this->setCachedEntry('_account_contact_id', $contact_id);
+    }
+    return $contact_id;
+  }
 
   /**
    * Will check if the given key is set in the cache
@@ -106,8 +128,8 @@ class CRM_Banking_Matcher_Context {
    * @return the previously stored value, or NULL
    */
   public function getCachedEntry($key) {
-    if (isset($_caches[$key])) {
-      return $_caches[$key];
+    if (isset($this->_caches[$key])) {
+      return $this->_caches[$key];
     } else {
       return NULL;      
     }
@@ -117,7 +139,7 @@ class CRM_Banking_Matcher_Context {
    * Set the given cache value
    */
   public function setCachedEntry($key, $value) {
-    $_caches[$key] = $value;
+    $this->_caches[$key] = $value;
   }
 
   /**

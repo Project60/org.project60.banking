@@ -45,6 +45,14 @@ class CRM_Banking_PluginImpl_Matcher_DefaultOptions extends CRM_Banking_PluginMo
         // add related contacts
         $data_parsed = $btx->getDataParsed();
         $contacts = $context->lookupContactByName($data_parsed['name']);
+
+        // add the contact that is related with the account (if identified)
+        $account_contact_id = $context->getAccountContact();        
+        if ($account_contact_id) {
+          $contacts[$account_contact_id] = 1.0;
+        }
+
+        // then sort by probability
         arsort($contacts, SORT_NUMERIC);
         $manually_processed->setParameter('contact_ids', implode(',', array_keys($contacts)));
 

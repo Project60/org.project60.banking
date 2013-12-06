@@ -148,14 +148,13 @@ class CRM_Banking_PluginImpl_Matcher_DefaultOptions extends CRM_Banking_PluginMo
   function visualize_match( CRM_Banking_Matcher_Suggestion $match, $btx) {
     if ($match->getId() === "manual") {
       $contact_ids = $match->getParameter('contact_ids');
-      //$contact_list = array("Björn Björnson (Björnstr. 12, Bonn)", "Simon Simonson (Simonstr. 12, Frankfurt)");
-
       $data_parsed = $btx->getDataParsed();
       $booking_date = date('YmdHis', strtotime($btx->booking_date));
       $status_pending = banking_helper_optionvalue_by_groupname_and_name('contribution_status', 'Pending');
       $new_contribution_link = CRM_Utils_System::url("civicrm/contribute/add", "reset=1&action=add&context=standalone");
       $edit_contribution_link = CRM_Utils_System::url("civicrm/contact/view/contribution", "action=update&reset=1&id=__contributionid__&cid=__contactid__&context=home");
       $view_contribution_link = CRM_Utils_System::url("civicrm/contact/view/contribution", "action=view&reset=1&id=__contributionid__&cid=__contactid__&context=home");
+      $view_contact_link = CRM_Utils_System::url("civicrm/contact/view", "reset=1&cid=__contactid__");
 
       $snippet  = "<div>" . ts("Please manually process this payment and <i>then</i> add the resulting contributions to this list, <b><i>before</i></b> confirming this option.");
       $snippet .= "<input type=\"hidden\" id=\"manual_match_contributions\" name=\"manual_match_contributions\" value=\"\"/></div>";    // this will hold the list of contribution ids
@@ -163,8 +162,9 @@ class CRM_Banking_PluginImpl_Matcher_DefaultOptions extends CRM_Banking_PluginMo
 
       // add contact level
       $snippet .= "<br/><a class=\"button\" onclick=\"manual_match_create_contribution();\"><span><div class=\"icon add-icon\"></div>" . ts("add new contribution for:") . "</span></a>";
-      $snippet .= "<select style=\"float:left;\" id=\"manual_match_contact_selector\">";
-      $snippet .= "</select><div style=\"float:left;\">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</div>";
+      $snippet .= "<select style=\"float:left;\" id=\"manual_match_contact_selector\"></select>";
+      $snippet .= "<div onclick=\"manual_match_show_selected_contact();\" class=\"ui-icon ui-icon-circle-arrow-e\" style=\"float:left;\"></div>";
+      $snippet .= "<div style=\"float:left;\">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</div>";
       $snippet .= "<a class=\"button\" onclick=\"manual_match_add_contact();\"><span><div class=\"icon add-icon\"></div>" . ts("add contact ID to list") . ":</span></a>";
       $snippet .= "<input id=\"manual_match_add_contact_input\" onkeydown=\"if (event.keyCode == 13) return manual_match_add_contact();\" type=\"text\" style=\"width: 4em; height: 1.4em;\"></input>";
 
@@ -462,6 +462,20 @@ class CRM_Banking_PluginImpl_Matcher_DefaultOptions extends CRM_Banking_PluginMo
                 cj("#manual_match_contributions").val(list.join());
               }
               manual_match_refresh_list();
+          }
+
+          /** 
+           * will open a contact view with the selected panel
+           */
+          function manual_match_show_selected_contact() {
+              // get contact_id from selector
+              var contact_id = cj("#manual_match_contact_selector").val();
+              if (contact_id) {
+                // open link
+                var link = cj("<div/>").html("'.$view_contact_link.'").text();
+                link = link.replace("__contactid__", contact_id);
+                window.open(link, "_blank");
+              }
           }
           
           // call some updates once...

@@ -6,7 +6,7 @@ msgstr ""
 "Last-Translator: Bjoern Endres <Bjoern.Endres@didonai.com>\n"
 "Language-Team: \n"
 "MIME-Version: 1.0\n"
-"Content-Type: text/plain; charset=iso-8859-1\n"
+"Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "X-Generator: Poedit 1.5.7\n"
 
@@ -36,11 +36,11 @@ msgstr "Bankkonto ID"
 #: on/CRM/Banking/DAO/BankTransaction.php
 #: on/CRM/Banking/DAO/BankTransactionBatch.php
 msgid "Currency"
-msgstr "Währung"
+msgstr "WÃ¤hrung"
 
 #: on/CRM/Banking/PluginImpl/Coda.php on/CRM/Banking/PluginModel/Importer.php
 msgid "Internal error: trying to open BTX batch before closing an old one."
-msgstr "Programmfehler: Versuche eine BTX-Gruppe zu öffnen, bevor die alte geschlossen wurde."
+msgstr "Programmfehler: Versuche eine BTX-Gruppe zu Ã¶ffnen, bevor die alte geschlossen wurde."
 
 #: on/CRM/Banking/BAO/PluginInstance.php
 msgid "Couldn't find type '%s' in group %d!"
@@ -52,11 +52,11 @@ msgstr "Konnte Plugin-Liste nicht von der API abrufen!"
 
 #: on/CRM/Banking/BAO/PluginInstance.php
 msgid "Could not locate the class name for civicrm_banking.plugin_classes member %d."
-msgstr "Der Klassenname für 'civicrm_banking.plugin_classes'-Mitglied konnte nicht gefunden werden."
+msgstr "Der Klassenname fÃ¼r 'civicrm_banking.plugin_classes'-Mitglied konnte nicht gefunden werden."
 
 #: on/CRM/Banking/BAO/PluginInstance.php
 msgid "This plugin requires class %s which does not seem to exist."
-msgstr "Dieses Plugin benötigt Klasse %s, die aber aber nicht gefunden werden konnte."
+msgstr "Dieses Plugin benÃ¶tigt Klasse %s, die aber aber nicht gefunden werden konnte."
 
 #: on/CRM/Banking/DAO/BankAccount.php
 msgid "Date created"
@@ -64,7 +64,7 @@ msgstr "Datum angelegt"
 
 #: on/CRM/Banking/DAO/BankAccount.php
 msgid "Date modified"
-msgstr "Datum geändert"
+msgstr "Datum geÃ¤ndert"
 
 #: on/CRM/Banking/DAO/BankAccount.php
 msgid "Contact ID"
@@ -117,7 +117,7 @@ msgstr "Lfd. Nummer"
 #: on/CRM/Banking/DAO/BankTransaction.php
 #: templates/CRM/Banking/Page/Review.tpl
 msgid "Suggestions"
-msgstr "Vorschläge"
+msgstr "VorschlÃ¤ge"
 
 #: on/CRM/Banking/DAO/BankTransactionBatch.php
 msgid "Issue date"
@@ -195,7 +195,7 @@ msgstr "Konnte Wert '%s'! nicht finden"
 
 #: on/CRM/Banking/Helpers/OptionValue.php
 msgid "Error while looking up option values for group '%s'!"
-msgstr "Fehler beim Suchen nach option values für Gruppe '%s'!"
+msgstr "Fehler beim Suchen nach option values fÃ¼r Gruppe '%s'!"
 
 #: on/CRM/Banking/Matcher/Engine.php
 msgid "Error while trying to query database for matcher plugins!"
@@ -211,7 +211,7 @@ msgstr "Keine Matcher Plugins konfiguriert!"
 
 #: on/CRM/Banking/Matcher/Suggestion.php
 msgid "Matcher tried to override BTX object with different entity"
-msgstr "Programmfehler: der Matcher versuchte ein BTX zu überschreiben."
+msgstr "Programmfehler: der Matcher versuchte ein BTX zu Ã¼berschreiben."
 
 #: on/CRM/Banking/Matcher/Suggestion.php
 msgid "Matcher Failure"
@@ -223,7 +223,7 @@ msgstr "Programmfehler: keine ID zum Laden der BTX"
 
 #: on/CRM/Banking/Matcher/Suggestion.php
 msgid "Matcher tried to override plugin object with different entity"
-msgstr "Programmfehler: der Matcher versuchte ein Plugin zu überschreiben."
+msgstr "Programmfehler: der Matcher versuchte ein Plugin zu Ã¼berschreiben."
 
 #: on/CRM/Banking/Matcher/Suggestion.php
 msgid "Could not load plugin object, no id stored."
@@ -231,7 +231,7 @@ msgstr "Programmfehler: keine ID zum Landen des Plugins"
 
 #: on/CRM/Banking/Matcher/Suggestion.php
 msgid "Cannot add evidence outside [0,1] range, assuming 1"
-msgstr "Programmfehler: Wahrscheinlichkeitsangabe außerhalb von [0..1], wird als 1 gewertet."
+msgstr "Programmfehler: Wahrscheinlichkeitsangabe auÃŸerhalb von [0..1], wird als 1 gewertet."
 
 #: on/CRM/Banking/Matcher/Suggestion.php
 msgid "Warning: bad matcher evidence"
@@ -247,7 +247,7 @@ msgstr "Konten"
 
 #: on/CRM/Banking/Page/Dashboard.php
 msgid "CiviBanking Dashboard"
-msgstr "CiviBanking Übersicht"
+msgstr "CiviBanking Ãœbersicht"
 
 #: on/CRM/Banking/Page/Import.php
 msgid "Bank Payment Importer"
@@ -271,7 +271,7 @@ msgstr "Fehlerhafter Eingabestream"
 
 #: on/CRM/Banking/Page/Import.php
 msgid "Importer needs a file to proceed."
-msgstr "Der Importer benötigt eine Datei um fortzufahren"
+msgstr "Der Importer benÃ¶tigt eine Datei um fortzufahren"
 
 #: on/CRM/Banking/Page/Import.php
 msgid "No input file"
@@ -300,7 +300,7 @@ msgstr "Zahlungen"
 
 #: on/CRM/Banking/Page/Payments.php
 msgid "statements"
-msgstr "Auszüge"
+msgstr "AuszÃ¼ge"
 
 #: on/CRM/Banking/Page/Payments.php
 msgid "not yet identified."
@@ -308,19 +308,19 @@ msgstr "noch nicht identifiziert."
 
 #: on/CRM/Banking/Page/Payments.php
 msgid "Failed to delete %d of %d selected %s."
-msgstr "Konnte %d von %d ausgewählten nicht löschen %s."
+msgstr "Konnte %d von %d ausgewÃ¤hlten nicht lÃ¶schen %s."
 
 #: on/CRM/Banking/Page/Payments.php
 msgid "Deletion problems"
-msgstr "Probleme beim Löschen"
+msgstr "Probleme beim LÃ¶schen"
 
 #: on/CRM/Banking/Page/Payments.php
 msgid "Deleted %d selected %s."
-msgstr "Gelöscht %d ausgewählt %s."
+msgstr "GelÃ¶scht %d ausgewÃ¤hlt %s."
 
 #: on/CRM/Banking/Page/Payments.php
 msgid "Deletion succesfull"
-msgstr "Erfolgreich gelöscht"
+msgstr "Erfolgreich gelÃ¶scht"
 
 #: on/CRM/Banking/Page/Payments.php
 msgid "Analysed %d payments."
@@ -336,7 +336,7 @@ msgstr "Programmfehler: Abfrage von BTX mit Parameter '%s'."
 
 #: on/CRM/Banking/Page/Review.php
 msgid "Review Bank Transaction"
-msgstr "Zahlung bestätigen"
+msgstr "Zahlung bestÃ¤tigen"
 
 #: on/CRM/Banking/Page/SEPAMandates.php
 msgid "SEPAMandates"
@@ -352,11 +352,11 @@ msgstr "Pattern '%s\" konnte im Eintrag '%s\" nicht gefunden werden."
 
 #: on/CRM/Banking/PluginImpl/CSVImporter.php
 msgid "Importing streams not supported by this plugin."
-msgstr "Das Importieren von Streams wird von diesem Plugin nicht unterstützt."
+msgstr "Das Importieren von Streams wird von diesem Plugin nicht unterstÃ¼tzt."
 
 #: on/CRM/Banking/PluginImpl/Coda.php
 msgid "Processing CODA statement %s for account %s"
-msgstr "Verarbeite CODA statement %s für Konto %s"
+msgstr "Verarbeite CODA statement %s fÃ¼r Konto %s"
 
 #: on/CRM/Banking/PluginImpl/Matcher/Generic.php
 msgid "the transaction amount is in the range [ "
@@ -368,7 +368,7 @@ msgstr "Das Transaktionsdatum ist zwischen ["
 
 #: on/CRM/Banking/PluginImpl/Matcher/Generic.php
 msgid "the transaction purpose matches the expression \"%s\""
-msgstr "Der Verwendungszweck stimmt überein mit: \"%s\""
+msgstr "Der Verwendungszweck stimmt Ã¼berein mit: \"%s\""
 
 #: on/CRM/Banking/PluginModel/Importer.php
 msgid "Adjusted ending balance from %s to %s!"
@@ -376,11 +376,11 @@ msgstr "Endsaldo angepasst von %s zu %s!"
 
 #: on/CRM/Banking/PluginModel/Importer.php
 msgid "Internal error: trying to close a nonexisting BTX batch."
-msgstr "Programmfehler: Versuch eine inexistente BTX Gruppe / Kontoauszug zu schließen."
+msgstr "Programmfehler: Versuch eine inexistente BTX Gruppe / Kontoauszug zu schlieÃŸen."
 
 #: on/CRM/Banking/PluginModel/Importer.php
 msgid "WARNING: multiple currency batches not fully supported"
-msgstr "WARNUNG: Batches mit mehreren Währungen werden nicht voll unterstützt"
+msgstr "WARNUNG: Batches mit mehreren WÃ¤hrungen werden nicht voll unterstÃ¼tzt"
 
 #: on/CRM/Banking/PluginModel/Importer.php
 msgid "Failed to query BTX."
@@ -400,7 +400,7 @@ msgstr "Fehler beim Ablegen von BTX: %s"
 
 #: on/CRM/Banking/PluginModel/Importer.php
 msgid "Created BTX <b>%d</b> for <b>%s %s</b> on %s"
-msgstr "Zahlung <b>%d</b> für <b>%s %s</b> erzeugt, %s"
+msgstr "Zahlung <b>%d</b> fÃ¼r <b>%s %s</b> erzeugt, %s"
 
 #: templates/CRM/Banking/Page/AccountSearch.tpl
 msgid "Search Criteria"
@@ -428,15 +428,15 @@ msgstr "Entschuldigung, keine Konten entsprechen Ihrer Suche!"
 
 #: templates/CRM/Banking/Page/Import.tpl
 msgid "Select Importer"
-msgstr "Importer auswählen"
+msgstr "Importer auswÃ¤hlen"
 
 #: templates/CRM/Banking/Page/Import.tpl
 msgid "Choose configuration"
-msgstr "Konfiguration auswählen"
+msgstr "Konfiguration auswÃ¤hlen"
 
 #: templates/CRM/Banking/Page/Import.tpl
 msgid "select"
-msgstr "auswählen"
+msgstr "auswÃ¤hlen"
 
 #: templates/CRM/Banking/Page/Import.tpl
 msgid "Import Options"
@@ -460,7 +460,7 @@ msgstr "Importieren!"
 
 #: templates/CRM/Banking/Page/Manager.tpl
 msgid "Interface"
-msgstr "Oberfläche"
+msgstr "OberflÃ¤che"
 
 #: templates/CRM/Banking/Page/Manager.tpl
 msgid "Profiles"
@@ -472,7 +472,7 @@ msgstr "Matcher"
 
 #: templates/CRM/Banking/Page/Manager.tpl
 msgid "Review Required"
-msgstr "Überprüfung erforderlich"
+msgstr "ÃœberprÃ¼fung erforderlich"
 
 #: templates/CRM/Banking/Page/Manager.tpl
 msgid "Enabled?"
@@ -485,15 +485,15 @@ msgstr "Bearbeiten"
 #: templates/CRM/Banking/Page/Manager.tpl
 #: templates/CRM/Banking/Page/Payments.tpl
 msgid "Delete"
-msgstr "Löschen"
+msgstr "LÃ¶schen"
 
 #: templates/CRM/Banking/Page/Manager.tpl
 msgid "Add Profile"
-msgstr "Profil hinzufügen"
+msgstr "Profil hinzufÃ¼gen"
 
 #: templates/CRM/Banking/Page/Payments.tpl
 msgid "Show Statements"
-msgstr "Kontoauszüge anzeigen"
+msgstr "KontoauszÃ¼ge anzeigen"
 
 #: templates/CRM/Banking/Page/Payments.tpl
 msgid "Show Payments"
@@ -539,15 +539,15 @@ msgstr "Gegenseite"
 
 #: templates/CRM/Banking/Page/Payments.tpl
 msgid "Select all"
-msgstr "Alle auswählen"
+msgstr "Alle auswÃ¤hlen"
 
 #: templates/CRM/Banking/Page/Payments.tpl
 msgid "Select none"
-msgstr "Alle abwählen"
+msgstr "Alle abwÃ¤hlen"
 
 #: templates/CRM/Banking/Page/Payments.tpl
 msgid "With selected items perform:"
-msgstr "Mit der Auswahl durchführen:"
+msgstr "Mit der Auswahl durchfÃ¼hren:"
 
 #: templates/CRM/Banking/Page/Payments.tpl
 msgid "Review"
@@ -621,27 +621,27 @@ msgstr "(erneut) Analysieren"
 
 #: templates/CRM/Banking/Page/Review.tpl
 msgid "Confirm and Continue"
-msgstr "Bestätigen und weiter"
+msgstr "BestÃ¤tigen und weiter"
 
 #: templates/CRM/Banking/Page/Review.tpl
 msgid "Skip"
-msgstr "Überspringen"
+msgstr "Ãœberspringen"
 
 #: templates/CRM/Banking/Page/Review.tpl
 msgid "Confirm and Exit"
-msgstr "Bestätigen und verlassen"
+msgstr "BestÃ¤tigen und verlassen"
 
 #: templates/CRM/Banking/Page/Review.tpl
 msgid "Skip and Exit"
-msgstr "Überspringen und verlassen"
+msgstr "Ãœberspringen und verlassen"
 
 #: templates/CRM/Banking/Page/Review.tpl
 msgid "Back to payment list"
-msgstr "Zurück zur Liste der Zahlungen"
+msgstr "ZurÃ¼ck zur Liste der Zahlungen"
 
 #: templates/CRM/Banking/Page/Review.tpl
 msgid "Suggestions "
-msgstr "Vorschläge"
+msgstr "VorschlÃ¤ge"
 
 #: templates/CRM/Banking/Page/Review.tpl
 msgid "Go ahead"
@@ -682,15 +682,15 @@ msgstr "Unbekannt"
 
 #: on/CRM/Banking/Page/Payments.php
 msgid "Internal limit of 1000 transactions hit. Please use smaller statments."
-msgstr "Internes Limit von 1000 Transaktionen erreicht. Bitte kleinere Auszüge verwenden"
+msgstr "Internes Limit von 1000 Transaktionen erreicht. Bitte kleinere AuszÃ¼ge verwenden"
 
 #: on/CRM/Banking/Page/Payments.php
 msgid "Internal restriction"
-msgstr "Interne Einschränkung"
+msgstr "Interne EinschrÃ¤nkung"
 
 #: on/CRM/Banking/Page/Review.php
 msgid "Selected suggestions disappeared. Suggestion NOT executed!"
-msgstr "Der ausgewählte Vorschlag existiert nicht mehr. Vorschlag nicht umgesetzt."
+msgstr "Der ausgewÃ¤hlte Vorschlag existiert nicht mehr. Vorschlag nicht umgesetzt."
 
 #: on/CRM/Banking/Page/Review.php
 msgid "Internal Error"
@@ -698,7 +698,7 @@ msgstr "Interner Fehler"
 
 #: on/CRM/Banking/PluginImpl/Matcher/DefaultOptions.php
 msgid "The contribution is not valid. The payment is NOT completed."
-msgstr "Die Zuwendung ist ungültig. Die Zahlung wurde nicht abgeschlossen."
+msgstr "Die Zuwendung ist ungÃ¼ltig. Die Zahlung wurde nicht abgeschlossen."
 
 #: on/CRM/Banking/PluginImpl/Matcher/DefaultOptions.php
 msgid "Payment NOT completed."
@@ -706,11 +706,11 @@ msgstr "Zahlung NICHT abgeschlossen."
 
 #: on/CRM/Banking/PluginImpl/Matcher/DefaultOptions.php
 msgid "No contribution given. The payment is NOT completed."
-msgstr "Keine Zuwendung gewählt. Die Zahlung wurde NICHT abgeschlossen."
+msgstr "Keine Zuwendung gewÃ¤hlt. Die Zahlung wurde NICHT abgeschlossen."
 
 #: on/CRM/Banking/PluginImpl/Matcher/DefaultOptions.php
 msgid "Please manually process this payment and <b>then</b> add the resulting contributions to this list."
-msgstr "Bitte verarbeiten Sie diese zahlung zuerst manuell und fügen <b>erst dann</b> die daraus resultierenden Zuwendungen zu dieser iste"
+msgstr "Bitte verarbeiten Sie diese zahlung zuerst manuell und fÃ¼gen <b>erst dann</b> die daraus resultierenden Zuwendungen zu dieser iste"
 
 #: on/CRM/Banking/PluginImpl/Matcher/DefaultOptions.php
 msgid "refresh"
@@ -722,7 +722,7 @@ msgstr "neu anlegen"
 
 #: on/CRM/Banking/PluginImpl/Matcher/DefaultOptions.php
 msgid "add by ID"
-msgstr "mit Hilfe von ID hinzufügen"
+msgstr "mit Hilfe von ID hinzufÃ¼gen"
 
 #: on/CRM/Banking/PluginImpl/Matcher/DefaultOptions.php
 msgid "sum"
@@ -747,7 +747,7 @@ msgstr "WARNUNG!"
 
 #: on/CRM/Banking/PluginImpl/Matcher/DefaultOptions.php
 msgid "No valid contribution ID given."
-msgstr "Keine gültige Zuwndungs-ID angeben."
+msgstr "Keine gÃ¼ltige Zuwndungs-ID angeben."
 
 #: on/CRM/Banking/PluginImpl/Matcher/ExistingContribution.php
 msgid "Contact was positively identified."
@@ -759,7 +759,7 @@ msgstr "Kontakt wurde sehr wahrscheinlich identifiziert"
 
 #: on/CRM/Banking/PluginImpl/Matcher/ExistingContribution.php
 msgid "Matching contribution found"
-msgstr "Übereinstimmende Zuwendung gefunden"
+msgstr "Ãœbereinstimmende Zuwendung gefunden"
 
 #: on/CRM/Banking/PluginImpl/Matcher/ExistingContribution.php
 msgid "A pending contribution matching the payment was found."
@@ -767,11 +767,11 @@ msgstr "Es wurde ein passende offene Zuwendung gefunden."
 
 #: on/CRM/Banking/PluginImpl/Matcher/ExistingContribution.php
 msgid "Possible matching contribution found"
-msgstr "Möglicherweise übereinstimmende Zuwendung gefunden"
+msgstr "MÃ¶glicherweise Ã¼bereinstimmende Zuwendung gefunden"
 
 #: on/CRM/Banking/PluginImpl/Matcher/ExistingContribution.php
 msgid "A pending contribution partially matching the payment was found."
-msgstr "Eine offene Zuwendung die teilweise mit einer Zahlung übereinstimmt wurde gefunden."
+msgstr "Eine offene Zuwendung die teilweise mit einer Zahlung Ã¼bereinstimmt wurde gefunden."
 
 #: on/CRM/Banking/PluginImpl/Matcher/ExistingContribution.php
 msgid "Donor"
@@ -787,15 +787,15 @@ msgstr "Programmfehler: Zuwendung nicht gefunden, ID #"
 
 #: templates/CRM/Banking/Page/Payments.tpl
 msgid "No payments could be found with the requested status. Try the other status filter buttons above to find your imported payments."
-msgstr "Keine Zahlungen mit dem gewählten Stats gefunden. Wählen Sie ggf. oben andere Filter um Ihre importierten Zahlungen zu finden."
+msgstr "Keine Zahlungen mit dem gewÃ¤hlten Stats gefunden. WÃ¤hlen Sie ggf. oben andere Filter um Ihre importierten Zahlungen zu finden."
 
 #: templates/CRM/Banking/Page/Payments.tpl
 msgid "No statments could be found with the requested status. Try the other status filter buttons above to find your imported statements."
-msgstr "Keine Kontoauszüge mit dem gewählten Stats gefunden. Wählen Sie ggf. oben andere Filter um Ihre importierten Kontoauszüge zu finden."
+msgstr "Keine KontoauszÃ¼ge mit dem gewÃ¤hlten Stats gefunden. WÃ¤hlen Sie ggf. oben andere Filter um Ihre importierten KontoauszÃ¼ge zu finden."
 
 #: templates/CRM/Banking/Page/Review.tpl
 msgid "Back"
-msgstr "Zurück"
+msgstr "ZurÃ¼ck"
 
 #: menu entry
 msgid "Manage Accounts"
@@ -831,7 +831,7 @@ msgstr "Zuwendungsgruppe abgeschlossen"
 
 #: on/CRM/Banking/PluginImpl/Matcher/Batches.php
 msgid "Some contribtions in batch %s are not in state 'pending', and override was not enabled. The payment was NOT processed!"
-msgstr "Einige Zuwendungen in Gruppe %s sind nicht offen, und 'überschreiben' wurde nicht gewählt. Die Zahlung wurde NICHT verarbeitet!"
+msgstr "Einige Zuwendungen in Gruppe %s sind nicht offen, und 'Ã¼berschreiben' wurde nicht gewÃ¤hlt. Die Zahlung wurde NICHT verarbeitet!"
 
 #: on/CRM/Banking/PluginImpl/Matcher/Batches.php
 msgid "Internal error! Cannot find batch #"
@@ -847,7 +847,7 @@ msgstr "WARNUNG! Nicht alle Zuwendungen sind offen!"
 
 #: on/CRM/Banking/PluginImpl/Matcher/Batches.php
 msgid "Override and set all contributions to 'completed' anyway."
-msgstr "Überschreiben und alle Zuwendungen abschließen"
+msgstr "Ãœberschreiben und alle Zuwendungen abschlieÃŸen"
 
 #: on/CRM/Banking/PluginImpl/Matcher/Batches.php
 msgid "All contributions of this batch will be set to 'completed'."
@@ -863,11 +863,11 @@ msgstr "Erstellt"
 
 #: on/CRM/Banking/PluginImpl/Matcher/DefaultOptions.php
 msgid "Please manually process this payment and <i>then</i> add the resulting contributions to this list, <b><i>before</i></b> confirming this option."
-msgstr "Bitte verarbeiten Sie diese Zahlung manuell und fügen <b>erst dann</b> die resultierenden Zuwendungen dieser Liste hinzu."
+msgstr "Bitte verarbeiten Sie diese Zahlung manuell und fÃ¼gen <b>erst dann</b> die resultierenden Zuwendungen dieser Liste hinzu."
 
 #: on/CRM/Banking/PluginImpl/Matcher/DefaultOptions.php
 msgid "add new contribution for:"
-msgstr "Zuwendung erstellen für:"
+msgstr "Zuwendung erstellen fÃ¼r:"
 
 #: on/CRM/Banking/PluginImpl/Matcher/DefaultOptions.php
 msgid "add contact ID to list"
@@ -879,7 +879,7 @@ msgstr "Leere Zuwendung erstellen"
 
 #: on/CRM/Banking/PluginImpl/Matcher/DefaultOptions.php
 msgid "add existing contribution by ID"
-msgstr "Zuwendung mit ID hinzufügen"
+msgstr "Zuwendung mit ID hinzufÃ¼gen"
 
 #: on/CRM/Banking/PluginImpl/Matcher/DefaultOptions.php
 msgid "unknown address"
@@ -887,7 +887,7 @@ msgstr "Adresse unbekannt"
 
 #: on/CRM/Banking/PluginImpl/Matcher/DefaultOptions.php
 msgid "No contact found... add manually &nbsp;&nbsp;&nbsp;=>"
-msgstr "Kein Kontakt gefunden... hinzufügen &nbsp;&nbsp;&nbsp;=>"
+msgstr "Kein Kontakt gefunden... hinzufÃ¼gen &nbsp;&nbsp;&nbsp;=>"
 
 #: on/CRM/Banking/PluginImpl/Matcher/DefaultOptions.php
 #: templates/CRM/Banking/Page/Payments.tpl
@@ -896,15 +896,15 @@ msgstr "Anzeigen"
 
 #: on/CRM/Banking/PluginImpl/Matcher/DefaultOptions.php
 msgid "No valid contact ID given."
-msgstr "Keine gültige Zuwedungs-ID angeben."
+msgstr "Keine gÃ¼ltige Zuwedungs-ID angeben."
 
 #: on/CRM/Banking/PluginImpl/Matcher/ExistingContribution.php
 msgid "A pending contribution partially matching the paymenty was found."
-msgstr "Eine einigermaßen passende offene Zuwendung wurde gefunden."
+msgstr "Eine einigermaÃŸen passende offene Zuwendung wurde gefunden."
 
 #: on/CRM/Banking/PluginModel/Matcher.php
 msgid "No further information available"
-msgstr "Keine weiteren Informationen verfügbar"
+msgstr "Keine weiteren Informationen verfÃ¼gbar"
 
 #: templates/CRM/Banking/Page/Import.tpl
 msgid "See Results"

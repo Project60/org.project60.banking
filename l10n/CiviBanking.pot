@@ -509,6 +509,7 @@ msgid "Analysed"
 msgstr ""
 
 #: templates/CRM/Banking/Page/Payments.tpl
+#: on/CRM/Banking/PluginImpl/Matcher/DefaultOptions.php
 msgid "Completed"
 msgstr ""
 
@@ -972,4 +973,12 @@ msgstr ""
 
 #: templates/CRM/Banking/Page/Payments.tpl
 msgid "Payment count"
+msgstr ""
+
+#: on/CRM/Banking/PluginImpl/Matcher/DefaultOptions.php
+msgid "This payment was manually matched to the following contributions:"
+msgstr ""
+
+#: on/CRM/Banking/PluginImpl/Matcher/DefaultOptions.php
+msgid "Contribution"
 msgstr ""

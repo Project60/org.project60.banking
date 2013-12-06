@@ -415,10 +415,6 @@ msgid "Also search additional account information"
 msgstr "Erweiterte Informationen in Suche mit einbeziehen"
 
 #: templates/CRM/Banking/Page/AccountSearch.tpl
-msgid "Search"
-msgstr ""
-
-#: templates/CRM/Banking/Page/AccountSearch.tpl
 msgid "accounts match your search"
 msgstr "Konten entsprechen Ihrer Suche"
 
@@ -508,6 +504,7 @@ msgid "Analysed"
 msgstr "Analysiert"
 
 #: templates/CRM/Banking/Page/Payments.tpl
+#: on/CRM/Banking/PluginImpl/Matcher/DefaultOptions.php
 msgid "Completed"
 msgstr "Abgeschlossen"
 
@@ -651,10 +648,6 @@ msgstr "Fortfahren"
 msgid "Go ahead as suggested"
 msgstr "Vorschlag annehmen"
 
-#: templates/CRM/Banking/Page/SEPAMandates.tpl
-msgid "(In your native language) The current time is %1."
-msgstr ""
-
 #: on/CRM/Banking/Matcher/Context.php
 #: on/CRM/Banking/PluginImpl/Matcher/DefaultOptions.php
 #: on/CRM/Banking/PluginImpl/Matcher/ExistingContribution.php
@@ -787,7 +780,7 @@ msgstr "Programmfehler: Zuwendung nicht gefunden, ID #"
 
 #: templates/CRM/Banking/Page/Payments.tpl
 msgid "No payments could be found with the requested status. Try the other status filter buttons above to find your imported payments."
-msgstr "Keine Zahlungen mit dem gewählten Stats gefunden. Wählen Sie ggf. oben andere Filter um Ihre importierten Zahlungen zu finden."
+msgstr "Keine Zahlungen mit dem gewählten Status gefunden. Wählen Sie ggf. oben andere Filter um Ihre importierten Zahlungen zu finden."
 
 #: templates/CRM/Banking/Page/Payments.tpl
 msgid "No statments could be found with the requested status. Try the other status filter buttons above to find your imported statements."
@@ -919,20 +912,8 @@ msgid "Target Account"
 msgstr "Zielkonto"
 
 #: templates/CRM/Banking/Page/Payments.tpl
-msgid "Statement"
-msgstr "Kontoauszug"
-
-#: templates/CRM/Banking/Page/Payments.tpl
-msgid "Payment count<"
-msgstr "Anzahl<"
-
-#: templates/CRM/Banking/Page/Payments.tpl
 msgid "Analysed<"
 msgstr "Analysiert<"
-
-#: templates/CRM/Banking/Page/Review.tpl
-msgid "Next"
-msgstr ""
 
 #: templates/CRM/Banking/Page/Review.tpl
 msgid "Exit"
@@ -941,10 +922,6 @@ msgstr "Verlassen"
 #: templates/CRM/Banking/Page/Review.tpl
 msgid "This payment was"
 msgstr "Diese Zahlung ist"
-
-#: templates/CRM/Banking/Page/Review.tpl
-msgid "on"
-msgstr ""
 
 #: on/CRM/Banking/Page/Review.php
 msgid "This payment was <b>processed</b> on %s."
@@ -961,4 +938,8 @@ msgstr "Begründung:"
 #: templates/CRM/Banking/Page/Payments.tpl
 msgid "Payment count"
 msgstr "Anzahl"
+
+#: on/CRM/Banking/PluginImpl/Matcher/DefaultOptions.php
+msgid "This payment was manually matched to the following contributions:"
+msgstr "Diese Zahlung wurde mit den folgenden Zuwendungen verknüpft:"
 

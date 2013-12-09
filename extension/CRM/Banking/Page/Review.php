@@ -118,8 +118,7 @@ class CRM_Banking_Page_Review extends CRM_Core_Page {
         $this->assign('execution_info', $execution_info);
 
         // generate message
-        // FIXME: Date formatting
-        $execution_date = $execution_info['date'];        
+        $execution_date = CRM_Utils_Date::customFormat($execution_info['date'], CRM_Core_Config::singleton()->dateformatFull);
         if ($choices[$btx_bao->status_id]['name']=='processed') {
           $message = sprintf(ts("This payment was <b>processed</b> on %s."), $execution_date);
         } else {

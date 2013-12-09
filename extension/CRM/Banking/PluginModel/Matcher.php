@@ -71,13 +71,13 @@ abstract class CRM_Banking_PluginModel_Matcher extends CRM_Banking_PluginModel_B
    * @return html code snippet
    */  
   function visualize_match( CRM_Banking_Matcher_Suggestion $match, $btx) {
-      $s = '<ul>Because :';
-      $evidence = $match->getEvidence();
-      foreach ($evidence as $ev) {
-          $s .= '<li>' . $ev . '</li>';
-      }
-      $s .= '</ul>';
-      return $s;
+    $html = "<p>".ts("Because :")."<ul>";
+    $evidence = $match->getEvidence();
+    foreach ($evidence as $ev) {
+        $html .= '<li>' . $ev . '</li>';
+    }
+    $html .= '</ul></p>';
+    return $html;
   }
 
   /** 

@@ -415,6 +415,10 @@ msgid "Also search additional account information"
 msgstr "Erweiterte Informationen in Suche mit einbeziehen"
 
 #: templates/CRM/Banking/Page/AccountSearch.tpl
+msgid "Search"
+msgstr ""
+
+#: templates/CRM/Banking/Page/AccountSearch.tpl
 msgid "accounts match your search"
 msgstr "Konten entsprechen Ihrer Suche"
 
@@ -647,6 +651,10 @@ msgstr "Fortfahren"
 #: templates/CRM/Banking/Page/Review.tpl
 msgid "Go ahead as suggested"
 msgstr "Vorschlag annehmen"
+
+#: templates/CRM/Banking/Page/SEPAMandates.tpl
+msgid "(In your native language) The current time is %1."
+msgstr ""
 
 #: on/CRM/Banking/Matcher/Context.php
 #: on/CRM/Banking/PluginImpl/Matcher/DefaultOptions.php
@@ -912,8 +920,12 @@ msgid "Target Account"
 msgstr "Zielkonto"
 
 #: templates/CRM/Banking/Page/Payments.tpl
-msgid "Analysed<"
-msgstr "Analysiert<"
+msgid "Statement"
+msgstr "Auszug"
+
+#: templates/CRM/Banking/Page/Review.tpl
+msgid "Next"
+msgstr ""
 
 #: templates/CRM/Banking/Page/Review.tpl
 msgid "Exit"
@@ -922,6 +934,10 @@ msgstr "Verlassen"
 #: templates/CRM/Banking/Page/Review.tpl
 msgid "This payment was"
 msgstr "Diese Zahlung ist"
+
+#: templates/CRM/Banking/Page/Review.tpl
+msgid "on"
+msgstr ""
 
 #: on/CRM/Banking/Page/Review.php
 msgid "This payment was <b>processed</b> on %s."
@@ -932,6 +948,8 @@ msgid "This payment was marked to be <b>ignored</b> on %s."
 msgstr "Diese Zahlung wurde am %s als <b>irrelevant</b> markiert."
 
 #: on/CRM/Banking/PluginImpl/Matcher/Rule.php
+#: on/CRM/Banking/PluginImpl/Matcher/Ignore.php
+#: on/CRM/Banking/PluginModel/Matcher.php
 msgid "Because :"
 msgstr "Begründung:"
 
@@ -943,3 +961,21 @@ msgstr "Anzahl"
 msgid "This payment was manually matched to the following contributions:"
 msgstr "Diese Zahlung wurde mit den folgenden Zuwendungen verknüpft:"
 
+#: on/CRM/Banking/PluginImpl/Matcher/DefaultOptions.php
+msgid "Contribution"
+msgstr "Zuwendung"
+
+#: on/CRM/Banking/PluginImpl/Matcher/Batches.php
+msgid "This payment was associated with <a href=\"%s\">payment batch #%s</a>."
+msgstr "Diese Zahlung wurde mit <a href=\"%s\">Zuwendungsgruppe #%s</a> verbunden."
+
+#: on/CRM/Banking/PluginImpl/Matcher/ExistingContribution.php
+msgid "This payment was associated with <a href=\"%s\">contribution #%s</a>."
+msgstr "Diese Zahlung wurde mit <a href=\"%s\">Zuwendung #%s</a> verknüpft."
+
+#, fuzzy
+#~ msgid "Payment count<"
+#~ msgstr "Anzahl"
+
+#~ msgid "Analysed<"
+#~ msgstr "Analysiert<"

@@ -141,25 +141,4 @@ class CRM_Banking_Matcher_Context {
   public function setCachedEntry($key, $value) {
     $this->_caches[$key] = $value;
   }
-
-  /**
-   * Will rate a contribution on whether it would match the bank payment
-   *
-   * @return array(contribution_id => score), where score is from [0..1]
-   */
-  public function rateContribution($contribution, $parameters=array()) {
-  	// TODO: check for cached data
-
-  	$amount_diff = abs($contribution['total_amount'] - $this->btx->amount);
-  	$amount_avg = ($contribution['total_amount'] + $this->btx->amount) / 2.0;
-  	$amount_score = 1.0 - $amount_diff / $amount_avg;
-
-  	// TODO: rate dates
-  	$date_score = 1.0;
-
-  	// TODO: currencies?
-
-  	// TODO: cache results
-  	return $amount_score * $date_score;
-  }
 }

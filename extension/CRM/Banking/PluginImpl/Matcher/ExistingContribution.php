@@ -22,6 +22,35 @@ class CRM_Banking_PluginImpl_Matcher_ExistingContribution extends CRM_Banking_Pl
   }
 
 
+
+  /**
+   * Will rate a contribution on whether it would match the bank payment
+   *
+   * @return array(contribution_id => score), where score is from [0..1]
+   */
+  public function rateContribution($contribution, $context) {
+    // TODO: check for cached data
+
+    $amount_diff = abs(abs($contribution['total_amount']) - abs($context->btx->amount));
+    $amount_avg = (abs($contribution['total_amount']) + abs($context->btx->amount)) / 2.0;
+    $amount_score = 1.0 - $amount_diff / $amount_avg;
+
+    // TODO: rate dates
+    $date_score = 1.0;
+
+    // currencies
+    if ($context->btx->currency == $contribution['currency']) {
+      $currency_score = 1.0;
+    } else {
+      error_log("org.project60.banking.matcher.exsiting_contribution: penalty for currency mismatch");
+      $currency_score = 0.5;
+    }
+
+    // cache results
+    return $amount_score * $date_score * $currency_score;
+  }
+
+
   public function match(CRM_Banking_BAO_BankTransaction $btx, CRM_Banking_Matcher_Context $context) {
 
     $threshold = $this->_plugin_config->threshold;
@@ -29,12 +58,6 @@ class CRM_Banking_PluginImpl_Matcher_ExistingContribution extends CRM_Banking_Pl
 
     // first: try to indentify the contact
     $contacts_found = array();
-
-    // ideally, we'd use the contact identified by the bank account
-    $account_contact_id = $context->getAccountContact();
-    if ($account_contact_id) {
-      $contacts_found[$account_contact_id] = 1.0;
-    }
 
     // otherwise try to find matching, open contributions
     if (count($contacts_found)>=0) {
@@ -46,17 +69,28 @@ class CRM_Banking_PluginImpl_Matcher_ExistingContribution extends CRM_Banking_Pl
       }
     }
 
+    // ideally, we'd use the contact identified by the bank account
+    $account_contact_id = $context->getAccountContact();
+    if ($account_contact_id) {
+      $contacts_found[$account_contact_id] = 1.0;
+    }
+
     // with the identified contacts, look up contributions
     $contributions = array();
     $contribution2contact = array();
 
-    $status_id = banking_helper_optionvalue_by_groupname_and_name('contribution_status', 'Pending');
+    if ($btx->amount >= 0) {
+      $status_id = banking_helper_optionvalue_by_groupname_and_name('contribution_status', 'Pending');  
+    } else {
+      $status_id = banking_helper_optionvalue_by_groupname_and_name('contribution_status', 'Completed');  
+    }
+    
     foreach ($contacts_found as $contact_id => $contact_probabiliy) {
       $query = array('version' => 3, 'contact_id' => $contact_id, 'contribution_status' => $status_id);
       $result = civicrm_api('Contribution', 'get', $query);
       if (isset($result['values'])) {
         foreach ($result['values'] as $contribution_id => $contribution) {
-          $contribution_probability = $context->rateContribution($contribution);
+          $contribution_probability = $this->rateContribution($contribution, $context);
           if ($contact_probabiliy * $contribution_probability > $threshold) {
             $contributions[$contribution['id']] = $contribution_probability;
             $contribution2contact[$contribution['id']] = $contact_id;
@@ -77,10 +111,18 @@ class CRM_Banking_PluginImpl_Matcher_ExistingContribution extends CRM_Banking_Pl
       
       if ($contribution_probability>=1.0) {
         $suggestion->setTitle(ts("Matching contribution found"));
-        $suggestion->addEvidence(1.0, ts("A pending contribution matching the payment was found."));
+        if ($btx->amount >= 0) {
+          $suggestion->addEvidence(1.0, ts("A pending contribution matching the payment was found."));
+        } else {
+          $suggestion->addEvidence(1.0, ts("This payment is the <b>cancellation</b> of the below contribution."));
+        }
       } else {
         $suggestion->setTitle(ts("Possible matching contribution found"));
-        $suggestion->addEvidence($contacts_found[$contact_id], ts("A pending contribution partially matching the paymenty was found."));
+        if ($btx->amount >= 0) {
+          $suggestion->addEvidence($contacts_found[$contact_id], ts("A pending contribution partially matching the paymenty was found."));
+        } else {
+          $suggestion->addEvidence($contacts_found[$contact_id], ts("This payment could be the <b>cancellation</b> of the below contribution."));
+        }
       }
 
       $suggestion->setId("existing-$contribution_id");
@@ -102,14 +144,20 @@ class CRM_Banking_PluginImpl_Matcher_ExistingContribution extends CRM_Banking_Pl
    * @param type $btx
    */
   public function execute($suggestion, $btx) {
-    // set contribution status to completed
-    $completed_status = banking_helper_optionvalue_by_groupname_and_name('contribution_status', 'Completed');
 
     $query = array('version' => 3, 'id' => $suggestion->getParameter('contribution_id'));
-    $query['contribution_status_id'] = $completed_status;
-    $query['receive_date'] = date('YmdHis', strtotime($btx->booking_date));
     $query = array_merge($query, $this->getPropagationSet($btx, 'contribution'));   // add propagated values
 
+    // set status: if amount negative, it's a cancellation
+    if ($btx->amount >= 0) {
+      $query['contribution_status_id'] = banking_helper_optionvalue_by_groupname_and_name('contribution_status', 'Completed');
+      $query['receive_date'] = date('YmdHis', strtotime($btx->booking_date));
+    } else {
+      $query['contribution_status_id'] = banking_helper_optionvalue_by_groupname_and_name('contribution_status', 'Cancelled');
+      $query['cancel_date'] = date('YmdHis', strtotime($btx->booking_date));
+      //$query['cancel_reason'] = date('YmdHis', strtotime($btx->booking_date));
+    }
+    
     $result = civicrm_api('Contribution', 'create', $query);
     if (isset($result['is_error']) && $result['is_error']) {
       CRM_Core_Session::setStatus(ts("Couldn't modify contribution."), ts('Error'), 'error');
@@ -150,7 +198,7 @@ class CRM_Banking_PluginImpl_Matcher_ExistingContribution extends CRM_Banking_Pl
       $contact_link = CRM_Utils_System::url("civicrm/contact/view", "&reset=1&cid=$contact_id");
 
       // create base text
-      $text = "<div>There seems to be a match:<ul>";
+      $text = "<div>".ts("There seems to be a match:")."<ul>";
       foreach ($match->getEvidence() as $reason) {
         $text .= "<li>$reason</li>";
       }

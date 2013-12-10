@@ -661,6 +661,7 @@ msgstr ""
 #: on/CRM/Banking/PluginImpl/Matcher/DefaultOptions.php
 #: on/CRM/Banking/PluginImpl/Matcher/ExistingContribution.php
 #: on/CRM/Banking/PluginImpl/Matcher/Batches.php
+#: on/CRM/Banking/PluginImpl/CSVImporter.php
 msgid "Error"
 msgstr ""
 
@@ -983,4 +984,33 @@ msgstr ""
 
 #: on/CRM/Banking/PluginImpl/Matcher/ExistingContribution.php
 msgid "This payment was associated with <a href=\"%s\">contribution #%s</a>."
+msgstr ""
+
+#: on/CRM/Banking/PluginImpl/Matcher/ExistingContribution.php
+msgid "This payment is the <b>cancellation</b> of the below contribution."
+msgstr ""
+
+#: on/CRM/Banking/PluginImpl/Matcher/ExistingContribution.php
+msgid ""
+"This payment could be the <b>cancellation</b> of the below contribution."
+msgstr ""
+
+#: on/CRM/Banking/PluginImpl/Matcher/ExistingContribution.php
+msgid "There seems to be a match:"
+msgstr ""
+
+#: on/CRM/Banking/PluginImpl/CSVImporter.php
+msgid "Internal error while looking up bank account '%s'. Error was: %s"
+msgstr ""
+
+#: on/CRM/Banking/PluginImpl/Matcher/DefaultOptions.php
+msgid "Couldn't find contribution #%s"
+msgstr ""
+
+#: on/CRM/Banking/PluginImpl/Matcher/DefaultOptions.php
+msgid "Couldn't modify contribution #%s"
+msgstr ""
+
+#: on/CRM/Banking/PluginImpl/Matcher/DefaultOptions.php
+msgid "<br/><b>Will be cancelled.</b>"
 msgstr ""

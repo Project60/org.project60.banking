@@ -38,7 +38,7 @@ class CRM_Banking_PluginImpl_Matcher_DefaultOptions extends CRM_Banking_PluginMo
     if ($config->manual_enabled) {
       if ($config->manual_show_always || $this->has_other_suggestions($btx)) {
         $manually_processed = new CRM_Banking_Matcher_Suggestion($this, $btx);
-        $manually_processed->addEvidence($this->get_probability($config->manual_probability, $btx));
+        $manually_processed->setProbability($this->get_probability($config->manual_probability, $btx));
         $manually_processed->setTitle($config->manual_title);
         $manually_processed->setId('manual');
 
@@ -86,18 +86,34 @@ class CRM_Banking_PluginImpl_Matcher_DefaultOptions extends CRM_Banking_PluginMo
       $cids = $suggestion->getParameter('contribution_ids');
       $contribution_count = 0;
       if ($cids) {
-
         $completed_status = banking_helper_optionvalue_by_groupname_and_name('contribution_status', 'Completed');
+        $cancelled_status = banking_helper_optionvalue_by_groupname_and_name('contribution_status', 'Cancelled');
+
         foreach ($cids as $cid) {
           if ($cid) {
+            $contribution = civicrm_api('Contribution', 'getsingle', array('version' => 3, 'id' => $cid));
+            if ($contribution['is_error']) {
+              CRM_Core_Session::setStatus(sprintf(ts("Couldn't find contribution #%s"), $cid), ts('Error'), 'error');
+              continue;
+            }
+
             $query = array('version' => 3, 'id' => $cid);
-            $query['contribution_status_id'] = $completed_status;
             $query['is_test'] = 0;
-            $query['receive_date'] = date('YmdHis', strtotime($btx->booking_date));
             $query = array_merge($query, $this->getPropagationSet($btx, 'contribution'));   // add propagated values
+
+            // set status to completed, unless...
+            if ($contribution['contribution_status_id']==$completed_status && $btx->amount < 0) {
+              // in this case, we want to cancel this
+              $query['contribution_status_id'] = $cancelled_status;
+              $query['cancel_date'] = date('YmdHis', strtotime($btx->booking_date));
+            } else {
+              $query['contribution_status_id'] = $completed_status;
+              $query['receive_date'] = date('YmdHis', strtotime($btx->booking_date));
+            }
+
             $result = civicrm_api('Contribution', 'create', $query);
             if (isset($result['is_error']) && $result['is_error']) {
-              CRM_Core_Session::setStatus(ts("Couldn't modify contribution."), ts('Error'), 'error');
+              CRM_Core_Session::setStatus(sprintf(ts("Couldn't modify contribution #%s"), $cid), ts('Error'), 'error');
             } else {
               $contribution_count += 1;
             }
@@ -112,7 +128,7 @@ class CRM_Banking_PluginImpl_Matcher_DefaultOptions extends CRM_Banking_PluginMo
           CRM_Core_Session::setStatus(ts("The contribution is not valid. The payment is NOT completed."), ts('Payment NOT completed.'), 'alert');
         }
 
-      }  else {
+      } else {
         CRM_Core_Session::setStatus(ts("No contribution given. The payment is NOT completed."), ts('Payment NOT completed.'), 'alert');
       }
     } else {
@@ -153,6 +169,7 @@ class CRM_Banking_PluginImpl_Matcher_DefaultOptions extends CRM_Banking_PluginMo
       $booking_date = date('YmdHis', strtotime($btx->booking_date));
       $status_pending = banking_helper_optionvalue_by_groupname_and_name('contribution_status', 'Pending');
       $ts_completed = ts("Completed");
+      $ts_cancelled = ts("<br/><b>Will be cancelled.</b>");
       $new_contribution_link = CRM_Utils_System::url("civicrm/contribute/add", "reset=1&action=add&context=standalone");
       $edit_contribution_link = CRM_Utils_System::url("civicrm/contact/view/contribution", "action=update&reset=1&id=__contributionid__&cid=__contactid__&context=home");
       $view_contribution_link = CRM_Utils_System::url("civicrm/contact/view/contribution", "action=view&reset=1&id=__contributionid__&cid=__contactid__&context=home");
@@ -298,7 +315,12 @@ class CRM_Banking_PluginImpl_Matcher_DefaultOptions extends CRM_Banking_PluginMo
                 if (contribution.contribution_status != "'.$ts_completed.'") {
                   row += "<td >" + contribution.contribution_status + "</td>";
                 } else {
-                  row += "<td style=\"color: red;\"><b>" + contribution.contribution_status + "</b></td>";
+                  // if this a cancellation, mark it:
+                  if (parseFloat('.$btx->amount.') < 0) {
+                    row += "<td>" + contribution.contribution_status + "'.$ts_cancelled.'</td>";
+                  } else {
+                    row += "<td style=\"color: red;\"><b>" + contribution.contribution_status + "</b></td>";
+                  }
                 }
                 row += "<td name=\"amount\" align=\"right\">" + parseFloat(contribution.total_amount).toFixed(2) + " " + contribution.currency + "</td>";
                 row += "</tr>";
@@ -319,7 +341,7 @@ class CRM_Banking_PluginImpl_Matcher_DefaultOptions extends CRM_Banking_PluginMo
             });
 
             // update the style...
-            if (sum == parseFloat('.$btx->amount.')) {
+            if (sum == Math.abs(parseFloat('.$btx->amount.'))) {
               cj("#manual_match_contribution_sum").text("'.ts("sum").': " + sum.toFixed(2) + " '.$btx->currency.' -- '.ts("OK").'");
               cj("#manual_match_contribution_sum").css("color", "green");
             } else {

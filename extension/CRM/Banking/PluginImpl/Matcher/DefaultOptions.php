@@ -307,7 +307,7 @@ class CRM_Banking_PluginImpl_Matcher_DefaultOptions extends CRM_Banking_PluginMo
                 view_link = view_link.replace("__contactid__", contribution.contact_id);
 
                 var row = "<tr id=\"manual_match_row_cid_" + contribution.id + "\">";
-                row += "<td><a href=\"\" onclick=\"manual_match_remove_contribution(" + contribution.id + ");\">['.ts('remove').']</a>";
+                row += "<td><a href=\"#\" onclick=\"manual_match_remove_contribution(" + contribution.id + ");\">['.ts('remove').']</a>";
                 row += "&nbsp;<a href=\"" + view_link + "\" target=\"_blank\">['.ts('view').']</a></td>";
                 row += "<td>" + contribution.display_name + "</td>";
                 row += "<td>" + contribution.financial_type + "</td>";

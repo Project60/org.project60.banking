@@ -44,6 +44,11 @@ class CRM_Banking_PluginImpl_CSVImporter extends CRM_Banking_PluginModel_Importe
     if (!isset($config->BIC)) $config->BIC = rand(1000,10000);
   }
 
+  /**
+   * will be used to avoid multiple account lookups
+   */
+  protected $account_cache = array();
+
   /** 
    * the plugin's user readable name
    * 
@@ -178,7 +183,32 @@ class CRM_Banking_PluginImpl_CSVImporter extends CRM_Banking_PluginModel_Importe
       }
     }
 
-    // look up the bank account via *BAN
+    // look up the bank accounts
+    foreach ($btx as $key => $value) {
+      // check for NBAN_?? or IBAN endings
+      if (preg_match('/^_.*NBAN_..$/', $key) || preg_match('/^_.*IBAN$/', $key)) {
+        // this is a *BAN entry -> look it up
+        if (!isset($this->account_cache[$value])) {
+          $result = civicrm_api('BankingAccountReference', 'getsingle', array('version' => 3, 'reference' => $value));
+          if ($result['is_error']) {
+            //CRM_Core_Session::setStatus(sprintf(ts("Internal error while looking up bank account '%s'. Error was: %s"), $value, $result['error_message']), ts('Error'), 'alert');
+            $this->account_cache[$value] = NULL;
+          } else {
+            $this->account_cache[$value] = $result['ba_id'];
+          }
+        }
+
+        if ($this->account_cache[$value] != NULL) {
+          if (substr($key, 0, 7)=="_party_") {
+            $btx['party_ba_id'] = $this->account_cache[$value];  
+          } elseif (substr($key, 0, 1)=="_") {
+            $btx['ba_id'] = $this->account_cache[$value];  
+          }
+        }
+      }
+    }
+
+    // look up the party bank account via *BAN
     foreach ($btx as $key => $value) {
       if (substr($key, 1, 3)=="BAN") {
         // this is a *BAN entry -> look it up

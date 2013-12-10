@@ -146,7 +146,121 @@ abstract class CRM_Banking_PluginModel_Matcher extends CRM_Banking_PluginModel_B
     }
   }
 
+
+  /**************************************************************
+   *                   value propagation                        *
+   * allows for a config-driven propagation of extracted values *
+   *                                                            *
+   * Propagation values are data that has been gathered some-   *
+   * where during the process. This data (like financial_type,  *
+   * campaign_id, etc.) can then be passed on to the final      *
+   * objects, e.g. contributions                                *
+   **************************************************************/
+
+  /**
+   * Get the propagation keys
+   * If a subset (e.g. 'contribution') is given, only 
+   * the keys targeting this entity are returned
+   */
+  public function getPropagationKeys($subset='') {
+    $keys = array();
+    foreach ($this->_plugin_config->value_propagation as $key => $target_key) {
+      if ($subset) {
+        if (substr($target_key, 0, strlen($subset))==$subset) {
+          $keys[$key] = $target_key;
+        }
+      } else {
+        $keys[$key] = $target_key;
+      }
+    }
+    return $keys;
+  }
+
+  /** 
+   * Get the value of the propagation value spec
+   */
+  public function getPropagationValue($btx, $key) {
+    $key_bits = split("[.]", $key, 2);
+    if ($key_bits[0]=='ba' || $key_bits[0]=='party_ba') {
+      // read bank account stuff
+      if ($key_bits[0]=='ba') {
+        $bank_account = $btx->getBankAccount();
+      } else {
+        $bank_account = $btx->getPartyBankAccount();
+      }
+
+      if ($bank_account==NULL) {
+        return NULL;
+      }
+
+      if (isset($bank_account->$key_bits[1])) {
+        // look in the BA directly
+        return $bank_account->$key_bits[1];
+      } else {
+        // look in the parsed values
+        if (isset($bank_account->getDataParsed()[$key_bits[1]])) {
+          return $bank_account->getDataParsed()[$key_bits[1]];
+        } else {
+          return NULL;
+        }
+      }
+
+    } elseif ($key_bits[0]=='btx') {
+      // read BTX stuff
+      if (isset($btx->$key_bits[1])) {
+        // look in the BA directly
+        return $btx->$key_bits[1];
+      } else {
+        // look in the parsed values
+        if (isset($btx->getDataParsed()->$key_bits[1])) {
+          return $btx->getDataParsed()->$key_bits[1];
+        } else {
+          return NULL;
+        }
+      }
+    }
+
+    return NULL;
+  }
+
+  /**
+   * Get the key=>value set of the propagation values
+   *
+   * if a subset is specified (e.g. 'contribution')
+   * only the targets with prefix contribution will be 
+   * read, and the 
+   * 
+   * example:
+   *   in config:  '"value_propagation": { "party_ba.name": "contribution.source" }'
+   *
+   * with getPropagationSet($btx, 'contribution') you get:
+   *   array("source" => "Looked-up bank owner's name")
+   *
+   * ...which you can pass right into your create contribtion call
+   */
+  public function getPropagationSet($btx, $subset = '') {
+    $propagation_set = $this->getPropagationKeys($subset);
+    $propagation_values = array();
+
+    foreach ($propagation_set as $key => $target_key) {
+      $value = $this->getPropagationValue($btx, $key);
+      if ($value != NULL) {
+        $propagation_values[substr($target_key, strlen($subset)+1)] = $value;
+      }
+    }
+
+    return $propagation_values;
+  }
+
+
+
   
+  /**************************************************************
+   *               Action-Based Execution                       *
+   *        generic execution tools based on action objects.    *
+   *            contact Paul.Delbar at delius.be                *
+   *************************************************************/
+
   function translateAction($action,$params,$btx) {
     $className = 'CRM_Banking_PluginModel_Action_' . $action;
     if (class_exists($className)) {
@@ -163,9 +277,7 @@ abstract class CRM_Banking_PluginModel_Matcher extends CRM_Banking_PluginModel_B
       return $actor->execute($params,$btx);
     }
   }
-  
-
-    
+      
   function getActions( $btx ) {
       $config = $this->_plugin_config;
       $s = '';

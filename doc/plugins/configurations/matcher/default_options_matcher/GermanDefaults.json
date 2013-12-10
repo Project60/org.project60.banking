@@ -1,6 +1,11 @@
 {
 	"generate": 1,
     "auto_exec": false,
+    "value_propagation": {
+        "ba.name_id": "contribution.custom_14",
+        "btx.financial_type_id": "contribution.financial_type_id",
+        "btx.campaign_id": "contribution.campaign_id"
+    },
     "manual_enabled": true,
     "manual_probability": "50%",
     "manual_show_always": true,

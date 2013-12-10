@@ -1,5 +1,10 @@
 {
 	"generate": 1,
     "auto_exec": false,
-    "threshold": 0.01
+    "threshold": 0.01,
+    "value_propagation": {
+        "ba.name_id": "contribution.custom_14",
+        "btx.financial_type_id": "contribution.financial_type_id",
+        "btx.campaign_id": "contribution.campaign_id"
+    },
 }

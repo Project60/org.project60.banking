@@ -108,6 +108,7 @@ class CRM_Banking_PluginImpl_Matcher_ExistingContribution extends CRM_Banking_Pl
     $query = array('version' => 3, 'id' => $suggestion->getParameter('contribution_id'));
     $query['contribution_status_id'] = $completed_status;
     $query['receive_date'] = date('YmdHis', strtotime($btx->booking_date));
+    $query = array_merge($query, $this->getPropagationSet($btx, 'contribution'));   // add propagated values
 
     $result = civicrm_api('Contribution', 'create', $query);
     if (isset($result['is_error']) && $result['is_error']) {

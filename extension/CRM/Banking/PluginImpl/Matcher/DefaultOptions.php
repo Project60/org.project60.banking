@@ -94,6 +94,7 @@ class CRM_Banking_PluginImpl_Matcher_DefaultOptions extends CRM_Banking_PluginMo
             $query['contribution_status_id'] = $completed_status;
             $query['is_test'] = 0;
             $query['receive_date'] = date('YmdHis', strtotime($btx->booking_date));
+            $query = array_merge($query, $this->getPropagationSet($btx, 'contribution'));   // add propagated values
             $result = civicrm_api('Contribution', 'create', $query);
             if (isset($result['is_error']) && $result['is_error']) {
               CRM_Core_Session::setStatus(ts("Couldn't modify contribution."), ts('Error'), 'error');
@@ -156,6 +157,12 @@ class CRM_Banking_PluginImpl_Matcher_DefaultOptions extends CRM_Banking_PluginMo
       $edit_contribution_link = CRM_Utils_System::url("civicrm/contact/view/contribution", "action=update&reset=1&id=__contributionid__&cid=__contactid__&context=home");
       $view_contribution_link = CRM_Utils_System::url("civicrm/contact/view/contribution", "action=view&reset=1&id=__contributionid__&cid=__contactid__&context=home");
       $view_contact_link = CRM_Utils_System::url("civicrm/contact/view", "reset=1&cid=__contactid__");
+      
+      // get propagated data for contributions
+      $contribution_propagated_data = '';
+      foreach ($this->getPropagationSet($btx, 'contribution') as $key => $value) {
+        $contribution_propagated_data .= '"'.$key.'": "'.$value.'",';
+      }
 
       $snippet  = "<div>" . ts("Please manually process this payment and <i>then</i> add the resulting contributions to this list, <b><i>before</i></b> confirming this option.");
       $snippet .= "<input type=\"hidden\" id=\"manual_match_contributions\" name=\"manual_match_contributions\" value=\"\"/></div>";    // this will hold the list of contribution ids
@@ -334,6 +341,7 @@ class CRM_Banking_PluginImpl_Matcher_DefaultOptions extends CRM_Banking_PluginMo
             }
             // ok, we have a contact -> create a new (test) contribution
             CRM.api("Contribution", "create", { "q": "civicrm/ajax/rest", "sequential": 1, 
+                                                '.$contribution_propagated_data.'
                                                 "contact_id": contact_id, 
                                                 "is_test": 1, 
                                                 "total_amount": '.$btx->amount.', 

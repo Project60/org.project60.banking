@@ -37,6 +37,32 @@ class CRM_Banking_BAO_BankTransaction extends CRM_Banking_DAO_BankTransaction {
   }
 
   /**
+   * Get an CRM_Banking_BAO_BankAccount object representing the target/own bank account
+   */
+  public function getBankAccount() {
+    if ($this->ba_id) {
+      $bank_bao = new CRM_Banking_BAO_BankAccount();
+      $bank_bao->get('id', $this->ba_id);
+      return $bank_bao;
+    } else {
+      return NULL;
+    }
+  }
+
+  /**
+   * Get an CRM_Banking_BAO_BankAccount object representing the source/party bank account
+   */
+  public function getPartyBankAccount() {
+    if ($this->party_ba_id) {
+      $bank_bao = new CRM_Banking_BAO_BankAccount();
+      $bank_bao->get('id', $this->party_ba_id);
+      return $bank_bao;
+    } else {
+      return NULL;
+    }
+  }
+
+  /**
    * an array of the structure
    * <probability> => array(<CRM_Banking_Matcher_Suggestion>)
    *

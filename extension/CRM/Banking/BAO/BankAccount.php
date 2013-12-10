@@ -6,6 +6,11 @@
 class CRM_Banking_BAO_BankAccount extends CRM_Banking_DAO_BankAccount {
 
   /**
+   * caches a decoded version of the data_parsed field
+   */
+  protected $_decoded_data_parsed = NULL;
+
+  /**
    * @param array  $params         (reference ) an assoc array of name/value pairs
    *
    * @return object       CRM_Banking_BAO_BankAccount object on success, null otherwise
@@ -30,6 +35,17 @@ class CRM_Banking_BAO_BankAccount extends CRM_Banking_DAO_BankAccount {
 
     CRM_Utils_Hook::post($hook, 'BankAccount', $dao->id, $dao);
     return $dao;
+  }
+
+  /**
+   * will provide a cached version of the decoded data_parsed field
+   * if $update=true is given, it will be parsed again
+   */
+  public function getDataParsed($update=false) {
+    if ($this->_decoded_data_parsed==NULL || $update) {
+      $this->_decoded_data_parsed = json_decode($this->data_parsed, true);
+    }
+    return $this->_decoded_data_parsed;
   }
 
 }

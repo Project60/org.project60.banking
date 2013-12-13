@@ -208,18 +208,6 @@ class CRM_Banking_PluginImpl_CSVImporter extends CRM_Banking_PluginModel_Importe
       }
     }
 
-    // look up the party bank account via *BAN
-    foreach ($btx as $key => $value) {
-      if (substr($key, 1, 3)=="BAN") {
-        // this is a *BAN entry -> look it up
-        $result = civicrm_api('BankingAccountReference', 'getsingle', array('version' => 3, 'reference' => $value));
-        if ($result['is_error']==0) {
-          $btx['party_ba_id'] = $result['ba_id'];
-          break;
-        }
-      }
-    }
-
     // do some post processing
     if (!isset($config->bank_reference)) {
       // set MD5 hash as unique reference
@@ -259,7 +247,9 @@ class CRM_Banking_PluginImpl_CSVImporter extends CRM_Banking_PluginModel_Importe
   protected function apply_rule($rule, $line, &$btx, $header) {
 
     // get value
-    if (is_int($rule->from)) {
+    if (_startswith($rule->from, '_constant:')) {
+      $value = substr($rule->from, 10);
+    } else if (is_int($rule->from)) {
       $value = $line[$rule->from];
     } else {
       $index = array_search($rule->from, $header);
@@ -269,7 +259,7 @@ class CRM_Banking_PluginImpl_CSVImporter extends CRM_Banking_PluginModel_Importe
         // this is not in the line, maybe it's already in the btx
         $value = $btx[$rule->from];
       } else {
-        error_log("Cannot find source '$rule->from' for rule.");
+        error_log("org.project60.banking: CSVImporter - Cannot find source '$rule->from' for rule.");
         $value = '';
       }
     }
@@ -306,16 +296,21 @@ class CRM_Banking_PluginImpl_CSVImporter extends CRM_Banking_PluginModel_Importe
       $params = explode(":", $rule->type);
       $btx[$rule->to] = sprintf($params[1], $value);
 
+    } elseif (_startswith($rule->type, 'constant')) {
+      // will just set a constant string
+      $btx[$rule->to] = $rule->from;
+
     } elseif (_startswith($rule->type, 'strtotime')) {
       // STRTOTIME is a date parser
       $params = explode(":", $rule->type);
       if (isset($params[1])) {
         // the user provided a date format
         $datetime = DateTime::createFromFormat($params[1], $value);
-        $btx[$rule->to] = $datetime->format('Ymd120000');
+        if ($datetime) {
+          $btx[$rule->to] = $datetime->format('YmdHis');  
+        }
       } else {
-        $datetime = strtotime($value);
-        date('Ymd120000', $datetime);
+        $btx[$rule->to] = date('YmdHis', strtotime($value));
       }
 
     } elseif (_startswith($rule->type, 'amount')) {

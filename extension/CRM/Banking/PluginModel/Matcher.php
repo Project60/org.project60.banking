@@ -164,6 +164,10 @@ abstract class CRM_Banking_PluginModel_Matcher extends CRM_Banking_PluginModel_B
    */
   public function getPropagationKeys($subset='') {
     $keys = array();
+    if (!isset($this->_plugin_config->value_propagation)) {
+      return $keys;
+    }
+
     foreach ($this->_plugin_config->value_propagation as $key => $target_key) {
       if ($subset) {
         if (substr($target_key, 0, strlen($subset))==$subset) {
@@ -198,8 +202,9 @@ abstract class CRM_Banking_PluginModel_Matcher extends CRM_Banking_PluginModel_B
         return $bank_account->$key_bits[1];
       } else {
         // look in the parsed values
-        if (isset($bank_account->getDataParsed()[$key_bits[1]])) {
-          return $bank_account->getDataParsed()[$key_bits[1]];
+        $data = $bank_account->getDataParsed();
+        if (isset($data[$key_bits[1]])) {
+          return $data[$key_bits[1]];
         } else {
           return NULL;
         }

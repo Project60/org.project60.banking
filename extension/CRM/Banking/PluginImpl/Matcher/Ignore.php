@@ -76,8 +76,11 @@ class CRM_Banking_PluginImpl_Matcher_Ignore extends CRM_Banking_PluginModel_Matc
     foreach ($fields as $field) {
       if (isset($btx->$field)) {
         array_push($values, $btx->$field);
-      } else if (isset($btx->getDataParsed()[$field])) {
-        array_push($values, $btx->getDataParsed()[$field]);
+      } else {
+        $data = $btx->getDataParsed();
+        if (isset($data[$field])) {
+          array_push($values, $data[$field]);
+        }
       }
     }
 

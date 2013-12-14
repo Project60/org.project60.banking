@@ -19,8 +19,18 @@ class CRM_Banking_PluginImpl_Matcher_ExistingContribution extends CRM_Banking_Pl
     // read config, set defaults
     $config = $this->_plugin_config;
     if (!isset($config->threshold)) $config->threshold = 0.5;
+    if (!isset($config->mode)) $config->mode = "default";     // other mode is "cancellation"
+    if (!isset($config->accepted_contribution_states)) $config->accepted_contribution_states = ["Completed", "Pending"];
+    if (!isset($config->received_date_minimum)) $config->received_date_minimum = "-100 days";
+    if (!isset($config->received_date_maximum)) $config->received_date_maximum = "+1 days";
+    if (!isset($config->date_penalty)) $config->date_penalty = 1.0;
+    if (!isset($config->amount_relative_minimum)) $config->amount_relative_minimum = 1.0;
+    if (!isset($config->amount_relative_maximum)) $config->amount_relative_maximum = 1.0;
+    if (!isset($config->amount_absolute_minimum)) $config->amount_absolute_minimum = 0;
+    if (!isset($config->amount_absolute_maximum)) $config->amount_absolute_maximum = 1;
+    if (!isset($config->amount_penalty)) $config->amount_penalty = 1.0;
+    if (!isset($config->currency_penalty)) $config->currency_penalty = 0.5;
   }
-
 
 
   /**
@@ -29,37 +39,80 @@ class CRM_Banking_PluginImpl_Matcher_ExistingContribution extends CRM_Banking_Pl
    * @return array(contribution_id => score), where score is from [0..1]
    */
   public function rateContribution($contribution, $context) {
-    // TODO: check for cached data
+    $config = $this->_plugin_config;
+    $target_amount = $context->btx->amount;
+    if ($config->mode=="cancellation") $target_amount = -$target_amount;
+    $contribution_amount = $contribution['total_amount'];
+    $target_date = strtotime($context->btx->value_date);
+    $contribution_date = strtotime($contribution['receive_date']);
 
-    $amount_diff = abs(abs($contribution['total_amount']) - abs($context->btx->amount));
-    $amount_avg = (abs($contribution['total_amount']) + abs($context->btx->amount)) / 2.0;
-    $amount_score = 1.0 - $amount_diff / $amount_avg;
+    // check for amount limits
+    $amount_delta = $contribution['total_amount'] - $target_amount;
+    if (   ($target_amount < ($contribution_amount * $config->amount_relative_minimum))
+        && ($amount_delta < $config->amount_absolute_minimum)) return -1;
+    if (   ($target_amount > ($contribution_amount * $config->amount_relative_maximum))
+        && ($amount_delta > $config->amount_absolute_maximum)) return -1;
 
-    // TODO: rate dates
-    $date_score = 1.0;
+    // check for date limits
+    if ($contribution_date < strtotime($config->received_date_minimum, $target_date)) return -1;
+    if ($contribution_date > strtotime($config->received_date_maximum, $target_date)) return -1;
 
-    // currencies
-    if ($context->btx->currency == $contribution['currency']) {
-      $currency_score = 1.0;
-    } else {
-      error_log("org.project60.banking.matcher.exsiting_contribution: penalty for currency mismatch");
-      $currency_score = 0.5;
+    // calculate the penalties
+    $date_delta = abs($contribution_date - $target_date);
+    $date_range = max(1, strtotime($config->received_date_maximum) - strtotime($config->received_date_minimum));
+    $amount_range_rel = $contribution_amount * ($config->amount_relative_maximum - $config->amount_relative_minimum);
+    $amount_range_abs = $config->amount_absolute_maximum - $config->amount_absolute_minimum;
+    $amount_range = max($amount_range_rel, $amount_range_abs);
+
+    $penalty = $config->date_penalty * ($date_delta / $date_range);
+    $penalty += $config->amount_penalty * (abs($amount_delta) / $amount_range);
+    if ($context->btx->currency != $contribution['currency'])
+      $penalty += $config->currency_penalty;
+
+    return max(0, 1.0-$penalty);
+  }
+
+  /**
+   * Will get a the set of contributions of a given contact
+   * 
+   * caution: will only the contributions of the last year
+   *
+   * @return an array with contributions
+   */
+  public function getPotentialContributionsForContact($contact_id, CRM_Banking_Matcher_Context $context) {
+    // check in cache
+    $contributions = $context->getCachedEntry("_contributions_${contact_id}");
+    if ($contributions != NULL) return $contributions;
+
+    $contributions = array();
+    $sql = "SELECT * FROM civicrm_contribution WHERE contact_id=${contact_id} AND receive_date > (NOW() - INTERVAL 1 YEAR);";
+    $contribution = CRM_Contribute_DAO_Contribution::executeQuery($sql);
+    while ($contribution->fetch()) {
+      array_push($contributions, $contribution->toArray());
     }
 
-    // cache results
-    return $amount_score * $date_score * $currency_score;
+    // cache result and return
+    $context->setCachedEntry("_contributions_${contact_id}", $contributions);
+    return $contributions;
   }
 
 
   public function match(CRM_Banking_BAO_BankTransaction $btx, CRM_Banking_Matcher_Context $context) {
-
-    $threshold = $this->_plugin_config->threshold;
+    $config = $this->_plugin_config;
+    $threshold = $config->threshold;
     $data_parsed = $btx->getDataParsed();
+
+    // resolve accepted states
+    $accepted_status_ids = array();
+    foreach ($config->accepted_contribution_states as $status_name) {
+      $status_id = banking_helper_optionvalue_by_groupname_and_name('contribution_status', $status_name);
+      if ($status_id) {
+        array_push($accepted_status_ids, $status_id);
+      }
+    }
 
     // first: try to indentify the contact
     $contacts_found = array();
-
-    // otherwise try to find matching, open contributions
     if (count($contacts_found)>=0) {
       $search_result = $context->lookupContactByName($data_parsed['name']);
       foreach ($search_result as $contact_id => $probability) {
@@ -69,7 +122,7 @@ class CRM_Banking_PluginImpl_Matcher_ExistingContribution extends CRM_Banking_Pl
       }
     }
 
-    // ideally, we'd use the contact identified by the bank account
+    // also, we'll use the contact identified by the bank account
     $account_contact_id = $context->getAccountContact();
     if ($account_contact_id) {
       $contacts_found[$account_contact_id] = 1.0;
@@ -79,23 +132,19 @@ class CRM_Banking_PluginImpl_Matcher_ExistingContribution extends CRM_Banking_Pl
     $contributions = array();
     $contribution2contact = array();
 
-    if ($btx->amount >= 0) {
-      $status_id = banking_helper_optionvalue_by_groupname_and_name('contribution_status', 'Pending');  
-    } else {
-      $status_id = banking_helper_optionvalue_by_groupname_and_name('contribution_status', 'Completed');  
-    }
-    
     foreach ($contacts_found as $contact_id => $contact_probabiliy) {
-      $query = array('version' => 3, 'contact_id' => $contact_id, 'contribution_status' => $status_id);
-      $result = civicrm_api('Contribution', 'get', $query);
-      if (isset($result['values'])) {
-        foreach ($result['values'] as $contribution_id => $contribution) {
-          $contribution_probability = $this->rateContribution($contribution, $context);
-          if ($contact_probabiliy * $contribution_probability > $threshold) {
-            $contributions[$contribution['id']] = $contribution_probability;
-            $contribution2contact[$contribution['id']] = $contact_id;
-          }
-        }
+      if ($contact_probabiliy < $threshold) continue;
+
+      $potential_contributions = $this->getPotentialContributionsForContact($contact_id, $context);
+      foreach ($potential_contributions as $contribution) {
+        // check for expected status
+        if (!in_array($contribution['contribution_status_id'], $accepted_status_ids)) continue;
+
+        $contribution_probability = $contact_probabiliy * $this->rateContribution($contribution, $context);
+        if ($contribution_probability > $threshold) {
+          $contributions[$contribution['id']] = $contribution_probability;
+          $contribution2contact[$contribution['id']] = $contact_id;
+        }        
       }
     }
 
@@ -111,14 +160,14 @@ class CRM_Banking_PluginImpl_Matcher_ExistingContribution extends CRM_Banking_Pl
       
       if ($contribution_probability>=1.0) {
         $suggestion->setTitle(ts("Matching contribution found"));
-        if ($btx->amount >= 0) {
+        if ($config->mode != "cancellation") {
           $suggestion->addEvidence(1.0, ts("A pending contribution matching the payment was found."));
         } else {
           $suggestion->addEvidence(1.0, ts("This payment is the <b>cancellation</b> of the below contribution."));
         }
       } else {
         $suggestion->setTitle(ts("Possible matching contribution found"));
-        if ($btx->amount >= 0) {
+        if ($config->mode != "cancellation") {
           $suggestion->addEvidence($contacts_found[$contact_id], ts("A pending contribution partially matching the paymenty was found."));
         } else {
           $suggestion->addEvidence($contacts_found[$contact_id], ts("This payment could be the <b>cancellation</b> of the below contribution."));
@@ -148,8 +197,8 @@ class CRM_Banking_PluginImpl_Matcher_ExistingContribution extends CRM_Banking_Pl
     $query = array('version' => 3, 'id' => $suggestion->getParameter('contribution_id'));
     $query = array_merge($query, $this->getPropagationSet($btx, 'contribution'));   // add propagated values
 
-    // set status: if amount negative, it's a cancellation
-    if ($btx->amount >= 0) {
+    // depending on mode...
+    if ($this->_plugin_config->mode != "cancellation") {
       $query['contribution_status_id'] = banking_helper_optionvalue_by_groupname_and_name('contribution_status', 'Completed');
       $query['receive_date'] = date('YmdHis', strtotime($btx->booking_date));
     } else {

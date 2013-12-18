@@ -41,7 +41,10 @@ class CRM_Banking_PluginImpl_Matcher_ExistingContribution extends CRM_Banking_Pl
   public function rateContribution($contribution, $context) {
     $config = $this->_plugin_config;
     $target_amount = $context->btx->amount;
-    if ($config->mode=="cancellation") $target_amount = -$target_amount;
+    if ($config->mode=="cancellation") {
+      if ($target_amount > 0) return -1;
+      $target_amount = -$target_amount;
+    } 
     $contribution_amount = $contribution['total_amount'];
     $target_date = strtotime($context->btx->value_date);
     $contribution_date = strtotime($contribution['receive_date']);
@@ -64,12 +67,13 @@ class CRM_Banking_PluginImpl_Matcher_ExistingContribution extends CRM_Banking_Pl
     $amount_range_abs = $config->amount_absolute_maximum - $config->amount_absolute_minimum;
     $amount_range = max($amount_range_rel, $amount_range_abs);
 
-    $penalty = $config->date_penalty * ($date_delta / $date_range);
-    $penalty += $config->amount_penalty * (abs($amount_delta) / $amount_range);
+    $penalty = 0.0;
+    if ($date_range) $penalty += $config->date_penalty * ($date_delta / $date_range);
+    if ($amount_range) $penalty += $config->amount_penalty * (abs($amount_delta) / $amount_range);
     if ($context->btx->currency != $contribution['currency'])
       $penalty += $config->currency_penalty;
 
-    return max(0, 1.0-$penalty);
+    return max(0, 1.0 - $penalty);
   }
 
   /**

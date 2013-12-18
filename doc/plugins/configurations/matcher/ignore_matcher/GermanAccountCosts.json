@@ -1,6 +1,6 @@
 {
 	"generate": 1,
-    "auto_exec": true,
+    "auto_exec": false,
     "ignore": [
         {
             "field": "transaction_class",

@@ -21,10 +21,19 @@ class CRM_Banking_Matcher_Context {
    * @return array(contact_id => similarity), where similarity is from [0..1]
    */
   public function lookupContactByName($name, $parameters=array()) {
+    if (!$name) {
+      // no name given, no results:
+      return array();
+    }
 
-  	// TODO: check for cached data
-
-  	$contacts_found = array();
+    // check the cache first
+    $cache_key = "banking.matcher.context.name_lookup.$name";
+    $contacts_found = $this->getCachedEntry($cache_key);
+    if ($contacts_found!=NULL) {
+      return $contacts_found;
+    } else {
+      $contacts_found = array();
+    }
 
   	// create some mutations, since quick search is a bit picky
   	$name_bits = preg_split("( |,|&)", $name, 0, PREG_SPLIT_NO_EMPTY);
@@ -38,13 +47,13 @@ class CRM_Banking_Matcher_Context {
   		$name_mutations[] = $reduced_name;
   		$name_mutations[] = array_reverse($reduced_name);
   	}
-    error_log(print_r($name_mutations, true));
+
   	// query quicksearch for each combination
   	foreach ($name_mutations as $name_bits) {
 	  	$query = array('version' => 3);
 	  	$query['name'] = implode(', ', $name_bits);
 	  	$result = civicrm_api('Contact', 'getquick', $query);
-	  	if (isset($result['is_error']) && $result['is_error']) {
+	  	if ($result['is_error']) {
 	  		// that didn't go well...
 	  		CRM_Core_Session::setStatus(ts("Internal error while looking up contacts."), ts('Error'), 'alert');
 	  	} else {
@@ -84,30 +93,52 @@ class CRM_Banking_Matcher_Context {
       }
     }
 
-    // TODO: cache results
+    // update the cache
+    $this->setCachedEntry($cache_key, $contacts_found);
 
   	return $contacts_found;
   }
 
+  /**
+   * If the payment was associated with a (source) account, this
+   *  function looks up the account's owner contact ID
+   */
+  public function getAccountContact() {
+    $contact_id = $this->getCachedEntry('_account_contact_id');
+    if ($contact_id===NULL) {
+      if ($this->btx->party_ba_id) {
+        $account = new CRM_Banking_BAO_BankAccount();
+        $account->get('id', $this->btx->party_ba_id);
+        if ($account->contact_id) {
+          $contact_id = $account->contact_id;
+        } else {
+          $contact_id = 0;
+        }
+      } else {
+        $contact_id = 0;
+      }
+      $this->setCachedEntry('_account_contact_id', $contact_id);
+    }
+    return $contact_id;
+  }
 
   /**
-   * Will rate a contribution on whether it would match the bank payment
+   * Will check if the given key is set in the cache
    *
-   * @return array(contribution_id => score), where score is from [0..1]
+   * @return the previously stored value, or NULL
    */
-  public function rateContribution($contribution, $parameters=array()) {
-  	// TODO: check for cached data
+  public function getCachedEntry($key) {
+    if (isset($this->_caches[$key])) {
+      return $this->_caches[$key];
+    } else {
+      return NULL;      
+    }
+  }
 
-  	$amount_diff = abs($contribution['total_amount'] - $this->btx->amount);
-  	$amount_avg = ($contribution['total_amount'] + $this->btx->amount) / 2.0;
-  	$amount_score = 1.0 - $amount_diff / $amount_avg;
-
-  	// TODO: rate dates
-  	$date_score = 1.0;
-
-  	// TODO: currencies?
-
-  	// TODO: cache results
-  	return $amount_score * $date_score;
+  /**
+   * Set the given cache value
+   */
+  public function setCachedEntry($key, $value) {
+    $this->_caches[$key] = $value;
   }
 }

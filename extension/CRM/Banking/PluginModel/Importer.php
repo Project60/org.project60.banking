@@ -175,9 +175,17 @@ abstract class CRM_Banking_PluginModel_Importer extends CRM_Banking_PluginModel_
         if (!$this->_current_transaction_batch->ending_date && isset($this->_current_transaction_batch_attributes['ending_date']))
           $this->_current_transaction_batch->ending_date = $this->_current_transaction_batch_attributes['ending_date'];
 
-        // set the bank reference
-        if (!$this->_current_transaction_batch->reference && isset($this->_current_transaction_batch_attributes['references']))
-          $this->_current_transaction_batch->reference = md5($this->_current_transaction_batch_attributes['references']);
+        // set default bank reference, if not set
+        if (!$this->_current_transaction_batch->reference)
+          $this->_current_transaction_batch->reference = "{md5}";
+
+        // replace tokens
+        $reference = $this->_current_transaction_batch->reference;
+        $dateFormat = 'Y-m-d';  // FIXME: read config
+        $reference = str_replace('{md5}', md5($this->_current_transaction_batch_attributes['references']), $reference);
+        $reference = str_replace('{starting_date}', date($dateFormat, strtotime($this->_current_transaction_batch->starting_date)), $reference);
+        $reference = str_replace('{ending_date}', date($dateFormat, strtotime($this->_current_transaction_batch->ending_date)), $reference);
+        $this->_current_transaction_batch->reference = $reference;
 
         $this->_current_transaction_batch->save();
       } else if ($this->_current_transaction_batch_attributes['isnew']) {

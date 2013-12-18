@@ -17,7 +17,7 @@
 */
 
 // utility function
-function _startswith($string, $prefix) {
+function _csvimporter_helper_startswith($string, $prefix) {
   return substr($string, 0, strlen($prefix)) === $prefix;
 }
 
@@ -43,6 +43,11 @@ class CRM_Banking_PluginImpl_CSVImporter extends CRM_Banking_PluginModel_Importe
     if (!isset($config->rules)) $config->rules = array();
     if (!isset($config->BIC)) $config->BIC = rand(1000,10000);
   }
+
+  /**
+   * will be used to avoid multiple account lookups
+   */
+  protected $account_cache = array();
 
   /** 
    * the plugin's user readable name
@@ -135,8 +140,13 @@ class CRM_Banking_PluginImpl_CSVImporter extends CRM_Banking_PluginModel_Importe
     
     if ($this->getCurrentTransactionBatch()->tx_count) {
       // we have transactions in the batch -> save
-      //$this->getCurrentTransactionBatch()->starting_date = 0;
-      //$this->getCurrentTransactionBatch()->ending_date = 0;
+      if ($config->title) {
+        // the config defines a title, replace tokens
+        $this->getCurrentTransactionBatch()->reference = $config->title;
+      } else {
+        $this->getCurrentTransactionBatch()->reference = "CSV-File {md5}";
+      }
+
       $this->closeTransactionBatch(TRUE);
     } else {
       $this->closeTransactionBatch(FALSE);
@@ -146,7 +156,6 @@ class CRM_Banking_PluginImpl_CSVImporter extends CRM_Banking_PluginModel_Importe
 
   protected function import_line($line, $line_nr, $progress, $header, $params) {
     $config = $this->_plugin_config;
-    $this->reportProgress($progress, sprintf("Imported line %d", $line_nr-$config->header));
     
     // generate entry data
     $raw_data = implode(";", $line);
@@ -173,14 +182,42 @@ class CRM_Banking_PluginImpl_CSVImporter extends CRM_Banking_PluginModel_Importe
       }
     }
 
-    // look up the bank account via *BAN
+    // run filters
+    if (isset($config->filter) && is_array($config->filter)) {
+      foreach ($config->filter as $filter) {
+        if ($filter->type=='string_positive') {
+          // only accept string matches
+          $value1 = $this->getValue($filter->value1, $btx, $line, $header);
+          $value2 = $this->getValue($filter->value2, $btx, $line, $header);
+          if ($value1 != $value2) {
+            $this->reportProgress($progress, sprintf("Skipped line %d", $line_nr-$config->header));
+            return;
+          }
+        }
+      }
+    }
+
+    // look up the bank accounts
     foreach ($btx as $key => $value) {
-      if (substr($key, 1, 3)=="BAN") {
+      // check for NBAN_?? or IBAN endings
+      if (preg_match('/^_.*NBAN_..$/', $key) || preg_match('/^_.*IBAN$/', $key)) {
         // this is a *BAN entry -> look it up
-        $result = civicrm_api('BankingAccountReference', 'getsingle', array('version' => 3, 'reference' => $value));
-        if ($result['is_error']==0) {
-          $btx['party_ba_id'] = $result['ba_id'];
-          break;
+        if (!isset($this->account_cache[$value])) {
+          $result = civicrm_api('BankingAccountReference', 'getsingle', array('version' => 3, 'reference' => $value));
+          if ($result['is_error']) {
+            //CRM_Core_Session::setStatus(sprintf(ts("Internal error while looking up bank account '%s'. Error was: %s"), $value, $result['error_message']), ts('Error'), 'alert');
+            $this->account_cache[$value] = NULL;
+          } else {
+            $this->account_cache[$value] = $result['ba_id'];
+          }
+        }
+
+        if ($this->account_cache[$value] != NULL) {
+          if (substr($key, 0, 7)=="_party_") {
+            $btx['party_ba_id'] = $this->account_cache[$value];  
+          } elseif (substr($key, 0, 1)=="_") {
+            $btx['ba_id'] = $this->account_cache[$value];  
+          }
         }
       }
     }
@@ -216,6 +253,31 @@ class CRM_Banking_PluginImpl_CSVImporter extends CRM_Banking_PluginModel_Importe
     // and finally write it into the DB
     $duplicate = $this->checkAndStoreBTX($btx, $progress, $params);
     // TODO: process duplicates or failures?
+
+    $this->reportProgress($progress, sprintf("Imported line %d", $line_nr-$config->header));
+  }
+
+  /**
+   * Extract the value for the given key from the resources (line, btx).
+   */
+  protected function getValue($key, $btx, $line=NULL, $header=array()) {
+    // get value
+    if (_csvimporter_helper_startswith($key, '_constant:')) {
+      return substr($key, 10);
+    } else if ($line && is_int($key)) {
+      return $line[$key];
+    } else {
+      $index = array_search($key, $header);
+      if ($index!==FALSE) {
+        return $line[$index];
+      } elseif (isset($btx[$key])) {
+        // this is not in the line, maybe it's already in the btx
+        return $btx[$key];
+      } else {
+        error_log("org.project60.banking: CSVImporter - Cannot find source '$key' for rule or filter.");
+      }
+    }
+    return '';
   }
 
   /**
@@ -224,27 +286,14 @@ class CRM_Banking_PluginImpl_CSVImporter extends CRM_Banking_PluginModel_Importe
   protected function apply_rule($rule, $line, &$btx, $header) {
 
     // get value
-    if (is_int($rule->from)) {
-      $value = $line[$rule->from];
-    } else {
-      $index = array_search($rule->from, $header);
-      if ($index!==FALSE) {
-        $value = $line[$index];
-      } elseif (isset($btx[$rule->from])) {
-        // this is not in the line, maybe it's already in the btx
-        $value = $btx[$rule->from];
-      } else {
-        error_log("Cannot find source '$rule->from' for rule.");
-        $value = '';
-      }
-    }
+    $value = $this->getValue($rule->from, $btx, $line, $header);
 
     // execute the rule
-    if (_startswith($rule->type, 'set')) {
+    if (_csvimporter_helper_startswith($rule->type, 'set')) {
       // SET is a simple copy command:
       $btx[$rule->to] = $value;
 
-    } elseif (_startswith($rule->type, 'append')) {
+    } elseif (_csvimporter_helper_startswith($rule->type, 'append')) {
       // APPEND appends the string to a give value
       if (!isset($btx[$rule->to])) $btx[$rule->to] = '';
       $params = explode(":", $rule->type);
@@ -256,7 +305,7 @@ class CRM_Banking_PluginImpl_CSVImporter extends CRM_Banking_PluginModel_Importe
         $btx[$rule->to] = $btx[$rule->to]." ".$value;
       }
 
-    } elseif (_startswith($rule->type, 'trim')) {
+    } elseif (_csvimporter_helper_startswith($rule->type, 'trim')) {
       // TRIM will strip the string of 
       $params = explode(":", $rule->type);
       if (isset($params[1])) {
@@ -266,28 +315,33 @@ class CRM_Banking_PluginImpl_CSVImporter extends CRM_Banking_PluginModel_Importe
         $btx[$rule->to] = trim($value);
       }
 
-    } elseif (_startswith($rule->type, 'format')) {
+    } elseif (_csvimporter_helper_startswith($rule->type, 'format')) {
       // will use the sprintf format
       $params = explode(":", $rule->type);
       $btx[$rule->to] = sprintf($params[1], $value);
 
-    } elseif (_startswith($rule->type, 'strtotime')) {
+    } elseif (_csvimporter_helper_startswith($rule->type, 'constant')) {
+      // will just set a constant string
+      $btx[$rule->to] = $rule->from;
+
+    } elseif (_csvimporter_helper_startswith($rule->type, 'strtotime')) {
       // STRTOTIME is a date parser
-      $params = explode(":", $rule->type);
+      $params = explode(":", $rule->type, 2);
       if (isset($params[1])) {
         // the user provided a date format
         $datetime = DateTime::createFromFormat($params[1], $value);
-        $btx[$rule->to] = $datetime->format('Ymd120000');
+        if ($datetime) {
+          $btx[$rule->to] = $datetime->format('YmdHis');  
+        }
       } else {
-        $datetime = strtotime($value);
-        date('Ymd120000', $datetime);
+        $btx[$rule->to] = date('YmdHis', strtotime($value));
       }
 
-    } elseif (_startswith($rule->type, 'amount')) {
+    } elseif (_csvimporter_helper_startswith($rule->type, 'amount')) {
       // AMOUNT will take care of currency issues, like "," instead of "."
       $btx[$rule->to] = str_replace(",", ".", $value);
 
-    } elseif (_startswith($rule->type, 'regex:')) {
+    } elseif (_csvimporter_helper_startswith($rule->type, 'regex:')) {
       // REGEX will extract certain values from the line
       $pattern = substr($rule->type, 6);
       $matches = array();

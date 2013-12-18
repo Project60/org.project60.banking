@@ -51,7 +51,8 @@ msgid "Couldn't query plugin list from API!"
 msgstr ""
 
 #: on/CRM/Banking/BAO/PluginInstance.php
-msgid "Could not locate the class name for civicrm_banking.plugin_classes member %d."
+msgid ""
+"Could not locate the class name for civicrm_banking.plugin_classes member %d."
 msgstr ""
 
 #: on/CRM/Banking/BAO/PluginInstance.php
@@ -115,6 +116,7 @@ msgid "Sequence in statement"
 msgstr ""
 
 #: on/CRM/Banking/DAO/BankTransaction.php
+#: templates/CRM/Banking/Page/Review.tpl
 msgid "Suggestions"
 msgstr ""
 
@@ -289,6 +291,7 @@ msgid "Manage CiviBanking Components"
 msgstr ""
 
 #: on/CRM/Banking/Page/Payments.php
+#: on/CRM/Banking/PluginImpl/Matcher/Batches.php
 msgid "Payments"
 msgstr ""
 
@@ -506,6 +509,7 @@ msgid "Analysed"
 msgstr ""
 
 #: templates/CRM/Banking/Page/Payments.tpl
+#: on/CRM/Banking/PluginImpl/Matcher/DefaultOptions.php
 msgid "Completed"
 msgstr ""
 
@@ -519,10 +523,15 @@ msgid "Account"
 msgstr ""
 
 #: templates/CRM/Banking/Page/Payments.tpl
+#: on/CRM/Banking/PluginImpl/Matcher/DefaultOptions.php
+#: on/CRM/Banking/PluginImpl/Matcher/ExistingContribution.php
 msgid "Date"
 msgstr ""
 
 #: templates/CRM/Banking/Page/Payments.tpl
+#: on/CRM/Banking/PluginImpl/Matcher/Batches.php
+#: on/CRM/Banking/PluginImpl/Matcher/DefaultOptions.php
+#: on/CRM/Banking/PluginImpl/Matcher/ExistingContribution.php
 msgid "Amount"
 msgstr ""
 
@@ -579,6 +588,8 @@ msgid "Trans. #"
 msgstr ""
 
 #: templates/CRM/Banking/Page/Review.tpl
+#: on/CRM/Banking/PluginImpl/Matcher/DefaultOptions.php
+#: templates/CRM/Banking/Page/Payments.tpl
 msgid "Status"
 msgstr ""
 
@@ -649,6 +660,8 @@ msgstr ""
 #: on/CRM/Banking/Matcher/Context.php
 #: on/CRM/Banking/PluginImpl/Matcher/DefaultOptions.php
 #: on/CRM/Banking/PluginImpl/Matcher/ExistingContribution.php
+#: on/CRM/Banking/PluginImpl/Matcher/Batches.php
+#: on/CRM/Banking/PluginImpl/CSVImporter.php
 msgid "Error"
 msgstr ""
 
@@ -699,7 +712,9 @@ msgid "No contribution given. The payment is NOT completed."
 msgstr ""
 
 #: on/CRM/Banking/PluginImpl/Matcher/DefaultOptions.php
-msgid "Please manually process this payment and <b>then</b> add the resulting contributions to this list."
+msgid ""
+"Please manually process this payment and <b>then</b> add the resulting "
+"contributions to this list."
 msgstr ""
 
 #: on/CRM/Banking/PluginImpl/Matcher/DefaultOptions.php
@@ -776,11 +791,15 @@ msgid "Internal error! Cannot find contribution #"
 msgstr ""
 
 #: templates/CRM/Banking/Page/Payments.tpl
-msgid "No payments could be found with the requested status. Try the other status filter buttons above to find your imported payments."
+msgid ""
+"No payments could be found with the requested status. Try the other status "
+"filter buttons above to find your imported payments."
 msgstr ""
 
 #: templates/CRM/Banking/Page/Payments.tpl
-msgid "No statments could be found with the requested status. Try the other status filter buttons above to find your imported statements."
+msgid ""
+"No statments could be found with the requested status. Try the other status "
+"filter buttons above to find your imported statements."
 msgstr ""
 
 #: templates/CRM/Banking/Page/Review.tpl
@@ -797,4 +816,201 @@ msgstr ""
 
 #: menu entry
 msgid "Configuration"
+msgstr ""
+
+#: on/CRM/Banking/PluginImpl/Matcher/Batches.php
+msgid "Settles a contribution batch"
+msgstr ""
+
+#: on/CRM/Banking/PluginImpl/Matcher/Batches.php
+msgid "Internal error! Cannot find batch %s"
+msgstr ""
+
+#: on/CRM/Banking/PluginImpl/Matcher/Batches.php
+msgid ""
+"Internal error! Cannot complete contribution %s. Error message was: '%s'"
+msgstr ""
+
+#: on/CRM/Banking/PluginImpl/Matcher/Batches.php
+msgid "Completed all %d contributions."
+msgstr ""
+
+#: on/CRM/Banking/PluginImpl/Matcher/Batches.php
+msgid "Batch completed"
+msgstr ""
+
+#: on/CRM/Banking/PluginImpl/Matcher/Batches.php
+msgid ""
+"Some contribtions in batch %s are not in state 'pending', and override was "
+"not enabled. The payment was NOT processed!"
+msgstr ""
+
+#: on/CRM/Banking/PluginImpl/Matcher/Batches.php
+msgid "Internal error! Cannot find batch #"
+msgstr ""
+
+#: on/CRM/Banking/PluginImpl/Matcher/Batches.php
+msgid "not exported"
+msgstr ""
+
+#: on/CRM/Banking/PluginImpl/Matcher/Batches.php
+msgid "WARNING! Not all contributions of this batch are in status 'pending'."
+msgstr ""
+
+#: on/CRM/Banking/PluginImpl/Matcher/Batches.php
+msgid "Override and set all contributions to 'completed' anyway."
+msgstr ""
+
+#: on/CRM/Banking/PluginImpl/Matcher/Batches.php
+msgid "All contributions of this batch will be set to 'completed'."
+msgstr ""
+
+#: on/CRM/Banking/PluginImpl/Matcher/Batches.php
+msgid "Created"
+msgstr ""
+
+#: on/CRM/Banking/PluginImpl/Matcher/Batches.php
+msgid "Exported"
+msgstr ""
+
+#: on/CRM/Banking/PluginImpl/Matcher/DefaultOptions.php
+msgid ""
+"Please manually process this payment and <i>then</i> add the resulting "
+"contributions to this list, <b><i>before</i></b> confirming this option."
+msgstr ""
+
+#: on/CRM/Banking/PluginImpl/Matcher/DefaultOptions.php
+msgid "add new contribution for:"
+msgstr ""
+
+#: on/CRM/Banking/PluginImpl/Matcher/DefaultOptions.php
+msgid "add contact ID to list"
+msgstr ""
+
+#: on/CRM/Banking/PluginImpl/Matcher/DefaultOptions.php
+msgid "add empty contribution"
+msgstr ""
+
+#: on/CRM/Banking/PluginImpl/Matcher/DefaultOptions.php
+msgid "add existing contribution by ID"
+msgstr ""
+
+#: on/CRM/Banking/PluginImpl/Matcher/DefaultOptions.php
+msgid "unknown address"
+msgstr ""
+
+#: on/CRM/Banking/PluginImpl/Matcher/DefaultOptions.php
+msgid "No contact found... add manually &nbsp;&nbsp;&nbsp;=>"
+msgstr ""
+
+#: on/CRM/Banking/PluginImpl/Matcher/DefaultOptions.php
+#: templates/CRM/Banking/Page/Payments.tpl
+msgid "view"
+msgstr ""
+
+#: on/CRM/Banking/PluginImpl/Matcher/DefaultOptions.php
+msgid "No valid contact ID given."
+msgstr ""
+
+#: on/CRM/Banking/PluginImpl/Matcher/ExistingContribution.php
+msgid "A pending contribution partially matching the paymenty was found."
+msgstr ""
+
+#: on/CRM/Banking/PluginModel/Matcher.php
+msgid "No further information available"
+msgstr ""
+
+#: templates/CRM/Banking/Page/Import.tpl
+msgid "See Results"
+msgstr ""
+
+#: templates/CRM/Banking/Page/Import.tpl
+msgid "Import More"
+msgstr ""
+
+#: templates/CRM/Banking/Page/Payments.tpl
+msgid "Target Account"
+msgstr ""
+
+#: templates/CRM/Banking/Page/Payments.tpl
+msgid "Statement"
+msgstr ""
+
+#: templates/CRM/Banking/Page/Review.tpl
+msgid "Next"
+msgstr ""
+
+#: templates/CRM/Banking/Page/Review.tpl
+msgid "Exit"
+msgstr ""
+
+#: templates/CRM/Banking/Page/Review.tpl
+msgid "This payment was"
+msgstr ""
+
+#: templates/CRM/Banking/Page/Review.tpl
+msgid "on"
+msgstr ""
+
+#: on/CRM/Banking/Page/Review.php
+msgid "This payment was <b>processed</b> on %s."
+msgstr ""
+
+#: on/CRM/Banking/Page/Review.php
+msgid "This payment was marked to be <b>ignored</b> on %s."
+msgstr ""
+
+#: on/CRM/Banking/PluginImpl/Matcher/Rule.php
+#: on/CRM/Banking/PluginImpl/Matcher/Ignore.php
+#: on/CRM/Banking/PluginModel/Matcher.php
+msgid "Because :"
+msgstr ""
+
+#: templates/CRM/Banking/Page/Payments.tpl
+msgid "Payment count"
+msgstr ""
+
+#: on/CRM/Banking/PluginImpl/Matcher/DefaultOptions.php
+msgid "This payment was manually matched to the following contributions:"
+msgstr ""
+
+#: on/CRM/Banking/PluginImpl/Matcher/DefaultOptions.php
+msgid "Contribution"
+msgstr ""
+
+#: on/CRM/Banking/PluginImpl/Matcher/Batches.php
+msgid "This payment was associated with <a href=\"%s\">payment batch #%s</a>."
+msgstr ""
+
+#: on/CRM/Banking/PluginImpl/Matcher/ExistingContribution.php
+msgid "This payment was associated with <a href=\"%s\">contribution #%s</a>."
+msgstr ""
+
+#: on/CRM/Banking/PluginImpl/Matcher/ExistingContribution.php
+msgid "This payment is the <b>cancellation</b> of the below contribution."
+msgstr ""
+
+#: on/CRM/Banking/PluginImpl/Matcher/ExistingContribution.php
+msgid ""
+"This payment could be the <b>cancellation</b> of the below contribution."
+msgstr ""
+
+#: on/CRM/Banking/PluginImpl/Matcher/ExistingContribution.php
+msgid "There seems to be a match:"
+msgstr ""
+
+#: on/CRM/Banking/PluginImpl/CSVImporter.php
+msgid "Internal error while looking up bank account '%s'. Error was: %s"
+msgstr ""
+
+#: on/CRM/Banking/PluginImpl/Matcher/DefaultOptions.php
+msgid "Couldn't find contribution #%s"
+msgstr ""
+
+#: on/CRM/Banking/PluginImpl/Matcher/DefaultOptions.php
+msgid "Couldn't modify contribution #%s"
+msgstr ""
+
+#: on/CRM/Banking/PluginImpl/Matcher/DefaultOptions.php
+msgid "<br/><b>Will be cancelled.</b>"
 msgstr ""

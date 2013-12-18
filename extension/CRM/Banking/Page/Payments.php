@@ -94,18 +94,33 @@ class CRM_Banking_Page_Payments extends CRM_Core_Page {
     $statements_new = array();
     $statements_analysed = array();
     $statements_completed = array();
-
+    
     // TODO: WE NEED a tx_batch status field, see https://github.com/Project60/CiviBanking/issues/20
-    $sql_query = "SELECT * FROM civicrm_bank_tx_batch;";
+    $sql_query =    // this query joins the bank_account table to determine the target account
+      "SELECT civicrm_bank_tx_batch.id AS id, reference, starting_date, tx_count, ba_id, civicrm_bank_account.data_parsed as data_parsed
+         FROM civicrm_bank_tx_batch 
+         LEFT JOIN civicrm_bank_tx ON civicrm_bank_tx.tx_batch_id = civicrm_bank_tx_batch.id 
+         LEFT JOIN civicrm_bank_account ON civicrm_bank_account.id = civicrm_bank_tx.ba_id 
+         GROUP BY id;";
     $stmt = CRM_Core_DAO::executeQuery($sql_query);
     while($stmt->fetch()) {
+      // check the states
       $info = $this->investigate($stmt->id, $payment_states);
+
+      // look up the target account
+      $target_name = ts("Unknown");
+      $target_info = json_decode($stmt->data_parsed);
+      if (isset($target_info->name)) {
+        $target_name = $target_info->name;
+      }
+
+      // finally, create the data row
       $row = array(  
                     'id' => $stmt->id, 
                     'reference' => $stmt->reference, 
                     'date' => strtotime($stmt->starting_date), 
                     'count' => $stmt->tx_count, 
-                    'target' => ts("Unknown"),
+                    'target' => $target_info->name,
                     'analysed' => $info['analysed'].'%',
                     'completed' => $info['completed'].'%',
                 );

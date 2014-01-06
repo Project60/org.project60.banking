@@ -60,14 +60,14 @@
 		<th colspan="1" rowspan="1" class="ui-state-default">
 			<div class="DataTables_sort_wrapper"><span class="DataTables_sort_icon"></span></div>
 		</th>
+		<th colspan="1" rowspan="1" class="crm-banking-payment_date ui-state-default">
+			<div class="DataTables_sort_wrapper">{ts}Date{/ts}<!--span class="DataTables_sort_icon css_right ui-icon ui-icon-carat-2-n-s"></span--></div>
+		</th>
 		<th colspan="1" rowspan="1" class="crm-banking-payment_target_owner ui-state-default">
 			<div class="DataTables_sort_wrapper">{ts}Account{/ts}<!--span class="DataTables_sort_icon css_right ui-icon ui-icon-carat-2-n-s"></span--></div>
 		</th>
 		<th colspan="1" rowspan="1" class="crm-banking-payment_target_owner ui-state-default">
 			<div class="DataTables_sort_wrapper">#<!--span class="DataTables_sort_icon css_right ui-icon ui-icon-carat-2-n-s"></span--></div>
-		</th>
-		<th colspan="1" rowspan="1" class="crm-banking-payment_date ui-state-default">
-			<div class="DataTables_sort_wrapper">{ts}Date{/ts}<!--span class="DataTables_sort_icon css_right ui-icon ui-icon-carat-2-n-s"></span--></div>
 		</th>
 		<th colspan="1" rowspan="1" class="crm-banking-payment_amount ui-state-default">
 			<div class="DataTables_sort_wrapper">{ts}Amount{/ts}<!--span class="DataTables_sort_icon css_right ui-icon ui-icon-carat-2-n-s"></span--></div>
@@ -90,9 +90,9 @@
   {foreach from=$rows item=field key=fieldName}
   <tr class="odd ">
     <td><input id="check_{$field.id}" type="checkbox" name="payment_selected"></td>
+    <td class="">{$field.date|date_format:"%d-%m-%Y"}</td>
     <td class="">{$field.account_owner}</td>
     <td class="" style="text-align: center;">{$field.sequence}</td>
-    <td class="">{$field.date|date_format:"%d-%m-%Y"}</td>
     <td class="" style="text-align: right;">{$field.amount} {$field.currency}</td>
     <td class="">
       {if $field.party_contact}
@@ -120,14 +120,14 @@
     <th colspan="1" rowspan="1" class="ui-state-default">
       <div class="DataTables_sort_wrapper"><span class="DataTables_sort_icon"></span></div>
     </th>
+    <th colspan="1" rowspan="1" class="crm-banking-payment_date ui-state-default">
+      <div class="DataTables_sort_wrapper">{ts}Date{/ts}<!--span class="DataTables_sort_icon css_right ui-icon ui-icon-carat-2-n-s"></span--></div>
+    </th>
     <th colspan="1" rowspan="1" class="ccrm-banking-payment_target_account nosort ui-state-default">
       <div class="DataTables_sort_wrapper">{ts}Target Account{/ts}<!--span class="DataTables_sort_icon css_right ui-icon ui-icon-carat-2-n-s"></span--></div>
     </th>
     <th colspan="1" rowspan="1" class="crm-banking-payment_date ui-state-default">
       <div class="DataTables_sort_wrapper">{ts}Statement{/ts}<!--span class="DataTables_sort_icon css_right ui-icon ui-icon-carat-2-n-s"></span--></div>
-    </th>
-    <th colspan="1" rowspan="1" class="crm-banking-payment_date ui-state-default">
-      <div class="DataTables_sort_wrapper">{ts}Date{/ts}<!--span class="DataTables_sort_icon css_right ui-icon ui-icon-carat-2-n-s"></span--></div>
     </th>
     <th colspan="1" rowspan="1" class="crm-banking-payment_amount ui-state-default">
       <div class="DataTables_sort_wrapper">{ts}Payment count{/ts}<!--span class="DataTables_sort_icon css_right ui-icon ui-icon-carat-2-n-s"></span--></div>
@@ -147,9 +147,9 @@
   {foreach from=$rows item=field key=fieldName}
   <tr class="odd status-overdue">
     <td><input id="check_{$field.id}" type="checkbox" name="payment_selected"></td>
+    <td class="crm-contact-activity-activity_type">{$field.date|date_format:"%d-%m-%Y"}</td>
     <td class="crm-contact-activity-source_contact">{$field.target}</td>
     <td class="crm-contact-activity-activity_date">{$field.reference}</td>
-    <td class="crm-contact-activity-activity_type">{$field.date|date_format:"%d-%m-%Y"}</td>
     <td class="crm-contact-activity-source_contact">{$field.count}</td>
     <td class="crm-contact-activity-source_contact">{$field.analysed}</td>
     <td class="crm-contact-activity-source_contact">{$field.completed}</td>

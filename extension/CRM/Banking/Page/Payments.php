@@ -101,7 +101,8 @@ class CRM_Banking_Page_Payments extends CRM_Core_Page {
          FROM civicrm_bank_tx_batch 
          LEFT JOIN civicrm_bank_tx ON civicrm_bank_tx.tx_batch_id = civicrm_bank_tx_batch.id 
          LEFT JOIN civicrm_bank_account ON civicrm_bank_account.id = civicrm_bank_tx.ba_id 
-         GROUP BY id;";
+         GROUP BY id
+         ORDER BY starting_date ASC;";
     $stmt = CRM_Core_DAO::executeQuery($sql_query);
     while($stmt->fetch()) {
       // check the states
@@ -120,7 +121,7 @@ class CRM_Banking_Page_Payments extends CRM_Core_Page {
                     'reference' => $stmt->reference, 
                     'date' => strtotime($stmt->starting_date), 
                     'count' => $stmt->tx_count, 
-                    'target' => $target_info->name,
+                    'target' => $target_name,
                     'analysed' => $info['analysed'].'%',
                     'completed' => $info['completed'].'%',
                 );

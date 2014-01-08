@@ -41,6 +41,18 @@
 </div>
 <br/><br/>
 
+<form action="" method="post">
+  {ts}Select a target bank account:{/ts}
+  <select name="target_ba_id">
+    <option value="">-- {ts}show all{/ts} --</option>
+    {foreach from=$target_accounts item=ba_name key=ba_id}
+      <option value="{$ba_id}">{$ba_name}</option>
+    {/foreach}
+  </select>
+  <button type="submit">Refresh</button>
+</form>
+<br/>
+
 {if not $rows}    {* NO ROWS FOUND *}
   {if $show=='payments'}    
     <div id="help" class="description">
@@ -90,7 +102,7 @@
   {foreach from=$rows item=field key=fieldName}
   <tr class="odd ">
     <td><input id="check_{$field.id}" type="checkbox" name="payment_selected"></td>
-    <td class="">{$field.date|date_format:"%d-%m-%Y"}</td>
+    <td class="" nowrap>{$field.date|date_format:"%d-%m-%Y"}</td>
     <td class="">{$field.account_owner}</td>
     <td class="" style="text-align: center;">{$field.sequence}</td>
     <td class="" style="text-align: right;">{$field.amount} {$field.currency}</td>
@@ -145,15 +157,20 @@
 </thead>
 <tbody>
   {foreach from=$rows item=field key=fieldName}
-  <tr class="odd status-overdue">
+  <tr class="odd ">
     <td><input id="check_{$field.id}" type="checkbox" name="payment_selected"></td>
-    <td class="crm-contact-activity-activity_type">{$field.date|date_format:"%d-%m-%Y"}</td>
-    <td class="crm-contact-activity-source_contact">{$field.target}</td>
-    <td class="crm-contact-activity-activity_date">{$field.reference}</td>
-    <td class="crm-contact-activity-source_contact">{$field.count}</td>
-    <td class="crm-contact-activity-source_contact">{$field.analysed}</td>
-    <td class="crm-contact-activity-source_contact">{$field.completed}</td>
-    <td class="crm-contact-activity_subject">{$field.state}</td>
+    <td nowrap class="crm-contact-activity-activity_type">{$field.date|date_format:"%d-%m-%Y"}</td>
+    <td class="crm-contact-activity-source_contact"><b>{$field.target}</b></td>
+    <td class="">
+      <span style="background-color: #cccccc; padding: 2px 4px; border-radius: 3px;">{$field.sequence}</span> 
+      {$field.total} {$field.currency}
+      <br/>
+      <span style="color: #ccc; font-size: 0.9em;">{$field.reference}</span>
+    </td>
+    <td style="text-align: center; vertical-align: middle;" class="crm-contact-activity-source_contact">{$field.count}</td>
+    <td style="text-align: center; vertical-align: middle;" class="crm-contact-activity-source_contact">{$field.analysed}</td>
+    <td style="text-align: center; vertical-align: middle;" class="crm-contact-activity-source_contact">{$field.completed}</td>
+    <td style="text-align: center; vertical-align: middle;" class="crm-contact-activity_subject">{$field.state}</td>
     <td class="hiddenElement">status-overdue</td>
   </tr>
   {/foreach}

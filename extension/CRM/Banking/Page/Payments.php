@@ -75,7 +75,7 @@ class CRM_Banking_Page_Payments extends CRM_Core_Page {
   }
 
   /****************
-   * STATMENT MODE
+   * STATEMENT MODE
    ****************/
   function build_statementPage($payment_states) {
     // DELETE ITEMS (if any)
@@ -91,25 +91,50 @@ class CRM_Banking_Page_Payments extends CRM_Core_Page {
       $this->processItems($payment_list);
     }
 
+    $target_ba_id = null;
+    if (isset($_REQUEST['target_ba_id'])) {
+      $target_ba_id = $_REQUEST['target_ba_id'];
+    }
+
     $statements_new = array();
     $statements_analysed = array();
     $statements_completed = array();
     
+    // collect an array of target accounts, serving to limit the display
+    $target_accounts = array();
+    
     // TODO: WE NEED a tx_batch status field, see https://github.com/Project60/CiviBanking/issues/20
     $sql_query =    // this query joins the bank_account table to determine the target account
-      "SELECT civicrm_bank_tx_batch.id AS id, reference, starting_date, tx_count, ba_id, civicrm_bank_account.data_parsed as data_parsed
-         FROM civicrm_bank_tx_batch 
-         LEFT JOIN civicrm_bank_tx ON civicrm_bank_tx.tx_batch_id = civicrm_bank_tx_batch.id 
-         LEFT JOIN civicrm_bank_account ON civicrm_bank_account.id = civicrm_bank_tx.ba_id 
-         GROUP BY id
-         ORDER BY starting_date ASC;";
+        "SELECT 
+          btxb.id AS id, 
+          ba.id AS ba_id, 
+          reference, 
+          btxb.sequence as sequence, 
+          starting_date, 
+          tx_count, 
+          ba_id, 
+          ba.data_parsed as data_parsed,
+          sum(btx.amount) as total,
+          btx.currency as currency
+        FROM 
+          civicrm_bank_tx_batch btxb
+          LEFT JOIN civicrm_bank_tx btx ON btx.tx_batch_id = btxb.id 
+          LEFT JOIN civicrm_bank_account ba ON ba.id = btx.ba_id "
+          .
+            ($target_ba_id ? ' WHERE ba_id = ' . $target_ba_id : '')
+          . 
+          "
+        GROUP BY 
+          id
+        ORDER BY 
+          starting_date ASC;";
     $stmt = CRM_Core_DAO::executeQuery($sql_query);
     while($stmt->fetch()) {
       // check the states
       $info = $this->investigate($stmt->id, $payment_states);
 
       // look up the target account
-      $target_name = ts("Unknown");
+      $target_name = ts("Unnamed");
       $target_info = json_decode($stmt->data_parsed);
       if (isset($target_info->name)) {
         $target_name = $target_info->name;
@@ -119,6 +144,9 @@ class CRM_Banking_Page_Payments extends CRM_Core_Page {
       $row = array(  
                     'id' => $stmt->id, 
                     'reference' => $stmt->reference, 
+                    'sequence' => $stmt->sequence, 
+                    'total' => $stmt->total, 
+                    'currency' => $stmt->currency, 
                     'date' => strtotime($stmt->starting_date), 
                     'count' => $stmt->tx_count, 
                     'target' => $target_name,
@@ -137,6 +165,10 @@ class CRM_Banking_Page_Payments extends CRM_Core_Page {
           array_push($statements_new, $row);
         }
       }
+      
+      // collect the target BA
+      $target_accounts[ $stmt->ba_id ] = $target_name;
+      
     }
 
     if ($_REQUEST['status_ids']==$payment_states['new']['id']) {
@@ -154,6 +186,8 @@ class CRM_Banking_Page_Payments extends CRM_Core_Page {
       $this->assign('rows', $statements_completed);
       $this->assign('status_message', sizeof($statements_completed).' completed statements.');
     }
+    
+    $this->assign('target_accounts', $target_accounts);        
     $this->assign('show', 'statements');        
   }
 

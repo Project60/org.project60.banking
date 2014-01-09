@@ -61,6 +61,7 @@ class CRM_Banking_Page_Review extends CRM_Core_Page {
         $ba_bao = new CRM_Banking_BAO_BankAccount();
         $ba_bao->get('id', $btx_bao->party_ba_id);        
         $ba_bao->parsed = json_decode($ba_bao->data_parsed, true);        
+        $contact = null;
         if ($ba_bao->contact_id) {
           $contact = civicrm_api('Contact','getsingle',array('version'=>3,'id'=>$ba_bao->contact_id));        
         }

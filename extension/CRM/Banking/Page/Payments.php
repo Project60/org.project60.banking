@@ -188,6 +188,7 @@ class CRM_Banking_Page_Payments extends CRM_Core_Page {
     }
     
     $this->assign('target_accounts', $target_accounts);        
+    $this->assign('target_ba_id', $target_ba_id);        
     $this->assign('show', 'statements');        
   }
 

@@ -128,7 +128,6 @@ class CRM_Banking_Matcher_Engine {
         }
       }
     }
-    
     $btx->saveSuggestions();
 
     // set the status

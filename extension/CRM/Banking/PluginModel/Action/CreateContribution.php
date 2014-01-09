@@ -8,7 +8,7 @@ class CRM_Banking_PluginModel_Action_CreateContribution {
     return "creating a contribution of type '{$ftp->name}' for <b>{$btx->amount} {$btx->currency}</b>";
   }
 
-  public function execute($params, $btx) {
+  public function execute($params, $btx, $match) {
     $ba_id = $btx->party_ba_id;
     $ba = civicrm_api('BankingAccount', 'getsingle', array('version' => 3, 'id' => $ba_id));
     $conid = $ba['contact_id'];

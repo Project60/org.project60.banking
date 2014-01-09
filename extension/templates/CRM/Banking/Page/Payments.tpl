@@ -42,11 +42,11 @@
 <br/><br/>
 
 <form action="" method="post">
-  {ts}Select a target bank account:{/ts}
+  {ts}Showing statements for{/ts}
   <select name="target_ba_id">
-    <option value="">-- {ts}show all{/ts} --</option>
+    <option value="">{ts}all accounts{/ts}</option>
     {foreach from=$target_accounts item=ba_name key=ba_id}
-      <option value="{$ba_id}">{$ba_name}</option>
+      <option value="{$ba_id}" {if $ba_id == $target_ba_id}selected="selected"{/if}>{$ba_name}</option>
     {/foreach}
   </select>
   <button type="submit">Refresh</button>

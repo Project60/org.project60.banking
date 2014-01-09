@@ -180,7 +180,7 @@ class CRM_Banking_BAO_BankTransaction extends CRM_Banking_DAO_BankTransaction {
     }
   }
 
-  public function get($k, $v) {
+  public function get($k = NULL, $v = NULL) {
     parent::get($k, $v);
     $this->restoreSuggestions();
   }

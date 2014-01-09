@@ -101,7 +101,8 @@ class CRM_Banking_Page_Payments extends CRM_Core_Page {
          FROM civicrm_bank_tx_batch 
          LEFT JOIN civicrm_bank_tx ON civicrm_bank_tx.tx_batch_id = civicrm_bank_tx_batch.id 
          LEFT JOIN civicrm_bank_account ON civicrm_bank_account.id = civicrm_bank_tx.ba_id 
-         GROUP BY id;";
+         GROUP BY id
+         ORDER BY starting_date ASC;";
     $stmt = CRM_Core_DAO::executeQuery($sql_query);
     while($stmt->fetch()) {
       // check the states
@@ -120,7 +121,7 @@ class CRM_Banking_Page_Payments extends CRM_Core_Page {
                     'reference' => $stmt->reference, 
                     'date' => strtotime($stmt->starting_date), 
                     'count' => $stmt->tx_count, 
-                    'target' => $target_info->name,
+                    'target' => $target_name,
                     'analysed' => $info['analysed'].'%',
                     'completed' => $info['completed'].'%',
                 );
@@ -186,7 +187,7 @@ class CRM_Banking_Page_Payments extends CRM_Core_Page {
         $params = array('version' => 3, 'id' => $pba_id);
         $attached_ba = civicrm_api('BankingAccount', 'getsingle', $params);
         
-        $cid = $attached_ba['contact_id'];
+        $cid = isset($attached_ba['contact_id']) ? $attached_ba['contact_id'] : null;
         $contact = null;
         if ($cid) {
           $params = array('version' => 3, 'id' => $cid);
@@ -377,7 +378,7 @@ class CRM_Banking_Page_Payments extends CRM_Core_Page {
       CRM_Core_Error::error(sprintf(ts("Error while querying BTX with parameters '%s'!"), implode(',', $params)));
       return array();
     } elseif (count($result['values'])>=999) {
-      CRM_Core_Session::setStatus(sprintf(ts('Internal limit of 1000 transactions hit. Please use smaller statments.'), $failed, count($list), $name), ts('Internal restriction'), 'alert');
+      CRM_Core_Session::setStatus(sprintf(ts('Internal limit of 1000 transactions hit. Please use smaller statements.')), ts('Processing incomplete'), 'alert');
       return $result['values'];
     } else {
       return $result['values'];

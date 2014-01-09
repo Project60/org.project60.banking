@@ -20,22 +20,30 @@ class CRM_Banking_Helpers_MatchAddress {
   }
 
   public function findAddress() {
-    $found = false;
     if (isset($this->_data_parsed['street_address']) && !empty($this->_data_parsed['street_address']) && isset($this->_data_parsed['city']) && !empty($this->_data_parsed['city'])) {
       $data = array(
           'street_address' => $this->_data_parsed['street_address'],
           'city' => $this->_data_parsed['city'],
-          'version' => 3,
       );
-      $res = civicrm_api('address', 'get', $data);
-      if ($res['count'] == 1) {
-        $address = $res['values'][$res['id']];
-        $this->_address_id = $address['id'];
-        $this->_contact_id = $address['contact_id'];
-        $found = true;
+      $res = civicrm_api3('address', 'get', $data);
+//      echo '<pre>';
+//      print_r($res);
+//      echo '</pre>';
+      if ($res['count'] > 0) {
+        $addresses = array();
+        foreach ($res['values'] as $id => $address) {
+          $sMatch = sprintf("<b>%s</b>, %s <b>%s</b>",$address['street_address'], $address['postal_code'], $address['city']);
+          $address['matchString'] = $sMatch;
+          $addresses[] = $address;
+        }
+        return $addresses;
       }
     }
-    return $found;
+    return null;
+  }
+  
+  public function getContactId() {
+    return $this->_contact_id;
   }
 
   public function updateDataParsed() {

@@ -12,7 +12,7 @@ class CRM_Banking_PluginModel_Action_CreateContactIfNew {
     return "using the contact identified : <b>" . $con['display_name'] . '</b>';
   }
 
-  public function execute($params, $btx) {
+  public function execute($params, $btx,$match) {
     $ba_id = $btx->party_ba_id;
     $ba = civicrm_api('BankingAccount', 'getsingle', array('version' => 3, 'id' => $ba_id));
     $ba_data_parsed = json_decode($ba['data_parsed'], true);

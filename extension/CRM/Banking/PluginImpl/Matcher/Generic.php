@@ -84,15 +84,14 @@ class CRM_Banking_PluginImpl_Matcher_Generic extends CRM_Banking_PluginModel_Mat
   }
 
   /**
-   * Handle the different actions, should probably be handles at base class level ...
+   * Handle the different actions, should probably be handled at base class level ...
    * 
    * @param type $match
    * @param type $btx
    */
   public function execute($suggestion, $btx) {
     $config = $this->_plugin_config;
-    $s = '';
-    if ($config->actions) {
+    if (isset($config->actions)) {
       foreach ($config->actions as $action => $params) {
         $this->executeAction($action, $params, $btx);
       }

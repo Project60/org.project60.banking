@@ -269,7 +269,7 @@
         <td>
           <div class="btxheader collapsible" onclick="cj('#extra').toggle();
               cj(this).toggleClass('collapsible-closed');">
-            {ts}EXTRA{/ts} <span style="font-weight: normal;">{ts}(click to see){/ts}</span>
+            {ts}DETAILS{/ts} <span style="font-weight: normal;">{ts}(click to see){/ts}</span>
           </div>
         </td>
       </tr>

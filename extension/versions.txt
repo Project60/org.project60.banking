@@ -8,6 +8,8 @@ version 0.3
  - CiviCRM 4.4 compability
  - added target account filter to payment view
  - added 'skip processed' in review screen
+ - added 'back' in review screen
+ - added notification of processed payment
 
 
  pre0.3

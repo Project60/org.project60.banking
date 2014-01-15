@@ -41,10 +41,13 @@ class CRM_Banking_Page_Review extends CRM_Core_Page {
       $btx_bao = new CRM_Banking_BAO_BankTransaction();
       $btx_bao->get('id', $pid);        
 
+      // read the list of BTX statuses
+      $choices = banking_helper_optiongroup_id_name_mapping('civicrm_banking.bank_tx_status');
+
       // If the exercution was triggered, run that first
       if (isset($_REQUEST['execute'])) {
         $execute_bao = ($_REQUEST['execute']==$pid) ? $btx_bao : NULL;
-        $this->execute_suggestion($_REQUEST['execute_suggestion'], $_REQUEST, $execute_bao);
+        $this->execute_suggestion($_REQUEST['execute_suggestion'], $_REQUEST, $execute_bao, $choices);
 
         if (!isset($next_pid)) {
           // after execution -> exit if this was the last in the list
@@ -76,7 +79,6 @@ class CRM_Banking_Page_Review extends CRM_Core_Page {
       }
 
       // parse structured data
-      $choices = banking_helper_optiongroup_id_name_mapping('civicrm_banking.bank_tx_status');
       $this->assign('btxstatus', $choices[$btx_bao->status_id]);
       $this->assign('payment', $btx_bao);
       $this->assign('my_bao', $my_bao);
@@ -237,7 +239,7 @@ class CRM_Banking_Page_Review extends CRM_Core_Page {
   /**
    * Will trigger the execution of the given suggestion (identified by its hash)
    */
-  function execute_suggestion($suggestion_hash, $parameters, $btx_bao) {
+  function execute_suggestion($suggestion_hash, $parameters, $btx_bao, $choices) {
     // load BTX object if not provided
     if (!$btx_bao) {
       $btx_bao = new CRM_Banking_BAO_BankTransaction();
@@ -248,6 +250,14 @@ class CRM_Banking_Page_Review extends CRM_Core_Page {
       // update the parameters
       $suggestion->update_parameters($parameters);
       $suggestion->execute($btx_bao);
+
+      // create a notification bubble for the user
+      $text = $suggestion->visualize_execution($btx_bao);
+      if ($btx_bao->status_id==$choices['processed']['id']) {
+        CRM_Core_Session::setStatus(ts("The payment was booked.")."<br/>".$text, ts("Payment processed"), 'info');
+      } else {
+        CRM_Core_Session::setStatus(ts("The payment was ignored.")."<br/>".$text, ts("Payment processed"), 'info');
+      }
     } else {
       CRM_Core_Session::setStatus(ts("Selected suggestions disappeared. Suggestion NOT executed!"), ts("Internal Error"), 'error');
     }

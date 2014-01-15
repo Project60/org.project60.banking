@@ -367,7 +367,7 @@ class CRM_Banking_PluginImpl_Matcher_DefaultOptions extends CRM_Banking_PluginMo
                                                 '.$contribution_propagated_data.'
                                                 "contact_id": contact_id, 
                                                 "is_test": 1, 
-                                                "total_amount": '.$btx->amount.', 
+                                                "total_amount": parseFloat('.$btx->amount.').toFixed(2), 
                                                 "is_pay_later": 1,
                                                 "receive_date": "'.$booking_date.'",
                                                 "currency": "'.$btx->currency.'",

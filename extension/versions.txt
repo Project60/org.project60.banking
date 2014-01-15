@@ -11,6 +11,8 @@ version 0.3
  - added 'back' in review screen
  - added notification of processed payment
  - matcher:default_options: 'show contact' button will go to search if no contact selected
+ - matcher:default_options: fixed issue with decimal total_amount when creating contributions
+
 
  pre0.3
  ======

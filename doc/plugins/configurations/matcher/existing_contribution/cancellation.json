@@ -7,6 +7,7 @@
     "received_date_minimum": "-30 days",
     "received_date_maximum": "+1 days",
     "date_penalty": 0.2,
+    "payment_instrument_penalty": 0.5,
     "amount_relative_minimum": 1.0,
     "amount_relative_maximum": 1.0,
     "amount_absolute_minimum": -8.70,

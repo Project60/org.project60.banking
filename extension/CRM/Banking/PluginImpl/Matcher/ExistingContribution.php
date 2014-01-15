@@ -24,6 +24,7 @@ class CRM_Banking_PluginImpl_Matcher_ExistingContribution extends CRM_Banking_Pl
     if (!isset($config->received_date_minimum)) $config->received_date_minimum = "-100 days";
     if (!isset($config->received_date_maximum)) $config->received_date_maximum = "+1 days";
     if (!isset($config->date_penalty)) $config->date_penalty = 1.0;
+    if (!isset($config->payment_instrument_penalty)) $config->payment_instrument_penalty = 0.0;
     if (!isset($config->amount_relative_minimum)) $config->amount_relative_minimum = 1.0;
     if (!isset($config->amount_relative_maximum)) $config->amount_relative_maximum = 1.0;
     if (!isset($config->amount_absolute_minimum)) $config->amount_absolute_minimum = 0;
@@ -40,11 +41,15 @@ class CRM_Banking_PluginImpl_Matcher_ExistingContribution extends CRM_Banking_Pl
    */
   public function rateContribution($contribution, $context) {
     $config = $this->_plugin_config;
+    $parsed_data = $context->btx->getDataParsed();
+
     $target_amount = $context->btx->amount;
     if ($config->mode=="cancellation") {
       if ($target_amount > 0) return -1;
       $target_amount = -$target_amount;
-    } 
+    } else {
+      if ($target_amount < 0) return -1;
+    }
     $contribution_amount = $contribution['total_amount'];
     $target_date = strtotime($context->btx->value_date);
     $contribution_date = strtotime($contribution['receive_date']);
@@ -67,11 +72,24 @@ class CRM_Banking_PluginImpl_Matcher_ExistingContribution extends CRM_Banking_Pl
     $amount_range_abs = $config->amount_absolute_maximum - $config->amount_absolute_minimum;
     $amount_range = max($amount_range_rel, $amount_range_abs);
 
+    // payment_instrument match?
+    $payment_instrument_penalty = 0;
+    if (    $config->payment_instrument_penalty 
+        &&  isset($contribution['payment_instrument_id'])
+        &&  isset($parsed_data['payment_instrument']) ) {
+      $contribution_payment_instrument_id = banking_helper_optionvalue_by_groupname_and_name('payment_instrument', $parsed_data['payment_instrument']);
+      if ($contribution_payment_instrument_id != $contribution['payment_instrument_id']) {
+        $payment_instrument_penalty = $config->payment_instrument_penalty;
+      }
+    }
+
+
     $penalty = 0.0;
     if ($date_range) $penalty += $config->date_penalty * ($date_delta / $date_range);
     if ($amount_range) $penalty += $config->amount_penalty * (abs($amount_delta) / $amount_range);
     if ($context->btx->currency != $contribution['currency'])
       $penalty += $config->currency_penalty;
+    $penalty =+ $payment_instrument_penalty;
 
     return max(0, 1.0 - $penalty);
   }

@@ -174,7 +174,8 @@ class CRM_Banking_PluginImpl_Matcher_DefaultOptions extends CRM_Banking_PluginMo
       $edit_contribution_link = CRM_Utils_System::url("civicrm/contact/view/contribution", "action=update&reset=1&id=__contributionid__&cid=__contactid__&context=home");
       $view_contribution_link = CRM_Utils_System::url("civicrm/contact/view/contribution", "action=view&reset=1&id=__contributionid__&cid=__contactid__&context=home");
       $view_contact_link = CRM_Utils_System::url("civicrm/contact/view", "reset=1&cid=__contactid__");
-      
+      $view_search_link = CRM_Utils_System::url("civicrm/contact/search", "reset=1");
+
       // get propagated data for contributions
       $contribution_propagated_data = '';
       foreach ($this->getPropagationSet($btx, 'contribution') as $key => $value) {
@@ -366,7 +367,7 @@ class CRM_Banking_PluginImpl_Matcher_DefaultOptions extends CRM_Banking_PluginMo
                                                 '.$contribution_propagated_data.'
                                                 "contact_id": contact_id, 
                                                 "is_test": 1, 
-                                                "total_amount": '.$btx->amount.', 
+                                                "total_amount": parseFloat('.$btx->amount.').toFixed(2), 
                                                 "is_pay_later": 1,
                                                 "receive_date": "'.$booking_date.'",
                                                 "currency": "'.$btx->currency.'",
@@ -505,12 +506,14 @@ class CRM_Banking_PluginImpl_Matcher_DefaultOptions extends CRM_Banking_PluginMo
           function manual_match_show_selected_contact() {
               // get contact_id from selector
               var contact_id = cj("#manual_match_contact_selector").val();
-              if (contact_id) {
-                // open link
+              if (parseInt(contact_id) > 0) {
                 var link = cj("<div/>").html("'.$view_contact_link.'").text();
                 link = link.replace("__contactid__", contact_id);
-                window.open(link, "_blank");
+              } else {
+                var link = cj("<div/>").html("'.$view_search_link.'").text();
               }
+              // open link
+              window.open(link, "_blank");
           }
           
           // call some updates once...

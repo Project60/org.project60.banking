@@ -46,18 +46,20 @@ class CRM_Banking_Page_Payments extends CRM_Core_Page {
     global $base_url;
     $this->assign('base_url', $base_url);
 
-    $this->assign('url_show_payments', banking_helper_buildURL('civicrm/banking/payments', array('show'=>'payments')));
+    $this->assign('url_show_payments', banking_helper_buildURL('civicrm/banking/payments', array('show'=>'payments', $list_type=>"__selected__")));
     $this->assign('url_show_statements', banking_helper_buildURL('civicrm/banking/payments', array('show'=>'statements')));
 
-    $this->assign('url_show_payments_new', banking_helper_buildURL('civicrm/banking/payments', array('status_ids'=>$payment_states['new']['id']), array('show')));
-    $this->assign('url_show_payments_analysed', banking_helper_buildURL('civicrm/banking/payments', array('status_ids'=>$payment_states['suggestions']['id']), array('show')));
-    $this->assign('url_show_payments_completed', banking_helper_buildURL('civicrm/banking/payments', array('status_ids'=>$payment_states['processed']['id'].",".$payment_states['ignored']['id']), array('show')));
+    $this->assign('url_show_payments_new', banking_helper_buildURL('civicrm/banking/payments', $this->_pageParameters(array('status_ids'=>$payment_states['new']['id']))));
+    $this->assign('url_show_payments_analysed', banking_helper_buildURL('civicrm/banking/payments', $this->_pageParameters(array('status_ids'=>$payment_states['suggestions']['id']))));
+    $this->assign('url_show_payments_completed', banking_helper_buildURL('civicrm/banking/payments', $this->_pageParameters(array('status_ids'=>$payment_states['processed']['id'].",".$payment_states['ignored']['id']))));
 
     $this->assign('url_review_selected_payments', banking_helper_buildURL('civicrm/banking/review', array($list_type=>"__selected__")));
     $this->assign('url_process_selected_payments', banking_helper_buildURL('civicrm/banking/payments', $this->_pageParameters(array('process'=>"__selected__"))));
     $this->assign('url_export_selected_payments', banking_helper_buildURL('civicrm/banking/export', array($list_type=>"__selected__")));
-    $this->assign('url_delete_selected_payments', banking_helper_buildURL('civicrm/banking/payments',  $this->_pageParameters(array('delete'=>"__selected__"))));
-
+    if (CRM_Core_Permission::check('administer CiviCRM')) {
+      $this->assign('url_delete_selected_payments', banking_helper_buildURL('civicrm/banking/payments',  $this->_pageParameters(array('delete'=>"__selected__"))));
+    }
+    
     // status filter button styles
     if (isset($_REQUEST['status_ids']) && strlen($_REQUEST['status_ids'])>0) {
       if ($_REQUEST['status_ids']==$payment_states['new']['id']) {
@@ -80,9 +82,13 @@ class CRM_Banking_Page_Payments extends CRM_Core_Page {
   function build_statementPage($payment_states) {
     // DELETE ITEMS (if any)
     if (isset($_REQUEST['delete'])) {
-      $payment_list = CRM_Banking_Page_Payments::getPaymentsForStatements($_REQUEST['delete']);
-      $this->deleteItems($payment_list, 'BankingTransaction', ts('payments'));
-      $this->deleteItems($_REQUEST['delete'], 'BankingTransactionBatch', ts('statements'));
+      if (CRM_Core_Permission::check('administer CiviCRM')) {
+        $payment_list = CRM_Banking_Page_Payments::getPaymentsForStatements($_REQUEST['delete']);
+        $this->deleteItems($payment_list, 'BankingTransaction', ts('payments'));
+        $this->deleteItems($_REQUEST['delete'], 'BankingTransactionBatch', ts('statements'));        
+      } else {
+        CRM_Core_Session::setStatus(ts("You don't have the permissions to delete statements or payments."), ts('Deletion problems'), 'alert');
+      }
     }
 
     // RUN ITEMS (if any)
@@ -389,8 +395,8 @@ class CRM_Banking_Page_Payments extends CRM_Core_Page {
 
     if (isset($_REQUEST['status_ids']))
         $status_ids = explode(',', $_REQUEST['status_ids']);
-    if (isset($_REQUEST['batch_ids']))
-        $batch_ids = explode(',', $_REQUEST['batch_ids']);
+    if (isset($_REQUEST['s_list']))
+        $batch_ids = explode(',', $_REQUEST['s_list']);
 
     // run the queries
     $results = array();
@@ -431,6 +437,8 @@ class CRM_Banking_Page_Payments extends CRM_Core_Page {
         $params['status_ids'] = $_REQUEST['status_ids'];
     if (isset($_REQUEST['tx_batch_id']))
         $params['tx_batch_id'] = $_REQUEST['tx_batch_id'];
+    if (isset($_REQUEST['s_list']))
+        $params['s_list'] = $_REQUEST['s_list'];
     if (isset($_REQUEST['show']))
         $params['show'] = $_REQUEST['show'];
 

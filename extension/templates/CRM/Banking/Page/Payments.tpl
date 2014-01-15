@@ -185,7 +185,7 @@
 <a class="button" onClick="callWithSelected('{$url_review_selected_payments}')" ><span>{ts}Review{/ts}</span></a>
 <a class="button" onClick="callWithSelected('{$url_process_selected_payments}')"><span>{ts}Process{/ts}</span></a>
 <a class="button" onClick="callWithSelected('{$url_export_selected_payments}')"><span>{ts}Export{/ts}</span></a>
-<a class="button" onClick="callWithSelected('{$url_delete_selected_payments}')"><span>{ts}Delete{/ts}</span></a>
+<a class="button {if not $url_delete_selected_payments}disabled{/if}" onClick="callWithSelected('{$url_delete_selected_payments}')"><span>{ts}Delete{/ts}</span></a>
 </p>
 
 

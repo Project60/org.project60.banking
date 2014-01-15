@@ -56,8 +56,10 @@ class CRM_Banking_Page_Payments extends CRM_Core_Page {
     $this->assign('url_review_selected_payments', banking_helper_buildURL('civicrm/banking/review', array($list_type=>"__selected__")));
     $this->assign('url_process_selected_payments', banking_helper_buildURL('civicrm/banking/payments', $this->_pageParameters(array('process'=>"__selected__"))));
     $this->assign('url_export_selected_payments', banking_helper_buildURL('civicrm/banking/export', array($list_type=>"__selected__")));
-    $this->assign('url_delete_selected_payments', banking_helper_buildURL('civicrm/banking/payments',  $this->_pageParameters(array('delete'=>"__selected__"))));
-
+    if (CRM_Core_Permission::check('administer CiviCRM')) {
+      $this->assign('url_delete_selected_payments', banking_helper_buildURL('civicrm/banking/payments',  $this->_pageParameters(array('delete'=>"__selected__"))));
+    }
+    
     // status filter button styles
     if (isset($_REQUEST['status_ids']) && strlen($_REQUEST['status_ids'])>0) {
       if ($_REQUEST['status_ids']==$payment_states['new']['id']) {
@@ -80,9 +82,13 @@ class CRM_Banking_Page_Payments extends CRM_Core_Page {
   function build_statementPage($payment_states) {
     // DELETE ITEMS (if any)
     if (isset($_REQUEST['delete'])) {
-      $payment_list = CRM_Banking_Page_Payments::getPaymentsForStatements($_REQUEST['delete']);
-      $this->deleteItems($payment_list, 'BankingTransaction', ts('payments'));
-      $this->deleteItems($_REQUEST['delete'], 'BankingTransactionBatch', ts('statements'));
+      if (CRM_Core_Permission::check('administer CiviCRM')) {
+        $payment_list = CRM_Banking_Page_Payments::getPaymentsForStatements($_REQUEST['delete']);
+        $this->deleteItems($payment_list, 'BankingTransaction', ts('payments'));
+        $this->deleteItems($_REQUEST['delete'], 'BankingTransactionBatch', ts('statements'));        
+      } else {
+        CRM_Core_Session::setStatus(ts("You don't have the permissions to delete statements or payments."), ts('Deletion problems'), 'alert');
+      }
     }
 
     // RUN ITEMS (if any)

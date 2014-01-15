@@ -21,7 +21,7 @@
     <span><div class="icon details-icon"></div>{ts}Show Statements{/ts}</span>
   </a>
 {else}
-  <a class="button" onClick="callWithSelected('{$url_show_payments}')">
+  <a class="button" onClick="callWithSelected('{$url_show_payments}', true)">
     <span><div class="icon details-icon"></div>{ts}Show Payments{/ts}</span>
   </a>
 {/if}
@@ -182,10 +182,10 @@
 <input onClick="selectAll(true)" class="form-submit" type="submit" value="{ts}Select all{/ts}" width="200"></input>
 <input onClick="selectAll(false)" class="form-submit" type="submit" value="{ts}Select none{/ts}" width="200"></input>	
 <p>{ts}With selected items perform:{/ts}<br/>
-<a class="button" onClick="callWithSelected('{$url_review_selected_payments}')" ><span>{ts}Review{/ts}</span></a>
-<a class="button" onClick="callWithSelected('{$url_process_selected_payments}')"><span>{ts}Process{/ts}</span></a>
-<a class="button" onClick="callWithSelected('{$url_export_selected_payments}')"><span>{ts}Export{/ts}</span></a>
-<a class="button {if not $url_delete_selected_payments}disabled{/if}" onClick="callWithSelected('{$url_delete_selected_payments}')"><span>{ts}Delete{/ts}</span></a>
+<a class="button" onClick="callWithSelected('{$url_review_selected_payments}', false)" ><span>{ts}Review{/ts}</span></a>
+<a class="button" onClick="callWithSelected('{$url_process_selected_payments}', false)"><span>{ts}Process{/ts}</span></a>
+<a class="button" onClick="callWithSelected('{$url_export_selected_payments}', false)"><span>{ts}Export{/ts}</span></a>
+<a class="button {if not $url_delete_selected_payments}disabled{/if}" onClick="callWithSelected('{$url_delete_selected_payments}', false)"><span>{ts}Delete{/ts}</span></a>
 </p>
 
 
@@ -215,8 +215,16 @@ function getSelected() {
   return selected;
 }
 
-function callWithSelected(url) {
-  location.href = url.replace("__selected__",getSelected());
+function callWithSelected(url, forced) {
+  var selected = getSelected();
+  if (selected || forced) {
+    location.href = url.replace("__selected__", selected);
+  } else {
+    {/literal}
+    var message = "{ts}Please select one or more items{/ts}";
+    {literal}
+    window.alert(message);
+  }
 }
 
 </script>

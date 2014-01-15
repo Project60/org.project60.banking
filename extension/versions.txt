@@ -14,6 +14,7 @@ version 0.3
  - matcher:default_options: 'show contact' button will go to search if no contact selected
  - matcher:default_options: fixed issue with decimal total_amount when creating contributions
  - only administrators can delete statements/payments
+ - warning if no statement/payment is selected for review
 
  pre0.3
  ======

@@ -10,7 +10,7 @@ version 0.3
  - added 'skip processed' in review screen
  - added 'back' in review screen
  - added notification of processed payment
-
+ - matcher:default_options: 'show contact' button will go to search if no contact selected
 
  pre0.3
  ======

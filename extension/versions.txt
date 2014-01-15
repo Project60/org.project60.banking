@@ -15,7 +15,8 @@ version 0.3
  - matcher:default_options: fixed issue with decimal total_amount when creating contributions
  - only administrators can delete statements/payments
  - warning if no statement/payment is selected for review
-
+ - matcher:existing_contributions: added configurable payment_instrument mismatch penalty
+ 
  pre0.3
  ======
  - Developer version, no records

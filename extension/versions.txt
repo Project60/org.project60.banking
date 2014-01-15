@@ -6,16 +6,17 @@ Version History
 version 0.3
 ===========
  - CiviCRM 4.4 compability
- - 'show payments' will show selected payments only
+ - FIX: 'show payments' will show selected payments only
  - added target account filter to payment view
  - added 'skip processed' in review screen
  - added 'back' in review screen
  - added notification of processed payment
  - matcher:default_options: 'show contact' button will go to search if no contact selected
- - matcher:default_options: fixed issue with decimal total_amount when creating contributions
+ - FIX: matcher:default_options: fixed issue with decimal total_amount when creating contributions
  - only administrators can delete statements/payments
- - warning if no statement/payment is selected for review
+ - FIX: warning if no statement/payment is selected for review
  - matcher:existing_contributions: added configurable payment_instrument mismatch penalty
+ - FIX: matcher:existing_contributions: don't process negative amounts in default mode
  
  pre0.3
  ======

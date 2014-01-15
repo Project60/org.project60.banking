@@ -47,7 +47,9 @@ class CRM_Banking_PluginImpl_Matcher_ExistingContribution extends CRM_Banking_Pl
     if ($config->mode=="cancellation") {
       if ($target_amount > 0) return -1;
       $target_amount = -$target_amount;
-    } 
+    } else {
+      if ($target_amount < 0) return -1;
+    }
     $contribution_amount = $contribution['total_amount'];
     $target_date = strtotime($context->btx->value_date);
     $contribution_date = strtotime($contribution['receive_date']);

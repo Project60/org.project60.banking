@@ -21,7 +21,7 @@
     <span><div class="icon details-icon"></div>{ts}Show Statements{/ts}</span>
   </a>
 {else}
-  <a class="button" href="{$url_show_payments}">
+  <a class="button" onClick="callWithSelected('{$url_show_payments}')">
     <span><div class="icon details-icon"></div>{ts}Show Payments{/ts}</span>
   </a>
 {/if}

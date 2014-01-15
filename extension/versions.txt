@@ -6,6 +6,7 @@ Version History
 version 0.3
 ===========
  - CiviCRM 4.4 compability
+ - 'show payments' will show selected payments only
  - added target account filter to payment view
  - added 'skip processed' in review screen
  - added 'back' in review screen

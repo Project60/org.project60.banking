@@ -288,6 +288,8 @@
   <br/>
 
   <div align="right" class="clearfix" style="width: 100%;">
+    <a href="{$url_skip_back}" class="button {if not $url_skip_back}disabled{/if}"><span title="{ts}Back{/ts}"><div class="icon previous-icon disabled"></div>{ts}Back{/ts}</span></a>
+
     {if $btxstatus.label != 'Processed' AND $btxstatus.label != 'Ignored'}
       <a href="{$url_run}" class="button"><span title="{ts}Match (again){/ts}"><div class="icon preview-icon"></div>{ts}Match (again){/ts}</span></a>
       {if isset($url_skip_forward)}

@@ -205,6 +205,10 @@ class CRM_Banking_PluginImpl_Matcher_DefaultOptions extends CRM_Banking_PluginMo
       $snippet .= "<span id=\"manual_match_contribution_sum\" align=\"right\" style=\"color: red; font-weight: bold;\"><b>".ts("sum").": 0.00 EUR</b></span>";
       $snippet .= "</div></div>";
 
+      // add cancellation warning
+      if ($btx->amount < 0)
+        $snippet .= "<br/><div>".ts("<strong>WARNING:</strong> This is a negative amount, so all contributions below will be <strong>cancelled</strong>.")."</div>";  
+
       // add the table
       $snippet .= "<br/><table>";
       $snippet .= "<th></th>";

@@ -5,7 +5,8 @@ Version History
 version 0.3.1
 =============
 - matcher:existing_contributions: fixed rating system on smaller amounts
- 
+- fixed notification text of processed payment
+
 
 version 0.3
 ===========

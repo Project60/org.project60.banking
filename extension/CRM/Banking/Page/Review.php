@@ -254,9 +254,9 @@ class CRM_Banking_Page_Review extends CRM_Core_Page {
       // create a notification bubble for the user
       $text = $suggestion->visualize_execution($btx_bao);
       if ($btx_bao->status_id==$choices['processed']['id']) {
-        CRM_Core_Session::setStatus(ts("The payment was booked.")."<br/>".$text, ts("Payment processed"), 'info');
+        CRM_Core_Session::setStatus(ts("The payment was booked.")."<br/>".$text, ts("Payment closed"), 'info');
       } else {
-        CRM_Core_Session::setStatus(ts("The payment was ignored.")."<br/>".$text, ts("Payment processed"), 'info');
+        CRM_Core_Session::setStatus(ts("The payment was ignored.")."<br/>".$text, ts("Payment closed"), 'info');
       }
     } else {
       CRM_Core_Session::setStatus(ts("Selected suggestions disappeared. Suggestion NOT executed!"), ts("Internal Error"), 'error');

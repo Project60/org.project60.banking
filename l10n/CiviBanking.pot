@@ -1014,3 +1014,77 @@ msgstr ""
 #: on/CRM/Banking/PluginImpl/Matcher/DefaultOptions.php
 msgid "<br/><b>Will be cancelled.</b>"
 msgstr ""
+
+#: on/CRM/Banking/Page/Payments.php
+msgid "You don't have the permissions to delete statements or payments."
+msgstr ""
+
+#: on/CRM/Banking/Page/Payments.php
+msgid "Unnamed"
+msgstr ""
+
+#: on/CRM/Banking/Page/Payments.php
+msgid "Internal limit of 1000 transactions hit. Please use smaller statements."
+msgstr ""
+
+#: on/CRM/Banking/Page/Payments.php
+msgid "Processing incomplete"
+msgstr ""
+
+#: on/CRM/Banking/Page/Review.php
+msgid "The payment was booked."
+msgstr ""
+
+#: on/CRM/Banking/Page/Review.php
+msgid "Payment closed"
+msgstr ""
+
+#: on/CRM/Banking/Page/Review.php
+msgid "The payment was ignored."
+msgstr ""
+
+#: on/CRM/Banking/PluginImpl/Matcher/DefaultOptions.php
+msgid ""
+"<strong>WARNING:</strong> This is a negative amount, so all contributions "
+"below will be <strong>cancelled</strong>."
+msgstr ""
+
+#: on/hooks.php
+msgid "Bank Accounts"
+msgstr ""
+
+#: templates/CRM/Banking/Page/AccountsTab.tpl
+msgid "Bank Account"
+msgstr ""
+
+#: templates/CRM/Banking/Page/AccountsTab.tpl
+msgid "Bank"
+msgstr ""
+
+#: templates/CRM/Banking/Page/AccountsTab.tpl
+msgid "German"
+msgstr ""
+
+#: templates/CRM/Banking/Page/AccountsTab.tpl
+msgid "This contact has no known accounts associated with him/her."
+msgstr ""
+
+#: templates/CRM/Banking/Page/Payments.tpl
+msgid "Showing statements for"
+msgstr ""
+
+#: templates/CRM/Banking/Page/Payments.tpl
+msgid "all accounts"
+msgstr ""
+
+#: templates/CRM/Banking/Page/Payments.tpl
+msgid "Please select one or more items"
+msgstr ""
+
+#: templates/CRM/Banking/Page/Review.tpl
+msgid "DETAILS"
+msgstr ""
+
+#: templates/CRM/Banking/Page/Review.tpl
+msgid "Skip Processed"
+msgstr ""

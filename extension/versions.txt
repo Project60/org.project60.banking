@@ -2,6 +2,10 @@ Version History
 ===============
 
 
+version 0.3.1
+=============
+- matcher:existing_contributions: fixed rating system on smaller amounts
+ 
 
 version 0.3
 ===========

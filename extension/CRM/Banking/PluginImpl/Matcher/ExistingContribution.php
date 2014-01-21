@@ -55,10 +55,10 @@ class CRM_Banking_PluginImpl_Matcher_ExistingContribution extends CRM_Banking_Pl
     $contribution_date = strtotime($contribution['receive_date']);
 
     // check for amount limits
-    $amount_delta = $contribution['total_amount'] - $target_amount;
-    if (   ($target_amount < ($contribution_amount * $config->amount_relative_minimum))
+    $amount_delta = $contribution_amount - $target_amount;
+    if (   ($contribution_amount < ($target_amount * $config->amount_relative_minimum))
         && ($amount_delta < $config->amount_absolute_minimum)) return -1;
-    if (   ($target_amount > ($contribution_amount * $config->amount_relative_maximum))
+    if (   ($contribution_amount > ($target_amount * $config->amount_relative_maximum))
         && ($amount_delta > $config->amount_absolute_maximum)) return -1;
 
     // check for date limits
@@ -73,7 +73,7 @@ class CRM_Banking_PluginImpl_Matcher_ExistingContribution extends CRM_Banking_Pl
     $amount_range = max($amount_range_rel, $amount_range_abs);
 
     // payment_instrument match?
-    $payment_instrument_penalty = 0;
+    $payment_instrument_penalty = 0.0;
     if (    $config->payment_instrument_penalty 
         &&  isset($contribution['payment_instrument_id'])
         &&  isset($parsed_data['payment_instrument']) ) {

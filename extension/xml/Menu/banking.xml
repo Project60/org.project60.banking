@@ -48,4 +48,10 @@
     <title>Dashboard</title>
     <access_arguments>access CiviCRM</access_arguments>
   </item>
+  <item>
+    <path>civicrm/banking/accounts_tab</path>
+    <page_callback>CRM_Banking_Page_AccountsTab</page_callback>
+    <title>Accounts</title>
+    <access_arguments>access CiviCRM</access_arguments>
+  </item>
 </menu>

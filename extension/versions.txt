@@ -4,6 +4,7 @@ Version History
 
 version 0.3.1
 =============
+- added a simple summary tab showing the accounts
 - matcher:existing_contributions: fixed rating system on smaller amounts
 - fixed notification text of processed payment
 

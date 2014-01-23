@@ -137,3 +137,15 @@ function banking_civicrm_entityTypes(&$entityTypes) {
       'table' => 'civicrm_bank_plugin_instabce',
   );
 }
+
+
+function banking_civicrm_tabs( &$tabs, $contactID ) {
+  $count_query = CRM_Core_DAO::executeQuery("SELECT COUNT(id) AS acCount FROM civicrm_bank_account WHERE contact_id=$contactID;");
+  $count_query->fetch();
+  array_push($tabs, array(
+    'id' =>       'bank_accounts',
+    'url' =>      CRM_Utils_System::url('civicrm/banking/accounts_tab', "snippet=1&amp;cid=$contactID"),
+    'title' =>    ts("Bank Accounts"),
+    'weight' =>   95,
+    'count' =>    $count_query->acCount));
+}

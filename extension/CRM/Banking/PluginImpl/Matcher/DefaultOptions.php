@@ -101,12 +101,13 @@ class CRM_Banking_PluginImpl_Matcher_DefaultOptions extends CRM_Banking_PluginMo
             $query['is_test'] = 0;
             $query = array_merge($query, $this->getPropagationSet($btx, 'contribution'));   // add propagated values
 
-            // set status to completed, unless...
-            if ($contribution['contribution_status_id']==$completed_status && $btx->amount < 0) {
-              // in this case, we want to cancel this
+            // set status to completed, unless it's a negative amount...
+            if ($btx->amount < 0) {
+              // ...in this case, we want to cancel this
               $query['contribution_status_id'] = $cancelled_status;
               $query['cancel_date'] = date('YmdHis', strtotime($btx->booking_date));
             } else {
+              // ...otherwise, we close it
               $query['contribution_status_id'] = $completed_status;
               $query['receive_date'] = date('YmdHis', strtotime($btx->booking_date));
             }
@@ -203,6 +204,10 @@ class CRM_Banking_PluginImpl_Matcher_DefaultOptions extends CRM_Banking_PluginMo
       $snippet .= "<div style=\"float:right;\">";
       $snippet .= "<span id=\"manual_match_contribution_sum\" align=\"right\" style=\"color: red; font-weight: bold;\"><b>".ts("sum").": 0.00 EUR</b></span>";
       $snippet .= "</div></div>";
+
+      // add cancellation warning
+      if ($btx->amount < 0)
+        $snippet .= "<br/><div>".ts("<strong>WARNING:</strong> This is a negative amount, so all contributions below will be <strong>cancelled</strong>.")."</div>";  
 
       // add the table
       $snippet .= "<br/><table>";

@@ -155,7 +155,8 @@ class CRM_Banking_BAO_BankTransaction extends CRM_Banking_DAO_BankTransaction {
       status_id = $status_id
       WHERE id = {$this->id}
       ";
-    $dao = CRM_Core_DAO::executeQuery($sql);
+    CRM_Core_DAO::executeQuery($sql);
+    $this->status_id = $status_id;
   }
 
   /**

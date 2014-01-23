@@ -10,7 +10,7 @@
     "manual_probability": "50%",
     "manual_show_always": true,
     "manual_title": "Manuell verarbeitet",
-    "manual_message": "Wählen Sei diese Option <strong>nachdem</strong> Sie die Daten manuell im System verbucht haben.",
+    "manual_message": "Wählen Sie diese Option <strong>nachdem</strong> Sie die Daten manuell im System verbucht haben.",
     "manual_contribution": "Bitte tragen Sie hier die Zuwendungs-ID ein, falls eine erzeugt wurde: ",
     "manual_default_source": "Offline",
     "manual_default_financial_type_id": 1,

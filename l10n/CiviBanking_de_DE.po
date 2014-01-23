@@ -1002,6 +1002,78 @@ msgstr "Konnte Zuwendung #%s nicht bearbeiten."
 msgid "<br/><b>Will be cancelled.</b>"
 msgstr "<br/><b>Wird storniert!</b>"
 
+#: on/CRM/Banking/Page/Payments.php
+msgid "You don't have the permissions to delete statements or payments."
+msgstr "Sie haben nicht die erforderlichen Berechtigungen, um Zahlungen oder Auszüge zu löschen."
+
+#: on/CRM/Banking/Page/Payments.php
+msgid "Unnamed"
+msgstr "Ohne Namen"
+
+#: on/CRM/Banking/Page/Payments.php
+msgid "Internal limit of 1000 transactions hit. Please use smaller statements."
+msgstr "Internes Limit von 1000 Transaktionen erreicht. Bitte kleinere Auszüge verwenden."
+
+#: on/CRM/Banking/Page/Payments.php
+msgid "Processing incomplete"
+msgstr "Verarbeitung unterbrochen"
+
+#: on/CRM/Banking/Page/Review.php
+msgid "The payment was booked."
+msgstr "Die Zahlung wueder verbucht."
+
+#: on/CRM/Banking/Page/Review.php
+msgid "Payment closed"
+msgstr "Zahlung verarbeitet"
+
+#: on/CRM/Banking/Page/Review.php
+msgid "The payment was ignored."
+msgstr "Die Zahlung wird ignoriert."
+
+#: on/CRM/Banking/PluginImpl/Matcher/DefaultOptions.php
+msgid "<strong>WARNING:</strong> This is a negative amount, so all contributions below will be <strong>cancelled</strong>."
+msgstr "<strong>WARNUNG:</strong> Dies ist eine negativer Betrag, alle unten aufgeführten Zuwendungen werden <strong>storniert</strong>."
+
+#: on/hooks.php
+msgid "Bank Accounts"
+msgstr "Konten"
+
+#: templates/CRM/Banking/Page/AccountsTab.tpl
+msgid "Bank Account"
+msgstr "Bankkonto"
+
+#: templates/CRM/Banking/Page/AccountsTab.tpl
+msgid "Bank"
+msgstr "Bank"
+
+#: templates/CRM/Banking/Page/AccountsTab.tpl
+msgid "German"
+msgstr ""
+
+#: templates/CRM/Banking/Page/AccountsTab.tpl
+msgid "This contact has no known accounts associated with him/her."
+msgstr "Für diesen Kontakt sind keine Konten bekannt."
+
+#: templates/CRM/Banking/Page/Payments.tpl
+msgid "Showing statements for"
+msgstr "Nur Konto"
+
+#: templates/CRM/Banking/Page/Payments.tpl
+msgid "all accounts"
+msgstr "Alle Konten"
+
+#: templates/CRM/Banking/Page/Payments.tpl
+msgid "Please select one or more items"
+msgstr "Bitte etwas auswählen"
+
+#: templates/CRM/Banking/Page/Review.tpl
+msgid "DETAILS"
+msgstr ""
+
+#: templates/CRM/Banking/Page/Review.tpl
+msgid "Skip Processed"
+msgstr "Nächste Unbearbeitete"
+
 #, fuzzy
 #~ msgid "Payment count<"
 #~ msgstr "Anzahl"

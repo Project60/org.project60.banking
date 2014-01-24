@@ -309,7 +309,7 @@ class CRM_Banking_PluginImpl_CSVImporter extends CRM_Banking_PluginModel_Importe
       // TRIM will strip the string of 
       $params = explode(":", $rule->type);
       if (isset($params[1])) {
-        // the user provided a date format
+        // the user provided a the trim parameters
         $btx[$rule->to] = trim($value, $params[1]);
       } else {
         $btx[$rule->to] = trim($value);

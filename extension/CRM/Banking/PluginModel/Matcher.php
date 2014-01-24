@@ -217,8 +217,9 @@ abstract class CRM_Banking_PluginModel_Matcher extends CRM_Banking_PluginModel_B
         return $btx->$key_bits[1];
       } else {
         // look in the parsed values
-        if (isset($btx->getDataParsed()->$key_bits[1])) {
-          return $btx->getDataParsed()->$key_bits[1];
+        $data = $btx->getDataParsed();
+        if (isset($data[$key_bits[1]])) {
+          return $data[$key_bits[1]];
         } else {
           return NULL;
         }

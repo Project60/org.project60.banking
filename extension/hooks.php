@@ -31,7 +31,7 @@ function banking_civicrm_navigationMenu(&$params) {
       'child' => array(
           $level => array(
               'attributes' => array(
-                  'label' => 'Dashboard',
+                  'label' => ts('Dashboard'),
                   'name' => 'Dashboard',
                   'url' => 'civicrm/banking/dashboard',
                   'permission' => 'access CiviContribute',
@@ -45,7 +45,7 @@ function banking_civicrm_navigationMenu(&$params) {
           ),
           $level => array(
               'attributes' => array(
-                  'label' => 'Payments',
+                  'label' => ts('Show Statements'),
                   'name' => 'Payments',
                   'url' => 'civicrm/banking/payments',
                   'permission' => 'access CiviContribute',
@@ -59,7 +59,7 @@ function banking_civicrm_navigationMenu(&$params) {
           ),
           $level => array(
               'attributes' => array(
-                  'label' => 'Find Accounts',
+                  'label' => ts('Find Accounts'),
                   'name' => 'Find Accounts',
                   'url' => 'civicrm/banking/search',
                   'permission' => 'access CiviContribute',
@@ -73,7 +73,7 @@ function banking_civicrm_navigationMenu(&$params) {
           ),
           $level => array(
               'attributes' => array(
-                  'label' => 'Manage Accounts',
+                  'label' => ts('Manage Accounts'),
                   'name' => 'Manage Accounts',
                   'url' => 'civicrm/banking/accounts',
                   'permission' => 'access CiviContribute',
@@ -87,7 +87,7 @@ function banking_civicrm_navigationMenu(&$params) {
           ),
           $level => array(
               'attributes' => array(
-                  'label' => 'Import Payments',
+                  'label' => ts('Import Payments'),
                   'name' => 'Import Payments',
                   'url' => 'civicrm/banking/import',
                   'permission' => 'access CiviContribute',
@@ -101,7 +101,7 @@ function banking_civicrm_navigationMenu(&$params) {
           ),
           $level => array(
               'attributes' => array(
-                  'label' => 'Configuration',
+                  'label' => ts('Configuration'),
                   'name' => 'Configuration',
                   'url' => 'civicrm/banking/manager',
                   'permission' => 'access CiviContribute',

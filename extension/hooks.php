@@ -149,3 +149,24 @@ function banking_civicrm_tabs( &$tabs, $contactID ) {
     'weight' =>   95,
     'count' =>    $count_query->acCount));
 }
+
+
+/* bank accounts in merge operations
+ */
+function banking_civicrm_merge ( $type, &$data, $mainId = NULL, $otherId = NULL, $tables = NULL ) {
+  switch ($type) {
+    case 'relTables':
+      // Offer user to merge SEPA Mandates
+      $data['rel_table_bankaccounts'] = array(
+          'title'  => ts('Bank Accounts'),
+          'tables' => array('civicrm_bank_account'),
+          'url'    => CRM_Utils_System::url('civicrm/contact/view', 'reset=1&cid=$cid&selectedChild=bank_accounts'),  // '$cid' will be automatically replaced
+      );
+    break;
+
+    case 'cidRefs':
+      // this is the only field that needs to be modified
+        $data['civicrm_bank_account'] = array('contact_id');
+    break;
+  }
+}

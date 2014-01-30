@@ -5,6 +5,8 @@ version 0.3.2
 =============
 - FIX: move bank accounts when merging contacts
 - FIX: translated menu
+- FIX: value propagation in some matchers
+
 
 version 0.3.1
 =============

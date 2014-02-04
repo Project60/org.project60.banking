@@ -20,7 +20,7 @@ class CRM_Banking_PluginImpl_Matcher_ExistingContribution extends CRM_Banking_Pl
     $config = $this->_plugin_config;
     if (!isset($config->threshold)) $config->threshold = 0.5;
     if (!isset($config->mode)) $config->mode = "default";     // other mode is "cancellation"
-    if (!isset($config->accepted_contribution_states)) $config->accepted_contribution_states = ["Completed", "Pending"];
+    if (!isset($config->accepted_contribution_states)) $config->accepted_contribution_states = array("Completed", "Pending");
     if (!isset($config->received_date_minimum)) $config->received_date_minimum = "-100 days";
     if (!isset($config->received_date_maximum)) $config->received_date_maximum = "+1 days";
     if (!isset($config->date_penalty)) $config->date_penalty = 1.0;

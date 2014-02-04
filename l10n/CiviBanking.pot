@@ -238,7 +238,7 @@ msgstr ""
 msgid "Warning: bad matcher evidence"
 msgstr ""
 
-#: on/CRM/Banking/Page/AccountSearch.php
+#: on/CRM/Banking/Page/AccountSearch.php on/hooks.php
 msgid "Find Accounts"
 msgstr ""
 
@@ -291,7 +291,7 @@ msgid "Manage CiviBanking Components"
 msgstr ""
 
 #: on/CRM/Banking/Page/Payments.php
-#: on/CRM/Banking/PluginImpl/Matcher/Batches.php
+#: on/CRM/Banking/PluginImpl/Matcher/Batches.php on/hooks.php
 msgid "Payments"
 msgstr ""
 
@@ -496,7 +496,7 @@ msgstr ""
 msgid "Show Statements"
 msgstr ""
 
-#: templates/CRM/Banking/Page/Payments.tpl
+#: templates/CRM/Banking/Page/Payments.tpl on/hooks.php
 msgid "Show Payments"
 msgstr ""
 
@@ -806,15 +806,15 @@ msgstr ""
 msgid "Back"
 msgstr ""
 
-#: menu entry
+#: menu entry on/hooks.php
 msgid "Manage Accounts"
 msgstr ""
 
-#: menu entry
+#: menu entry on/hooks.php
 msgid "Import Payments"
 msgstr ""
 
-#: menu entry
+#: menu entry on/hooks.php
 msgid "Configuration"
 msgstr ""
 
@@ -1087,4 +1087,8 @@ msgstr ""
 
 #: templates/CRM/Banking/Page/Review.tpl
 msgid "Skip Processed"
+msgstr ""
+
+#: on/hooks.php
+msgid "Dashboard"
 msgstr ""

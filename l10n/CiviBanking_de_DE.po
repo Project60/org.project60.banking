@@ -237,7 +237,7 @@ msgstr "Programmfehler: Wahrscheinlichkeitsangabe außerhalb von [0..1], wird al
 msgid "Warning: bad matcher evidence"
 msgstr "Warnung: Schlechte Matcher-Evidenzen"
 
-#: on/CRM/Banking/Page/AccountSearch.php
+#: on/CRM/Banking/Page/AccountSearch.php on/hooks.php
 msgid "Find Accounts"
 msgstr "Konten finden"
 
@@ -290,7 +290,7 @@ msgid "Manage CiviBanking Components"
 msgstr "CiviBanking-Komponenten verwalten"
 
 #: on/CRM/Banking/Page/Payments.php
-#: on/CRM/Banking/PluginImpl/Matcher/Batches.php
+#: on/CRM/Banking/PluginImpl/Matcher/Batches.php on/hooks.php
 msgid "Payments"
 msgstr "Zahlungen"
 
@@ -495,7 +495,7 @@ msgstr "Profil hinzufügen"
 msgid "Show Statements"
 msgstr "Kontoauszüge anzeigen"
 
-#: templates/CRM/Banking/Page/Payments.tpl
+#: templates/CRM/Banking/Page/Payments.tpl on/hooks.php
 msgid "Show Payments"
 msgstr "Zahlungen anzeigen"
 
@@ -799,15 +799,15 @@ msgstr "Keine Kontoauszüge mit dem gewählten Stats gefunden. Wählen Sie ggf. 
 msgid "Back"
 msgstr "Zurück"
 
-#: menu entry
+#: menu entry on/hooks.php
 msgid "Manage Accounts"
 msgstr "Konten verwalten"
 
-#: menu entry
+#: menu entry on/hooks.php
 msgid "Import Payments"
 msgstr "Zahlungen importieren"
 
-#: menu entry
+#: menu entry on/hooks.php
 msgid "Configuration"
 msgstr "Konfiguration"
 
@@ -1073,6 +1073,11 @@ msgstr ""
 #: templates/CRM/Banking/Page/Review.tpl
 msgid "Skip Processed"
 msgstr "Nächste Unbearbeitete"
+
+#: on/hooks.php
+#, fuzzy
+msgid "Dashboard"
+msgstr "CiviBanking Übersicht"
 
 #, fuzzy
 #~ msgid "Payment count<"

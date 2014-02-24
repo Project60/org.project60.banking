@@ -1,6 +1,11 @@
 Version History
 ===============
 
+version 0.3.3
+=============
+- FIX: improved/fixed contact-by-name lookup
+
+
 version 0.3.2
 =============
 - FIX: move bank accounts when merging contacts
@@ -30,6 +35,7 @@ version 0.3
  - FIX: warning if no statement/payment is selected for review
  - matcher:existing_contributions: added configurable payment_instrument mismatch penalty
  - FIX: matcher:existing_contributions: don't process negative amounts in default mode
+ 
  
  pre0.3
  ======

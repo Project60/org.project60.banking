@@ -21,6 +21,7 @@ class CRM_Banking_PluginImpl_Matcher_ExistingContribution extends CRM_Banking_Pl
     if (!isset($config->threshold)) $config->threshold = 0.5;
     if (!isset($config->mode)) $config->mode = "default";     // other mode is "cancellation"
     if (!isset($config->accepted_contribution_states)) $config->accepted_contribution_states = array("Completed", "Pending");
+    if (!isset($config->lookup_contact_by_name)) $config->lookup_contact_by_name = array('soft_cap_probability' => 0.8, 'soft_cap_min' => 5, 'hard_cap_probability' => 0.4);    
     if (!isset($config->received_date_minimum)) $config->received_date_minimum = "-100 days";
     if (!isset($config->received_date_maximum)) $config->received_date_maximum = "+1 days";
     if (!isset($config->date_penalty)) $config->date_penalty = 1.0;
@@ -136,7 +137,7 @@ class CRM_Banking_PluginImpl_Matcher_ExistingContribution extends CRM_Banking_Pl
     // first: try to indentify the contact
     $contacts_found = array();
     if (count($contacts_found)>=0) {
-      $search_result = $context->lookupContactByName($data_parsed['name']);
+      $search_result = $context->lookupContactByName($data_parsed['name'], $config->lookup_contact_by_name);
       foreach ($search_result as $contact_id => $probability) {
         if ($probability > $threshold) {
           $contacts_found[$contact_id] = $probability;

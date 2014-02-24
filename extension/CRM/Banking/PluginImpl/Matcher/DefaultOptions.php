@@ -18,6 +18,7 @@ class CRM_Banking_PluginImpl_Matcher_DefaultOptions extends CRM_Banking_PluginMo
     if (!isset($config->manual_enabled)) $config->manual_enabled = true;
     if (!isset($config->manual_probability)) $config->manual_probability = 0.1;
     if (!isset($config->manual_show_always)) $config->manual_show_always = true;
+    if (!isset($config->lookup_contact_by_name)) $config->lookup_contact_by_name = array('soft_cap_probability' => 0.8, 'soft_cap_min' => 10, 'hard_cap_probability' => 0.4);
     if (!isset($config->manual_title)) $config->manual_title = "Manually processed.";
     if (!isset($config->manual_message)) $config->manual_message = "Please configure";
     if (!isset($config->manual_contribution)) $config->manual_contribution = "Contribution:";
@@ -44,7 +45,7 @@ class CRM_Banking_PluginImpl_Matcher_DefaultOptions extends CRM_Banking_PluginMo
 
         // add related contacts
         $data_parsed = $btx->getDataParsed();
-        $contacts = $context->lookupContactByName($data_parsed['name']);
+        $contacts = $context->lookupContactByName($data_parsed['name'], $config->lookup_contact_by_name);
 
         // add the contact that is related with the account (if identified)
         $account_contact_id = $context->getAccountContact();        

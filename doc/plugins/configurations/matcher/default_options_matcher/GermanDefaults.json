@@ -1,11 +1,6 @@
 {
 	"generate": 1,
     "auto_exec": false,
-    "value_propagation": {
-        "ba.name_id": "contribution.custom_14",
-        "btx.financial_type_id": "contribution.financial_type_id",
-        "btx.campaign_id": "contribution.campaign_id"
-    },
     "manual_enabled": true,
     "manual_probability": "50%",
     "manual_show_always": true,
@@ -18,5 +13,32 @@
     "ignore_show_always": true,
     "ignore_probability": "0.1",
     "ignore_title": "Gehört nicht in CiviCRM",
-    "ignore_message": "Diese Buchung hat nichts mit CiviCRM zu tun."
+    "ignore_message": "Diese Buchung hat nichts mit CiviCRM zu tun.",
+    "value_propagation": {
+        "ba.name_id": "contribution.custom_14",
+        "btx.financial_type_id": "contribution.financial_type_id",
+        "btx.campaign_id": "contribution.campaign_id"
+    },
+    "lookup_contact_by_name" : {
+        "soft_cap_probability": 0.8, 
+        "soft_cap_min": 10, 
+        "hard_cap_probability": 0.4,
+        "modifiers": [
+            {
+                "search": ":ue:",
+                "replace":  "ü",
+                "mode": "alternative"
+            },
+            {
+                "search": ":oe:",
+                "replace":  "ö",
+                "mode": "alternative"
+            },
+            {
+                "search": ":ae:",
+                "replace":  "ä",
+                "mode": "alternative"
+            }
+        ]
+    }
 }

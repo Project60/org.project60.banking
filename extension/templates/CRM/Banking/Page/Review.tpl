@@ -372,5 +372,16 @@ function execute_selected() {
   var selected_suggestion = cj('input[name=selected_suggestion]:checked').val();
   document.getElementById(selected_suggestion).submit();
 }
+
+// add listener to all suggestions, so that changes automatically select the given item
+cj(".suggestion").on('change', '*', select_suggestion);
+cj(".suggestion").on('click', '*', select_suggestion);
+
+function select_suggestion(e) {
+  var suggestion = cj(e.target).closest(".suggestion");
+  var button = suggestion.find("input[name=selected_suggestion]");
+  button.prop('checked', true);
+}
+
 </script>
 {/literal} 

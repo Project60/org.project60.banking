@@ -5,6 +5,7 @@ version 0.3.3
 =============
 - FIX: improved/fixed contact-by-name lookup
 - automatically select suggestion when changed or clicked
+- added simple account editor
 
 
 version 0.3.2

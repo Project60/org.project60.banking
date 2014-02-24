@@ -29,11 +29,11 @@ class CRM_Banking_Page_AccountsTab extends CRM_Core_Page {
                 ref.reference_type_id,
                 ba.data_parsed
             FROM 
-                civicrm_bank_account_reference ref, 
                 civicrm_bank_account ba
+            LEFT JOIN 
+                civicrm_bank_account_reference ref ON ref.ba_id = ba.id
             WHERE 
-                ba.contact_id = $contact_id
-            AND ref.ba_id = ba.id;
+                ba.contact_id = $contact_id;
             ";
         $dao = CRM_Core_DAO::executeQuery($query);
 
@@ -42,6 +42,7 @@ class CRM_Banking_Page_AccountsTab extends CRM_Core_Page {
         while ($dao->fetch()) {
             if (!isset($results[$dao->ba_id])) {
                 $results[$dao->ba_id] = array(
+                    'id' => $dao->ba_id,
                     'data_parsed' => json_decode($dao->data_parsed),
                     'references' => array());
             }
@@ -53,6 +54,11 @@ class CRM_Banking_Page_AccountsTab extends CRM_Core_Page {
         }
 
         $this->assign('results', $results);
+        $this->assign('contact_id', $contact_id);
+
+        // look up IBAN reference type
+        $result = civicrm_api('OptionValue', 'getsingle', array('version' => 3, 'name' => 'IBAN', 'value' => 'IBAN'));
+        $this->assign('iban_type_id', $result['id']);
     }
     parent::run();
   }

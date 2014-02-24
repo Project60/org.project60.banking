@@ -47,7 +47,7 @@ class CRM_Banking_PluginImpl_Matcher_Batches extends CRM_Banking_PluginModel_Mat
     $matching_batches = array();
     foreach ($existing_batches as $batch) {
       $total_amount = $batch['total'];
-      if ($batch['export_date']) {
+      if (!empty($batch['export_date'])) {
         $submission_date = strtotime($batch['export_date']);  
       } elseif ($batch['modified_date']) {
         $submission_date = strtotime($batch['modified_date']);  

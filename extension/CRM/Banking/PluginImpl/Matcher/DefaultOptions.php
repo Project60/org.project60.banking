@@ -534,8 +534,7 @@ class CRM_Banking_PluginImpl_Matcher_DefaultOptions extends CRM_Banking_PluginMo
       return $snippet;
 
     } else {
-      return  $this->_plugin_config->ignore_message."<br/>".
-              $this->_plugin_config->ignore_contribution;
+      return  $this->_plugin_config->ignore_message;
 
     }
   }
@@ -575,7 +574,8 @@ class CRM_Banking_PluginImpl_Matcher_DefaultOptions extends CRM_Banking_PluginMo
   private function get_probability($string_value, CRM_Banking_BAO_BankTransaction $btx) {
     if (substr($string_value, -1) === "%") {
       // if the value ends in '%' it's meant to be relative to the least probable suggestion
-      $least_probable = end($btx->getSuggestionList());
+      $suggestion_list = $btx->getSuggestionList();
+      $least_probable = end($suggestion_list);
       if ($least_probable) {
         $least_probable_value = $least_probable->getProbability();
       } else {

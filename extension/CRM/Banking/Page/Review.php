@@ -82,13 +82,13 @@ class CRM_Banking_Page_Review extends CRM_Core_Page {
       $this->assign('btxstatus', $choices[$btx_bao->status_id]);
       $this->assign('payment', $btx_bao);
       $this->assign('my_bao', $my_bao);
-      $this->assign('party_ba', $ba_bao);
-      $this->assign('contact', $contact);
+      if (!empty($ba_bao)) $this->assign('party_ba', $ba_bao);
+      if (!empty($contact)) $this->assign('contact', $contact);
       $this->assign('payment_data_raw', json_decode($btx_bao->data_raw, true));
 
       $a = json_decode($btx_bao->data_parsed, true);
-      $a['iban'] = CRM_Banking_BAO_BankAccountReference::format('iban',$a['iban']);
       $this->assign('payment_data_parsed', $a);
+      if (!empty($a['iban'])) $a['iban'] = CRM_Banking_BAO_BankAccountReference::format('iban',$a['iban']);
       
       $extra_data = array();
       $_data_raw = json_decode($btx_bao->data_raw, true);
@@ -100,7 +100,7 @@ class CRM_Banking_Page_Review extends CRM_Core_Page {
       if (is_array($btx_bao->getDataParsed())) $extra_data = array_merge($extra_data, $btx_bao->getDataParsed());
       $this->assign('extra_data', $extra_data);
 
-      $this->assign('ba_data_parsed', json_decode($ba_bao->data_parsed, true));
+      if (!empty($ba_bao)) $this->assign('ba_data_parsed', json_decode($ba_bao->data_parsed, true));
 
 
 

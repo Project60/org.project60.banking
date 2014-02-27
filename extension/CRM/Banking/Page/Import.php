@@ -83,7 +83,7 @@ class CRM_Banking_Page_Import extends CRM_Core_Page {
 
     // URLs
     $this->assign('url_action', CRM_Utils_System::url('civicrm/banking/import'));
-    $this->assign('url_payments', CRM_Utils_System::url('civicrm/banking/payments', 'show=payments'));
+    $this->assign('url_payments', CRM_Utils_System::url('civicrm/banking/payments', 'show=statements'));
 
     parent::run();
   }

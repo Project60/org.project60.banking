@@ -104,6 +104,11 @@ function banking_civicrm_options() {
                   'value' => 'CRM_Banking_PluginImpl_Matcher_Generic',
                   'is_default' => 0,
               ),
+              'matcher_create' => array(
+                  'label' => 'Create Contribution Matcher Plugin',
+                  'value' => 'CRM_Banking_PluginImpl_Matcher_CreateContribution',
+                  'is_default' => 0,
+              ),
               'matcher_yes' => array(
                   'label' => 'Dummy Matcher Test Plugin',
                   'value' => 'CRM_Banking_PluginImpl_Matcher_Yes',

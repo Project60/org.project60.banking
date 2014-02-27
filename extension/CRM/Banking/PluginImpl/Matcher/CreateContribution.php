@@ -1,0 +1,192 @@
+<?php
+/*
+    org.project60.banking extension for CiviCRM
+
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU Affero General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU Affero General Public License for more details.
+
+    You should have received a copy of the GNU Affero General Public License
+    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+*/
+
+
+require_once 'CRM/Banking/Helpers/OptionValue.php';
+
+/**
+ * This matcher will offer to create a new contribution if all the required information is present
+ */
+class CRM_Banking_PluginImpl_Matcher_CreateContribution extends CRM_Banking_PluginModel_Matcher {
+
+  /**
+   * class constructor
+   */ 
+  function __construct($config_name) {
+    parent::__construct($config_name);
+
+    // read config, set defaults
+    $config = $this->_plugin_config;
+    if (!isset($config->auto_exec)) $config->auto_exec = false;
+    if (!isset($config->required_values)) $config->required_values = array("btx.financial_type_id", "btx.campaign_id");
+    if (!isset($config->factor)) $config->factor = 1.0;
+    if (!isset($config->lookup_contact_by_name)) $config->lookup_contact_by_name = array("hard_cap_probability" => 0.9);
+  }
+
+
+  public function match(CRM_Banking_BAO_BankTransaction $btx, CRM_Banking_Matcher_Context $context) {
+    $config = $this->_plugin_config;
+    $threshold = $config->threshold;
+    $data_parsed = $btx->getDataParsed();
+
+    // first see if all the required values are there
+    foreach ($config->required_values as $required_key) {
+      if ($this->getPropagationValue($btx, $required_key)==NULL) {
+        // there is no value given for this key => bail
+        error_log("Missing: $required_key");
+        return null;
+      }
+    }
+
+    // then look up potential contacts
+    $contacts_found = array();
+    if (count($contacts_found)>=0) {
+      $search_result = $context->lookupContactByName($data_parsed['name'], $config->lookup_contact_by_name);
+      foreach ($search_result as $contact_id => $probability) {
+        if ($probability > $threshold) {
+          $contacts_found[$contact_id] = $probability;
+        }
+      }
+    }
+    $account_contact_id = $context->getAccountContact();
+    if ($account_contact_id) {
+      $contacts_found[$account_contact_id] = 1.0;
+    }
+
+    // Check if there already is such a contribution
+    // TODO?
+
+    // finally generate suggestions
+    foreach ($contacts_found as $contact_id => $contact_probability) {
+      $suggestion = new CRM_Banking_Matcher_Suggestion($this, $btx);
+      $suggestion->setTitle(ts("Create a new contribution"));
+      $suggestion->setId("create-$contact_id");
+      $suggestion->setParameter('contact_id', $contact_id);
+
+      // set probability manually, I think the automatic calculation provided by ->addEvidence might not be what we need here
+      $suggestion->setProbability($contact_probability);
+      $btx->addSuggestion($suggestion);
+    }
+
+    // that's it...
+    return empty($this->_suggestions) ? null : $this->_suggestions;
+  }
+
+  /**
+   * Handle the different actions, should probably be handles at base class level ...
+   * 
+   * @param type $match
+   * @param type $btx
+   */
+  public function execute($suggestion, $btx) {
+    // create contribution
+    $query = $this->get_contribution_data($btx, $suggestion->getParameter('contact_id'));
+    $query = array_merge($query, $this->getPropagationSet($btx, 'contribution'));   // add propagated values
+    $query['version'] = 3;
+    error_log(print_r($query, true));   
+    $result = civicrm_api('Contribution', 'create', $query);
+    if (isset($result['is_error']) && $result['is_error']) {
+      CRM_Core_Session::setStatus(ts("Couldn't create contribution."), ts('Error'), 'error');
+    } else {
+      $suggestion->setParameter('contribution_id', $result['id']);
+    }
+
+    // wrap it up
+    $newStatus = banking_helper_optionvalueid_by_groupname_and_name('civicrm_banking.bank_tx_status', 'Processed');
+    $btx->setStatus($newStatus);
+    parent::execute($suggestion, $btx);
+  }
+
+  /**
+   * If the user has modified the input fields provided by the "visualize" html code,
+   * the new values will be passed here BEFORE execution
+   *
+   * CAUTION: there might be more parameters than provided. Only process the ones that
+   *  'belong' to your suggestion.
+   */
+  public function update_parameters(CRM_Banking_Matcher_Suggestion $match, $parameters) {
+    // NOTHING to do...
+  }
+
+  /** 
+   * Generate html code to visualize the given match. The visualization may also provide interactive form elements.
+   * 
+   * @val $match    match data as previously generated by this plugin instance
+   * @val $btx      the bank transaction the match refers to
+   * @return html code snippet
+   */  
+  function visualize_match( CRM_Banking_Matcher_Suggestion $match, $btx) {
+
+    $contribution = $this->get_contribution_data($btx, $contact_id);
+    $contact_id = $match->getParameter('contact_id');
+    $contact_link = CRM_Utils_System::url("civicrm/contact/view", "&reset=1&cid=$contact_id");
+    
+    // load contact
+    $contact = civicrm_api('Contact', 'getsingle', array('id' => $contact_id, 'version' => 3));
+    if (isset($contact['is_error']) && $contact['is_error']) {
+      return ts("Internal error! Cannot find contact #").$contact_id;
+    }
+
+    // create address
+    if (!empty($contact['city'])) {
+      if (!empty($contact['street_address'])) {
+        $address = $contact['street_address'].", ".$contact['city'];
+      } else {
+        $address = $contact['city'];
+      }
+    } else {
+      $address = ts("address unknown");
+    }
+
+    // lookup financial type
+    $financial_types = CRM_Contribute_PseudoConstant::financialType();
+    $contribution['financial_type'] = $financial_types[$contribution['financial_type_id']];
+
+    $text = "<div>".ts("The following contribution will be created:")."<div>";
+    $text .= "<br/><div><table border=\"1\"><tr>";
+    $text .= "<td><div class=\"btxlabel\">".ts("Donor").":&nbsp;</div><div class=\"btxvalue\"><a title=\"$address\" href=\"$contact_link\" target=\"_blank\">".$contact['sort_name']."</td>";
+    $text .= "<td><div class=\"btxlabel\">".ts("Amount").":&nbsp;</div><div class=\"btxvalue\">".$contribution['total_amount']." ".$contribution['currency']."</td>";
+    $text .= "<td><div class=\"btxlabel\">".ts("Date").":&nbsp;</div><div class=\"btxvalue\">".$contribution['receive_date']."</td>";
+    $text .= "<td><div class=\"btxlabel\">".ts("Type").":&nbsp;</div><div class=\"btxvalue\">".$contribution['financial_type']."</td>";
+    $text .= "</tr></table></div>";
+    return $text;
+  }
+
+  /** 
+   * Generate html code to visualize the executed match.
+   * 
+   * @val $match    match data as previously generated by this plugin instance
+   * @val $btx      the bank transaction the match refers to
+   * @return html code snippet
+   */  
+  function visualize_execution_info( CRM_Banking_Matcher_Suggestion $match, $btx) {
+    $contribution_id = $match->getParameter('contribution_id');
+    $contribution_link = CRM_Utils_System::url("civicrm/contact/view/contribution", "action=view&reset=1&id=${contribution_id}&cid=2&context=home");
+    return "<p>".sprintf(ts("This payment was associated with <a href=\"%s\">contribution #%s</a>."), $contribution_link, $contribution_id)."</p>";
+  }
+
+
+  function get_contribution_data($btx, $contact_id) {
+    $contribution = $this->getPropagationSet($btx, 'contribution');
+    $contribution['contact_id'] = $contact_id;
+    $contribution['total_amount'] = $btx->amount;
+    $contribution['receive_date'] = $btx->value_date;
+    return $contribution;
+  }
+}
+

@@ -288,6 +288,17 @@ class CRM_Banking_PluginImpl_CSVImporter extends CRM_Banking_PluginModel_Importe
     // get value
     $value = $this->getValue($rule->from, $btx, $line, $header);
 
+    // check if-clause
+    if (isset($rule->if)) {
+      if (_csvimporter_helper_startswith($rule->if, 'equalto:')) {
+        $params = explode(":", $rule->if);
+        if ($value != $params[1]) return;
+      } else {
+        print_r("CONDITION (IF) TYPE NOT YET IMPLEMENTED");
+        return;
+      }
+    }
+
     // execute the rule
     if (_csvimporter_helper_startswith($rule->type, 'set')) {
       // SET is a simple copy command:
@@ -314,6 +325,11 @@ class CRM_Banking_PluginImpl_CSVImporter extends CRM_Banking_PluginModel_Importe
       } else {
         $btx[$rule->to] = trim($value);
       }
+
+    } elseif (_csvimporter_helper_startswith($rule->type, 'replace')) {
+      // REPLACE will replace a substring
+      $params = explode(":", $rule->type);
+      $btx[$rule->to] = str_replace($params[1], $params[2], $value);
 
     } elseif (_csvimporter_helper_startswith($rule->type, 'format')) {
       // will use the sprintf format

@@ -93,6 +93,21 @@
 </table>
 </div>
 
+<div class="crm-submit-buttons">
+  {if $page_mode == 'config'}
+    <span class="crm-button crm-button-type-upload crm-button_qf_DataSource_upload">
+      <input type="submit" value="{ts}Import!{/ts}" class="validate form-submit default">
+    </span>
+  {else}
+    <a class="button" href="{$url_payments}">
+      <span align="right"><div class="icon details-icon"></div>{ts}See Results{/ts}</span>
+    </a>
+    <a class="button" href="{$url_action}">
+      <span align="right"><div class="icon details-icon"></div>{ts}Import More{/ts}</span>
+    </a>
+  {/if}
+</div>
+
 {if $page_mode == 'run'}
   <div class="crm-block crm-container crm-import-datasource-form-block" id="run_log">
     <h3>Execution log</h3>
@@ -114,13 +129,8 @@
   </div>
 {/if}
 
-
 <div class="crm-submit-buttons">
-  {if $page_mode == 'config'}
-    <span class="crm-button crm-button-type-upload crm-button_qf_DataSource_upload">
-      <input type="submit" value="{ts}Import!{/ts}" class="validate form-submit default">
-    </span>
-  {else}
+  {if $page_mode != 'config'}
     <a class="button" href="{$url_payments}">
       <span align="right"><div class="icon details-icon"></div>{ts}See Results{/ts}</span>
     </a>
@@ -129,6 +139,7 @@
     </a>
   {/if}
 </div>
+
 </form>
 
 

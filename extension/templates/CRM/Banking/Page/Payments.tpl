@@ -162,7 +162,9 @@
     <td nowrap class="crm-contact-activity-activity_type">{$field.date|date_format:"%d-%m-%Y"}</td>
     <td class="crm-contact-activity-source_contact"><b>{$field.target}</b></td>
     <td class="">
-      <span style="background-color: #cccccc; padding: 2px 4px; border-radius: 3px;">{$field.sequence}</span> 
+      {if $field.sequence}
+      <span style="background-color: #cccccc; padding: 2px 4px; border-radius: 3px;">{$field.sequence}</span>
+      {/if} 
       {$field.total} {$field.currency}
       <br/>
       <span style="color: #ccc; font-size: 0.9em;">{$field.reference}</span>

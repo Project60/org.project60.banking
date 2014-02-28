@@ -205,7 +205,6 @@ class CRM_Banking_PluginImpl_CSVImporter extends CRM_Banking_PluginModel_Importe
         if (!isset($this->account_cache[$value])) {
           $result = civicrm_api('BankingAccountReference', 'getsingle', array('version' => 3, 'reference' => $value));
           if ($result['is_error']) {
-            //CRM_Core_Session::setStatus(sprintf(ts("Internal error while looking up bank account '%s'. Error was: %s"), $value, $result['error_message']), ts('Error'), 'alert');
             $this->account_cache[$value] = NULL;
           } else {
             $this->account_cache[$value] = $result['ba_id'];

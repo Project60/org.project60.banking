@@ -4,10 +4,12 @@ Version History
 version 0.3.3
 =============
 - FIX: improved/fixed contact-by-name lookup
+- store bank account information upon successfull reconciliation of a payment
 - automatically select suggestion when changed or clicked
 - added simple account editor
 - added "create contribution" matcher
 - added 'if' clauses to CSVImport rules
+
 
 version 0.3.2
 =============

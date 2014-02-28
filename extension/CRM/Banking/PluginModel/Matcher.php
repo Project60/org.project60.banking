@@ -259,6 +259,141 @@ abstract class CRM_Banking_PluginModel_Matcher extends CRM_Banking_PluginModel_B
   }
 
 
+  /**************************************************************
+   *                  Store Account Data                        *
+   *************************************************************/
+
+  function storeAccountWithContact($btx, $contact_id) {
+    // find all reference types
+    $reference_type_group = array('name' => 'civicrm_banking.reference_types');
+    $reference_types = array();
+    CRM_Core_OptionValue::getValues($reference_type_group, $reference_types);
+
+    // gather the information
+    $data = $btx->getDataParsed();
+    $references = array();
+    foreach ($reference_types as $reference_type) {
+      $field_name = '_party_'.$reference_type['name'];
+      if (!empty($data[$field_name])) {
+        $references[$reference_type['id']] = $data[$field_name];
+      }
+    }
+
+    // if we don't have references, there's nothing we can do...
+    if (empty($references)) return;
+
+    // gather account info
+    $account_info = array();
+    if (!empty($data['_party_BIC'])) $account_info['BIC'] = $data['_party_BIC'];
+    if (!empty($data['_party_IBAN'])) $account_info['country'] = substr($data['_party_IBAN'], 0, 2);
+    // copy all entries that start with _party_ba_ into the account info
+    foreach ($data as $key => $value) {
+      if ('_party_ba_' == substr($key, 0, 10)) {
+        if (!empty($value)) {
+          $new_key = substr($key, 10);
+          $account_info[$new_key] = $value;
+        }
+      } 
+    }    
+
+    // find all referenced bank accounts
+    $bank_accounts = array();
+    $contact_bank_account_id = NULL;
+    $contact_bank_account_created = false;
+    $reference2instances = array();
+    foreach ($references as $reference_type => $reference) {
+      $reference2instances[$reference] = array();
+      $query = array('version'=>3, 'reference' => $reference, 'reference_type_id' => $reference_type);
+      $existing = civicrm_api('BankingAccountReference', 'get', $query);
+      if (empty($existing['is_error'])) {
+        foreach ($existing['values'] as $account_reference) {
+          array_push($reference2instances[$reference], $account_reference);
+          if (!isset($bank_accounts[$account_reference['ba_id']])) {
+            // load the bank account
+            $ba_bao = new CRM_Banking_BAO_BankAccount();
+            $ba_bao->get('id', $account_reference['ba_id']);
+            $bank_accounts[$account_reference['ba_id']] = $ba_bao;
+          }
+
+          // consider this bank account to be ours if the contact id matches
+          if (!$contact_bank_account_id && ($ba_bao->contact_id == $contact_id)) {
+            $contact_bank_account_id = $ba_bao->id;
+          }
+        }
+      }
+    }
+
+    // create new account if it does not yet exist
+    if (!$contact_bank_account_id) {
+      $ba_bao = new CRM_Banking_BAO_BankAccount();
+      $ba_bao->contact_id = $contact_id;
+      $ba_bao->description = ts("created by CiviBanking");
+      $ba_bao->created_date = date('YmdHis');
+      $ba_bao->modified_date = date('YmdHis');
+      $ba_bao->data_raw = NULL;
+      $ba_bao->data_parsed = "{}";
+      $ba_bao->save();
+
+      $contact_bank_account_id = $ba_bao->id;
+      $bank_accounts[$contact_bank_account_id] = $ba_bao;
+      $contact_bank_account_created = true;
+    }
+
+    // update bank account data
+    $ba_bao = $bank_accounts[$contact_bank_account_id];
+    $ba_data = $ba_bao->getDataParsed();
+    foreach ($account_info as $key => $value) {
+      $ba_data[$key] = $value;
+    }
+    $ba_bao->setDataParsed($ba_data);
+    $ba_bao->save();
+
+    // create references (warn if exists for another contact)
+    foreach ($references as $reference_type => $reference) {
+      // check the existing
+      $reference_already_there = false;
+      foreach ($reference2instances[$reference] as $reference_instance) {
+        if ($reference_instance['ba_id'] == $contact_bank_account_id) {
+          // there is already a reference for 'our' bank account
+          $reference_already_there = true;
+          break;
+        }
+      }
+
+      if (!$reference_already_there) {
+        // there was no reference to 'our' bank account -> create!
+        $query = array( 'version'           => 3, 
+                        'reference'         => $reference, 
+                        'reference_type_id' => $reference_type,
+                        'ba_id'             => $contact_bank_account_id);
+        $result = civicrm_api('BankingAccountReference', 'create', $query);
+        if (!empty($result['is_error'])) {
+          CRM_Core_Session::setStatus(ts("Couldn't create reference. Error was: ".$result['error_message']), ts('Error'), 'alert');
+        }        
+      }
+    }
+
+    // finally, create some feedback
+    if ($contact_bank_account_created) {
+      if (count($bank_accounts) > 1) {
+        // there are mutiple acccounts referenced by this
+        $message = ts("The account information of this contact was saved, but it is also used by the following contacts:<br/><ul>%s</ul>");
+        $contacts = "";
+        foreach ($bank_accounts as $ba_id => $ba_bao) {
+          if ($ba_id == $contact_bank_account_id) continue;
+          $contact = civicrm_api('Contact', 'getsingle', array('version' => 3, 'id' => $ba_bao->contact_id));
+          if (empty($contact['is_error'])) {
+            $url = CRM_Utils_System::url('civicrm/contact/view', 'cid='.$ba_bao->contact_id);
+            $contacts .= "<li><a href='$url'>".$contact['display_name']."</a></li>";
+          }
+        }
+        CRM_Core_Session::setStatus(sprintf($message, $contacts), ts('Warning'), 'warn');
+      } else {
+        CRM_Core_Session::setStatus(ts("The account information of this contact was saved."), ts('Account saved'), 'info');
+      }     
+    }
+  }
+
 
   
   /**************************************************************

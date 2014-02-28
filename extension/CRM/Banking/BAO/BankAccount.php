@@ -48,5 +48,12 @@ class CRM_Banking_BAO_BankAccount extends CRM_Banking_DAO_BankAccount {
     return $this->_decoded_data_parsed;
   }
 
+  /**
+   * store a data parsed structure into the db field.
+   */
+  public function setDataParsed($data) {
+    $this->data_parsed = json_encode($data);
+    $this->getDataParsed(true);
+  }
 }
 

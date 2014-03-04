@@ -233,8 +233,8 @@ class CRM_Banking_PluginImpl_Matcher_ExistingContribution extends CRM_Banking_Pl
    * @param type $btx
    */
   public function execute($suggestion, $btx) {
-
-    $query = array('version' => 3, 'id' => $suggestion->getParameter('contribution_id'));
+    $contribution_id = $suggestion->getParameter('contribution_id');
+    $query = array('version' => 3, 'id' => $contribution_id);
     $query = array_merge($query, $this->getPropagationSet($btx, 'contribution'));   // add propagated values
 
     // depending on mode...
@@ -250,6 +250,13 @@ class CRM_Banking_PluginImpl_Matcher_ExistingContribution extends CRM_Banking_Pl
     $result = civicrm_api('Contribution', 'create', $query);
     if (isset($result['is_error']) && $result['is_error']) {
       CRM_Core_Session::setStatus(ts("Couldn't modify contribution."), ts('Error'), 'error');
+    } else {
+      // everything seems fine, save the account
+      if (!empty($result['values'][$contribution_id]['contact_id'])) {
+        $this->storeAccountWithContact($btx, $result['values'][$contribution_id]['contact_id']);
+      } elseif (!empty($result['values'][0]['contact_id'])) {
+        $this->storeAccountWithContact($btx, $result['values'][0]['contact_id']);
+      }
     }
 
     $newStatus = banking_helper_optionvalueid_by_groupname_and_name('civicrm_banking.bank_tx_status', 'Processed');

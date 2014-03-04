@@ -114,6 +114,11 @@ class CRM_Banking_PluginImpl_Matcher_DefaultOptions extends CRM_Banking_PluginMo
               continue;
             }
 
+            // save the account
+            if (!empty($contribution['contact_id'])) {
+              $this->storeAccountWithContact($btx, $contribution['contact_id']);
+            }
+
             $query = array('version' => 3, 'id' => $cid);
             $query['is_test'] = 0;
             $query = array_merge($query, $this->getPropagationSet($btx, 'contribution'));   // add propagated values

@@ -98,13 +98,15 @@ class CRM_Banking_PluginImpl_Matcher_CreateContribution extends CRM_Banking_Plug
     $query = $this->get_contribution_data($btx, $suggestion->getParameter('contact_id'));
     $query = array_merge($query, $this->getPropagationSet($btx, 'contribution'));   // add propagated values
     $query['version'] = 3;
-    error_log(print_r($query, true));   
     $result = civicrm_api('Contribution', 'create', $query);
     if (isset($result['is_error']) && $result['is_error']) {
       CRM_Core_Session::setStatus(ts("Couldn't create contribution."), ts('Error'), 'error');
     } else {
       $suggestion->setParameter('contribution_id', $result['id']);
     }
+
+    // save the account
+    $this->storeAccountWithContact($btx, $suggestion->getParameter('contact_id'));
 
     // wrap it up
     $newStatus = banking_helper_optionvalueid_by_groupname_and_name('civicrm_banking.bank_tx_status', 'Processed');

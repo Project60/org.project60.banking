@@ -321,8 +321,6 @@
   </div>
 
   {if $btxstatus.label != 'Processed' AND $btxstatus.label != 'Ignored'}
-    <br/><br/>
-    <h2>{ts}Suggestions{/ts} </h2>
     <br/>
     <table class="suggestions">
       <tr>

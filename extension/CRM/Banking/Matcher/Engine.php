@@ -77,6 +77,9 @@ class CRM_Banking_Matcher_Engine {
         array_push($this->plugins[$pi_bao->weight], $pi_bao->getInstance());
       }
     }
+
+    // sort array by weight
+    ksort($this->plugins);
   }
   
   /**
@@ -109,6 +112,7 @@ class CRM_Banking_Matcher_Engine {
     } else {
       foreach ($this->plugins as $weight => $plugins) {
         foreach ($plugins as $plugin) {
+          //error_log("Executing '".$plugin->getTitle()."' (".$weight.")");
           $continue = $this->matchPlugin( $plugin, $context );
           if (!$continue) return true;
         }

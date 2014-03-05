@@ -22,23 +22,6 @@
     "lookup_contact_by_name" : {
         "soft_cap_probability": 0.8, 
         "soft_cap_min": 10, 
-        "hard_cap_probability": 0.4,
-        "modifiers": [
-            {
-                "search": ":ue:",
-                "replace":  "ü",
-                "mode": "alternative"
-            },
-            {
-                "search": ":oe:",
-                "replace":  "ö",
-                "mode": "alternative"
-            },
-            {
-                "search": ":ae:",
-                "replace":  "ä",
-                "mode": "alternative"
-            }
-        ]
+        "hard_cap_probability": 0.4
     }
 }

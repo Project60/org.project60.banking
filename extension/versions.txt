@@ -8,7 +8,9 @@ version 0.3.3
 - automatically select suggestion when changed or clicked
 - added simple account editor
 - added "create contribution" matcher
+- added regex matcher/analyser
 - added 'if' clauses to CSVImport rules
+- FIX: execute matchers by (ascending weight)
 
 
 version 0.3.2

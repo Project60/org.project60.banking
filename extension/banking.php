@@ -139,6 +139,12 @@ function banking_civicrm_options() {
                   'description' => 'Tries to identify payments that settle contribution batches.',
                   'is_default' => 0,
               ),
+              'analyser_regex' => array(
+                  'label' => 'RegEx Analyser',
+                  'value' => 'CRM_Banking_PluginImpl_Matcher_RegexAnalyser',
+                  'description' => 'Analyses and enriches the payment information using regular expressions.',
+                  'is_default' => 0,
+              ),
           ),
       ),
       'civicrm_banking.reference_types' => array(

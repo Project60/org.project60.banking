@@ -84,6 +84,14 @@ class CRM_Banking_BAO_BankTransaction extends CRM_Banking_DAO_BankTransaction {
   }
 
   /**
+   * store a data parsed structure into the db field.
+   */
+  public function setDataParsed($data) {
+    $this->data_parsed = json_encode($data);
+    $this->getDataParsed(true);
+  }
+  
+  /**
    * get a suggestion by its hash key
    */
   public function getSuggestionByHash($hash) {

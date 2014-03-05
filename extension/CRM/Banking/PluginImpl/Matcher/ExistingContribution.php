@@ -151,22 +151,8 @@ class CRM_Banking_PluginImpl_Matcher_ExistingContribution extends CRM_Banking_Pl
       }
     }
 
-    // first: try to indentify the contact
-    $contacts_found = array();
-    if (count($contacts_found)>=0) {
-      $search_result = $context->lookupContactByName($data_parsed['name'], $config->lookup_contact_by_name);
-      foreach ($search_result as $contact_id => $probability) {
-        if ($probability > $threshold) {
-          $contacts_found[$contact_id] = $probability;
-        }
-      }
-    }
-
-    // also, we'll use the contact identified by the bank account
-    $account_contact_id = $context->getAccountContact();
-    if ($account_contact_id) {
-      $contacts_found[$account_contact_id] = 1.0;
-    }
+    // find contacts    
+    $contacts_found = $context->findContacts($threshold, $data_parsed['name'], $config->lookup_contact_by_name);
 
     // with the identified contacts, look up contributions
     $contributions = array();

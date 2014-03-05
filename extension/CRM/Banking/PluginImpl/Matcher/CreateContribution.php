@@ -54,22 +54,7 @@ class CRM_Banking_PluginImpl_Matcher_CreateContribution extends CRM_Banking_Plug
     }
 
     // then look up potential contacts
-    $contacts_found = array();
-    if (count($contacts_found)>=0) {
-      $search_result = $context->lookupContactByName($data_parsed['name'], $config->lookup_contact_by_name);
-      foreach ($search_result as $contact_id => $probability) {
-        if ($probability > $threshold) {
-          $contacts_found[$contact_id] = $probability;
-        }
-      }
-    }
-    $account_contact_id = $context->getAccountContact();
-    if ($account_contact_id) {
-      $contacts_found[$account_contact_id] = 1.0;
-    }
-
-    // Check if there already is such a contribution
-    // TODO?
+    $contacts_found = $context->findContacts($threshold, $data_parsed['name'], $config->lookup_contact_by_name);
 
     // finally generate suggestions
     foreach ($contacts_found as $contact_id => $contact_probability) {

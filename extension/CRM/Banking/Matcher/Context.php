@@ -14,6 +14,72 @@ class CRM_Banking_Matcher_Context {
     $this->btx = $btx;
   }
 
+  /**
+   * Provides a general interface to looking up contacts matching the current payment.
+   * This includes:
+   *  - looking up 'contact_id' or 'external_identifier' values in the paresed_data
+   *  - looking up identified account owners
+   *  - name based search via lookupContactByName() method
+   *
+   * If more than one contact has probability 1, then it will be reduced to 0.99
+   *
+   * @return array(contact_id => similarity), where similarity is from [0..1]
+   */
+  public function findContacts($threshold=0.0, $name=NULL, $lookup_by_name_parameters=array()) {
+    // we'll start with the findContacts method
+    if ($name==NULL) {
+      $contacts = array();
+    } else {
+      $contacts = $this->lookupContactByName($name, $lookup_by_name_parameters);
+      //error_log('after lookup:'.print_r($contacts, true));      
+    }
+
+    // then look for 'contact_id' or 'external_identifier'
+    $data_parsed = $this->btx->getDataParsed();
+    if (!empty($data_parsed['external_identifier'])) {
+      $contact = civicrm_api('Contact', 'getsingle', array('external_identifier' => $data_parsed['external_identifier'], 'version' => 3));
+      if (empty($contact['is_error'])) {
+        $contacts[$contact['id']] = 1.0;
+      }
+    }
+
+    // add contact_id if right there...
+    if (!empty($data_parsed['contact_id'])) {
+      $contacts[$data_parsed['contact_id']] = 1.0;
+    }
+    //error_log('after direct ident:'.print_r($contacts, true));
+
+    // look up accounts
+    $account_owners = $this->getAccountContacts();
+    foreach ($account_owners as $account_owner) {
+      $contacts[$account_owner] = 1.0;
+    }
+    //error_log('after accounts:'.print_r($contacts, true));
+
+    // check if multiple 1.0 probabilities are there...
+    $perfect_match_count = 0;
+    foreach ($contacts as $contact => $probability) {
+      if ($probability == 1.0) $perfect_match_count++;
+    }
+    if ($perfect_match_count > 1) {
+      // in this case, we reduce each probability to 0.99
+      foreach ($contacts as $contact => $probability) {
+        if ($probability == 1.0) $contacts[$contact] = 0.99;
+      }
+    }
+
+    // remove all that are under the threshold
+    $selected_contacts = array();
+    foreach ($contacts as $contact => $probability) {
+      if ($probability >= $threshold) {
+        $selected_contacts[$contact] = $probability;
+      }
+    }
+
+    // now sort by probability and return
+    arsort($selected_contacts);
+    return $selected_contacts;
+  }
 
   /**
    * Will provide a name based lookup for contacts
@@ -56,9 +122,45 @@ class CRM_Banking_Matcher_Context {
   	return $contacts_found;
   }
 
+
+  /**
+   * If the payment was associated with a (source) account, this
+   *  function looks up the account's owner(s) contact ID(s)
+   */
+  public function getAccountContacts() {
+    $contact_ids = $this->getCachedEntry('_account_contact_ids');
+    if ($contact_ids===NULL) {
+      // first, get the account contact
+      $contact_ids = array();
+      $btx_account_contact = $this->getAccountContact();
+      if ($btx_account_contact) array_push($contact_ids, $btx_account_contact);
+
+      // then, look up party_ba_reference...
+      $data_parsed = $this->btx->getDataParsed();
+      if (!empty($data_parsed['party_ba_reference'])) {
+        // find all accounts references matching the parsed data
+        $account_references = civicrm_api('BankAccountReference', 'get', array('reference' => $data_parsed['party_ba_reference'], 'version' => 3));
+        if (empty($account_references['is_error'])) {
+          foreach ($account_references['values'] as $account_reference) {
+            // then load the respective accounts
+            $account = civicrm_api('BankAccount', 'getsingle', array('id' => $account_reference['ba_id'], 'version' => 3));
+            if (empty($account['is_error'])) {
+              // and add the owner
+              array_push($contact_ids, $account['contact_id']);
+            }
+          }
+        }
+      }
+
+      $this->setCachedEntry('_account_contact_ids', $contact_ids);
+    }
+    return $contact_ids;
+  }
+
   /**
    * If the payment was associated with a (source) account, this
    *  function looks up the account's owner contact ID
+   * @deprecated use getAccountContacts()
    */
   public function getAccountContact() {
     $contact_id = $this->getCachedEntry('_account_contact_id');

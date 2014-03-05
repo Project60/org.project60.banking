@@ -82,6 +82,9 @@ class CRM_Banking_PluginImpl_Matcher_RegexAnalyser extends CRM_Banking_PluginMod
         // COPY value from match group to parsed data
         //error_log($action->to." is set to ".$match_data[$action->from][$match_index]);
         $data_parsed[$action->to] = $match_data[$action->from][$match_index];
+      } elseif ($action->action=='set') {
+        // SET value regardless of the match contect
+        $data_parsed[$action->to] = $action->value;
       } else {
         error_log("org.project60.banking: RegexAnalyser - bad action: '".$action->action."'");
       }

@@ -6,14 +6,19 @@
             "comment": "Format of scanned code is RXXXXXXKXXXXLXX, number values, no leading zeroes",
             "actions": [
                 {
-                    "from": "extid",
                     "action": "copy",
+                    "from": "extid",
                     "to": "external_identifier"
                 },
                 {
-                    "from": "campaign",
                     "action": "copy",
+                    "from": "campaign",
                     "to": "campaign_id"
+                },
+                {
+                    "action": "set",
+                    "to": "has_code",
+                    "value": "true"
                 }
             ]
         }

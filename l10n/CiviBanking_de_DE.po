@@ -484,6 +484,7 @@ msgstr "Bearbeiten"
 
 #: templates/CRM/Banking/Page/Manager.tpl
 #: templates/CRM/Banking/Page/Payments.tpl
+#: templates/CRM/Banking/Page/AccountsTab.tpl
 msgid "Delete"
 msgstr "Löschen"
 
@@ -491,7 +492,7 @@ msgstr "Löschen"
 msgid "Add Profile"
 msgstr "Profil hinzufügen"
 
-#: templates/CRM/Banking/Page/Payments.tpl
+#: templates/CRM/Banking/Page/Payments.tpl on/hooks.php
 msgid "Show Statements"
 msgstr "Kontoauszüge anzeigen"
 
@@ -524,6 +525,7 @@ msgstr "Konto"
 #: templates/CRM/Banking/Page/Payments.tpl
 #: on/CRM/Banking/PluginImpl/Matcher/DefaultOptions.php
 #: on/CRM/Banking/PluginImpl/Matcher/ExistingContribution.php
+#: on/CRM/Banking/PluginImpl/Matcher/CreateContribution.php
 msgid "Date"
 msgstr "Datum"
 
@@ -531,6 +533,7 @@ msgstr "Datum"
 #: on/CRM/Banking/PluginImpl/Matcher/Batches.php
 #: on/CRM/Banking/PluginImpl/Matcher/DefaultOptions.php
 #: on/CRM/Banking/PluginImpl/Matcher/ExistingContribution.php
+#: on/CRM/Banking/PluginImpl/Matcher/CreateContribution.php
 msgid "Amount"
 msgstr "Summe"
 
@@ -661,6 +664,9 @@ msgstr ""
 #: on/CRM/Banking/PluginImpl/Matcher/ExistingContribution.php
 #: on/CRM/Banking/PluginImpl/Matcher/Batches.php
 #: on/CRM/Banking/PluginImpl/CSVImporter.php
+#: on/CRM/Banking/PluginImpl/Matcher/CreateContribution.php
+#: on/CRM/Banking/PluginModel/Matcher.php
+#: templates/CRM/Banking/Page/AccountsTab.tpl
 msgid "Error"
 msgstr "Fehler"
 
@@ -671,6 +677,7 @@ msgstr "Konnte Zuwendung nicht bearbeiten"
 
 #: on/CRM/Banking/PluginImpl/Matcher/DefaultOptions.php
 #: on/CRM/Banking/PluginImpl/Matcher/ExistingContribution.php
+#: on/CRM/Banking/PluginImpl/Matcher/CreateContribution.php
 msgid "Type"
 msgstr "Typ"
 
@@ -776,6 +783,7 @@ msgid "A pending contribution partially matching the payment was found."
 msgstr "Eine offene Zuwendung die teilweise mit einer Zahlung übereinstimmt wurde gefunden."
 
 #: on/CRM/Banking/PluginImpl/Matcher/ExistingContribution.php
+#: on/CRM/Banking/PluginImpl/Matcher/CreateContribution.php
 msgid "Donor"
 msgstr "Spender"
 
@@ -971,6 +979,7 @@ msgid "This payment was associated with <a href=\"%s\">payment batch #%s</a>."
 msgstr "Diese Zahlung wurde mit <a href=\"%s\">Zuwendungsgruppe #%s</a> verbunden."
 
 #: on/CRM/Banking/PluginImpl/Matcher/ExistingContribution.php
+#: on/CRM/Banking/PluginImpl/Matcher/CreateContribution.php
 msgid "This payment was associated with <a href=\"%s\">contribution #%s</a>."
 msgstr "Diese Zahlung wurde mit <a href=\"%s\">Zuwendung #%s</a> verknüpft."
 
@@ -1068,16 +1077,71 @@ msgstr "Bitte etwas auswählen"
 
 #: templates/CRM/Banking/Page/Review.tpl
 msgid "DETAILS"
-msgstr ""
+msgstr "DETAILS"
 
 #: templates/CRM/Banking/Page/Review.tpl
 msgid "Skip Processed"
 msgstr "Nächste Unbearbeitete"
 
 #: on/hooks.php
-#, fuzzy
 msgid "Dashboard"
-msgstr "CiviBanking Übersicht"
+msgstr "Banking Übersicht"
+
+#: on/CRM/Banking/PluginImpl/Matcher/CreateContribution.php
+msgid "Create a new contribution"
+msgstr "Neue Zuwendung erstellen"
+
+#: on/CRM/Banking/PluginImpl/Matcher/CreateContribution.php
+msgid "Couldn't create contribution."
+msgstr "Konnte Zuwendung nicht erstellen."
+
+#: on/CRM/Banking/PluginImpl/Matcher/CreateContribution.php
+msgid "Internal error! Cannot find contact #"
+msgstr "Programmfehler: Kontakt nicht auffindbar, ID #"
+
+#: on/CRM/Banking/PluginImpl/Matcher/CreateContribution.php
+msgid "address unknown"
+msgstr "unbekannte Adresse"
+
+#: on/CRM/Banking/PluginImpl/Matcher/CreateContribution.php
+msgid "The following contribution will be created:"
+msgstr "Folgende Zuwendung wird erstellt:"
+
+#: on/CRM/Banking/PluginModel/Matcher.php
+msgid "created by CiviBanking"
+msgstr "durch CiviBanking importiert"
+
+#: on/CRM/Banking/PluginModel/Matcher.php
+msgid "The account information of this contact was saved, but it is also used by the following contacts:<br/><ul>%s</ul>"
+msgstr "Die Kontodaten wurden bei dem Kontakt gespeichert, aber das Konto wird außerdem noch von folgenden Kontakten verwendet:<br/><ul>%s</ul>"
+
+#: on/CRM/Banking/PluginModel/Matcher.php
+msgid "Warning"
+msgstr ""
+
+#: on/CRM/Banking/PluginModel/Matcher.php
+msgid "The account information of this contact was saved."
+msgstr "Die Kontodaten wurden für diesen Kontakt gespeichert"
+
+#: on/CRM/Banking/PluginModel/Matcher.php
+msgid "Account saved"
+msgstr "Kontodaten gespeichert"
+
+#: templates/CRM/Banking/Page/AccountsTab.tpl
+msgid "Add"
+msgstr ""
+
+#: templates/CRM/Banking/Page/AccountsTab.tpl
+msgid "Bank Name"
+msgstr "Bank"
+
+#: templates/CRM/Banking/Page/AccountsTab.tpl
+msgid "BIC is too short!"
+msgstr "BIC ist zu kurz!"
+
+#: templates/CRM/Banking/Page/AccountsTab.tpl
+msgid "IBAN is wrong!"
+msgstr "IBAN ist falsch!"
 
 #, fuzzy
 #~ msgid "Payment count<"

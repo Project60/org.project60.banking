@@ -83,7 +83,7 @@
   </tr>
   <tr class="crm-import-datasource-form-block-dataSource">
     <td>
-      <input type="checkbox" class="form-checkbox" value="on" name="process" id="process" 
+      <input type="checkbox" disabled class="form-checkbox" value="on" name="process" id="process" 
       {if $page_mode == 'run'} disabled {/if}
     {if $process == 'on'} checked {/if}>
   {ts}Process payments right away{/ts}</input>

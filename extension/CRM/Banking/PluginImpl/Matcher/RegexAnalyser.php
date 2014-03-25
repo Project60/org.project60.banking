@@ -82,9 +82,21 @@ class CRM_Banking_PluginImpl_Matcher_RegexAnalyser extends CRM_Banking_PluginMod
         // COPY value from match group to parsed data
         //error_log($action->to." is set to ".$match_data[$action->from][$match_index]);
         $data_parsed[$action->to] = $match_data[$action->from][$match_index];
+
       } elseif ($action->action=='set') {
         // SET value regardless of the match contect
         $data_parsed[$action->to] = $action->value;
+
+      } elseif (substr($action->action, 0, 7) =='lookup:') {
+        // LOOK UP values via API::getsingle
+        //   parameters are in format: "EntityName,result_field,lookup_field"
+        $params = split(',', substr($action->action, 7));
+        $value = $match_data[$action->from][$match_index];
+        $result = civicrm_api($params[0], 'getsingle', array($params[2] => $value, 'version' => 3));
+        if (empty($result['is_error'])) {
+          // something was found... copy value
+          $data_parsed[$action->to] = $result[$params[1]];
+        }
       } else {
         error_log("org.project60.banking: RegexAnalyser - bad action: '".$action->action."'");
       }

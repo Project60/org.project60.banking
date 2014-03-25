@@ -4,6 +4,7 @@ Version History
 version 0.3.4
 =============
 - added 'if:matches' clauses to CSVImport rules
+- added lookup action to matcher_regex
 
 
 version 0.3.3

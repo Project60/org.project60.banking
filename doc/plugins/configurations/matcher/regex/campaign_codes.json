@@ -1,0 +1,20 @@
+{
+    "rules": [
+        {
+            "fields": ["purpose"],
+            "pattern": "/SVWZ\\+(?P<civid>[1-9][0-9]{1,6})[ \\+](?P<campaign>000\\w\\w\\w)/",
+            "actions": [
+                {
+                    "action": "lookup:Campaign,id,external_identifier",
+                    "from": "campaign",
+                    "to": "campaign_id"
+                },
+                {
+                    "action": "copy",
+                    "from": "civid",
+                    "to": "contact_id"
+                }
+            ]
+        }
+    ]
+}

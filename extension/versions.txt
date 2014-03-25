@@ -1,6 +1,11 @@
 Version History
 ===============
 
+version 0.3.4
+=============
+- added 'if:matches' clauses to CSVImport rules
+
+
 version 0.3.3
 =============
 - FIX: improved/fixed contact-by-name lookup

@@ -204,7 +204,7 @@ class CRM_Banking_PluginImpl_CSVImporter extends CRM_Banking_PluginModel_Importe
         // this is a *BAN entry -> look it up
         if (!isset($this->account_cache[$value])) {
           $result = civicrm_api('BankingAccountReference', 'getsingle', array('version' => 3, 'reference' => $value));
-          if ($result['is_error']) {
+          if (!empty($result['is_error'])) {
             $this->account_cache[$value] = NULL;
           } else {
             $this->account_cache[$value] = $result['ba_id'];
@@ -292,6 +292,9 @@ class CRM_Banking_PluginImpl_CSVImporter extends CRM_Banking_PluginModel_Importe
       if (_csvimporter_helper_startswith($rule->if, 'equalto:')) {
         $params = explode(":", $rule->if);
         if ($value != $params[1]) return;
+      } elseif (_csvimporter_helper_startswith($rule->if, 'matches:')) {
+        $params = explode(":", $rule->if);
+        if (!preg_match($params[1], $value)) return;
       } else {
         print_r("CONDITION (IF) TYPE NOT YET IMPLEMENTED");
         return;

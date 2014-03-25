@@ -207,8 +207,8 @@ class CRM_Banking_PluginImpl_Matcher_DefaultOptions extends CRM_Banking_PluginMo
       $snippet .= "<select style=\"float:left;\" id=\"manual_match_contact_selector\"></select>";
       $snippet .= "<div onclick=\"manual_match_show_selected_contact();\" class=\"ui-icon ui-icon-circle-arrow-e\" style=\"float:left;\"></div>";
       $snippet .= "<div style=\"float:left;\">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</div>";
-      $snippet .= "<a class=\"button\" onclick=\"manual_match_add_contact();\"><span><div class=\"icon add-icon\"></div>" . ts("add contact ID to list") . ":</span></a>";
-      $snippet .= "<input id=\"manual_match_add_contact_input\" onkeydown=\"if (event.keyCode == 13) return manual_match_add_contact();\" type=\"text\" style=\"width: 4em; height: 1.4em;\"></input>";
+      $snippet .= "<div style=\"display: inline-block;\"><a class=\"button\" onclick=\"manual_match_add_contact();\"><span><div class=\"icon add-icon\"></div>" . ts("add contact ID to list") . ":</span></a>";
+      $snippet .= "<input id=\"manual_match_add_contact_input\" onkeydown=\"if (event.keyCode == 13) return manual_match_add_contact();\" type=\"text\" style=\"width: 4em; height: 1.4em;\"></input></div>";
 
       // add contribution level
       $snippet .= "<br/><br/><div>";

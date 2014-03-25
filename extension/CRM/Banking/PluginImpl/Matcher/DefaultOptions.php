@@ -63,6 +63,7 @@ class CRM_Banking_PluginImpl_Matcher_DefaultOptions extends CRM_Banking_PluginMo
         $data_parsed = $btx->getDataParsed();
         $contacts = $context->findContacts(0, $data_parsed['name'], $config->lookup_contact_by_name);
         $manually_processed->setParameter('contact_ids', implode(',', array_keys($contacts)));
+        $manually_processed->setParameter('contact_ids2probablility', json_encode($contacts));
 
         $btx->addSuggestion($manually_processed);
       }
@@ -179,6 +180,7 @@ class CRM_Banking_PluginImpl_Matcher_DefaultOptions extends CRM_Banking_PluginMo
   function visualize_match( CRM_Banking_Matcher_Suggestion $match, $btx) {
     if ($match->getId() === "manual") {
       $contact_ids = $match->getParameter('contact_ids');
+      $contact_ids2probablility = $match->getParameter('contact_ids2probablility');
       $data_parsed = $btx->getDataParsed();
       $booking_date = date('YmdHis', strtotime($btx->booking_date));
       $status_pending = banking_helper_optionvalue_by_groupname_and_name('contribution_status', 'Pending');
@@ -236,6 +238,8 @@ class CRM_Banking_PluginImpl_Matcher_DefaultOptions extends CRM_Banking_PluginMo
       // append the java script contributing the functionality
       $snippet .= '
         <script type="text/javascript">
+          var contact_ids2probablility = '.$contact_ids2probablility.';
+
           /** 
            * refresh the table showing the related contributions 
            */
@@ -265,7 +269,18 @@ class CRM_Banking_PluginImpl_Matcher_DefaultOptions extends CRM_Banking_PluginMo
                   if (data.count > 0) {
                     // generate contact select option
                     var contact = data.values[0];
-                    var item_label = contact.display_name;
+
+                    // generate precision indicator
+                    var percent = 1.0; // default value
+                    if (contact.id in contact_ids2probablility)
+                      percent = contact_ids2probablility[contact.id];
+                    percent_string = Math.round(percent * 100.0) + "%";
+                    if (percent < 0.1) {
+                      percent_string = "0" + percent_string;
+                    }
+
+                    // generate option label
+                    var item_label = "[" + percent_string + "] " + contact.display_name;
                     if (contact.street_address || contact.city) {
                       item_label += " (" + contact.street_address + ", " + contact.city + ")";
                     } else {
@@ -290,7 +305,7 @@ class CRM_Banking_PluginImpl_Matcher_DefaultOptions extends CRM_Banking_PluginMo
                       manual_match_load_contact_into_contact_list(list[index+1], select);
                     }
                   } else {
-                    alert("Conact not found!");
+                    alert("Contact not found!");
                   }
                 }
               });

@@ -4,6 +4,7 @@ Version History
 version 0.3.4
 =============
 - FIX: review/process last payment in batch
+- FIX: invert statement list order
 - FIX: matcher_existing don't propose test contributions
 - FIX: matcher_default value propagation of financial_type_id (and others)
 - added 'if:matches' clauses to CSVImport rules

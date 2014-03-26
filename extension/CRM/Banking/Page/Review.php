@@ -49,8 +49,8 @@ class CRM_Banking_Page_Review extends CRM_Core_Page {
         $execute_bao = ($_REQUEST['execute']==$pid) ? $btx_bao : NULL;
         $this->execute_suggestion($_REQUEST['execute_suggestion'], $_REQUEST, $execute_bao, $choices);
 
-        if (!isset($next_pid)) {
-          // after execution -> exit if this was the last in the list
+        // after execution -> exit if this was the last in the list
+        if (!isset($next_pid) && ($_REQUEST['execute']==$pid)) {
           $forward_url = banking_helper_buildURL('civicrm/banking/payments',  $this->_pageParameters());
           $this->assign('page_forward', '<script language="JavaScript">location.href = "'.$forward_url.'";</script>');
         }

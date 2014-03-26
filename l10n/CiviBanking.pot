@@ -668,11 +668,13 @@ msgstr ""
 #: on/CRM/Banking/PluginImpl/Matcher/CreateContribution.php
 #: on/CRM/Banking/PluginModel/Matcher.php
 #: templates/CRM/Banking/Page/AccountsTab.tpl
+#: on/CRM/Banking/PluginImpl/Matcher/SepaMandate.php
 msgid "Error"
 msgstr ""
 
 #: on/CRM/Banking/PluginImpl/Matcher/DefaultOptions.php
 #: on/CRM/Banking/PluginImpl/Matcher/ExistingContribution.php
+#: on/CRM/Banking/PluginImpl/Matcher/SepaMandate.php
 msgid "Couldn't modify contribution."
 msgstr ""
 
@@ -795,6 +797,7 @@ msgid "edit contribution"
 msgstr ""
 
 #: on/CRM/Banking/PluginImpl/Matcher/ExistingContribution.php
+#: on/CRM/Banking/PluginImpl/Matcher/SepaMandate.php
 msgid "Internal error! Cannot find contribution #"
 msgstr ""
 
@@ -1158,4 +1161,43 @@ msgstr ""
 
 #: templates/CRM/Banking/Page/AccountsTab.tpl
 msgid "IBAN is wrong!"
+msgstr ""
+
+#: on/CRM/Banking/PluginImpl/Matcher/SepaMandate.php
+msgid "Couldn't load SEPA mandate for reference %s"
+msgstr ""
+
+#: on/CRM/Banking/PluginImpl/Matcher/SepaMandate.php
+msgid ""
+"There was more than one matching contribution found! Try to configure the "
+"plugin with a smaller search time span."
+msgstr ""
+
+#: on/CRM/Banking/PluginImpl/Matcher/SepaMandate.php
+msgid ""
+"There was no matching contribution! Try to configure the plugin with a "
+"larger search time span."
+msgstr ""
+
+#: on/CRM/Banking/PluginImpl/Matcher/SepaMandate.php
+msgid "SEPA SDD Payment"
+msgstr ""
+
+#: on/CRM/Banking/PluginImpl/Matcher/SepaMandate.php
+msgid "This payment is a SEPA direct debit contribution by %s."
+msgstr ""
+
+#: on/CRM/Banking/PluginImpl/Matcher/SepaMandate.php
+msgid "The mandate reference is <a href=\"%s\" target=\"_blank\">%s</a>."
+msgstr ""
+
+#: on/CRM/Banking/PluginImpl/Matcher/SepaMandate.php
+msgid ""
+"Contribution <a href=\"%s\" target=\"_blank\">[%s]</a> will be closed, as "
+"will be the sepa transaction group if this is the last contribution."
+msgstr ""
+
+#: on/CRM/Banking/PluginImpl/Matcher/SepaMandate.php
+msgid ""
+"This SEPA payment was associated with <a href=\"%s\">contribution #%s</a>."
 msgstr ""

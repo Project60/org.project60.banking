@@ -139,6 +139,12 @@ function banking_civicrm_options() {
                   'description' => 'Tries to identify payments that settle contribution batches.',
                   'is_default' => 0,
               ),
+              'matcher_sepa' => array(
+                  'label' => 'SEPA Matcher',
+                  'value' => 'CRM_Banking_PluginImpl_Matcher_SepaMandate',
+                  'description' => 'Will match SEPA DD payments to contributions created by the org.project60.sepa module.',
+                  'is_default' => 0,
+              ),
               'analyser_regex' => array(
                   'label' => 'RegEx Analyser',
                   'value' => 'CRM_Banking_PluginImpl_Matcher_RegexAnalyser',

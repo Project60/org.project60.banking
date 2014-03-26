@@ -7,6 +7,7 @@ version 0.3.4
 - FIX: invert statement list order
 - FIX: matcher_existing don't propose test contributions
 - FIX: matcher_default value propagation of financial_type_id (and others)
+- added SEPA matcher
 - added 'if:matches' clauses to CSVImport rules
 - added lookup action to matcher_regex
 - added contact precision indicator to matcher_default

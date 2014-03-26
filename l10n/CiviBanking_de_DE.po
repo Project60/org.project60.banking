@@ -667,11 +667,13 @@ msgstr ""
 #: on/CRM/Banking/PluginImpl/Matcher/CreateContribution.php
 #: on/CRM/Banking/PluginModel/Matcher.php
 #: templates/CRM/Banking/Page/AccountsTab.tpl
+#: on/CRM/Banking/PluginImpl/Matcher/SepaMandate.php
 msgid "Error"
 msgstr "Fehler"
 
 #: on/CRM/Banking/PluginImpl/Matcher/DefaultOptions.php
 #: on/CRM/Banking/PluginImpl/Matcher/ExistingContribution.php
+#: on/CRM/Banking/PluginImpl/Matcher/SepaMandate.php
 msgid "Couldn't modify contribution."
 msgstr "Konnte Zuwendung nicht bearbeiten"
 
@@ -792,6 +794,7 @@ msgid "edit contribution"
 msgstr "Zuwendung bearbeiten"
 
 #: on/CRM/Banking/PluginImpl/Matcher/ExistingContribution.php
+#: on/CRM/Banking/PluginImpl/Matcher/SepaMandate.php
 msgid "Internal error! Cannot find contribution #"
 msgstr "Programmfehler: Zuwendung nicht gefunden, ID #"
 
@@ -1142,6 +1145,38 @@ msgstr "BIC ist zu kurz!"
 #: templates/CRM/Banking/Page/AccountsTab.tpl
 msgid "IBAN is wrong!"
 msgstr "IBAN ist falsch!"
+
+#: on/CRM/Banking/PluginImpl/Matcher/SepaMandate.php
+msgid "Couldn't load SEPA mandate for reference %s"
+msgstr "Konnte das SEPA-Mandat zur Referenz %s nicht laden"
+
+#: on/CRM/Banking/PluginImpl/Matcher/SepaMandate.php
+msgid "There was more than one matching contribution found! Try to configure the plugin with a smaller search time span."
+msgstr "Es wurden mehrere passende Zuwendung gefunden! Konfigurieren Sie das Plugin mit einer kleineren Suchzeitspanne."
+
+#: on/CRM/Banking/PluginImpl/Matcher/SepaMandate.php
+msgid "There was no matching contribution! Try to configure the plugin with a larger search time span."
+msgstr "Es wurde keine passende Zuwendung gefunden. Konfigurieren Sie das Plugin mit einer größeren Suchzeitspanne."
+
+#: on/CRM/Banking/PluginImpl/Matcher/SepaMandate.php
+msgid "SEPA SDD Payment"
+msgstr "SEPA DD Einzug"
+
+#: on/CRM/Banking/PluginImpl/Matcher/SepaMandate.php
+msgid "This payment is a SEPA direct debit contribution by %s."
+msgstr "Diese Zahlung ist ein SEPA Einzug von %s."
+
+#: on/CRM/Banking/PluginImpl/Matcher/SepaMandate.php
+msgid "The mandate reference is <a href=\"%s\" target=\"_blank\">%s</a>."
+msgstr "Die Mandatsreferenz lautet <a href=\"%s\" target=\"_blank\">%s</a>."
+
+#: on/CRM/Banking/PluginImpl/Matcher/SepaMandate.php
+msgid "Contribution <a href=\"%s\" target=\"_blank\">[%s]</a> will be closed, as will be the sepa transaction group if this is the last contribution."
+msgstr "Die Zuwendung <a href=\"%s\" target=\"_blank\">[%s]</a> wird geschlossen. Auch die SEPA-Gruppe wird geschlossen, falls dies die letzte offene Zahlung war."
+
+#: on/CRM/Banking/PluginImpl/Matcher/SepaMandate.php
+msgid "This SEPA payment was associated with <a href=\"%s\">contribution #%s</a>."
+msgstr "Dieser SEPA-Einzug wird mit <a href=\"%s\">Zuwendung #%s</a> verbunden."
 
 #, fuzzy
 #~ msgid "Payment count<"

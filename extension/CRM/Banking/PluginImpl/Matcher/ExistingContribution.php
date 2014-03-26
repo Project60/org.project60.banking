@@ -125,7 +125,7 @@ class CRM_Banking_PluginImpl_Matcher_ExistingContribution extends CRM_Banking_Pl
     if ($contributions != NULL) return $contributions;
 
     $contributions = array();
-    $sql = "SELECT * FROM civicrm_contribution WHERE contact_id=${contact_id} AND receive_date > (NOW() - INTERVAL 1 YEAR);";
+    $sql = "SELECT * FROM civicrm_contribution WHERE contact_id=${contact_id} AND is_test = 0 AND receive_date > (NOW() - INTERVAL 1 YEAR);";
     $contribution = CRM_Contribute_DAO_Contribution::executeQuery($sql);
     while ($contribution->fetch()) {
       array_push($contributions, $contribution->toArray());

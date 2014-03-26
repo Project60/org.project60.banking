@@ -133,7 +133,7 @@ class CRM_Banking_Page_Payments extends CRM_Core_Page {
         GROUP BY 
           id
         ORDER BY 
-          starting_date ASC;";
+          starting_date DESC;";
     $stmt = CRM_Core_DAO::executeQuery($sql_query);
     while($stmt->fetch()) {
       // check the states

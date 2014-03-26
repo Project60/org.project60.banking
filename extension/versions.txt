@@ -3,6 +3,7 @@ Version History
 
 version 0.3.4
 =============
+- FIX: matcher_default value propagation of financial_type_id (and others)
 - added 'if:matches' clauses to CSVImport rules
 - added lookup action to matcher_regex
 - added contact precision indicator to matcher_default

@@ -397,7 +397,6 @@ class CRM_Banking_PluginImpl_Matcher_DefaultOptions extends CRM_Banking_PluginMo
             }
             // ok, we have a contact -> create a new (test) contribution
             CRM.api("Contribution", "create", { "q": "civicrm/ajax/rest", "sequential": 1, 
-                                                '.$contribution_propagated_data.'
                                                 "contact_id": contact_id, 
                                                 "is_test": 1, 
                                                 "total_amount": parseFloat('.$btx->amount.').toFixed(2), 
@@ -407,7 +406,8 @@ class CRM_Banking_PluginImpl_Matcher_DefaultOptions extends CRM_Banking_PluginMo
                                                 "contribution_status_id": "'.$status_pending.'",
                                                 //"trxn_id": "'.$btx->bank_reference.'",
                                                 "source": "'.$this->_plugin_config->manual_default_source.'",
-                                                "financial_type_id": "'.$this->_plugin_config->manual_default_financial_type_id.'"
+                                                "financial_type_id": "'.$this->_plugin_config->manual_default_financial_type_id.'",
+                                                '.$contribution_propagated_data.'
                                               },
               { success: function(data) {
                 var contribution = data.values[0];

@@ -1201,3 +1201,11 @@ msgstr ""
 msgid ""
 "This SEPA payment was associated with <a href=\"%s\">contribution #%s</a>."
 msgstr ""
+
+#: on/CRM/Banking/PluginImpl/Matcher/SepaMandate.php
+msgid "Contribution is NOT member in exactly one SEPA transaction group!"
+msgstr ""
+
+#: on/CRM/Banking/PluginImpl/Matcher/SepaMandate.php
+msgid "SEPA transaction group '%s' was marked as received."
+msgstr ""

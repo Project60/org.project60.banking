@@ -1032,7 +1032,7 @@ msgstr "Verarbeitung unterbrochen"
 
 #: on/CRM/Banking/Page/Review.php
 msgid "The payment was booked."
-msgstr "Die Zahlung wueder verbucht."
+msgstr "Die Zahlung wurde verbucht."
 
 #: on/CRM/Banking/Page/Review.php
 msgid "Payment closed"
@@ -1177,6 +1177,14 @@ msgstr "Die Zuwendung <a href=\"%s\" target=\"_blank\">[%s]</a> wird geschlossen
 #: on/CRM/Banking/PluginImpl/Matcher/SepaMandate.php
 msgid "This SEPA payment was associated with <a href=\"%s\">contribution #%s</a>."
 msgstr "Dieser SEPA-Einzug wird mit <a href=\"%s\">Zuwendung #%s</a> verbunden."
+
+#: on/CRM/Banking/PluginImpl/Matcher/SepaMandate.php
+msgid "Contribution is NOT member in exactly one SEPA transaction group!"
+msgstr "Die Zuwendung ist nicht genau einer SEPA Gruppe zugeordnet!"
+
+#: on/CRM/Banking/PluginImpl/Matcher/SepaMandate.php
+msgid "SEPA transaction group '%s' was marked as received."
+msgstr "SEPA Gruppe '%s' wurde als 'erhalten' markiert."
 
 #, fuzzy
 #~ msgid "Payment count<"

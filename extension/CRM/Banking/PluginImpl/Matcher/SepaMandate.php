@@ -114,15 +114,62 @@ class CRM_Banking_PluginImpl_Matcher_SepaMandate extends CRM_Banking_PluginModel
    */
   public function execute($suggestion, $btx) {
     $contribution_id = $suggestion->getParameter('contribution_id');
+    $status_pending = banking_helper_optionvalue_by_groupname_and_name('contribution_status', 'Pending');
+    $status_inprogress = banking_helper_optionvalue_by_groupname_and_name('contribution_status', 'In Progress');
+    $status_completed = banking_helper_optionvalue_by_groupname_and_name('contribution_status', 'Completed');
 
+    // unfortunately, we might have to do some fixes first...
+
+    // FIX 1: fix contribution, if it has no financial transactions. (happens due to a status-bug in civicrm)
+    //        in this case, set the status back to 'Pending', no 'is_pay_later'
+    $fix_rotten_contribution_sql = "
+    UPDATE 
+      civicrm_contribution 
+    SET 
+      contribution_status_id=$status_pending, is_pay_later=0 
+    WHERE 
+        id = $contribution_id
+    AND NOT (   SELECT count(entity_id) 
+                FROM civicrm_entity_financial_trxn 
+                WHERE entity_table='civicrm_contribution'
+                AND   entity_id = $contribution_id 
+            );";
+    CRM_Core_DAO::executeQuery($fix_rotten_contribution_sql);
+
+    // FIX 2: in CiviCRM pre 4.4.4, the status change 'In Progress' => 'Completed' was not allowed
+    //        in this case, set the status back to 'Pending', no 'is_pay_later'
+    if (CRM_Utils_System::version() < '4.4.4') {
+      $fix_status_query = "
+      UPDATE
+          civicrm_contribution
+      SET
+          contribution_status_id = $status_pending,
+          is_pay_later = 0
+      WHERE 
+          contribution_status_id = $status_inprogress
+      AND id = $contribution_id;
+      ";
+      CRM_Core_DAO::executeQuery($fix_status_query);
+    }
+
+    // look up the txgroup
+    $txgroup_query = civicrm_api('SepaContributionGroup', 'getsingle', array('contribution_id'=>$contribution_id, 'version'=>3));
+    if (!empty($txgroup_query['is_error'])) {
+      CRM_Core_Session::setStatus(ts("Contribution is NOT member in exactly one SEPA transaction group!"), ts('Error'), 'error');
+      return;
+    }
+    $txgroup_id = $txgroup_query['txgroup_id'];
+
+    // now we can set the status to 'Completed'
     $query = array('version' => 3, 'id' => $contribution_id);
-    $query['contribution_status_id'] = banking_helper_optionvalue_by_groupname_and_name('contribution_status', 'Completed');
+    $query['contribution_status_id'] = $status_completed;
     $query['receive_date'] = date('Ymdhis', strtotime($btx->value_date));
     $query = array_merge($query, $this->getPropagationSet($btx, 'contribution'));   // add propagated values
     $result = civicrm_api('Contribution', 'create', $query);
 
     if (isset($result['is_error']) && $result['is_error']) {
       CRM_Core_Session::setStatus(ts("Couldn't modify contribution."), ts('Error'), 'error');
+
     } else {
       // everything seems fine, save the account
       if (!empty($result['values'][$contribution_id]['contact_id'])) {
@@ -132,7 +179,35 @@ class CRM_Banking_PluginImpl_Matcher_SepaMandate extends CRM_Banking_PluginModel
       }
 
       // close transaction group if this was the last transaction
-      // TODO
+      $open_contributions_in_group_sql = "
+      SELECT 
+        count(c2group.id) AS open_count
+      FROM 
+        civicrm_sdd_contribution_txgroup c2group
+      LEFT JOIN 
+        civicrm_contribution contribution ON c2group.contribution_id=contribution.id
+      WHERE 
+          c2group.txgroup_id = $txgroup_id
+      AND contribution.contribution_status_id IN ($status_pending,$status_inprogress);";
+      $result = CRM_Core_DAO::executeQuery($open_contributions_in_group_sql);
+      if ($result->fetch() && $result->open_count==0) {
+        // set this group's status to 'received'
+        $group_status_id_received = banking_helper_optionvalue_by_groupname_and_name('batch_status', 'Received');
+        if ($group_status_id_received) {
+          $txgroup_query = array('id'=>$txgroup_id, 'status_id'=>$group_status_id_received, 'version'=>3);
+          $close_result = civicrm_api('SepaTransactionGroup', 'create', $txgroup_query);
+          if (!empty($close_result['is_error'])) {
+            CRM_Core_Session::setStatus(sprintf("Cannot mark transaction group [%s] received. Error: %s", $txgroup_id, $close_result['error_message']), ts('Error'), 'error');
+            return;
+          }
+          $txgroup = civicrm_api('SepaTransactionGroup', 'getsingle', $txgroup_query);
+          if (!empty($txgroup['is_error'])) {
+            CRM_Core_Session::setStatus(sprintf("Cannot mark transaction group [%s] received. Error: %s", $txgroup_id, $txgroup['error_message']), ts('Error'), 'error');
+            return;
+          }
+          CRM_Core_Session::setStatus(sprintf(ts("SEPA transaction group '%s' was marked as received."), $txgroup['reference']), ts('Success'), 'info');
+        }
+      }
     }
 
     $newStatus = banking_helper_optionvalueid_by_groupname_and_name('civicrm_banking.bank_tx_status', 'Processed');

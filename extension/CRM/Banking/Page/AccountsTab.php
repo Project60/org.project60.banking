@@ -41,9 +41,11 @@ class CRM_Banking_Page_AccountsTab extends CRM_Core_Page {
         $results = array();
         while ($dao->fetch()) {
             if (!isset($results[$dao->ba_id])) {
+                $info = json_decode($dao->data_parsed, true);
+                ksort($info);
                 $results[$dao->ba_id] = array(
                     'id' => $dao->ba_id,
-                    'data_parsed' => json_decode($dao->data_parsed),
+                    'data_parsed' => $info,
                     'references' => array());
             }
             

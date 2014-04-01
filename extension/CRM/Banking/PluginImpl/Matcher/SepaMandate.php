@@ -38,12 +38,14 @@ class CRM_Banking_PluginImpl_Matcher_SepaMandate extends CRM_Banking_PluginModel
     if (!isset($config->threshold)) $config->threshold = 0.5;
     if (!isset($config->received_date_minimum)) $config->received_date_minimum = "-10 days";
     if (!isset($config->received_date_maximum)) $config->received_date_maximum = "+10 days";
+    if (!isset($config->deviation_penalty)) $config->deviation_penalty = 0.1;
   }
 
   public function match(CRM_Banking_BAO_BankTransaction $btx, CRM_Banking_Matcher_Context $context) {
     $config = $this->_plugin_config;
     $threshold = $config->threshold;
     $data_parsed = $btx->getDataParsed();
+    $probability = 1.0;
 
     // look for the 'sepa_mandate' key
     if (empty($data_parsed['sepa_mandate'])) return null;
@@ -94,13 +96,43 @@ class CRM_Banking_PluginImpl_Matcher_SepaMandate extends CRM_Banking_PluginModel
       return null;
     }
 
-    // finally: create a suggestion
+    // now, let's have a look at this contribution and its contact...
+    $contribution = civicrm_api('Contribution', 'getsingle', array('id'=>$contribution_id, 'version'=>3));
+    if (!empty($contribution['is_error'])) {      
+        CRM_Core_Session::setStatus(ts("The contribution connected to this mandate could not be read."), ts('Error'), 'error');
+        return null;
+    }
+    $contact = civicrm_api('Contact', 'getsingle', array('id'=>$contribution['contact_id'], 'version'=>3));
+    if (!empty($contact['is_error'])) {      
+        CRM_Core_Session::setStatus(ts("The contact connected to this mandate could not be read."), ts('Error'), 'error');
+        return null;
+    }
+
+    // now: create a suggestion
     $suggestion = new CRM_Banking_Matcher_Suggestion($this, $btx);
     $suggestion->setParameter('contribution_id', $contribution_id);
     $suggestion->setParameter('mandate_id', $mandate['id']);
     $suggestion->setParameter('mandate_reference', $mandate_reference);
-    $suggestion->setProbability(1.0);
     $suggestion->setTitle(ts("SEPA SDD Payment"));
+
+    // ...but: add penalties for deviations in amount,status,deleted contact
+    if ($btx->amount != $contribution['total_amount']) {
+      $suggestion->addEvidence($config->deviation_penalty, ts("The contribution does not feature the expected amount."));
+      $probability -= $config->deviation_penalty;
+    }
+    $status_inprogress = banking_helper_optionvalue_by_groupname_and_name('contribution_status', 'In Progress');
+    error_log($status_inprogress);
+    if ($contribution['contribution_status_id'] != $status_inprogress) {
+      $suggestion->addEvidence($config->deviation_penalty, ts("The contribution does not have the expected status 'in Progress'."));
+      $probability -= $config->deviation_penalty;
+    }
+    if (!empty($contact['contact_is_deleted'])) {
+      $suggestion->addEvidence($config->deviation_penalty, ts("The contact this mandate belongs to has been deleted."));
+      $probability -= $config->deviation_penalty;
+    }
+
+    // store it
+    $suggestion->setProbability($probability);
     $btx->addSuggestion($suggestion);
 
     return $this->_suggestions;
@@ -256,6 +288,17 @@ class CRM_Banking_PluginImpl_Matcher_SepaMandate extends CRM_Banking_PluginModel
       $text .= "</p><p>";
       $text .= sprintf(ts("Contribution <a href=\"%s\" target=\"_blank\">[%s]</a> will be closed, as will be the sepa transaction group if this is the last contribution."), $contribution_link, $contribution_id)." ";
       $text .= "</p></div>";
+
+      // add warnings, if any
+      $warnings = $match->getEvidence();
+      if (!empty($warnings)) {
+        $text .= "<div>".ts("<b>Warning! There are some problems with this contribution:</b>")."<ul>";
+        foreach ($warnings as $warning) {
+          $text .= "<li>$warning</li>";
+        }
+        $text .= "</ul><div>";        
+      }
+
       return $text;
     } else {
       return ts("Internal error! Cannot find contribution #").$match->getParameter('contribution_id');

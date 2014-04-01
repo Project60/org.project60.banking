@@ -1186,6 +1186,34 @@ msgstr "Die Zuwendung ist nicht genau einer SEPA Gruppe zugeordnet!"
 msgid "SEPA transaction group '%s' was marked as received."
 msgstr "SEPA Gruppe '%s' wurde als 'erhalten' markiert."
 
+#: on/CRM/Banking/PluginImpl/Matcher/SepaMandate.php
+msgid "The contribution connected to this mandate could not be read."
+msgstr "Die Zuwendung, die mit diesem Mandat verbunden ist, konnte nicht gelesen werden."
+
+#: on/CRM/Banking/PluginImpl/Matcher/SepaMandate.php
+msgid "The contact connected to this mandate could not be read."
+msgstr "Der Mandatskontakt konnte nicht gelesen werden."
+
+#: on/CRM/Banking/PluginImpl/Matcher/SepaMandate.php
+msgid "The contribution does not feature the expected amount."
+msgstr "Die Zuwendung hat nicht den korrekten Betrag."
+
+#: on/CRM/Banking/PluginImpl/Matcher/SepaMandate.php
+msgid "The contribution does not have the expected status 'in Progress'."
+msgstr "Die Zuwendung ist nicht im erwarteten Status ('in Bearbeitung')."
+
+#: on/CRM/Banking/PluginImpl/Matcher/SepaMandate.php
+msgid "The contact this mandate belongs to has been deleted."
+msgstr "Der Mandatskontakt befindet sich im Papierkorb."
+
+#: on/CRM/Banking/PluginImpl/Matcher/SepaMandate.php
+msgid "Success"
+msgstr ""
+
+#: on/CRM/Banking/PluginImpl/Matcher/SepaMandate.php
+msgid "<b>Warning! There are some problems with this contribution:</b>"
+msgstr "<b>Achtung! Es gibt Probleme mit dieser Zuwendung:</b>"
+
 #, fuzzy
 #~ msgid "Payment count<"
 #~ msgstr "Anzahl"

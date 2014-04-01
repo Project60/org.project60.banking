@@ -1209,3 +1209,31 @@ msgstr ""
 #: on/CRM/Banking/PluginImpl/Matcher/SepaMandate.php
 msgid "SEPA transaction group '%s' was marked as received."
 msgstr ""
+
+#: on/CRM/Banking/PluginImpl/Matcher/SepaMandate.php
+msgid "The contribution connected to this mandate could not be read."
+msgstr ""
+
+#: on/CRM/Banking/PluginImpl/Matcher/SepaMandate.php
+msgid "The contact connected to this mandate could not be read."
+msgstr ""
+
+#: on/CRM/Banking/PluginImpl/Matcher/SepaMandate.php
+msgid "The contribution does not feature the expected amount."
+msgstr ""
+
+#: on/CRM/Banking/PluginImpl/Matcher/SepaMandate.php
+msgid "The contribution does not have the expected status 'in Progress'."
+msgstr ""
+
+#: on/CRM/Banking/PluginImpl/Matcher/SepaMandate.php
+msgid "The contact this mandate belongs to has been deleted."
+msgstr ""
+
+#: on/CRM/Banking/PluginImpl/Matcher/SepaMandate.php
+msgid "Success"
+msgstr ""
+
+#: on/CRM/Banking/PluginImpl/Matcher/SepaMandate.php
+msgid "<b>Warning! There are some problems with this contribution:</b>"
+msgstr ""

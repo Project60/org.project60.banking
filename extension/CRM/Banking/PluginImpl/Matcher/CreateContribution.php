@@ -97,6 +97,7 @@ class CRM_Banking_PluginImpl_Matcher_CreateContribution extends CRM_Banking_Plug
     $newStatus = banking_helper_optionvalueid_by_groupname_and_name('civicrm_banking.bank_tx_status', 'Processed');
     $btx->setStatus($newStatus);
     parent::execute($suggestion, $btx);
+    return true;
   }
 
   /**

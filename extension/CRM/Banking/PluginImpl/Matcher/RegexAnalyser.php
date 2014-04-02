@@ -35,6 +35,11 @@ class CRM_Banking_PluginImpl_Matcher_RegexAnalyser extends CRM_Banking_PluginMod
     if (!isset($config->rules)) $config->rules = array();
   }
 
+  function autoExecute() {
+    // NO autoexec for this matcher
+    return false;
+  }
+
   /** 
    * this matcher does not really create suggestions, but rather enriches the parsed data
    */

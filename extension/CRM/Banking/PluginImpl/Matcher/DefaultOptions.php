@@ -47,6 +47,11 @@ class CRM_Banking_PluginImpl_Matcher_DefaultOptions extends CRM_Banking_PluginMo
     if (!isset($config->ignore_message)) $config->ignore_message = "Please configure";
   }
 
+  function autoExecute() {
+    // NO autoexec for this matcher
+    return false;
+  }
+
   public function match(CRM_Banking_BAO_BankTransaction $btx, CRM_Banking_Matcher_Context $context) {
 
     $config = $this->_plugin_config;

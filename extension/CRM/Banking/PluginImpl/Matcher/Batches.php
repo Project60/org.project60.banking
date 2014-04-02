@@ -159,11 +159,13 @@ class CRM_Banking_PluginImpl_Matcher_Batches extends CRM_Banking_PluginModel_Mat
       $newStatus = banking_helper_optionvalueid_by_groupname_and_name('civicrm_banking.bank_tx_status', 'Processed');
       $btx->setStatus($newStatus);
       parent::execute($suggestion, $btx);
+      return true;
 
     } else {
       // this means, there ARE contributions in a non-pending state, AND the override was not requested:
       CRM_Core_Session::setStatus(sprintf(ts("Some contribtions in batch %s are not in state 'pending', and override was not enabled. The payment was NOT processed!"), $batch_id), ts('Error'), 'error'); 
     }
+    return false;
   }
 
   /**

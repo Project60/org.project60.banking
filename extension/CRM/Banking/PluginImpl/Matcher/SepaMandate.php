@@ -121,7 +121,6 @@ class CRM_Banking_PluginImpl_Matcher_SepaMandate extends CRM_Banking_PluginModel
       $probability -= $config->deviation_penalty;
     }
     $status_inprogress = banking_helper_optionvalue_by_groupname_and_name('contribution_status', 'In Progress');
-    error_log($status_inprogress);
     if ($contribution['contribution_status_id'] != $status_inprogress) {
       $suggestion->addEvidence($config->deviation_penalty, ts("The contribution does not have the expected status 'in Progress'."));
       $probability -= $config->deviation_penalty;
@@ -245,6 +244,7 @@ class CRM_Banking_PluginImpl_Matcher_SepaMandate extends CRM_Banking_PluginModel
     $newStatus = banking_helper_optionvalueid_by_groupname_and_name('civicrm_banking.bank_tx_status', 'Processed');
     $btx->setStatus($newStatus);
     parent::execute($suggestion, $btx);
+    return true;
   }
 
   /**

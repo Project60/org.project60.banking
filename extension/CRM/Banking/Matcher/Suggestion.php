@@ -61,6 +61,14 @@ class CRM_Banking_Matcher_Suggestion {
         return $hash;
     }
 
+    public function getPlugin() {
+        return $this->_plugin;
+    }
+
+    public function getPluginID() {
+        return $this->_plugin->_plugin_id;
+    }
+
     public function getTitle() {
         return $this->getParameter('title');
     }

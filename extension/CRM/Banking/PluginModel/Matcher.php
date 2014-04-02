@@ -120,7 +120,7 @@ abstract class CRM_Banking_PluginModel_Matcher extends CRM_Banking_PluginModel_B
    */
   function getThreshold() { 
     if (isset($this->_plugin_config->threshold)) {
-      $threshold = $this->_plugin_config->threshold;
+      $threshold = (float) $this->_plugin_config->threshold;
       if ($threshold >= 1.0) {
         return 1.0;
       } elseif ($threshold <= 0.0) {
@@ -140,9 +140,15 @@ abstract class CRM_Banking_PluginModel_Matcher extends CRM_Banking_PluginModel_B
   function autoExecute() { 
     if (isset($this->_plugin_config->auto_exec)) {
       $value = $this->_plugin_config->auto_exec;
-      return ($value==true || $value=='true');
+      if ($value===true || $value==='true') {
+        return 1.0;
+      } elseif (($value >= 0.0) && ($value <= 1.0)) {
+        return (float) $value;
+      } else {
+        return 0.0;
+      }
     } else {
-      return false;
+      return 0.0;
     }
   }
 

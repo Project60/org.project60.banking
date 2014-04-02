@@ -112,26 +112,16 @@ class CRM_Banking_Matcher_Engine {
     } else {
       foreach ($this->plugins as $weight => $plugins) {
         foreach ($plugins as $plugin) {
-          //error_log("Executing '".$plugin->getTitle()."' (".$weight.")");
+          // run matchers to generate suggestions
           $continue = $this->matchPlugin( $plugin, $context );
           if (!$continue) return true;
+
+          // check if we can execute the suggestion right aways
+          $abort = $this->checkAutoExecute($plugin, $btx);
+          if ($abort) return false;
         }
       }
     }    
-    
-    // process matches
-    foreach ($btx->getSuggestions() as $probability => $suggestions ) {
-      foreach ($suggestions as $suggestion) {
-        if ($suggestion->getProbability() > $plugin->getThreshold()) {
-          if ($plugin->autoExecute()) {
-            $btx->saveSuggestions();
-//            die('executing auto');
-            $continue = $suggestion->execute( $btx, $plugin );
-            if (!$continue) return false;
-          }
-        }
-      }
-    }
     $btx->saveSuggestions();
 
     // set the status
@@ -142,6 +132,25 @@ class CRM_Banking_Matcher_Engine {
     return false;
   }
   
+  /**
+   * Test if the given plugin can execute a suggestion right away
+   * 
+   * @return true iff the plugin was executed and the payment is fully processed
+   */
+  protected function checkAutoExecute($plugin, $btx) {
+    if (!$plugin->autoExecute()) return false;
+    foreach ($btx->getSuggestions() as $suggestions ) {
+      foreach ($suggestions as $suggestion) {
+        if ($suggestion->getPluginID()==$plugin->getPluginID()) {
+          if ($suggestion->getProbability() >= $plugin->autoExecute()) {
+            $btx->saveSuggestions();
+            return $suggestion->execute( $btx, $plugin );
+          }
+        }
+      }
+    }
+  }
+
   /**
    * Run a single plugin to check for a match
    * 

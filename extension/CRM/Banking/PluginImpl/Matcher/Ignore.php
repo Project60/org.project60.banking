@@ -68,6 +68,7 @@ class CRM_Banking_PluginImpl_Matcher_Ignore extends CRM_Banking_PluginModel_Matc
     // this is the IGNORE action. Simply set the status to ignored
     $newStatus = banking_helper_optionvalueid_by_groupname_and_name('civicrm_banking.bank_tx_status', 'Ignored');
     $btx->setStatus($newStatus);
+    return true;
   }
 
 

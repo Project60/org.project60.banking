@@ -9,7 +9,7 @@
     <email>project-60@ml.foebud.org</email>
   </maintainer>
   <releaseDate>2014-04-01</releaseDate>
-  <version>0.3.4</version>
+  <version>0.3.5</version>
   <develStage>alpha</develStage>
   <compatibility>
     <ver>4.4</ver>

@@ -1,6 +1,11 @@
 Version History
 ===============
 
+version 0.3.5
+=============
+- added copy_ltrim_zeros action to matcher_regex
+
+
 version 0.3.4
 =============
 - FIX: review/process last payment in batch

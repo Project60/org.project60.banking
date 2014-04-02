@@ -80,8 +80,11 @@ class CRM_Banking_PluginImpl_Matcher_RegexAnalyser extends CRM_Banking_PluginMod
     foreach ($rule->actions as $action) {
       if ($action->action=='copy') {
         // COPY value from match group to parsed data
-        //error_log($action->to." is set to ".$match_data[$action->from][$match_index]);
         $data_parsed[$action->to] = $match_data[$action->from][$match_index];
+
+      } elseif ($action->action=='copy_ltrim_zeros') {
+        // SET value regardless of the match contect
+        $data_parsed[$action->to] = ltrim($match_data[$action->from][$match_index], '0');
 
       } elseif ($action->action=='set') {
         // SET value regardless of the match contect

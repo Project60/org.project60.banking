@@ -291,6 +291,7 @@ msgstr "CiviBanking-Komponenten verwalten"
 
 #: on/CRM/Banking/Page/Payments.php
 #: on/CRM/Banking/PluginImpl/Matcher/Batches.php on/hooks.php
+#: on/CRM/Banking/Page/Dashboard.php
 msgid "Payments"
 msgstr "Zahlungen"
 
@@ -519,6 +520,7 @@ msgstr "Benutzerdefinierter Filter"
 
 #: templates/CRM/Banking/Page/Payments.tpl
 #: templates/CRM/Banking/Page/Review.tpl
+#: templates/CRM/Banking/Page/Dashboard.tpl
 msgid "Account"
 msgstr "Konto"
 
@@ -687,7 +689,7 @@ msgstr "Typ"
 msgid "Internal error while looking up contacts."
 msgstr "Fehler beim Suchen nach Kontakten"
 
-#: on/CRM/Banking/Page/Payments.php
+#: on/CRM/Banking/Page/Payments.php on/CRM/Banking/Page/Dashboard.php
 msgid "Unknown"
 msgstr "Unbekannt"
 
@@ -1213,6 +1215,59 @@ msgstr ""
 #: on/CRM/Banking/PluginImpl/Matcher/SepaMandate.php
 msgid "<b>Warning! There are some problems with this contribution:</b>"
 msgstr "<b>Achtung! Es gibt Probleme mit dieser Zuwendung:</b>"
+
+#: on/CRM/Banking/Page/Dashboard.php
+#, fuzzy
+msgid "account"
+msgstr "Konto"
+
+#: on/CRM/Banking/Page/Dashboard.php
+msgid "current year"
+msgstr "Kalenderjahr"
+
+#: on/CRM/Banking/Page/Dashboard.php
+msgid "last year"
+msgstr "letztes Jahr"
+
+#: on/CRM/Banking/Page/Dashboard.php
+msgid "all times"
+msgstr "gesamt"
+
+#: templates/CRM/Banking/Page/Dashboard.tpl
+msgid "Weekly overview"
+msgstr "Wochenübersicht"
+
+#: templates/CRM/Banking/Page/Dashboard.tpl
+msgid "in the past"
+msgstr "Vergangenheit"
+
+#: templates/CRM/Banking/Page/Dashboard.tpl
+msgid "week"
+msgstr "Woche"
+
+#: templates/CRM/Banking/Page/Dashboard.tpl
+msgid "no records"
+msgstr "kein Eintrag"
+
+#: templates/CRM/Banking/Page/Dashboard.tpl
+msgid "Statistics"
+msgstr ""
+
+#: templates/CRM/Banking/Page/Dashboard.tpl
+msgid "<domain=\"temporal\">From</domain>"
+msgstr "Von"
+
+#: templates/CRM/Banking/Page/Dashboard.tpl
+msgid "<domain=\"temporal\">To</domain>"
+msgstr "Bis"
+
+#: templates/CRM/Banking/Page/Dashboard.tpl
+msgid "Total"
+msgstr ""
+
+#: templates/CRM/Banking/Page/Manager.tpl
+msgid "Sorry, the configuration interface is not yet functional!"
+msgstr "Das Konfigurationsinterface ist leider noch nicht funktional."
 
 #, fuzzy
 #~ msgid "Payment count<"

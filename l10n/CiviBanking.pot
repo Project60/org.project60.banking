@@ -292,6 +292,7 @@ msgstr ""
 
 #: on/CRM/Banking/Page/Payments.php
 #: on/CRM/Banking/PluginImpl/Matcher/Batches.php on/hooks.php
+#: on/CRM/Banking/Page/Dashboard.php
 msgid "Payments"
 msgstr ""
 
@@ -520,6 +521,7 @@ msgstr ""
 
 #: templates/CRM/Banking/Page/Payments.tpl
 #: templates/CRM/Banking/Page/Review.tpl
+#: templates/CRM/Banking/Page/Dashboard.tpl
 msgid "Account"
 msgstr ""
 
@@ -688,7 +690,7 @@ msgstr ""
 msgid "Internal error while looking up contacts."
 msgstr ""
 
-#: on/CRM/Banking/Page/Payments.php
+#: on/CRM/Banking/Page/Payments.php on/CRM/Banking/Page/Dashboard.php
 msgid "Unknown"
 msgstr ""
 
@@ -1236,4 +1238,56 @@ msgstr ""
 
 #: on/CRM/Banking/PluginImpl/Matcher/SepaMandate.php
 msgid "<b>Warning! There are some problems with this contribution:</b>"
+msgstr ""
+
+#: on/CRM/Banking/Page/Dashboard.php
+msgid "account"
+msgstr ""
+
+#: on/CRM/Banking/Page/Dashboard.php
+msgid "current year"
+msgstr ""
+
+#: on/CRM/Banking/Page/Dashboard.php
+msgid "last year"
+msgstr ""
+
+#: on/CRM/Banking/Page/Dashboard.php
+msgid "all times"
+msgstr ""
+
+#: templates/CRM/Banking/Page/Dashboard.tpl
+msgid "Weekly overview"
+msgstr ""
+
+#: templates/CRM/Banking/Page/Dashboard.tpl
+msgid "in the past"
+msgstr ""
+
+#: templates/CRM/Banking/Page/Dashboard.tpl
+msgid "week"
+msgstr ""
+
+#: templates/CRM/Banking/Page/Dashboard.tpl
+msgid "no records"
+msgstr ""
+
+#: templates/CRM/Banking/Page/Dashboard.tpl
+msgid "Statistics"
+msgstr ""
+
+#: templates/CRM/Banking/Page/Dashboard.tpl
+msgid "<domain=\"temporal\">From</domain>"
+msgstr ""
+
+#: templates/CRM/Banking/Page/Dashboard.tpl
+msgid "<domain=\"temporal\">To</domain>"
+msgstr ""
+
+#: templates/CRM/Banking/Page/Dashboard.tpl
+msgid "Total"
+msgstr ""
+
+#: templates/CRM/Banking/Page/Manager.tpl
+msgid "Sorry, the configuration interface is not yet functional!"
 msgstr ""

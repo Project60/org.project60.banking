@@ -34,20 +34,20 @@ td.week_incomplete {
 	<td>{$account_names.$account_id}</td>
 
 	{if $account_data.before.sum == 0}
-	<td class="week_none"><i>{ts}no records{/ts}</i></td>
+	<td class="week_none" title="{ts}There are no records for this time span.{/ts}"><i>{ts}no records{/ts}</i></td>
 	{elseif $account_data.before.sum == $account_data.before.done}
-	<td class="week_complete">{$account_data.before.done} / {$account_data.before.sum}</td>
+	<td class="week_complete" title="{$account_data.before.done} / {$account_data.before.sum}">100&nbsp;%</td>
 	{else}
-	<td class="week_incomplete">{$account_data.before.done} / {$account_data.before.sum}</td>
+	<td class="week_incomplete" title="{$account_data.before.done} / {$account_data.before.sum}">{math equation="floor(done/count*100.0)" done=$account_data.before.done count=$account_data.before.sum}&nbsp;%</td>
 	{/if}
 
 {foreach from=$weeks item=week}
 	{if $account_data.$week.sum == 0}
-	<td class="week_none"><i>{ts}no records{/ts}</i></td>
+	<td class="week_none" title="{ts}There are no records for this time span.{/ts}"><i>{ts}no records{/ts}</i></td>
 	{elseif $account_data.$week.sum == $account_data.$week.done}
-	<td class="week_complete">{$account_data.$week.done} / {$account_data.$week.sum}</td>
+	<td class="week_complete" title="{$account_data.$week.done} / {$account_data.$week.sum}">100&nbsp;%</td>
 	{else}
-	<td class="week_incomplete">{$account_data.$week.done} / {$account_data.$week.sum}</td>
+	<td class="week_incomplete" title="{$account_data.$week.done} / {$account_data.$week.sum}">{math equation="floor(done/count*100.0)" done=$account_data.$week.done count=$account_data.$week.sum}&nbsp;%</td>
 	{/if}
 {/foreach}
 <tr>

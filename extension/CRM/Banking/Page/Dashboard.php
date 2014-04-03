@@ -48,12 +48,12 @@ class CRM_Banking_Page_Dashboard extends CRM_Core_Page {
 		$status_id = $results->status_id;
 		if ($results->status_id==$payment_states['processed']['id'] || $results->status_id==$payment_states['ignored']['id']) {
 			if (!isset($account_week_data[$account_id][$week]['done'])) $account_week_data[$account_id][$week]['done'] = 0;
-			$account_week_data[$account_id][$week]['done'] += 1;
+			$account_week_data[$account_id][$week]['done'] += $results->count;
 		}
 		//if (!isset($account_week_data[$account_id][$week][$status_id])) $account_week_data[$account_id][$week][$status_id] = 0;
 		//$account_week_data[$account_id][$week][$status_id] += 1;
 		if (!isset($account_week_data[$account_id][$week]['sum'])) $account_week_data[$account_id][$week]['sum'] = 0;
-		$account_week_data[$account_id][$week]['sum'] += 1;
+		$account_week_data[$account_id][$week]['sum'] += $results->count;
     }
 
     // fill empty weeks

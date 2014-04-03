@@ -6,6 +6,7 @@ version 0.3.5
 - added dashboard
 - enable auto execution of matches
 - added copy_ltrim_zeros action to matcher_regex
+- edit a contact's bank accounts with 'delete contacts' permission
 
 
 version 0.3.4

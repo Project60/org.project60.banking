@@ -74,8 +74,9 @@ class CRM_Banking_Page_Dashboard extends CRM_Core_Page {
 		} else {
 			$btx_bao = new CRM_Banking_BAO_BankAccount();
 			$btx_bao->get('id', $account_id);
-			if (isset($btx_bao->getDataParsed()['name'])) {
-				$account_names[$account_id] = $btx_bao->getDataParsed()['name'];
+			$data_parsed = $btx_bao->getDataParsed();
+			if (isset($data_parsed['name'])) {
+				$account_names[$account_id] = $data_parsed['name'];
 			} else {
 				$account_names[$account_id] = ts('account')." [$account_id]";
 			}

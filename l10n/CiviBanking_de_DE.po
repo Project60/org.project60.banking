@@ -1269,6 +1269,10 @@ msgstr ""
 msgid "Sorry, the configuration interface is not yet functional!"
 msgstr "Das Konfigurationsinterface ist leider noch nicht funktional."
 
+#: templates/CRM/Banking/Page/Dashboard.tpl
+msgid "There are no records for this time span."
+msgstr "Für diesen Zeitraum gibt es keine Einträge"
+
 #, fuzzy
 #~ msgid "Payment count<"
 #~ msgstr "Anzahl"

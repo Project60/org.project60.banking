@@ -1291,3 +1291,7 @@ msgstr ""
 #: templates/CRM/Banking/Page/Manager.tpl
 msgid "Sorry, the configuration interface is not yet functional!"
 msgstr ""
+
+#: templates/CRM/Banking/Page/Dashboard.tpl
+msgid "There are no records for this time span."
+msgstr ""

@@ -6,9 +6,9 @@
   <license>GNU AGPL v3 or later</license>
   <maintainer>
     <author>CiviCRM banking integration working group ("Project 60")</author>
-    <email>project-60@ml.foebud.org</email>
+    <email>endres@systopia.de</email>
   </maintainer>
-  <releaseDate>2014-04-01</releaseDate>
+  <releaseDate>2014-04-03</releaseDate>
   <version>0.3.5</version>
   <develStage>alpha</develStage>
   <compatibility>

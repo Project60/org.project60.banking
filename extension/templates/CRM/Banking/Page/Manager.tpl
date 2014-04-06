@@ -1,3 +1,5 @@
+<h2><font color="red">{ts}Sorry, the configuration interface is not yet functional!{/ts}</font></h2>
+<br/>
 <h3>Import Plugins</h3>
 <div id="help">
 	Import plugins are used to transport payment data obtained from banks and accounting software into CiviBanking. They source the information from files as well as from data feeds from external systems. Once imported, the payments will be processed by the matcher plugins.
@@ -11,7 +13,7 @@
 			<th class="sorting_disabled" rowspan="1" colspan="1">{ts}Profiles{/ts}</th>
 		</tr>
 	</thead>
-	<tbody>
+	<!--tbody>
 		<tr class="odd-row">
 			<td rowspan="3">CSV Importer</td>
 			<td rowspan="3">Imports CSV based data</td>
@@ -33,7 +35,7 @@
 		<tr class="even-row">
 			<td><b>Default</b>&nbsp;&nbsp;<a href='#' class="crm-actions-view">Edit</a></td>
 		</tr>
-	</tbody>
+	</tbody-->
 </table>
 
 <br/><br/>
@@ -53,7 +55,7 @@
 			<th class="hiddenElement sorting_disabled" rowspan="1" colspan="1"></th>
 		</tr>
 	</thead>
-	<tbody>
+	<!--tbody>
 		<tr class="crm-admin-options crm-admin-options_73 odd-row" id="row_73">
 			<td class="crm-admin-options-label ">SEPA Matcher</td>
 			<td class="crm-admin-options-value ">5</td>
@@ -119,7 +121,7 @@
 			<td class="crm-admin-options-is_reserved "> Yes </td>
 			<td id="row_74_status" class="crm-admin-options-is_active "> Yes </td>
 		</tr>
-	</tbody>
+	</tbody-->
 </table>
 
 <br/><br/>
@@ -136,7 +138,7 @@
 			<th class="sorting_disabled" rowspan="1" colspan="1">{ts}Profiles{/ts}</th>
 		</tr>
 	</thead>
-	<tbody>
+	<!--tbody>
 		<tr class="odd-row">
 			<td rowspan="3">CSV Exporter</td>
 			<td rowspan="3">Imports CSV based data</td>
@@ -158,7 +160,7 @@
 		<tr class="even-row">
 			<td><b>Default</b>&nbsp;&nbsp;<a href='#' class="crm-actions-view">{ts}Edit{/ts}</a></td>
 		</tr>
-	</tbody>
+	</tbody-->
 </table>
 
 

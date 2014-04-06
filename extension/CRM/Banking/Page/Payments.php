@@ -133,7 +133,7 @@ class CRM_Banking_Page_Payments extends CRM_Core_Page {
         GROUP BY 
           id
         ORDER BY 
-          starting_date ASC;";
+          starting_date DESC;";
     $stmt = CRM_Core_DAO::executeQuery($sql_query);
     while($stmt->fetch()) {
       // check the states
@@ -224,9 +224,11 @@ class CRM_Banking_Page_Payments extends CRM_Core_Page {
         $params = array('version' => 3, 'id' => $ba_id);
         $result = civicrm_api('BankingAccount', 'getsingle', $params);
         
-        $pba_id = $entry['party_ba_id'];
-        $params = array('version' => 3, 'id' => $pba_id);
-        $attached_ba = civicrm_api('BankingAccount', 'getsingle', $params);
+        if (!empty($entry['party_ba_id'])) {
+          $pba_id = $entry['party_ba_id'];
+          $params = array('version' => 3, 'id' => $pba_id);
+          $attached_ba = civicrm_api('BankingAccount', 'getsingle', $params);
+        }
         
         $cid = isset($attached_ba['contact_id']) ? $attached_ba['contact_id'] : null;
         $contact = null;

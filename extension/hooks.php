@@ -170,3 +170,13 @@ function banking_civicrm_merge ( $type, &$data, $mainId = NULL, $otherId = NULL,
     break;
   }
 }
+
+/**
+ * alterAPIPermissions() hook allows you to change the permissions checked when doing API 3 calls.
+ */
+function banking_civicrm_alterAPIPermissions($entity, $action, &$params, &$permissions)
+{
+  $permissions['banking_account']['create'] = array('delete contacts');
+  $permissions['banking_account']['delete'] = array('delete contacts');
+  $permissions['banking_account_reference']['create'] = array('delete contacts');
+}

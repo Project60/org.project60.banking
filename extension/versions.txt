@@ -1,6 +1,40 @@
 Version History
 ===============
 
+version 0.3.5
+=============
+- added dashboard
+- enable auto execution of matches
+- added copy_ltrim_zeros action to matcher_regex
+- edit a contact's bank accounts with 'delete contacts' permission
+
+
+version 0.3.4
+=============
+- FIX: review/process last payment in batch
+- FIX: invert statement list order
+- FIX: matcher_existing don't propose test contributions
+- FIX: matcher_default value propagation of financial_type_id (and others)
+- sort bank info in accounts tab
+- added SEPA matcher
+- added 'if:matches' clauses to CSVImport rules
+- added lookup action to matcher_regex
+- added contact precision indicator to matcher_default
+- added contact_type filter to contact-by-name lookup
+
+
+version 0.3.3
+=============
+- FIX: improved/fixed contact-by-name lookup
+- store bank account information upon successfull reconciliation of a payment
+- automatically select suggestion when changed or clicked
+- added simple account editor
+- added "create contribution" matcher
+- added regex matcher/analyser
+- added 'if' clauses to CSVImport rules
+- FIX: execute matchers by (ascending weight)
+
+
 version 0.3.2
 =============
 - FIX: move bank accounts when merging contacts
@@ -30,6 +64,7 @@ version 0.3
  - FIX: warning if no statement/payment is selected for review
  - matcher:existing_contributions: added configurable payment_instrument mismatch penalty
  - FIX: matcher:existing_contributions: don't process negative amounts in default mode
+ 
  
  pre0.3
  ======

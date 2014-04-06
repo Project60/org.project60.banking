@@ -84,6 +84,22 @@ class CRM_Banking_BAO_BankTransaction extends CRM_Banking_DAO_BankTransaction {
   }
 
   /**
+   * store a data parsed structure into the db field.
+   */
+  public function setDataParsed($data) {
+    $this->data_parsed = json_encode($data);
+    $sql = "
+      UPDATE 
+        civicrm_bank_tx 
+      SET 
+        data_parsed = '" . mysql_real_escape_string($this->data_parsed) . "'
+      WHERE 
+      id = {$this->id};";
+    $dao = CRM_Core_DAO::executeQuery($sql);    
+    $this->getDataParsed(true);
+  }
+  
+  /**
    * get a suggestion by its hash key
    */
   public function getSuggestionByHash($hash) {

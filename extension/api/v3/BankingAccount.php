@@ -78,6 +78,6 @@ function civicrm_api3_banking_account_get($params) {
  * @access public
  */
 function civicrm_api3_banking_account_delete($params) {
-  return _civicrm_api3_basic_get("CRM_Banking_BAO_BankAccount", $params);
+  return _civicrm_api3_basic_delete("CRM_Banking_BAO_BankAccount", $params);
 }
 

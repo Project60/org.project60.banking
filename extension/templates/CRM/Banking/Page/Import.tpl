@@ -83,7 +83,7 @@
   </tr>
   <tr class="crm-import-datasource-form-block-dataSource">
     <td>
-      <input type="checkbox" class="form-checkbox" value="on" name="process" id="process" 
+      <input type="checkbox" disabled class="form-checkbox" value="on" name="process" id="process" 
       {if $page_mode == 'run'} disabled {/if}
     {if $process == 'on'} checked {/if}>
   {ts}Process payments right away{/ts}</input>
@@ -91,6 +91,21 @@
 </tr>
 </tbody>
 </table>
+</div>
+
+<div class="crm-submit-buttons">
+  {if $page_mode == 'config'}
+    <span class="crm-button crm-button-type-upload crm-button_qf_DataSource_upload">
+      <input type="submit" value="{ts}Import!{/ts}" class="validate form-submit default">
+    </span>
+  {else}
+    <a class="button" href="{$url_payments}">
+      <span align="right"><div class="icon details-icon"></div>{ts}See Results{/ts}</span>
+    </a>
+    <a class="button" href="{$url_action}">
+      <span align="right"><div class="icon details-icon"></div>{ts}Import More{/ts}</span>
+    </a>
+  {/if}
 </div>
 
 {if $page_mode == 'run'}
@@ -114,13 +129,8 @@
   </div>
 {/if}
 
-
 <div class="crm-submit-buttons">
-  {if $page_mode == 'config'}
-    <span class="crm-button crm-button-type-upload crm-button_qf_DataSource_upload">
-      <input type="submit" value="{ts}Import!{/ts}" class="validate form-submit default">
-    </span>
-  {else}
+  {if $page_mode != 'config'}
     <a class="button" href="{$url_payments}">
       <span align="right"><div class="icon details-icon"></div>{ts}See Results{/ts}</span>
     </a>
@@ -129,6 +139,7 @@
     </a>
   {/if}
 </div>
+
 </form>
 
 

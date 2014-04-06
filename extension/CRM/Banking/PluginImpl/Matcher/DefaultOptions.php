@@ -1,4 +1,20 @@
 <?php
+/*
+    org.project60.banking extension for CiviCRM
+
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU Affero General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU Affero General Public License for more details.
+
+    You should have received a copy of the GNU Affero General Public License
+    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+*/
 
 /**
  * The Default Options Matcher will provide the user with two default (last resort) options:
@@ -18,6 +34,7 @@ class CRM_Banking_PluginImpl_Matcher_DefaultOptions extends CRM_Banking_PluginMo
     if (!isset($config->manual_enabled)) $config->manual_enabled = true;
     if (!isset($config->manual_probability)) $config->manual_probability = 0.1;
     if (!isset($config->manual_show_always)) $config->manual_show_always = true;
+    if (!isset($config->lookup_contact_by_name)) $config->lookup_contact_by_name = array('soft_cap_probability' => 0.8, 'soft_cap_min' => 10, 'hard_cap_probability' => 0.4);
     if (!isset($config->manual_title)) $config->manual_title = "Manually processed.";
     if (!isset($config->manual_message)) $config->manual_message = "Please configure";
     if (!isset($config->manual_contribution)) $config->manual_contribution = "Contribution:";
@@ -28,6 +45,11 @@ class CRM_Banking_PluginImpl_Matcher_DefaultOptions extends CRM_Banking_PluginMo
     if (!isset($config->ignore_show_always)) $config->ignore_show_always = true;
     if (!isset($config->ignore_title)) $config->ignore_title = "Not Relevant";
     if (!isset($config->ignore_message)) $config->ignore_message = "Please configure";
+  }
+
+  function autoExecute() {
+    // NO autoexec for this matcher
+    return false;
   }
 
   public function match(CRM_Banking_BAO_BankTransaction $btx, CRM_Banking_Matcher_Context $context) {
@@ -44,17 +66,9 @@ class CRM_Banking_PluginImpl_Matcher_DefaultOptions extends CRM_Banking_PluginMo
 
         // add related contacts
         $data_parsed = $btx->getDataParsed();
-        $contacts = $context->lookupContactByName($data_parsed['name']);
-
-        // add the contact that is related with the account (if identified)
-        $account_contact_id = $context->getAccountContact();        
-        if ($account_contact_id) {
-          $contacts[$account_contact_id] = 1.0;
-        }
-
-        // then sort by probability
-        arsort($contacts, SORT_NUMERIC);
+        $contacts = $context->findContacts(0, $data_parsed['name'], $config->lookup_contact_by_name);
         $manually_processed->setParameter('contact_ids', implode(',', array_keys($contacts)));
+        $manually_processed->setParameter('contact_ids2probablility', json_encode($contacts));
 
         $btx->addSuggestion($manually_processed);
       }
@@ -92,9 +106,14 @@ class CRM_Banking_PluginImpl_Matcher_DefaultOptions extends CRM_Banking_PluginMo
         foreach ($cids as $cid) {
           if ($cid) {
             $contribution = civicrm_api('Contribution', 'getsingle', array('version' => 3, 'id' => $cid));
-            if ($contribution['is_error']) {
+            if (!empty($contribution['is_error'])) {
               CRM_Core_Session::setStatus(sprintf(ts("Couldn't find contribution #%s"), $cid), ts('Error'), 'error');
               continue;
+            }
+
+            // save the account
+            if (!empty($contribution['contact_id'])) {
+              $this->storeAccountWithContact($btx, $contribution['contact_id']);
             }
 
             $query = array('version' => 3, 'id' => $cid);
@@ -166,6 +185,7 @@ class CRM_Banking_PluginImpl_Matcher_DefaultOptions extends CRM_Banking_PluginMo
   function visualize_match( CRM_Banking_Matcher_Suggestion $match, $btx) {
     if ($match->getId() === "manual") {
       $contact_ids = $match->getParameter('contact_ids');
+      $contact_ids2probablility = $match->getParameter('contact_ids2probablility');
       $data_parsed = $btx->getDataParsed();
       $booking_date = date('YmdHis', strtotime($btx->booking_date));
       $status_pending = banking_helper_optionvalue_by_groupname_and_name('contribution_status', 'Pending');
@@ -192,8 +212,8 @@ class CRM_Banking_PluginImpl_Matcher_DefaultOptions extends CRM_Banking_PluginMo
       $snippet .= "<select style=\"float:left;\" id=\"manual_match_contact_selector\"></select>";
       $snippet .= "<div onclick=\"manual_match_show_selected_contact();\" class=\"ui-icon ui-icon-circle-arrow-e\" style=\"float:left;\"></div>";
       $snippet .= "<div style=\"float:left;\">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</div>";
-      $snippet .= "<a class=\"button\" onclick=\"manual_match_add_contact();\"><span><div class=\"icon add-icon\"></div>" . ts("add contact ID to list") . ":</span></a>";
-      $snippet .= "<input id=\"manual_match_add_contact_input\" onkeydown=\"if (event.keyCode == 13) return manual_match_add_contact();\" type=\"text\" style=\"width: 4em; height: 1.4em;\"></input>";
+      $snippet .= "<div style=\"display: inline-block;\"><a class=\"button\" onclick=\"manual_match_add_contact();\"><span><div class=\"icon add-icon\"></div>" . ts("add contact ID to list") . ":</span></a>";
+      $snippet .= "<input id=\"manual_match_add_contact_input\" onkeydown=\"if (event.keyCode == 13) return manual_match_add_contact();\" type=\"text\" style=\"width: 4em; height: 1.4em;\"></input></div>";
 
       // add contribution level
       $snippet .= "<br/><br/><div>";
@@ -223,6 +243,8 @@ class CRM_Banking_PluginImpl_Matcher_DefaultOptions extends CRM_Banking_PluginMo
       // append the java script contributing the functionality
       $snippet .= '
         <script type="text/javascript">
+          var contact_ids2probablility = '.$contact_ids2probablility.';
+
           /** 
            * refresh the table showing the related contributions 
            */
@@ -252,7 +274,18 @@ class CRM_Banking_PluginImpl_Matcher_DefaultOptions extends CRM_Banking_PluginMo
                   if (data.count > 0) {
                     // generate contact select option
                     var contact = data.values[0];
-                    var item_label = contact.display_name;
+
+                    // generate precision indicator
+                    var percent = 1.0; // default value
+                    if (contact.id in contact_ids2probablility)
+                      percent = contact_ids2probablility[contact.id];
+                    percent_string = Math.floor(percent * 100.0) + "%";
+                    if (percent < 0.1) {
+                      percent_string = "0" + percent_string;
+                    }
+
+                    // generate option label
+                    var item_label = "[" + percent_string + "] " + contact.display_name;
                     if (contact.street_address || contact.city) {
                       item_label += " (" + contact.street_address + ", " + contact.city + ")";
                     } else {
@@ -277,7 +310,7 @@ class CRM_Banking_PluginImpl_Matcher_DefaultOptions extends CRM_Banking_PluginMo
                       manual_match_load_contact_into_contact_list(list[index+1], select);
                     }
                   } else {
-                    alert("Conact not found!");
+                    alert("Contact not found!");
                   }
                 }
               });
@@ -369,7 +402,6 @@ class CRM_Banking_PluginImpl_Matcher_DefaultOptions extends CRM_Banking_PluginMo
             }
             // ok, we have a contact -> create a new (test) contribution
             CRM.api("Contribution", "create", { "q": "civicrm/ajax/rest", "sequential": 1, 
-                                                '.$contribution_propagated_data.'
                                                 "contact_id": contact_id, 
                                                 "is_test": 1, 
                                                 "total_amount": parseFloat('.$btx->amount.').toFixed(2), 
@@ -379,7 +411,8 @@ class CRM_Banking_PluginImpl_Matcher_DefaultOptions extends CRM_Banking_PluginMo
                                                 "contribution_status_id": "'.$status_pending.'",
                                                 //"trxn_id": "'.$btx->bank_reference.'",
                                                 "source": "'.$this->_plugin_config->manual_default_source.'",
-                                                "financial_type_id": "'.$this->_plugin_config->manual_default_financial_type_id.'"
+                                                "financial_type_id": "'.$this->_plugin_config->manual_default_financial_type_id.'",
+                                                '.$contribution_propagated_data.'
                                               },
               { success: function(data) {
                 var contribution = data.values[0];
@@ -533,8 +566,7 @@ class CRM_Banking_PluginImpl_Matcher_DefaultOptions extends CRM_Banking_PluginMo
       return $snippet;
 
     } else {
-      return  $this->_plugin_config->ignore_message."<br/>".
-              $this->_plugin_config->ignore_contribution;
+      return  $this->_plugin_config->ignore_message;
 
     }
   }
@@ -574,7 +606,8 @@ class CRM_Banking_PluginImpl_Matcher_DefaultOptions extends CRM_Banking_PluginMo
   private function get_probability($string_value, CRM_Banking_BAO_BankTransaction $btx) {
     if (substr($string_value, -1) === "%") {
       // if the value ends in '%' it's meant to be relative to the least probable suggestion
-      $least_probable = end($btx->getSuggestionList());
+      $suggestion_list = $btx->getSuggestionList();
+      $least_probable = end($suggestion_list);
       if ($least_probable) {
         $least_probable_value = $least_probable->getProbability();
       } else {

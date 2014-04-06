@@ -137,6 +137,10 @@ abstract class CRM_Banking_PluginModel_Base {
       return $this->_plugin_title;
   }
 
+  function getPluginID() {
+      return $this->_plugin_id;
+  }
+
   // -------------------------------------------------------
   // search functions provided to the plugin implementations
   // -------------------------------------------------------

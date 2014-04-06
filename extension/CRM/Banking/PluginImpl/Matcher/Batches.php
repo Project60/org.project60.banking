@@ -1,10 +1,26 @@
 <?php
+/*
+    org.project60.banking extension for CiviCRM
+
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU Affero General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU Affero General Public License for more details.
+
+    You should have received a copy of the GNU Affero General Public License
+    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+*/
 
 
 require_once 'CRM/Banking/Helpers/OptionValue.php';
 
 /**
- * The Batch Matcher will try to find exported batches that match the given amount
+ * The Batch Matcher will try reconcile the payment with exported accounting batches that matches the given amount
  */
 class CRM_Banking_PluginImpl_Matcher_Batches extends CRM_Banking_PluginModel_Matcher {
 
@@ -47,7 +63,7 @@ class CRM_Banking_PluginImpl_Matcher_Batches extends CRM_Banking_PluginModel_Mat
     $matching_batches = array();
     foreach ($existing_batches as $batch) {
       $total_amount = $batch['total'];
-      if ($batch['export_date']) {
+      if (!empty($batch['export_date'])) {
         $submission_date = strtotime($batch['export_date']);  
       } elseif ($batch['modified_date']) {
         $submission_date = strtotime($batch['modified_date']);  
@@ -143,11 +159,13 @@ class CRM_Banking_PluginImpl_Matcher_Batches extends CRM_Banking_PluginModel_Mat
       $newStatus = banking_helper_optionvalueid_by_groupname_and_name('civicrm_banking.bank_tx_status', 'Processed');
       $btx->setStatus($newStatus);
       parent::execute($suggestion, $btx);
+      return true;
 
     } else {
       // this means, there ARE contributions in a non-pending state, AND the override was not requested:
       CRM_Core_Session::setStatus(sprintf(ts("Some contribtions in batch %s are not in state 'pending', and override was not enabled. The payment was NOT processed!"), $batch_id), ts('Error'), 'error'); 
     }
+    return false;
   }
 
   /**

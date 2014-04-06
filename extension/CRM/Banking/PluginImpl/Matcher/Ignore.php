@@ -1,10 +1,24 @@
 <?php
+/*
+    org.project60.banking extension for CiviCRM
+
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU Affero General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU Affero General Public License for more details.
+
+    You should have received a copy of the GNU Affero General Public License
+    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+*/
 
 /**
- * The generic match plugin is able to do the following :
- * - check the transaction amount to be inside a range
- * - check the transaction date to be inside a range
- * - check the communication using a regex
+ * The Ignore matcher can be configured with regular expressions to automatically ignore
+ *   certain payments
  */
 class CRM_Banking_PluginImpl_Matcher_Ignore extends CRM_Banking_PluginModel_Matcher {
 
@@ -54,6 +68,7 @@ class CRM_Banking_PluginImpl_Matcher_Ignore extends CRM_Banking_PluginModel_Matc
     // this is the IGNORE action. Simply set the status to ignored
     $newStatus = banking_helper_optionvalueid_by_groupname_and_name('civicrm_banking.bank_tx_status', 'Ignored');
     $btx->setStatus($newStatus);
+    return true;
   }
 
 

@@ -292,6 +292,7 @@ msgstr ""
 
 #: on/CRM/Banking/Page/Payments.php
 #: on/CRM/Banking/PluginImpl/Matcher/Batches.php on/hooks.php
+#: on/CRM/Banking/Page/Dashboard.php
 msgid "Payments"
 msgstr ""
 
@@ -485,6 +486,7 @@ msgstr ""
 
 #: templates/CRM/Banking/Page/Manager.tpl
 #: templates/CRM/Banking/Page/Payments.tpl
+#: templates/CRM/Banking/Page/AccountsTab.tpl
 msgid "Delete"
 msgstr ""
 
@@ -492,7 +494,7 @@ msgstr ""
 msgid "Add Profile"
 msgstr ""
 
-#: templates/CRM/Banking/Page/Payments.tpl
+#: templates/CRM/Banking/Page/Payments.tpl on/hooks.php
 msgid "Show Statements"
 msgstr ""
 
@@ -519,12 +521,14 @@ msgstr ""
 
 #: templates/CRM/Banking/Page/Payments.tpl
 #: templates/CRM/Banking/Page/Review.tpl
+#: templates/CRM/Banking/Page/Dashboard.tpl
 msgid "Account"
 msgstr ""
 
 #: templates/CRM/Banking/Page/Payments.tpl
 #: on/CRM/Banking/PluginImpl/Matcher/DefaultOptions.php
 #: on/CRM/Banking/PluginImpl/Matcher/ExistingContribution.php
+#: on/CRM/Banking/PluginImpl/Matcher/CreateContribution.php
 msgid "Date"
 msgstr ""
 
@@ -532,6 +536,7 @@ msgstr ""
 #: on/CRM/Banking/PluginImpl/Matcher/Batches.php
 #: on/CRM/Banking/PluginImpl/Matcher/DefaultOptions.php
 #: on/CRM/Banking/PluginImpl/Matcher/ExistingContribution.php
+#: on/CRM/Banking/PluginImpl/Matcher/CreateContribution.php
 msgid "Amount"
 msgstr ""
 
@@ -662,16 +667,22 @@ msgstr ""
 #: on/CRM/Banking/PluginImpl/Matcher/ExistingContribution.php
 #: on/CRM/Banking/PluginImpl/Matcher/Batches.php
 #: on/CRM/Banking/PluginImpl/CSVImporter.php
+#: on/CRM/Banking/PluginImpl/Matcher/CreateContribution.php
+#: on/CRM/Banking/PluginModel/Matcher.php
+#: templates/CRM/Banking/Page/AccountsTab.tpl
+#: on/CRM/Banking/PluginImpl/Matcher/SepaMandate.php
 msgid "Error"
 msgstr ""
 
 #: on/CRM/Banking/PluginImpl/Matcher/DefaultOptions.php
 #: on/CRM/Banking/PluginImpl/Matcher/ExistingContribution.php
+#: on/CRM/Banking/PluginImpl/Matcher/SepaMandate.php
 msgid "Couldn't modify contribution."
 msgstr ""
 
 #: on/CRM/Banking/PluginImpl/Matcher/DefaultOptions.php
 #: on/CRM/Banking/PluginImpl/Matcher/ExistingContribution.php
+#: on/CRM/Banking/PluginImpl/Matcher/CreateContribution.php
 msgid "Type"
 msgstr ""
 
@@ -679,7 +690,7 @@ msgstr ""
 msgid "Internal error while looking up contacts."
 msgstr ""
 
-#: on/CRM/Banking/Page/Payments.php
+#: on/CRM/Banking/Page/Payments.php on/CRM/Banking/Page/Dashboard.php
 msgid "Unknown"
 msgstr ""
 
@@ -779,6 +790,7 @@ msgid "A pending contribution partially matching the payment was found."
 msgstr ""
 
 #: on/CRM/Banking/PluginImpl/Matcher/ExistingContribution.php
+#: on/CRM/Banking/PluginImpl/Matcher/CreateContribution.php
 msgid "Donor"
 msgstr ""
 
@@ -787,6 +799,7 @@ msgid "edit contribution"
 msgstr ""
 
 #: on/CRM/Banking/PluginImpl/Matcher/ExistingContribution.php
+#: on/CRM/Banking/PluginImpl/Matcher/SepaMandate.php
 msgid "Internal error! Cannot find contribution #"
 msgstr ""
 
@@ -983,6 +996,7 @@ msgid "This payment was associated with <a href=\"%s\">payment batch #%s</a>."
 msgstr ""
 
 #: on/CRM/Banking/PluginImpl/Matcher/ExistingContribution.php
+#: on/CRM/Banking/PluginImpl/Matcher/CreateContribution.php
 msgid "This payment was associated with <a href=\"%s\">contribution #%s</a>."
 msgstr ""
 
@@ -1091,4 +1105,193 @@ msgstr ""
 
 #: on/hooks.php
 msgid "Dashboard"
+msgstr ""
+
+#: on/CRM/Banking/PluginImpl/Matcher/CreateContribution.php
+msgid "Create a new contribution"
+msgstr ""
+
+#: on/CRM/Banking/PluginImpl/Matcher/CreateContribution.php
+msgid "Couldn't create contribution."
+msgstr ""
+
+#: on/CRM/Banking/PluginImpl/Matcher/CreateContribution.php
+msgid "Internal error! Cannot find contact #"
+msgstr ""
+
+#: on/CRM/Banking/PluginImpl/Matcher/CreateContribution.php
+msgid "address unknown"
+msgstr ""
+
+#: on/CRM/Banking/PluginImpl/Matcher/CreateContribution.php
+msgid "The following contribution will be created:"
+msgstr ""
+
+#: on/CRM/Banking/PluginModel/Matcher.php
+msgid "created by CiviBanking"
+msgstr ""
+
+#: on/CRM/Banking/PluginModel/Matcher.php
+msgid ""
+"The account information of this contact was saved, but it is also used by "
+"the following contacts:<br/><ul>%s</ul>"
+msgstr ""
+
+#: on/CRM/Banking/PluginModel/Matcher.php
+msgid "Warning"
+msgstr ""
+
+#: on/CRM/Banking/PluginModel/Matcher.php
+msgid "The account information of this contact was saved."
+msgstr ""
+
+#: on/CRM/Banking/PluginModel/Matcher.php
+msgid "Account saved"
+msgstr ""
+
+#: templates/CRM/Banking/Page/AccountsTab.tpl
+msgid "Add"
+msgstr ""
+
+#: templates/CRM/Banking/Page/AccountsTab.tpl
+msgid "Bank Name"
+msgstr ""
+
+#: templates/CRM/Banking/Page/AccountsTab.tpl
+msgid "BIC is too short!"
+msgstr ""
+
+#: templates/CRM/Banking/Page/AccountsTab.tpl
+msgid "IBAN is wrong!"
+msgstr ""
+
+#: on/CRM/Banking/PluginImpl/Matcher/SepaMandate.php
+msgid "Couldn't load SEPA mandate for reference %s"
+msgstr ""
+
+#: on/CRM/Banking/PluginImpl/Matcher/SepaMandate.php
+msgid ""
+"There was more than one matching contribution found! Try to configure the "
+"plugin with a smaller search time span."
+msgstr ""
+
+#: on/CRM/Banking/PluginImpl/Matcher/SepaMandate.php
+msgid ""
+"There was no matching contribution! Try to configure the plugin with a "
+"larger search time span."
+msgstr ""
+
+#: on/CRM/Banking/PluginImpl/Matcher/SepaMandate.php
+msgid "SEPA SDD Payment"
+msgstr ""
+
+#: on/CRM/Banking/PluginImpl/Matcher/SepaMandate.php
+msgid "This payment is a SEPA direct debit contribution by %s."
+msgstr ""
+
+#: on/CRM/Banking/PluginImpl/Matcher/SepaMandate.php
+msgid "The mandate reference is <a href=\"%s\" target=\"_blank\">%s</a>."
+msgstr ""
+
+#: on/CRM/Banking/PluginImpl/Matcher/SepaMandate.php
+msgid ""
+"Contribution <a href=\"%s\" target=\"_blank\">[%s]</a> will be closed, as "
+"will be the sepa transaction group if this is the last contribution."
+msgstr ""
+
+#: on/CRM/Banking/PluginImpl/Matcher/SepaMandate.php
+msgid ""
+"This SEPA payment was associated with <a href=\"%s\">contribution #%s</a>."
+msgstr ""
+
+#: on/CRM/Banking/PluginImpl/Matcher/SepaMandate.php
+msgid "Contribution is NOT member in exactly one SEPA transaction group!"
+msgstr ""
+
+#: on/CRM/Banking/PluginImpl/Matcher/SepaMandate.php
+msgid "SEPA transaction group '%s' was marked as received."
+msgstr ""
+
+#: on/CRM/Banking/PluginImpl/Matcher/SepaMandate.php
+msgid "The contribution connected to this mandate could not be read."
+msgstr ""
+
+#: on/CRM/Banking/PluginImpl/Matcher/SepaMandate.php
+msgid "The contact connected to this mandate could not be read."
+msgstr ""
+
+#: on/CRM/Banking/PluginImpl/Matcher/SepaMandate.php
+msgid "The contribution does not feature the expected amount."
+msgstr ""
+
+#: on/CRM/Banking/PluginImpl/Matcher/SepaMandate.php
+msgid "The contribution does not have the expected status 'in Progress'."
+msgstr ""
+
+#: on/CRM/Banking/PluginImpl/Matcher/SepaMandate.php
+msgid "The contact this mandate belongs to has been deleted."
+msgstr ""
+
+#: on/CRM/Banking/PluginImpl/Matcher/SepaMandate.php
+msgid "Success"
+msgstr ""
+
+#: on/CRM/Banking/PluginImpl/Matcher/SepaMandate.php
+msgid "<b>Warning! There are some problems with this contribution:</b>"
+msgstr ""
+
+#: on/CRM/Banking/Page/Dashboard.php
+msgid "account"
+msgstr ""
+
+#: on/CRM/Banking/Page/Dashboard.php
+msgid "current year"
+msgstr ""
+
+#: on/CRM/Banking/Page/Dashboard.php
+msgid "last year"
+msgstr ""
+
+#: on/CRM/Banking/Page/Dashboard.php
+msgid "all times"
+msgstr ""
+
+#: templates/CRM/Banking/Page/Dashboard.tpl
+msgid "Weekly overview"
+msgstr ""
+
+#: templates/CRM/Banking/Page/Dashboard.tpl
+msgid "in the past"
+msgstr ""
+
+#: templates/CRM/Banking/Page/Dashboard.tpl
+msgid "week"
+msgstr ""
+
+#: templates/CRM/Banking/Page/Dashboard.tpl
+msgid "no records"
+msgstr ""
+
+#: templates/CRM/Banking/Page/Dashboard.tpl
+msgid "Statistics"
+msgstr ""
+
+#: templates/CRM/Banking/Page/Dashboard.tpl
+msgid "<domain=\"temporal\">From</domain>"
+msgstr ""
+
+#: templates/CRM/Banking/Page/Dashboard.tpl
+msgid "<domain=\"temporal\">To</domain>"
+msgstr ""
+
+#: templates/CRM/Banking/Page/Dashboard.tpl
+msgid "Total"
+msgstr ""
+
+#: templates/CRM/Banking/Page/Manager.tpl
+msgid "Sorry, the configuration interface is not yet functional!"
+msgstr ""
+
+#: templates/CRM/Banking/Page/Dashboard.tpl
+msgid "There are no records for this time span."
 msgstr ""

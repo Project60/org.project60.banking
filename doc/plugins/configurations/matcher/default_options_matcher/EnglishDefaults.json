@@ -1,11 +1,6 @@
 {
 	"generate": 1,
     "auto_exec": false,
-    "value_propagation": {
-        "ba.name_id": "contribution.custom_14",
-        "btx.financial_type_id": "contribution.financial_type_id",
-        "btx.campaign_id": "contribution.campaign_id"
-    },
     "manual_enabled": true,
     "manual_probability": "50%",
     "manual_show_always": true,
@@ -18,5 +13,15 @@
     "ignore_show_always": true,
     "ignore_probability": "0.1",
     "ignore_title": "Not CiviCRM related",
-    "ignore_message": "Choose this option if you are positive that this transaction has nothing to do with CiviCRM."
+    "ignore_message": "Choose this option if you are positive that this transaction has nothing to do with CiviCRM.",
+    "value_propagation": {
+        "ba.name_id": "contribution.custom_14",
+        "btx.financial_type_id": "contribution.financial_type_id",
+        "btx.campaign_id": "contribution.campaign_id"
+    },
+    "lookup_contact_by_name" : {
+        "soft_cap_probability": 0.8, 
+        "soft_cap_min": 10, 
+        "hard_cap_probability": 0.4
+    }
 }

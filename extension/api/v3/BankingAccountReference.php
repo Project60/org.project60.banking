@@ -75,6 +75,6 @@ function civicrm_api3_banking_account_reference_get($params) {
  * @access public
  */
 function civicrm_api3_banking_account_reference_delete($params) {
-  return _civicrm_api3_basic_get("CRM_Banking_BAO_BankAccountReference", $params);
+  return _civicrm_api3_basic_delete("CRM_Banking_BAO_BankAccountReference", $params);
 }
 

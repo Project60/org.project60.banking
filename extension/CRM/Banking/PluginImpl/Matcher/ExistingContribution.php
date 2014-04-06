@@ -1,12 +1,29 @@
 <?php
+/*
+    org.project60.banking extension for CiviCRM
+
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU Affero General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU Affero General Public License for more details.
+
+    You should have received a copy of the GNU Affero General Public License
+    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+*/
 
 
 require_once 'CRM/Banking/Helpers/OptionValue.php';
 
 /**
- * The Default Options Matcher will provide the user with two default (last resort) options:
- *  1) Mark the payment as "ignored"
- *  2) Allow the manual assiciation of contributions
+ * This matcher tries to reconcile the payments with existing contributions. 
+ * There are two modes:
+ *   default      - matches e.g. to pending contributions and changes the status to completed
+ *   cancellation - matches negative amounts to completed contributions and changes the status to cancelled
  */
 class CRM_Banking_PluginImpl_Matcher_ExistingContribution extends CRM_Banking_PluginModel_Matcher {
 
@@ -21,6 +38,7 @@ class CRM_Banking_PluginImpl_Matcher_ExistingContribution extends CRM_Banking_Pl
     if (!isset($config->threshold)) $config->threshold = 0.5;
     if (!isset($config->mode)) $config->mode = "default";     // other mode is "cancellation"
     if (!isset($config->accepted_contribution_states)) $config->accepted_contribution_states = array("Completed", "Pending");
+    if (!isset($config->lookup_contact_by_name)) $config->lookup_contact_by_name = array('soft_cap_probability' => 0.8, 'soft_cap_min' => 5, 'hard_cap_probability' => 0.4);    
     if (!isset($config->received_date_minimum)) $config->received_date_minimum = "-100 days";
     if (!isset($config->received_date_maximum)) $config->received_date_maximum = "+1 days";
     if (!isset($config->date_penalty)) $config->date_penalty = 1.0;
@@ -107,7 +125,7 @@ class CRM_Banking_PluginImpl_Matcher_ExistingContribution extends CRM_Banking_Pl
     if ($contributions != NULL) return $contributions;
 
     $contributions = array();
-    $sql = "SELECT * FROM civicrm_contribution WHERE contact_id=${contact_id} AND receive_date > (NOW() - INTERVAL 1 YEAR);";
+    $sql = "SELECT * FROM civicrm_contribution WHERE contact_id=${contact_id} AND is_test = 0 AND receive_date > (NOW() - INTERVAL 1 YEAR);";
     $contribution = CRM_Contribute_DAO_Contribution::executeQuery($sql);
     while ($contribution->fetch()) {
       array_push($contributions, $contribution->toArray());
@@ -133,22 +151,8 @@ class CRM_Banking_PluginImpl_Matcher_ExistingContribution extends CRM_Banking_Pl
       }
     }
 
-    // first: try to indentify the contact
-    $contacts_found = array();
-    if (count($contacts_found)>=0) {
-      $search_result = $context->lookupContactByName($data_parsed['name']);
-      foreach ($search_result as $contact_id => $probability) {
-        if ($probability > $threshold) {
-          $contacts_found[$contact_id] = $probability;
-        }
-      }
-    }
-
-    // also, we'll use the contact identified by the bank account
-    $account_contact_id = $context->getAccountContact();
-    if ($account_contact_id) {
-      $contacts_found[$account_contact_id] = 1.0;
-    }
+    // find contacts    
+    $contacts_found = $context->findContacts($threshold, $data_parsed['name'], $config->lookup_contact_by_name);
 
     // with the identified contacts, look up contributions
     $contributions = array();
@@ -215,8 +219,8 @@ class CRM_Banking_PluginImpl_Matcher_ExistingContribution extends CRM_Banking_Pl
    * @param type $btx
    */
   public function execute($suggestion, $btx) {
-
-    $query = array('version' => 3, 'id' => $suggestion->getParameter('contribution_id'));
+    $contribution_id = $suggestion->getParameter('contribution_id');
+    $query = array('version' => 3, 'id' => $contribution_id);
     $query = array_merge($query, $this->getPropagationSet($btx, 'contribution'));   // add propagated values
 
     // depending on mode...
@@ -232,11 +236,19 @@ class CRM_Banking_PluginImpl_Matcher_ExistingContribution extends CRM_Banking_Pl
     $result = civicrm_api('Contribution', 'create', $query);
     if (isset($result['is_error']) && $result['is_error']) {
       CRM_Core_Session::setStatus(ts("Couldn't modify contribution."), ts('Error'), 'error');
+    } else {
+      // everything seems fine, save the account
+      if (!empty($result['values'][$contribution_id]['contact_id'])) {
+        $this->storeAccountWithContact($btx, $result['values'][$contribution_id]['contact_id']);
+      } elseif (!empty($result['values'][0]['contact_id'])) {
+        $this->storeAccountWithContact($btx, $result['values'][0]['contact_id']);
+      }
     }
 
     $newStatus = banking_helper_optionvalueid_by_groupname_and_name('civicrm_banking.bank_tx_status', 'Processed');
     $btx->setStatus($newStatus);
     parent::execute($suggestion, $btx);
+    return true;
   }
 
   /**

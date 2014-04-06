@@ -104,6 +104,11 @@ function banking_civicrm_options() {
                   'value' => 'CRM_Banking_PluginImpl_Matcher_Generic',
                   'is_default' => 0,
               ),
+              'matcher_create' => array(
+                  'label' => 'Create Contribution Matcher Plugin',
+                  'value' => 'CRM_Banking_PluginImpl_Matcher_CreateContribution',
+                  'is_default' => 0,
+              ),
               'matcher_yes' => array(
                   'label' => 'Dummy Matcher Test Plugin',
                   'value' => 'CRM_Banking_PluginImpl_Matcher_Yes',
@@ -132,6 +137,18 @@ function banking_civicrm_options() {
                   'label' => 'Batch Matcher',
                   'value' => 'CRM_Banking_PluginImpl_Matcher_Batches',
                   'description' => 'Tries to identify payments that settle contribution batches.',
+                  'is_default' => 0,
+              ),
+              'matcher_sepa' => array(
+                  'label' => 'SEPA Matcher',
+                  'value' => 'CRM_Banking_PluginImpl_Matcher_SepaMandate',
+                  'description' => 'Will match SEPA DD payments to contributions created by the org.project60.sepa module.',
+                  'is_default' => 0,
+              ),
+              'analyser_regex' => array(
+                  'label' => 'RegEx Analyser',
+                  'value' => 'CRM_Banking_PluginImpl_Matcher_RegexAnalyser',
+                  'description' => 'Analyses and enriches the payment information using regular expressions.',
                   'is_default' => 0,
               ),
           ),

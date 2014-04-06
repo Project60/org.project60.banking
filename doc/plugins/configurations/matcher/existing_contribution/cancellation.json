@@ -17,5 +17,10 @@
         "ba.name_id": "contribution.custom_14",
         "btx.financial_type_id": "contribution.financial_type_id",
         "btx.campaign_id": "contribution.campaign_id"
+    },
+    "lookup_contact_by_name" : {
+        "soft_cap_probability": 0.8, 
+        "soft_cap_min": 10, 
+        "hard_cap_probability": 0.4
     }
 }

@@ -1,0 +1,31 @@
+{
+    "rules": [
+        {
+            "fields": ["purpose"],
+            "pattern": "/R(?P<extid>[1-9][0-9]{1,5})K(?P<campaign>[1-9][0-9]{1,3})L(?P<liste>[0-9]{1,2})/",
+            "comment": "Format of scanned code is RXXXXXXKXXXXLXX, number values, no leading zeroes",
+            "actions": [
+                {
+                    "action": "copy",
+                    "from": "extid",
+                    "to": "external_identifier"
+                },
+                {
+                    "action": "copy",
+                    "from": "campaign",
+                    "to": "campaign_id"
+                },
+                {
+                    "action": "copy",
+                    "from": "liste",
+                    "to": "Liste"
+                },
+                {
+                    "action": "set",
+                    "to": "has_code",
+                    "value": "true"
+                }
+            ]
+        }
+    ]
+}

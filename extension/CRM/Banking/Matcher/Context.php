@@ -14,6 +14,72 @@ class CRM_Banking_Matcher_Context {
     $this->btx = $btx;
   }
 
+  /**
+   * Provides a general interface to looking up contacts matching the current payment.
+   * This includes:
+   *  - looking up 'contact_id' or 'external_identifier' values in the paresed_data
+   *  - looking up identified account owners
+   *  - name based search via lookupContactByName() method
+   *
+   * If more than one contact has probability 1, then it will be reduced to 0.99
+   *
+   * @return array(contact_id => similarity), where similarity is from [0..1]
+   */
+  public function findContacts($threshold=0.0, $name=NULL, $lookup_by_name_parameters=array()) {
+    // we'll start with the findContacts method
+    if ($name==NULL) {
+      $contacts = array();
+    } else {
+      $contacts = $this->lookupContactByName($name, $lookup_by_name_parameters);
+      //error_log('after lookup:'.print_r($contacts, true));      
+    }
+
+    // then look for 'contact_id' or 'external_identifier'
+    $data_parsed = $this->btx->getDataParsed();
+    if (!empty($data_parsed['external_identifier'])) {
+      $contact = civicrm_api('Contact', 'getsingle', array('external_identifier' => $data_parsed['external_identifier'], 'version' => 3));
+      if (empty($contact['is_error'])) {
+        $contacts[$contact['id']] = 1.0;
+      }
+    }
+
+    // add contact_id if right there...
+    if (!empty($data_parsed['contact_id'])) {
+      $contacts[$data_parsed['contact_id']] = 1.0;
+    }
+    //error_log('after direct ident:'.print_r($contacts, true));
+
+    // look up accounts
+    $account_owners = $this->getAccountContacts();
+    foreach ($account_owners as $account_owner) {
+      $contacts[$account_owner] = 1.0;
+    }
+    //error_log('after accounts:'.print_r($contacts, true));
+
+    // check if multiple 1.0 probabilities are there...
+    $perfect_match_count = 0;
+    foreach ($contacts as $contact => $probability) {
+      if ($probability == 1.0) $perfect_match_count++;
+    }
+    if ($perfect_match_count > 1) {
+      // in this case, we reduce each probability to 0.99
+      foreach ($contacts as $contact => $probability) {
+        if ($probability == 1.0) $contacts[$contact] = 0.99;
+      }
+    }
+
+    // remove all that are under the threshold
+    $selected_contacts = array();
+    foreach ($contacts as $contact => $probability) {
+      if ($probability >= $threshold) {
+        $selected_contacts[$contact] = $probability;
+      }
+    }
+
+    // now sort by probability and return
+    arsort($selected_contacts);
+    return $selected_contacts;
+  }
 
   /**
    * Will provide a name based lookup for contacts
@@ -21,13 +87,15 @@ class CRM_Banking_Matcher_Context {
    * @return array(contact_id => similarity), where similarity is from [0..1]
    */
   public function lookupContactByName($name, $parameters=array()) {
+    $parameters = (array) $parameters;
+    
     if (!$name) {
       // no name given, no results:
       return array();
     }
 
-    // check the cache first
-    $cache_key = "banking.matcher.context.name_lookup.$name";
+    // check the cache first (key has md5 due to different parameters)
+    $cache_key = "banking.matcher.context.name_lookup.".md5(serialize($name).serialize($parameters));
     $contacts_found = $this->getCachedEntry($cache_key);
     if ($contacts_found!=NULL) {
       return $contacts_found;
@@ -35,62 +103,17 @@ class CRM_Banking_Matcher_Context {
       $contacts_found = array();
     }
 
-  	// create some mutations, since quick search is a bit picky
-  	$name_bits = preg_split("( |,|&)", $name, 0, PREG_SPLIT_NO_EMPTY);
-  	$name_mutations = array();
-  	$name_mutations[] = $name_bits;
-  	if (count($name_bits)>1) {
-  		$name_mutations[] = array_reverse($name_bits);
-  	}
-  	if (count($name_bits)>2) {
-  		$reduced_name = array($name_bits[0], $name_bits[count($name_bits)-1]);
-  		$name_mutations[] = $reduced_name;
-  		$name_mutations[] = array_reverse($reduced_name);
-  	}
-
-  	// query quicksearch for each combination
-  	foreach ($name_mutations as $name_bits) {
-	  	$query = array('version' => 3);
-	  	$query['name'] = implode(', ', $name_bits);
-	  	$result = civicrm_api('Contact', 'getquick', $query);
-	  	if ($result['is_error']) {
-	  		// that didn't go well...
-	  		CRM_Core_Session::setStatus(ts("Internal error while looking up contacts."), ts('Error'), 'alert');
-	  	} else {
-	  		foreach ($result['values'] as $contact) {
-          // get the current maximum similarity...
-          if (isset($contacts_found[$contact['id']])) {
-            $probability = $contacts_found[$contact['id']]; 
-          } else {
-            $probability = 0.0;
-          }
-
-          // now, we'll have to find the maximum similarity with any of the name mutations
-          foreach ($name_mutations as $compare_name_bits) {
-            $compare_name = implode(', ', $compare_name_bits);
-            //$new_probability = (similar_text(strtolower($compare_name), strtolower($contact['sort_name']))) / ((strlen($name)+strlen($contact['sort_name']))/2.0);
-            $new_probability = 0.0;
-            similar_text(strtolower($compare_name), strtolower($contact['sort_name']), $new_probability);
-            $new_probability /= 100.0;
-            if ($new_probability > $probability) {
-              $probability = $new_probability;
-            }
-          }
-
-          $contacts_found[$contact['id']] = $probability;
-	  		}
-	  	}
-  	}
-
-    // norm the array, i.e. if there is multiple IDs that have probability 1.0, decrease their probability...
-    $total = array_sum($contacts_found);
-    if ($total >= 1.0) {
-      $total += 0.01;
-      $factor = 1.0 / $total;
-      $factor *= $factor;
-      foreach ($contacts_found as $contact_id => $probability) {
-        $contacts_found[$contact_id] = $probability * $factor;
-      }
+    // call the lookup function (API)
+    $parameters['version'] = 3;
+    $parameters['name'] = $name;
+    if (isset($parameters['modifiers'])) 
+      $parameters['modifiers'] = json_encode($parameters['modifiers']);
+    $result = civicrm_api('BankingLookup', 'contactbyname', $parameters);
+    if (isset($result['is_error']) && $result['is_error']) {
+      // TODO: more error handling?
+      error_log("org.project60.banking: BankingLookup:contactbyname failed with: ".$result['error_message']);
+    } else {
+      $contacts_found = $result['values'];
     }
 
     // update the cache
@@ -99,9 +122,45 @@ class CRM_Banking_Matcher_Context {
   	return $contacts_found;
   }
 
+
+  /**
+   * If the payment was associated with a (source) account, this
+   *  function looks up the account's owner(s) contact ID(s)
+   */
+  public function getAccountContacts() {
+    $contact_ids = $this->getCachedEntry('_account_contact_ids');
+    if ($contact_ids===NULL) {
+      // first, get the account contact
+      $contact_ids = array();
+      $btx_account_contact = $this->getAccountContact();
+      if ($btx_account_contact) array_push($contact_ids, $btx_account_contact);
+
+      // then, look up party_ba_reference...
+      $data_parsed = $this->btx->getDataParsed();
+      if (!empty($data_parsed['party_ba_reference'])) {
+        // find all accounts references matching the parsed data
+        $account_references = civicrm_api('BankAccountReference', 'get', array('reference' => $data_parsed['party_ba_reference'], 'version' => 3));
+        if (empty($account_references['is_error'])) {
+          foreach ($account_references['values'] as $account_reference) {
+            // then load the respective accounts
+            $account = civicrm_api('BankAccount', 'getsingle', array('id' => $account_reference['ba_id'], 'version' => 3));
+            if (empty($account['is_error'])) {
+              // and add the owner
+              array_push($contact_ids, $account['contact_id']);
+            }
+          }
+        }
+      }
+
+      $this->setCachedEntry('_account_contact_ids', $contact_ids);
+    }
+    return $contact_ids;
+  }
+
   /**
    * If the payment was associated with a (source) account, this
    *  function looks up the account's owner contact ID
+   * @deprecated use getAccountContacts()
    */
   public function getAccountContact() {
     $contact_id = $this->getCachedEntry('_account_contact_id');

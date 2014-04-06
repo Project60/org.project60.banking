@@ -38,6 +38,19 @@ class CRM_Banking_BAO_BankAccount extends CRM_Banking_DAO_BankAccount {
   }
 
   /**
+   * Delete function override: also delete references
+   */
+  static function del($ba_id) {
+    // delete all references...
+    CRM_Core_DAO::executeQuery("DELETE FROM civicrm_bank_account_reference WHERE ba_id='$ba_id';");
+
+    // ...then delete the bank account object
+    $printLabel = new CRM_Banking_DAO_BankAccount();
+    $printLabel->id = $ba_id;
+    $printLabel->delete();
+  }
+
+  /**
    * will provide a cached version of the decoded data_parsed field
    * if $update=true is given, it will be parsed again
    */
@@ -48,5 +61,12 @@ class CRM_Banking_BAO_BankAccount extends CRM_Banking_DAO_BankAccount {
     return $this->_decoded_data_parsed;
   }
 
+  /**
+   * store a data parsed structure into the db field.
+   */
+  public function setDataParsed($data) {
+    $this->data_parsed = json_encode($data);
+    $this->getDataParsed(true);
+  }
 }
 

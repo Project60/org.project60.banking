@@ -1,0 +1,18 @@
+{
+    "auto_exec": false,
+    "factor": 1.0,
+    "required_values": [
+        "btx.financial_type_id",
+        "btx.financial_type_id",
+        "ba.name_id"
+    ],
+    "value_propagation": {
+        "ba.name_id": "contribution.custom_14",
+        "btx.financial_type_id": "contribution.financial_type_id",
+        "btx.campaign_id": "contribution.campaign_id",
+        "btx.payment_instrument_id": "contribution.payment_instrument_id"
+    },
+    "lookup_contact_by_name" : {
+        "hard_cap_probability": 0.9
+    }
+}

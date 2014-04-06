@@ -204,8 +204,7 @@ class CRM_Banking_PluginImpl_CSVImporter extends CRM_Banking_PluginModel_Importe
         // this is a *BAN entry -> look it up
         if (!isset($this->account_cache[$value])) {
           $result = civicrm_api('BankingAccountReference', 'getsingle', array('version' => 3, 'reference' => $value));
-          if ($result['is_error']) {
-            //CRM_Core_Session::setStatus(sprintf(ts("Internal error while looking up bank account '%s'. Error was: %s"), $value, $result['error_message']), ts('Error'), 'alert');
+          if (!empty($result['is_error'])) {
             $this->account_cache[$value] = NULL;
           } else {
             $this->account_cache[$value] = $result['ba_id'];
@@ -288,6 +287,20 @@ class CRM_Banking_PluginImpl_CSVImporter extends CRM_Banking_PluginModel_Importe
     // get value
     $value = $this->getValue($rule->from, $btx, $line, $header);
 
+    // check if-clause
+    if (isset($rule->if)) {
+      if (_csvimporter_helper_startswith($rule->if, 'equalto:')) {
+        $params = explode(":", $rule->if);
+        if ($value != $params[1]) return;
+      } elseif (_csvimporter_helper_startswith($rule->if, 'matches:')) {
+        $params = explode(":", $rule->if);
+        if (!preg_match($params[1], $value)) return;
+      } else {
+        print_r("CONDITION (IF) TYPE NOT YET IMPLEMENTED");
+        return;
+      }
+    }
+
     // execute the rule
     if (_csvimporter_helper_startswith($rule->type, 'set')) {
       // SET is a simple copy command:
@@ -314,6 +327,11 @@ class CRM_Banking_PluginImpl_CSVImporter extends CRM_Banking_PluginModel_Importe
       } else {
         $btx[$rule->to] = trim($value);
       }
+
+    } elseif (_csvimporter_helper_startswith($rule->type, 'replace')) {
+      // REPLACE will replace a substring
+      $params = explode(":", $rule->type);
+      $btx[$rule->to] = str_replace($params[1], $params[2], $value);
 
     } elseif (_csvimporter_helper_startswith($rule->type, 'format')) {
       // will use the sprintf format

@@ -4,6 +4,7 @@ Version History
 version 0.3.7
 =============
 - FIX: minor fixes in matcher_create
+- RegexAnalyser: added mapping action
 
 
 version 0.3.6

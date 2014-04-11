@@ -3,6 +3,7 @@ Version History
 
 version 0.3.6
 =============
+- FIX: php warning in dashboard (when no payments completeted)
 - FIX: percentages in statment view
 
 

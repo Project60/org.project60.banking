@@ -371,8 +371,8 @@ class CRM_Banking_Page_Payments extends CRM_Core_Page {
       }
 
       return array(
-        'analysed'       => round(($analysed_count+$completed_count) / $count * 100.0),
-        'completed'      => round($completed_count / $count * 100.0),
+        'analysed'       => floor(($analysed_count+$completed_count) / $count * 100.0),
+        'completed'      => floor($completed_count / $count * 100.0),
         'target_account' => "Unknown"
         );
     } else {

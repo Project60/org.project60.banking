@@ -1,6 +1,11 @@
 Version History
 ===============
 
+version 0.3.6
+=============
+- FIX: percentages in statment view
+
+
 version 0.3.5
 =============
 - added dashboard

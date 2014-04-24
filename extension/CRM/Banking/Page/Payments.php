@@ -180,17 +180,17 @@ class CRM_Banking_Page_Payments extends CRM_Core_Page {
     if ($_REQUEST['status_ids']==$payment_states['new']['id']) {
       // 'NEW' mode will show all that have not been completely analysed
       $this->assign('rows', $statements_new);
-      $this->assign('status_message', sizeof($statements_new).' incomplete statements.');
+      $this->assign('status_message', sprintf(ts("%d incomplete statments."), sizeof($statements_new)));
 
     } elseif ($_REQUEST['status_ids']==$payment_states['suggestions']['id']) {
       // 'ANALYSED' mode will show all that have been partially analysed, but not all completed
       $this->assign('rows', $statements_analysed);
-      $this->assign('status_message', sizeof($statements_analysed).' analysed statements.');
+      $this->assign('status_message', sprintf(ts("%d analysed statments."), sizeof($statements_analysed)));
 
     } else {
       // 'COMPLETE' mode will show all that have been entirely processed
       $this->assign('rows', $statements_completed);
-      $this->assign('status_message', sizeof($statements_completed).' completed statements.');
+      $this->assign('status_message', sprintf(ts("%d completed statments."), sizeof($statements_completed)));
     }
     
     $this->assign('target_accounts', $target_accounts);        
@@ -265,8 +265,19 @@ class CRM_Banking_Page_Payments extends CRM_Core_Page {
     }
 
     $this->assign('rows', $payment_rows);
-    $this->assign('status_message', sizeof($payment_rows).' unprocessed payments.');
     $this->assign('show', 'payments');        
+    if ($_REQUEST['status_ids']==$payment_states['new']['id']) {
+      // 'NEW' mode will show all that have not been completely analysed
+      $this->assign('status_message', sprintf(ts("%d new payments."), count($payment_rows)));
+
+    } elseif ($_REQUEST['status_ids']==$payment_states['suggestions']['id']) {
+      // 'ANALYSED' mode will show all that have been partially analysed, but not all completed
+      $this->assign('status_message', sprintf(ts("%d analysed payments."), count($payment_rows)));
+
+    } else {
+      // 'COMPLETE' mode will show all that have been entirely processed
+      $this->assign('status_message', sprintf(ts("%d completed payments."), count($payment_rows)));
+    }
   }
 
 

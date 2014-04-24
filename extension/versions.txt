@@ -3,7 +3,8 @@ Version History
 
 version 0.3.7
 =============
-- FIX: dashboard weeks shifted by one
+- FIX: payment view title wrong
+- FIX: dashboard was one week off
 - FIX: minor fixes in matcher_create
 - RegexAnalyser: added mapping action
 

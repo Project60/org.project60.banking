@@ -1295,3 +1295,31 @@ msgstr ""
 #: templates/CRM/Banking/Page/Dashboard.tpl
 msgid "There are no records for this time span."
 msgstr ""
+
+#: on/CRM/Banking/Page/Payments.php
+msgid "%d incomplete statments."
+msgstr ""
+
+#: on/CRM/Banking/Page/Payments.php
+msgid "%d analysed statments."
+msgstr ""
+
+#: on/CRM/Banking/Page/Payments.php
+msgid "%d completed statments."
+msgstr ""
+
+#: on/CRM/Banking/Page/Payments.php
+msgid "%d new payments."
+msgstr ""
+
+#: on/CRM/Banking/Page/Payments.php
+msgid "%d analysed payments."
+msgstr ""
+
+#: on/CRM/Banking/Page/Payments.php
+msgid "%d completed payments."
+msgstr ""
+
+#: on/CRM/Banking/PluginModel/Importer.php
+msgid "DRY RUN: Did not create bank transaction (%s %s on %s)"
+msgstr ""

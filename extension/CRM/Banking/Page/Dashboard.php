@@ -20,10 +20,10 @@ class CRM_Banking_Page_Dashboard extends CRM_Core_Page {
 		$weeks[] = date('YW', strtotime("now -$i weeks"));
     $account_based_data_sql = "
     SELECT
-      COUNT(*)             AS count,
-      YEARWEEK(value_date) AS year_week,
-      ba_id                AS bank_account_id,
-      status_id            AS status_id
+      COUNT(*)               AS count,
+      YEARWEEK(value_date,3) AS year_week,
+      ba_id                  AS bank_account_id,
+      status_id              AS status_id
     FROM
       civicrm_bank_tx
     GROUP BY

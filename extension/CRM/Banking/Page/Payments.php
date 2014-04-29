@@ -224,6 +224,9 @@ class CRM_Banking_Page_Payments extends CRM_Core_Page {
         $params = array('version' => 3, 'id' => $ba_id);
         $result = civicrm_api('BankingAccount', 'getsingle', $params);
         
+        $contact = null;
+        $attached_ba = null;
+        $party = null;
         if (!empty($entry['party_ba_id'])) {
           $pba_id = $entry['party_ba_id'];
           $params = array('version' => 3, 'id' => $pba_id);
@@ -231,7 +234,6 @@ class CRM_Banking_Page_Payments extends CRM_Core_Page {
         }
         
         $cid = isset($attached_ba['contact_id']) ? $attached_ba['contact_id'] : null;
-        $contact = null;
         if ($cid) {
           $params = array('version' => 3, 'id' => $cid);
           $contact = civicrm_api('Contact', 'getsingle', $params);

@@ -3,6 +3,7 @@ Version History
 
 version 0.3.7
 =============
+- FIX: payment view same contact shown repeatedly
 - FIX: payment view title wrong
 - FIX: dashboard was one week off
 - FIX: minor fixes in matcher_create

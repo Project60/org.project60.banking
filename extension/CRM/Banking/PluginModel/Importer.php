@@ -275,7 +275,7 @@ abstract class CRM_Banking_PluginModel_Importer extends CRM_Banking_PluginModel_
     // check for dry run
     if (isset($params['dry_run']) && $params['dry_run'] == "on") {
       // DRY RUN ENABLED
-      $this->reportProgress($progress, sprintf(ts("DRY RUN: Did not create bank transaction '%d' (%s %s on %s)"), $result['id'], number_format((float) $btx['amount'], 2), $btx['currency'], $btx['booking_date']));
+      $this->reportProgress($progress, sprintf(ts("DRY RUN: Did not create bank transaction (%s %s on %s)"), number_format((float) $btx['amount'], 2), $btx['currency'], $btx['booking_date']));
       return TRUE;
     } else {
       // attach to the transaction batch, if there is an open one

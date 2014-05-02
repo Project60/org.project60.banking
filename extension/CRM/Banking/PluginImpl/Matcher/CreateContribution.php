@@ -48,7 +48,7 @@ class CRM_Banking_PluginImpl_Matcher_CreateContribution extends CRM_Banking_Plug
     foreach ($config->required_values as $required_key) {
       if ($this->getPropagationValue($btx, $required_key)==NULL) {
         // there is no value given for this key => bail
-        error_log("Missing: $required_key");
+        //error_log("Missing: $required_key");
         return null;
       }
     }
@@ -120,8 +120,8 @@ class CRM_Banking_PluginImpl_Matcher_CreateContribution extends CRM_Banking_Plug
    */  
   function visualize_match( CRM_Banking_Matcher_Suggestion $match, $btx) {
 
-    $contribution = $this->get_contribution_data($btx, $contact_id);
     $contact_id = $match->getParameter('contact_id');
+    $contribution = $this->get_contribution_data($btx, $contact_id);
     $contact_link = CRM_Utils_System::url("civicrm/contact/view", "&reset=1&cid=$contact_id");
     
     // load contact
@@ -174,6 +174,9 @@ class CRM_Banking_PluginImpl_Matcher_CreateContribution extends CRM_Banking_Plug
     $contribution['contact_id'] = $contact_id;
     $contribution['total_amount'] = $btx->amount;
     $contribution['receive_date'] = $btx->value_date;
+    if (empty($contribution['currency'])) {
+      $contribution['currency'] = 'EUR';
+    }
     return $contribution;
   }
 }

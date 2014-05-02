@@ -32,22 +32,31 @@ td.week_incomplete {
 {foreach from=$account_week_data item=account_data key=account_id}
 <tr>
 	<td>{$account_names.$account_id}</td>
+	{assign var=done value=$account_data.before.done}
+	{if not $done}{assign var=done value=0}{/if}
+	{assign var=sum value=$account_data.before.sum}
+	{if not $sum}{assign var=sum value=0}{/if}
 
-	{if $account_data.before.sum == 0}
+	{if $sum == 0}
 	<td class="week_none" title="{ts}There are no records for this time span.{/ts}"><i>{ts}no records{/ts}</i></td>
-	{elseif $account_data.before.sum == $account_data.before.done}
-	<td class="week_complete" title="{$account_data.before.done} / {$account_data.before.sum}">100&nbsp;%</td>
+	{elseif $sum == $done}
+	<td class="week_complete" title="{$done} / {$sum}">100&nbsp;%</td>
 	{else}
-	<td class="week_incomplete" title="{$account_data.before.done} / {$account_data.before.sum}">{math equation="floor(done/count*100.0)" done=$account_data.before.done count=$account_data.before.sum}&nbsp;%</td>
+	<td class="week_incomplete" title="{$done} / {$sum}">{math equation="floor(done/count*100.0)" done=$done count=$sum}&nbsp;%</td>
 	{/if}
 
 {foreach from=$weeks item=week}
-	{if $account_data.$week.sum == 0}
+	{assign var=done value=$account_data.$week.done}
+	{if not $done}{assign var=done value=0}{/if}
+	{assign var=sum value=$account_data.$week.sum}
+	{if not $sum}{assign var=sum value=0}{/if}
+
+	{if $sum == 0}
 	<td class="week_none" title="{ts}There are no records for this time span.{/ts}"><i>{ts}no records{/ts}</i></td>
-	{elseif $account_data.$week.sum == $account_data.$week.done}
-	<td class="week_complete" title="{$account_data.$week.done} / {$account_data.$week.sum}">100&nbsp;%</td>
+	{elseif $sum == $done}
+	<td class="week_complete" title="{$done} / {$sum}">100&nbsp;%</td>
 	{else}
-	<td class="week_incomplete" title="{$account_data.$week.done} / {$account_data.$week.sum}">{math equation="floor(done/count*100.0)" done=$account_data.$week.done count=$account_data.$week.sum}&nbsp;%</td>
+	<td class="week_incomplete" title="{$done} / {$sum}">{math equation="floor(done/count*100.0)" done=$done count=$sum}&nbsp;%</td>
 	{/if}
 {/foreach}
 <tr>

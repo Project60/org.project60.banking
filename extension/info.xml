@@ -8,8 +8,8 @@
     <author>CiviCRM banking integration working group ("Project 60")</author>
     <email>endres@systopia.de</email>
   </maintainer>
-  <releaseDate>2014-04-03</releaseDate>
-  <version>0.3.5</version>
+  <releaseDate>2014-05-01</releaseDate>
+  <version>0.3.7</version>
   <develStage>alpha</develStage>
   <compatibility>
     <ver>4.4</ver>

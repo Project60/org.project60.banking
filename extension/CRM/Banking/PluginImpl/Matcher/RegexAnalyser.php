@@ -95,6 +95,15 @@ class CRM_Banking_PluginImpl_Matcher_RegexAnalyser extends CRM_Banking_PluginMod
         // SET value regardless of the match contect
         $data_parsed[$action->to] = $action->value;
 
+      } elseif ($action->action=='map') {
+        // SET value regardless of the match contect
+        $value = $match_data[$action->from][$match_index];
+        if (isset($action->mapping->$value)) {
+          $data_parsed[$action->to] = $action->mapping->$value;
+        } else {
+          error_log("org.project60.banking: RegexAnalyser - incomplete mapping: '".$action->action."'");
+        }
+
       } elseif (substr($action->action, 0, 7) =='lookup:') {
         // LOOK UP values via API::getsingle
         //   parameters are in format: "EntityName,result_field,lookup_field"

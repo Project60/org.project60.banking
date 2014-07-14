@@ -199,6 +199,7 @@ class CRM_Banking_PluginImpl_Matcher_SepaMandate extends CRM_Banking_PluginModel
     $result = civicrm_api('Contribution', 'create', $query);
 
     if (isset($result['is_error']) && $result['is_error']) {
+      error_log("org.project60.sepa: matcher_sepa: Couldn't modify contribution, error was: ".$result['error_message']);
       CRM_Core_Session::setStatus(ts("Couldn't modify contribution."), ts('Error'), 'error');
 
     } else {

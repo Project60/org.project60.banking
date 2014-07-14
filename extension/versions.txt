@@ -3,6 +3,7 @@ Version History
 
 version 0.3.8
 =============
+- FIX #47: don't allow import of payments w/o dates
 - FIX #48: don't override data in manual suggestion
 - FIX: flawed German translation caused problems with importer dry run
 

@@ -270,6 +270,17 @@ abstract class CRM_Banking_PluginModel_Importer extends CRM_Banking_PluginModel_
       $btx['status_id'] = $this->_default_btx_state_id;
     }
 
+    // check if booking_date is properly set
+    if (strtotime($btx['booking_date'])===FALSE) {
+      $this->reportProgress($progress, ts("No valid booking date detected. Not imported!"), CRM_Banking_PluginModel_Base::REPORT_LEVEL_ERROR);
+      return FALSE;
+    }
+
+    // check if value_date is properly set
+    if (strtotime($btx['value_date'])===FALSE) {
+      $this->reportProgress($progress, ts("No valid value date detected. Not imported!"), CRM_Banking_PluginModel_Base::REPORT_LEVEL_ERROR);
+      return FALSE;
+    }
 
     // now store...
     // check for dry run

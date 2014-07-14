@@ -168,13 +168,16 @@ abstract class CRM_Banking_PluginModel_Matcher extends CRM_Banking_PluginModel_B
    * If a subset (e.g. 'contribution') is given, only 
    * the keys targeting this entity are returned
    */
-  public function getPropagationKeys($subset='') {
+  public function getPropagationKeys($subset='', $propagation_config = NULL) {
+    if ($propagation_config==NULL) {
+      $propagation_config = $this->_plugin_config->value_propagation;
+    }
     $keys = array();
-    if (!isset($this->_plugin_config->value_propagation)) {
+    if (!isset($propagation_config)) {
       return $keys;
     }
 
-    foreach ($this->_plugin_config->value_propagation as $key => $target_key) {
+    foreach ($propagation_config as $key => $target_key) {
       if ($subset) {
         if (substr($target_key, 0, strlen($subset))==$subset) {
           $keys[$key] = $target_key;
@@ -250,8 +253,8 @@ abstract class CRM_Banking_PluginModel_Matcher extends CRM_Banking_PluginModel_B
    *
    * ...which you can pass right into your create contribtion call
    */
-  public function getPropagationSet($btx, $subset = '') {
-    $propagation_set = $this->getPropagationKeys($subset);
+  public function getPropagationSet($btx, $subset = '', $propagation_config = NULL) {
+    $propagation_set = $this->getPropagationKeys($subset, $propagation_config);
     $propagation_values = array();
 
     foreach ($propagation_set as $key => $target_key) {

@@ -39,6 +39,7 @@ class CRM_Banking_PluginImpl_Matcher_DefaultOptions extends CRM_Banking_PluginMo
     if (!isset($config->manual_message)) $config->manual_message = "Please configure";
     if (!isset($config->manual_contribution)) $config->manual_contribution = "Contribution:";
     if (!isset($config->default_financial_type_id)) $config->default_financial_type_id = 1;
+    if (!isset($config->createnew_value_propagation)) $config->createnew_value_propagation = array();
 
     if (!isset($config->ignore_enabled)) $config->ignore_enabled = true;
     if (!isset($config->ignore_probability)) $config->ignore_probability = 0.1;
@@ -199,7 +200,7 @@ class CRM_Banking_PluginImpl_Matcher_DefaultOptions extends CRM_Banking_PluginMo
 
       // get propagated data for contributions
       $contribution_propagated_data = '';
-      foreach ($this->getPropagationSet($btx, 'contribution') as $key => $value) {
+      foreach ($this->getPropagationSet($btx, 'contribution', $this->_plugin_config->createnew_value_propagation) as $key => $value) {
         $contribution_propagated_data .= '"'.$key.'": "'.$value.'",';
       }
 

@@ -1,6 +1,12 @@
 Version History
 ===============
 
+version 0.3.8
+=============
+- FIX #48: don't override data in manual suggestion
+- FIX: flawed German translation caused problems with importer dry run
+
+
 version 0.3.7
 =============
 - FIX: payment view same contact shown repeatedly

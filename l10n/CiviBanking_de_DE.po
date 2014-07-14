@@ -1299,7 +1299,7 @@ msgstr "%d abgeschlossene Zahlungen."
 
 #: on/CRM/Banking/PluginModel/Importer.php
 msgid "DRY RUN: Did not create bank transaction (%s %s on %s)"
-msgstr "TESTLAUF: Keine Zahlung angelegt '%d' (%s %s on %s)"
+msgstr "TESTLAUF: Keine Zahlung angelegt (%s %s on %s)"
 
 #, fuzzy
 #~ msgid "Payment count<"

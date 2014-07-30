@@ -1,10 +1,12 @@
 Version History
 ===============
 
-
 version 0.3.9
 =============
-
+- FIX #56: removed dummy menu entry
+- FIX #55: dont_ignore list for ignore matcher
+- FIX #54: contact link in account search
+- FIX #57: sepa matcher date range check
 
 
 version 0.3.8

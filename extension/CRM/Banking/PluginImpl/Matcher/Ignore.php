@@ -27,6 +27,9 @@ class CRM_Banking_PluginImpl_Matcher_Ignore extends CRM_Banking_PluginModel_Matc
    */
   function __construct($config_name) {
     parent::__construct($config_name);
+    $config = $this->_plugin_config;
+    if (!isset($config->ignore)) $config->ignore = array();
+    if (!isset($config->dont_ignore)) $config->dont_ignore = array();
   }
 
   public function match(CRM_Banking_BAO_BankTransaction $btx, CRM_Banking_Matcher_Context $context) {
@@ -40,10 +43,22 @@ class CRM_Banking_PluginImpl_Matcher_Ignore extends CRM_Banking_PluginModel_Matc
       // iterate through the ignore list
       foreach ($config->ignore as $ignore_record) {
         if ($this->matches_pattern($ignore_record, $btx, $context)) {
-          if (isset($ignore_record->precision)) {
-            $suggestion->addEvidence($ignore_record->precision, $ignore_record->message);
-          } else {
-            $suggestion->addEvidence(1, $ignore_record->message);
+          $ignore_this = TRUE;
+          // this $btx is to be ignored, but check if it happens to be on the "don't ignore" list
+          foreach ($config->dont_ignore as $dont_ignore_record) {
+            if ($this->matches_pattern($dont_ignore_record, $btx, $context)) {
+              // ok, this should not be ignored after all...
+              $ignore_this = FALSE;
+              break;  // doesn't matter why it should not be ignored
+            }
+          }
+
+          if ($ignore_this) {
+            if (isset($ignore_record->precision)) {
+              $suggestion->addEvidence($ignore_record->precision, $ignore_record->message);
+            } else {
+              $suggestion->addEvidence(1, $ignore_record->message);
+            }
           }
         }
       }

@@ -220,9 +220,13 @@ class CRM_Banking_Page_Payments extends CRM_Core_Page {
         $status = $payment_states[$entry['status_id']]['label'];
         $data_parsed = json_decode($entry['data_parsed'], true);
 
-        $ba_id = $entry['ba_id'];
-        $params = array('version' => 3, 'id' => $ba_id);
-        $result = civicrm_api('BankingAccount', 'getsingle', $params);
+        if (empty($entry['ba_id'])) {
+          $bank_account = array('description' => ts('Unknown'));
+        } else {
+          $ba_id = $entry['ba_id'];
+          $params = array('version' => 3, 'id' => $ba_id);
+          $bank_account = civicrm_api('BankingAccount', 'getsingle', $params);
+        } 
         
         $contact = null;
         $attached_ba = null;
@@ -256,7 +260,7 @@ class CRM_Banking_Page_Payments extends CRM_Core_Page {
                     'sequence' => $entry['sequence'], 
                     'currency' => $entry['currency'], 
                     'amount' => (isset($entry['amount'])?$entry['amount']:"unknown"), 
-                    'account_owner' => $result['description'], 
+                    'account_owner' => $bank_account['description'], 
                     'party' => $party,
                     'party_contact' => $contact,
                     'state' => $status,

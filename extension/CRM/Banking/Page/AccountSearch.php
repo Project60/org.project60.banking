@@ -61,7 +61,7 @@ class CRM_Banking_Page_AccountSearch extends CRM_Core_Page {
                 array(
                     'display_name' => $dao->display_name,
                     'contact_type' => $dao->contact_type,
-                    'contact_link' => CRM_Utils_System::url('civicrm/contact/view', 'cid='.$dao->id),
+                    'contact_link' => CRM_Utils_System::url('civicrm/contact/view', 'reset=1&cid='.$dao->id),
                     'reference' => $dao->reference,
                     'reference_type' => $this->lookup_type($types, $dao->reference_type_id),
                     'data_parsed' => json_decode($dao->data_parsed),

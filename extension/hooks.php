@@ -71,6 +71,7 @@ function banking_civicrm_navigationMenu(&$params) {
               ),
               'child' => null
           ),
+          /* see https://github.com/Project60/CiviBanking/issues/56
           $level => array(
               'attributes' => array(
                   'label' => ts('Manage Accounts'),
@@ -84,7 +85,7 @@ function banking_civicrm_navigationMenu(&$params) {
                   'active' => 1
               ),
               'child' => null
-          ),
+          ),*/
           $level => array(
               'attributes' => array(
                   'label' => ts('Import Payments'),

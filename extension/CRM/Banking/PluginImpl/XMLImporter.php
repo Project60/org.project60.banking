@@ -66,8 +66,6 @@ class CRM_Banking_PluginImpl_XMLImporter extends CRM_Banking_PluginModel_Importe
    */
   function initDocument($file_path, $params ) {
     // TODO: Error handling
-    error_log($file_path);
-    error_log($this->document->documentURI);
     if ($this->document && $this->document->documentURI == $file_path) return;
 
     // document not yet parsed => do it
@@ -131,9 +129,19 @@ class CRM_Banking_PluginImpl_XMLImporter extends CRM_Banking_PluginModel_Importe
   function probe_file( $file_path, $params )
   {
     $this->initDocument($file_path, $params);
+    // TODO: error handling
 
-    // TODO: error handling & impement probe
-    return true;
+    if (isset($this->_plugin_config->probe)) {
+      $value = $this->xpath->query($this->_plugin_config->probe);
+      if (get_class($value)=='DOMNodeList') {
+        return $value->length > 0;
+      } else {
+        return !empty($value);
+      }
+    } else {
+      // no probe string set -> done.
+      return true;
+    }
   }
 
 
@@ -161,7 +169,7 @@ class CRM_Banking_PluginImpl_XMLImporter extends CRM_Banking_PluginModel_Importe
     $index = 0;
     foreach ($payments as $payment_node) {
       $index += 1;
-      $this->import_payment($payment_node, $stmt_data, $index, count($payments));
+      $this->import_payment($payment_node, $stmt_data, $index, $payments->length);
     }
 
     // finish statement object

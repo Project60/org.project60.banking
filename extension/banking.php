@@ -99,6 +99,12 @@ function banking_civicrm_options() {
                   'description' => 'This importer should be configurable to import any CSV based data.',
                   'is_default' => 0,
               ),
+              'importer_xml' => array(
+                  'label' => 'Configurable XML Importer',
+                  'value' => 'CRM_Banking_PluginImpl_XMLImporter',
+                  'description' => 'This importer should be configurable to import a variety of XML based data.',
+                  'is_default' => 0,
+              ),
               'matcher_generic' => array(
                   'label' => 'Generic Matcher Plugin',
                   'value' => 'CRM_Banking_PluginImpl_Matcher_Generic',

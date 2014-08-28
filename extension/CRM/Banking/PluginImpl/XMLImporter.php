@@ -169,7 +169,7 @@ class CRM_Banking_PluginImpl_XMLImporter extends CRM_Banking_PluginModel_Importe
     $index = 0;
     foreach ($payments as $payment_node) {
       $index += 1;
-      $this->import_payment($payment_node, $stmt_data, $index, $payments->length);
+      $this->import_payment($payment_node, $data, $index, $payments->length);
     }
 
     // finish statement object
@@ -221,7 +221,7 @@ class CRM_Banking_PluginImpl_XMLImporter extends CRM_Banking_PluginModel_Importe
     }
 
     // copy tx. prefixed payment data
-    foreach ($data as $key => $value) {
+    foreach ($stmt_data as $key => $value) {
       if ($this->startsWith($key, 'tx.')) {
         $data[substr($key, 3)] = $value;
       }

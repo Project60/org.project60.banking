@@ -285,8 +285,7 @@ class CRM_Banking_PluginImpl_XMLImporter extends CRM_Banking_PluginModel_Importe
     $data['data_parsed'] = json_encode($btx_parsed_data);
 
     // and finally write it into the DB
-    error_log(print_r($data, 1));
-    $duplicate = $this->checkAndStoreBTX($data, $progress, $params);
+    $duplicate = $this->checkAndStoreBTX($data, $progress);
 
     $this->reportProgress($progress, sprintf("Imported payment #%d", $index));
   }

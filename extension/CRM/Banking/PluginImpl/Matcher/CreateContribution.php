@@ -35,6 +35,7 @@ class CRM_Banking_PluginImpl_Matcher_CreateContribution extends CRM_Banking_Plug
     if (!isset($config->auto_exec)) $config->auto_exec = false;
     if (!isset($config->required_values)) $config->required_values = array("btx.financial_type_id", "btx.campaign_id");
     if (!isset($config->factor)) $config->factor = 1.0;
+    if (!isset($config->threshold)) $config->threshold = 0.0;
     if (!isset($config->lookup_contact_by_name)) $config->lookup_contact_by_name = array("hard_cap_probability" => 0.9);
   }
 

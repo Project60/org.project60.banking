@@ -85,19 +85,35 @@ class CRM_Banking_PluginImpl_Matcher_RegexAnalyser extends CRM_Banking_PluginMod
     foreach ($rule->actions as $action) {
       if ($action->action=='copy') {
         // COPY value from match group to parsed data
-        $data_parsed[$action->to] = $match_data[$action->from][$match_index];
+        $data_parsed[$action->to] = $this->getValue($action->from, $match_data, $match_index, $data_parsed);
+
+      } elseif ($action->action=='copy_append') {
+        // COPY value, but append to the target
+        $data_parsed[$action->to] .= $this->getValue($action->from, $match_data, $match_index, $data_parsed);
 
       } elseif ($action->action=='copy_ltrim_zeros') {
-        // SET value regardless of the match contect
-        $data_parsed[$action->to] = ltrim($match_data[$action->from][$match_index], '0');
+        // COPY value, but remove leading zeros
+        $data_parsed[$action->to] = ltrim($this->getValue($action->from, $match_data, $match_index, $data_parsed));
 
       } elseif ($action->action=='set') {
-        // SET value regardless of the match contect
+        // SET value regardless of the match context
         $data_parsed[$action->to] = $action->value;
 
+      } elseif ($action->action=='calculate') {
+        // CALCULATE the new value with an php expression, using {}-based tokens
+        $expression = $action->from;
+        $matches = array();
+        while (preg_match('#(?P<variable>{[^}]+})#', $expression, $matches)) {
+          // replace variable with value
+          $token = trim($matches[0], '{}');
+          $value = $this->getValue($token, $match_data, $match_index, $data_parsed);
+          $expression = preg_replace('#(?P<variable>{[^}]+})#', $value, $expression, 1);
+        }
+        $data_parsed[$action->to] = eval("return $expression;");
+
       } elseif ($action->action=='map') {
-        // SET value regardless of the match contect
-        $value = $match_data[$action->from][$match_index];
+        // MAP a value given a list of replacements
+        $value = $this->getValue($action->from, $match_data, $match_index, $data_parsed);
         if (isset($action->mapping->$value)) {
           $data_parsed[$action->to] = $action->mapping->$value;
         } else {
@@ -108,7 +124,7 @@ class CRM_Banking_PluginImpl_Matcher_RegexAnalyser extends CRM_Banking_PluginMod
         // LOOK UP values via API::getsingle
         //   parameters are in format: "EntityName,result_field,lookup_field"
         $params = split(',', substr($action->action, 7));
-        $value = $match_data[$action->from][$match_index];
+        $value = $this->getValue($action->from, $match_data, $match_index, $data_parsed);
         $result = civicrm_api($params[0], 'getsingle', array($params[2] => $value, 'version' => 3));
         if (empty($result['is_error'])) {
           // something was found... copy value
@@ -119,6 +135,20 @@ class CRM_Banking_PluginImpl_Matcher_RegexAnalyser extends CRM_Banking_PluginMod
       }
     }
   }
+
+  /**
+   * Get the value either from the match context, or the already stored data
+   */
+  protected function getValue($key, $match_data, $match_index, $data_parsed) {
+    if (!empty($match_data[$key][$match_index])) {
+      return $match_data[$key][$match_index];
+    } else if (!empty($data_parsed[$key])) {
+      return $data_parsed[$key];
+    } else {
+      error_log("org.project60.banking: RexgexAnalyser - Cannot find source '$key' for rule or filter.");
+      return '';
+    }
+  }  
 }
 
 

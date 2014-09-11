@@ -3,6 +3,7 @@ Version History
 
 version 0.3.9
 =============
+- Imlemented XML Importer
 - FIX #56: removed dummy menu entry
 - FIX #55: dont_ignore list for ignore matcher
 - FIX #54: contact link in account search

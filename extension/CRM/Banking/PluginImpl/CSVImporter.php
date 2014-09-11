@@ -367,8 +367,11 @@ class CRM_Banking_PluginImpl_CSVImporter extends CRM_Banking_PluginModel_Importe
         // we found it!
         $btx[$rule->to] = $matches[1];
       } else {
-        $this->reportProgress(CRM_Banking_PluginModel_Base::REPORT_PROGRESS_NONE, 
-          sprintf(ts("Pattern '%s' was not found in entry '%s'."), $pattern, $value));
+        // check, if we should warn: (not set = 'warn' for backward compatibility)
+        if (!isset($rule->warn) || $rule->warn) {
+          $this->reportProgress(CRM_Banking_PluginModel_Base::REPORT_PROGRESS_NONE, 
+            sprintf(ts("Pattern '%s' was not found in entry '%s'."), $pattern, $value));          
+        }
       }
 
     } else {

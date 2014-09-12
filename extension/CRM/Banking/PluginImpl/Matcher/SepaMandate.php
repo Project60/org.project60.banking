@@ -39,6 +39,19 @@ class CRM_Banking_PluginImpl_Matcher_SepaMandate extends CRM_Banking_PluginModel
     if (!isset($config->received_date_minimum)) $config->received_date_minimum = "-10 days";
     if (!isset($config->received_date_maximum)) $config->received_date_maximum = "+10 days";
     if (!isset($config->deviation_penalty)) $config->deviation_penalty = 0.1;
+    if (!isset($config->value_propagation)) $config->value_propagation = array();
+
+    if (!isset($config->cancellation_enabled)) $config->cancellation_enabled = FALSE;
+    if (!isset($config->cancellation_default_reason)) $config->cancellation_default_reason = ts("Unspecified SEPA cancellation");
+    if (!isset($config->cancellation_date_minimum)) $config->cancellation_date_minimum = "-10 days";
+    if (!isset($config->cancellation_date_maximum)) $config->cancellation_date_maximum = "+30 days";
+    if (!isset($config->cancellation_amount_relative_minimum)) $config->cancellation_amount_relative_minimum = 1.0;
+    if (!isset($config->cancellation_amount_relative_maximum)) $config->cancellation_amount_relative_maximum = 1.0;
+    if (!isset($config->cancellation_amount_absolute_minimum)) $config->cancellation_amount_absolute_minimum = 1.0;
+    if (!isset($config->cancellation_amount_absolute_maximum)) $config->cancellation_amount_absolute_maximum = 1.0;
+    if (!isset($config->cancellation_amount_penalty)) $config->cancellation_amount_penalty = $config->deviation_penalty;
+    if (!isset($config->cancellation_penalty_threshold)) $config->cancellation_penalty_threshold = $config->deviation_penalty;
+    if (!isset($config->cancellation_value_propagation)) $config->cancellation_value_propagation = $config->value_propagation;
   }
 
   public function match(CRM_Banking_BAO_BankTransaction $btx, CRM_Banking_Matcher_Context $context) {
@@ -46,6 +59,7 @@ class CRM_Banking_PluginImpl_Matcher_SepaMandate extends CRM_Banking_PluginModel
     $threshold = $config->threshold;
     $data_parsed = $btx->getDataParsed();
     $probability = 1.0;
+    $cancellation_mode = ((bool) $config->cancellation_enabled) && ($btx->amount < 0);
 
     // look for the 'sepa_mandate' key
     if (empty($data_parsed['sepa_mandate'])) return null;
@@ -64,8 +78,13 @@ class CRM_Banking_PluginImpl_Matcher_SepaMandate extends CRM_Banking_PluginModel
     } elseif ($mandate['entity_table']=='civicrm_contribution_recur') {
       $contribution_recur_id = $mandate['entity_id'];
       $value_date = strtotime($btx->value_date);
-      $earliest_date = date('Ymdhis', strtotime($config->received_date_minimum, $value_date));
-      $latest_date = date('Ymdhis', strtotime($config->received_date_maximum, $value_date));
+      if ($cancellation_mode) {
+        $earliest_date = date('Ymdhis', strtotime($config->cancellation_date_minimum, $value_date));
+        $latest_date = date('Ymdhis', strtotime($config->cancellation_date_maximum, $value_date));        
+      } else {
+        $earliest_date = date('Ymdhis', strtotime($config->received_date_minimum, $value_date));
+        $latest_date = date('Ymdhis', strtotime($config->received_date_maximum, $value_date));        
+      }
 
       $contribution_id = 0;
       $find_contribution_query = "
@@ -113,21 +132,47 @@ class CRM_Banking_PluginImpl_Matcher_SepaMandate extends CRM_Banking_PluginModel
     $suggestion->setParameter('contribution_id', $contribution_id);
     $suggestion->setParameter('mandate_id', $mandate['id']);
     $suggestion->setParameter('mandate_reference', $mandate_reference);
-    $suggestion->setTitle(ts("SEPA SDD Payment"));
+    
+    if (!$cancellation_mode) {
+      // STANDARD SUGGESTION:
+      $suggestion->setTitle(ts("SEPA SDD Payment"));
 
-    // ...but: add penalties for deviations in amount,status,deleted contact
-    if ($btx->amount != $contribution['total_amount']) {
-      $suggestion->addEvidence($config->deviation_penalty, ts("The contribution does not feature the expected amount."));
-      $probability -= $config->deviation_penalty;
-    }
-    $status_inprogress = banking_helper_optionvalue_by_groupname_and_name('contribution_status', 'In Progress');
-    if ($contribution['contribution_status_id'] != $status_inprogress) {
-      $suggestion->addEvidence($config->deviation_penalty, ts("The contribution does not have the expected status 'in Progress'."));
-      $probability -= $config->deviation_penalty;
-    }
-    if (!empty($contact['contact_is_deleted'])) {
-      $suggestion->addEvidence($config->deviation_penalty, ts("The contact this mandate belongs to has been deleted."));
-      $probability -= $config->deviation_penalty;
+      // add penalties for deviations in amount,status,deleted contact
+      if ($btx->amount != $contribution['total_amount']) {
+        $suggestion->addEvidence($config->deviation_penalty, ts("The contribution does not feature the expected amount."));
+        $probability -= $config->deviation_penalty;
+      }
+      $status_inprogress = banking_helper_optionvalue_by_groupname_and_name('contribution_status', 'In Progress');
+      if ($contribution['contribution_status_id'] != $status_inprogress) {
+        $suggestion->addEvidence($config->deviation_penalty, ts("The contribution does not have the expected status 'in Progress'."));
+        $probability -= $config->deviation_penalty;
+      }
+      if (!empty($contact['contact_is_deleted'])) {
+        $suggestion->addEvidence($config->deviation_penalty, ts("The contact this mandate belongs to has been deleted."));
+        $probability -= $config->deviation_penalty;
+      }
+
+    } else {
+      // CANCELLATION SUGGESTION:
+      $suggestion->setTitle(ts("Cancel SEPA SDD Payment"));
+      $suggestion->setParameter('cancellation_mode', $cancellation_mode);
+
+      // calculate penalties (based on CRM_Banking_PluginImpl_Matcher_ExistingContribution::rateContribution)
+      $contribution_amount = $contribution['total_amount'];
+      $target_amount = -$context->btx->amount;
+      $amount_range_rel = $contribution_amount * ($config->cancellation_amount_relative_maximum - $config->cancellation_amount_relative_minimum);
+      $amount_range_abs = $config->cancellation_amount_absolute_maximum - $config->cancellation_amount_absolute_minimum;
+      $amount_range = max($amount_range_rel, $amount_range_abs);
+      $amount_delta = $contribution_amount - $target_amount;
+
+      // check for amount limits      
+      if ($amount_range) {
+        $penalty = $config->cancellation_amount_penalty * (abs($amount_delta) / $amount_range);
+        if ($penalty > $config->cancellation_penalty_threshold) {
+          $suggestion->addEvidence($config->cancellation_amount_penalty, ts("The cancellation fee, i.e. the deviation from the original amount, is not in the specified range."));
+          $probability -= $penalty;
+        }
+      }  
     }
 
     // store it
@@ -143,8 +188,14 @@ class CRM_Banking_PluginImpl_Matcher_SepaMandate extends CRM_Banking_PluginModel
    * @param type $match
    * @param type $btx
    */
-  public function execute($suggestion, $btx) {
-    $contribution_id = $suggestion->getParameter('contribution_id');
+  public function execute($match, $btx) {
+    $cancellation_mode = $match->getParameter('cancellation_mode');
+    if (!empty($cancellation_mode)) {
+      // CANCELLATION is an entirely different process...
+      return $this->executeCancellation($match, $btx);
+    }
+
+    $contribution_id = $match->getParameter('contribution_id');
     $status_pending = banking_helper_optionvalue_by_groupname_and_name('contribution_status', 'Pending');
     $status_inprogress = banking_helper_optionvalue_by_groupname_and_name('contribution_status', 'In Progress');
     $status_completed = banking_helper_optionvalue_by_groupname_and_name('contribution_status', 'Completed');
@@ -244,7 +295,58 @@ class CRM_Banking_PluginImpl_Matcher_SepaMandate extends CRM_Banking_PluginModel
 
     $newStatus = banking_helper_optionvalueid_by_groupname_and_name('civicrm_banking.bank_tx_status', 'Processed');
     $btx->setStatus($newStatus);
-    parent::execute($suggestion, $btx);
+    parent::execute($match, $btx);
+    return true;
+  }
+
+  /**
+   * Handle the different actions, should probably be handles at base class level ...
+   * 
+   * @param type $match
+   * @param type $btx
+   */
+  public function executeCancellation($match, $btx) {
+    $config = $this->_plugin_config;
+    $contribution_id = $match->getParameter('contribution_id');
+    $mandate_id = $match->getParameter('mandate_id');
+    $status_cancelled = banking_helper_optionvalue_by_groupname_and_name('contribution_status', 'Cancelled');
+
+    // set the status to 'Cancelled'
+    $query = array('version' => 3, 'id' => $contribution_id);
+    $query['contribution_status_id'] = $status_cancelled;
+    $query['cancel_date'] = date('Ymdhis', strtotime($btx->value_date));
+    $query['cancel_reason'] = $config->cancellation_default_reason;
+    $query = array_merge($query, $this->getPropagationSet($btx, 'contribution'));   // add propagated values
+    $result = civicrm_api('Contribution', 'create', $query);
+
+    if (isset($result['is_error']) && $result['is_error']) {
+      error_log("org.project60.sepa: matcher_sepa: Couldn't modify contribution, error was: ".$result['error_message']);
+      CRM_Core_Session::setStatus(ts("Couldn't modify contribution."), ts('Error'), 'error');
+
+    } else {
+      // now for the mandate...
+      $contribution = civicrm_api('Contribution', 'getsingle', array('version'=>3, 'id' => $contribution_id));
+      if (!empty($contribution['is_error'])) {
+        error_log("org.project60.sepa: matcher_sepa: Couldn't load contribution, error was: ".$result['error_message']);
+        CRM_Core_Session::setStatus(ts("Couldn't modify contribution."), ts('Error'), 'error');
+      } else {
+        if ($contribution['contribution_payment_instrument'] != 'RCUR') {
+          // everything seems fine, adjust the mandate's status
+          $query = array('version' => 3, 'id' => $mandate_id);
+          $query['status'] = 'INVALID';
+          $query = array_merge($query, $this->getPropagationSet($btx, 'mandate'));   // add propagated values
+          $result = civicrm_api('SepaMandate', 'create', $query);
+          if (!empty($result['is_error'])) {
+            error_log("org.project60.sepa: matcher_sepa: Couldn't modify mandate, error was: ".$result['error_message']);
+            CRM_Core_Session::setStatus(ts("Couldn't modify mandate."), ts('Error'), 'error');
+          }
+        }
+      }
+    }
+
+    $newStatus = banking_helper_optionvalueid_by_groupname_and_name('civicrm_banking.bank_tx_status', 'Processed');
+    $btx->setStatus($newStatus);
+    parent::execute($match, $btx);
     return true;
   }
 
@@ -271,6 +373,8 @@ class CRM_Banking_PluginImpl_Matcher_SepaMandate extends CRM_Banking_PluginModel
     $contribution_id = $match->getParameter('contribution_id');
     $mandate_id = $match->getParameter('mandate_id');
     $mandate_reference = $match->getParameter('mandate_reference');
+    $cancellation_mode = $match->getParameter('cancellation_mode');
+    $cancellation_mode = !(empty($cancellation_mode));
 
     $result = civicrm_api('Contribution', 'get', array('version' => 3, 'id' => $contribution_id));
     if (isset($result['id'])) {
@@ -287,7 +391,16 @@ class CRM_Banking_PluginImpl_Matcher_SepaMandate extends CRM_Banking_PluginModel
       $text .= sprintf(ts("This payment is a SEPA direct debit contribution by %s."), $contact_html)." ";
       $text .= sprintf(ts("The mandate reference is <a href=\"%s\" target=\"_blank\">%s</a>."), $mandate_link, $mandate_reference)." ";
       $text .= "</p><p>";
-      $text .= sprintf(ts("Contribution <a href=\"%s\" target=\"_blank\">[%s]</a> will be closed, as will be the sepa transaction group if this is the last contribution."), $contribution_link, $contribution_id)." ";
+      if (!$cancellation_mode) {
+        $text .= sprintf(ts("Contribution <a href=\"%s\" target=\"_blank\">[%s]</a> will be closed, as will be the sepa transaction group if this is the last contribution."), $contribution_link, $contribution_id)." ";
+      } else {
+        $text .= sprintf(ts("Contribution <a href=\"%s\" target=\"_blank\">[%s]</a> will be cancelled."), $contribution_link, $contribution_id)." ";
+        if ($contribution['contribution_payment_instrument'] == 'RCUR') {
+          $text .= ts("The mandate, however, will <i>not</i> be cancelled, since this is not the first of the recurring contributions.");
+        } else {
+          $text .= ts("The mandate will also be cancelled, its status will change to INVALID.");
+        }
+      }
       $text .= "</p></div>";
 
       // add warnings, if any
@@ -315,8 +428,13 @@ class CRM_Banking_PluginImpl_Matcher_SepaMandate extends CRM_Banking_PluginModel
    */  
   function visualize_execution_info( CRM_Banking_Matcher_Suggestion $match, $btx) {
     $contribution_id = $match->getParameter('contribution_id');
+    $cancellation_mode = $match->getParameter('cancellation_mode');
     $contribution_link = CRM_Utils_System::url("civicrm/contact/view/contribution", "action=view&reset=1&id=${contribution_id}&cid=2&context=home");
-    return "<p>".sprintf(ts("This SEPA payment was associated with <a href=\"%s\">contribution #%s</a>."), $contribution_link, $contribution_id)."</p>";
+    if (empty($cancellation_mode)) {
+      return "<p>".sprintf(ts("This SEPA payment was associated with <a href=\"%s\">contribution #%s</a>."), $contribution_link, $contribution_id)."</p>";
+    } else {
+      return "<p>".sprintf(ts("This SEPA payment cancelled <a href=\"%s\">contribution #%s</a>."), $contribution_link, $contribution_id)."</p>";
+    }
   }
 }
 

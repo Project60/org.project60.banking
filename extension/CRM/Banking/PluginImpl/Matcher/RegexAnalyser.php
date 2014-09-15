@@ -93,7 +93,7 @@ class CRM_Banking_PluginImpl_Matcher_RegexAnalyser extends CRM_Banking_PluginMod
 
       } elseif ($action->action=='copy_ltrim_zeros') {
         // COPY value, but remove leading zeros
-        $data_parsed[$action->to] = ltrim($this->getValue($action->from, $match_data, $match_index, $data_parsed));
+        $data_parsed[$action->to] = ltrim($this->getValue($action->from, $match_data, $match_index, $data_parsed), '0');
 
       } elseif ($action->action=='set') {
         // SET value regardless of the match context

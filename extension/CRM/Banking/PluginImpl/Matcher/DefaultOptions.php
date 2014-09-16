@@ -269,7 +269,7 @@ class CRM_Banking_PluginImpl_Matcher_DefaultOptions extends CRM_Banking_PluginMo
            * Loads a contact into to the option list. 
            * It also triggers loading the next id from the list in the hidden field 
            */
-          function manual_match_load_contact_into_contact_list(contact_id, select=false) {
+          function manual_match_load_contact_into_contact_list(contact_id, select) {
             CRM.api("Contact", "get", {"q": "civicrm/ajax/rest", "sequential": 1, "id": contact_id},
                 { success: function(data) {
                   if (data.count > 0) {

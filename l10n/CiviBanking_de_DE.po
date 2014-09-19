@@ -348,10 +348,12 @@ msgid "Rule '%s' failed. Exception was %s"
 msgstr "Regel '%s' ist fehlgeschlagen! Fehler war %s"
 
 #: on/CRM/Banking/PluginImpl/CSVImporter.php
+#: on/CRM/Banking/PluginImpl/XMLImporter.php
 msgid "Pattern '%s' was not found in entry '%s'."
 msgstr "Pattern '%s\" konnte im Eintrag '%s\" nicht gefunden werden."
 
 #: on/CRM/Banking/PluginImpl/CSVImporter.php
+#: on/CRM/Banking/PluginImpl/XMLImporter.php
 msgid "Importing streams not supported by this plugin."
 msgstr "Das Importieren von Streams wird von diesem Plugin nicht unterstützt."
 
@@ -1300,6 +1302,50 @@ msgstr "%d abgeschlossene Zahlungen."
 #: on/CRM/Banking/PluginModel/Importer.php
 msgid "DRY RUN: Did not create bank transaction (%s %s on %s)"
 msgstr "TESTLAUF: Keine Zahlung angelegt (%s %s on %s)"
+
+#: on/CRM/Banking/Page/Review.php
+msgid "<i>unknown date</i>"
+msgstr "<i>unbekanntes Datum</i>"
+
+#: on/CRM/Banking/PluginImpl/Matcher/SepaMandate.php
+msgid "Unspecified SEPA cancellation"
+msgstr "Unbekannte SEPA Stornierung"
+
+#: on/CRM/Banking/PluginImpl/Matcher/SepaMandate.php
+msgid "Cancel SEPA SDD Payment"
+msgstr "SEPA DD Einzug stornieren"
+
+#: on/CRM/Banking/PluginImpl/Matcher/SepaMandate.php
+msgid "The cancellation fee, i.e. the deviation from the original amount, is not in the specified range."
+msgstr "Die Stornogebühren, also die erkannt Abweichung vom Orignalbetrag, befindet sich außerhalb des eingestellten Toleranzbereichs."
+
+#: on/CRM/Banking/PluginImpl/Matcher/SepaMandate.php
+msgid "Couldn't modify mandate."
+msgstr "Konnte das Mandat nicht bearbeiten"
+
+#: on/CRM/Banking/PluginImpl/Matcher/SepaMandate.php
+msgid "Contribution <a href=\"%s\" target=\"_blank\">[%s]</a> will be cancelled."
+msgstr "Die Zuwendung <a href=\"%s\" target=\"_blank\">[%s]</a> wird geschlossen."
+
+#: on/CRM/Banking/PluginImpl/Matcher/SepaMandate.php
+msgid "The mandate, however, will <i>not</i> be cancelled, since this is not the first of the recurring contributions."
+msgstr "Das zugehörige Mandat wird allerdings <i>nicht</i> storniert, da dies nicht der erste Einzug zu diesem Mandat ist."
+
+#: on/CRM/Banking/PluginImpl/Matcher/SepaMandate.php
+msgid "The mandate will also be cancelled, its status will change to INVALID."
+msgstr "Das Mandat wird ebenfalls storniert, der Status wird auf INVALID gesetzt."
+
+#: on/CRM/Banking/PluginImpl/Matcher/SepaMandate.php
+msgid "This SEPA payment cancelled <a href=\"%s\">contribution #%s</a>."
+msgstr "Dieser SEPA-Eintrag storniert <a href=\"%s\">Zuwendung #%s</a>."
+
+#: on/CRM/Banking/PluginModel/Importer.php
+msgid "No valid booking date detected. Not imported!"
+msgstr "Kein valides Buchungsdatum erkannt. Nicht importiert!"
+
+#: on/CRM/Banking/PluginModel/Importer.php
+msgid "No valid value date detected. Not imported!"
+msgstr "Kein valides Wertstellungsdatum erkannt. Nicht importiert!"
 
 #, fuzzy
 #~ msgid "Payment count<"

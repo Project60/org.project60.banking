@@ -349,10 +349,12 @@ msgid "Rule '%s' failed. Exception was %s"
 msgstr ""
 
 #: on/CRM/Banking/PluginImpl/CSVImporter.php
+#: on/CRM/Banking/PluginImpl/XMLImporter.php
 msgid "Pattern '%s' was not found in entry '%s'."
 msgstr ""
 
 #: on/CRM/Banking/PluginImpl/CSVImporter.php
+#: on/CRM/Banking/PluginImpl/XMLImporter.php
 msgid "Importing streams not supported by this plugin."
 msgstr ""
 
@@ -1322,4 +1324,53 @@ msgstr ""
 
 #: on/CRM/Banking/PluginModel/Importer.php
 msgid "DRY RUN: Did not create bank transaction (%s %s on %s)"
+msgstr ""
+
+#: on/CRM/Banking/Page/Review.php
+msgid "<i>unknown date</i>"
+msgstr ""
+
+#: on/CRM/Banking/PluginImpl/Matcher/SepaMandate.php
+msgid "Unspecified SEPA cancellation"
+msgstr ""
+
+#: on/CRM/Banking/PluginImpl/Matcher/SepaMandate.php
+msgid "Cancel SEPA SDD Payment"
+msgstr ""
+
+#: on/CRM/Banking/PluginImpl/Matcher/SepaMandate.php
+msgid ""
+"The cancellation fee, i.e. the deviation from the original amount, is not in "
+"the specified range."
+msgstr ""
+
+#: on/CRM/Banking/PluginImpl/Matcher/SepaMandate.php
+msgid "Couldn't modify mandate."
+msgstr ""
+
+#: on/CRM/Banking/PluginImpl/Matcher/SepaMandate.php
+msgid ""
+"Contribution <a href=\"%s\" target=\"_blank\">[%s]</a> will be cancelled."
+msgstr ""
+
+#: on/CRM/Banking/PluginImpl/Matcher/SepaMandate.php
+msgid ""
+"The mandate, however, will <i>not</i> be cancelled, since this is not the "
+"first of the recurring contributions."
+msgstr ""
+
+#: on/CRM/Banking/PluginImpl/Matcher/SepaMandate.php
+msgid "The mandate will also be cancelled, its status will change to INVALID."
+msgstr ""
+
+#: on/CRM/Banking/PluginImpl/Matcher/SepaMandate.php
+msgid "This SEPA payment cancelled <a href=\"%s\">contribution #%s</a>."
+msgstr ""
+
+#: on/CRM/Banking/PluginModel/Importer.php
+msgid "No valid booking date detected. Not imported!"
+msgstr ""
+
+#: on/CRM/Banking/PluginModel/Importer.php
+msgid "No valid value date detected. Not imported!"
 msgstr ""

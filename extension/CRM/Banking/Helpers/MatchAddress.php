@@ -1,9 +1,24 @@
 <?php
+/*-------------------------------------------------------+
+| Project 60 - CiviBanking                               |
+| Copyright (C) 2013-2014 P. Delbar                      |
+| Author: P. Delbar                                      |
++--------------------------------------------------------+
+| This program is released as free software under the    |
+| Affero GPL v3 license. You can redistribute it and/or  |
+| modify it under the terms of this license which you    |
+| can read by viewing the included agpl.txt or online    |
+| at www.gnu.org/licenses/agpl.html. Removal of this     |
+| copyright header is strictly prohibited without        |
+| written permission from the original author(s).        |
++--------------------------------------------------------*/
 
 /**
  * This class assists in determining the address which matches this bank account's 
  * address, if one is specified. It serves the purpose of discovering 'who' 
  * (which Contact) is the owner of this bank account
+ *
+ * @deprecated ?
  */
 class CRM_Banking_Helpers_MatchAddress {
 

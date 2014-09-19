@@ -1,29 +1,17 @@
 <?php
-// $Id$
-/*
- +--------------------------------------------------------------------+
- | Project60 version 4.3                                              |
- +--------------------------------------------------------------------+
- | Copyright ???????? (c) 2004-2013                                   |
- +--------------------------------------------------------------------+
- |                                                                    |
- | CiviCRM is free software; you can copy, modify, and distribute it  |
- | under the terms of the GNU Affero General Public License           |
- | Version 3, 19 November 2007 and the CiviCRM Licensing Exception.   |
- |                                                                    |
- | CiviCRM is distributed in the hope that it will be useful, but     |
- | WITHOUT ANY WARRANTY; without even the implied warranty of         |
- | MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.               |
- | See the GNU Affero General Public License for more details.        |
- |                                                                    |
- | You should have received a copy of the GNU Affero General Public   |
- | License and the CiviCRM Licensing Exception along                  |
- | with this program; if not, contact CiviCRM LLC                     |
- | at info[AT]civicrm[DOT]org. If you have questions about the        |
- | GNU Affero General Public License or the licensing of CiviCRM,     |
- | see the CiviCRM license FAQ at http://civicrm.org/licensing        |
- +--------------------------------------------------------------------+
-*/
+/*-------------------------------------------------------+
+| Project 60 - CiviBanking                               |
+| Copyright (C) 2013-2014 P. Delbar                      |
+| Author: P. Delbar                                      |
++--------------------------------------------------------+
+| This program is released as free software under the    |
+| Affero GPL v3 license. You can redistribute it and/or  |
+| modify it under the terms of this license which you    |
+| can read by viewing the included agpl.txt or online    |
+| at www.gnu.org/licenses/agpl.html. Removal of this     |
+| copyright header is strictly prohibited without        |
+| written permission from the original author(s).        |
++--------------------------------------------------------*/
 
 /**
  * File for the CiviCRM APIv3 banking_payment functions

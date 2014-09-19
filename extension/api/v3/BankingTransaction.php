@@ -96,4 +96,63 @@ function civicrm_api3_banking_transaction_get($params) {
   return _civicrm_api3_basic_get('CRM_Banking_BAO_BankTransaction', $params);
 }
 
+/**
+ * Analyses the oldest (by value_date) <n> unprocessed bank transactions
+ *
+ * @param  array input parameters:
+ *           time: a range <from_time>-<to_time> (24h) where this should apply (for scheduled job execution)
+ *                    example: 23:00-04:00
+ *           count: a limit for the amount of bank transactions to be processed - to avoid timeouts
+ *
+ * @return  array api result array
+ * @access public
+ */
+function civicrm_api3_banking_transaction_analyseoldest($params) {
+  // first: check time restrictions
+  $now = strtotime('now');
+  if (!empty($params['time'])) {
+    // try to parse time
+    $times = explode('-', $params['time']);
+    $from = strtotime($times[0]);
+    $to = strtotime($times[1]);
+    if (empty($from) || $empty($to)) {
+      return civicrm_api3_create_error("Something's wrong with your time parameter. Expected format is 'hh:mm-hh:mm'.");
+    }
 
+    // now check the time
+    if ($from > $now) {
+      // this is a 'nomal' timing, e.g. 19:00-21:00
+      if ($now < $from || $now > $to) {
+        return civicrm_api3_create_success('Not active.');
+      }
+    } else {
+      // this is an 'overnight' timing, e.g. 23:00-03:00
+      if ($now < $from && $now > $to) {
+        return civicrm_api3_create_success('Not active.');
+      }
+    }
+  }
+
+  // extract max_count parameter
+  $max_count = 1000;
+  if (!empty($params['count']) && ((int) $params['count']) > 0) {
+    $max_count = (int) $params['count'];
+  }
+
+  // then execute
+  $engine = CRM_Banking_Matcher_Engine::getInstance();
+  $processed_count = $engine->bulkRun($max_count);
+  
+  // finally, compile the result
+  $after_exec = strtotime('now');
+  $result = array(
+    'max_count' =>        $max_count,
+    'processed_count' =>  $processed_count,
+    'time'            =>  ($after_exec - $now),
+  );
+  if ($processed_count > 0) {
+    $result['time_per_tx'] = ($after_exec - $now) / $processed_count;
+  }
+    
+  return civicrm_api3_create_success($result);
+}

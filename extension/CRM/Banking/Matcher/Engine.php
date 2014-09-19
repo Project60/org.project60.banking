@@ -25,6 +25,7 @@
  */
 
 require_once 'CRM/Banking/Helpers/OptionValue.php';
+require_once 'CRM/Banking/Helpers/Lock.php';
 
 class CRM_Banking_Matcher_Engine {
   
@@ -90,12 +91,20 @@ class CRM_Banking_Matcher_Engine {
    *                                    This will destroy all records of the execution!
    */
   public function match( CRM_Banking_BAO_BankTransaction $btx, $override_processed = FALSE ) {
+    $lock = banking_helper_getLock('tx', $btx->id);
+    if (!$lock->isAcquired()) {
+      error_log("org.project60.banking - couldn't acquire lock. Timeout is ".$lock->_timeout);
+      return false;
+    }
+
+    error_log("matching ".$btx->id);
     if (!$override_processed) {
       // don't match already executed transactions...
       $processed_status_id = banking_helper_optionvalueid_by_groupname_and_name('civicrm_banking.bank_tx_status', 'Processed');
       $ignored_status_id = banking_helper_optionvalueid_by_groupname_and_name('civicrm_banking.bank_tx_status', 'Ignored');
       if ($btx->status_id == $processed_status_id || $btx->status_id == $ignored_status_id) {
         // will not match already executed transactions
+        $lock->release();
         return true;
       }
     }
@@ -114,11 +123,17 @@ class CRM_Banking_Matcher_Engine {
         foreach ($plugins as $plugin) {
           // run matchers to generate suggestions
           $continue = $this->matchPlugin( $plugin, $context );
-          if (!$continue) return true;
+          if (!$continue) {
+            $lock->release();
+            return true;
+          }
 
           // check if we can execute the suggestion right aways
           $abort = $this->checkAutoExecute($plugin, $btx);
-          if ($abort) return false;
+          if ($abort) {
+            $lock->release();
+            return false;
+          }
         }
       }
     }    
@@ -129,6 +144,8 @@ class CRM_Banking_Matcher_Engine {
     $btx->status_id = $newStatus;
     $btx->setStatus($newStatus);
 
+    error_log("done matching ".$btx->id);
+    $lock->release();
     return false;
   }
   
@@ -143,8 +160,17 @@ class CRM_Banking_Matcher_Engine {
       foreach ($suggestions as $suggestion) {
         if ($suggestion->getPluginID()==$plugin->getPluginID()) {
           if ($suggestion->getProbability() >= $plugin->autoExecute()) {
+            $lock = banking_helper_getLock('tx', $btx->id);
+            if (!$lock->isAcquired()) {
+              error_log("org.project60.banking - couldn't acquire lock. Timeout is ".$lock->_timeout);
+              continue;
+            }
+
             $btx->saveSuggestions();
-            return $suggestion->execute( $btx, $plugin );
+            $result = $suggestion->execute( $btx, $plugin );
+
+            $lock->release();
+            return $result;
           }
         }
       }
@@ -172,5 +198,20 @@ class CRM_Banking_Matcher_Engine {
   }
   
   
-  
+  /**
+   * Bulk-run a set of <n> unprocessed items
+   *
+   * @param $max_count       the maximal amount of bank transactions to process
+   *
+   * @return the actual amount of bank transactions prcoessed
+   */
+  public function bulkRun($max_count) {
+    $unprocessed_ids = CRM_Banking_BAO_BankTransaction::findUnprocessedIDs($max_count);
+    foreach ($unprocessed_ids as $unprocessed_id) {
+      $btx_bao = new CRM_Banking_BAO_BankTransaction();
+      $btx_bao->get('id', $unprocessed_id);
+      $this->match($btx_bao);
+    }
+    return count($unprocessed_ids);
+  }
 }

@@ -202,5 +202,25 @@ class CRM_Banking_BAO_BankTransaction extends CRM_Banking_DAO_BankTransaction {
     $this->restoreSuggestions();
   }
 
+
+  /**
+   * Identify the IDs of <n> oldest (by value_date) yet unprocessed bank transactions
+   *
+   * @param $max_count       the maximal amount of bank transactions to process
+   *
+   * @return the actual amount of contributions processed
+   */
+  public static function findUnprocessedIDs($max_count) {
+    $results = array();
+    $maxcount = (int) $max_count;
+    $status_id_new = (int) banking_helper_optionvalueid_by_groupname_and_name('civicrm_banking.bank_tx_status', 'new');
+    $sql_query = "SELECT `id` AS txid FROM `civicrm_bank_tx` WHERE `status_id` = '$status_id_new' ORDER BY `value_date` LIMIT $maxcount";
+    error_log($sql_query);
+    $query_results = CRM_Core_DAO::executeQuery($sql_query);
+    while ($query_results->fetch()) {
+      $results[] = $query_results->txid;
+    }
+    return $results;
+  }
 }
 

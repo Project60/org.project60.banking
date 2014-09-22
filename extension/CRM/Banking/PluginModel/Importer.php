@@ -122,6 +122,8 @@ abstract class CRM_Banking_PluginModel_Importer extends CRM_Banking_PluginModel_
         $this->_current_transaction_batch->tx_count = 0;
         //       /\ 
 
+        // add a (unique) default reference (see https://github.com/Project60/CiviBanking/issues/60)
+        $this->_current_transaction_batch->reference = 'NOREF-' . md5(microtime());
         $this->_current_transaction_batch->save();
         $this->_current_transaction_batch_attributes['isnew'] = TRUE;
         $this->_current_transaction_batch_attributes['sum'] = 0;
@@ -173,8 +175,11 @@ abstract class CRM_Banking_PluginModel_Importer extends CRM_Banking_PluginModel_
           $this->_current_transaction_batch->ending_date = $this->_current_transaction_batch_attributes['ending_date'];
 
         // set default bank reference, if not set
-        if (!$this->_current_transaction_batch->reference)
+        if (   $this->_current_transaction_batch->reference == NULL
+            || substr($this->_current_transaction_batch->reference, 0, 6) == 'NOREF-') {
+          // replace generic references, starting with 'NOREF-'
           $this->_current_transaction_batch->reference = "{md5}";
+        }
 
         // replace tokens
         $reference = $this->_current_transaction_batch->reference;

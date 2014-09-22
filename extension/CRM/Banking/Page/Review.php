@@ -129,6 +129,8 @@ class CRM_Banking_Page_Review extends CRM_Core_Page {
           if ($suggestion->isExecuted()) {
             $execution_info['date'] = $suggestion->isExecuted();
             $execution_info['visualization'] = $suggestion->visualize_execution($btx_bao);
+            $execution_info['executed_by'] = $suggestion->getParameter('executed_by');
+            $execution_info['executed_automatically'] = $suggestion->getParameter('executed_automatically');
             break;
           }
         }
@@ -140,10 +142,37 @@ class CRM_Banking_Page_Review extends CRM_Core_Page {
         } else {
           $execution_date = ts("<i>unknown date</i>");
         }
-        if ($choices[$btx_bao->status_id]['name']=='processed') {
-          $message = sprintf(ts("This payment was <b>processed</b> on %s."), $execution_date);
+
+        if (!empty($execution_info['executed_by'])) {
+          // visualize more info, see https://github.com/Project60/CiviBanking/issues/71
+          // try to load contact
+          $user_id = $execution_info['executed_by'];
+          $user = civicrm_api('Contact', 'getsingle', array('id' => $user_id, 'version' => 3));
+          if (empty($user['is_error'])) {
+            $user_link = CRM_Utils_System::url("civicrm/contact/view", "&reset=1&cid=$user_id");            
+            $user_string = "<a href='$user_link'>" . $user['display_name'] . "</a>";
+          } else {
+            $user_string = ts('Unknown User') . ' ['.$user_id.']';
+          }
+
+          if (empty($execution_info['executed_automatically'])) {
+            $automated = '';
+          } else {
+            $automated = ts('automatically');
+          }
+
+          if ($choices[$btx_bao->status_id]['name']=='processed') {
+            $message = sprintf(ts("This payment was <b>%s processed</b> on %s by %s."), $automated, $execution_date, $user_string);
+          } else {
+            $message = sprintf(ts("This payment was <b>%s ignored</b> on %s by %s."), $automated, $execution_date, $user_string);
+          }          
         } else {
-          $message = sprintf(ts("This payment was marked to be <b>ignored</b> on %s."), $execution_date);
+          // visualize the previous, reduced information
+          if ($choices[$btx_bao->status_id]['name']=='processed') {
+            $message = sprintf(ts("This payment was <b>processed</b> on %s."), $execution_date);
+          } else {
+            $message = sprintf(ts("This payment was marked to be <b>ignored</b> on %s."), $execution_date);
+          }          
         }
         $this->assign('status_message', $message);
 

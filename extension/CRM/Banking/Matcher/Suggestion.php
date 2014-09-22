@@ -112,6 +112,8 @@ class CRM_Banking_Matcher_Suggestion {
 
     public function setExecuted() {
         $this->setParameter('executed', date('YmdHis'));
+        $user_id = CRM_Core_Session::singleton()->get('userID');
+        $this->setParameter('executed_by', $user_id);
     }
 
     public function isExecuted() {

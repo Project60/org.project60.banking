@@ -27,7 +27,6 @@ class CRM_Banking_BAO_BankTransactionBatch extends CRM_Banking_DAO_BankTransacti
    * @static
    */
   static function add(&$params) {
-    echo '<hr><hr>calling BTXB add with'; print_r($params);
     // add default dates
     if (!isset($params['issue_date']))
       $params['issue_date'] = date('YmdHis');

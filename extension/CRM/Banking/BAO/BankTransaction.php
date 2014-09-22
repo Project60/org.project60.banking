@@ -50,6 +50,28 @@ class CRM_Banking_BAO_BankTransaction extends CRM_Banking_DAO_BankTransaction {
     return $dao;
   }
 
+
+  /**
+   * Delete function addendum: update statement's count
+   *
+   * @see https://github.com/Project60/CiviBanking/issues/59
+   */
+  static function del($ba_id) {
+    // get batch (statement) id
+    $ba_bao = new CRM_Banking_BAO_BankTransaction();
+    $ba_bao->get('id', $ba_id);
+    $batch_id = $ba_bao->tx_batch_id;
+
+    // delete the transaction / payments
+    $ba_bao->delete();
+
+    // if $batch exists, update count
+    if (!empty($batch_id)) {
+      $new_count_query = "SELECT COUNT(`id`) FROM `civicrm_bank_tx` WHERE `tx_batch_id`='$batch_id'";
+      CRM_Core_DAO::executeQuery("UPDATE `civicrm_bank_tx_batch` SET `tx_count` = ($new_count_query) WHERE `id`='$batch_id';");
+    }
+  }
+
   /**
    * Get an CRM_Banking_BAO_BankAccount object representing the target/own bank account
    */

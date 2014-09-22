@@ -134,6 +134,22 @@ class CRM_Banking_PluginImpl_Matcher_ExistingContribution extends CRM_Banking_Pl
     return $contributions;
   }
 
+  /**
+   * read the IDs of the accepted contribution status from the configuration
+   *
+   * @return an array with contribution status IDs
+   */
+  protected function getAcceptedContributionStatusIDs() {
+    $accepted_status_ids = array();
+    foreach ($this->_plugin_config->accepted_contribution_states as $status_name) {
+      $status_id = banking_helper_optionvalue_by_groupname_and_name('contribution_status', $status_name);
+      if ($status_id) {
+        array_push($accepted_status_ids, $status_id);
+      }
+    }
+    return $accepted_status_ids;    
+  }
+
 
   public function match(CRM_Banking_BAO_BankTransaction $btx, CRM_Banking_Matcher_Context $context) {
     $config = $this->_plugin_config;
@@ -141,13 +157,7 @@ class CRM_Banking_PluginImpl_Matcher_ExistingContribution extends CRM_Banking_Pl
     $data_parsed = $btx->getDataParsed();
 
     // resolve accepted states
-    $accepted_status_ids = array();
-    foreach ($config->accepted_contribution_states as $status_name) {
-      $status_id = banking_helper_optionvalue_by_groupname_and_name('contribution_status', $status_name);
-      if ($status_id) {
-        array_push($accepted_status_ids, $status_id);
-      }
-    }
+    $accepted_status_ids = $this->getAcceptedContributionStatusIDs();
 
     // find contacts    
     $contacts_found = $context->findContacts($threshold, $data_parsed['name'], $config->lookup_contact_by_name);
@@ -220,6 +230,18 @@ class CRM_Banking_PluginImpl_Matcher_ExistingContribution extends CRM_Banking_Pl
     $contribution_id = $suggestion->getParameter('contribution_id');
     $query = array('version' => 3, 'id' => $contribution_id);
     $query = array_merge($query, $this->getPropagationSet($btx, 'contribution'));   // add propagated values
+
+    // double check contribution (see https://github.com/Project60/CiviBanking/issues/61)
+    $contribution = civicrm_api('Contribution', 'getsingle', array('id' => $contribution_id, 'version' => 3));
+    if (!empty($contribution['is_error'])) {
+      CRM_Core_Session::setStatus(ts('Contribution has disappeared.').' '.ts('Error was:').' '.$contribution['error_message'], ts('Execution Failure'), 'alert');
+      return false;
+    }
+    $accepted_status_ids = $this->getAcceptedContributionStatusIDs();
+    if (!in_array($contribution['contribution_status_id'], $accepted_status_ids)) {
+      CRM_Core_Session::setStatus(ts('Contribution status has been modified.'), ts('Execution Failure'), 'alert');
+      return false;
+    }
 
     // depending on mode...
     if ($this->_plugin_config->mode != "cancellation") {

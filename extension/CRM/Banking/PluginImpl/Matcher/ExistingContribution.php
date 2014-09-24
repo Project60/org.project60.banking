@@ -174,7 +174,7 @@ class CRM_Banking_PluginImpl_Matcher_ExistingContribution extends CRM_Banking_Pl
         // check for expected status
         if (!in_array($contribution['contribution_status_id'], $accepted_status_ids)) continue;
 
-        $contribution_probability = $contact_probabiliy * $this->rateContribution($contribution, $context);
+        $contribution_probability = $this->rateContribution($contribution, $context);
         if ($contribution_probability > $threshold) {
           $contributions[$contribution['id']] = $contribution_probability;
           $contribution2contact[$contribution['id']] = $contact_id;
@@ -189,7 +189,7 @@ class CRM_Banking_PluginImpl_Matcher_ExistingContribution extends CRM_Banking_Pl
       if ($contacts_found[$contact_id]>=1.0) {
         $suggestion->addEvidence(1.0, ts("Contact was positively identified."));
       } else {
-        $suggestion->addEvidence($contacts_found[$contact_id], ts("Contact was most likely identified."));
+        $suggestion->addEvidence($contacts_found[$contact_id], ts("Contact was likely identified."));
       }
       
       if ($contribution_probability>=1.0) {
@@ -202,7 +202,7 @@ class CRM_Banking_PluginImpl_Matcher_ExistingContribution extends CRM_Banking_Pl
       } else {
         $suggestion->setTitle(ts("Possible matching contribution found"));
         if ($config->mode != "cancellation") {
-          $suggestion->addEvidence($contacts_found[$contact_id], ts("A pending contribution partially matching the paymenty was found."));
+          $suggestion->addEvidence($contacts_found[$contact_id], ts("A pending contribution partially matching the payment was found."));
         } else {
           $suggestion->addEvidence($contacts_found[$contact_id], ts("This payment could be the <b>cancellation</b> of the below contribution."));
         }

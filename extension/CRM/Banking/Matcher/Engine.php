@@ -96,7 +96,6 @@ class CRM_Banking_Matcher_Engine {
       return false;
     }
 
-    error_log("matching ".$btx->id);
     if (!$override_processed) {
       // don't match already executed transactions...
       $processed_status_id = banking_helper_optionvalueid_by_groupname_and_name('civicrm_banking.bank_tx_status', 'Processed');
@@ -143,7 +142,6 @@ class CRM_Banking_Matcher_Engine {
     $btx->status_id = $newStatus;
     $btx->setStatus($newStatus);
 
-    error_log("done matching ".$btx->id);
     $lock->release();
     return false;
   }

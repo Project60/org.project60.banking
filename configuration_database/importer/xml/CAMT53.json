@@ -1,0 +1,140 @@
+{
+	"namespaces": {
+		"camt": "urn:iso:std:iso:20022:tech:xsd:camt.053.001.02"
+	},
+	"probe": "camt:BkToCstmrStmt/camt:GrpHdr/camt:MsgId",
+	"rules": [
+      {
+         "comment": "statement name is MsgId/LglSeqNb",
+         "from": "xpath:camt:BkToCstmrStmt/camt:GrpHdr/camt:MsgId",
+         "to":"tx_batch.reference",
+         "type":"set"
+      },
+      {
+         "comment": "statement name is MsgId/LglSeqNb",
+         "from": "xpath:camt:BkToCstmrStmt/camt:Stmt/camt:LglSeqNb",
+         "to":"tx_batch.reference",
+         "type":"append:/"
+      },
+      {
+         "comment": "statement sequence number",
+         "from": "xpath:camt:BkToCstmrStmt/camt:Stmt/camt:LglSeqNb",
+         "to":"tx_batch.sequence",
+         "type":"set"
+      },
+      {
+         "comment": "IBAN preset for payments",
+         "from": "xpath:camt:BkToCstmrStmt/camt:Stmt/camt:Acct/camt:Id/camt:IBAN",
+         "to":"tx._IBAN",
+         "type":"set"
+      },
+      {
+         "comment": "BIC preset for payments",
+         "from": "xpath:camt:BkToCstmrStmt/camt:Stmt/camt:Acct/camt:Svcr/camt:FinInstnId/camt:BIC",
+         "to":"tx._BIC",
+         "type":"set"
+      },
+      {
+         "comment": "starting time",
+         "from": "xpath:camt:BkToCstmrStmt/camt:Stmt/camt:FrToDt/camt:FrDtTm",
+         "to":"tx_batch.starting_date",
+         "type":"strtotime"
+      },
+      {
+         "comment": "ending time",
+         "from": "xpath:camt:BkToCstmrStmt/camt:Stmt/camt:FrToDt/camt:ToDtTm",
+         "to":"tx_batch.ending_date",
+         "type":"strtotime"
+      },
+      {
+         "comment": "statement currency",
+         "from": "xpath:camt:BkToCstmrStmt/camt:Stmt/camt:Bal[1]/camt:Amt/@Ccy",
+         "to":"tx_batch.currency",
+         "type":"set"
+      },
+      {
+         "comment": "statement starting balance. FIXME: include condition instead of position",
+         "from": "xpath:camt:BkToCstmrStmt/camt:Stmt/camt:Bal[2]/camt:Amt",
+         "to":"tx_batch.starting_balance",
+         "type":"amount"
+      },
+      {
+         "comment": "statement starting balance. FIXME: include condition instead of position",
+         "from": "xpath:camt:BkToCstmrStmt/camt:Stmt/camt:Bal[1]/camt:Amt",
+         "to":"tx_batch.ending_balance",
+         "type":"amount"
+      }
+
+	],
+	"payments": {
+		"path": "camt:BkToCstmrStmt/camt:Stmt/camt:Ntry",
+		"rules": [
+         {
+            "comment": "booking date",
+            "from": "xpath:camt:BookgDt/camt:Dt",
+            "to": "booking_date",
+            "type": "strtotime"
+         },
+         {
+            "comment": "value date",
+            "from": "xpath:camt:ValDt/camt:Dt",
+            "to": "value_date",
+            "type": "strtotime"
+         },
+         {
+            "comment": "Amount",
+            "from": "xpath:camt:Amt",
+            "to": "amount",
+            "type": "amount"
+         },
+         {
+            "comment": "Currency",
+            "from": "xpath:camt:Amt/@Ccy",
+            "to": "currency",
+            "type": "set"
+         },
+         {
+            "comment": "party IBAN",
+            "from": "xpath:camt:NtryDtls/camt:TxDtls/camt:RltdPties/camt:DbtrAcct/camt:Id/camt:IBAN",
+            "to": "_party_IBAN",
+            "type": "set"
+         },
+         {
+            "comment": "party BIC",
+            "from": "xpath:camt:NtryDtls/camt:TxDtls/camt:RltdAgts/camt:DbtrAgt/camt:FinInstnId/camt:BIC",
+            "to": "_party_BIC",
+            "type": "set"
+         },
+         {
+            "comment": "transaction message",
+            "from": "xpath:camt:NtryDtls/camt:TxDtls/camt:AddtlTxInf",
+            "to": "purpose",
+            "type": "set"
+         },
+         {
+            "comment": "party name",
+            "from": "xpath:camt:NtryDtls/camt:TxDtls/camt:RltdPties/camt:Dbtr/camt:Nm",
+            "to": "name",
+            "type": "set"
+         },
+         {
+            "comment": "party address",
+            "from": "xpath:camt:NtryDtls/camt:TxDtls/camt:RltdPties/camt:Dbtr/camt:PstlAdr/camt:StrtNm",
+            "to": "street_address",
+            "type": "set"
+         },
+         {
+            "comment": "party address",
+            "from": "xpath:camt:NtryDtls/camt:TxDtls/camt:RltdPties/camt:Dbtr/camt:PstlAdr/camt:TwnNm",
+            "to": "city",
+            "type": "set"
+         },
+         {
+            "comment": "party address",
+            "from": "xpath:camt:NtryDtls/camt:TxDtls/camt:RltdPties/camt:Dbtr/camt:PstlAdr/camt:Ctry",
+            "to": "country",
+            "type": "set"
+         }
+		]
+	}
+}

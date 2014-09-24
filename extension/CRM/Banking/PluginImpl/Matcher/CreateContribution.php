@@ -80,14 +80,14 @@ class CRM_Banking_PluginImpl_Matcher_CreateContribution extends CRM_Banking_Plug
   public function execute($suggestion, $btx) {
     // create contribution
     $query = $this->get_contribution_data($btx, $suggestion->getParameter('contact_id'));
-    $query = array_merge($query, $this->getPropagationSet($btx, 'contribution'));   // add propagated values
     $query['version'] = 3;
     $result = civicrm_api('Contribution', 'create', $query);
     if (isset($result['is_error']) && $result['is_error']) {
       CRM_Core_Session::setStatus(ts("Couldn't create contribution."), ts('Error'), 'error');
-    } else {
-      $suggestion->setParameter('contribution_id', $result['id']);
-    }
+      return true;
+    } 
+
+    $suggestion->setParameter('contribution_id', $result['id']);
 
     // save the account
     $this->storeAccountWithContact($btx, $suggestion->getParameter('contact_id'));
@@ -167,15 +167,16 @@ class CRM_Banking_PluginImpl_Matcher_CreateContribution extends CRM_Banking_Plug
     return "<p>".sprintf(ts("This payment was associated with <a href=\"%s\">contribution #%s</a>."), $contribution_link, $contribution_id)."</p>";
   }
 
-
+  /**
+   * compile the contribution data from the BTX and the propagated values
+   */
   function get_contribution_data($btx, $contact_id) {
-    $contribution = $this->getPropagationSet($btx, 'contribution');
+    $contribution = array();
     $contribution['contact_id'] = $contact_id;
     $contribution['total_amount'] = $btx->amount;
     $contribution['receive_date'] = $btx->value_date;
-    if (empty($contribution['currency'])) {
-      $contribution['currency'] = 'EUR';
-    }
+    $contribution['currency'] = $btx->currency;
+    $contribution = array_merge($contribution, $this->getPropagationSet($btx, 'contribution'));
     return $contribution;
   }
 }

@@ -114,8 +114,8 @@ class CRM_Banking_PluginImpl_Matcher_RegexAnalyser extends CRM_Banking_PluginMod
         $value = $this->getValue($action->from, $match_data, $match_index, $data_parsed);
         if (isset($action->mapping->$value)) {
           $data_parsed[$action->to] = $action->mapping->$value;
-        } else {
-          error_log("org.project60.banking: RegexAnalyser - incomplete mapping: '".$action->action."'");
+        // DISABLED WARNINGS } else {
+        //  error_log("org.project60.banking: RegexAnalyser - incomplete mapping: '".$action->action."'");
         }
 
       } elseif (substr($action->action, 0, 7) =='lookup:') {

@@ -104,7 +104,7 @@ function civicrm_api3_banking_transaction_analyseoldest($params) {
     $times = explode('-', $params['time']);
     $from = strtotime($times[0]);
     $to = strtotime($times[1]);
-    if (empty($from) || $empty($to)) {
+    if (empty($from) || empty($to)) {
       return civicrm_api3_create_error("Something's wrong with your time parameter. Expected format is 'hh:mm-hh:mm'.");
     }
 

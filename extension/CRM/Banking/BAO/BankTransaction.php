@@ -251,7 +251,6 @@ class CRM_Banking_BAO_BankTransaction extends CRM_Banking_DAO_BankTransaction {
     $maxcount = (int) $max_count;
     $status_id_new = (int) banking_helper_optionvalueid_by_groupname_and_name('civicrm_banking.bank_tx_status', 'new');
     $sql_query = "SELECT `id` AS txid FROM `civicrm_bank_tx` WHERE `status_id` = '$status_id_new' ORDER BY `value_date` LIMIT $maxcount";
-    error_log($sql_query);
     $query_results = CRM_Core_DAO::executeQuery($sql_query);
     while ($query_results->fetch()) {
       $results[] = $query_results->txid;

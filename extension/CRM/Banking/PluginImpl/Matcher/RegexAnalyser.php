@@ -123,7 +123,13 @@ class CRM_Banking_PluginImpl_Matcher_RegexAnalyser extends CRM_Banking_PluginMod
         //   parameters are in format: "EntityName,result_field,lookup_field"
         $params = split(',', substr($action->action, 7));
         $value = $this->getValue($action->from, $match_data, $match_index, $data_parsed);
-        $result = civicrm_api($params[0], 'getsingle', array($params[2] => $value, 'version' => 3));
+        $query = array($params[2] => $value, 'version' => 3);
+        if (!empty($action->parameters)) {
+          foreach($action->parameters as $key => $value) {
+            $query[$key] = $value;
+          }
+        }
+        $result = civicrm_api($params[0], 'getsingle', $query);
         if (empty($result['is_error'])) {
           // something was found... copy value
           $data_parsed[$action->to] = $result[$params[1]];

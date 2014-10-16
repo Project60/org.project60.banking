@@ -1,14 +1,24 @@
 Version History
 ===============
 
+version 0.4.1
+=============
+- improved regex analyser lookup (#72)
+
+
 version 0.4
 ===========
-- implemented XML Importer (#62)
+- store more execution info (#71)
+- background analyser (#69)
+- XML Importer (#62)
 - FIX #68: fixed ignore matcher
+- FIX #66: JS error in default matcher
+- FIX #65: SEPA matcher cancellations
+- FIX #61: double check existing contribution matcher's reconciliation
+- FIX #57: sepa matcher date range check
 - FIX #56: removed dummy menu entry
 - FIX #55: dont_ignore list for ignore matcher
 - FIX #54: contact link in account search
-- FIX #57: sepa matcher date range check
 
 
 version 0.3.8

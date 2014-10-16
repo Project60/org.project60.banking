@@ -4,6 +4,7 @@ Version History
 version 0.4.1
 =============
 - improved regex analyser lookup (#72)
+- FIX #64: replace mysql_real_escape_string
 
 
 version 0.4

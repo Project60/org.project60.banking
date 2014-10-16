@@ -172,7 +172,7 @@ function banking_civicrm_tabs( &$tabs, $contactID ) {
 function banking_civicrm_merge ( $type, &$data, $mainId = NULL, $otherId = NULL, $tables = NULL ) {
   switch ($type) {
     case 'relTables':
-      // Offer user to merge SEPA Mandates
+      // Offer user to merge bank accounts
       $data['rel_table_bankaccounts'] = array(
           'title'  => ts('Bank Accounts'),
           'tables' => array('civicrm_bank_account'),

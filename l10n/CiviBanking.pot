@@ -673,6 +673,7 @@ msgstr ""
 #: on/CRM/Banking/PluginModel/Matcher.php
 #: templates/CRM/Banking/Page/AccountsTab.tpl
 #: on/CRM/Banking/PluginImpl/Matcher/SepaMandate.php
+#: on/CRM/Banking/Page/Review.php
 msgid "Error"
 msgstr ""
 
@@ -1373,4 +1374,44 @@ msgstr ""
 
 #: on/CRM/Banking/PluginModel/Importer.php
 msgid "No valid value date detected. Not imported!"
+msgstr ""
+
+#: on/CRM/Banking/Page/Review.php
+msgid "Unknown User"
+msgstr ""
+
+#: on/CRM/Banking/Page/Review.php
+msgid "automatically"
+msgstr ""
+
+#: on/CRM/Banking/Page/Review.php
+msgid "This payment was <b>%s processed</b> on %s by %s."
+msgstr ""
+
+#: on/CRM/Banking/Page/Review.php
+msgid "This payment was <b>%s ignored</b> on %s by %s."
+msgstr ""
+
+#: on/CRM/Banking/Page/Review.php
+msgid "The payment could not be closed."
+msgstr ""
+
+#: on/CRM/Banking/PluginImpl/Matcher/ExistingContribution.php
+msgid "Contact was likely identified."
+msgstr ""
+
+#: on/CRM/Banking/PluginImpl/Matcher/ExistingContribution.php
+msgid "Contribution has disappeared."
+msgstr ""
+
+#: on/CRM/Banking/PluginImpl/Matcher/ExistingContribution.php
+msgid "Error was:"
+msgstr ""
+
+#: on/CRM/Banking/PluginImpl/Matcher/ExistingContribution.php
+msgid "Execution Failure"
+msgstr ""
+
+#: on/CRM/Banking/PluginImpl/Matcher/ExistingContribution.php
+msgid "Contribution status has been modified."
 msgstr ""

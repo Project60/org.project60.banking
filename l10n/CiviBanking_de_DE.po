@@ -672,6 +672,7 @@ msgstr ""
 #: on/CRM/Banking/PluginModel/Matcher.php
 #: templates/CRM/Banking/Page/AccountsTab.tpl
 #: on/CRM/Banking/PluginImpl/Matcher/SepaMandate.php
+#: on/CRM/Banking/Page/Review.php
 msgid "Error"
 msgstr "Fehler"
 
@@ -1219,7 +1220,6 @@ msgid "<b>Warning! There are some problems with this contribution:</b>"
 msgstr "<b>Achtung! Es gibt Probleme mit dieser Zuwendung:</b>"
 
 #: on/CRM/Banking/Page/Dashboard.php
-#, fuzzy
 msgid "account"
 msgstr "Konto"
 
@@ -1265,7 +1265,7 @@ msgstr "Bis"
 
 #: templates/CRM/Banking/Page/Dashboard.tpl
 msgid "Total"
-msgstr ""
+msgstr "Gesamt"
 
 #: templates/CRM/Banking/Page/Manager.tpl
 msgid "Sorry, the configuration interface is not yet functional!"
@@ -1346,6 +1346,46 @@ msgstr "Kein valides Buchungsdatum erkannt. Nicht importiert!"
 #: on/CRM/Banking/PluginModel/Importer.php
 msgid "No valid value date detected. Not imported!"
 msgstr "Kein valides Wertstellungsdatum erkannt. Nicht importiert!"
+
+#: on/CRM/Banking/Page/Review.php
+msgid "Unknown User"
+msgstr "<i>Unbekannt</i>"
+
+#: on/CRM/Banking/Page/Review.php
+msgid "automatically"
+msgstr "automatisch"
+
+#: on/CRM/Banking/Page/Review.php
+msgid "This payment was <b>%s processed</b> on %s by %s."
+msgstr "Diese Zahlung wurde <b>%s verarbeitet</b> am %s von %s."
+
+#: on/CRM/Banking/Page/Review.php
+msgid "This payment was <b>%s ignored</b> on %s by %s."
+msgstr "Diese Zahlung wurde <b>%s ignoriert</b> am %s von %s."
+
+#: on/CRM/Banking/Page/Review.php
+msgid "The payment could not be closed."
+msgstr "Die Zahlung konnte nicht geschlossen werden."
+
+#: on/CRM/Banking/PluginImpl/Matcher/ExistingContribution.php
+msgid "Contact was likely identified."
+msgstr "Kontakt wurde wahrscheinlich identifiziert"
+
+#: on/CRM/Banking/PluginImpl/Matcher/ExistingContribution.php
+msgid "Contribution has disappeared."
+msgstr "Zuwendung ist nicht mehr da."
+
+#: on/CRM/Banking/PluginImpl/Matcher/ExistingContribution.php
+msgid "Error was:"
+msgstr "Fehler war:"
+
+#: on/CRM/Banking/PluginImpl/Matcher/ExistingContribution.php
+msgid "Execution Failure"
+msgstr "Ausführungsfehler"
+
+#: on/CRM/Banking/PluginImpl/Matcher/ExistingContribution.php
+msgid "Contribution status has been modified."
+msgstr "Zuwendungsstatus wurde geändert."
 
 #, fuzzy
 #~ msgid "Payment count<"

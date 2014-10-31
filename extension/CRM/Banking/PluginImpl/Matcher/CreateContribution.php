@@ -83,7 +83,7 @@ class CRM_Banking_PluginImpl_Matcher_CreateContribution extends CRM_Banking_Plug
     $query['version'] = 3;
     $result = civicrm_api('Contribution', 'create', $query);
     if (isset($result['is_error']) && $result['is_error']) {
-      CRM_Core_Session::setStatus(ts("Couldn't create contribution."), ts('Error'), 'error');
+      CRM_Core_Session::setStatus(ts("Couldn't create contribution.")."<br/>".ts("Error was: ").$result['error_message'], ts('Error'), 'error');
       return true;
     } 
 

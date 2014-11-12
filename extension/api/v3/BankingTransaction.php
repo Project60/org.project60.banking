@@ -109,7 +109,7 @@ function civicrm_api3_banking_transaction_analyseoldest($params) {
     }
 
     // now check the time
-    if ($from > $to) {
+    if ($from < $to) {
       // this is a 'nomal' timing, e.g. 19:00-21:00
       if ($now < $from || $now > $to) {
         return civicrm_api3_create_success('Not active.');

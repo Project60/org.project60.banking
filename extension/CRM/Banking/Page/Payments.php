@@ -315,9 +315,7 @@ class CRM_Banking_Page_Payments extends CRM_Core_Page {
     // run the matchers!
     $engine = CRM_Banking_Matcher_Engine::getInstance();
     foreach ($list as $pid) {
-      $btx_bao = new CRM_Banking_BAO_BankTransaction();
-      $btx_bao->get('id', $pid);        
-      $engine->match($btx_bao);
+      $engine->match($pid);
     }
     CRM_Core_Session::setStatus(sprintf(ts('Analysed %d payments.'), count($list)), ts('Analysis completed.'), 'info');
   }

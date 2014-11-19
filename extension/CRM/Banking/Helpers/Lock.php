@@ -24,11 +24,8 @@
  */
 function banking_helper_getLock($type, $id) {
   if ($type=='tx') {
-    $timeout = 7.0; // TODO: do we need a setting here?
-    return new CRM_Core_Lock('org.project60.banking.tx'.'-'.$id, $timeout);
-  } elseif ($type=='txbatch') {
-    $timeout = 600.0; // 10mins, TODO: do we need a setting here?
-    return new CRM_Core_Lock('org.project60.banking.txbatch'.'-'.$id, $timeout);    
+    $timeout = 30.0; // TODO: do we need a setting here?
+    return new CRM_Utils_SafeLock('org.project60.banking.tx'.'-'.$id, $timeout);
   } else {
     error_log("org.project60.banking - Lock of type '$type' not known.");
     return NULL;

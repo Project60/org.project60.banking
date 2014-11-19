@@ -89,12 +89,17 @@ class CRM_Banking_Matcher_Engine {
    * @param bool $override_processed   Set this to TRUE if you want to re-match processed transactions. 
    *                                    This will destroy all records of the execution!
    */
-  public function match( CRM_Banking_BAO_BankTransaction $btx, $override_processed = FALSE ) {
-    $lock = banking_helper_getLock('tx', $btx->id);
+  public function match( $btx_id, $override_processed = FALSE ) {
+    $lock = banking_helper_getLock('tx', $btx_id);
     if (!$lock->isAcquired()) {
       error_log("org.project60.banking - couldn't acquire lock. Timeout is ".$lock->_timeout);
       return false;
     }
+
+    // load btx
+    $btx = new CRM_Banking_BAO_BankTransaction();
+    $btx->get('id', $btx_id);
+
 
     if (!$override_processed) {
       // don't match already executed transactions...
@@ -157,12 +162,6 @@ class CRM_Banking_Matcher_Engine {
       foreach ($suggestions as $suggestion) {
         if ($suggestion->getPluginID()==$plugin->getPluginID()) {
           if ($suggestion->getProbability() >= $plugin->autoExecute()) {
-            $lock = banking_helper_getLock('tx', $btx->id);
-            if (!$lock->isAcquired()) {
-              error_log("org.project60.banking - couldn't acquire lock. Timeout is ".$lock->_timeout);
-              continue;
-            }
-
             $btx->saveSuggestions();
             $result = $suggestion->execute( $btx, $plugin );
             $suggestion->setParameter('executed_automatically', 1);
@@ -207,9 +206,7 @@ class CRM_Banking_Matcher_Engine {
   public function bulkRun($max_count) {
     $unprocessed_ids = CRM_Banking_BAO_BankTransaction::findUnprocessedIDs($max_count);
     foreach ($unprocessed_ids as $unprocessed_id) {
-      $btx_bao = new CRM_Banking_BAO_BankTransaction();
-      $btx_bao->get('id', $unprocessed_id);
-      $this->match($btx_bao);
+      $this->match($unprocessed_id);
     }
     return count($unprocessed_ids);
   }

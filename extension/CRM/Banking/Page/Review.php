@@ -88,7 +88,7 @@ class CRM_Banking_Page_Review extends CRM_Core_Page {
       if (isset($_REQUEST['run'])) {
           // run the matchers!
           $engine = CRM_Banking_Matcher_Engine::getInstance();
-          $engine->match($btx_bao);
+          $engine->match($pid);
           $btx_bao->get('id', $pid);
       }
 

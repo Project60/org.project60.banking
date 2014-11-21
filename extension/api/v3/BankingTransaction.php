@@ -20,6 +20,7 @@
  * @package CiviBanking
  *
  */
+require_once 'CRM/Banking/Helpers/OptionValue.php';
 
 
 /**
@@ -85,6 +86,118 @@ function civicrm_api3_banking_transaction_get($params) {
   return _civicrm_api3_basic_get('CRM_Banking_BAO_BankTransaction', $params);
 }
 
+
+/**
+ * Deletes a given list of bank statments and transactions
+ *  used as AJAX call
+ *
+ * @param  list    list of bank_tx ids to process
+ * @param  s_list  list of bank_tx_batch ids to process
+ *
+ * @return  array api result array
+ * @access public
+ */
+function civicrm_api3_banking_transaction_deletelist($params) {
+  $result = array('tx_count' => 0, 'tx_batch_count' => 0);
+
+  // first, delete the indivdual transactions
+  $tx_ids = _civicrm_api3_banking_transaction_getTxIDs($params);
+  if (empty($tx_ids)) {
+    return civicrm_api3_create_error("Something's wrong with your parameters. No payments found.");
+  }
+
+  foreach ($tx_ids as $tx_id) {
+    civicrm_api3('BankingTransaction', 'delete', array('id' => $tx_id));
+    $result['tx_count'] += 1;
+  }
+
+  // then, delete the (now empty) statmets (tx_batches)
+  if (!empty($params['s_list'])) {
+    $tx_batch_ids = explode(',', $params['s_list']);
+    foreach ($tx_batch_ids as $tx_batch_id) {
+      $tx_batch_id = (int) $tx_batch_id;
+      if (!empty($tx_batch_id)) {
+        civicrm_api3('BankingTransactionBatch', 'delete', array('id' => $tx_batch_id));
+        $result['tx_batch_count'] += 1;
+      }
+    }
+  }
+
+  return civicrm_api3_create_success($result); 
+}
+
+/**
+ * Analyses the given bank transactions
+ *  used as AJAX call
+ *
+ * @param  list    list of bank_tx ids to process
+ * @param  s_list  list of bank_tx_batch ids to process
+ *
+ * @return  array api result array
+ * @access public
+ */
+function civicrm_api3_banking_transaction_analyselist($params) {
+  // calculate a timeout, so we wouldn't get killed off
+  $now = strtotime('now');
+  $max_execution_time = ini_get('max_execution_time');
+  if (empty($max_execution_time)) {
+    $max_execution_time = 10 * 60; // 10 minutes
+  } else {
+    $max_execution_time = min(10*60, (int) $max_execution_time*0.9);
+  }
+  $timeout = strtotime("+$max_execution_time seconds");
+
+  // extract payment IDs from parameters
+  $tx_ids = _civicrm_api3_banking_transaction_getTxIDs($params);
+  if (empty($tx_ids)) {
+    return civicrm_api3_create_error("Something's wrong with your parameters. No payments found.");
+  }
+
+  // no funny business...
+  $list_string = implode(',', $tx_ids);
+
+  // filter for non-closed statements
+  $payment_states  = banking_helper_optiongroup_id_name_mapping('civicrm_banking.bank_tx_status');
+  $state_ignored   = (int) $payment_states['ignored']['id'];
+  $state_processed = (int) $payment_states['processed']['id'];
+  $filter_query = "SELECT `id` 
+                   FROM `civicrm_bank_tx` 
+                   WHERE `status_id` NOT IN ($state_ignored,$state_processed)
+                     AND `id` IN ($list_string);";
+  $filter_result = CRM_Core_DAO::executeQuery($filter_query);
+  $filtered_list = array();
+  while ($filter_result->fetch()) {
+    $filtered_list[] = $filter_result->id;
+  }
+
+  // now run the matchers
+  $engine = CRM_Banking_Matcher_Engine::getInstance();
+  $timed_out = 0;
+  $processed_count = 0;
+  foreach ($filtered_list as $pid) {
+    $engine->match($pid);
+    $processed_count += 1;
+    if (strtotime("now") > $timeout) {
+      $timed_out = 1;
+      break;
+    }
+  }
+
+  // done. create a result.
+  $after_exec = strtotime('now');
+  $payment_count   = count(explode(',', $list_string));
+  $result = array(
+    'payment_count'   =>  $payment_count,
+    'processed_count' =>  $processed_count,
+    'skipped_count'   =>  $payment_count - count($filtered_list),
+    'time'            =>  ($after_exec - $now),
+    'timed_out'       =>  $timed_out,
+  );
+
+  return civicrm_api3_create_success($result);
+}
+
+
 /**
  * Analyses the oldest (by value_date) <n> unprocessed bank transactions
  *
@@ -144,4 +257,35 @@ function civicrm_api3_banking_transaction_analyseoldest($params) {
   }
     
   return civicrm_api3_create_success($result);
+}
+
+
+/**
+ * extracts the individual transaction IDs from the parameter set
+ * @param  list    comma separated list of bank_tx ids to process
+ * @param  s_list  comma separated list of bank_tx_batch ids to process
+ * 
+ * @return array of IDs
+ */
+function _civicrm_api3_banking_transaction_getTxIDs($params) {
+  // extract payment IDs from parameters
+  $list_string = "";
+  if (!empty($params['list'])) {
+    $list_string .= $params['list'];
+  }
+  if (!empty($params['s_list'])) {
+    if (!empty($list_string)) $list_string .= ',';
+    $list_string .= CRM_Banking_Page_Payments::getPaymentsForStatements($params['s_list']);
+  }
+
+  // clean up the list
+  $list = explode(',', $list_string);
+  $tx_ids = array();
+  foreach ($list as $tx_id) {
+    $tx_id = (int) $tx_id;
+    if (!empty($tx_id)) {
+      $tx_ids[] = $tx_id;
+    }
+  }
+  return $tx_ids;
 }

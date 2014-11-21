@@ -306,7 +306,7 @@
     <a href="{$url_skip_back}" class="button {if not $url_skip_back}disabled{/if}"><span title="{ts}Back{/ts}"><div class="icon previous-icon disabled"></div>{ts}Back{/ts}</span></a>
 
     {if $btxstatus.label != 'Processed' AND $btxstatus.label != 'Ignored'}
-      <a href="{$url_run}" class="button"><span title="{ts}Match (again){/ts}"><div class="icon preview-icon"></div>{ts}Match (again){/ts}</span></a>
+      <a id="analyseButton" onClick="analysePayment()" class="button"><span title="{ts}Match (again){/ts}"><div class="icon preview-icon"></div>{ts}Match (again){/ts}</span></a>
       {if isset($url_skip_forward)}
         <a href="#" onClick="execute_selected()" class="button"><span title="{ts}Confirm and Continue{/ts}"><div class="icon next-icon"></div>{ts}Confirm and Continue{/ts}</span></a>
         <a href="{$url_skip_forward}" class="button"><span title="{ts}Skip{/ts}"><div class="icon next-icon"></div>{ts}Skip{/ts}</span></a>
@@ -337,6 +337,12 @@
 
   {if $btxstatus.label != 'Processed' AND $btxstatus.label != 'Ignored'}
     <br/>
+    <div id="generating_suggestions" align="center" hidden="1">
+      <br/><br/>
+      <img name="busy" src="{$config->resourceBase}i/loading.gif"/>
+      <font size="+1">{ts}Generating suggestions...{/ts}</font>
+      <br/><br/>
+    </div>
     <table class="suggestions">
       <tr>
         <td  class="layout">
@@ -394,6 +400,41 @@ function select_suggestion(e) {
   var suggestion = cj(e.target).closest(".suggestion");
   var button = suggestion.find("input[name=selected_suggestion]");
   button.prop('checked', true);
+}
+
+
+function analysePayment() {
+  if (cj("#analyseButton").hasClass('disabled')) return;
+
+  // disable ALL buttons
+  cj(".button").addClass('disabled');
+  cj(".button").attr("onclick","");
+
+  // remove old suggestions
+  cj(".suggestions").remove();
+  cj("#generating_suggestions").show();
+
+  // show busy indicator
+
+  // AJAX call the analyser
+  var query = {'q': 'civicrm/ajax/rest', 'sequential': 1};
+  // set the list or s_list parameter depending on the page mode
+  query['list'] = "{/literal}{$payment->id}{literal}";
+  CRM.api('BankingTransaction', 'analyselist', query,
+    {success: function(data) {
+        if (!data['is_error']) {
+          location.reload();
+        } else {
+          cj('<div title="{/literal}{ts}Error{/ts}{literal}"><span class="ui-icon ui-icon-alert" style="float:left;"></span>' + data['error_message'] + '</div>').dialog({
+            modal: true,
+            buttons: {
+              Ok: function() { location.reload(); }
+            }
+          });
+        }
+      }
+    }
+  );
 }
 
 </script>

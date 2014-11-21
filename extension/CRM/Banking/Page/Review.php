@@ -84,14 +84,6 @@ class CRM_Banking_Page_Review extends CRM_Core_Page {
         }
       }
       
-      // check if we are requested to run the matchers again        
-      if (isset($_REQUEST['run'])) {
-          // run the matchers!
-          $engine = CRM_Banking_Matcher_Engine::getInstance();
-          $engine->match($pid);
-          $btx_bao->get('id', $pid);
-      }
-
       // parse structured data
       $this->assign('btxstatus', $choices[$btx_bao->status_id]);
       $this->assign('payment', $btx_bao);
@@ -195,7 +187,6 @@ class CRM_Banking_Page_Review extends CRM_Core_Page {
       }
 
       // URLs
-      $this->assign('url_run', banking_helper_buildURL('civicrm/banking/review',  $this->_pageParameters(array('id'=>$pid, 'run'=>1))));
       $this->assign('url_back', banking_helper_buildURL('civicrm/banking/payments',  $this->_pageParameters()));
 
       if (isset($next_pid)) {

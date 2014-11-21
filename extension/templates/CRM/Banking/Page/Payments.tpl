@@ -199,18 +199,19 @@
 <input onClick="selectAll(true)" class="form-submit" type="submit" value="{ts}Select all{/ts}" width="200"></input>
 <input onClick="selectAll(false)" class="form-submit" type="submit" value="{ts}Select none{/ts}" width="200"></input>	
 <p>{ts}With selected items perform:{/ts}<br/>
-<a class="button" onClick="callWithSelected('{$url_review_selected_payments}', false)" ><span>{ts}Review{/ts}</span></a>
-<a class="button" onClick="callWithSelected('{$url_process_selected_payments}', false)"><span>{ts}Process{/ts}</span></a>
-<a class="button" onClick="callWithSelected('{$url_export_selected_payments}', false)"><span>{ts}Export{/ts}</span></a>
-<a class="button {if not $url_delete_selected_payments}disabled{/if}" onClick="callWithSelected('{$url_delete_selected_payments}', false)"><span>{ts}Delete{/ts}</span></a>
+<a id="reviewButton"  class="button" onClick="callWithSelected('{$url_review_selected_payments}', false)" ><span>{ts}Review{/ts}</span></a>
+<a id="processButton" class="button" onClick="processSelected()"><span>{ts}Process{/ts}</span></a>
+<a id="exportButton"  class="button" onClick="callWithSelected('{$url_export_selected_payments}', false)"><span>{ts}Export{/ts}</span></a>
+<a id="deleteButton"  class="button {if not $can_delete}disabled{/if}" onClick="deleteSelected()"><span>{ts}Delete{/ts}</span></a>
 </p>
 
 
 
 <!-- Required JavaScript functions -->
-{literal}
 <script language="JavaScript">
+var busy_icon = '<img name="busy" src="{$config->resourceBase}i/loading.gif" />';
 
+{literal}
 function selectAll(value) {
   checkboxes = document.getElementsByName('payment_selected');
   for(var i=0, n=checkboxes.length; i<n; i++) {
@@ -244,6 +245,112 @@ function callWithSelected(url, forced) {
   }
 }
 
+function processSelected() {
+  if (cj("#processButton").hasClass('disabled')) return;
+
+  // disable the button
+  cj("#processButton").addClass('disabled');
+
+  // mark all selected rows as busy
+  var selected_string = getSelected();
+  var selected = selected_string.split(',');
+  for (var i=0; i<selected.length; i++) {
+    cj("#check_" + selected[i]).replaceWith(busy_icon);
+  }
+
+  // AJAX call the analyser
+  var query = {'q': 'civicrm/ajax/rest', 'sequential': 1};
+  // set the list or s_list parameter depending on the page mode
+  query['{/literal}{if $show eq statements}s_list{else}list{/if}{literal}'] = selected_string;
+  CRM.api('BankingTransaction', 'analyselist', query,
+    {success: function(data) {
+        if (!data['is_error']) {
+          if (!data.values.timed_out) {
+            // perfectly normal result, notify user
+            {/literal}
+            var message = "{ts}_1 payments have been processed successfully, _2 had already been completed. The processing took _3s.{/ts}";
+            {literal}
+            message = message.replace('_1', data.values.processed_count);
+            message = message.replace('_2', data.values.skipped_count);
+            message = message.replace('_3', data.values.time);
+            CRM.alert(message, "info");
+            window.setTimeout("location.reload()", 1500);
+
+          } else {
+            // this is a time out
+            {/literal}
+            var message = "{ts}<p>_1 out of _2 payments have not been processed!</p><p>If you need to process large amounts of payments manually, please adjust PHPs <code>max_execution_time</code>.</p>{/ts}";
+            {literal}
+            message = message.replace('_1', data.values.payment_count-data.values.processed_count);
+            message = message.replace('_2', data.values.payment_count);
+            cj('<div title="{/literal}{ts}Process timed out{/ts}{literal}"><span class="ui-icon ui-icon-alert" style="float:left;"></span>' + message + '</div>').dialog({
+              modal: true,
+              buttons: {
+                Ok: function() { location.reload(); }
+              }
+            });
+          }
+        } else {
+          cj('<div title="{/literal}{ts}Error{/ts}{literal}"><span class="ui-icon ui-icon-alert" style="float:left;"></span>' + data['error_message'] + '</div>').dialog({
+            modal: true,
+            buttons: {
+              Ok: function() { location.reload(); }
+            }
+          });
+        }
+      }
+    }
+  );
+}
+
+function deleteSelected() {
+  if (cj("#deleteButton").hasClass('disabled')) return;
+
+  CRM.confirm(function() 
+  {
+    // disable ALL buttons
+    cj(".button").addClass('disabled');
+    cj(".button").attr("onclick","");
+
+    // mark all selected rows as busy
+    var selected_string = getSelected();
+    var selected = selected_string.split(',');
+    for (var i=0; i<selected.length; i++) {
+      cj("#check_" + selected[i]).replaceWith(busy_icon);
+    }
+
+    // call the API to delete the items
+    var query = {'q': 'civicrm/ajax/rest', 'sequential': 1};
+    // set the list or s_list parameter depending on the page mode
+    query['{/literal}{if $show eq statements}s_list{else}list{/if}{literal}'] = selected_string;
+    CRM.api('BankingTransaction', 'deletelist', query,
+      {success: function(data) {
+          if (!data['is_error']) {
+            // perfectly normal result, notify user
+            {/literal}
+            var message = "{ts}_1 payments in _2 statements have been deleted.{/ts}";
+            {literal}
+            message = message.replace('_1', data.values.tx_count);
+            message = message.replace('_2', data.values.tx_batch_count);
+            CRM.alert(message, "info");
+            window.setTimeout("location.reload()", 1500);
+          } else {
+            cj('<div title="{/literal}{ts}Error{/ts}{literal}"><span class="ui-icon ui-icon-alert" style="float:left;"></span>' + data['error_message'] + '</div>').dialog({
+              modal: true,
+              buttons: {
+                Ok: function() { location.reload(); }
+              }
+            });
+          }
+        }
+      }
+    );
+  },
+  {
+    title: {/literal}"{ts}Are you sure?{/ts}"{literal},
+    message: {/literal}"{ts}Do you really want to permanently delete the selected items?{/ts}"{literal}
+  });
+}
 </script>
 {/literal} 
 

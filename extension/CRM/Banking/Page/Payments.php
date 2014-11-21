@@ -45,19 +45,17 @@ class CRM_Banking_Page_Payments extends CRM_Core_Page {
     global $base_url;
     $this->assign('base_url', $base_url);
 
-    $this->assign('url_show_payments', banking_helper_buildURL('civicrm/banking/payments', array('show'=>'payments', $list_type=>"__selected__")));
-    $this->assign('url_show_statements', banking_helper_buildURL('civicrm/banking/payments', array('show'=>'statements')));
+    $this->assign('url_show_payments', banking_helper_buildURL('civicrm/banking/payments', array('show'=>'payments', $list_type=>"__selected__"), array('status_ids')));
+    $this->assign('url_show_statements', banking_helper_buildURL('civicrm/banking/payments', array('show'=>'statements'), array('status_ids')));
 
     $this->assign('url_show_payments_new', banking_helper_buildURL('civicrm/banking/payments', $this->_pageParameters(array('status_ids'=>$payment_states['new']['id']))));
     $this->assign('url_show_payments_analysed', banking_helper_buildURL('civicrm/banking/payments', $this->_pageParameters(array('status_ids'=>$payment_states['suggestions']['id']))));
     $this->assign('url_show_payments_completed', banking_helper_buildURL('civicrm/banking/payments', $this->_pageParameters(array('status_ids'=>$payment_states['processed']['id'].",".$payment_states['ignored']['id']))));
 
     $this->assign('url_review_selected_payments', banking_helper_buildURL('civicrm/banking/review', array($list_type=>"__selected__")));
-    $this->assign('url_process_selected_payments', banking_helper_buildURL('civicrm/banking/payments', $this->_pageParameters(array('process'=>"__selected__"))));
     $this->assign('url_export_selected_payments', banking_helper_buildURL('civicrm/banking/export', array($list_type=>"__selected__")));
-    if (CRM_Core_Permission::check('administer CiviCRM')) {
-      $this->assign('url_delete_selected_payments', banking_helper_buildURL('civicrm/banking/payments',  $this->_pageParameters(array('delete'=>"__selected__"))));
-    }
+
+    $this->assign('can_delete', CRM_Core_Permission::check('administer CiviCRM'));
     
     // status filter button styles
     if (isset($_REQUEST['status_ids']) && strlen($_REQUEST['status_ids'])>0) {
@@ -79,23 +77,6 @@ class CRM_Banking_Page_Payments extends CRM_Core_Page {
    * STATEMENT MODE
    ****************/
   function build_statementPage($payment_states) {
-    // DELETE ITEMS (if any)
-    if (isset($_REQUEST['delete'])) {
-      if (CRM_Core_Permission::check('administer CiviCRM')) {
-        $payment_list = CRM_Banking_Page_Payments::getPaymentsForStatements($_REQUEST['delete']);
-        $this->deleteItems($payment_list, 'BankingTransaction', ts('payments'));
-        $this->deleteItems($_REQUEST['delete'], 'BankingTransactionBatch', ts('statements'));        
-      } else {
-        CRM_Core_Session::setStatus(ts("You don't have the permissions to delete statements or payments."), ts('Deletion problems'), 'alert');
-      }
-    }
-
-    // RUN ITEMS (if any)
-    if (isset($_REQUEST['process'])) {
-      $payment_list = CRM_Banking_Page_Payments::getPaymentsForStatements($_REQUEST['process']);
-      $this->processItems($payment_list);
-    }
-
     $target_ba_id = null;
     if (isset($_REQUEST['target_ba_id'])) {
       $target_ba_id = $_REQUEST['target_ba_id'];
@@ -108,7 +89,7 @@ class CRM_Banking_Page_Payments extends CRM_Core_Page {
     // collect an array of target accounts, serving to limit the display
     $target_accounts = array();
     
-    // TODO: WE NEED a tx_batch status field, see https://github.com/Project60/CiviBanking/issues/20
+    // TODO: we NEED a tx_batch status field, see https://github.com/Project60/CiviBanking/issues/20
     $sql_query =    // this query joins the bank_account table to determine the target account
         "SELECT 
           btxb.id AS id, 
@@ -202,16 +183,6 @@ class CRM_Banking_Page_Payments extends CRM_Core_Page {
    * PAYMENT MODE
    ****************/
   function build_paymentPage($payment_states) {
-    // DELETE ITEMS (if any)
-    if (isset($_REQUEST['delete'])) {
-      $this->deleteItems($_REQUEST['delete'], 'BankingTransaction', ts('payments'));
-    }
-
-    // RUN ITEMS (if any)
-    if (isset($_REQUEST['process'])) {
-      $this->processItems($_REQUEST['process']);
-    }
-
     // read all transactions
     $btxs = $this->load_btx($payment_states);
     $payment_rows = array();
@@ -289,36 +260,6 @@ class CRM_Banking_Page_Payments extends CRM_Core_Page {
   /****************
    *    HELPERS
    ****************/
-
-  function deleteItems($item_list, $type, $name) {
-    $list = explode(",", $item_list);
-    $params = array('version' => 3);
-    $failed = 0;
-    // delete all these
-    foreach ($list as $pid) {
-        $params['id'] = $pid;
-        $result = civicrm_api($type, 'delete', $params);
-        if (isset($result['is_error']) && $result['is_error']) {
-            $failed += 1;
-        }
-    }
-    if ($failed) {
-        CRM_Core_Session::setStatus(sprintf(ts('Failed to delete %d of %d selected %s.'), $failed, count($list), $name), ts('Deletion problems'), 'alert');
-    } else {
-        CRM_Core_Session::setStatus(sprintf(ts('Deleted %d selected %s.'), count($list), $name), ts('Deletion succesfull'), 'info');
-    }
-  }
-
-  function processItems($item_list) {
-    $list = explode(",", $item_list);
-
-    // run the matchers!
-    $engine = CRM_Banking_Matcher_Engine::getInstance();
-    foreach ($list as $pid) {
-      $engine->match($pid);
-    }
-    CRM_Core_Session::setStatus(sprintf(ts('Analysed %d payments.'), count($list)), ts('Analysis completed.'), 'info');
-  }
 
   /**
    * will take a comma separated list of statement IDs and create a list of the related payment ids in the same format

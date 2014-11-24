@@ -125,16 +125,23 @@ class CRM_Banking_Matcher_Engine {
     } else {
       foreach ($this->plugins as $weight => $plugins) {
         foreach ($plugins as $plugin) {
-          // run matchers to generate suggestions
-          $continue = $this->matchPlugin( $plugin, $context );
-          if (!$continue) {
-            $lock->release();
-            return true;
-          }
+          try {
+            // run matchers to generate suggestions
+            $continue = $this->matchPlugin( $plugin, $context );
+            if (!$continue) {
+              $lock->release();
+              return true;
+            }
 
-          // check if we can execute the suggestion right aways
-          $abort = $this->checkAutoExecute($plugin, $btx);
-          if ($abort) {
+            // check if we can execute the suggestion right aways
+            $abort = $this->checkAutoExecute($plugin, $btx);
+            if ($abort) {
+              $lock->release();
+              return false;
+            }
+          } catch (Exception $e) {
+            $matcher_id = $plugin->getPluginID();
+            error_log("org.project60.banking - Exception during the execution of matcher [$matcher_id], error was: ".$e->getMessage());
             $lock->release();
             return false;
           }

@@ -24,7 +24,6 @@
  */
 
 require_once 'CRM/Banking/Helpers/OptionValue.php';
-require_once 'CRM/Banking/Helpers/Lock.php';
 
 class CRM_Banking_Matcher_Engine {
   
@@ -90,9 +89,11 @@ class CRM_Banking_Matcher_Engine {
    *                                    This will destroy all records of the execution!
    */
   public function match( $btx_id, $override_processed = FALSE ) {
-    $lock = banking_helper_getLock('tx', $btx_id);
-    if (!$lock->isAcquired()) {
-      error_log("org.project60.banking - couldn't acquire lock. Timeout is ".$lock->_timeout);
+    // TODO: timeout is 30s - do we need a setting here?
+    $lock_timeout = 30.0;
+    $lock = CRM_Utils_BankingSafeLock::acquireLock('org.project60.banking.tx'.'-'.$btx_id, $lock_timeout);
+    if (empty($lock)) {
+      error_log("org.project60.banking - couldn't acquire lock. Timeout is $lock_timeout.");
       return false;
     }
 

@@ -672,7 +672,8 @@ msgstr ""
 #: on/CRM/Banking/PluginModel/Matcher.php
 #: templates/CRM/Banking/Page/AccountsTab.tpl
 #: on/CRM/Banking/PluginImpl/Matcher/SepaMandate.php
-#: on/CRM/Banking/Page/Review.php
+#: on/CRM/Banking/Page/Review.php templates/CRM/Banking/Page/Payments.tpl
+#: templates/CRM/Banking/Page/Review.tpl
 msgid "Error"
 msgstr "Fehler"
 
@@ -1386,6 +1387,38 @@ msgstr "Ausführungsfehler"
 #: on/CRM/Banking/PluginImpl/Matcher/ExistingContribution.php
 msgid "Contribution status has been modified."
 msgstr "Zuwendungsstatus wurde geändert."
+
+#: on/CRM/Banking/PluginImpl/Matcher/CreateContribution.php
+msgid "Error was: "
+msgstr "Fehler war:"
+
+#: templates/CRM/Banking/Page/Payments.tpl
+msgid "_1 payments have been processed successfully, _2 had already been completed. The processing took _3s."
+msgstr "_1 Zahlungen wurden erfolgreiche analysiert, _2 waren bereits abgeschlossen. Die Analyse dauerte _3s."
+
+#: templates/CRM/Banking/Page/Payments.tpl
+msgid "<p>_1 out of _2 payments have not been processed!</p><p>If you need to process large amounts of payments manually, please adjust PHPs <code>max_execution_time</code>.</p>"
+msgstr "<p>_1 von _2 Zahlungen wurden nicht analysiert!</p><p>Wenn Sie größere Mengen von Zahlungen manuell analysieren möchten, bitte erhöhen Sie die <code>max_execution_time</code> Einstellung von PHP.</p>"
+
+#: templates/CRM/Banking/Page/Payments.tpl
+msgid "Process timed out"
+msgstr "Verarbeitung unterbrochen"
+
+#: templates/CRM/Banking/Page/Payments.tpl
+msgid "_1 payments in _2 statements have been deleted."
+msgstr "_1 Zahlungen in _2 Auszügen wurden gelöscht."
+
+#: templates/CRM/Banking/Page/Payments.tpl
+msgid "Are you sure?"
+msgstr "Sind Sie sicher?"
+
+#: templates/CRM/Banking/Page/Payments.tpl
+msgid "Do you really want to permanently delete the selected items?"
+msgstr "Möchten Sie die ausgewählten Zahlungen/Auszüge wirklich löschen?"
+
+#: templates/CRM/Banking/Page/Review.tpl
+msgid "Generating suggestions..."
+msgstr "Vorschläge werden errechnet..."
 
 #, fuzzy
 #~ msgid "Payment count<"

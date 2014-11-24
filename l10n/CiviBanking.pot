@@ -673,7 +673,8 @@ msgstr ""
 #: on/CRM/Banking/PluginModel/Matcher.php
 #: templates/CRM/Banking/Page/AccountsTab.tpl
 #: on/CRM/Banking/PluginImpl/Matcher/SepaMandate.php
-#: on/CRM/Banking/Page/Review.php
+#: on/CRM/Banking/Page/Review.php templates/CRM/Banking/Page/Payments.tpl
+#: templates/CRM/Banking/Page/Review.tpl
 msgid "Error"
 msgstr ""
 
@@ -1414,4 +1415,41 @@ msgstr ""
 
 #: on/CRM/Banking/PluginImpl/Matcher/ExistingContribution.php
 msgid "Contribution status has been modified."
+msgstr ""
+
+#: on/CRM/Banking/PluginImpl/Matcher/CreateContribution.php
+msgid "Error was: "
+msgstr ""
+
+#: templates/CRM/Banking/Page/Payments.tpl
+msgid ""
+"_1 payments have been processed successfully, _2 had already been completed. "
+"The processing took _3s."
+msgstr ""
+
+#: templates/CRM/Banking/Page/Payments.tpl
+msgid ""
+"<p>_1 out of _2 payments have not been processed!</p><p>If you need to "
+"process large amounts of payments manually, please adjust PHPs "
+"<code>max_execution_time</code>.</p>"
+msgstr ""
+
+#: templates/CRM/Banking/Page/Payments.tpl
+msgid "Process timed out"
+msgstr ""
+
+#: templates/CRM/Banking/Page/Payments.tpl
+msgid "_1 payments in _2 statements have been deleted."
+msgstr ""
+
+#: templates/CRM/Banking/Page/Payments.tpl
+msgid "Are you sure?"
+msgstr ""
+
+#: templates/CRM/Banking/Page/Payments.tpl
+msgid "Do you really want to permanently delete the selected items?"
+msgstr ""
+
+#: templates/CRM/Banking/Page/Review.tpl
+msgid "Generating suggestions..."
 msgstr ""

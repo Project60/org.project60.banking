@@ -174,8 +174,6 @@ class CRM_Banking_Matcher_Engine {
             $result = $suggestion->execute( $btx, $plugin );
             $suggestion->setParameter('executed_automatically', 1);
             $btx->saveSuggestions();
-
-            $lock->release();
             return $result;
           }
         }

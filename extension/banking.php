@@ -153,6 +153,12 @@ function banking_civicrm_options() {
                   'description' => 'Will match the payment to existing (pending) contributions.',
                   'is_default' => 0,
               ),
+              'matcher_multi' => array(
+                  'label' => 'Mulit-Contribution Matcher',
+                  'value' => 'CRM_Banking_PluginImpl_Matcher_MultiContribution',
+                  'description' => 'Will match the payment to a set of existing contributions.',
+                  'is_default' => 0,
+              ),
               'matcher_batch' => array(
                   'label' => 'Batch Matcher',
                   'value' => 'CRM_Banking_PluginImpl_Matcher_Batches',

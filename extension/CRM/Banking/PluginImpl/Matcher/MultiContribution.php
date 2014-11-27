@@ -56,31 +56,6 @@ class CRM_Banking_PluginImpl_Matcher_MultiContribution extends CRM_Banking_Plugi
     // Don't do anyhting if we don't have a single criteria
     if (empty($config->contribution_selector)) return NULL;
 
-    // OUTDATED: USE SQL INSTEAD OF API
-    // $where_clause = '';
-    // foreach ($config->contribution_selector as $criteria) {
-    //   $value = $criteria[2];
-    //   if ( strrpos($value, '{')==0 && strrpos($value, '}')==strlen($value)-1 ) {
-    //     // this is a token look up value
-    //     $token = substr($value, 1,strlen($value)-2);
-    //     error_log($token);
-    //     if (isset($data_parsed[$token])) {
-    //       $value = $data_parsed[$token];
-    //     } else {
-    //       error_log("Token {$token} not found.");
-    //     }
-    //   }
-    //
-    //   if (!empty($where_clause)) $where_clause .= ' AND ';
-    //   $where_clause .= sprintf("(`%s` %s '%s')",
-    //       mysql_real_escape_string($criteria[0]),
-    //       mysql_real_escape_string($criteria[1]),
-    //       mysql_real_escape_string($value)
-    //     );
-    // }
-    // $sql_search = "SELECT id FROM civicrm_contribution WHERE $where_clause;";
-    // error_log($sql_search);
-
     // find and load the contributions
     $query = array(
       'version'       => 3,
@@ -139,7 +114,7 @@ class CRM_Banking_PluginImpl_Matcher_MultiContribution extends CRM_Banking_Plugi
 
     // create a suggestion
     $suggestion = new CRM_Banking_Matcher_Suggestion($this, $btx);
-    $suggestion->setProbability($contribution_probability*$contacts_found[$contact_id]);
+    $suggestion->setProbability($probability);
     $suggestion->setId("multi-" . implode('-', $contribution_ids));
     $suggestion->setParameter('contribution_ids', $contribution_ids);
     $btx->addSuggestion($suggestion);
@@ -155,44 +130,30 @@ class CRM_Banking_PluginImpl_Matcher_MultiContribution extends CRM_Banking_Plugi
    * @param type $btx
    */
   public function execute($suggestion, $btx) {
-    $contribution_id = $suggestion->getParameter('contribution_id');
-    $query = array('version' => 3, 'id' => $contribution_id);
-    $query = array_merge($query, $this->getPropagationSet($btx, 'contribution'));   // add propagated values
+    // load the contribution
+    $contribution_ids = $suggestion->getParameter('contribution_ids');
 
-    // double check contribution (see https://github.com/Project60/CiviBanking/issues/61)
-    $contribution = civicrm_api('Contribution', 'getsingle', array('id' => $contribution_id, 'version' => 3));
-    if (!empty($contribution['is_error'])) {
-      CRM_Core_Session::setStatus(ts('Contribution has disappeared.').' '.ts('Error was:').' '.$contribution['error_message'], ts('Execution Failure'), 'alert');
-      return false;
-    }
-    $accepted_status_ids = $this->getAcceptedContributionStatusIDs();
-    if (!in_array($contribution['contribution_status_id'], $accepted_status_ids)) {
-      CRM_Core_Session::setStatus(ts('Contribution status has been modified.'), ts('Execution Failure'), 'alert');
-      return false;
-    }
 
-    // depending on mode...
-    if ($this->_plugin_config->mode != "cancellation") {
-      $query['contribution_status_id'] = banking_helper_optionvalue_by_groupname_and_name('contribution_status', 'Completed');
-      $query['receive_date'] = date('YmdHis', strtotime($btx->booking_date));
-    } else {
-      $query['contribution_status_id'] = banking_helper_optionvalue_by_groupname_and_name('contribution_status', 'Cancelled');
-      $query['cancel_date'] = date('YmdHis', strtotime($btx->booking_date));
-      //$query['cancel_reason'] = date('YmdHis', strtotime($btx->booking_date));
-    }
-    
-    $result = civicrm_api('Contribution', 'create', $query);
-    if (isset($result['is_error']) && $result['is_error']) {
-      CRM_Core_Session::setStatus(ts("Couldn't modify contribution."), ts('Error'), 'error');
-    } else {
-      // everything seems fine, save the account
-      if (!empty($result['values'][$contribution_id]['contact_id'])) {
-        $this->storeAccountWithContact($btx, $result['values'][$contribution_id]['contact_id']);
-      } elseif (!empty($result['values'][0]['contact_id'])) {
-        $this->storeAccountWithContact($btx, $result['values'][0]['contact_id']);
-      }
+    // TODO: check if the selection criteria still applies...
+
+
+    // TODO: configure final contribution status?
+    $final_contribution_status_id = 1; // completed
+
+    // set all contributions to completed
+    foreach ($contribution_ids as $contribution_id) {
+      // TODO: error handling, etc.
+      $query = array(
+        'id'                      => $contribution_id,
+        'contribution_status_id'  => $final_contribution_status_id);
+      $query = array_merge($query, $this->getPropagationSet($btx, 'contribution'));   // add propagated values  
+      civicrm_api('Contribution', 'create', $query);
+
+      // TODO: do we want to store bank accounts here?
+      //$this->storeAccountWithContact($btx, $result['values'][$contribution_id]['contact_id']);
     }
 
+    // set the status of the transaction to complete
     $newStatus = banking_helper_optionvalueid_by_groupname_and_name('civicrm_banking.bank_tx_status', 'Processed');
     $btx->setStatus($newStatus);
     parent::execute($suggestion, $btx);
@@ -208,34 +169,40 @@ class CRM_Banking_PluginImpl_Matcher_MultiContribution extends CRM_Banking_Plugi
    */  
   function visualize_match( CRM_Banking_Matcher_Suggestion $match, $btx) {
     // load the contribution
-    $contribution_id = $match->getParameter('contribution_id');
-    $result = civicrm_api('Contribution', 'get', array('version' => 3, 'id' => $contribution_id));
-    if (isset($result['id'])) {
-      // gather information
-      $contribution = $result['values'][$result['id']];
-      $contact_id = $contribution['contact_id'];
-      $edit_link = CRM_Utils_System::url("civicrm/contact/view/contribution", "reset=1&action=update&context=contribution&id=$contribution_id&cid=$contact_id");
-      $contact_link = CRM_Utils_System::url("civicrm/contact/view", "&reset=1&cid=$contact_id");
+    $contribution_ids = $match->getParameter('contribution_ids');
 
-      // create base text
-      $text = "<div>".ts("There seems to be a match:")."<ul>";
-      foreach ($match->getEvidence() as $reason) {
-        $text .= "<li>$reason</li>";
-      }
-      $text .= "</ul><div>";
-
-      // add contribution summary table
-      $text .= "<br/><div><table border=\"1\"><tr>";
-      $text .= "<td><div class=\"btxlabel\">".ts("Donor").":&nbsp;</div><div class=\"btxvalue\"><a href=\"$contact_link\" target=\"_blank\">".$contribution['sort_name']."</td>";
-      $text .= "<td><div class=\"btxlabel\">".ts("Amount").":&nbsp;</div><div class=\"btxvalue\">".$contribution['total_amount']." ".$contribution['currency']."</td>";
-      $text .= "<td><div class=\"btxlabel\">".ts("Date").":&nbsp;</div><div class=\"btxvalue\">".$contribution['receive_date']."</td>";
-      $text .= "<td><div class=\"btxlabel\">".ts("Type").":&nbsp;</div><div class=\"btxvalue\">".$contribution['financial_type']."</td>";
-      $text .= "<td align='center'><a href=\"$edit_link\" target=\"_blank\">".ts("edit contribution")."</td>";
-      $text .= "</tr></table></div>";
-      return $text;
-    } else {
-      return ts("Internal error! Cannot find contribution #").$match->getParameter('contribution_id');
+    // set all contributions to completed
+    $contributions = array();
+    foreach ($contribution_ids as $contribution_id) {
+      // TODO: error handling
+      $contributions[] = civicrm_api3('Contribution', 'getsingle', array('id' => $contribution_id));
     }
+
+    // gather information
+    $text = "<div>".ts("The payment should be reconciled with the following contributions:")."</div>";
+
+    // add contribution summary table
+    $text .= "<br/><div><table border=\"1\"><tr>";
+    $text .= "<td><div class=\"btxlabel\">".ts("Donor").":&nbsp;</div></td>";
+    $text .= "<td><div class=\"btxlabel\">".ts("Amount").":&nbsp;</div></td>";
+    $text .= "<td><div class=\"btxlabel\">".ts("Date").":&nbsp;</div></td>";
+    $text .= "<td><div class=\"btxlabel\">".ts("Type").":&nbsp;</div></td>";
+    $text .= "<td align='center'></td>";
+    $text .= "</tr>";
+    foreach ($contributions as $contribution) {
+      $edit_link = CRM_Utils_System::url("civicrm/contact/view/contribution", "reset=1&action=update&context=contribution&id={$contribution['id']}&cid={$contribution['contact_id']}");
+      $contact_link = CRM_Utils_System::url("civicrm/contact/view", "&reset=1&cid={$contribution['contact_id']}");
+      $text .= "<tr>";
+      $text .= "<td><div class=\"btxvalue\"><a href=\"$contact_link\" target=\"_blank\">".$contribution['sort_name']."</td>";
+      $text .= "<td><div class=\"btxvalue\">".$contribution['total_amount']." ".$contribution['currency']."</td>";
+      $text .= "<td><div class=\"btxvalue\">".$contribution['receive_date']."</td>";
+      $text .= "<td><div class=\"btxvalue\">".$contribution['financial_type']."</td>";
+      $text .= "<td align='center'><a href=\"$edit_link\" target=\"_blank\">".ts("edit contribution")."</td>";
+      $text .= "</tr>";
+    }
+
+    $text .= "</table></div>";
+    return $text;
   }
 
   /** 
@@ -246,9 +213,16 @@ class CRM_Banking_PluginImpl_Matcher_MultiContribution extends CRM_Banking_Plugi
    * @return html code snippet
    */  
   function visualize_execution_info( CRM_Banking_Matcher_Suggestion $match, $btx) {
-    $contribution_id = $match->getParameter('contribution_id');
-    $contribution_link = CRM_Utils_System::url("civicrm/contact/view/contribution", "action=view&reset=1&id=${contribution_id}&cid=2&context=home");
-    return "<p>".sprintf(ts("This payment was associated with <a href=\"%s\">contribution #%s</a>."), $contribution_link, $contribution_id)."</p>";
+    // TODO: make nicer...
+
+    // load the contribution
+    $contribution_ids = $match->getParameter('contribution_ids');
+
+    $text = "<p>".sprintf(ts("This payment was associated with the following %d contributions:"), count($contribution_ids));
+    foreach ($contribution_ids as $contribution) {
+      $text .= '[' . $contribution['id'] . '],';
+    }
+    return $text;
   }
 }
 

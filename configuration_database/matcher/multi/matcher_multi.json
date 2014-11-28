@@ -1,0 +1,14 @@
+{
+    "auto_exec": false,
+    "threshold": 0.4,
+    "required_values": [
+        "btx.ogm_selector"
+    ],
+    "contribution_selector" : [
+        ["contribution_status_id", "1"              ],
+        ["trxn_id",                "{ogm_selector}" ]
+    ],
+    "amount_penalty": "0.2",
+    "value_propagation": {
+    }
+}

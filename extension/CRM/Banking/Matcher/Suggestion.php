@@ -194,13 +194,14 @@ class CRM_Banking_Matcher_Suggestion {
         return $this->_plugin->update_parameters($this, $parameters);
     }
 
-    public function execute(CRM_Banking_BAO_BankTransaction $btx = null, CRM_Banking_PluginModel_Matcher $plugin = null) {
-        // if btx/plugin is not supplied (by the matcher engine), recreate it
-        //$this->_updateObjects($btx, $plugin);
-
-        // perform execute
-        $continue = $this->_plugin->execute($this, $btx);
-        return $continue;
+    public function execute(CRM_Banking_BAO_BankTransaction $btx, CRM_Banking_PluginModel_Matcher $plugin = null) {
+        // only execute if not completed yet
+        if (!banking_helper_tx_status_closed($btx->status_id)) {
+            // perform execute
+            return $this->_plugin->execute($this, $btx);
+        } else {
+            return TRUE;
+        }
     }
 
     public function visualize(CRM_Banking_BAO_BankTransaction $btx = null, CRM_Banking_PluginModel_Matcher $plugin = null) {

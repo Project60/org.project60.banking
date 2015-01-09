@@ -404,6 +404,8 @@ function select_suggestion(e) {
 
 
 function analysePayment() {
+  var reload_regex = new RegExp("(execute=)[0-9]+", 'ig');
+
   if (cj("#analyseButton").hasClass('disabled')) return;
 
   // disable ALL buttons
@@ -423,12 +425,15 @@ function analysePayment() {
   CRM.api('BankingTransaction', 'analyselist', query,
     {success: function(data) {
         if (!data['is_error']) {
-          location.reload();
+          // remove 'execute' bit from URL before reload
+          window.location = window.location.href.replace(reload_regex, '');
         } else {
           cj('<div title="{/literal}{ts}Error{/ts}{literal}"><span class="ui-icon ui-icon-alert" style="float:left;"></span>' + data['error_message'] + '</div>').dialog({
             modal: true,
             buttons: {
-              Ok: function() { location.reload(); }
+              Ok: function() { 
+                window.location = window.location.href.replace(reload_regex, '');
+              }
             }
           });
         }

@@ -164,3 +164,15 @@ function banking_helper_optiongroup_id_name_mapping($group_name) {
         return array();
     }
 }
+
+/**
+ * will check if the given tx_status_id is closed,
+ *  i.e. marked as 'processed' or 'ignored'
+ *
+ * @return TRUE if closed, FALSE otherwise
+ */
+function banking_helper_tx_status_closed($tx_status_id) {
+    $status = banking_helper_optiongroup_id_name_mapping('civicrm_banking.bank_tx_status');
+    return $status[$tx_status_id]['name']=='processed' 
+        || $status[$tx_status_id]['name']=='ignored';
+}

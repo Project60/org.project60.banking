@@ -1,6 +1,11 @@
 Version History
 ===============
 
+version 0.4.3
+=============
+- FIX #79: better prevention of multiple executions
+
+
 version 0.4.2
 =============
 - make UI more responsive (#77)

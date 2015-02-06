@@ -13,32 +13,23 @@
 | written permission from the original author(s).        |
 +--------------------------------------------------------*}
 
-{literal}
-  <style>
-    table.log tr td {
-      padding: 1px 8px; 
-      font-family: Courier;
-      letter-spacing: -1px;
-      font-size: 12px;
-      line-height: 1.2em;
-      background-color: #f7f7f7;
-    }
-  </style>
-{/literal}
-  
 <form action="{$url_action}" method="post" name="DataSource" id="DataSource" enctype="multipart/form-data" >
-  <div class="crm-block crm-form-block crm-import-datasource-form-block" id="choose-data-source">
+  <div class="crm-block crm-form-block">
     <h3>{ts}Export bank transactions{/ts}:</h3>
     <table class="form-layout">
       <tbody>
-        <tr class="crm-import-datasource-form-block-dataSource">
+        <tr>
           <td>{ts}Bank Statements{/ts}</td>
+          <td>{$txbatch_count}</td>
         </tr>
-        <tr class="crm-import-datasource-form-block-dataSource">
+        <tr>
           <td>{ts}Bank Transactions{/ts}</td>
+          <td>{$tx_count}</td>
         </tr>
       </tbody>
     </table>
+    <input type="hidden" name="s_list" value="{$s_list}" />
+    <input type="hidden" name="list"   value="{$list}" />
   </div>
 
   <div class="crm-block crm-form-block crm-import-datasource-form-block" id="choose-data-source">
@@ -46,57 +37,78 @@
     <table class="form-layout">
       <tbody>
         <tr class="crm-import-datasource-form-block-dataSource">
-          <td class="label"><label for="dataSource">{ts}Choose configuration{/ts}<span title="This field is required." class="crm-marker">*</span></label>
+          <td class="label">
+            <label for="dataSource">{ts}Choose configuration{/ts}<span title="This field is required." class="crm-marker">*</span></label>
           </td>
           <td>
-            <select class="form-select required" id="banking-importer-plugin" name="importer-plugin" onchange="selected_plugin_changed(this.value);" 
+            <select class="form-select required" id="banking-exporter-plugin" name="exporter-plugin" onchange="selected_plugin_changed();" 
             {if $page_mode == 'run'}disabled{/if}>
               <option value="-9999">-- {ts}select{/ts} --</option>
             {foreach from=$plugin_list item=field key=fieldName}
               <option value="{$field->id}" {if $plugin_id == $field->id} selected{/if}>{$field->name}</option>
             {/foreach}
-          </select>
-        </td>
-      </tr>
-    </tbody>
+            </select>
+          </td>
+        </tr>
+      </tbody>
     </table>
   </div>
 
-<div class="crm-block crm-form-block crm-import-datasource-form-block" id="import options">
-  <h3>{ts}Export Options{/ts}</h3>
-  <table class="form-layout">
-    <tbody>
-      <tr class="crm-import-datasource-form-block-dataSource">
-        <td>
-          <input type="checkbox" class="form-checkbox" value="on" name="dry_run" id="dry_run"
-          {if $page_mode == 'run'} disabled {/if}
-        {if $dry_run == 'on'} checked {/if}>
-      {ts}Dry run{/ts}</input>
-    </td>
-  </tr>
-  <tr class="crm-import-datasource-form-block-dataSource">
-    <td>
-      <input type="checkbox" disabled class="form-checkbox" value="on" name="process" id="process" 
-      {if $page_mode == 'run'} disabled {/if}
-    {if $process == 'on'} checked {/if}>
-  {ts}Process payments right away{/ts}</input>
-</td>
-</tr>
-</tbody>
-</table>
-</div>
+  <div class="crm-block crm-form-block crm-import-datasource-form-block" id="import options">
+    <h3>{ts}Export Options{/ts}</h3>
+    <table class="form-layout">
+      <tbody>
+        <tr class="crm-import-datasource-form-block-dataSource">
+          <td class="label">
+            <label for="dataSink">{ts}Export mode{/ts}<span class="crm-marker">*</span></label>
+          </td>
+          <td>
+            <select id="dataSink" class="form-select required" id="banking-exporter-mode" name="exporter-mode" >
+              <option value="1">{ts}File Download{/ts}</option>
+              <option value="2">{ts}Direct Upload{/ts}</option>
+            </select>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
 
-
-<div class="crm-submit-buttons">
-  {if $page_mode != 'config'}
-    <a class="button" href="{$url_payments}">
-      <span align="right"><div class="icon details-icon"></div>{ts}See Results{/ts}</span>
-    </a>
-    <a class="button" href="{$url_action}">
-      <span align="right"><div class="icon details-icon"></div>{ts}Import More{/ts}</span>
-    </a>
-  {/if}
-</div>
-
+  <div class="crm-submit-buttons">
+    <span class="crm-button crm-button-type-upload crm-button_qf_DataSource_upload">
+      <input type="submit" value="{ts}Export now{/ts}" class="validate form-submit default">
+    </span>
+  </div>
 </form>
+
+
+<script type="text/javascript">
+  {literal} 
+    var capabilities = {
+  {/literal}
+  {foreach from=$plugin_capabilities item=capability key=pid}
+    {$pid} : '{$capability}',
+  {/foreach}
+  {literal}
+    };
+
+  function selected_plugin_changed() {
+    var new_id = cj("#banking-exporter-plugin").val();
+    var capability = '';
+    if (new_id>0) {
+      var capability = capabilities[new_id];
+    }
+    cj("#dataSink [value=1]").attr('disabled', !capability.contains('F'));
+    cj("#dataSink [value=2]").attr('disabled', !capability.contains('S'));
+    if (capability == 'F') {
+      cj("#dataSink [value=1]").attr('selected', true);
+    } else if (capability == 'S') {
+      cj("#dataSink [value=2]").attr('selected', true);
+    }
+  }
+  {/literal}
+
+  // call once for inital selection
+  selected_plugin_changed();
+
+</script>
 

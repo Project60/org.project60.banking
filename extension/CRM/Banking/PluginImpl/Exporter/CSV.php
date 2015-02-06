@@ -51,7 +51,7 @@ class CRM_Banking_PluginImpl_Exporter_CSV extends CRM_Banking_PluginModel_Export
    * 
    * @return bool
    */
-  static function does_export_files()
+  public function does_export_files()
   {
     return true;
   }
@@ -61,34 +61,69 @@ class CRM_Banking_PluginImpl_Exporter_CSV extends CRM_Banking_PluginModel_Export
    * 
    * @return bool
    */
-  static function does_export_stream()
+  public function does_export_stream()
   {
     return false;
   }
 
   /** 
-   * Test if the configured source is available and ready
+   * Export the given btxs
    * 
-   * @var 
-   * @return TODO: data format?
+   * $txbatch2ids array(<tx_batch_id> => array(<tx_id>))
+   *
+   * @return URL of the resulting file
    */
-  function export_stream( $btx_list, $parameters ) {
-    $this->reportDone(ts("Importing streams not supported by this plugin."));
+  public function export_file( $txbatch2ids, $parameters ) {
+    $file = $this->_export($txbatch2ids, $parameters);
+
+    // TODO: turn $file into a downloadable link
+    return "http://localhost:8888/mh/";
   }
 
   /** 
-   * Import the given file
+   * Export the given btxs
    * 
-   * @return TODO: data format? 
+   * $txbatch2ids array(<tx_batch_id> => array(<tx_id>))
+   *
+   * @return bool TRUE if successful
    */
-  function export_file( $btx_list, $file_path, $parameters ) {
-    $btx_ids_to_export = $this->getIDList();
-    foreach ($btx_ids_to_export as $btx_id) {
-      $data = $this->getBTXData($btx_id);
+  public function export_stream( $txbatch2ids, $parameters ) {
+    $file = $this->_export($txbatch2ids, $parameters);
 
-      # TODO code...
-      
-    }
+    // TODO: upload $file
+
+    return true;
   }
-}
 
+
+  /**
+   * This is the main method where the actual export happens
+   * 
+   * It will create a temp file, export to that, and then return the local path
+   */
+  protected function _export($txbatch2ids, $parameters ) {
+    // todo: open file
+    $temp_file = '/tmp/cbexport.csv';
+    // todo: create/write header from config
+
+    foreach ($txbatch2ids as $tx_batch_id => $batch_txns) {
+      // todo get information on the batch
+      error_log('BATCH '.$tx_batch_id);
+
+      foreach ($batch_txns as $tx_id) {
+      error_log('  ID '.$tx_id);
+        // todo: get information on the txn
+
+        // merge: config_data, batch_data, txn_data, exporter_status and tx_suggestions
+        $txdata = array();
+
+        // then: execute rules
+
+        // then: write row
+      }
+    }
+
+    return $temp_file;    
+  }
+
+}

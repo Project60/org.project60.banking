@@ -171,6 +171,12 @@ function banking_civicrm_options() {
                   'description' => 'Analyses and enriches the payment information using regular expressions.',
                   'is_default' => 0,
               ),
+              'exporter_csv' => array(
+                  'label' => 'Configurable CSV Exporter',
+                  'value' => 'CRM_Banking_PluginImpl_Exporter_CSV',
+                  'description' => 'This exporter should be configurable to export paymetns to a CSV format.',
+                  'is_default' => 0,
+              ),
           ),
       ),
       'civicrm_banking.reference_types' => array(
@@ -187,9 +193,14 @@ function banking_civicrm_options() {
                   'value' => 'NBAN_DE',
                   'is_default' => 0,
               ),
+              'NBAN_AT' => array(
+                  'label' => 'Austrian (national) Bank Account Number',
+                  'value' => 'NBAN_AT',
+                  'is_default' => 0,
+              ),
               'NBAN_BE' => array(
-                  'label' => 'Belgian (national) Bank Account Number',
-                  'value' => 'NBAN_BE',
+                  'label' => 'Swiss (national) Bank Account Number',
+                  'value' => 'NBAN_CH',
                   'is_default' => 0,
               ),
               'ENTITY' => array(

@@ -41,19 +41,62 @@ abstract class CRM_Banking_PluginModel_Exporter extends CRM_Banking_PluginModel_
   abstract function does_export_stream();
 
   /** 
-   * Import the given file
+   * Export the given btxs
    * 
-   * @return TODO: data format? 
+   * $txbatch2ids array(<tx_batch_id> => array(<tx_id>))
+   *
+   * @return URL of the resulting file
    */
-  abstract function export_file( $btx_list, $file_path, $parameters );
+  abstract function export_file( $txbatch2ids, $parameters );
 
   /** 
-   * Test if the configured source is available and ready
+   * Export the given btxs
    * 
-   * @var 
-   * @return TODO: data format?
+   * $txbatch2ids array(<tx_batch_id> => array(<tx_id>))
+   *
+   * @return bool TRUE if successful
    */
-  abstract function export_stream( $btx_list, $parameters );
+  abstract function export_stream( $txbatch2ids, $parameters );
 
+
+
+  /**
+   * will evaluate the 'list' (comma separated list of tx IDs) and 
+   * 's_list' (comma separated list of tx_batch IDs), if given.
+   *
+   * @return an array('tx_batch_id' => array('tx_id'))
+   */
+  public static function getIdLists($params) {
+    // first: extract all the IDs
+    if (!empty($params['list'])) {
+      $ids = explode(",", $params['list']); 
+    } else {
+      $ids = array();
+    }
+    if (!empty($params['s_list'])) {
+      $list = CRM_Banking_Page_Payments::getPaymentsForStatements($params['s_list']);
+      $ids = array_merge(explode(",", $list), $ids);
+    }
+
+    // now create a (sane) SQL query
+    $sane_ids = array();
+    foreach ($ids as $tx_id) {
+      if (is_numeric($tx_id)) {
+        $sane_ids[]= (int) $tx_id;
+      }
+    }
+    if (count($sane_ids) == 0) return array();
+    $sane_ids_list = implode(',', $sane_ids);
+
+    // query the DB
+    $query_sql = "SELECT id, tx_batch_id FROM civicrm_bank_tx WHERE id IN ($sane_ids_list);";
+    $result = array();
+    $query = CRM_Core_DAO::executeQuery($query_sql);
+    while ($query->fetch()) {
+      $result[$query->tx_batch_id][] = $query->id;
+    }
+
+    return $result;
+  }
 }
 

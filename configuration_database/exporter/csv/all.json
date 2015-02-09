@@ -1,0 +1,70 @@
+{
+    "delimiter": ";",
+    "quotes": "\"",
+    "header": 1,
+    "columns": ["Batch ID", "Payment ID", "Donor ID", "Donor Name", "Booking Date", "Transaction Amount", "Reconciled Amount", "Booked by UserID", "Booked by User"],
+    "rules": [
+        {
+            "from": "txbatch_id",
+            "to": "Batch ID",
+            "type": "set"
+        },
+        {
+            "from": "tx_id",
+            "to": "Payment ID",
+            "type": "set"
+        },
+        {
+            "type": "lookup",
+            "entity": "Contact",
+            "from": "exec_executed_by",
+            "key": "id",
+            "to": "exec_user_"
+        },
+        {
+            "from": "exec_user_display_name",
+            "to": "Booked by User",
+            "type": "set"
+        },
+        {
+            "from": "exec_user_id",
+            "to": "Booked by UserID",
+            "type": "set"
+        },
+        {
+            "type": "lookup",
+            "entity": "Contact",
+            "from": "exec_contribution_contact_id",
+            "key": "id",
+            "to": "exec_contribution_user_"
+        },
+        {
+            "from": "exec_contribution_user_display_name",
+            "to": "Donor Name",
+            "type": "set"
+        },
+        {
+            "from": "exec_contribution_user_id",
+            "to": "Donor ID",
+            "type": "set"
+        },
+        {
+            "from": "tx_booking_date",
+            "to": "Booking Date",
+            "type": "set"
+        },
+        {
+            "from": "tx_amount",
+            "to": "Transaction Amount",
+            "currency": "tx_currency",
+            "type": "amount"
+        },
+        {
+            "from": "exec_total_amount",
+            "to": "Reconciled Amount",
+            "currency": "exec_total_currency",
+            "type": "amount"
+        }
+    ],
+    "filters": []
+}

@@ -148,13 +148,16 @@ abstract class CRM_Banking_PluginModel_Exporter extends CRM_Banking_PluginModel_
     }
 
     // resolve status IDs
-    $result['tx_status'] = CRM_Core_OptionGroup::getValue('civicrm_banking.bank_tx_status', $result['tx_status_id'], 'id');
+    $result['tx_status']      = CRM_Core_OptionGroup::getValue('civicrm_banking.bank_tx_status', $result['tx_status_id'], 'id', 'String', 'name');
+    $result['tx_status_name'] = CRM_Core_OptionGroup::getValue('civicrm_banking.bank_tx_status', $result['tx_status_id'], 'id', 'String', 'label');
 
     // add all data_parsed
     $data_parsed = $tx_bao->getDataParsed();
     foreach ($data_parsed as $key => $value) {
       $result['data_'.$key] = $value;
     }
+    unset($result['tx_data_parsed']);
+    unset($result['tx_suggestions']);
 
     // add execution info
     $suggestion_objects = $tx_bao->getSuggestionList();
@@ -174,15 +177,43 @@ abstract class CRM_Banking_PluginModel_Exporter extends CRM_Banking_PluginModel_
         }
         $suggestion_contribution_ids = $suggestion->getParameter('contribution_ids');
         if (!empty($suggestion_contribution_ids)) {
-          $ids = explode(',', $suggestion_contribution_ids);
-          foreach ($ids as $id) {
-            if ((int) $id) {
-              $contribution_ids[] = (int) $id;
-            }
+          foreach ($suggestion_contribution_ids as $id) {
+            $id = (int) $id;
+            if ($id) $contribution_ids[] = $id;
           }
         }
         $result['exec_contribution_count'] = count($contribution_ids);
         $result['exec_contribution_list']  = implode(',', $contribution_ids);
+
+        // also, add individual contribution data
+        $counter               = 0;
+        $total_sum            = 0.0;
+        $total_currency       = '';
+        $total_non_deductible = 0.0;
+        foreach ($contribution_ids as $contribution_id) {
+          $contribution = civicrm_api('Contribution', 'getsingle', array('id' => $contribution_id, 'version' => 3));
+          if (!empty($contribtion['is_error'])) {
+            error_log("org.project60.banking.exporter.csv: error while reading contribution [$contribution_id]: " . $contribution['error_message']);
+          } else {
+            $prefix = 'exec_contribution' . (($counter>0)?"$counter_":'_');
+            foreach ($contribution as $key => $value) {
+              $result[$prefix . $key] = $value;
+              $total_sum += $contribution['total_amount'];
+              $total_nondeductible += $contribution['non_deductible_amount'];
+              if (empty($total_currency)) {
+                $total_currency = $contribution['currency'];
+              } elseif ($total_currency != $contribution['currency']) {
+                $total_currency = 'MIX';
+              }
+            }
+          }
+          
+          $counter++;
+        }
+
+        $result['exec_total_amount']         = $total_sum;
+        $result['exec_total_currency']       = $total_currency;
+        $result['exec_total_non_deductible'] = $total_non_deductible;
 
         break;
       }
@@ -200,8 +231,6 @@ abstract class CRM_Banking_PluginModel_Exporter extends CRM_Banking_PluginModel_
    * @return the data blob to be used for the next line
    */
   protected function compileDataBlob($tx_batch_data, $tx_data) {
-    error_log(print_r($tx_batch_data,1));
-    error_log(print_r($tx_data,1));
     return array_merge($tx_batch_data, $tx_data);
   }
 }

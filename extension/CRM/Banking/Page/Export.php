@@ -49,12 +49,17 @@ class CRM_Banking_Page_Export extends CRM_Core_Page {
       }
       $plugin_instance = $plugin->getInstance();
 
+      // TODO: select WHICH mode (this is only file mode)
+      
       // start exporting
+      $file_data = $plugin_instance->export_file($txbatch2ids, $_REQUEST);
 
-      // TODO: select WHICH mode
-      $plugin_instance->export_file($txbatch2ids, $_REQUEST);
-
-      // TODO: process result (redirect, ...)
+      // process result (redirect, ...)
+      if (empty($file_data['is_error'])) {
+        $mime_type = mime_content_type($file);
+        $buffer = file_get_contents($file_data['path']);
+        CRM_Utils_System::download($file_data['file_name'], $file_data['mime_type'], $buffer, $file_data['file_extension']);
+      }
 
     } else {
       // CONFIGURATION MODE:

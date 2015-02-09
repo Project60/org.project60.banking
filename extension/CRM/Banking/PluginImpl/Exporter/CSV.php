@@ -78,9 +78,12 @@ class CRM_Banking_PluginImpl_Exporter_CSV extends CRM_Banking_PluginModel_Export
    */
   public function export_file( $txbatch2ids, $parameters ) {
     $file = $this->_export($txbatch2ids, $parameters);
-
-    // TODO: turn $file into a downloadable link
-    return "http://localhost:8888/mh/";
+    return array(
+      'path'           => $file,
+      'file_name'      => 'export',
+      'file_extension' => 'csv',
+      'mime_type'      => 'text/csv',
+    );
   }
 
   /** 
@@ -93,7 +96,7 @@ class CRM_Banking_PluginImpl_Exporter_CSV extends CRM_Banking_PluginModel_Export
   public function export_stream( $txbatch2ids, $parameters ) {
     $file = $this->_export($txbatch2ids, $parameters);
 
-    // TODO: upload $file
+    // TODO: upload
 
     return true;
   }
@@ -110,7 +113,6 @@ class CRM_Banking_PluginImpl_Exporter_CSV extends CRM_Banking_PluginModel_Export
     // OPEN FILE
     $temp_file = $this->getTempFile();
     $file_sink = fopen($temp_file, 'w');
-    error_log($temp_file);
 
     // write header, if requested
     if (!empty($config->header)) {
@@ -141,6 +143,7 @@ class CRM_Banking_PluginImpl_Exporter_CSV extends CRM_Banking_PluginModel_Export
         }
         if ($line_filtered_out) continue;
 
+        // DEBUGGING: error_log(print_r($data_blob,1));
 
         // write row
         $csv_line = array();
@@ -158,17 +161,45 @@ class CRM_Banking_PluginImpl_Exporter_CSV extends CRM_Banking_PluginModel_Export
     // close file
     fclose($file_sink);
 
-    return $temp_file;    
+    return $temp_file;
   }
 
   /**
    * execute the given rule on the data_blob
    */
   protected function apply_rule($rule, &$data_blob) {
+
     if ($rule->type == 'set') {
+      // RULE TYPE 'set'
       if (isset($data_blob[$rule->from]) && isset($rule->to)) {
         $data_blob[$rule->to] = $data_blob[$rule->from];
       }
+
+    } elseif ($rule->type == 'amount') {
+      // RULE TYPE 'amount'
+      if (isset($data_blob[$rule->from])) {
+        $amount = $data_blob[$rule->from];
+        $currency = $data_blob[$rule->currency];
+        $data_blob[$rule->to] = CRM_Utils_Money::format($amount, $currency);
+      }
+
+    } elseif ($rule->type == 'lookup') {
+      // RULE TYPE 'lookup'
+      if (isset($data_blob[$rule->from])) {
+        $key_value = $data_blob[$rule->from];
+        if (!empty($key_value)) {
+          $entity = civicrm_api($rule->entity, 'getsingle', array('version' => 3, $rule->key => $key_value));
+          if (!empty($entity['is_error'])) {
+            error_log("org.project60.banking.exporter.csv: rule lookup produced error: " . $entity['error_message']);
+          } else {
+            foreach ($entity as $key => $value) {
+              $data_blob[$rule->to . $key] = $value;
+            }
+          }
+        }
+      }
+
+
     } else {
       error_log("org.project60.banking.exporter.csv: rule type '${$rule->type}' unknown, rule ignored.");
     }

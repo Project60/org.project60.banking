@@ -56,7 +56,7 @@ class CRM_Banking_Page_Export extends CRM_Core_Page {
 
       // process result (redirect, ...)
       if (empty($file_data['is_error'])) {
-        $mime_type = mime_content_type($file);
+        $mime_type = mime_content_type($file_data['path']);
         $buffer = file_get_contents($file_data['path']);
         CRM_Utils_System::download($file_data['file_name'], $file_data['mime_type'], $buffer, $file_data['file_extension']);
       }

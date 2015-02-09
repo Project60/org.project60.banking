@@ -2,7 +2,7 @@
     "delimiter": ";",
     "quotes": "\"",
     "header": 1,
-    "columns": ["Batch ID", "Payment ID", "Donor ID", "Donor Name", "Booking Date", "Transaction Amount", "Reconciled Amount", "Booked by UserID", "Booked by User"],
+    "columns": ["Batch ID", "Payment ID", "Status", "Donor ID", "Donor Name", "Booking Date", "Transaction Amount", "Reconciled Amount", "Booked by UserID", "Booked by User"],
     "rules": [
         {
             "from": "txbatch_id",
@@ -64,6 +64,11 @@
             "to": "Reconciled Amount",
             "currency": "exec_total_currency",
             "type": "amount"
+        },
+        {
+            "from": "tx_status_name",
+            "to": "Status",
+            "type": "set"
         }
     ],
     "filters": []

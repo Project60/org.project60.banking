@@ -1,9 +1,9 @@
 {
-    "comment": "Will export export basic data of all transactions, along with the associated contributions.",
+    "comment": "Will export all conspicious payments, i.e. payments that have NOT been reconciled with contributions with the same amount",
     "delimiter": ";",
     "quotes": "\"",
     "header": 1,
-    "name": "Reconciliation Report",
+    "name": "Conspicious Reconciliations Report",
     "columns": ["Batch ID", "Payment ID", "Status", "Donor ID", "Donor Name", "Booking Date", "Transaction Amount", "Reconciled Amount", "Booked by UserID", "Booked by User"],
     "rules": [
         {
@@ -73,5 +73,13 @@
             "type": "set"
         }
     ],
-    "filters": []
+    "filters": [
+        {
+            "comment": "only transactions, that have NOT been reconciled with contributions with the same amount",
+            "type": "compare",
+            "value_1": "tx_amount",
+            "value_2": "exec_total_amount",
+            "comparator": "!="
+        }
+    ]
 }

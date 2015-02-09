@@ -37,6 +37,7 @@ class CRM_Banking_PluginImpl_Exporter_CSV extends CRM_Banking_PluginModel_Export
     if (!isset($config->columns))   $config->columns = array('txbatch_id', 'tx_id');  // TODO: extend
     if (!isset($config->rules))     $config->rules = array();
     if (!isset($config->filters))   $config->filters = array();
+    if (!isset($config->name))      $config->name = "CiviBanking Transactions";
   }
 
   /** 
@@ -80,7 +81,7 @@ class CRM_Banking_PluginImpl_Exporter_CSV extends CRM_Banking_PluginModel_Export
     $file = $this->_export($txbatch2ids, $parameters);
     return array(
       'path'           => $file,
-      'file_name'      => 'export',
+      'file_name'      => $this->_plugin_config->name,
       'file_extension' => 'csv',
       'mime_type'      => 'text/csv',
     );
@@ -136,7 +137,7 @@ class CRM_Banking_PluginImpl_Exporter_CSV extends CRM_Banking_PluginModel_Export
         // apply filters
         $line_filtered_out = FALSE;
         foreach ($config->filters as $filter) {
-          if ($this->runFilter($filter, $data_blob)) {
+          if (!$this->runFilter($filter, $data_blob)) {
             $line_filtered_out = TRUE;
             break;
           }
@@ -202,6 +203,40 @@ class CRM_Banking_PluginImpl_Exporter_CSV extends CRM_Banking_PluginModel_Export
 
     } else {
       error_log("org.project60.banking.exporter.csv: rule type '${$rule->type}' unknown, rule ignored.");
+    }
+  }
+
+  /**
+   * run the filter on the given row
+   *
+   * @return TRUE if line should be kept
+   */
+  protected function runFilter($filter, $data_blob) {
+    if (empty($filter->type)) return TRUE;
+    if ($filter->type == 'compare') {
+      // FILTER TYPE 'lookup'
+      $value1 = (isset($data_blob[$filter->value_1]))?$data_blob[$filter->value_1]:'';
+      $value2 = (isset($data_blob[$filter->value_2]))?$data_blob[$filter->value_2]:'';
+      if ($filter->comparator == '==') {
+        return $value1 == $value2;
+      } elseif ($filter->comparator == '!=') {
+        return $value1 != $value2;
+      } elseif ($filter->comparator == '>') {
+        return $value1 > $value2;
+      } elseif ($filter->comparator == '>=') {
+        return $value1 >= $value2;
+      } elseif ($filter->comparator == '<') {
+        return $value1 < $value2;
+      } elseif ($filter->comparator == '<=') {
+        return $value1 <= $value2;
+      } else {
+        error_log("org.project60.banking.exporter.csv: filter type '${$filter->type}' has unknown comparator '${$filter->comparator}'. Ignored");
+        return TRUE;
+      }
+
+    } else {
+      error_log("org.project60.banking.exporter.csv: filter type '${$filter->type}' unknown, filter ignored.");
+      return TRUE;
     }
   }
 }

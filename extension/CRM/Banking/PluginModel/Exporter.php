@@ -186,7 +186,7 @@ abstract class CRM_Banking_PluginModel_Exporter extends CRM_Banking_PluginModel_
         $result['exec_contribution_list']  = implode(',', $contribution_ids);
 
         // also, add individual contribution data
-        $counter               = 0;
+        $counter              = 0;
         $total_sum            = 0.0;
         $total_currency       = '';
         $total_non_deductible = 0.0;
@@ -198,13 +198,13 @@ abstract class CRM_Banking_PluginModel_Exporter extends CRM_Banking_PluginModel_
             $prefix = 'exec_contribution' . (($counter>0)?"$counter_":'_');
             foreach ($contribution as $key => $value) {
               $result[$prefix . $key] = $value;
-              $total_sum += $contribution['total_amount'];
-              $total_nondeductible += $contribution['non_deductible_amount'];
-              if (empty($total_currency)) {
-                $total_currency = $contribution['currency'];
-              } elseif ($total_currency != $contribution['currency']) {
-                $total_currency = 'MIX';
-              }
+            }
+            $total_sum += $contribution['total_amount'];
+            $total_non_deductible += $contribution['non_deductible_amount'];
+            if (empty($total_currency)) {
+              $total_currency = $contribution['currency'];
+            } elseif ($total_currency != $contribution['currency']) {
+              $total_currency = 'MIX';
             }
           }
           

@@ -25,15 +25,18 @@ class CRM_Banking_PluginImpl_Exporter_CSV extends CRM_Banking_PluginModel_Export
 
   /**
    * class constructor
-   */ function __construct($config_name) {
+   */ 
+  function __construct($config_name) {
     parent::__construct($config_name);
 
     // read config, set defaults
     $config = $this->_plugin_config;
     if (!isset($config->delimiter)) $config->delimiter = ',';
+    if (!isset($config->quotes))    $config->quotes = '"';
     if (!isset($config->header))    $config->header = 1;
-    if (!isset($config->defaults))  $config->defaults = array();
+    if (!isset($config->columns))   $config->columns = array('txbatch_id', 'tx_id');  // TODO: extend
     if (!isset($config->rules))     $config->rules = array();
+    if (!isset($config->filters))   $config->filters = array();
   }
 
   /** 
@@ -102,28 +105,72 @@ class CRM_Banking_PluginImpl_Exporter_CSV extends CRM_Banking_PluginModel_Export
    * It will create a temp file, export to that, and then return the local path
    */
   protected function _export($txbatch2ids, $parameters ) {
-    // todo: open file
-    $temp_file = '/tmp/cbexport.csv';
-    // todo: create/write header from config
+    $config = $this->_plugin_config;
+
+    // OPEN FILE
+    $temp_file = $this->getTempFile();
+    $file_sink = fopen($temp_file, 'w');
+    error_log($temp_file);
+
+    // write header, if requested
+    if (!empty($config->header)) {
+      fputcsv($file_sink, $config->columns, $config->delimiter, $config->quotes);
+    }
 
     foreach ($txbatch2ids as $tx_batch_id => $batch_txns) {
       // todo get information on the batch
-      error_log('BATCH '.$tx_batch_id);
+      $tx_batch_data = $this->getBatchData($tx_batch_id);
 
       foreach ($batch_txns as $tx_id) {
-      error_log('  ID '.$tx_id);
-        // todo: get information on the txn
+        $tx_data = $this->getTxData($tx_id);
+        $data_blob = $this->compileDataBlob($tx_batch_data, $tx_data);
 
-        // merge: config_data, batch_data, txn_data, exporter_status and tx_suggestions
-        $txdata = array();
+        // execute rules
+        foreach ($config->rules as $rule) {
+          $this->apply_rule($rule, $data_blob);
+        }
 
-        // then: execute rules
 
-        // then: write row
+        // apply filters
+        $line_filtered_out = FALSE;
+        foreach ($config->filters as $filter) {
+          if ($this->runFilter($filter, $data_blob)) {
+            $line_filtered_out = TRUE;
+            break;
+          }
+        }
+        if ($line_filtered_out) continue;
+
+
+        // write row
+        $csv_line = array();
+        foreach ($config->columns as $column_name) {
+          if (isset($data_blob[$column_name])) {
+            $csv_line[] = $data_blob[$column_name];
+          } else {
+            $csv_line[] = '';
+          }
+        }
+        fputcsv($file_sink, $csv_line, $config->delimiter, $config->quotes);
       }
     }
+
+    // close file
+    fclose($file_sink);
 
     return $temp_file;    
   }
 
+  /**
+   * execute the given rule on the data_blob
+   */
+  protected function apply_rule($rule, &$data_blob) {
+    if ($rule->type == 'set') {
+      if (isset($data_blob[$rule->from]) && isset($rule->to)) {
+        $data_blob[$rule->to] = $data_blob[$rule->from];
+      }
+    } else {
+      error_log("org.project60.banking.exporter.csv: rule type '${$rule->type}' unknown, rule ignored.");
+    }
+  }
 }

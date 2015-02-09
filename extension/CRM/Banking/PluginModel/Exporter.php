@@ -98,5 +98,111 @@ abstract class CRM_Banking_PluginModel_Exporter extends CRM_Banking_PluginModel_
 
     return $result;
   }
+
+  /**
+   * Will create a temporary file
+   *
+   * @param params  not yet specified
+   *
+   * @return a file path to an existing file
+   */
+  public function getTempFile($params = array()) {
+    // generate a uniq temp file
+    return tempnam(sys_get_temp_dir(), $this->getPluginID() . '-');
+  }
+
+  /**
+   * Gather all information on the batch
+   * 
+   * @return an array containing all values, keys prefixed with 'txbatch_'
+   */
+  public function getBatchData($tx_batch_id) {
+    $result = array();
+    $txbatch = civicrm_api('BankingTransactionBatch', 'getsingle', array('version' => 3, 'id' => $tx_batch_id));
+    if (empty($txbatch['is_error'])) {
+      foreach ($txbatch as $key => $value) {
+        $result['txbatch_'.$key] = $value;
+      }
+    } else {
+      error_log("org.project60.banking.exporter.csv: error while reading tx_batch [$tx_batch_id]: " . $txbatch['error_message']);
+    }
+    return $result;
+  }
+
+  /**
+   * Gather all information on the transaction / payment
+   * 
+   * @return an array containing all values, keys prefixed with 'tx_'
+   */
+  public function getTxData($tx_id) {
+    $result = array();
+
+    $tx = array();
+    $tx_bao = new CRM_Banking_BAO_BankTransaction();
+    $tx_bao->get('id', $tx_id);
+    CRM_Core_DAO::storeValues($tx_bao, $tx);
+
+    // add all basic fields
+    foreach ($tx as $key => $value) {
+      $result['tx_'.$key] = $value;
+    }
+
+    // resolve status IDs
+    $result['tx_status'] = CRM_Core_OptionGroup::getValue('civicrm_banking.bank_tx_status', $result['tx_status_id'], 'id');
+
+    // add all data_parsed
+    $data_parsed = $tx_bao->getDataParsed();
+    foreach ($data_parsed as $key => $value) {
+      $result['data_'.$key] = $value;
+    }
+
+    // add execution info
+    $suggestion_objects = $tx_bao->getSuggestionList();
+    foreach ($suggestion_objects as $suggestion) {
+      if ($suggestion->isExecuted()) {
+        $result['exec_date']          = $suggestion->isExecuted();
+        $result['exec_executed_by']   = $suggestion->getParameter('executed_by');
+        $result['exec_automatically'] = $suggestion->getParameter('executed_automatically');
+
+        // find contribtion IDs
+        $contribution_ids = array();
+        $suggestion_contribution_id = $suggestion->getParameter('contribution_id');
+        if (!empty($suggestion_contribution_id)) {
+          if ((int) $suggestion_contribution_id) {
+            $contribution_ids[] = (int) $suggestion_contribution_id;
+          }
+        }
+        $suggestion_contribution_ids = $suggestion->getParameter('contribution_ids');
+        if (!empty($suggestion_contribution_ids)) {
+          $ids = explode(',', $suggestion_contribution_ids);
+          foreach ($ids as $id) {
+            if ((int) $id) {
+              $contribution_ids[] = (int) $id;
+            }
+          }
+        }
+        $result['exec_contribution_count'] = count($contribution_ids);
+        $result['exec_contribution_list']  = implode(',', $contribution_ids);
+
+        break;
+      }
+    }
+
+    return $result;
+  }
+
+
+  /**
+   * standard-method to compile the data blob for the individual line
+   * 
+   * exporters may override this method to add more information
+   *
+   * @return the data blob to be used for the next line
+   */
+  protected function compileDataBlob($tx_batch_data, $tx_data) {
+    error_log(print_r($tx_batch_data,1));
+    error_log(print_r($tx_data,1));
+    return array_merge($tx_batch_data, $tx_data);
+  }
 }
 

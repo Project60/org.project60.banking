@@ -19,12 +19,12 @@
     <table class="form-layout">
       <tbody>
         <tr>
-          <td>{ts}Bank Statements{/ts}</td>
-          <td>{$txbatch_count}</td>
+          <td style="white-space: nowrap;">{ts}Bank Statements{/ts}</td>
+          <td style="width:100%">{$txbatch_count}</td>
         </tr>
         <tr>
-          <td>{ts}Bank Transactions{/ts}</td>
-          <td>{$tx_count}</td>
+          <td style="white-space: nowrap;">{ts}Bank Transactions{/ts}</td>
+          <td style="width:100%">{$tx_count}</td>
         </tr>
       </tbody>
     </table>
@@ -74,13 +74,16 @@
   </div>
 
   <div class="crm-submit-buttons">
-    <span class="crm-button crm-button-type-upload crm-button_qf_DataSource_upload">
-      <input type="submit" value="{ts}Export now{/ts}" class="validate form-submit default">
+    <span class="crm-button crm-button-type-upload">
+      <input type="submit" value="{ts}Export{/ts}" class="validate form-submit default">
+    </span>
+    <span class="crm-button crm-button-type-upload">
+      <input id="banking-exporter-back" type="button" value="{ts}Back{/ts}" hidden="1" onClick="banking_exporter_goback();">
     </span>
   </div>
 </form>
 
-
+{* logic for capabilities (file/stream) *}
 <script type="text/javascript">
   {literal} 
     var capabilities = {
@@ -109,6 +112,20 @@
 
   // call once for inital selection
   selected_plugin_changed();
-
 </script>
 
+
+{* logic for back button *}
+<script type="text/javascript">
+{literal}
+var back_url = document.referrer;
+if (back_url) {
+  cj("#banking-exporter-back").show();
+}
+
+function banking_exporter_goback() {
+  window.location = back_url;
+  return false;
+}
+{/literal}
+</script>

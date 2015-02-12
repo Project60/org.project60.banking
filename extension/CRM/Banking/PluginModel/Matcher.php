@@ -23,7 +23,8 @@
  */
 abstract class CRM_Banking_PluginModel_Matcher extends CRM_Banking_PluginModel_Base {
 
-    
+  protected static $_cache = NULL;
+  
   protected $_suggestions;
 
   protected function addSuggestion( $suggestion )
@@ -269,10 +270,76 @@ abstract class CRM_Banking_PluginModel_Matcher extends CRM_Banking_PluginModel_B
   }
 
 
+  /**
+   * Will get the list of variables defined by the "variables" tag in the config
+   *
+   * @return array of variable names
+   */
+  function getVariableList() {
+    if (isset($this->_plugin_config->variables)) {
+      $variables = (array) $this->_plugin_config->variables;
+      return array_keys($variables);
+    }
+    return array();
+  }
+
+  /**
+   * Will get a variable as defined by the "variables" tag in the config
+   *
+   * @param $context  CRM_Banking_Matcher_Context instance, will be used for caching
+   * @return the variables length
+   */
+  function getVariable($name) {
+    if (isset($this->_plugin_config->variables->$name)) {
+      $variable_spec = $this->_plugin_config->variables->$name;
+      if (!empty($variable_spec->cached)) {
+        // check the cache
+        $value = CRM_Utils_StaticCache::getCachedEntry('var_'.$name);
+        if ($value != NULL) {
+          return $value;
+        }
+      }
+
+      // get value
+      if ($variable_spec->type == 'SQL') {
+        $value = array();
+        $querySQL = "SELECT " . $variable_spec->query . ";";
+        try {
+          // error_log('executing SQL: '.$querySQL);
+          $query = CRM_Core_DAO::executeQuery($querySQL);
+          while ($query->fetch()) {
+            $value[] = $query->value;
+          }
+        } catch (Exception $e) {
+          error_log("org.project60.banking.matcher: there was an error with SQL statement '$querySQL'");
+        }
+        if (isset($variable_spec->glue)) {
+          $value = implode($variable_spec->glue, $value);
+        }
+      } else {
+        error_log("org.project60.banking.matcher: unknown variable type '{$variable_spec->type}'.");
+      }
+  
+      if (!empty($variable_spec->cached)) {
+        // set cache value
+        CRM_Utils_StaticCache::setCachedEntry('var_'.$name, $value);
+      }
+
+      return $value;
+    }
+
+    return NULL;
+  }
+
   /**************************************************************
    *                  Store Account Data                        *
    *************************************************************/
 
+  /**
+   * Will store the donor's account data
+   *
+   * @todo move to post processors
+   */
   function storeAccountWithContact($btx, $contact_id) {
     // find all reference types
     $reference_type_group = array('name' => 'civicrm_banking.reference_types');

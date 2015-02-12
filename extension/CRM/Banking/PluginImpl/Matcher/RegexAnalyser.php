@@ -53,11 +53,20 @@ class CRM_Banking_PluginImpl_Matcher_RegexAnalyser extends CRM_Banking_PluginMod
         $fields = $rule->fields;
       }
 
+      // replace [[...]] style variables in the pattern
+      $pattern = $rule->pattern;
+      $variables = $this->getVariableList();
+      foreach ($variables as $variable) {
+        if (preg_match("#\[\[$variable\]\]#", $pattern)) {
+          $value = $this->getVariable($variable);
+          $pattern = preg_replace("#\[\[$variable\]\]#", print_r($value,1), $pattern);
+        }
+      }
+
       // appy rule to all the fields listed...
       foreach ($fields as $field) {
         if (isset($data_parsed[$field])) {
           $field_data = $data_parsed[$field];
-          $pattern = $rule->pattern;
           $matches = array();
 
           // match the pattern on the given field data

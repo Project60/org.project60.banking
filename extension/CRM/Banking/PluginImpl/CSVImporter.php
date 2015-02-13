@@ -86,8 +86,21 @@ class CRM_Banking_PluginImpl_CSVImporter extends CRM_Banking_PluginModel_Importe
    */
   function probe_file( $file_path, $params )
   {
-    // TODO: implement
-    return true;
+    $config = $this->_plugin_config;
+    if (empty($config->sentinel)) return true; // no sentinel specified... there's nothing we can do.
+
+    // the sentinel is used to verfiy, that the file is of the expected format
+    $file = fopen($file_path, 'r');
+    $probe_data = fread($file, 1024);
+    fclose($file);
+
+    // check encoding if necessary
+    if (isset($config->encoding)) {
+      $probe_data = mb_convert_encoding($probe_data, mb_internal_encoding(), $config->encoding);
+    }
+
+    // end verify this matches the sentinel
+    return preg_match($config->sentinel, $probe_data);
   }
 
 

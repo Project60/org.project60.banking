@@ -37,6 +37,7 @@ class CRM_Banking_PluginImpl_CSVImporter extends CRM_Banking_PluginModel_Importe
     $config = $this->_plugin_config;
     if (!isset($config->delimiter)) $config->delimiter = ',';
     if (!isset($config->header)) $config->header = 1;
+    if (!isset($config->skip)) $config->skip = 0;
     if (!isset($config->defaults)) $config->defaults = array();
     if (!isset($config->rules)) $config->rules = array();
     if (!isset($config->BIC)) $config->BIC = rand(1000,10000);
@@ -113,6 +114,9 @@ class CRM_Banking_PluginImpl_CSVImporter extends CRM_Banking_PluginModel_Importe
       foreach ($line as $item) $bytes_read += strlen($item);
       $bytes_read += sizeof($line) * sizeof($config->delimiter);
 
+      // check if we want to skip lines
+      if ($line_nr <= $config->skip) continue;
+
       // check encoding if necessary
       if (isset($config->encoding)) {
         $decoded_line = array();
@@ -122,7 +126,7 @@ class CRM_Banking_PluginImpl_CSVImporter extends CRM_Banking_PluginModel_Importe
         $line = $decoded_line;
       }
 
-      if ($line_nr <= $config->header) {
+      if ($line_nr == $config->header) {
         // parse header
         if (sizeof($header)==0) {
           $header = $line;  

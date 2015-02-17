@@ -258,6 +258,7 @@
           <div class="btxlabel">{ts}Owner{/ts}</div>
           <div class="btxvalue btxl">
             {if $ba_data_parsed.name}{$ba_data_parsed.name}&nbsp;{else}{$payment_data_parsed.name}&nbsp;{/if}
+            {if $payment_data_parsed.email}(<a href="mailto:{$payment_data_parsed.email}">{$payment_data_parsed.email}</a>){/if}
           </div>
           {if $contact}
             <div class="btxlabel">{ts}Contact{/ts}</div>

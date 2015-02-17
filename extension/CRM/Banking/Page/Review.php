@@ -79,23 +79,29 @@ class CRM_Banking_Page_Review extends CRM_Core_Page {
         $ba_bao->get('id', $btx_bao->party_ba_id);        
         $ba_bao->parsed = json_decode($ba_bao->data_parsed, true);        
         $contact = null;
+        // deprecated: contact can also be indetified via other means, see below
         if ($ba_bao->contact_id) {
           $contact = civicrm_api('Contact','getsingle',array('version'=>3,'id'=>$ba_bao->contact_id));        
         }
       }
-      
+
       // parse structured data
       $this->assign('btxstatus', $choices[$btx_bao->status_id]);
       $this->assign('payment', $btx_bao);
       $this->assign('my_bao', $my_bao);
       if (!empty($ba_bao)) $this->assign('party_ba', $ba_bao);
-      if (!empty($contact)) $this->assign('contact', $contact);
       $this->assign('payment_data_raw', json_decode($btx_bao->data_raw, true));
 
-      $a = json_decode($btx_bao->data_parsed, true);
-      $this->assign('payment_data_parsed', $a);
-      if (!empty($a['iban'])) $a['iban'] = CRM_Banking_BAO_BankAccountReference::format('iban',$a['iban']);
-      
+      $data_parsed = json_decode($btx_bao->data_parsed, true);
+      $this->assign('payment_data_parsed', $data_parsed);
+      if (!empty($data_parsed['iban'])) $data_parsed['iban'] = CRM_Banking_BAO_BankAccountReference::format('iban',$data_parsed['iban']);
+    
+      if (empty($contact) && !empty($data_parsed['contact_id'])) {
+        // convention: the contact was identified with acceptable precision
+        $contact = civicrm_api('Contact','getsingle',array('version'=>3,'id'=>$data_parsed['contact_id']));
+      }
+      if (!empty($contact)) $this->assign('contact', $contact);
+
       $extra_data = array();
       $_data_raw = json_decode($btx_bao->data_raw, true);
       if (is_array($_data_raw)) {

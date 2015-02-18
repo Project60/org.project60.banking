@@ -43,7 +43,7 @@ abstract class CRM_Banking_PluginModel_Matcher extends CRM_Banking_PluginModel_B
   function does_batch_matching() { return FALSE; }
 
   /** 
-   * Generate a set of matches for the given bank transaction
+   * Generate a set of suggestions for the given bank transaction
    * 
    * @return array(match structures)
    */

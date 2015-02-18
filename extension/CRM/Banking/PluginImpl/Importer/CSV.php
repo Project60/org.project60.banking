@@ -26,7 +26,7 @@ function _csvimporter_helper_startswith($string, $prefix) {
  * $Id$
  *
  */
-class CRM_Banking_PluginImpl_CSVImporter extends CRM_Banking_PluginModel_Importer {
+class CRM_Banking_PluginImpl_Importer_CSV extends CRM_Banking_PluginModel_Importer {
 
   /**
    * class constructor

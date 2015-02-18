@@ -21,7 +21,7 @@
  * $Id$
  *
  */
-class CRM_Banking_PluginImpl_XMLImporter extends CRM_Banking_PluginModel_Importer {
+class CRM_Banking_PluginImpl_Importer_XML extends CRM_Banking_PluginModel_Importer {
 
   /**
    * class constructor

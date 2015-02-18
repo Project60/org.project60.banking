@@ -109,13 +109,13 @@ function banking_civicrm_options() {
               ),
               'importer_csv' => array(
                   'label' => 'Configurable CSV Importer',
-                  'value' => 'CRM_Banking_PluginImpl_CSVImporter',
+                  'value' => 'CRM_Banking_PluginImpl_Importer_CSV',
                   'description' => 'This importer should be configurable to import any CSV based data.',
                   'is_default' => 0,
               ),
               'importer_xml' => array(
                   'label' => 'Configurable XML Importer',
-                  'value' => 'CRM_Banking_PluginImpl_XMLImporter',
+                  'value' => 'CRM_Banking_PluginImpl_Importer_XML',
                   'description' => 'This importer should be configurable to import a variety of XML based data.',
                   'is_default' => 0,
               ),
@@ -273,6 +273,11 @@ function banking_civicrm_uninstall() {
 function banking_civicrm_enable() {
   //add the required option groups
   banking_civicrm_install_options(banking_civicrm_options());
+
+  // run the update script
+  $config = CRM_Core_Config::singleton();
+  $sql = file_get_contents(dirname(__FILE__) . '/sql/upgrade.sql', true);
+  CRM_Utils_File::sourceSQLFile($config->dsn, $sql, NULL, true);
 
   return _banking_civix_civicrm_enable();
 }

@@ -62,6 +62,7 @@ class CRM_Banking_PluginImpl_Matcher_Membership extends CRM_Banking_PluginModel_
 
       $suggestion->setId("existing-$contribution_id");
       $suggestion->setParameter('membership_id', $membership['id']);
+      $suggestion->setParameter('last_fee_id',   $membership['last_fee_id']);
       $suggestion->setProbability($membership['probability']);
       $btx->addSuggestion($suggestion);
     }
@@ -113,6 +114,7 @@ class CRM_Banking_PluginImpl_Matcher_Membership extends CRM_Banking_PluginModel_
 
     // load the contribution
     $membership_id = $match->getParameter('membership_id');
+    $last_fee_id   = $match->getParameter('last_fee_id');
 
     // load membership
     $membership = civicrm_api('Membership', 'getsingle', array('id' => $membership_id, 'version'=>3));
@@ -135,7 +137,8 @@ class CRM_Banking_PluginImpl_Matcher_Membership extends CRM_Banking_PluginModel_
     // TODO: error handling
 
     // load last membership fee
-    $last_fee = civicrm_api('Contribution', 'getsingle', array('id' => $membership['last_contribution_id'], 'version'=>3));
+    $last_fee = civicrm_api('Contribution', 'getsingle', array('id' => $last_fee_id, 'version'=>3));
+    $last_fee['days'] = round((strtotime("now")-strtotime($last_fee['receive_date'])) / (60 * 60 * 24));
     $smarty->assign('last_fee', $last_fee);
     // TODO: error handling
 

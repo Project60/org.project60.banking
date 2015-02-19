@@ -49,7 +49,7 @@ class CRM_Banking_PluginImpl_Matcher_Membership extends CRM_Banking_PluginModel_
     $contacts_found = $context->findContacts($threshold, $data_parsed['name'], $config->lookup_contact_by_name);
 
     // with the identified contacts, look up matching memberships
-    $memberships = $this->findMemberships($contacts_found, $context);
+    $memberships = $this->findMemberships($contacts_found, $btx, $context);
 
     // transform all memberships into suggestions
     foreach ($memberships as $membership) {
@@ -57,7 +57,7 @@ class CRM_Banking_PluginImpl_Matcher_Membership extends CRM_Banking_PluginModel_
       if (isset($contact->general_options->suggestion_title)) {
         $suggestion->setTitle($contact->general_options->suggestion_title);  
       } else {
-        $suggestion->setTitle(ts("Possible matching contribution found"));
+        $suggestion->setTitle(ts("Record as Membership Fee"));
       }
 
       $suggestion->setId("existing-$contribution_id");
@@ -119,8 +119,18 @@ class CRM_Banking_PluginImpl_Matcher_Membership extends CRM_Banking_PluginModel_
     $smarty->assign('membership', $membership);
     // TODO: error handling
 
+    // load membership type
+    $contact = civicrm_api('MembershipType', 'getsingle', array('id' => $membership['membership_type_id'], 'version'=>3));
+    $smarty->assign('membership_type', $contact);
+    // TODO: error handling
+
+    // load membership status
+    $membership_status = civicrm_api('MembershipStatus', 'getsingle', array('id' => $membership['status_id'], 'version'=>3));
+    $smarty->assign('membership_status', $membership_status);
+    // TODO: error handling
+
     // load contact
-    $contact = civicrm_api('Membership', 'getsingle', array('id' => $membership['contact_id'], 'version'=>3));
+    $contact = civicrm_api('Contact', 'getsingle', array('id' => $membership['contact_id'], 'version'=>3));
     $smarty->assign('contact', $contact);
     // TODO: error handling
 
@@ -150,19 +160,19 @@ class CRM_Banking_PluginImpl_Matcher_Membership extends CRM_Banking_PluginModel_
    * This function will use the given parameters to find
    * all potential membership IDs with the contacts found.
    */
-  protected function findMemberships($contact2probability, $context) {
+  protected function findMemberships($contact2probability, $btx, $context) {
     if (empty($contact2probability)) return array();
 
     $config = $this->_plugin_config;
     $memberships = array();
-    $query_sql = $this->createSQLQuery(array_keys($contact2probability), $context);
+    $query_sql = $this->createSQLQuery(array_keys($contact2probability), $btx->amount, $context);
     $query = CRM_Core_DAO::executeQuery($query_sql);
     while ($query->fetch()) {
       $memberships[] = array(
         'id'            => $query->id,
-        'contact_id'    => $query->contat_id,
+        'contact_id'    => $query->contact_id,
         'last_fee_id'   => $query->last_fee_id
-        // TO BE CONTINUED
+        // TO BE EXTENDED...
         );
     }
 
@@ -190,32 +200,80 @@ class CRM_Banking_PluginImpl_Matcher_Membership extends CRM_Banking_PluginModel_
    *
    * @return SQL string
    */
-  protected function createSQLQuery($contact_ids, $context) {
+  protected function createSQLQuery($contact_ids, $amount, $context) {
     $cache_key = "matcher_membership_" . $this->_plugin_id . "_query";
     $query = CRM_Utils_StaticCache::getCachedEntry($cache_key);
     if ($query == NULL) {
-      // TODO: build query
+      // NOT CACHED, build query
       $config = $this->_plugin_config;
       $base_query = "
       SELECT 
-        civicrm_membership.id         AS id,
-        civicrm_membership.contact_id AS contact_id
+        civicrm_membership.id             AS id,
+        civicrm_membership.contact_id     AS contact_id,
+        MAX(civicrm_contribution.id)      AS last_fee_id
       FROM
         civicrm_membership
+      LEFT JOIN
+        civicrm_membership_payment ON civicrm_membership.id = civicrm_membership_payment.membership_id
+      LEFT JOIN
+        civicrm_contribution ON     civicrm_membership_payment.contribution_id = civicrm_contribution.id
+                                AND civicrm_contribution.contribution_status_id = 1
+                                AND civicrm_contribution.is_test = 0
       WHERE
         civicrm_membership.contact_id           IN (CONTACT_IDS)
       AND civicrm_membership.membership_type_id IN (%s)
-      AND (%s);
+      AND (%s)
+      GROUP BY
+        civicrm_membership.id;
       ";
 
-      // get $membership_type_id_list
+      // TODO: status restrictions?
 
+      // load all membership types
+      $membership_types = array();
+      $_membership_types = civicrm_api3('MembershipType', 'get', array('option.limit' => 99999));
+      foreach ($_membership_types['values'] as $membership_type) {
+        $membership_types[$membership_type['id']] = $membership_type;
+      }
+
+      // get $membership_type_id_list
+      $membership_type_ids = array();
+      if (isset($config->general_options->membership_type_ids)) {
+        // if there is a given list, we'll take it
+        $membership_type_ids_option = explode(',', $config->general_options->membership_type_ids);
+        foreach ($membership_type_ids_option as $membership_type_id) {
+          if ((int) $membership_type_id) {
+            $membership_type_ids[] = (int) $membership_type_id;
+          }
+        }
+      } else {
+        // if there is no given list, we'll take all active type
+        foreach ($membership_types as $membership_type_id => $membership_type) {
+          if ($membership_type['is_active']) {
+            $membership_type_ids[] = (int) $membership_type_id;
+          }
+        }
+      }
+      //if (empty($membership_type_ids)) throw Exception("matcher_membership: No active membership types found.");
 
       // compile $membership_type_clauses
-
+      $membership_type_clauses = array();
+      foreach ($membership_type_ids as $membership_type_id) {
+        $amount_range = $this->getMembershipAmountRange($membership_types[$membership_type_id], $context);
+        $membership_type_clauses[] = "(
+          (civicrm_membership.membership_type_id = $membership_type_id)
+          AND
+          (BTX_AMOUNT >= ${amount_range[0]})
+          AND
+          (BTX_AMOUNT <= ${amount_range[1]})
+          )";
+      }
 
       // compile final query:
-      $query = sprintf($base_query, $membership_type_id_list, $membership_type_clauses);
+      error_log($base_query);
+      $membership_type_id_list     = implode(',',    $membership_type_ids);
+      $membership_type_clauses_sql = implode(' OR ', $membership_type_clauses);
+      $query = sprintf($base_query, $membership_type_id_list, $membership_type_clauses_sql);
 
       // normalize query (remove extra whitespaces)
       $query = preg_replace('/\s+/', ' ', $query);
@@ -226,7 +284,49 @@ class CRM_Banking_PluginImpl_Matcher_Membership extends CRM_Banking_PluginModel_
 
     // insert the contact IDs
     $contact_id_list = implode(',', $contact_ids);
-    return str_replace('CONTACT_IDS', $contact_id_list, $query);
+    $final_sql = str_replace('CONTACT_IDS', $contact_id_list, $query);
+    $final_sql = str_replace('BTX_AMOUNT',  $amount,          $final_sql);
+    error_log($final_sql);
+    return $final_sql;
+  }
+
+  /**
+   * This function will find out the amount range that would match the given type
+   * 
+   * @return array($min_amount, $max_amount, $exact_amount)
+   */
+  protected function getMembershipAmountRange($membership_type, $context) {
+    $config = $this->_plugin_config;
+    $expected_fee = (float) $this->getMembershipOption($membership_type['id'],
+                                'membership_fee', $membership_type['minimum_fee']);
+    $min_factor   = (float) $this->getMembershipOption($membership_type['id'],
+                                'amount_min',     1.0);
+    $max_factor   = (float) $this->getMembershipOption($membership_type['id'],
+                                'amount_max',     1.0);
+    return array($expected_fee * $min_factor, $expected_fee * $max_factor, $expected_fee);
+  }
+
+  /**
+   * Helper function to get an option for a certain membership type id
+   * These options can be specified in the general_options,
+   * but overwritten int the membership_options.
+   */
+  protected function getMembershipOption($membership_type_id, $option_name, $default) {
+    $config = $this->_plugin_config;
+    $value = NULL;
+    if (isset($config->general_options->$option_name)) {
+      // get the value from the general_options
+      $value = $config->general_options->$option_name;
+    }
+    if (isset($config->membership_options->$membership_type_id->$option_name)) {
+      // overwrite if there's a specific option set for this type
+      $value = $config->membership_options[$membership_type_id][$option_name];
+    }
+    if ($value === NULL) {
+      return $default;
+    } else {
+      return $value;      
+    }
   }
 
   /**
@@ -235,9 +335,11 @@ class CRM_Banking_PluginImpl_Matcher_Membership extends CRM_Banking_PluginModel_
    * 
    * @return float [0..1]
    */
-  protected function rateMembership($membership, $context) {
+  protected function rateMembership(&$membership, $context) {
+    error_log("RATING: " . print_r($membership,1));
     // TODO: implmement
-    return 1.0;
+    $membership['probability'] = 1.0;
+    return $membership['probability'];
   }
 }
 

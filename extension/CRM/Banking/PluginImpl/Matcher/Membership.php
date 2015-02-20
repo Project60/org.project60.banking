@@ -128,6 +128,7 @@ class CRM_Banking_PluginImpl_Matcher_Membership extends CRM_Banking_PluginModel_
     $last_fee['days']   = round((strtotime($btx->booking_date)-strtotime($last_fee['receive_date'])) / (60 * 60 * 24));
     $membership['days'] = round((strtotime($btx->booking_date)-strtotime($membership['start_date'])) / (60 * 60 * 24));
     $membership['percentage_of_minimum'] = round(($btx->amount / (float) $membership_type['minimum_fee']) * 100);
+    $membership['title'] = $this->getMembershipOption($membership['membership_type_id'], 'title', $membership_type['name']);
 
     // assign to smarty and compile HTML
     $smarty->assign('membership',        $membership);
@@ -165,17 +166,19 @@ class CRM_Banking_PluginImpl_Matcher_Membership extends CRM_Banking_PluginModel_
     $query = CRM_Core_DAO::executeQuery($query_sql);
     while ($query->fetch()) {
       $memberships[] = array(
-        'id'            => $query->id,
-        'contact_id'    => $query->contact_id,
-        'last_fee_id'   => $query->last_fee_id
-        // TO BE EXTENDED...
+        'id'                 => $query->id,
+        'contact_id'         => $query->contact_id,
+        'membership_type_id' => $query->membership_type_id,
+        'expected_fee'       => $query->expected_fee,
+        'last_fee_id'        => $query->last_fee_id,
+        'last_fee_amount'    => $query->last_fee_amount
         );
     }
 
     // now rate all the memberships, and cut off the ones under the threshold
     $result = array();
     foreach ($memberships as $membership) {
-      $probability = $this->rateMembership($membership, $context);
+      $probability = $this->rateMembership($membership, $btx, $context);
       if ($probability >= $config->threshold) {
         $result[] = $membership;
       }
@@ -204,9 +207,12 @@ class CRM_Banking_PluginImpl_Matcher_Membership extends CRM_Banking_PluginModel_
       $config = $this->_plugin_config;
       $base_query = "
       SELECT 
-        civicrm_membership.id             AS id,
-        civicrm_membership.contact_id     AS contact_id,
-        MAX(civicrm_contribution.id)      AS last_fee_id
+        civicrm_membership.id                  AS id,
+        civicrm_membership.contact_id          AS contact_id,
+        civicrm_membership.membership_type_id  AS membership_type_id,
+        'BTX_AMOUNT'                           AS expected_fee,
+        MAX(civicrm_contribution.id)           AS last_fee_id,
+        AVG(civicrm_contribution.total_amount) AS last_fee_amount
       FROM
         civicrm_membership
       LEFT JOIN
@@ -266,7 +272,6 @@ class CRM_Banking_PluginImpl_Matcher_Membership extends CRM_Banking_PluginModel_
       }
 
       // compile final query:
-      error_log($base_query);
       $membership_type_id_list     = implode(',',    $membership_type_ids);
       $membership_type_clauses_sql = implode(' OR ', $membership_type_clauses);
       $query = sprintf($base_query, $membership_type_id_list, $membership_type_clauses_sql);
@@ -316,7 +321,7 @@ class CRM_Banking_PluginImpl_Matcher_Membership extends CRM_Banking_PluginModel_
     }
     if (isset($config->membership_options->$membership_type_id->$option_name)) {
       // overwrite if there's a specific option set for this type
-      $value = $config->membership_options[$membership_type_id][$option_name];
+      $value = $config->membership_options->$membership_type_id->$option_name;
     }
     if ($value === NULL) {
       return $default;
@@ -331,10 +336,37 @@ class CRM_Banking_PluginImpl_Matcher_Membership extends CRM_Banking_PluginModel_
    * 
    * @return float [0..1]
    */
-  protected function rateMembership(&$membership, $context) {
+  protected function rateMembership(&$membership, $btx, $context) {
     error_log("RATING: " . print_r($membership,1));
-    // TODO: implmement
-    $membership['probability'] = 1.0;
+    $rating = 1.0;
+
+    $amount_penalty = $this->getMembershipOption($membership['membership_type_id'], 'amount_penalty', 0.0);
+    error_log($amount_penalty);
+    if ($amount_penalty) {
+      $amount_deviation_relative_min = $this->getMembershipOption($membership['membership_type_id'], 'amount_deviation_relative_min', 1.0);
+      $amount_deviation_relative_max = $this->getMembershipOption($membership['membership_type_id'], 'amount_deviation_relative_max', 1.0);
+      $relative_deviation = ((float)$btx->amount / (float)$membership['expected_fee']);
+      if ($relative_deviation < $amount_deviation_relative_min || $relative_deviation > $amount_deviation_relative_max) {
+        $rating -= $amount_penalty;
+      }
+    }
+
+    $date_penalty = $this->getMembershipOption($membership['membership_type_id'], 'date_penalty', 0.0);
+    error_log($date_penalty);
+    if ($date_penalty) {
+      $date_deviation_relative_min = $this->getMembershipOption($membership['membership_type_id'], 'date_deviation_relative_min', 0.8);
+      $date_deviation_relative_max = $this->getMembershipOption($membership['membership_type_id'], 'date_deviation_relative_max', 1.2);
+      
+      // TODO: get estimated next date (since last payment OR start_date)
+      // TODO: then get deviation of $btx->booking_date from that date
+      // => voila!
+
+      if ($there_is_a_deviation) {
+        $rating -= $date_penalty;
+      }
+    }
+
+    $membership['probability'] = $rating;
     return $membership['probability'];
   }
 }

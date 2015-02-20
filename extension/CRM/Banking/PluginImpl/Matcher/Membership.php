@@ -116,32 +116,25 @@ class CRM_Banking_PluginImpl_Matcher_Membership extends CRM_Banking_PluginModel_
     $membership_id = $match->getParameter('membership_id');
     $last_fee_id   = $match->getParameter('last_fee_id');
 
-    // load membership
-    $membership = civicrm_api('Membership', 'getsingle', array('id' => $membership_id, 'version'=>3));
-    $smarty->assign('membership', $membership);
+    // LOAD entities
     // TODO: error handling
-
-    // load membership type
-    $contact = civicrm_api('MembershipType', 'getsingle', array('id' => $membership['membership_type_id'], 'version'=>3));
-    $smarty->assign('membership_type', $contact);
-    // TODO: error handling
-
-    // load membership status
+    $membership        = civicrm_api('Membership', 'getsingle', array('id' => $membership_id, 'version'=>3));
+    $membership_type   = civicrm_api('MembershipType', 'getsingle', array('id' => $membership['membership_type_id'], 'version'=>3));
     $membership_status = civicrm_api('MembershipStatus', 'getsingle', array('id' => $membership['status_id'], 'version'=>3));
+    $contact           = civicrm_api('Contact', 'getsingle', array('id' => $membership['contact_id'], 'version'=>3));
+    $last_fee          = civicrm_api('Contribution', 'getsingle', array('id' => $last_fee_id, 'version'=>3));
+
+    // calculate some stuff
+    $last_fee['days']   = round((strtotime($btx->booking_date)-strtotime($last_fee['receive_date'])) / (60 * 60 * 24));
+    $membership['days'] = round((strtotime($btx->booking_date)-strtotime($membership['start_date'])) / (60 * 60 * 24));
+    $membership['percentage_of_minimum'] = round(($btx->amount / (float) $membership_type['minimum_fee']) * 100);
+
+    // assign to smarty and compile HTML
+    $smarty->assign('membership',        $membership);
+    $smarty->assign('membership_type',   $membership_type);
     $smarty->assign('membership_status', $membership_status);
-    // TODO: error handling
-
-    // load contact
-    $contact = civicrm_api('Contact', 'getsingle', array('id' => $membership['contact_id'], 'version'=>3));
-    $smarty->assign('contact', $contact);
-    // TODO: error handling
-
-    // load last membership fee
-    $last_fee = civicrm_api('Contribution', 'getsingle', array('id' => $last_fee_id, 'version'=>3));
-    $last_fee['days'] = round((strtotime("now")-strtotime($last_fee['receive_date'])) / (60 * 60 * 24));
-    $smarty->assign('last_fee', $last_fee);
-    // TODO: error handling
-
+    $smarty->assign('contact',           $contact);
+    $smarty->assign('last_fee',          $last_fee);
     return $smarty->fetch('CRM/Banking/PluginImpl/Matcher/Membership.suggestion.tpl');
   }
 

@@ -49,7 +49,9 @@ class CRM_Banking_PluginImpl_Matcher_Membership extends CRM_Banking_PluginModel_
     $contacts_found = $context->findContacts($threshold, $data_parsed['name'], $config->lookup_contact_by_name);
 
     // with the identified contacts, look up matching memberships
+    $timestamp = microtime(true);
     $memberships = $this->findMemberships($contacts_found, $btx, $context);
+    error_log("QUERY took: " . (microtime(true) - $timestamp));
 
     // transform all memberships into suggestions
     foreach ($memberships as $membership) {
@@ -229,11 +231,7 @@ class CRM_Banking_PluginImpl_Matcher_Membership extends CRM_Banking_PluginModel_
       LEFT JOIN
         civicrm_membership_type    ON civicrm_membership.membership_type_id = civicrm_membership_type.id
       LEFT JOIN
-        civicrm_membership_payment ON civicrm_membership.id = civicrm_membership_payment.membership_id
-      LEFT JOIN
-        civicrm_contribution ON     civicrm_membership_payment.contribution_id = civicrm_contribution.id
-                                AND civicrm_contribution.contribution_status_id = 1
-                                AND civicrm_contribution.is_test = 0
+        civicrm_contribution       ON civicrm_contribution.id = (%s)
       WHERE
         civicrm_membership.contact_id           IN (CONTACT_IDS)
       AND civicrm_membership.membership_type_id IN (%s)
@@ -242,7 +240,17 @@ class CRM_Banking_PluginImpl_Matcher_Membership extends CRM_Banking_PluginModel_
         civicrm_membership.id;
       ";
 
-      // TODO: status restrictions?
+      // LATEST CONTRIBUTION CRITERIA:
+      $contribution_subquery = "
+      SELECT    last_contribution.id 
+      FROM      civicrm_contribution AS last_contribution
+      LEFT JOIN civicrm_membership_payment
+             ON civicrm_membership_payment.contribution_id = last_contribution.id
+      WHERE     last_contribution.contribution_status_id = 1
+      AND       last_contribution.is_test = 0
+      AND       civicrm_membership_payment.membership_id = civicrm_membership.id
+      ORDER BY  receive_date DESC
+      LIMIT 1";
 
       // load all membership types
       $membership_types = array();
@@ -287,7 +295,9 @@ class CRM_Banking_PluginImpl_Matcher_Membership extends CRM_Banking_PluginModel_
       // compile final query:
       $membership_type_id_list     = implode(',',    $membership_type_ids);
       $membership_type_clauses_sql = implode(' OR ', $membership_type_clauses);
-      $query = sprintf($base_query, $membership_type_id_list, $membership_type_clauses_sql);
+      $query = sprintf($base_query, $contribution_subquery, 
+                                    $membership_type_id_list, 
+                                    $membership_type_clauses_sql);
 
       // normalize query (remove extra whitespaces)
       $query = preg_replace('/\s+/', ' ', $query);
@@ -350,7 +360,6 @@ class CRM_Banking_PluginImpl_Matcher_Membership extends CRM_Banking_PluginModel_
    * @return float [0..1]
    */
   protected function rateMembership(&$membership, $btx, $context) {
-    error_log("RATING: " . print_r($membership,1));
     $rating = 1.0;
 
     $amount_penalty = $this->getMembershipOption($membership['membership_type_id'], 'amount_penalty', 0.0);

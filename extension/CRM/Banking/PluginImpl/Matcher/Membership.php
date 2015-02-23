@@ -49,9 +49,7 @@ class CRM_Banking_PluginImpl_Matcher_Membership extends CRM_Banking_PluginModel_
     $contacts_found = $context->findContacts($threshold, $data_parsed['name'], $config->lookup_contact_by_name);
 
     // with the identified contacts, look up matching memberships
-    $timestamp = microtime(true);
     $memberships = $this->findMemberships($contacts_found, $btx, $context);
-    error_log("QUERY took: " . (microtime(true) - $timestamp));
 
     // transform all memberships into suggestions
     foreach ($memberships as $membership) {
@@ -81,11 +79,38 @@ class CRM_Banking_PluginImpl_Matcher_Membership extends CRM_Banking_PluginModel_
    */
   public function execute($suggestion, $btx) {
     $membership_id = $suggestion->getParameter('membership_id');
+    $membership = civicrm_api3('Membership', 'getsingle', array('id' => $membership_id));
+    $membership_type = civicrm_api3('MembershipType', 'getsingle', array('id' => $membership['membership_type_id']));
 
-    // TODO: Implement:
+
+    // TODO: verify validity of suggestion (is outdated?)
+
     // 1. create contribution
+    $contribution_parameters = array(
+        'contact_id'        => $membership['contact_id'],
+        'total_amount'      => $btx->amount,
+        'currency'          => $btx->currency,
+        'receive_date'      => $btx->value_date,
+        'financial_type_id' => $this->getMembershipOption($membership_type['id'], 'financial_type_id', $membership_type['financial_type_id']),
+        'version'           => 3,
+      );
+    $contribution_parameters = array_merge($contribution_parameters, $this->getPropagationSet($btx, 'contribution'));
+    $contribution = civicrm_api('Contribution', 'create',  $contribution_parameters);
+    if (!empty($contribution['is_error'])) {
+      CRM_Core_Session::setStatus(ts("Couldn't create contribution.")."<br/>".ts("Error was: ").$contribution['error_message'], ts('Error'), 'error');
+      return true;      
+    }
+
     // 2. connect to membership
-    // 3. update status?
+    civicrm_api3('MembershipPayment', 'create',  array(
+      'membership_id'   => $membership_id,
+      'contribution_id' => $contribution['id']
+      ));
+
+    // wrap it up
+    $suggestion->setParameter('contact_id',      $membership['contact_id']);
+    $suggestion->setParameter('contribution_id', $contribution['id']);
+    $this->storeAccountWithContact($btx, $membership['contact_id']);
 
     $newStatus = banking_helper_optionvalueid_by_groupname_and_name('civicrm_banking.bank_tx_status', 'Processed');
     $btx->setStatus($newStatus);
@@ -149,9 +174,12 @@ class CRM_Banking_PluginImpl_Matcher_Membership extends CRM_Banking_PluginModel_
    * @return html code snippet
    */  
   function visualize_execution_info( CRM_Banking_Matcher_Suggestion $match, $btx) {
-    $membership_id = $match->getParameter('membership_id');
-    //$contribution_link = CRM_Utils_System::url("civicrm/contact/view/contribution", "action=view&reset=1&id=${contribution_id}&cid=2&context=home");
-    return "<p>".sprintf(ts("This payment was associated with <a href=\"%s\">membership #%s</a>."), $contribution_link, $contribution_id)."</p>";
+    // just assign to smarty and compile HTML
+    $smarty = CRM_Core_Smarty::singleton();
+    $smarty->assign('membership_id',    $match->getParameter('membership_id'));
+    $smarty->assign('contribution_id',  $match->getParameter('contribution_id'));
+    $smarty->assign('contact_id',       $match->getParameter('contact_id'));
+    return $smarty->fetch('CRM/Banking/PluginImpl/Matcher/Membership.execution.tpl');
   }
 
 
@@ -310,7 +338,7 @@ class CRM_Banking_PluginImpl_Matcher_Membership extends CRM_Banking_PluginModel_
     $contact_id_list = implode(',', $contact_ids);
     $final_sql = str_replace('CONTACT_IDS', $contact_id_list, $query);
     $final_sql = str_replace('BTX_AMOUNT',  $amount,          $final_sql);
-    error_log($final_sql);
+    //error_log($final_sql);
     return $final_sql;
   }
 

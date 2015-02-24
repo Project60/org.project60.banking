@@ -52,11 +52,16 @@ class CRM_Banking_PluginImpl_Matcher_SepaMandate extends CRM_Banking_PluginModel
     if (!isset($config->cancellation_value_propagation)) $config->cancellation_value_propagation = $config->value_propagation;
   }
 
+  /** 
+   * Generate a set of suggestions for the given bank transaction
+   * 
+   * @return array(match structures)
+   */
   public function match(CRM_Banking_BAO_BankTransaction $btx, CRM_Banking_Matcher_Context $context) {
     $config = $this->_plugin_config;
-    $threshold = $config->threshold;
+    $threshold   = $this->getThreshold();
     $data_parsed = $btx->getDataParsed();
-    $probability = 1.0;
+    $probability = 1.0 - $this->getPenalty($btx);
     $cancellation_mode = ((bool) $config->cancellation_enabled) && ($btx->amount < 0);
 
     // look for the 'sepa_mandate' key

@@ -151,9 +151,15 @@ class CRM_Banking_PluginImpl_Matcher_ExistingContribution extends CRM_Banking_Pl
   }
 
 
+  /** 
+   * Generate a set of suggestions for the given bank transaction
+   * 
+   * @return array(match structures)
+   */
   public function match(CRM_Banking_BAO_BankTransaction $btx, CRM_Banking_Matcher_Context $context) {
     $config = $this->_plugin_config;
-    $threshold = $config->threshold;
+    $threshold   = $this->getThreshold();
+    $penalty     = $this->getPenalty($btx);
     $data_parsed = $btx->getDataParsed();
 
     // resolve accepted states
@@ -175,6 +181,10 @@ class CRM_Banking_PluginImpl_Matcher_ExistingContribution extends CRM_Banking_Pl
         if (!in_array($contribution['contribution_status_id'], $accepted_status_ids)) continue;
 
         $contribution_probability = $this->rateContribution($contribution, $context);
+
+        // apply penalty
+        $contribution_probability -= $penalty;
+
         if ($contribution_probability > $threshold) {
           $contributions[$contribution['id']] = $contribution_probability;
           $contribution2contact[$contribution['id']] = $contact_id;

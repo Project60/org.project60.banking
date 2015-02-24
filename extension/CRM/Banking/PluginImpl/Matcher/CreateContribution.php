@@ -38,9 +38,15 @@ class CRM_Banking_PluginImpl_Matcher_CreateContribution extends CRM_Banking_Plug
   }
 
 
+  /** 
+   * Generate a set of suggestions for the given bank transaction
+   * 
+   * @return array(match structures)
+   */
   public function match(CRM_Banking_BAO_BankTransaction $btx, CRM_Banking_Matcher_Context $context) {
     $config = $this->_plugin_config;
-    $threshold = $config->threshold;
+    $threshold   = $this->getThreshold();
+    $penalty     = $this->getPenalty($btx);
     $data_parsed = $btx->getDataParsed();
 
     // first see if all the required values are there
@@ -63,8 +69,11 @@ class CRM_Banking_PluginImpl_Matcher_CreateContribution extends CRM_Banking_Plug
       $suggestion->setParameter('contact_id', $contact_id);
 
       // set probability manually, I think the automatic calculation provided by ->addEvidence might not be what we need here
-      $suggestion->setProbability($contact_probability);
-      $btx->addSuggestion($suggestion);
+      $contact_probability -= $penalty;
+      if ($contact_probability >= $threshold) {
+        $suggestion->setProbability($contact_probability);
+        $btx->addSuggestion($suggestion);
+      }
     }
 
     // that's it...

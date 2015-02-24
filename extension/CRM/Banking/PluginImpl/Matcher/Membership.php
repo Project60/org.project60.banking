@@ -42,7 +42,7 @@ class CRM_Banking_PluginImpl_Matcher_Membership extends CRM_Banking_PluginModel_
    */
   public function match(CRM_Banking_BAO_BankTransaction $btx, CRM_Banking_Matcher_Context $context) {
     $config = $this->_plugin_config;
-    $threshold = $config->threshold;
+    $threshold   = $this->getThreshold();
     $data_parsed = $btx->getDataParsed();
 
     // find potential contacts    
@@ -191,6 +191,7 @@ class CRM_Banking_PluginImpl_Matcher_Membership extends CRM_Banking_PluginModel_
     if (empty($contact2probability)) return array();
 
     $config = $this->_plugin_config;
+    $penalty     = $this->getPenalty($btx);
     $memberships = array();
     $query_sql = $this->createSQLQuery(array_keys($contact2probability), $btx->amount, $context);
     $query = CRM_Core_DAO::executeQuery($query_sql);
@@ -215,7 +216,9 @@ class CRM_Banking_PluginImpl_Matcher_Membership extends CRM_Banking_PluginModel_
     $result = array();
     foreach ($memberships as $membership) {
       $probability = $this->rateMembership($membership, $btx, $context);
+      $probability -= $penalty;
       if ($probability >= $config->threshold) {
+        $membership['probability'] = $probability;
         $result[] = $membership;
       }
     }
@@ -442,8 +445,7 @@ class CRM_Banking_PluginImpl_Matcher_Membership extends CRM_Banking_PluginModel_
       }
     }
 
-    $membership['probability'] = $rating;
-    return $membership['probability'];
+    return $rating;
   }
 }
 

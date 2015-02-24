@@ -30,12 +30,20 @@ class CRM_Banking_PluginImpl_Matcher_Ignore extends CRM_Banking_PluginModel_Matc
     if (!isset($config->dont_ignore)) $config->dont_ignore = array();
   }
 
+
+  /** 
+   * Generate a set of suggestions for the given bank transaction
+   * 
+   * @return array(match structures)
+   */
   public function match(CRM_Banking_BAO_BankTransaction $btx, CRM_Banking_Matcher_Context $context) {
 
     // this section will be refactored to use different conditions, but for now, this is hardcoded
     $suggestion = new CRM_Banking_Matcher_Suggestion($this, $btx);
 
     $config = $this->_plugin_config;
+    $threshold   = $this->getThreshold();
+    $penalty     = $this->getPenalty($btx);
 
     if (isset($config->ignore)) {
       // iterate through the ignore list
@@ -52,17 +60,21 @@ class CRM_Banking_PluginImpl_Matcher_Ignore extends CRM_Banking_PluginModel_Matc
           }
 
           if ($ignore_this) {
+
+
             if (isset($ignore_record->precision)) {
-              $suggestion->addEvidence($ignore_record->precision, $ignore_record->message);
+              $probability = $ignore_record->precision;
             } else {
-              $suggestion->addEvidence(1, $ignore_record->message);
+              $probability = 1.0;
             }
+            $probability -= $penalty;
+            $suggestion->addEvidence($probability, $ignore_record->message);
           }
         }
       }
     }
 
-    if ($suggestion->getProbability() > 0) {
+    if ($suggestion->getProbability() > $threshold) {
       $btx->addSuggestion($suggestion);
     }
 

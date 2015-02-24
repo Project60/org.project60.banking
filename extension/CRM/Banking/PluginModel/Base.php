@@ -36,9 +36,10 @@ abstract class CRM_Banking_PluginModel_Base {
    * @var string
    * @protected
    */
-  protected $_plugin_dao;
   public $_plugin_id;
+  protected $_plugin_dao;
   protected $_plugin_weight;
+  protected $_plugin_name;
   protected $_plugin_title;
   protected $_plugin_config;
   protected $_progress_callback;
@@ -61,10 +62,11 @@ abstract class CRM_Banking_PluginModel_Base {
   }
 
   protected function __setDAO($plugin_dao) {
-    $this->_plugin_dao = $plugin_dao;
-    $this->_plugin_id = $plugin_dao->id;
+    $this->_plugin_dao    = $plugin_dao;
+    $this->_plugin_id     = $plugin_dao->id;
     $this->_plugin_weight = $plugin_dao->weight;
-    $this->_plugin_title = $plugin_dao->description;
+    $this->_plugin_title  = $plugin_dao->description;
+    $this->_plugin_name   = $plugin_dao->name;
     $this->_plugin_config = json_decode( $plugin_dao->config );
     if ($this->_plugin_config==false) {
       CRM_Core_Error::fatal("Configuration for CiviBanking plugin (id: ".$plugin_dao->id.") is not a valid JSON string.");
@@ -132,6 +134,18 @@ abstract class CRM_Banking_PluginModel_Base {
 
   function getTitle() {
       return $this->_plugin_title;
+  }
+
+  function getName() {
+      return $this->_plugin_name;
+  }
+
+  /**
+   * get the name of the implementation specification (plugin_class_id)
+   */
+  function getTypeName() {
+    $type_id = $this->_plugin_dao->plugin_class_id;
+    return CRM_Core_OptionGroup::getValue('civicrm_banking.plugin_types', $type_id, 'id', 'String', 'name');
   }
 
   function getPluginID() {

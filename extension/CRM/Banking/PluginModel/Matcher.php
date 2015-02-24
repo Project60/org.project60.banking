@@ -109,10 +109,10 @@ abstract class CRM_Banking_PluginModel_Matcher extends CRM_Banking_PluginModel_B
 
   /**
    * class constructor
-   */ function __construct($config_name) {
-        $this->_suggestions = array();
+   */ 
+  function __construct($config_name) {
+    $this->_suggestions = array();
     parent::__construct($config_name);
-
   }
 
   /** 
@@ -270,6 +270,9 @@ abstract class CRM_Banking_PluginModel_Matcher extends CRM_Banking_PluginModel_B
   }
 
 
+  /**************************************************************
+   *                    Matching Variables                      *
+   **************************************************************/
   /**
    * Will get the list of variables defined by the "variables" tag in the config
    *
@@ -332,8 +335,65 @@ abstract class CRM_Banking_PluginModel_Matcher extends CRM_Banking_PluginModel_B
   }
 
   /**************************************************************
+   *                      Penalty rules                         *
+   **************************************************************/
+  
+  /**
+   * get a general penalty value to be applied to all suggestions
+   * based on the 'penalties' rule set in the configuration
+   */
+  function getPenalty($btx) {
+    $config = $this->_plugin_config;
+    if (empty($config->penalties)) return 0.0;
+    $penalty = 0.0;
+
+    // execute the rules
+    foreach ($config->penalties as $penalty_rule) {
+
+      if ($penalty_rule->type == 'constant') {
+        // CONSTANT PENALTY
+        $penalty += $penalty_rule->amount;
+        $trigger_count -= 1;
+
+      } elseif ($penalty_rule->type == 'suggestion') {
+        // OTHER SUGGESTIONS PENALTY 
+
+        // first: see, how many times this roule should be triggered at most
+        if (!empty($penalty_rule->max_trigger_count)) {
+          $trigger_count = (int) $penalty_rule->max_trigger_count;
+        } else {
+          $trigger_count = 1;
+        }
+
+        foreach ($btx->getSuggestionList() as $suggestion) {
+          $matcher = $suggestion->getPlugin();
+          if (!empty($penalty_rule->threshold) 
+            && $suggestion->getProbability() < $penalty_rule->threshold) continue;
+          if (!empty($penalty_rule->suggestion_type) 
+            && $matcher->getTypeName() != $penalty_rule->suggestion_type) continue;
+
+          if ($trigger_count <= 0) break;
+
+          // if we get here, the penalty is supposed to be applied
+          $penalty += $penalty_rule->amount;
+          $trigger_count -= 1;
+        }
+
+      } elseif ($penalty_rule->type == 'attribute') {
+        // ATTRIBUTE/VARIABLE PENALTY
+        // TODO: Implement
+
+      } else {
+        error_log("org.project60.banking.matcher: penalty type unknwon: " . $penalty_rule->type);        
+      }
+    }
+    return $penalty;
+  }
+
+
+  /**************************************************************
    *                  Store Account Data                        *
-   *************************************************************/
+   **************************************************************/
 
   /**
    * Will store the donor's account data

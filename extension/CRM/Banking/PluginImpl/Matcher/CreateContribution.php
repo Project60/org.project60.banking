@@ -128,9 +128,8 @@ class CRM_Banking_PluginImpl_Matcher_CreateContribution extends CRM_Banking_Plug
    */  
   function visualize_match( CRM_Banking_Matcher_Suggestion $match, $btx) {
 
-    $contact_id = $match->getParameter('contact_id');
+    $contact_id   = $match->getParameter('contact_id');
     $contribution = $this->get_contribution_data($btx, $contact_id);
-    $contact_link = CRM_Utils_System::url("civicrm/contact/view", "&reset=1&cid=$contact_id");
     
     // load contact
     $contact = civicrm_api('Contact', 'getsingle', array('id' => $contact_id, 'version' => 3));
@@ -138,29 +137,15 @@ class CRM_Banking_PluginImpl_Matcher_CreateContribution extends CRM_Banking_Plug
       return ts("Internal error! Cannot find contact #").$contact_id;
     }
 
-    // create address
-    if (!empty($contact['city'])) {
-      if (!empty($contact['street_address'])) {
-        $address = $contact['street_address'].", ".$contact['city'];
-      } else {
-        $address = $contact['city'];
-      }
-    } else {
-      $address = ts("address unknown");
-    }
-
     // lookup financial type
     $financial_types = CRM_Contribute_PseudoConstant::financialType();
     $contribution['financial_type'] = $financial_types[$contribution['financial_type_id']];
 
-    $text = "<div>".ts("The following contribution will be created:")."<div>";
-    $text .= "<br/><div><table border=\"1\"><tr>";
-    $text .= "<td><div class=\"btxlabel\">".ts("Donor").":&nbsp;</div><div class=\"btxvalue\"><a title=\"$address\" href=\"$contact_link\" target=\"_blank\">".$contact['sort_name']."</td>";
-    $text .= "<td><div class=\"btxlabel\">".ts("Amount").":&nbsp;</div><div class=\"btxvalue\">".$contribution['total_amount']." ".$contribution['currency']."</td>";
-    $text .= "<td><div class=\"btxlabel\">".ts("Date").":&nbsp;</div><div class=\"btxvalue\">".$contribution['receive_date']."</td>";
-    $text .= "<td><div class=\"btxlabel\">".ts("Type").":&nbsp;</div><div class=\"btxvalue\">".$contribution['financial_type']."</td>";
-    $text .= "</tr></table></div>";
-    return $text;
+    // assign to smarty and compile HTML
+    $smarty = CRM_Core_Smarty::singleton();
+    $smarty->assign('contact',           $contact);
+    $smarty->assign('contribution',      $contribution);
+    return $smarty->fetch('CRM/Banking/PluginImpl/Matcher/CreateContribution.suggestion.tpl');
   }
 
   /** 

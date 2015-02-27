@@ -127,14 +127,15 @@ class CRM_Banking_PluginImpl_Matcher_CreateContribution extends CRM_Banking_Plug
    * @return html code snippet
    */  
   function visualize_match( CRM_Banking_Matcher_Suggestion $match, $btx) {
+    $smarty = CRM_Core_Smarty::singleton();
 
     $contact_id   = $match->getParameter('contact_id');
     $contribution = $this->get_contribution_data($btx, $contact_id);
     
     // load contact
     $contact = civicrm_api('Contact', 'getsingle', array('id' => $contact_id, 'version' => 3));
-    if (isset($contact['is_error']) && $contact['is_error']) {
-      return ts("Internal error! Cannot find contact #").$contact_id;
+    if (!empty($contact['is_error'])) {
+      $smarty->assign('error', $contact['error_message']);
     }
 
     // lookup financial type
@@ -142,7 +143,6 @@ class CRM_Banking_PluginImpl_Matcher_CreateContribution extends CRM_Banking_Plug
     $contribution['financial_type'] = $financial_types[$contribution['financial_type_id']];
 
     // assign to smarty and compile HTML
-    $smarty = CRM_Core_Smarty::singleton();
     $smarty->assign('contact',           $contact);
     $smarty->assign('contribution',      $contribution);
     return $smarty->fetch('CRM/Banking/PluginImpl/Matcher/CreateContribution.suggestion.tpl');
@@ -156,9 +156,11 @@ class CRM_Banking_PluginImpl_Matcher_CreateContribution extends CRM_Banking_Plug
    * @return html code snippet
    */  
   function visualize_execution_info( CRM_Banking_Matcher_Suggestion $match, $btx) {
-    $contribution_id = $match->getParameter('contribution_id');
-    $contribution_link = CRM_Utils_System::url("civicrm/contact/view/contribution", "action=view&reset=1&id=${contribution_id}&cid=2&context=home");
-    return "<p>".sprintf(ts("This payment was associated with <a href=\"%s\">contribution #%s</a>."), $contribution_link, $contribution_id)."</p>";
+    // just assign to smarty and compile HTML
+    $smarty = CRM_Core_Smarty::singleton();
+    $smarty->assign('contribution_id',  $match->getParameter('contribution_id'));
+    $smarty->assign('contact_id',       $match->getParameter('contact_id'));
+    return $smarty->fetch('CRM/Banking/PluginImpl/Matcher/CreateContribution.execution.tpl');
   }
 
   /**

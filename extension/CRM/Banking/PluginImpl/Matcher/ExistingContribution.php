@@ -220,6 +220,7 @@ class CRM_Banking_PluginImpl_Matcher_ExistingContribution extends CRM_Banking_Pl
 
       $suggestion->setId("existing-$contribution_id");
       $suggestion->setParameter('contribution_id', $contribution_id);
+      $suggestion->setParameter('contact_id', $contact_id);
 
       // set probability manually, I think the automatic calculation provided by ->addEvidence might not be what we need here
       $suggestion->setProbability($contribution_probability*$contacts_found[$contact_id]);
@@ -300,35 +301,30 @@ class CRM_Banking_PluginImpl_Matcher_ExistingContribution extends CRM_Banking_Pl
    * @return html code snippet
    */  
   function visualize_match( CRM_Banking_Matcher_Suggestion $match, $btx) {
-    // load the contribution
+    $smarty = CRM_Core_Smarty::singleton();
+
+    // load the data
     $contribution_id = $match->getParameter('contribution_id');
-    $result = civicrm_api('Contribution', 'get', array('version' => 3, 'id' => $contribution_id));
-    if (isset($result['id'])) {
-      // gather information
-      $contribution = $result['values'][$result['id']];
-      $contact_id = $contribution['contact_id'];
-      $edit_link = CRM_Utils_System::url("civicrm/contact/view/contribution", "reset=1&action=update&context=contribution&id=$contribution_id&cid=$contact_id");
-      $contact_link = CRM_Utils_System::url("civicrm/contact/view", "&reset=1&cid=$contact_id");
+    $smarty->assign('contribution_id', $contribution_id);
 
-      // create base text
-      $text = "<div>".ts("There seems to be a match:")."<ul>";
-      foreach ($match->getEvidence() as $reason) {
-        $text .= "<li>$reason</li>";
+    $contribution = civicrm_api('Contribution', 'getsingle', array('id' => $contribution_id, 'version' => 3));
+    if (empty($contribution['is_error'])) {
+      $smarty->assign('contribution', $contribution);      
+
+      $contact = civicrm_api('Contact', 'getsingle', array('id' => $contribution['contact_id'], 'version' => 3));
+      if (empty($contact['is_error'])) {
+        $smarty->assign('contact', $contact);        
+      } else {
+        $smarty->assign('error', $contact['error_message']);
       }
-      $text .= "</ul><div>";
-
-      // add contribution summary table
-      $text .= "<br/><div><table border=\"1\"><tr>";
-      $text .= "<td><div class=\"btxlabel\">".ts("Donor").":&nbsp;</div><div class=\"btxvalue\"><a href=\"$contact_link\" target=\"_blank\">".$contribution['sort_name']."</td>";
-      $text .= "<td><div class=\"btxlabel\">".ts("Amount").":&nbsp;</div><div class=\"btxvalue\">".$contribution['total_amount']." ".$contribution['currency']."</td>";
-      $text .= "<td><div class=\"btxlabel\">".ts("Date").":&nbsp;</div><div class=\"btxvalue\">".$contribution['receive_date']."</td>";
-      $text .= "<td><div class=\"btxlabel\">".ts("Type").":&nbsp;</div><div class=\"btxvalue\">".$contribution['financial_type']."</td>";
-      $text .= "<td align='center'><a href=\"$edit_link\" target=\"_blank\">".ts("edit contribution")."</td>";
-      $text .= "</tr></table></div>";
-      return $text;
     } else {
-      return ts("Internal error! Cannot find contribution #").$match->getParameter('contribution_id');
+      $smarty->assign('error', $contribution['error_message']);
     }
+
+    $smarty->assign('reasons', $match->getEvidence());
+
+    // assign to smarty and compile HTML
+    return $smarty->fetch('CRM/Banking/PluginImpl/Matcher/ExistingContribution.suggestion.tpl');
   }
 
   /** 
@@ -339,9 +335,11 @@ class CRM_Banking_PluginImpl_Matcher_ExistingContribution extends CRM_Banking_Pl
    * @return html code snippet
    */  
   function visualize_execution_info( CRM_Banking_Matcher_Suggestion $match, $btx) {
-    $contribution_id = $match->getParameter('contribution_id');
-    $contribution_link = CRM_Utils_System::url("civicrm/contact/view/contribution", "action=view&reset=1&id=${contribution_id}&cid=2&context=home");
-    return "<p>".sprintf(ts("This payment was associated with <a href=\"%s\">contribution #%s</a>."), $contribution_link, $contribution_id)."</p>";
+    // just assign to smarty and compile HTML
+    $smarty = CRM_Core_Smarty::singleton();
+    $smarty->assign('contribution_id',  $match->getParameter('contribution_id'));
+    $smarty->assign('contact_id',       $match->getParameter('contact_id'));
+    return $smarty->fetch('CRM/Banking/PluginImpl/Matcher/ExistingContribution.execution.tpl');
   }
 }
 

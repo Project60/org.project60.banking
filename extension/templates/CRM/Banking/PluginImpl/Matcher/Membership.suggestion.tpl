@@ -40,7 +40,8 @@
 {/if}
 
 <div>
-  {capture assign=contact_link}<a title="{$contact.street_address}, {$contact.city}" href="{crmURL p="civicrm/contact/view" q="reset=1&cid=$contact_id"}">{$contact.display_name}</a>{/capture}
+  {capture assign=address_text}{if $contact.city}{$contact.street_address}, {$contact.city}{else}{ts}Address incomplete{/ts}{/if}{/capture}
+  {capture assign=contact_link}<a title="{$address_text}" href="{crmURL p="civicrm/contact/view" q="reset=1&cid=$contact_id"}">{$contact.display_name} [{$contact.id}]</a>{/capture}
   {assign var=status_text value=$membership_status.label}
   {capture assign=type_link}<a title="{$membership_type.description}" href="{crmURL p="civicrm/contact/view/membership" q="action=view&reset=1&cid=$contact_id&id=$membership_id&context=membership&selectedChild=member"}">"{$membership.title}"</a>{/capture}
   {capture assign=date_text}{$membership.start_date|crmDate:$config->dateformatFull}{/capture}

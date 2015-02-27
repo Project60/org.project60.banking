@@ -13,8 +13,12 @@
 | written permission from the original author(s).        |
 +--------------------------------------------------------*}
 
+{assign var=contact_id value=$contact.id}
+{assign var=contribution_id value=$contribution.id}
+
 {capture assign=address_text}{if $contact.city}{$contact.street_address}, {$contact.city}{else}{ts}Address incomplete{/ts}{/if}{/capture}
 {capture assign=contact_link}<a title="{$address_text}" href="{crmURL p="civicrm/contact/view" q="reset=1&cid=$contact_id"}">{$contact.display_name} [{$contact.id}]</a>{/capture}
+{capture assign=contribution_url}{crmURL p="civicrm/contact/view/contribution" q="reset=1&action=update&context=contribution&id=$contribution_id&cid=$contact_id"}{/capture}
 
 {if $error}
 <div>
@@ -23,7 +27,14 @@
 </div>
 {else}
 <div>
-  {ts}The following contribution will be created:{/ts}
+  {ts}There seems to be a match:{/ts}
+  {if $reasons}
+  <ul>
+  {foreach from=$reasons item=reason}
+    <li>{$reason}</li>
+  {/foreach}
+  </ul>
+  {/if}
   <br/>
   <div>
     <table border="1">
@@ -44,6 +55,9 @@
           <td>
             <div class="btxlabel">{ts}Type{/ts}:&nbsp;</div>
             <div class="btxvalue">{$contribution.financial_type}</div>
+          </td>
+          <td align='center'>
+            <a href="{$contribution_url}" target="_blank">{ts}edit contribution{/ts}</td>
           </td>
         </tr>
       </tbody>

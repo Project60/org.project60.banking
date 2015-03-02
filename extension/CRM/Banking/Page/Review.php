@@ -21,9 +21,6 @@ require_once 'CRM/Banking/Helpers/URLBuilder.php';
 class CRM_Banking_Page_Review extends CRM_Core_Page {
 
   function run() {
-      // Set the page-title dynamically; alternatively, declare a static title in xml/Menu/*.xml
-      CRM_Utils_System::setTitle(ts('Review Bank Transaction'));
-
       // Get the current ID
       if (isset($_REQUEST['list'])) {
         $list = explode(",", $_REQUEST['list']);
@@ -192,17 +189,19 @@ class CRM_Banking_Page_Review extends CRM_Core_Page {
         $this->assign('suggestions', $suggestions);
       }
 
-      // URLs
+      // URLs & stats
+      $unprocessed_count = 0;
       $this->assign('url_back', banking_helper_buildURL('civicrm/banking/payments',  $this->_pageParameters()));
 
       if (isset($next_pid)) {
         $this->assign('url_skip_forward', banking_helper_buildURL('civicrm/banking/review',  $this->_pageParameters(array('id'=>$next_pid))));
         $this->assign('url_execute', banking_helper_buildURL('civicrm/banking/review',  $this->_pageParameters(array('id'=>$next_pid, 'execute'=>$pid))));
 
-        $next_unprocessed_pid = $this->_find_next_unprocessed($list, $next_pid, $choices);
-        if ($next_unprocessed_pid) {
-          $this->assign('url_skip_processed', banking_helper_buildURL('civicrm/banking/review',  $this->_pageParameters(array('id'=>$next_unprocessed_pid))));
-        }        
+        $unprocessed_info = $this->getUnprocessedInfo($list, $next_pid, $choices);
+        if ($unprocessed_info) {
+          $this->assign('url_skip_processed', banking_helper_buildURL('civicrm/banking/review',  $this->_pageParameters(array('id'=>$unprocessed_info['next_unprocessed_pid']))));
+          $unprocessed_count = $unprocessed_info['unprocessed_count'];
+        }
       } else {
         $this->assign('url_execute', banking_helper_buildURL('civicrm/banking/review',  $this->_pageParameters(array('execute'=>$pid))));
       }
@@ -214,6 +213,15 @@ class CRM_Banking_Page_Review extends CRM_Core_Page {
       
       global $base_url;
       $this->assign('base_url',$base_url);
+
+      // Set the page-title dynamically
+      if (count($list) > 1) {
+        CRM_Utils_System::setTitle(ts('Review Bank Transaction %1 of %2 (%3 unprocessed ahead)', 
+          array($index+1, count($list), $unprocessed_count)));
+      } else {
+        CRM_Utils_System::setTitle(ts('Review Bank Transaction'));
+      }
+
       parent::run();
   }
 
@@ -254,17 +262,22 @@ class CRM_Banking_Page_Review extends CRM_Core_Page {
 
   /**
    * will find the next unprocessed item in the list of remaining pids
+   *
+   * @return array( 'next_unprocessed_pid' => <id of next unprocessed tx in list>,
+   *                'unprocessed_count'    => <number of unprocessed tx in list>)
    */
-  function _find_next_unprocessed($pid_list, $next_pid, $choices) {
+  function getUnprocessedInfo($pid_list, $next_pid, $choices) {
     // first, only query the remaining items
     $index = array_search($next_pid, $pid_list);
     $remaining_list = implode(',', array_slice($pid_list, $index));
     
-    $unprocessed_states = $choices['ignored']['id'].','.$choices['processed']['id'];
-    $unprocessed_sql = "SELECT id FROM civicrm_bank_tx WHERE `status_id` NOT IN ($unprocessed_states) AND `id` IN ($remaining_list)";
-    $unprocessed_query = CRM_Core_DAO::executeQuery($unprocessed_sql);
+    $unprocessed_states   = $choices['ignored']['id'].','.$choices['processed']['id'];
+    $unprocessed_sql      = "SELECT id FROM civicrm_bank_tx WHERE `status_id` NOT IN ($unprocessed_states) AND `id` IN ($remaining_list)";
+    $unprocessed_query    = CRM_Core_DAO::executeQuery($unprocessed_sql);
     $next_unprocessed_pid = count($pid_list) + 1;
+    $unprocessed_count    = 0;
     while ($unprocessed_query->fetch()) {
+      $unprocessed_count++;
       $unprocessed_id = $unprocessed_query->id;
       $new_index = array_search($unprocessed_query->id, $pid_list);
       if ($new_index < $next_unprocessed_pid) 
@@ -273,9 +286,12 @@ class CRM_Banking_Page_Review extends CRM_Core_Page {
 
     if ($next_unprocessed_pid < count($pid_list)) {
       // this is the index of the next, unprocessed ID in list
-      return $pid_list[$next_unprocessed_pid];
+      return array(
+        'next_unprocessed_pid' => $pid_list[$next_unprocessed_pid],
+        'unprocessed_count'    => $unprocessed_count
+        );
     } else {
-      // non unprocessed pids found
+      // no unprocessed pids found
       return null;
     }
   }

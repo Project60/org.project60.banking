@@ -3,7 +3,7 @@
   <item>
     <path>civicrm/banking/payments</path>
     <page_callback>CRM_Banking_Page_Payments</page_callback>
-    <title>Payments</title>
+    <title>Transactions</title>
     <access_arguments>access CiviCRM</access_arguments>
   </item>
   <item>

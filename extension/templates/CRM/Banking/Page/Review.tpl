@@ -263,7 +263,7 @@
           {if $contact}
             <div class="btxlabel">{ts}Contact{/ts}</div>
             <div class="btxvalue btxl">
-              <a href="{$base_url}/civicrm/contact/view?reset=1&cid={$contact.id}">{$contact.display_name}&nbsp;</a>
+              <a href="{$base_url}/civicrm/contact/view?reset=1&cid={$contact.id}">{$contact.display_name}&nbsp;[{$contact.id}]</a>
             </div>
           {/if}
         </td>
@@ -332,7 +332,7 @@
       {/if}
     {/if}    
     <a href="{$url_back}" class="button" style="float:right;">
-      <span title="{ts}Back{/ts}"><div class="icon back-icon"></div>{ts}Back to payment list{/ts}</span>
+      <span title="{ts}Back{/ts}"><div class="icon back-icon"></div>{ts}Back to transaction list{/ts}</span>
     </a>
   </div>
 

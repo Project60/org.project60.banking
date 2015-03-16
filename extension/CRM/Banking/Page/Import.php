@@ -19,7 +19,7 @@ require_once 'CRM/Core/Page.php';
 class CRM_Banking_Page_Import extends CRM_Core_Page {
   function run() {
     // Example: Set the page-title dynamically; alternatively, declare a static title in xml/Menu/*.xml
-    CRM_Utils_System::setTitle(ts('Bank Payment Importer'));
+    CRM_Utils_System::setTitle(ts('Bank Transaction Importer'));
 
     // get the plugins
     $plugin_list = CRM_Banking_BAO_PluginInstance::listInstances('import');

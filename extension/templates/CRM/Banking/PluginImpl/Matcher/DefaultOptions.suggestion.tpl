@@ -26,7 +26,7 @@
 
 {else}                    {* MANUAL RECONCILIATION *}
 <div>
-  {ts}Please manually process this payment and <i>then</i> add the resulting contributions to this list, <b><i>before</i></b> confirming this option.{/ts}
+  {ts}Please manually process this transaction and <i>then</i> add the resulting contributions to this list, <b><i>before</i></b> confirming this option.{/ts}
   <input type="hidden" id="manual_match_contributions" name="manual_match_contributions" value=""/>
   <input type="hidden" id="manual_match_contacts" name="manual_match_contacts" value="{$contact_ids}"/>
 </div>
@@ -259,7 +259,10 @@
         var link = cj("<div/>").html("{/literal}{$edit_contribution_link}{literal}").text();
         link = link.replace("__contributionid__", contribution.id);
         link = link.replace("__contactid__", contribution.contact_id);
-        window.open(link, "_blank");
+        //window.open(link, "_blank");
+        console.log(link);
+        CRM.loadForm(url, {openInline: '.button a'})
+        //CRM.loadForm(link);
       }
     });                    
   }

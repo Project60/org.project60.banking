@@ -149,31 +149,31 @@ function banking_civicrm_options() {
               'matcher_ignore' => array(
                   'label' => 'Ignore Matcher',
                   'value' => 'CRM_Banking_PluginImpl_Matcher_Ignore',
-                  'description' => 'Can be configured to ignore a payment when certain patterns are detected.',
+                  'description' => 'Can be configured to ignore a transaction when certain patterns are detected.',
                   'is_default' => 0,
               ),
               'matcher_contribution' => array(
                   'label' => 'Contribution Matcher',
                   'value' => 'CRM_Banking_PluginImpl_Matcher_ExistingContribution',
-                  'description' => 'Will match the payment to existing (pending) contributions.',
+                  'description' => 'Will match the transaction to existing (pending) contributions.',
                   'is_default' => 0,
               ),
               'matcher_batch' => array(
                   'label' => 'Batch Matcher',
                   'value' => 'CRM_Banking_PluginImpl_Matcher_Batches',
-                  'description' => 'Tries to identify payments that settle contribution batches.',
+                  'description' => 'Tries to identify transactions that settle contribution batches.',
                   'is_default' => 0,
               ),
               'matcher_sepa' => array(
                   'label' => 'SEPA Matcher',
                   'value' => 'CRM_Banking_PluginImpl_Matcher_SepaMandate',
-                  'description' => 'Will match SEPA DD payments to contributions created by the org.project60.sepa module.',
+                  'description' => 'Will match SEPA DD transactions to contributions created by the org.project60.sepa module.',
                   'is_default' => 0,
               ),
               'analyser_regex' => array(
                   'label' => 'RegEx Analyser',
                   'value' => 'CRM_Banking_PluginImpl_Matcher_RegexAnalyser',
-                  'description' => 'Analyses and enriches the payment information using regular expressions.',
+                  'description' => 'Analyses and enriches the transactions information using regular expressions.',
                   'is_default' => 0,
               ),
               'exporter_csv' => array(

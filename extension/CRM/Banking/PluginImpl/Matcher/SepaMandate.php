@@ -138,7 +138,7 @@ class CRM_Banking_PluginImpl_Matcher_SepaMandate extends CRM_Banking_PluginModel
     
     if (!$cancellation_mode) {
       // STANDARD SUGGESTION:
-      $suggestion->setTitle(ts("SEPA SDD Payment"));
+      $suggestion->setTitle(ts("SEPA SDD Transaction"));
 
       // add penalties for deviations in amount,status,deleted contact
       if ($btx->amount != $contribution['total_amount']) {
@@ -157,7 +157,7 @@ class CRM_Banking_PluginImpl_Matcher_SepaMandate extends CRM_Banking_PluginModel
 
     } else {
       // CANCELLATION SUGGESTION:
-      $suggestion->setTitle(ts("Cancel SEPA SDD Payment"));
+      $suggestion->setTitle(ts("Cancel SEPA SDD Transaction"));
       $suggestion->setParameter('cancellation_mode', $cancellation_mode);
 
       // calculate penalties (based on CRM_Banking_PluginImpl_Matcher_ExistingContribution::rateContribution)
@@ -392,7 +392,7 @@ class CRM_Banking_PluginImpl_Matcher_SepaMandate extends CRM_Banking_PluginModel
 
       // create text
       $text = "<div><p>";
-      $text .= sprintf(ts("This payment is a SEPA direct debit contribution by %s."), $contact_html)." ";
+      $text .= sprintf(ts("This transaction is a SEPA direct debit contribution by %s."), $contact_html)." ";
       $text .= sprintf(ts("The mandate reference is <a href=\"%s\" target=\"_blank\">%s</a>."), $mandate_link, $mandate_reference)." ";
       $text .= "</p><p>";
       if (!$cancellation_mode) {
@@ -435,9 +435,9 @@ class CRM_Banking_PluginImpl_Matcher_SepaMandate extends CRM_Banking_PluginModel
     $cancellation_mode = $match->getParameter('cancellation_mode');
     $contribution_link = CRM_Utils_System::url("civicrm/contact/view/contribution", "action=view&reset=1&id=${contribution_id}&cid=2&context=home");
     if (empty($cancellation_mode)) {
-      return "<p>".sprintf(ts("This SEPA payment was associated with <a href=\"%s\">contribution #%s</a>."), $contribution_link, $contribution_id)."</p>";
+      return "<p>".sprintf(ts("This SEPA transaction was associated with <a href=\"%s\">contribution #%s</a>."), $contribution_link, $contribution_id)."</p>";
     } else {
-      return "<p>".sprintf(ts("This SEPA payment cancelled <a href=\"%s\">contribution #%s</a>."), $contribution_link, $contribution_id)."</p>";
+      return "<p>".sprintf(ts("This SEPA transaction cancelled <a href=\"%s\">contribution #%s</a>."), $contribution_link, $contribution_id)."</p>";
     }
   }
 }

@@ -285,7 +285,7 @@ class CRM_Banking_PluginImpl_Importer_XML extends CRM_Banking_PluginModel_Import
     // and finally write it into the DB
     $duplicate = $this->checkAndStoreBTX($data, $progress);
 
-    $this->reportProgress($progress, sprintf("Imported payment #%d", $index));
+    $this->reportProgress($progress, sprintf("Imported transaction #%d", $index));
   }
 
 

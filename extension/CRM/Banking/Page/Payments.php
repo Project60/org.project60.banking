@@ -22,7 +22,7 @@ require_once 'CRM/Banking/Helpers/URLBuilder.php';
 class CRM_Banking_Page_Payments extends CRM_Core_Page {
   function run() {
     // Example: Set the page-title dynamically; alternatively, declare a static title in xml/Menu/*.xml
-    CRM_Utils_System::setTitle(ts('Payments'));
+    CRM_Utils_System::setTitle(ts('Bank Transactions'));
 
     // look up the payment states
     $payment_states = banking_helper_optiongroup_id_name_mapping('civicrm_banking.bank_tx_status');
@@ -244,15 +244,15 @@ class CRM_Banking_Page_Payments extends CRM_Core_Page {
     $this->assign('show', 'payments');        
     if ($_REQUEST['status_ids']==$payment_states['new']['id']) {
       // 'NEW' mode will show all that have not been completely analysed
-      $this->assign('status_message', sprintf(ts("%d new payments."), count($payment_rows)));
+      $this->assign('status_message', sprintf(ts("%d new transactions."), count($payment_rows)));
 
     } elseif ($_REQUEST['status_ids']==$payment_states['suggestions']['id']) {
       // 'ANALYSED' mode will show all that have been partially analysed, but not all completed
-      $this->assign('status_message', sprintf(ts("%d analysed payments."), count($payment_rows)));
+      $this->assign('status_message', sprintf(ts("%d analysed transactions."), count($payment_rows)));
 
     } else {
       // 'COMPLETE' mode will show all that have been entirely processed
-      $this->assign('status_message', sprintf(ts("%d completed payments."), count($payment_rows)));
+      $this->assign('status_message', sprintf(ts("%d completed transactions."), count($payment_rows)));
     }
   }
 

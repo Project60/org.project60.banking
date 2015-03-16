@@ -66,7 +66,7 @@
 {if not $rows}    {* NO ROWS FOUND *}
   {if $show=='payments'}    
     <div id="help" class="description">
-      {ts}No payments could be found with the requested status. Try the other status filter buttons above to find your imported payments.{/ts}
+      {ts}No transactions could be found with the requested status. Try the other status filter buttons above to find your imported payments.{/ts}
     </div>
   {else}
     <div id="help" class="description">
@@ -152,7 +152,7 @@
       <div class="DataTables_sort_wrapper">{ts}Statement{/ts}<!--span class="DataTables_sort_icon css_right ui-icon ui-icon-carat-2-n-s"></span--></div>
     </th>
     <th colspan="1" rowspan="1" class="crm-banking-payment_amount ui-state-default">
-      <div class="DataTables_sort_wrapper">{ts}Payment count{/ts}<!--span class="DataTables_sort_icon css_right ui-icon ui-icon-carat-2-n-s"></span--></div>
+      <div class="DataTables_sort_wrapper">{ts}Transaction count{/ts}<!--span class="DataTables_sort_icon css_right ui-icon ui-icon-carat-2-n-s"></span--></div>
     </th>
     <th colspan="1" rowspan="1" class="crm-banking-payment_source_account nosort ui-state-default">
       <div class="DataTables_sort_wrapper">{ts}Analysed{/ts}<!--span class="DataTables_sort_icon css_right ui-icon ui-icon-carat-2-n-s"></span--></div>

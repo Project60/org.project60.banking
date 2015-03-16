@@ -17,7 +17,7 @@
 <br/>
 <h3>Import Plugins</h3>
 <div id="help">
-	Import plugins are used to transport payment data obtained from banks and accounting software into CiviBanking. They source the information from files as well as from data feeds from external systems. Once imported, the payments will be processed by the matcher plugins.
+	Import plugins are used to transport transaction data obtained from banks and accounting software into CiviBanking. They source the information from files as well as from data feeds from external systems. Once imported, the payments will be processed by the matcher plugins.
 </div>
 <table class="display" id="option11">
 	<thead>
@@ -56,7 +56,7 @@
 <br/><br/>
 <h3>Matcher Plugins</h3>
 <div id="help">
-	Matcher Plugins are used to match the payments with the expected financial transactions, such as contributions, membership fees, etc. If no perfect match can be found, they will generate proposals for the user to review and confirm.
+	Matcher Plugins are used to match the transactions with the expected financial transactions, such as contributions, membership fees, etc. If no perfect match can be found, they will generate proposals for the user to review and confirm.
 </div>
 <table class="display" id="option11">
 	<thead>
@@ -142,7 +142,7 @@
 <br/><br/>
 <h3>Export Plugins</h3>
 <div id="help">
-	Export plugins are used to save the processed payment data along with their matching financial transactions into files or accounting systems.
+	Export plugins are used to save the processed transaction data along with their matching financial transactions into files or accounting systems.
 </div>
 <table class="display" id="option11">
 	<thead>

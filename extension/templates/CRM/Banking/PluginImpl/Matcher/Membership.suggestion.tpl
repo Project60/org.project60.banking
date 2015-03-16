@@ -16,7 +16,7 @@
 {assign var=contact_id value=$contact.id}
 {assign var=membership_id value=$membership.id}
 
-{* calculate a more user friendly display of the membership payment interval *}
+{* calculate a more user friendly display of the membership transaction interval *}
 {if $membership_type.duration_unit eq 'month'}
   {if $membership_type.duration_interval eq 1}
     {capture assign=frequency_words}{ts}monthly{/ts}{/capture}
@@ -47,7 +47,7 @@
   {capture assign=date_text}{$membership.start_date|crmDate:$config->dateformatFull}{/capture}
   <p>
     {ts 1=$contact_link 2=$status_text 3=$type_link 4=$date_text}%1 has a <i>%2</i> membership of type %3 since %4.{/ts}
-    {ts}If you confirm this suggestion, the payment will be recorded as a fee payment for this membership.{/ts}
+    {ts}If you confirm this suggestion, the transaction will be recorded as a fee payment for this membership.{/ts}
   </p>
 </div>
 <div>

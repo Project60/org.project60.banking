@@ -205,16 +205,16 @@ class CRM_Banking_PluginImpl_Matcher_ExistingContribution extends CRM_Banking_Pl
       if ($contribution_probability>=1.0) {
         $suggestion->setTitle(ts("Matching contribution found"));
         if ($config->mode != "cancellation") {
-          $suggestion->addEvidence(1.0, ts("A pending contribution matching the payment was found."));
+          $suggestion->addEvidence(1.0, ts("A pending contribution matching the transaction was found."));
         } else {
-          $suggestion->addEvidence(1.0, ts("This payment is the <b>cancellation</b> of the below contribution."));
+          $suggestion->addEvidence(1.0, ts("This transaction is the <b>cancellation</b> of the below contribution."));
         }
       } else {
         $suggestion->setTitle(ts("Possible matching contribution found"));
         if ($config->mode != "cancellation") {
-          $suggestion->addEvidence($contacts_found[$contact_id], ts("A pending contribution partially matching the payment was found."));
+          $suggestion->addEvidence($contacts_found[$contact_id], ts("A pending contribution partially matching the transaction was found."));
         } else {
-          $suggestion->addEvidence($contacts_found[$contact_id], ts("This payment could be the <b>cancellation</b> of the below contribution."));
+          $suggestion->addEvidence($contacts_found[$contact_id], ts("This transaction could be the <b>cancellation</b> of the below contribution."));
         }
       }
 

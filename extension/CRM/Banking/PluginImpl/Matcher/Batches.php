@@ -217,7 +217,7 @@ class CRM_Banking_PluginImpl_Matcher_Batches extends CRM_Banking_PluginModel_Mat
       $text .= "<td><div class=\"btxvalue\"><a href=\"$batch_link\" target=\"_blank\">".$batch['title']."</td>";
       $text .= "<td><div class=\"btxlabel\">".ts("Created").":&nbsp;</div><div class=\"btxvalue\">$created_date</td>";
       $text .= "<td><div class=\"btxlabel\">".ts("Exported").":&nbsp;</div><div class=\"btxvalue\">$exported_date</td>";
-      $text .= "<td><div class=\"btxlabel\">".ts("Payments").":&nbsp;</div><div class=\"btxvalue\">&nbsp;&nbsp;".$batch['item_count']."</td>";
+      $text .= "<td><div class=\"btxlabel\">".ts("Transactions").":&nbsp;</div><div class=\"btxvalue\">&nbsp;&nbsp;".$batch['item_count']."</td>";
       $text .= "<td><div class=\"btxlabel\">".ts("Amount").":&nbsp;</div><div class=\"btxvalue\">".$batch['total']."&nbsp;EUR</td>";
       $text .= "</tr></table></div>";
 
@@ -236,7 +236,7 @@ class CRM_Banking_PluginImpl_Matcher_Batches extends CRM_Banking_PluginModel_Mat
   function visualize_execution_info( CRM_Banking_Matcher_Suggestion $match, $btx) {
     $batch_id = $match->getParameter('batch_id');
     $batch_link = CRM_Utils_System::url("civicrm/batchtransaction", "reset=1&bid=$batch_id");
-    return "<p>".sprintf(ts("This payment was associated with <a href=\"%s\">payment batch #%s</a>."), $batch_link, $batch_id)."</p>";
+    return "<p>".sprintf(ts("This transaction was associated with <a href=\"%s\">payment batch #%s</a>."), $batch_link, $batch_id)."</p>";
   }
 
 

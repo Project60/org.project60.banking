@@ -144,11 +144,11 @@ class CRM_Banking_PluginImpl_Matcher_DefaultOptions extends CRM_Banking_PluginMo
           $btx->setStatus($newStatus);
           parent::execute($suggestion, $btx);
         } else {
-          CRM_Core_Session::setStatus(ts("The contribution is not valid. The payment is NOT completed."), ts('Payment NOT completed.'), 'alert');
+          CRM_Core_Session::setStatus(ts("The contribution is not valid. The transaction is NOT completed."), ts('Transaction NOT completed.'), 'alert');
         }
 
       } else {
-        CRM_Core_Session::setStatus(ts("No contribution given. The payment is NOT completed."), ts('Payment NOT completed.'), 'alert');
+        CRM_Core_Session::setStatus(ts("No contribution given. The transaction is NOT completed."), ts('Transaction NOT completed.'), 'alert');
       }
     } else {
       // this is the IGNORE action. Simply set the status to ignored
@@ -212,7 +212,7 @@ class CRM_Banking_PluginImpl_Matcher_DefaultOptions extends CRM_Banking_PluginMo
   function visualize_execution_info( CRM_Banking_Matcher_Suggestion $match, $btx) {
     if ($match->getId()==="manual") {
       $cids = $match->getParameter('contribution_ids');
-      $text = "<p>".ts("This payment was manually matched to the following contributions:")."<ul>";
+      $text = "<p>".ts("This transaction was manually matched to the following contributions:")."<ul>";
       foreach ($cids as $contribution_id) {
         if ($contribution_id) {
           $contribution_link = CRM_Utils_System::url("civicrm/contact/view/contribution", "action=view&reset=1&id=$contribution_id&cid=2&context=home");

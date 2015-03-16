@@ -97,7 +97,11 @@ class CRM_Banking_Page_Review extends CRM_Core_Page {
         // convention: the contact was identified with acceptable precision
         $contact = civicrm_api('Contact','getsingle',array('version'=>3,'id'=>$data_parsed['contact_id']));
       }
-      if (!empty($contact)) $this->assign('contact', $contact);
+      if (!empty($contact)) { 
+        $this->assign('contact', $contact); 
+      } else {
+        $this->assign('contact', NULL);
+      }
 
       $extra_data = array();
       $_data_raw = json_decode($btx_bao->data_raw, true);
@@ -157,16 +161,16 @@ class CRM_Banking_Page_Review extends CRM_Core_Page {
           }
 
           if ($choices[$btx_bao->status_id]['name']=='processed') {
-            $message = sprintf(ts("This payment was <b>%s processed</b> on %s by %s."), $automated, $execution_date, $user_string);
+            $message = sprintf(ts("This transaction was <b>%s processed</b> on %s by %s."), $automated, $execution_date, $user_string);
           } else {
-            $message = sprintf(ts("This payment was <b>%s ignored</b> on %s by %s."), $automated, $execution_date, $user_string);
+            $message = sprintf(ts("This transaction was <b>%s ignored</b> on %s by %s."), $automated, $execution_date, $user_string);
           }          
         } else {
           // visualize the previous, reduced information
           if ($choices[$btx_bao->status_id]['name']=='processed') {
-            $message = sprintf(ts("This payment was <b>processed</b> on %s."), $execution_date);
+            $message = sprintf(ts("This transaction was <b>processed</b> on %s."), $execution_date);
           } else {
-            $message = sprintf(ts("This payment was marked to be <b>ignored</b> on %s."), $execution_date);
+            $message = sprintf(ts("This transaction was marked to be <b>ignored</b> on %s."), $execution_date);
           }          
         }
         $this->assign('status_message', $message);
@@ -314,11 +318,11 @@ class CRM_Banking_Page_Review extends CRM_Core_Page {
       // create a notification bubble for the user
       $text = $suggestion->visualize_execution($btx_bao);
       if ($btx_bao->status_id==$choices['processed']['id']) {
-        CRM_Core_Session::setStatus(ts("The payment was booked.")."<br/>".$text, ts("Payment closed"), 'info');
+        CRM_Core_Session::setStatus(ts("The transaction was booked.")."<br/>".$text, ts("Transaction closed"), 'info');
       } elseif ($btx_bao->status_id==$choices['ignored']['id']) {
-        CRM_Core_Session::setStatus(ts("The payment was ignored.")."<br/>".$text, ts("Payment closed"), 'info');
+        CRM_Core_Session::setStatus(ts("The transaction was ignored.")."<br/>".$text, ts("Transaction closed"), 'info');
       } else {
-        CRM_Core_Session::setStatus(ts("The payment could not be closed."), ts("Error"), 'alert');
+        CRM_Core_Session::setStatus(ts("The transaction could not be closed."), ts("Error"), 'alert');
       }
     } else {
       CRM_Core_Session::setStatus(ts("Selected suggestions disappeared. Suggestion NOT executed!"), ts("Internal Error"), 'error');

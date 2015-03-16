@@ -60,8 +60,8 @@ function banking_civicrm_navigationMenu(&$params) {
           ),
           $level => array(
               'attributes' => array(
-                  'label' => ts('Show Statements'),
-                  'name' => 'Payments',
+                  'label' => ts('Show Transactions'),
+                  'name' => 'Transactions',
                   'url' => 'civicrm/banking/payments',
                   'permission' => 'access CiviContribute',
                   'operator' => null,
@@ -103,8 +103,8 @@ function banking_civicrm_navigationMenu(&$params) {
           ),*/
           $level => array(
               'attributes' => array(
-                  'label' => ts('Import Payments'),
-                  'name' => 'Import Payments',
+                  'label' => ts('Import Transactions'),
+                  'name' => 'Import Transactions',
                   'url' => 'civicrm/banking/import',
                   'permission' => 'access CiviContribute',
                   'operator' => null,

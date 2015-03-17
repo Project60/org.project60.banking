@@ -307,7 +307,7 @@
     <a href="{$url_skip_back}" class="button {if not $url_skip_back}disabled{/if}"><span title="{ts}Back{/ts}"><div class="icon previous-icon disabled"></div>{ts}Back{/ts}</span></a>
 
     {if $btxstatus.label != 'Processed' AND $btxstatus.label != 'Ignored'}
-      <a id="analyseButton" onClick="analysePayment()" class="button"><span title="{ts}Match (again){/ts}"><div class="icon preview-icon"></div>{ts}Match (again){/ts}</span></a>
+      <a id="analyseButton" onClick="analysePayment()" class="button"><span title="{ts}Analyse (again){/ts}"><div class="icon preview-icon"></div>{ts}Analyse (again){/ts}</span></a>
       {if isset($url_skip_forward)}
         <a href="#" onClick="execute_selected()" class="button"><span title="{ts}Confirm and Continue{/ts}"><div class="icon next-icon"></div>{ts}Confirm and Continue{/ts}</span></a>
         <a href="{$url_skip_forward}" class="button"><span title="{ts}Skip{/ts}"><div class="icon next-icon"></div>{ts}Skip{/ts}</span></a>
@@ -319,7 +319,7 @@
         <a href="{$url_back}" class="button"><span title="{ts}Skip and Exit{/ts}"><div class="icon next-icon"></div>{ts}Skip and Exit{/ts}</span></a>
       {/if}
     {else}
-      <a id="analyseButton" onClick="analysePayment()" class="button disabled"><span title="{ts}Match (again){/ts}"><div class="icon preview-icon"></div>{ts}Match (again){/ts}</span></a>
+      <a id="analyseButton" onClick="analysePayment()" class="button disabled"><span title="{ts}Analyse (again){/ts}"><div class="icon preview-icon"></div>{ts}Analyse (again){/ts}</span></a>
       {if isset($url_skip_forward)}
         <a href="" class="button disabled"><span title="{ts}Confirm and Continue{/ts}"><div class="icon next-icon"></div>{ts}Confirm and Continue{/ts}</span></a>
         <a href="{$url_skip_forward}" class="button"><span title="{ts}Skip{/ts}"><div class="icon next-icon"></div>{ts}Skip{/ts}</span></a>

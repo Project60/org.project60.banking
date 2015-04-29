@@ -117,7 +117,7 @@ class CRM_Banking_PluginImpl_Matcher_DefaultOptions extends CRM_Banking_PluginMo
 
             $query = array('version' => 3, 'id' => $cid);
             $query['is_test'] = 0;
-            $query = array_merge($query, $this->getPropagationSet($btx, 'contribution'));   // add propagated values
+            $query = array_merge($query, $this->getPropagationSet($btx, $suggestion, 'contribution'));   // add propagated values
 
             // set status to completed, unless it's a negative amount...
             if ($btx->amount < 0) {
@@ -197,7 +197,7 @@ class CRM_Banking_PluginImpl_Matcher_DefaultOptions extends CRM_Banking_PluginMo
     $smarty->assign('status_pending',                   banking_helper_optionvalue_by_groupname_and_name('contribution_status', 'Pending'));
     $smarty->assign('manual_default_source',            $this->_plugin_config->manual_default_source);
     $smarty->assign('manual_default_financial_type_id', $this->_plugin_config->manual_default_financial_type_id);
-    $smarty->assign('create_propagation',               $this->getPropagationSet($btx, 'contribution', $this->_plugin_config->createnew_value_propagation));
+    $smarty->assign('create_propagation',               $this->getPropagationSet($btx, $match, 'contribution', $this->_plugin_config->createnew_value_propagation));
 
     return $smarty->fetch('CRM/Banking/PluginImpl/Matcher/DefaultOptions.suggestion.tpl');
   }

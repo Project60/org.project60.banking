@@ -51,7 +51,7 @@ class CRM_Banking_PluginImpl_Matcher_CreateContribution extends CRM_Banking_Plug
 
     // first see if all the required values are there
     foreach ($config->required_values as $required_key) {
-      if ($this->getPropagationValue($btx, $required_key)==NULL) {
+      if ($this->getPropagationValue($btx, NULL, $required_key)==NULL) {
         // there is no value given for this key => bail
         //error_log("Missing: $required_key");
         return null;
@@ -88,7 +88,7 @@ class CRM_Banking_PluginImpl_Matcher_CreateContribution extends CRM_Banking_Plug
    */
   public function execute($suggestion, $btx) {
     // create contribution
-    $query = $this->get_contribution_data($btx, $suggestion->getParameter('contact_id'));
+    $query = $this->get_contribution_data($btx, $suggestion, $suggestion->getParameter('contact_id'));
     $query['version'] = 3;
     $result = civicrm_api('Contribution', 'create', $query);
     if (isset($result['is_error']) && $result['is_error']) {
@@ -130,7 +130,7 @@ class CRM_Banking_PluginImpl_Matcher_CreateContribution extends CRM_Banking_Plug
     $smarty = CRM_Core_Smarty::singleton();
 
     $contact_id   = $match->getParameter('contact_id');
-    $contribution = $this->get_contribution_data($btx, $contact_id);
+    $contribution = $this->get_contribution_data($btx, $match, $contact_id);
     
     // load contact
     $contact = civicrm_api('Contact', 'getsingle', array('id' => $contact_id, 'version' => 3));
@@ -166,13 +166,13 @@ class CRM_Banking_PluginImpl_Matcher_CreateContribution extends CRM_Banking_Plug
   /**
    * compile the contribution data from the BTX and the propagated values
    */
-  function get_contribution_data($btx, $contact_id) {
+  function get_contribution_data($btx, $match, $contact_id) {
     $contribution = array();
     $contribution['contact_id'] = $contact_id;
     $contribution['total_amount'] = $btx->amount;
     $contribution['receive_date'] = $btx->value_date;
     $contribution['currency'] = $btx->currency;
-    $contribution = array_merge($contribution, $this->getPropagationSet($btx, 'contribution'));
+    $contribution = array_merge($contribution, $this->getPropagationSet($btx, $match, 'contribution'));
     return $contribution;
   }
 }

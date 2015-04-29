@@ -63,7 +63,7 @@ class CRM_Banking_PluginImpl_Matcher_ExistingContribution extends CRM_Banking_Pl
     if ($config->cancellation_cancel_fee && !empty($config->cancellation_cancel_fee_store)) {
       // add entry to value propagation
       if (!isset($config->value_propagation)) $config->value_propagation = array();
-      // TODO: extend value propagation: $config->value_propagation->{match.cancel_fee} = $config->cancellation_cancel_fee_store;
+      $config->value_propagation->{match.cancel_fee} = $config->cancellation_cancel_fee_store;
     }
 
   }
@@ -291,7 +291,7 @@ class CRM_Banking_PluginImpl_Matcher_ExistingContribution extends CRM_Banking_Pl
     $config = $this->_plugin_config;
     $contribution_id = $suggestion->getParameter('contribution_id');
     $query = array('version' => 3, 'id' => $contribution_id);
-    $query = array_merge($query, $this->getPropagationSet($btx, 'contribution'));   // add propagated values
+    $query = array_merge($query, $this->getPropagationSet($btx, $suggestion, 'contribution'));   // add propagated values
 
     // double check contribution (see https://github.com/Project60/CiviBanking/issues/61)
     $contribution = civicrm_api('Contribution', 'getsingle', array('id' => $contribution_id, 'version' => 3));

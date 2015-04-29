@@ -249,7 +249,7 @@ class CRM_Banking_PluginImpl_Matcher_SepaMandate extends CRM_Banking_PluginModel
     $query = array('version' => 3, 'id' => $contribution_id);
     $query['contribution_status_id'] = $status_completed;
     $query['receive_date'] = date('Ymdhis', strtotime($btx->value_date));
-    $query = array_merge($query, $this->getPropagationSet($btx, 'contribution'));   // add propagated values
+    $query = array_merge($query, $this->getPropagationSet($btx, $match, 'contribution'));   // add propagated values
     $result = civicrm_api('Contribution', 'create', $query);
 
     if (isset($result['is_error']) && $result['is_error']) {
@@ -318,7 +318,7 @@ class CRM_Banking_PluginImpl_Matcher_SepaMandate extends CRM_Banking_PluginModel
     $query = array('version' => 3, 'id' => $contribution_id);
     $query['contribution_status_id'] = $status_cancelled;
     $query['cancel_date'] = date('Ymdhis', strtotime($btx->value_date));
-    $query = array_merge($query, $this->getPropagationSet($btx, 'contribution', $config->cancellation_value_propagation));   // add propagated values
+    $query = array_merge($query, $this->getPropagationSet($btx, $match, 'contribution', $config->cancellation_value_propagation));   // add propagated values
     if (empty($query['cancel_reason'])) // add default values
       $query['cancel_reason'] = $config->cancellation_default_reason;
     $result = civicrm_api('Contribution', 'create', $query);
@@ -338,7 +338,7 @@ class CRM_Banking_PluginImpl_Matcher_SepaMandate extends CRM_Banking_PluginModel
           // everything seems fine, adjust the mandate's status
           $query = array('version' => 3, 'id' => $mandate_id);
           $query['status'] = 'INVALID';
-          $query = array_merge($query, $this->getPropagationSet($btx, 'mandate'));   // add propagated values
+          $query = array_merge($query, $this->getPropagationSet($btx, $match, 'mandate'));   // add propagated values
           $result = civicrm_api('SepaMandate', 'create', $query);
           if (!empty($result['is_error'])) {
             error_log("org.project60.sepa: matcher_sepa: Couldn't modify mandate, error was: ".$result['error_message']);

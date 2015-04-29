@@ -194,7 +194,7 @@ abstract class CRM_Banking_PluginModel_Matcher extends CRM_Banking_PluginModel_B
   /** 
    * Get the value of the propagation value spec
    */
-  public function getPropagationValue($btx, $key) {
+  public function getPropagationValue($btx, $suggestion, $key) {
     $key_bits = split("[.]", $key, 2);
     if ($key_bits[0]=='ba' || $key_bits[0]=='party_ba') {
       // read bank account stuff
@@ -219,6 +219,14 @@ abstract class CRM_Banking_PluginModel_Matcher extends CRM_Banking_PluginModel_B
         } else {
           return NULL;
         }
+      }
+
+    } elseif ($key_bits[0]=='suggestion' || $key_bits[0]=='match') {
+      // read suggestion parameters
+      if ($suggestion != NULL) {
+        return $suggestion->getParameter($key_bits[1]);
+      } else {
+        return NULL;
       }
 
     } elseif ($key_bits[0]=='btx') {
@@ -255,12 +263,12 @@ abstract class CRM_Banking_PluginModel_Matcher extends CRM_Banking_PluginModel_B
    *
    * ...which you can pass right into your create contribtion call
    */
-  public function getPropagationSet($btx, $subset = '', $propagation_config = NULL) {
+  public function getPropagationSet($btx, $suggestion, $subset = '', $propagation_config = NULL) {
     $propagation_set = $this->getPropagationKeys($subset, $propagation_config);
     $propagation_values = array();
 
     foreach ($propagation_set as $key => $target_key) {
-      $value = $this->getPropagationValue($btx, $key);
+      $value = $this->getPropagationValue($btx, $suggestion, $key);
       if ($value != NULL) {
         $propagation_values[substr($target_key, strlen($subset)+1)] = $value;
       }

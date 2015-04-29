@@ -50,12 +50,14 @@ class CRM_Banking_PluginImpl_Matcher_ExistingContribution extends CRM_Banking_Pl
     if (!isset($config->currency_penalty)) $config->currency_penalty = 0.5;
 
     // extended cancellation features: enter cancel_reason
-    if (!isset($config->cancellation_cancel_reason))         $config->cancellation_cancel_reason         = 1; // set to 1 to enable
+    if (!isset($config->cancellation_cancel_reason))         $config->cancellation_cancel_reason         = 0; // set to 1 to enable
+    if (!isset($config->cancellation_cancel_reason_edit))    $config->cancellation_cancel_reason_edit    = 1; // set to 0 to disable user input
     if (!isset($config->cancellation_cancel_reason_source))  $config->cancellation_cancel_reason_source  = 'cancel_reason';
     if (!isset($config->cancellation_cancel_reason_default)) $config->cancellation_cancel_reason_default = ts('Unknown');
 
     // extended cancellation features: fee
-    if (!isset($config->cancellation_cancel_fee))            $config->cancellation_cancel_fee            = 1; // set to 1 to enable
+    if (!isset($config->cancellation_cancel_fee))            $config->cancellation_cancel_fee            = 0; // set to 1 to enable
+    if (!isset($config->cancellation_cancel_fee_edit))       $config->cancellation_cancel_fee_edit       = 1; // set to 0 to disable user input
     if (!isset($config->cancellation_cancel_fee_source))     $config->cancellation_cancel_fee_source     = 'cancellation_fee'; // external source field in btx->data_parsed
     if (!isset($config->cancellation_cancel_fee_store))      $config->cancellation_cancel_fee_store      = 'match.cancel_fee'; // where to store the calculated fee, for syntax see value_propagation
     if (!isset($config->cancellation_cancel_fee_default))    $config->cancellation_cancel_fee_default    = 'difference';  // evaluated term, valid variables: 'difference'- (btx->amount + contribution->total_amount), 'source'- content of btx->data_parsed[$config->cancellation_cancel_fee_source]
@@ -389,11 +391,13 @@ class CRM_Banking_PluginImpl_Matcher_ExistingContribution extends CRM_Banking_Pl
     if ($config->mode == 'cancellation') {
       $smarty->assign('cancellation_cancel_reason', $config->cancellation_cancel_reason);
       if ($config->cancellation_cancel_reason) {
-        $smarty->assign('cancel_reason', $match->getParameter('cancel_reason'));
+        $smarty->assign('cancel_reason',      $match->getParameter('cancel_reason'));
+        $smarty->assign('cancel_reason_edit', $config->cancellation_cancel_reason_edit);
       }
       $smarty->assign('cancellation_cancel_fee', $config->cancellation_cancel_fee);
       if ($config->cancellation_cancel_fee) {
-        $smarty->assign('cancel_fee', $match->getParameter('cancel_fee'));
+        $smarty->assign('cancel_fee',      $match->getParameter('cancel_fee'));
+        $smarty->assign('cancel_fee_edit', $config->cancellation_cancel_fee_edit);
       }
     }
 

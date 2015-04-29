@@ -66,12 +66,12 @@
   <div>
     {if $cancellation_cancel_reason}
     <label for="cancel_reason">{ts}Cancellation Reason{/ts}:</label>
-    <input type="text" size="40" name="cancel_reason" value="{$cancel_reason}" />
+    <input type="text" size="40" name="cancel_reason" value="{$cancel_reason}" {if not $cancel_reason_edit}disabled{/if} />
     &nbsp;&nbsp;&nbsp;&nbsp;
     {/if}
     {if $cancellation_cancel_fee}
     <label for="cancel_fee">{ts}Cancellation Fee{/ts}:</label>
-    <input type="text" style="text-align:right" size="5" name="cancel_fee" value="{$cancel_fee|string_format:'%.2f'}" />&nbsp;{$contribution.currency}
+    <input type="text" style="text-align:right" size="5" name="cancel_fee" value="{$cancel_fee|string_format:'%.2f'}" {if not $cancel_fee_edit}disabled{/if} />&nbsp;{$contribution.currency}
     <script type="text/javascript">
     // Add JS function to mark invalid user input (adapted from: http://jqueryexamples4u.blogspot.de/2013/09/validate-input-field-allows-only-float.html)
     {literal}

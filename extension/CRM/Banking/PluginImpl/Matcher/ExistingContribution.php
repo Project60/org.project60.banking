@@ -16,6 +16,7 @@
 
 
 require_once 'CRM/Banking/Helpers/OptionValue.php';
+require_once 'packages/eval-math/evalmath.class.php';
 
 /**
  * This matcher tries to reconcile the payments with existing contributions. 
@@ -47,6 +48,24 @@ class CRM_Banking_PluginImpl_Matcher_ExistingContribution extends CRM_Banking_Pl
     if (!isset($config->amount_absolute_maximum)) $config->amount_absolute_maximum = 1;
     if (!isset($config->amount_penalty)) $config->amount_penalty = 1.0;
     if (!isset($config->currency_penalty)) $config->currency_penalty = 0.5;
+
+    // extended cancellation features: enter cancel_reason
+    if (!isset($config->cancellation_cancel_reason))         $config->cancellation_cancel_reason         = 1; // set to 1 to enable
+    if (!isset($config->cancellation_cancel_reason_source))  $config->cancellation_cancel_reason_source  = 'cancel_reason';
+    if (!isset($config->cancellation_cancel_reason_default)) $config->cancellation_cancel_reason_default = ts('Unknown');
+
+    // extended cancellation features: fee
+    if (!isset($config->cancellation_cancel_fee))            $config->cancellation_cancel_fee            = 1; // set to 1 to enable
+    if (!isset($config->cancellation_cancel_fee_source))     $config->cancellation_cancel_fee_source     = 'cancellation_fee'; // external source field in btx->data_parsed
+    if (!isset($config->cancellation_cancel_fee_store))      $config->cancellation_cancel_fee_store      = 'match.cancel_fee'; // where to store the calculated fee, for syntax see value_propagation
+    if (!isset($config->cancellation_cancel_fee_default))    $config->cancellation_cancel_fee_default    = 'difference';  // evaluated term, valid variables: 'difference'- (btx->amount + contribution->total_amount), 'source'- content of btx->data_parsed[$config->cancellation_cancel_fee_source]
+    // add to value_propagation
+    if ($config->cancellation_cancel_fee && !empty($config->cancellation_cancel_fee_store)) {
+      // add entry to value propagation
+      if (!isset($config->value_propagation)) $config->value_propagation = array();
+      // TODO: extend value propagation: $config->value_propagation->{match.cancel_fee} = $config->cancellation_cancel_fee_store;
+    }
+
   }
 
 
@@ -171,6 +190,7 @@ class CRM_Banking_PluginImpl_Matcher_ExistingContribution extends CRM_Banking_Pl
     // with the identified contacts, look up contributions
     $contributions = array();
     $contribution2contact = array();
+    $contribution2totalamount = array();
 
     foreach ($contacts_found as $contact_id => $contact_probabiliy) {
       if ($contact_probabiliy < $threshold) continue;
@@ -188,6 +208,7 @@ class CRM_Banking_PluginImpl_Matcher_ExistingContribution extends CRM_Banking_Pl
         if ($contribution_probability > $threshold) {
           $contributions[$contribution['id']] = $contribution_probability;
           $contribution2contact[$contribution['id']] = $contact_id;
+          $contribution2totalamount[$contribution['id']] = $contribution['total_amount'];
         }        
       }
     }
@@ -221,6 +242,35 @@ class CRM_Banking_PluginImpl_Matcher_ExistingContribution extends CRM_Banking_Pl
       $suggestion->setId("existing-$contribution_id");
       $suggestion->setParameter('contribution_id', $contribution_id);
       $suggestion->setParameter('contact_id', $contact_id);
+      $suggestion->setParameter('mode', $config->mode);
+
+      // generate cancellation extra parameters
+      if ($config->mode == 'cancellation') {
+        if ($config->cancellation_cancel_reason) {
+          // determine the cancel reason
+          if (empty($data_parsed[$config->cancellation_cancel_reason_source])) {
+            $suggestion->setParameter('cancel_reason', $config->cancellation_cancel_reason_default);
+          } else {
+            $suggestion->setParameter('cancel_reason', $data_parsed[$config->cancellation_cancel_reason_source]);
+          }
+        }
+        if ($config->cancellation_cancel_fee) {
+          // calculate / determine the cancellation fee
+          try {
+            $meval = new EvalMath();
+            // first initialise variables 'difference' and 'source'
+            $meval->evaluate("difference = -{$btx->amount} - {$contribution2totalamount[$contribution_id]}");
+            if (empty($config->cancellation_cancel_fee_source) || empty($data_parsed[$config->cancellation_cancel_fee_source])) {
+              $meval->evaluate("source = 0.0");
+            } else {
+              $meval->evaluate("source = {$data_parsed[$config->cancellation_cancel_fee_source]}");
+            }
+            $suggestion->setParameter('cancel_fee', $meval->evaluate($config->cancellation_cancel_fee_default));
+          } catch (Exception $e) {
+            error_log("org.project60.banking.matcher.existing: Couldn't calculate cancellation_fee. Error was: $e");
+          }
+        }
+      }
 
       // set probability manually, I think the automatic calculation provided by ->addEvidence might not be what we need here
       $suggestion->setProbability($contribution_probability*$contacts_found[$contact_id]);
@@ -238,6 +288,7 @@ class CRM_Banking_PluginImpl_Matcher_ExistingContribution extends CRM_Banking_Pl
    * @param type $btx
    */
   public function execute($suggestion, $btx) {
+    $config = $this->_plugin_config;
     $contribution_id = $suggestion->getParameter('contribution_id');
     $query = array('version' => 3, 'id' => $contribution_id);
     $query = array_merge($query, $this->getPropagationSet($btx, 'contribution'));   // add propagated values
@@ -261,7 +312,9 @@ class CRM_Banking_PluginImpl_Matcher_ExistingContribution extends CRM_Banking_Pl
     } else {
       $query['contribution_status_id'] = banking_helper_optionvalue_by_groupname_and_name('contribution_status', 'Cancelled');
       $query['cancel_date'] = date('YmdHis', strtotime($btx->booking_date));
-      //$query['cancel_reason'] = date('YmdHis', strtotime($btx->booking_date));
+      if ($config->cancellation_cancel_reason) {
+        $query['cancel_reason'] = $suggestion->getParameter('cancel_reason');
+      }
     }
     
     $result = civicrm_api('Contribution', 'create', $query);
@@ -290,7 +343,15 @@ class CRM_Banking_PluginImpl_Matcher_ExistingContribution extends CRM_Banking_Pl
    *  'belong' to your suggestion.
    */
   public function update_parameters(CRM_Banking_Matcher_Suggestion $match, $parameters) {
-    // NOTHING to do...
+    if ($config->mode == 'cancellation') {
+      // store potentially modified extended cancellation values
+      if ($config->cancellation_cancel_reason) {
+        $match->setParameter('cancel_reason', $parameters['cancel_reason']);
+      }
+      if ($config->cancellation_cancel_fee) {
+        $match->setParameter('cancel_fee', (float) $parameters['cancel_fee']);
+      }
+    }
   }
 
     /** 
@@ -301,6 +362,7 @@ class CRM_Banking_PluginImpl_Matcher_ExistingContribution extends CRM_Banking_Pl
    * @return html code snippet
    */  
   function visualize_match( CRM_Banking_Matcher_Suggestion $match, $btx) {
+    $config = $this->_plugin_config;
     $smarty = CRM_Core_Smarty::singleton();
 
     // load the data
@@ -323,6 +385,18 @@ class CRM_Banking_PluginImpl_Matcher_ExistingContribution extends CRM_Banking_Pl
 
     $smarty->assign('reasons', $match->getEvidence());
 
+    // add cancellation extra parameters
+    if ($config->mode == 'cancellation') {
+      $smarty->assign('cancellation_cancel_reason', $config->cancellation_cancel_reason);
+      if ($config->cancellation_cancel_reason) {
+        $smarty->assign('cancel_reason', $match->getParameter('cancel_reason'));
+      }
+      $smarty->assign('cancellation_cancel_fee', $config->cancellation_cancel_fee);
+      if ($config->cancellation_cancel_fee) {
+        $smarty->assign('cancel_fee', $match->getParameter('cancel_fee'));
+      }
+    }
+
     // assign to smarty and compile HTML
     return $smarty->fetch('CRM/Banking/PluginImpl/Matcher/ExistingContribution.suggestion.tpl');
   }
@@ -339,6 +413,9 @@ class CRM_Banking_PluginImpl_Matcher_ExistingContribution extends CRM_Banking_Pl
     $smarty = CRM_Core_Smarty::singleton();
     $smarty->assign('contribution_id',  $match->getParameter('contribution_id'));
     $smarty->assign('contact_id',       $match->getParameter('contact_id'));
+    $smarty->assign('mode',             $match->getParameter('mode'));
+    $smarty->assign('cancel_fee',       $match->getParameter('cancel_fee'));
+    $smarty->assign('cancel_reason',    $match->getParameter('cancel_reason'));
     return $smarty->fetch('CRM/Banking/PluginImpl/Matcher/ExistingContribution.execution.tpl');
   }
 }

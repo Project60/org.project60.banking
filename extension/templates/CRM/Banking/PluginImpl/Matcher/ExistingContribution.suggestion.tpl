@@ -35,7 +35,6 @@
   {/foreach}
   </ul>
   {/if}
-  <br/>
   <div>
     <table border="1">
       <tbody>
@@ -63,5 +62,34 @@
       </tbody>
     </table>
   </div>
+  {if not $cancellation_cancel_reason or $cancellation_cancel_fee}
+  <div>
+    {if $cancellation_cancel_reason}
+    <label for="cancel_reason">{ts}Cancellation Reason{/ts}:</label>
+    <input type="text" size="40" name="cancel_reason" value="{$cancel_reason}" />
+    &nbsp;&nbsp;&nbsp;&nbsp;
+    {/if}
+    {if $cancellation_cancel_fee}
+    <label for="cancel_fee">{ts}Cancellation Fee{/ts}:</label>
+    <input type="text" style="text-align:right" size="5" name="cancel_fee" value="{$cancel_fee|string_format:'%.2f'}" />&nbsp;{$contribution.currency}
+    <script type="text/javascript">
+    // Add JS function to mark invalid user input (adapted from: http://jqueryexamples4u.blogspot.de/2013/09/validate-input-field-allows-only-float.html)
+    {literal}
+    cj(function() {
+      cj('[name="cancel_fee"]').keyup(function(e) {
+        var entered_value = cj(this).val();
+        var regexPattern = /^\d{0,8}(\.\d{1,2})?$/;         
+        if(regexPattern.test(entered_value)) {
+          cj(this).css('background-color', 'white');
+        } else {
+          cj(this).css('background-color', 'red');
+        }
+      });
+    });
+    {/literal}
+    </script>
+    {/if}
+  </div>
+  {/if}
 </div>
 {/if}

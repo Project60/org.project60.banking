@@ -313,6 +313,7 @@ class CRM_Banking_Page_Review extends CRM_Core_Page {
     if ($suggestion) {
       // update the parameters
       $suggestion->update_parameters($parameters);
+      $btx_bao->saveSuggestions();
       $suggestion->execute($btx_bao);
 
       // create a notification bubble for the user

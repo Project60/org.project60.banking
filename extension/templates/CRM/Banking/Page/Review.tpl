@@ -99,6 +99,9 @@
       padding: 4px 8px;
       line-height: 1.2em;
     }
+    .btxamtneg {
+      color: red;
+    }
     .btxlabel {
       background-color: #FAFAFA;  
       float: left;
@@ -186,7 +189,7 @@
       </tr>
       <tr>
         <td>
-          <div class="btxvalue btxamt">
+          <div class="btxvalue btxamt{if $payment->amount lt 0} btxamtneg{/if}">
             <div class="btxcurr">{$payment->currency}</div>
             {$payment->amount}
           </div>

@@ -208,12 +208,16 @@ abstract class CRM_Banking_PluginModel_Exporter extends CRM_Banking_PluginModel_
             foreach ($contribution as $key => $value) {
               $result[$prefix . $key] = $value;
             }
-            $total_sum += $contribution['total_amount'];
-            $total_non_deductible += $contribution['non_deductible_amount'];
-            if (empty($total_currency)) {
-              $total_currency = $contribution['currency'];
-            } elseif ($total_currency != $contribution['currency']) {
-              $total_currency = 'MIX';
+            if (!empty($contribution['total_amount'])) 
+              $total_sum += $contribution['total_amount'];
+            if (!empty($contribution['non_deductible_amount'])) 
+              $total_non_deductible += $contribution['non_deductible_amount'];
+            if (!empty($contribution['currency'])) {
+              if (empty($total_currency)) {
+                $total_currency = $contribution['currency'];
+              } elseif ($total_currency != $contribution['currency']) {
+                $total_currency = 'MIX';
+              }              
             }
           }
           

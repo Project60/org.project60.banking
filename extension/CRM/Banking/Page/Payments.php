@@ -412,15 +412,15 @@ class CRM_Banking_Page_Payments extends CRM_Core_Page {
   }
 
   function _findBTX($status_id, $batch_id) {
-    $params = array('version' => 3,'option.limit'=>999);
+    $params = array('version' => 3,'option.limit'=>1999);
     if ($status_id!=NULL) $params['status_id'] = $status_id;
     if ($batch_id!=NULL) $params['tx_batch_id'] = $batch_id;
     $result = civicrm_api('BankingTransaction', 'get', $params);
     if (isset($result['is_error']) && $result['is_error']) {
       CRM_Core_Error::error(sprintf(ts("Error while querying BTX with parameters '%s'!"), implode(',', $params)));
       return array();
-    } elseif (count($result['values'])>=999) {
-      CRM_Core_Session::setStatus(sprintf(ts('Internal limit of 1000 transactions hit. Please use smaller statements.')), ts('Processing incomplete'), 'alert');
+    } elseif (count($result['values'])>=1999) {
+      CRM_Core_Session::setStatus(sprintf(ts('Internal limit of 2000 transactions hit. Please use smaller statements.')), ts('List incomplete'), 'alert');
       return $result['values'];
     } else {
       return $result['values'];

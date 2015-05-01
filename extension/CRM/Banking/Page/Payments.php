@@ -173,9 +173,12 @@ class CRM_Banking_Page_Payments extends CRM_Core_Page {
       $this->assign('status_message', sprintf(ts("%d completed statments."), sizeof($statements_completed)));
     }
     
-    $this->assign('target_accounts', $target_accounts);        
-    $this->assign('target_ba_id', $target_ba_id);        
-    $this->assign('show', 'statements');        
+    $this->assign('count_new',       count($statements_new));
+    $this->assign('count_analysed',  count($statements_analysed));
+    $this->assign('count_completed', count($statements_completed));
+    $this->assign('target_accounts', $target_accounts);
+    $this->assign('target_ba_id', $target_ba_id);
+    $this->assign('show', 'statements');
   }
 
 
@@ -254,6 +257,9 @@ class CRM_Banking_Page_Payments extends CRM_Core_Page {
       // 'COMPLETE' mode will show all that have been entirely processed
       $this->assign('status_message', sprintf(ts("%d completed transactions."), count($payment_rows)));
     }
+
+    // finally, create count statistics
+    $this->assignTransactionCountStats($payment_states);
   }
 
 
@@ -336,6 +342,44 @@ class CRM_Banking_Page_Payments extends CRM_Core_Page {
         'completed'      => 0,
         'target_account' => "Unknown"
         );
+    }
+  }
+
+
+  /**
+   * this will try to determine the transaction counts per state
+   * for the statement IDs given in the request (s_list)
+   */
+  function assignTransactionCountStats($payment_states) {
+    // pre-assign zero values
+    $this->assign('count_new',       0);
+    $this->assign('count_analysed',  0);
+    $this->assign('count_completed', 0);      
+
+    $clean_batch_ids = array();
+    if (isset($_REQUEST['s_list'])) {
+      $batch_ids = explode(',', $_REQUEST['s_list']);
+      foreach ($batch_ids as $batch_id) {
+        if ((int) $batch_id) {
+          $clean_batch_ids[] = (int) $batch_id;
+        }  
+      }
+    }
+
+    // execute SQL
+    if (count($clean_batch_ids)) {
+      $batch_id_list = implode(',', $clean_batch_ids);
+      $sql = "SELECT status_id, COUNT(id) AS count FROM civicrm_bank_tx WHERE tx_batch_id IN ($batch_id_list) GROUP BY status_id;";
+      $query = CRM_Core_DAO::executeQuery($sql);
+      while ($query->fetch()) {
+        if ($query->status_id == $payment_states['new']['id']) {
+          $this->assign('count_new',       $query->count);
+        } elseif ($query->status_id == $payment_states['processed']['id']) {
+          $this->assign('count_completed', $query->count);
+        } elseif ($query->status_id == $payment_states['suggestions']['id']) {
+          $this->assign('count_analysed',  $query->count);
+        }
+      }
     }
   }
 

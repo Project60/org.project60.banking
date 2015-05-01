@@ -30,13 +30,13 @@
 
 <div>
 <a class="button" href="{$url_show_payments_new}">
-  <span style="{$button_style_new}"><div class="icon inform-icon"></div>{ts}New{/ts}</span>
+  <span style="{$button_style_new}"><div class="icon inform-icon"></div>{ts}New{/ts} ({$count_new})</span>
 </a>
 <a class="button" href="{$url_show_payments_analysed}">
-  <span style="{$button_style_analysed}"><div class="icon inform-icon"></div>{ts}Analysed{/ts}</span>
+  <span style="{$button_style_analysed}"><div class="icon inform-icon"></div>{ts}Analysed{/ts} ({$count_analysed})</span>
 </a>
 <a class="button" href="{$url_show_payments_completed}">
-  <span style="{$button_style_completed}"><div class="icon inform-icon"></div>{ts}Completed{/ts}</span>
+  <span style="{$button_style_completed}"><div class="icon inform-icon"></div>{ts}Completed{/ts} ({$count_completed})</span>
 </a>
 {if $show == 'payments'}
   <a class="button" href="{$url_show_statements}" style="float: right;">

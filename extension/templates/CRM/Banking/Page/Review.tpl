@@ -386,9 +386,6 @@
 
 
 <!-- Required JavaScript functions -->
-{* forwards to another page if set: *}
-{$page_forward}
-
 {literal}
 <script language="JavaScript">
 function execute_selected() {

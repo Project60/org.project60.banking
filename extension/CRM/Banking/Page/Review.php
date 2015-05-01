@@ -21,6 +21,9 @@ require_once 'CRM/Banking/Helpers/URLBuilder.php';
 class CRM_Banking_Page_Review extends CRM_Core_Page {
 
   function run() {
+      // set this variable to request a redirect
+      $url_redirect = NULL;
+
       // Get the current ID
       if (isset($_REQUEST['list'])) {
         $list = explode(",", $_REQUEST['list']);
@@ -62,8 +65,7 @@ class CRM_Banking_Page_Review extends CRM_Core_Page {
 
         // after execution -> exit if this was the last in the list
         if (!isset($next_pid) && ($_REQUEST['execute']==$pid)) {
-          $forward_url = banking_helper_buildURL('civicrm/banking/payments',  $this->_pageParameters());
-          $this->assign('page_forward', '<script language="JavaScript">location.href = "'.$forward_url.'";</script>');
+          $url_redirect = banking_helper_buildURL('civicrm/banking/payments',  $this->_pageParameters());
         }
       }
 
@@ -226,6 +228,10 @@ class CRM_Banking_Page_Review extends CRM_Core_Page {
         CRM_Utils_System::setTitle(ts('Review Bank Transaction'));
       }
 
+      // perform redirect, if requested
+      if ($url_redirect) {
+        CRM_Utils_System::redirect($url_redirect);
+      }
       parent::run();
   }
 

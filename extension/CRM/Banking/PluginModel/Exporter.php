@@ -195,7 +195,7 @@ abstract class CRM_Banking_PluginModel_Exporter extends CRM_Banking_PluginModel_
         $result['exec_contribution_list']  = implode(',', $contribution_ids);
 
         // also, add individual contribution data
-        $counter              = 0;
+        $counter              = 1;
         $total_sum            = 0.0;
         $total_currency       = '';
         $total_non_deductible = 0.0;
@@ -204,7 +204,7 @@ abstract class CRM_Banking_PluginModel_Exporter extends CRM_Banking_PluginModel_
           if (!empty($contribtion['is_error'])) {
             error_log("org.project60.banking.exporter.csv: error while reading contribution [$contribution_id]: " . $contribution['error_message']);
           } else {
-            $prefix = 'exec_contribution' . (($counter>0)?"$counter_":'_');
+            $prefix = 'exec_contribution' . (($counter>1)?"_{$counter}_":'_');
             foreach ($contribution as $key => $value) {
               $result[$prefix . $key] = $value;
             }

@@ -118,15 +118,6 @@ abstract class CRM_Banking_PluginModel_Exporter extends CRM_Banking_PluginModel_
    */
   public function getBatchData($tx_batch_id) {
     $result = array();
-
-    // add default values
-    $config = $this->_plugin_config;
-    if (!empty($config->default_values)) {
-      foreach ($config->default_values as $key => $value) {
-        $result[$key] = $value;
-      }
-    }
-
     $txbatch = civicrm_api('BankingTransactionBatch', 'getsingle', array('version' => 3, 'id' => $tx_batch_id));
     if (empty($txbatch['is_error'])) {
       foreach ($txbatch as $key => $value) {

@@ -86,21 +86,20 @@ function banking_civicrm_navigationMenu(&$params) {
               ),
               'child' => null
           ),
-          /* see https://github.com/Project60/CiviBanking/issues/56
           $level => array(
               'attributes' => array(
-                  'label' => ts('Manage Accounts'),
-                  'name' => 'Manage Accounts',
-                  'url' => 'civicrm/banking/accounts',
+                  'label' => ts('Dedupe Accounts'),
+                  'name' => 'Dedupe Accounts',
+                  'url' => 'civicrm/banking/dedupe',
                   'permission' => 'access CiviContribute',
                   'operator' => null,
-                  'separator' => 1,
+                  'separator' => 0,
                   'parentID' => $insert_at,
                   'navID' => $level++,
                   'active' => 1
               ),
               'child' => null
-          ),*/
+          ),
           $level => array(
               'attributes' => array(
                   'label' => ts('Import Transactions'),

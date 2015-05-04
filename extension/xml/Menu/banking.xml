@@ -19,6 +19,12 @@
     <access_arguments>access CiviCRM</access_arguments>
   </item>
   <item>
+    <path>civicrm/banking/dedupe</path>
+    <page_callback>CRM_Banking_Page_AccountDedupe</page_callback>
+    <title>Dedupe Accounts</title>
+    <access_arguments>access CiviCRM</access_arguments>
+  </item>
+  <item>
     <path>civicrm/banking/mandates</path>
     <page_callback>CRM_Banking_Page_SEPAMandates</page_callback>
     <title>SEPAMandates</title>

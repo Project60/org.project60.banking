@@ -139,6 +139,11 @@ function civicrm_api3_banking_lookup_contactbyname($params) {
     }
   }
 
+  // apply penalties
+  if (!empty($params['penalties'])) {
+    _civicrm_api3_banking_lookup_contactbyname_penalties($contacts_found, $params['penalties']);
+  }
+
   // sort by probability
   arsort($contacts_found);
 
@@ -189,4 +194,57 @@ function civicrm_api3_banking_lookup_contactbyname($params) {
   }
 
   return civicrm_api3_create_success($contacts_found);
+}
+
+
+/**
+ * helper function for civicrm_api3_banking_lookup_contactbyname:
+ * will apply penalties to the $contactID2probability list
+ *
+ * @param contactID2probability list of contact_ids with the currently assigned probability. 
+ *                               values will be adjusted by this method
+ * @param penalty_specs         penalty specification from the matcher's configuration
+ */
+function _civicrm_api3_banking_lookup_contactbyname_penalties(&$contactID2probability, $penalty_specs) {
+  // STEP 1: GATHER DATA
+  $contact2relation = array();
+  $relation_type_ids = array();
+  foreach ($penalty_specs as $penalty) {
+    if ($penalty->type == 'relation') {
+      if ((int) $penalty->relation_type_id) {
+        $relation_type_ids[] = (int) $penalty->relation_type_id;
+      } else {
+        error_log("org.project60.banking.lookup - invalid or no 'relation_type_id' given in penalty definition.");
+      }
+    }
+  }
+
+  if (!empty($relation_type_ids)) {
+    // load all relationship data
+    $contact_ids_string       = implode(',', array_keys($contactID2probability));
+    $relation_type_ids_string = implode(',', $relation_type_ids);
+    $sql = "SELECT contact_id_a, contact_id_b, relationship_type_id FROM civicrm_relationship WHERE contact_id_a IN ($contact_ids_string) and relationship_type_id IN ($relation_type_ids_string) AND is_active=1;";
+    $query = CRM_Core_DAO::executeQuery($sql);
+    while ($query->fetch()) {
+      $contact2relation[$query->contact_id_a][] = $query->relationship_type_id;
+    }
+  }
+
+
+  // STEP 2: apply penalties
+  foreach ($contactID2probability as $contact_id => $probability) {
+    foreach ($penalty_specs as $penalty) {
+      $probability_penalty = (float) $penalty->penalty;
+
+      if ($penalty->type == 'relation') {
+        if (!empty($contact2relation[$contact_id]) && in_array($penalty->relation_type_id, $contact2relation[$contact_id])) {
+          // penalty applies
+          $probability = max(0.0, $probability - $probability_penalty);
+        }
+      } else {
+        error_log("org.project60.banking.lookup - penalty type not implemented: '{$penalty->type}'. Ignored.");
+      }
+    }
+    $contactID2probability[$contact_id] = $probability;
+  }
 }

@@ -43,8 +43,8 @@
 			</td>
 			<td>{$duplicate.dupe_count}</td>
 			<td>
-				<a href="{crmURL p="civicrm/contact/view" q="reset=1&cid=$contact_id&selectedChild=bank_accounts"}">
-					{$duplicate.reference_type.name}: {$duplicate.reference} ({$duplicate.reference_type.label})
+				<a href="{crmURL p="civicrm/contact/view" q="reset=1&cid=$contact_id&selectedChild=bank_accounts"}" title="{$duplicate.reference_type.label}">
+					{$duplicate.reference_type.name}: {$duplicate.reference}
 				</a>
 			</td>
 		</tr>
@@ -96,8 +96,8 @@
 			</td>
 			<td>{$duplicate.dupe_count}</td>
 			<td>
-				<a href="{crmURL p="civicrm/contact/view" q="reset=1&cid=$contact_id&selectedChild=bank_accounts"}">
-					{$duplicate.reference_type.name}: {$duplicate.reference} ({$duplicate.reference_type.label})
+				<a href="{crmURL p="civicrm/contact/view" q="reset=1&cid=$contact_id&selectedChild=bank_accounts"}" title="{$duplicate.reference_type.label}">
+					{$duplicate.reference_type.name}: {$duplicate.reference}
 				</a>
 			</td>
 		</tr>
@@ -146,8 +146,8 @@
 {/foreach}
 			</ul></td>
 			<td>
-				<a href="{crmURL p="civicrm/contact/view" q="reset=1&cid=$contact_id&selectedChild=bank_accounts"}">
-					{$duplicate.reference_type.name}: {$duplicate.reference} ({$duplicate.reference_type.label})
+				<a href="{crmURL p="civicrm/contact/view" q="reset=1&cid=$contact_id&selectedChild=bank_accounts"}" title="{$duplicate.reference_type.label}">
+					{$duplicate.reference_type.name}: {$duplicate.reference}
 				</a>
 			</td>
 		</tr>

@@ -22,7 +22,7 @@
 <table>
 	<thead>
 		<th></th>
-		<th>{ts}Contact{/ts}</th>
+		<th>{ts}Bank Account Owners{/ts}</th>
 		<th>{ts}Count{/ts}</th>
 		<th>{ts}Account Reference{/ts}</th>
 	</thead>
@@ -75,7 +75,7 @@
 <table>
 	<thead>
 		<th></th>
-		<th>{ts}Contact{/ts}</th>
+		<th>{ts}Bank Account Owners{/ts}</th>
 		<th>{ts}Count{/ts}</th>
 		<th>{ts}Account Reference{/ts}</th>
 	</thead>

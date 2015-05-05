@@ -222,10 +222,10 @@ class CRM_Banking_Page_Review extends CRM_Core_Page {
 
       // Set the page-title dynamically
       if (count($list) > 1) {
-        CRM_Utils_System::setTitle(ts('Review Bank Transaction %1 of %2 (%3 unprocessed ahead)', 
+        CRM_Utils_System::setTitle(ts("Review Bank Transaction %1 of %2 (%3 unprocessed ahead)", 
           array($index+1, count($list), $unprocessed_count)));
       } else {
-        CRM_Utils_System::setTitle(ts('Review Bank Transaction'));
+        CRM_Utils_System::setTitle(ts("Review Bank Transaction"));
       }
 
       // perform redirect, if requested

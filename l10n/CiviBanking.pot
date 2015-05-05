@@ -5,7 +5,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: CiviBanking\n"
-"POT-Creation-Date: 2015-05-05 21:12+0200\n"
+"POT-Creation-Date: 2015-05-05 22:46+0200\n"
 "Language-Team: CiviCRM Translators <civicrm-translators@lists.civicrm.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -1575,4 +1575,8 @@ msgstr ""
 
 #: extension/templates/CRM/Banking/PluginImpl/Matcher/Membership.suggestion.tpl
 msgid "Fee"
+msgstr ""
+
+#: extension/CRM/Banking/Page/Review.php
+msgid "Review Bank Transaction %1 of %2 (%3 unprocessed ahead)"
 msgstr ""

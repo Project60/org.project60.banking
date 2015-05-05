@@ -1,7 +1,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: \n"
-"POT-Creation-Date: 2015-05-05 21:12+0200\n"
+"POT-Creation-Date: 2015-05-05 22:46+0200\n"
 "PO-Revision-Date: \n"
 "Last-Translator: Bjoern Endres <Bjoern.Endres@didonai.com>\n"
 "Language-Team: \n"
@@ -871,11 +871,11 @@ msgstr "Kontonummer"
 
 #: extension/templates/CRM/Banking/Page/AccountDedupe.tpl
 msgid "fix"
-msgstr "beheben"
+msgstr "korrigieren"
 
 #: extension/templates/CRM/Banking/Page/AccountDedupe.tpl
 msgid "fix all"
-msgstr "alle beheben"
+msgstr "alle korrigieren"
 
 #: extension/templates/CRM/Banking/Page/AccountDedupe.tpl
 msgid "No duplicate references found."
@@ -895,19 +895,19 @@ msgstr "Keine doppelten Konten gefunden."
 
 #: extension/templates/CRM/Banking/Page/AccountDedupe.tpl
 msgid "Bank Account Ownership Conflicts"
-msgstr "Bankkonten mit widersprüchlichen Besitzern"
+msgstr "Bankkonten mit widersprüchlichen Inhabern"
 
 #: extension/templates/CRM/Banking/Page/AccountDedupe.tpl
 msgid "These are duplicate bank accounts listed for <i>different</i> contacts. Those that are not intended to be \"shared\" need to be resolved manually - sorry."
-msgstr "Diese Liste enthält doppelte Bankkonten, die <i>unterschiedlichen</i>Besitzer-Kontakten zugeordnet sind. Die Fälle in denen das nicht korrekt ist, müssen leider von Hand korrigiert werden."
+msgstr "Diese Liste enthält doppelte Bankkonten, die <i>unterschiedlichen</i> Inhabern zugeordnet sind. Die Fälle in denen das nicht korrekt ist, müssen leider von Hand korrigiert werden."
 
 #: extension/templates/CRM/Banking/Page/AccountDedupe.tpl
 msgid "Bank Account Owners"
-msgstr "Besizter-Kontakte"
+msgstr "Kontoinhaber"
 
 #: extension/templates/CRM/Banking/Page/AccountDedupe.tpl
 msgid "No conflicting bank accounts found."
-msgstr "Keine Besitzerkonflikte bei Bankkonten gefunden."
+msgstr "Keine widersprüchlichen Inhaber bei Bankkonten gefunden."
 
 #: extension/templates/CRM/Banking/Page/AccountSearch.tpl
 msgid "Search Criteria"
@@ -1523,6 +1523,10 @@ msgstr "Fällig"
 #: extension/templates/CRM/Banking/PluginImpl/Matcher/Membership.suggestion.tpl
 msgid "Fee"
 msgstr "Beitrag"
+
+#: extension/CRM/Banking/Page/Review.php
+msgid "Review Bank Transaction %1 of %2 (%3 unprocessed ahead)"
+msgstr "Verarbeite Zahlung %1 von %2 (noch %3 nicht verbuchte)"
 
 #~ msgid "Couldn't find value '%s'!"
 #~ msgstr "Konnte Wert '%s'! nicht finden"

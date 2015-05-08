@@ -26,7 +26,7 @@
   {ts}The following contribution will be created:{/ts}
   <br/>
   <div>
-    <table border="1">
+    <table border="1" style="empty-cells : hide;">
       <tbody>
         <tr>
           <td>
@@ -46,6 +46,20 @@
             <div class="btxvalue">{$contribution.financial_type}</div>
           </td>
         </tr>
+        {if $campaign or $source}
+        <tr>
+          <td style="border: none !important;"></td>
+          <td style="border: none !important;"></td>
+          <td>
+            <div class="btxlabel">{ts}Source{/ts}:&nbsp;</div>
+            <div class="btxvalue">{$source}</div>
+          </td>
+          <td>
+            <div class="btxlabel">{ts}Campaign{/ts}:&nbsp;</div>
+            <div class="btxvalue">{$campaign.label}</div>
+          </td>
+        </tr>
+        {/if}
       </tbody>
     </table>
   </div>

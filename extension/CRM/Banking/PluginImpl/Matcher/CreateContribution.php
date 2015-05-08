@@ -30,10 +30,11 @@ class CRM_Banking_PluginImpl_Matcher_CreateContribution extends CRM_Banking_Plug
 
     // read config, set defaults
     $config = $this->_plugin_config;
-    if (!isset($config->auto_exec)) $config->auto_exec = false;
-    if (!isset($config->required_values)) $config->required_values = array("btx.financial_type_id", "btx.campaign_id");
-    if (!isset($config->factor)) $config->factor = 1.0;
-    if (!isset($config->threshold)) $config->threshold = 0.0;
+    if (!isset($config->auto_exec))              $config->auto_exec = false;
+    if (!isset($config->required_values))        $config->required_values = array("btx.financial_type_id", "btx.campaign_id");
+    if (!isset($config->factor))                 $config->factor = 1.0;
+    if (!isset($config->threshold))              $config->threshold = 0.0;
+    if (!isset($config->source_label))           $config->source_label = ts('Source');
     if (!isset($config->lookup_contact_by_name)) $config->lookup_contact_by_name = array("hard_cap_probability" => 0.9);
   }
 
@@ -138,9 +139,23 @@ class CRM_Banking_PluginImpl_Matcher_CreateContribution extends CRM_Banking_Plug
       $smarty->assign('error', $contact['error_message']);
     }
 
-    // lookup financial type
+    // look up financial type
     $financial_types = CRM_Contribute_PseudoConstant::financialType();
     $contribution['financial_type'] = $financial_types[$contribution['financial_type_id']];
+
+    // look up campaign
+    if (!empty($contribution['campaign_id'])) {
+      $campaign = civicrm_api('Campaign', 'getsingle', array('id' => $contribution['campaign_id'], 'version' => 3));
+      if (!empty($contact['is_error'])) {
+        $smarty->assign('error', $campaign['error_message']);
+      } else {
+        $smarty->assign('campaign', $campaign);
+      }
+    }
+
+    // assign source
+    $smarty->assign('source', $contribution['source']);
+    $smarty->assign('source_label', $this->_plugin_config->source_label);
 
     // assign to smarty and compile HTML
     $smarty->assign('contact',           $contact);

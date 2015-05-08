@@ -259,10 +259,7 @@
         var link = cj("<div/>").html("{/literal}{$edit_contribution_link}{literal}").text();
         link = link.replace("__contributionid__", contribution.id);
         link = link.replace("__contactid__", contribution.contact_id);
-        //window.open(link, "_blank");
-        console.log(link);
-        CRM.loadForm(url, {openInline: '.button a'})
-        //CRM.loadForm(link);
+        window.open(link, "_blank");
       }
     });                    
   }

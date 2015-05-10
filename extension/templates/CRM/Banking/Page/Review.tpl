@@ -427,7 +427,12 @@ function analysePayment() {
     {success: function(data) {
         if (!data['is_error']) {
           // remove 'execute' bit from URL before reload
-          window.location = window.location.href.replace(reload_regex, '');
+          var newURL = window.location.href.replace(reload_regex, '');
+          if (window.location.href == newURL) {
+            window.location.reload(false); 
+          } else {
+            window.location = newURL;
+          }          
         } else {
           cj('<div title="{/literal}{ts}Error{/ts}{literal}"><span class="ui-icon ui-icon-alert" style="float:left;"></span>' + data['error_message'] + '</div>').dialog({
             modal: true,

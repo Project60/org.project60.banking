@@ -71,6 +71,13 @@ class CRM_Banking_PluginImpl_Matcher_SepaMandate extends CRM_Banking_PluginModel
       if (!isset($config->cancellation_value_propagation)) $config->cancellation_value_propagation = array();
       $config->cancellation_value_propagation->{'match.cancel_fee'} = $config->cancellation_cancel_fee_store;
     }
+
+    // create activity
+    if (!isset($config->cancellation_create_activity))             $config->cancellation_create_activity             = false;
+    if (!isset($config->cancellation_create_activity_type_id))     $config->cancellation_create_activity_type_id     = 37;
+    if (!isset($config->cancellation_create_activity_subject))     $config->cancellation_create_activity_subject     = ts("Follow-up SEPA Cancellation");
+    if (!isset($config->cancellation_create_activity_assignee_id)) $config->cancellation_create_activity_assignee_id = 0; // will be replaced with current user
+    if (!isset($config->cancellation_create_activity_text))        $config->cancellation_create_activity_text        = '';
   }
 
   /** 
@@ -399,7 +406,78 @@ class CRM_Banking_PluginImpl_Matcher_SepaMandate extends CRM_Banking_PluginModel
             CRM_Core_Session::setStatus(ts("Couldn't modify mandate."), ts('Error'), 'error');
           }
         }
+      } 
+    }
+
+    // create activity if wanted
+    if ($config->cancellation_create_activity) {
+      // gather some information to put in the text
+      $smarty = CRM_Core_Smarty::singleton();
+      $smarty->assign('contribution', $contribution);
+      $smarty->assign('cancel_fee', $match->getParameter('cancel_fee'));
+      $smarty->assign('cancel_reason', $match->getParameter('cancel_reason'));
+      
+      // load the mandate
+      $mandate = civicrm_api('SepaMandate', 'getsingle', array('id' => $mandate_id, 'version' => 3));
+      $smarty->assign('mandate', $mandate);
+
+      // load the contact
+      $contact = civicrm_api('Contact', 'getsingle', array('id' => $contribution['contact_id'], 'version' => 3));
+      $smarty->assign('contact', $contact);
+
+      // count the cancelled contributions connected to this mandate
+      $cancelled_contribution_count = 0;
+      $current_contribution_date = date('Ymdhis', strtotime($contribution['receive_date']));
+      if ($mandate['type']=='RCUR') {
+        $query = "SELECT contribution_status_id
+                  FROM civicrm_contribution
+                  WHERE contribution_recur_id = {$mandate['entity_id']}
+                    AND receive_date <= '$current_contribution_date'
+                  ORDER BY receive_date DESC;";
+        $status_list = CRM_Core_DAO::excecuteQuery($query);
+        while ($status_list->fetch()) {
+          if ($status_list->contribution_status_id == $status_cancelled) {
+            $cancelled_contribution_count += 1;
+          } else {
+            break;
+          }
+        }
       }
+      $smarty->assign('cancelled_contribution_count', $cancelled_contribution_count);
+
+      // look up contact if not set
+      $user_id = CRM_Core_Session::singleton()->get('userID');
+      if (empty($config->cancellation_create_activity_assignee_id)) {
+        $assignedTo = $user_id;
+      } else {
+        $assignedTo = (int) $config->cancellation_create_activity_assignee_id;
+      }
+
+      // compile the text
+      if (empty($config->cancellation_create_activity_text)) {
+        $details = $smarty->fetch('CRM/Banking/PluginImpl/Matcher/SepaMandate.activity.tpl');
+      } else {
+        $details = $smarty->fetch("string:" . $config->cancellation_create_activity_text);
+      }
+      
+      $activity_parameters = array(
+        'version'            => 3,
+        'activity_type_id'   => $config->cancellation_create_activity_type_id,
+        'subject'            => $config->cancellation_create_activity_subject,
+        'status_id'          => 1, // planned
+        'activity_date_time' => date('YmdHis'),
+        'source_contact_id'  => $user_id,
+        'target_contact_id'  => $contact['id'],
+        'details'            => $details
+      );
+      $activity = CRM_Activity_BAO_Activity::create($activity_parameters);
+
+      $assignment_parameters = array(
+        'activity_id'    => $activity->id,
+        'contact_id'     => $assignedTo,
+        'record_type_id' => 1  // ASSIGNEE
+      );
+      $assignment = CRM_Activity_BAO_ActivityContact::create($assignment_parameters);
     }
 
     $newStatus = banking_helper_optionvalueid_by_groupname_and_name('civicrm_banking.bank_tx_status', 'Processed');

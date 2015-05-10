@@ -513,7 +513,7 @@ abstract class CRM_Banking_PluginModel_Matcher extends CRM_Banking_PluginModel_B
                         'ba_id'             => $contact_bank_account_id);
         $result = civicrm_api('BankingAccountReference', 'create', $query);
         if (!empty($result['is_error'])) {
-          CRM_Core_Session::setStatus(ts("Couldn't create reference. Error was: ".$result['error_message']), ts('Error'), 'alert');
+          CRM_Core_Session::setStatus(ts("Couldn't create reference. Error was: '%1'", array(1=>$result['error_message'])), ts('Error'), 'alert');
         }        
       }
     }

@@ -262,10 +262,10 @@ class CRM_Banking_Page_AccountDedupe extends CRM_Core_Page {
 
       if ($errors_ecountered) {
         CRM_Core_Session::setStatus(ts("%1 errors were encountered when trying to merge duplicate bank accounts, %2/%3 bank accounts were successfully merged.", 
-              array($errors_ecountered, $accounts_fixed, ($errors_ecountered+$accounts_fixed))), ts('Errors encountered'), 'warn');
+              array(1 => $errors_ecountered, 2 => $accounts_fixed, 3 => ($errors_ecountered+$accounts_fixed))), ts('Errors encountered'), 'warn');
         $errors_ecountered = 0;
       } else {
-        CRM_Core_Session::setStatus(ts("%1 duplicate bank accounts successfully merged.", $accounts_fixed), ts('Success'), 'info');
+        CRM_Core_Session::setStatus(ts("%1 duplicate bank accounts successfully merged.", array(1 => $accounts_fixed)), ts('Success'), 'info');
       }
     }
 
@@ -312,10 +312,10 @@ class CRM_Banking_Page_AccountDedupe extends CRM_Core_Page {
 
       if ($errors_ecountered) {
         CRM_Core_Session::setStatus(ts("%1 errors were encountered when trying to delete duplicate references. %2/%3 references were successfully deleted.", 
-          array($errors_ecountered, $refs_fixed, ($errors_ecountered+$refs_fixed))), ts('Errors encountered'), 'warn');
+          array(1 => $errors_ecountered, 2 => $refs_fixed, 3 => ($errors_ecountered+$refs_fixed))), ts('Errors encountered'), 'warn');
         $errors_ecountered = 0;
       } else {
-        CRM_Core_Session::setStatus(ts("%1 duplicate references successfully deleted.", $refs_fixed), ts('Success'), 'info');
+        CRM_Core_Session::setStatus(ts("%1 duplicate references successfully deleted.", array(1=>$refs_fixed)), ts('Success'), 'info');
       }
     }
 

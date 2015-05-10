@@ -5,7 +5,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: CiviBanking\n"
-"POT-Creation-Date: 2015-05-05 22:46+0200\n"
+"POT-Creation-Date: 2015-05-10 19:37+0200\n"
 "Language-Team: CiviCRM Translators <civicrm-translators@lists.civicrm.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -236,12 +236,32 @@ msgid "Dedupe Bank Accounts"
 msgstr ""
 
 #: extension/CRM/Banking/Page/AccountDedupe.php
+msgid ""
+"%1 errors were encountered when trying to merge duplicate bank accounts, %2/"
+"%3 bank accounts were successfully merged."
+msgstr ""
+
+#: extension/CRM/Banking/Page/AccountDedupe.php
 msgid "Errors encountered"
+msgstr ""
+
+#: extension/CRM/Banking/Page/AccountDedupe.php
+msgid "%1 duplicate bank accounts successfully merged."
 msgstr ""
 
 #: extension/CRM/Banking/Page/AccountDedupe.php
 #: extension/CRM/Banking/PluginImpl/Matcher/SepaMandate.php
 msgid "Success"
+msgstr ""
+
+#: extension/CRM/Banking/Page/AccountDedupe.php
+msgid ""
+"%1 errors were encountered when trying to delete duplicate references. %2/%3 "
+"references were successfully deleted."
+msgstr ""
+
+#: extension/CRM/Banking/Page/AccountDedupe.php
+msgid "%1 duplicate references successfully deleted."
 msgstr ""
 
 #: extension/CRM/Banking/Page/AccountSearch.php extension/hooks.php
@@ -259,6 +279,7 @@ msgstr ""
 #: extension/CRM/Banking/Page/Dashboard.php
 #: extension/CRM/Banking/Page/Payments.php
 #: extension/CRM/Banking/PluginImpl/Matcher/ExistingContribution.php
+#: extension/CRM/Banking/PluginImpl/Matcher/SepaMandate.php
 msgid "Unknown"
 msgstr ""
 
@@ -404,6 +425,10 @@ msgid "This transaction was marked to be <b>ignored</b> on %s."
 msgstr ""
 
 #: extension/CRM/Banking/Page/Review.php
+msgid "Review Bank Transaction %1 of %2 (%3 unprocessed ahead)"
+msgstr ""
+
+#: extension/CRM/Banking/Page/Review.php
 msgid "Review Bank Transaction"
 msgstr ""
 
@@ -545,6 +570,11 @@ msgid ""
 msgstr ""
 
 #: extension/CRM/Banking/PluginImpl/Matcher/CreateContribution.php
+#: extension/templates/CRM/Banking/PluginImpl/Matcher/CreateContribution.suggestion.tpl
+msgid "Source"
+msgstr ""
+
+#: extension/CRM/Banking/PluginImpl/Matcher/CreateContribution.php
 msgid "Create a new contribution"
 msgstr ""
 
@@ -583,6 +613,7 @@ msgid "This transaction was manually matched to the following contributions:"
 msgstr ""
 
 #: extension/CRM/Banking/PluginImpl/Matcher/DefaultOptions.php
+#: extension/templates/CRM/Banking/PluginImpl/Matcher/SepaMandate.activity.tpl
 msgid "Contribution"
 msgstr ""
 
@@ -667,6 +698,10 @@ msgid "Unspecified SEPA cancellation"
 msgstr ""
 
 #: extension/CRM/Banking/PluginImpl/Matcher/SepaMandate.php
+msgid "Follow-up SEPA Cancellation"
+msgstr ""
+
+#: extension/CRM/Banking/PluginImpl/Matcher/SepaMandate.php
 msgid "Couldn't load SEPA mandate for reference %s"
 msgstr ""
 
@@ -729,50 +764,7 @@ msgid "Couldn't modify mandate."
 msgstr ""
 
 #: extension/CRM/Banking/PluginImpl/Matcher/SepaMandate.php
-msgid "This transaction is a SEPA direct debit contribution by %s."
-msgstr ""
-
-#: extension/CRM/Banking/PluginImpl/Matcher/SepaMandate.php
-msgid "The mandate reference is <a href=\"%s\" target=\"_blank\">%s</a>."
-msgstr ""
-
-#: extension/CRM/Banking/PluginImpl/Matcher/SepaMandate.php
-msgid ""
-"Contribution <a href=\"%s\" target=\"_blank\">[%s]</a> will be closed, as "
-"will be the sepa transaction group if this is the last contribution."
-msgstr ""
-
-#: extension/CRM/Banking/PluginImpl/Matcher/SepaMandate.php
-msgid ""
-"Contribution <a href=\"%s\" target=\"_blank\">[%s]</a> will be cancelled."
-msgstr ""
-
-#: extension/CRM/Banking/PluginImpl/Matcher/SepaMandate.php
-msgid ""
-"The mandate, however, will <i>not</i> be cancelled, since this is not the "
-"first of the recurring contributions."
-msgstr ""
-
-#: extension/CRM/Banking/PluginImpl/Matcher/SepaMandate.php
-msgid "The mandate will also be cancelled, its status will change to INVALID."
-msgstr ""
-
-#: extension/CRM/Banking/PluginImpl/Matcher/SepaMandate.php
-msgid "<b>Warning! There are some problems with this contribution:</b>"
-msgstr ""
-
-#: extension/CRM/Banking/PluginImpl/Matcher/SepaMandate.php
 msgid "Internal error! Cannot find contribution #"
-msgstr ""
-
-#: extension/CRM/Banking/PluginImpl/Matcher/SepaMandate.php
-msgid ""
-"This SEPA transaction was associated with <a href=\"%s\">contribution #%s</"
-"a>."
-msgstr ""
-
-#: extension/CRM/Banking/PluginImpl/Matcher/SepaMandate.php
-msgid "This SEPA transaction cancelled <a href=\"%s\">contribution #%s</a>."
 msgstr ""
 
 #: extension/CRM/Banking/PluginModel/Importer.php
@@ -821,6 +813,10 @@ msgstr ""
 
 #: extension/CRM/Banking/PluginModel/Matcher.php
 msgid "created by CiviBanking"
+msgstr ""
+
+#: extension/CRM/Banking/PluginModel/Matcher.php
+msgid "Couldn't create reference. Error was: '%1'"
 msgstr ""
 
 #: extension/CRM/Banking/PluginModel/Matcher.php
@@ -881,9 +877,7 @@ msgid ""
 msgstr ""
 
 #: extension/templates/CRM/Banking/Page/AccountDedupe.tpl
-#: extension/templates/CRM/Banking/Page/Review.tpl
-#: extension/templates/CRM/Banking/PluginImpl/Matcher/DefaultOptions.suggestion.tpl
-msgid "Contact"
+msgid "Bank Account Owners"
 msgstr ""
 
 #: extension/templates/CRM/Banking/Page/AccountDedupe.tpl
@@ -929,10 +923,6 @@ msgid ""
 "These are duplicate bank accounts listed for <i>different</i> contacts. "
 "Those that are not intended to be \"shared\" need to be resolved manually - "
 "sorry."
-msgstr ""
-
-#: extension/templates/CRM/Banking/Page/AccountDedupe.tpl
-msgid "Bank Account Owners"
 msgstr ""
 
 #: extension/templates/CRM/Banking/Page/AccountDedupe.tpl
@@ -1312,6 +1302,12 @@ msgid "Owner"
 msgstr ""
 
 #: extension/templates/CRM/Banking/Page/Review.tpl
+#: extension/templates/CRM/Banking/PluginImpl/Matcher/DefaultOptions.suggestion.tpl
+#: extension/templates/CRM/Banking/PluginImpl/Matcher/SepaMandate.activity.tpl
+msgid "Contact"
+msgstr ""
+
+#: extension/templates/CRM/Banking/Page/Review.tpl
 msgid "Purpose"
 msgstr ""
 
@@ -1373,11 +1369,13 @@ msgstr ""
 
 #: extension/templates/CRM/Banking/PluginImpl/Matcher/CreateContribution.suggestion.tpl
 #: extension/templates/CRM/Banking/PluginImpl/Matcher/ExistingContribution.suggestion.tpl
+#: extension/templates/CRM/Banking/PluginImpl/Matcher/SepaMandate.suggestion.tpl
 msgid "An error has occurred:"
 msgstr ""
 
 #: extension/templates/CRM/Banking/PluginImpl/Matcher/CreateContribution.suggestion.tpl
 #: extension/templates/CRM/Banking/PluginImpl/Matcher/ExistingContribution.suggestion.tpl
+#: extension/templates/CRM/Banking/PluginImpl/Matcher/SepaMandate.suggestion.tpl
 msgid ""
 "This suggestion is possibly outdated. Please try and analyse this "
 "transaction again."
@@ -1397,6 +1395,10 @@ msgstr ""
 #: extension/templates/CRM/Banking/PluginImpl/Matcher/ExistingContribution.suggestion.tpl
 #: extension/templates/CRM/Banking/PluginImpl/Matcher/Membership.suggestion.tpl
 msgid "Type"
+msgstr ""
+
+#: extension/templates/CRM/Banking/PluginImpl/Matcher/CreateContribution.suggestion.tpl
+msgid "Campaign"
 msgstr ""
 
 #: extension/templates/CRM/Banking/PluginImpl/Matcher/DefaultOptions.suggestion.tpl
@@ -1468,10 +1470,12 @@ msgid "This transaction cancelled <a href=\"%1\">contribution #%2</a>."
 msgstr ""
 
 #: extension/templates/CRM/Banking/PluginImpl/Matcher/ExistingContribution.execution.tpl
+#: extension/templates/CRM/Banking/PluginImpl/Matcher/SepaMandate.execution.tpl
 msgid "The recorded cancellation reason was: \"%1\"."
 msgstr ""
 
 #: extension/templates/CRM/Banking/PluginImpl/Matcher/ExistingContribution.execution.tpl
+#: extension/templates/CRM/Banking/PluginImpl/Matcher/SepaMandate.execution.tpl
 msgid "A cancellation fee of %1 was recorded."
 msgstr ""
 
@@ -1494,10 +1498,12 @@ msgid "edit contribution"
 msgstr ""
 
 #: extension/templates/CRM/Banking/PluginImpl/Matcher/ExistingContribution.suggestion.tpl
+#: extension/templates/CRM/Banking/PluginImpl/Matcher/SepaMandate.suggestion.tpl
 msgid "Cancellation Reason"
 msgstr ""
 
 #: extension/templates/CRM/Banking/PluginImpl/Matcher/ExistingContribution.suggestion.tpl
+#: extension/templates/CRM/Banking/PluginImpl/Matcher/SepaMandate.suggestion.tpl
 msgid "Cancellation Fee"
 msgstr ""
 
@@ -1577,6 +1583,79 @@ msgstr ""
 msgid "Fee"
 msgstr ""
 
-#: extension/CRM/Banking/Page/Review.php
-msgid "Review Bank Transaction %1 of %2 (%3 unprocessed ahead)"
+#: extension/templates/CRM/Banking/PluginImpl/Matcher/SepaMandate.activity.tpl
+msgid "SEPA %1 Cancellation Notification"
+msgstr ""
+
+#: extension/templates/CRM/Banking/PluginImpl/Matcher/SepaMandate.activity.tpl
+msgid "Mandate"
+msgstr ""
+
+#: extension/templates/CRM/Banking/PluginImpl/Matcher/SepaMandate.activity.tpl
+msgid "Cancellation"
+msgstr ""
+
+#: extension/templates/CRM/Banking/PluginImpl/Matcher/SepaMandate.activity.tpl
+msgid "first time (in a row)"
+msgstr ""
+
+#: extension/templates/CRM/Banking/PluginImpl/Matcher/SepaMandate.activity.tpl
+msgid "%1 times in a row!"
+msgstr ""
+
+#: extension/templates/CRM/Banking/PluginImpl/Matcher/SepaMandate.activity.tpl
+msgid "Contact Address"
+msgstr ""
+
+#: extension/templates/CRM/Banking/PluginImpl/Matcher/SepaMandate.activity.tpl
+msgid "unknown"
+msgstr ""
+
+#: extension/templates/CRM/Banking/PluginImpl/Matcher/SepaMandate.activity.tpl
+msgid "Contact Phone Number"
+msgstr ""
+
+#: extension/templates/CRM/Banking/PluginImpl/Matcher/SepaMandate.activity.tpl
+msgid "Contact Email"
+msgstr ""
+
+#: extension/templates/CRM/Banking/PluginImpl/Matcher/SepaMandate.execution.tpl
+msgid "This SEPA transaction cancelled <a href=\"%1\">contribution #%2</a>."
+msgstr ""
+
+#: extension/templates/CRM/Banking/PluginImpl/Matcher/SepaMandate.execution.tpl
+msgid ""
+"This SEPA transaction was reconciled with <a href=\"%1\">contribution #%2</"
+"a>."
+msgstr ""
+
+#: extension/templates/CRM/Banking/PluginImpl/Matcher/SepaMandate.suggestion.tpl
+msgid "This transaction is a SEPA direct debit contribution by %1."
+msgstr ""
+
+#: extension/templates/CRM/Banking/PluginImpl/Matcher/SepaMandate.suggestion.tpl
+msgid "The mandate reference is <a href=\"%1\" target=\"_blank\">%2</a>"
+msgstr ""
+
+#: extension/templates/CRM/Banking/PluginImpl/Matcher/SepaMandate.suggestion.tpl
+msgid ""
+"Contribution <a href=\"%1\" target=\"_blank\">[%2]</a> will be closed, as "
+"will be the sepa transaction group if this is the last contribution."
+msgstr ""
+
+#: extension/templates/CRM/Banking/PluginImpl/Matcher/SepaMandate.suggestion.tpl
+msgid ""
+"Contribution <a href=\"%1\" target=\"_blank\">[%2]</a> will be cancelled."
+msgstr ""
+
+#: extension/templates/CRM/Banking/PluginImpl/Matcher/SepaMandate.suggestion.tpl
+msgid "The mandate will also be cancelled, its status will change to INVALID."
+msgstr ""
+
+#: extension/templates/CRM/Banking/PluginImpl/Matcher/SepaMandate.suggestion.tpl
+msgid "An activity will be created to trigger a manual follow-up."
+msgstr ""
+
+#: extension/templates/CRM/Banking/PluginImpl/Matcher/SepaMandate.suggestion.tpl
+msgid "<b>Warning! There are some problems with this contribution:</b>"
 msgstr ""

@@ -133,18 +133,17 @@ class CRM_Banking_PluginImpl_Exporter_CSV extends CRM_Banking_PluginModel_Export
           $this->apply_rule($rule, $data_blob);
         }
 
-
-        // apply filters
-        $line_filtered_out = FALSE;
-        foreach ($config->filters as $filter) {
-          if (!$this->runFilter($filter, $data_blob)) {
-            $line_filtered_out = TRUE;
-            break;
+        // apply filters: [a and b...] or [c and d] or ...  TRUE accepts/passes line
+        $filter_pass = empty($config->filters);  // automatically pass for empty filters
+        foreach ($config->filters as $AND_clause) {
+          $AND_clause_result = TRUE;  // empty set passes
+          foreach ($AND_clause as $filter) {
+            $AND_clause_result &= $this->runFilter($filter, $data_blob);
           }
+          $filter_pass |= $AND_clause_result;
+          if ($filter_pass) break;  // one of the OR clauses is true
         }
-        if ($line_filtered_out) continue;
-
-        // DEBUGGING: error_log(print_r($data_blob,1));
+        if (!$filter_pass) continue;
 
         // write row
         $csv_line = array();

@@ -16,6 +16,7 @@
 
 
 require_once 'CRM/Banking/Helpers/OptionValue.php';
+require_once 'packages/eval-math/evalmath.class.php';
 
 /**
  * This matcher tries to reconcile the payments with existing contributions. 
@@ -40,6 +41,7 @@ class CRM_Banking_PluginImpl_Matcher_SepaMandate extends CRM_Banking_PluginModel
     if (!isset($config->value_propagation)) $config->value_propagation = array();
 
     if (!isset($config->cancellation_enabled)) $config->cancellation_enabled = FALSE;
+    if (!isset($config->cancellation_general_penalty)) $config->cancellation_general_penalty = 0.0;
     if (!isset($config->cancellation_default_reason)) $config->cancellation_default_reason = ts("Unspecified SEPA cancellation");
     if (!isset($config->cancellation_date_minimum)) $config->cancellation_date_minimum = "-10 days";
     if (!isset($config->cancellation_date_maximum)) $config->cancellation_date_maximum = "+30 days";
@@ -50,6 +52,32 @@ class CRM_Banking_PluginImpl_Matcher_SepaMandate extends CRM_Banking_PluginModel
     if (!isset($config->cancellation_amount_penalty)) $config->cancellation_amount_penalty = $config->deviation_penalty;
     if (!isset($config->cancellation_penalty_threshold)) $config->cancellation_penalty_threshold = $config->deviation_penalty;
     if (!isset($config->cancellation_value_propagation)) $config->cancellation_value_propagation = $config->value_propagation;
+
+    // extended cancellation features: enter cancel_reason
+    if (!isset($config->cancellation_cancel_reason))         $config->cancellation_cancel_reason         = 0; // set to 1 to enable
+    if (!isset($config->cancellation_cancel_reason_edit))    $config->cancellation_cancel_reason_edit    = 1; // set to 0 to disable user input
+    if (!isset($config->cancellation_cancel_reason_source))  $config->cancellation_cancel_reason_source  = 'cancel_reason';
+    if (!isset($config->cancellation_cancel_reason_default)) $config->cancellation_cancel_reason_default = ts('Unknown');
+
+    // extended cancellation features: fee
+    if (!isset($config->cancellation_cancel_fee))            $config->cancellation_cancel_fee            = 0; // set to 1 to enable
+    if (!isset($config->cancellation_cancel_fee_edit))       $config->cancellation_cancel_fee_edit       = 1; // set to 0 to disable user input
+    if (!isset($config->cancellation_cancel_fee_source))     $config->cancellation_cancel_fee_source     = 'cancellation_fee'; // external source field in btx->data_parsed
+    if (!isset($config->cancellation_cancel_fee_store))      $config->cancellation_cancel_fee_store      = 'match.cancel_fee'; // where to store the calculated fee, for syntax see value_propagation
+    if (!isset($config->cancellation_cancel_fee_default))    $config->cancellation_cancel_fee_default    = 'difference';  // evaluated term, valid variables: 'difference'- (btx->amount + contribution->total_amount), 'source'- content of btx->data_parsed[$config->cancellation_cancel_fee_source]
+    // add to value_propagation
+    if ($config->cancellation_cancel_fee && !empty($config->cancellation_cancel_fee_store)) {
+      // add entry to value propagation
+      if (!isset($config->cancellation_value_propagation)) $config->cancellation_value_propagation = array();
+      $config->cancellation_value_propagation->{'match.cancel_fee'} = $config->cancellation_cancel_fee_store;
+    }
+
+    // create activity
+    if (!isset($config->cancellation_create_activity))             $config->cancellation_create_activity             = false;
+    if (!isset($config->cancellation_create_activity_type_id))     $config->cancellation_create_activity_type_id     = 37;
+    if (!isset($config->cancellation_create_activity_subject))     $config->cancellation_create_activity_subject     = ts("Follow-up SEPA Cancellation");
+    if (!isset($config->cancellation_create_activity_assignee_id)) $config->cancellation_create_activity_assignee_id = 0; // will be replaced with current user
+    if (!isset($config->cancellation_create_activity_text))        $config->cancellation_create_activity_text        = '';
   }
 
   /** 
@@ -133,6 +161,7 @@ class CRM_Banking_PluginImpl_Matcher_SepaMandate extends CRM_Banking_PluginModel
     // now: create a suggestion
     $suggestion = new CRM_Banking_Matcher_Suggestion($this, $btx);
     $suggestion->setParameter('contribution_id', $contribution_id);
+    $suggestion->setParameter('contact_id', $contribution['contact_id']);
     $suggestion->setParameter('mandate_id', $mandate['id']);
     $suggestion->setParameter('mandate_reference', $mandate_reference);
     
@@ -175,7 +204,36 @@ class CRM_Banking_PluginImpl_Matcher_SepaMandate extends CRM_Banking_PluginModel
           $suggestion->addEvidence($config->cancellation_amount_penalty, ts("The cancellation fee, i.e. the deviation from the original amount, is not in the specified range."));
           $probability -= $penalty;
         }
-      }  
+      }
+
+      // add general cancellation penalty, if set
+      $probability -= (float) $config->cancellation_general_penalty;
+
+      // generate cancellation extra parameters
+      if ($config->cancellation_cancel_reason) {
+        // determine the cancel reason
+        if (empty($data_parsed[$config->cancellation_cancel_reason_source])) {
+          $suggestion->setParameter('cancel_reason', $config->cancellation_cancel_reason_default);
+        } else {
+          $suggestion->setParameter('cancel_reason', $data_parsed[$config->cancellation_cancel_reason_source]);
+        }
+      }
+      if ($config->cancellation_cancel_fee) {
+        // calculate / determine the cancellation fee
+        try {
+          $meval = new EvalMath();
+          // first initialise variables 'difference' and 'source'
+          $meval->evaluate("difference = -{$btx->amount} - {$contribution_amount}");
+          if (empty($config->cancellation_cancel_fee_source) || empty($data_parsed[$config->cancellation_cancel_fee_source])) {
+            $meval->evaluate("source = 0.0");
+          } else {
+            $meval->evaluate("source = {$data_parsed[$config->cancellation_cancel_fee_source]}");
+          }
+          $suggestion->setParameter('cancel_fee', $meval->evaluate($config->cancellation_cancel_fee_default));
+        } catch (Exception $e) {
+          error_log("org.project60.banking.matcher.existing: Couldn't calculate cancellation_fee. Error was: $e");
+        }
+      }
     }
 
     // store it
@@ -321,6 +379,9 @@ class CRM_Banking_PluginImpl_Matcher_SepaMandate extends CRM_Banking_PluginModel
     $query = array_merge($query, $this->getPropagationSet($btx, $match, 'contribution', $config->cancellation_value_propagation));   // add propagated values
     if (empty($query['cancel_reason'])) // add default values
       $query['cancel_reason'] = $config->cancellation_default_reason;
+    if ($config->cancellation_cancel_reason) {
+      $query['cancel_reason'] = $match->getParameter('cancel_reason');
+    }
     $result = civicrm_api('Contribution', 'create', $query);
 
     if (isset($result['is_error']) && $result['is_error']) {
@@ -345,7 +406,78 @@ class CRM_Banking_PluginImpl_Matcher_SepaMandate extends CRM_Banking_PluginModel
             CRM_Core_Session::setStatus(ts("Couldn't modify mandate."), ts('Error'), 'error');
           }
         }
+      } 
+    }
+
+    // create activity if wanted
+    if ($config->cancellation_create_activity) {
+      // gather some information to put in the text
+      $smarty = CRM_Core_Smarty::singleton();
+      $smarty->assign('contribution', $contribution);
+      $smarty->assign('cancel_fee', $match->getParameter('cancel_fee'));
+      $smarty->assign('cancel_reason', $match->getParameter('cancel_reason'));
+      
+      // load the mandate
+      $mandate = civicrm_api('SepaMandate', 'getsingle', array('id' => $mandate_id, 'version' => 3));
+      $smarty->assign('mandate', $mandate);
+
+      // load the contact
+      $contact = civicrm_api('Contact', 'getsingle', array('id' => $contribution['contact_id'], 'version' => 3));
+      $smarty->assign('contact', $contact);
+
+      // count the cancelled contributions connected to this mandate
+      $cancelled_contribution_count = 0;
+      $current_contribution_date = date('Ymdhis', strtotime($contribution['receive_date']));
+      if ($mandate['type']=='RCUR') {
+        $query = "SELECT contribution_status_id
+                  FROM civicrm_contribution
+                  WHERE contribution_recur_id = {$mandate['entity_id']}
+                    AND receive_date <= '$current_contribution_date'
+                  ORDER BY receive_date DESC;";
+        $status_list = CRM_Core_DAO::excecuteQuery($query);
+        while ($status_list->fetch()) {
+          if ($status_list->contribution_status_id == $status_cancelled) {
+            $cancelled_contribution_count += 1;
+          } else {
+            break;
+          }
+        }
       }
+      $smarty->assign('cancelled_contribution_count', $cancelled_contribution_count);
+
+      // look up contact if not set
+      $user_id = CRM_Core_Session::singleton()->get('userID');
+      if (empty($config->cancellation_create_activity_assignee_id)) {
+        $assignedTo = $user_id;
+      } else {
+        $assignedTo = (int) $config->cancellation_create_activity_assignee_id;
+      }
+
+      // compile the text
+      if (empty($config->cancellation_create_activity_text)) {
+        $details = $smarty->fetch('CRM/Banking/PluginImpl/Matcher/SepaMandate.activity.tpl');
+      } else {
+        $details = $smarty->fetch("string:" . $config->cancellation_create_activity_text);
+      }
+      
+      $activity_parameters = array(
+        'version'            => 3,
+        'activity_type_id'   => $config->cancellation_create_activity_type_id,
+        'subject'            => $config->cancellation_create_activity_subject,
+        'status_id'          => 1, // planned
+        'activity_date_time' => date('YmdHis'),
+        'source_contact_id'  => $user_id,
+        'target_contact_id'  => $contact['id'],
+        'details'            => $details
+      );
+      $activity = CRM_Activity_BAO_Activity::create($activity_parameters);
+
+      $assignment_parameters = array(
+        'activity_id'    => $activity->id,
+        'contact_id'     => $assignedTo,
+        'record_type_id' => 1  // ASSIGNEE
+      );
+      $assignment = CRM_Activity_BAO_ActivityContact::create($assignment_parameters);
     }
 
     $newStatus = banking_helper_optionvalueid_by_groupname_and_name('civicrm_banking.bank_tx_status', 'Processed');
@@ -362,7 +494,16 @@ class CRM_Banking_PluginImpl_Matcher_SepaMandate extends CRM_Banking_PluginModel
    *  'belong' to your suggestion.
    */
   public function update_parameters(CRM_Banking_Matcher_Suggestion $match, $parameters) {
-    // NOTHING to do...
+    $config = $this->_plugin_config;
+    if ($match->getParameter('cancellation_mode')) {
+      // store potentially modified extended cancellation values
+      if ($config->cancellation_cancel_reason) {
+        $match->setParameter('cancel_reason', $parameters['cancel_reason']);
+      }
+      if ($config->cancellation_cancel_fee) {
+        $match->setParameter('cancel_fee', (float) $parameters['cancel_fee']);
+      }
+    }
   }
 
     /** 
@@ -373,54 +514,56 @@ class CRM_Banking_PluginImpl_Matcher_SepaMandate extends CRM_Banking_PluginModel
    * @return html code snippet
    */  
   function visualize_match( CRM_Banking_Matcher_Suggestion $match, $btx) {
+    $config = $this->_plugin_config;
+    $smarty = CRM_Core_Smarty::singleton();
+
     // load the contribution
-    $contribution_id = $match->getParameter('contribution_id');
-    $mandate_id = $match->getParameter('mandate_id');
+    $contribution_id   = $match->getParameter('contribution_id');
+    $mandate_id        = $match->getParameter('mandate_id');
     $mandate_reference = $match->getParameter('mandate_reference');
     $cancellation_mode = $match->getParameter('cancellation_mode');
     $cancellation_mode = !(empty($cancellation_mode));
+
+    $smarty->assign('contribution_id', $contribution_id);
+    $smarty->assign('mandate_id', $mandate_id);
+    $smarty->assign('mandate_reference', $mandate_reference);
+    $smarty->assign('cancellation_mode', $cancellation_mode);
 
     $result = civicrm_api('Contribution', 'get', array('version' => 3, 'id' => $contribution_id));
     if (isset($result['id'])) {
       // gather information
       $contribution = $result['values'][$result['id']];
-      $contact_id = $contribution['contact_id'];
+      $contact_id   = $contribution['contact_id'];
       $contact_link = CRM_Utils_System::url("civicrm/contact/view", "reset=1&cid=$contact_id");
-      $contact_html = "<a href=\"$contact_link\" target=\"_blank\">".$contribution['display_name']."</a>";
-      $mandate_link = CRM_Utils_System::url("civicrm/sepa/xmandate", "mid=$mandate_id");
-      $contribution_link = CRM_Utils_System::url("civicrm/contact/view/contribution", "reset=1&id=$contribution_id&cid=$contact_id&action=view");
-
-      // create text
-      $text = "<div><p>";
-      $text .= sprintf(ts("This transaction is a SEPA direct debit contribution by %s."), $contact_html)." ";
-      $text .= sprintf(ts("The mandate reference is <a href=\"%s\" target=\"_blank\">%s</a>."), $mandate_link, $mandate_reference)." ";
-      $text .= "</p><p>";
-      if (!$cancellation_mode) {
-        $text .= sprintf(ts("Contribution <a href=\"%s\" target=\"_blank\">[%s]</a> will be closed, as will be the sepa transaction group if this is the last contribution."), $contribution_link, $contribution_id)." ";
-      } else {
-        $text .= sprintf(ts("Contribution <a href=\"%s\" target=\"_blank\">[%s]</a> will be cancelled."), $contribution_link, $contribution_id)." ";
-        if ($contribution['contribution_payment_instrument'] == 'RCUR') {
-          $text .= ts("The mandate, however, will <i>not</i> be cancelled, since this is not the first of the recurring contributions.");
-        } else {
-          $text .= ts("The mandate will also be cancelled, its status will change to INVALID.");
-        }
-      }
-      $text .= "</p></div>";
+      $smarty->assign('contribution', $contribution);
+      $smarty->assign('contact_id', $contact_id);
+      $smarty->assign('contact_html', "<a href=\"$contact_link\" target=\"_blank\">{$contribution['display_name']} [$contact_id]</a>");
+      $smarty->assign('mandate_link', CRM_Utils_System::url("civicrm/sepa/xmandate", "mid=$mandate_id"));
+      $smarty->assign('contribution_link', CRM_Utils_System::url("civicrm/contact/view/contribution", "reset=1&id=$contribution_id&cid=$contact_id&action=view"));
 
       // add warnings, if any
-      $warnings = $match->getEvidence();
-      if (!empty($warnings)) {
-        $text .= "<div>".ts("<b>Warning! There are some problems with this contribution:</b>")."<ul>";
-        foreach ($warnings as $warning) {
-          $text .= "<li>$warning</li>";
+      $smarty->assign('warnings', $match->getEvidence());
+
+      // add cancellation extra parameters
+      if ($cancellation_mode) {
+        $smarty->assign('cancellation_cancel_reason', $config->cancellation_cancel_reason);
+        if ($config->cancellation_cancel_reason) {
+          $smarty->assign('cancel_reason',      $match->getParameter('cancel_reason'));
+          $smarty->assign('cancel_reason_edit', $config->cancellation_cancel_reason_edit);
         }
-        $text .= "</ul><div>";        
+        $smarty->assign('cancellation_cancel_fee', $config->cancellation_cancel_fee);
+        if ($config->cancellation_cancel_fee) {
+          $smarty->assign('cancel_fee',      $match->getParameter('cancel_fee'));
+          $smarty->assign('cancel_fee_edit', $config->cancellation_cancel_fee_edit);
+        }
       }
 
-      return $text;
     } else {
-      return ts("Internal error! Cannot find contribution #").$match->getParameter('contribution_id');
+      // CONTRIBUTION NOT FOUND!
+      $smarty->assign('error', ts("Internal error! Cannot find contribution #").$match->getParameter('contribution_id'));
     }
+
+    return $smarty->fetch('CRM/Banking/PluginImpl/Matcher/SepaMandate.suggestion.tpl');
   }
 
   /** 
@@ -431,14 +574,28 @@ class CRM_Banking_PluginImpl_Matcher_SepaMandate extends CRM_Banking_PluginModel
    * @return html code snippet
    */  
   function visualize_execution_info( CRM_Banking_Matcher_Suggestion $match, $btx) {
-    $contribution_id = $match->getParameter('contribution_id');
-    $cancellation_mode = $match->getParameter('cancellation_mode');
-    $contribution_link = CRM_Utils_System::url("civicrm/contact/view/contribution", "action=view&reset=1&id=${contribution_id}&cid=2&context=home");
-    if (empty($cancellation_mode)) {
-      return "<p>".sprintf(ts("This SEPA transaction was associated with <a href=\"%s\">contribution #%s</a>."), $contribution_link, $contribution_id)."</p>";
+    // just assign to smarty and compile HTML
+    $smarty = CRM_Core_Smarty::singleton();
+    $smarty->assign('contribution_id',   $match->getParameter('contribution_id'));
+    $contact_id = $match->getParameter('contact_id');
+    if (empty($contact_id)) {
+      // this information has not been stored (old matcher version)
+      $result = civicrm_api('Contribution', 'get', array('version' => 3, 'id' => $match->getParameter('contribution_id')));
+      if (isset($result['id'])) {
+        $contribution = $result['values'][$result['id']];
+        $contact_id   = $contribution['contact_id'];
+        $smarty->assign('contact_id', $contact_id);
+      } else {
+        // TODO: error handling?
+        $smarty->assign('contact_id', 1);
+      }
     } else {
-      return "<p>".sprintf(ts("This SEPA transaction cancelled <a href=\"%s\">contribution #%s</a>."), $contribution_link, $contribution_id)."</p>";
+      $smarty->assign('contact_id', $contact_id);
     }
+    $smarty->assign('cancellation_mode', $match->getParameter('cancellation_mode'));
+    $smarty->assign('cancel_fee',        $match->getParameter('cancel_fee'));
+    $smarty->assign('cancel_reason',     $match->getParameter('cancel_reason'));
+    return $smarty->fetch('CRM/Banking/PluginImpl/Matcher/SepaMandate.execution.tpl');
   }
 }
 

@@ -167,7 +167,7 @@ class CRM_Banking_PluginImpl_Importer_XML extends CRM_Banking_PluginModel_Import
     $index = 0;
     foreach ($payments as $payment_node) {
       $index += 1;
-      $this->import_payment($payment_node, $data, $index, $payments->length);
+      $this->import_payment($payment_node, $data, $index, $payments->length, $params);
     }
 
     // finish statement object
@@ -197,7 +197,7 @@ class CRM_Banking_PluginImpl_Importer_XML extends CRM_Banking_PluginModel_Import
   /**
    * Processes and imports one individual payment node
    */
-  protected function import_payment($payment_node, $stmt_data, $index, $count) {
+  protected function import_payment($payment_node, $stmt_data, $index, $count, $params) {
     $config = $this->_plugin_config;
     $progress = ((float)$index / (float)$count);
     
@@ -283,7 +283,7 @@ class CRM_Banking_PluginImpl_Importer_XML extends CRM_Banking_PluginModel_Import
     $data['data_parsed'] = json_encode($btx_parsed_data);
 
     // and finally write it into the DB
-    $duplicate = $this->checkAndStoreBTX($data, $progress);
+    $duplicate = $this->checkAndStoreBTX($data, $progress, $params);
 
     $this->reportProgress($progress, sprintf("Imported transaction #%d", $index));
   }

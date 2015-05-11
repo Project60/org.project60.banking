@@ -434,7 +434,7 @@ class CRM_Banking_PluginImpl_Matcher_SepaMandate extends CRM_Banking_PluginModel
                   WHERE contribution_recur_id = {$mandate['entity_id']}
                     AND receive_date <= '$current_contribution_date'
                   ORDER BY receive_date DESC;";
-        $status_list = CRM_Core_DAO::excecuteQuery($query);
+        $status_list = CRM_Core_DAO::executeQuery($query);
         while ($status_list->fetch()) {
           if ($status_list->contribution_status_id == $status_cancelled) {
             $cancelled_contribution_count += 1;

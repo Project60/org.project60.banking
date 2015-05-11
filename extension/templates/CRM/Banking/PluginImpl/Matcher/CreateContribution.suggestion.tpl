@@ -51,12 +51,12 @@
           <td style="border: none !important;"></td>
           <td style="border: none !important;"></td>
           <td>
-            <div class="btxlabel">{ts}Source{/ts}:&nbsp;</div>
+            <div class="btxlabel">{$source_label}:&nbsp;</div>
             <div class="btxvalue">{$source}</div>
           </td>
           <td>
             <div class="btxlabel">{ts}Campaign{/ts}:&nbsp;</div>
-            <div class="btxvalue">{$campaign.label}</div>
+            <div class="btxvalue">{$campaign.title}</div>
           </td>
         </tr>
         {/if}

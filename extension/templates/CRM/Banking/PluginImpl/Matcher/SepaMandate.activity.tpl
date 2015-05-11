@@ -43,7 +43,7 @@
         {if $cancelled_contribution_count eq 1}
           ({ts}first time (in a row){/ts})
         {else}
-          <b>({ts 1=cancelled_contribution_count}%1 times in a row!{/ts})</b>
+          <b>({ts 1=$cancelled_contribution_count}%1 times in a row!{/ts})</b>
         {/if}
       {/if}
       </a>

@@ -540,6 +540,7 @@ class CRM_Banking_PluginImpl_Matcher_SepaMandate extends CRM_Banking_PluginModel
       $smarty->assign('contact_html', "<a href=\"$contact_link\" target=\"_blank\">{$contribution['display_name']} [$contact_id]</a>");
       $smarty->assign('mandate_link', CRM_Utils_System::url("civicrm/sepa/xmandate", "mid=$mandate_id"));
       $smarty->assign('contribution_link', CRM_Utils_System::url("civicrm/contact/view/contribution", "reset=1&id=$contribution_id&cid=$contact_id&action=view"));
+      $smarty->assign('create_activity', $config->cancellation_create_activity);
 
       // add warnings, if any
       $smarty->assign('warnings', $match->getEvidence());

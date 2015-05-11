@@ -100,7 +100,8 @@ class CRM_Banking_PluginImpl_Importer_CSV extends CRM_Banking_PluginModel_Import
     }
 
     // end verify this matches the sentinel
-    return preg_match($config->sentinel, $probe_data);
+    $sentinel = mb_convert_encoding($config->sentinel, mb_internal_encoding());
+    return preg_match($sentinel, $probe_data);
   }
 
 

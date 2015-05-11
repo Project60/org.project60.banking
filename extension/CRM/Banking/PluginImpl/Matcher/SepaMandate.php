@@ -229,7 +229,7 @@ class CRM_Banking_PluginImpl_Matcher_SepaMandate extends CRM_Banking_PluginModel
           } else {
             $meval->evaluate("source = {$data_parsed[$config->cancellation_cancel_fee_source]}");
           }
-          $suggestion->setParameter('cancel_fee', $meval->evaluate($config->cancellation_cancel_fee_default));
+          $suggestion->setParameter('cancel_fee', number_format($meval->evaluate($config->cancellation_cancel_fee_default),2));
         } catch (Exception $e) {
           error_log("org.project60.banking.matcher.existing: Couldn't calculate cancellation_fee. Error was: $e");
         }
@@ -501,7 +501,7 @@ class CRM_Banking_PluginImpl_Matcher_SepaMandate extends CRM_Banking_PluginModel
         $match->setParameter('cancel_reason', $parameters['cancel_reason']);
       }
       if ($config->cancellation_cancel_fee) {
-        $match->setParameter('cancel_fee', (float) $parameters['cancel_fee']);
+        $match->setParameter('cancel_fee', number_format((float) $parameters['cancel_fee'], 2));
       }
     }
   }

@@ -288,11 +288,9 @@ abstract class CRM_Banking_PluginModel_Importer extends CRM_Banking_PluginModel_
     // check for dry run
     if (isset($params['dry_run']) && $params['dry_run'] == "on") {
       // DRY RUN ENABLED
-      $log_entry = sprintf(ts("DRY RUN: Did not create bank transaction (%s %s on %s)"), number_format((float) $btx['amount'], 2), $btx['currency'], $btx['booking_date']);
-      if (!$log_entry) {
-        // this didn't work, but there was some trouble with the translations -> try again
-        $log_entry = sprintf("DRY RUN: Did not create bank transaction (%s %s on %s)", number_format((float) $btx['amount'], 2), $btx['currency'], $btx['booking_date']);
-      }
+      $log_entry = ts("DRY RUN: Did not create bank transaction (%1 on %2)", 
+                    array(  1 => CRM_Utils_Money::format($btx['amount'], $btx['currency']), 
+                            2 => CRM_Utils_Date::customFormat($btx['booking_date'], CRM_Core_Config::singleton()->dateformatFull)));
       $this->reportProgress($progress, $log_entry);
       return TRUE;
     } else {
@@ -309,14 +307,11 @@ abstract class CRM_Banking_PluginModel_Importer extends CRM_Banking_PluginModel_
                 CRM_Banking_PluginModel_Base::REPORT_LEVEL_ERROR);
         return FALSE;
       } else {
-        $this->reportProgress(
-                $progress, 
-                sprintf(ts("Created BTX <b>%d</b> for <b>%s %s</b> on %s"), 
-                        $result['id'], 
-                        number_format((float) $btx['amount'], 2), 
-                        $btx['currency'], 
-                        date('Y-m-d',strtotime($btx['booking_date']))));
-
+        $log_entry = ts("Created BTX <b>%1</b> for <b>%2</b> on %3", 
+                    array(  1 => $result['id'],
+                            2 => CRM_Utils_Money::format($btx['amount'], $btx['currency']), 
+                            3 => CRM_Utils_Date::customFormat($btx['booking_date'], CRM_Core_Config::singleton()->dateformatFull)));
+        $this->reportProgress($progress, $log_entry);
         $this->_updateTransactionBatchInfo($btx);
         return TRUE;
       }

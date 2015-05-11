@@ -1,7 +1,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: \n"
-"POT-Creation-Date: 2015-05-10 19:37+0200\n"
+"POT-Creation-Date: 2015-05-11 09:00+0200\n"
 "PO-Revision-Date: \n"
 "Last-Translator: Bjoern Endres <Bjoern.Endres@didonai.com>\n"
 "Language-Team: \n"
@@ -560,7 +560,6 @@ msgid "This transaction was associated with <a href=\"%s\">payment batch #%s</a>
 msgstr "Diese Zahlung wurde mit <a href=\"%s\">Zuwendungsgruppe #%s</a> verbunden."
 
 #: extension/CRM/Banking/PluginImpl/Matcher/CreateContribution.php
-#: extension/templates/CRM/Banking/PluginImpl/Matcher/CreateContribution.suggestion.tpl
 msgid "Source"
 msgstr ""
 
@@ -779,16 +778,16 @@ msgid "No valid value date detected. Not imported!"
 msgstr "Kein valides Wertstellungsdatum erkannt. Nicht importiert!"
 
 #: extension/CRM/Banking/PluginModel/Importer.php
-msgid "DRY RUN: Did not create bank transaction (%s %s on %s)"
-msgstr "TESTLAUF: Keine Zahlung angelegt (%s %s on %s)"
+msgid "DRY RUN: Did not create bank transaction (%1 on %2)"
+msgstr "TESTLAUF: Keine Zahlung angelegt (%1 am %2)"
 
 #: extension/CRM/Banking/PluginModel/Importer.php
 msgid "Error while storing BTX: %s"
 msgstr "Fehler beim Ablegen von BTX: %s"
 
 #: extension/CRM/Banking/PluginModel/Importer.php
-msgid "Created BTX <b>%d</b> for <b>%s %s</b> on %s"
-msgstr "Zahlung <b>%d</b> für <b>%s %s</b> erzeugt, %s"
+msgid "Created BTX <b>%1</b> for <b>%2</b> on %3"
+msgstr "Zahlung [%1] über <b>%2</b> am %3 importiert."
 
 #: extension/CRM/Banking/PluginModel/Matcher.php
 msgid "No further information available"

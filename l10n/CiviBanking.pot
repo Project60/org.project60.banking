@@ -5,7 +5,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: CiviBanking\n"
-"POT-Creation-Date: 2015-05-10 19:37+0200\n"
+"POT-Creation-Date: 2015-05-11 09:00+0200\n"
 "Language-Team: CiviCRM Translators <civicrm-translators@lists.civicrm.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -570,7 +570,6 @@ msgid ""
 msgstr ""
 
 #: extension/CRM/Banking/PluginImpl/Matcher/CreateContribution.php
-#: extension/templates/CRM/Banking/PluginImpl/Matcher/CreateContribution.suggestion.tpl
 msgid "Source"
 msgstr ""
 
@@ -796,7 +795,7 @@ msgid "No valid value date detected. Not imported!"
 msgstr ""
 
 #: extension/CRM/Banking/PluginModel/Importer.php
-msgid "DRY RUN: Did not create bank transaction (%s %s on %s)"
+msgid "DRY RUN: Did not create bank transaction (%1 on %2)"
 msgstr ""
 
 #: extension/CRM/Banking/PluginModel/Importer.php
@@ -804,7 +803,7 @@ msgid "Error while storing BTX: %s"
 msgstr ""
 
 #: extension/CRM/Banking/PluginModel/Importer.php
-msgid "Created BTX <b>%d</b> for <b>%s %s</b> on %s"
+msgid "Created BTX <b>%1</b> for <b>%2</b> on %3"
 msgstr ""
 
 #: extension/CRM/Banking/PluginModel/Matcher.php

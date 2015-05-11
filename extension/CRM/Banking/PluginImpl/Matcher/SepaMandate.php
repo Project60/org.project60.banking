@@ -42,6 +42,8 @@ class CRM_Banking_PluginImpl_Matcher_SepaMandate extends CRM_Banking_PluginModel
 
     if (!isset($config->cancellation_enabled)) $config->cancellation_enabled = FALSE;
     if (!isset($config->cancellation_general_penalty)) $config->cancellation_general_penalty = 0.0;
+    if (!isset($config->cancellation_update_mandate_status_OOFF)) $config->cancellation_update_mandate_status_OOFF = 'INVALID';
+    if (!isset($config->cancellation_update_mandate_status_RCUR)) $config->cancellation_update_mandate_status_RCUR = false;
     if (!isset($config->cancellation_default_reason)) $config->cancellation_default_reason = ts("Unspecified SEPA cancellation");
     if (!isset($config->cancellation_date_minimum)) $config->cancellation_date_minimum = "-10 days";
     if (!isset($config->cancellation_date_maximum)) $config->cancellation_date_maximum = "+30 days";
@@ -395,10 +397,22 @@ class CRM_Banking_PluginImpl_Matcher_SepaMandate extends CRM_Banking_PluginModel
         error_log("org.project60.sepa: matcher_sepa: Couldn't load contribution, error was: ".$result['error_message']);
         CRM_Core_Session::setStatus(ts("Couldn't modify contribution."), ts('Error'), 'error');
       } else {
-        if ($contribution['contribution_payment_instrument'] != 'RCUR') {
+        if (   'OOFF' == $contribution['contribution_payment_instrument']
+            && !empty($config->cancellation_update_mandate_status_OOFF)) {
           // everything seems fine, adjust the mandate's status
           $query = array('version' => 3, 'id' => $mandate_id);
-          $query['status'] = 'INVALID';
+          $query['status'] = $config->cancellation_update_mandate_status_OOFF;
+          $query = array_merge($query, $this->getPropagationSet($btx, $match, 'mandate'));   // add propagated values
+          $result = civicrm_api('SepaMandate', 'create', $query);
+          if (!empty($result['is_error'])) {
+            error_log("org.project60.sepa: matcher_sepa: Couldn't modify mandate, error was: ".$result['error_message']);
+            CRM_Core_Session::setStatus(ts("Couldn't modify mandate."), ts('Error'), 'error');
+          }
+        } elseif (   'RCUR' == $contribution['contribution_payment_instrument']
+                  && !empty($config->cancellation_update_mandate_status_RCUR)) {
+          // everything seems fine, adjust the mandate's status
+          $query = array('version' => 3, 'id' => $mandate_id);
+          $query['status'] = $config->cancellation_update_mandate_status_RCUR;
           $query = array_merge($query, $this->getPropagationSet($btx, $match, 'mandate'));   // add propagated values
           $result = civicrm_api('SepaMandate', 'create', $query);
           if (!empty($result['is_error'])) {

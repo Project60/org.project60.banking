@@ -244,10 +244,19 @@
         <td>
           <div class="btxlabel">{ts}Account{/ts}</div>
           <div class="btxvalue btxl">
-            {if $ba_data_parsed.iban}
-              <a href="">{$ba_data_parsed.iban}</a>
-            {else}
-              {$payment_data_parsed._party_ba_id}&nbsp;
+            {if $party_ba_references.0}
+              {assign var=ba_contact_id value=$party_ba_references.0.contact_id}
+              <a title="{$party_ba_references.0.reference_type}">{$party_ba_references.0.reference}</a>
+              <a href="{crmURL p="civicrm/contact/view" q="reset=1&cid=$ba_contact_id"}">[{$ba_contact_id}]</a>
+            {* TODO: replace the following hack: *}
+            {elseif $payment_data_parsed._party_IBAN}
+              {$payment_data_parsed._party_IBAN}
+            {elseif $payment_data_parsed._party_NBAN_DE}
+              {$payment_data_parsed._party_NBAN_DE}
+            {elseif $payment_data_parsed._party_NBAN_BE}
+              {$payment_data_parsed._party_NBAN_BE}
+            {elseif $payment_data_parsed._party_NBAN_AT}
+              {$payment_data_parsed._party_NBAN_AT}
             {/if}
           </div>
           <div class="btxlabel">{ts}Address{/ts}</div>
@@ -260,7 +269,7 @@
           </div>
           <div class="btxlabel">{ts}Owner{/ts}</div>
           <div class="btxvalue btxl">
-            {if $ba_data_parsed.name}{$ba_data_parsed.name}&nbsp;{else}{$payment_data_parsed.name}&nbsp;{/if}
+            {if $party_ba_data_parsed.name}{$party_ba_data_parsed.name}&nbsp;{else}{$payment_data_parsed.name}&nbsp;{/if}
             {if $payment_data_parsed.email}(<a href="mailto:{$payment_data_parsed.email}">{$payment_data_parsed.email}</a>){/if}
           </div>
           {if $contact}

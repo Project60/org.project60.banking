@@ -76,11 +76,14 @@ class CRM_Banking_Page_Review extends CRM_Core_Page {
       if ($btx_bao->party_ba_id) {
         $ba_bao = new CRM_Banking_BAO_BankAccount();
         $ba_bao->get('id', $btx_bao->party_ba_id);        
-        $ba_bao->parsed = json_decode($ba_bao->data_parsed, true);        
-        $contact = null;
+
+        $this->assign('party_ba', $ba_bao);
+        $this->assign('party_ba_data_parsed', json_decode($ba_bao->data_parsed, true));
+        $this->assign('party_ba_references', $ba_bao->getReferences());
+
         // deprecated: contact can also be indetified via other means, see below
         if ($ba_bao->contact_id) {
-          $contact = civicrm_api('Contact','getsingle',array('version'=>3,'id'=>$ba_bao->contact_id));        
+          $contact = civicrm_api('Contact','getsingle',array('version'=>3,'id'=>$ba_bao->contact_id));
         }
       }
 
@@ -88,7 +91,6 @@ class CRM_Banking_Page_Review extends CRM_Core_Page {
       $this->assign('btxstatus', $choices[$btx_bao->status_id]);
       $this->assign('payment', $btx_bao);
       $this->assign('my_bao', $my_bao);
-      if (!empty($ba_bao)) $this->assign('party_ba', $ba_bao);
       $this->assign('payment_data_raw', json_decode($btx_bao->data_raw, true));
 
       $data_parsed = json_decode($btx_bao->data_parsed, true);
@@ -115,7 +117,6 @@ class CRM_Banking_Page_Review extends CRM_Core_Page {
       if (is_array($btx_bao->getDataParsed())) $extra_data = array_merge($extra_data, $btx_bao->getDataParsed());
       $this->assign('extra_data', $extra_data);
 
-      if (!empty($ba_bao)) $this->assign('ba_data_parsed', json_decode($ba_bao->data_parsed, true));
 
 
 

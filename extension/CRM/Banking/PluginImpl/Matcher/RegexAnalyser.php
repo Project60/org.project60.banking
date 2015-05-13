@@ -20,7 +20,7 @@ require_once 'CRM/Banking/Helpers/OptionValue.php';
 /**
  * This matcher use regular expressions to extract information from the payment meta information
  */
-class CRM_Banking_PluginImpl_Matcher_RegexAnalyser extends CRM_Banking_PluginModel_Matcher {
+class CRM_Banking_PluginImpl_Matcher_RegexAnalyser extends CRM_Banking_PluginModel_Analyser {
 
   /**
    * class constructor
@@ -33,16 +33,10 @@ class CRM_Banking_PluginImpl_Matcher_RegexAnalyser extends CRM_Banking_PluginMod
     if (!isset($config->rules)) $config->rules = array();
   }
 
-  function autoExecute() {
-    // NO autoexec for this matcher
-    return false;
-  }
-
   /** 
    * this matcher does not really create suggestions, but rather enriches the parsed data
    */
-  public function match(CRM_Banking_BAO_BankTransaction $btx, CRM_Banking_Matcher_Context $context) {
-    $config = $this->_plugin_config;
+  public function analyse(CRM_Banking_BAO_BankTransaction $btx, CRM_Banking_Matcher_Context $context) {    $config = $this->_plugin_config;
     $data_parsed = $btx->getDataParsed();
 
     // itreate trough all rules
@@ -82,7 +76,6 @@ class CRM_Banking_PluginImpl_Matcher_RegexAnalyser extends CRM_Banking_PluginMod
 
     // save changes and that's it
     $btx->setDataParsed($data_parsed);
-    return null;
   }
 
   /** 

@@ -176,6 +176,12 @@ function banking_civicrm_options() {
                   'description' => 'Analyses and enriches the transactions information using regular expressions.',
                   'is_default' => 0,
               ),
+              'analyser_account' => array(
+                  'label' => 'Account Lookup Analyser',
+                  'value' => 'CRM_Banking_PluginImpl_Matcher_AccountLookup',
+                  'description' => 'Looks up a transaction\'s bank accounts (again)',
+                  'is_default' => 0,
+              ),
               'exporter_csv' => array(
                   'label' => 'Configurable CSV Exporter',
                   'value' => 'CRM_Banking_PluginImpl_Exporter_CSV',

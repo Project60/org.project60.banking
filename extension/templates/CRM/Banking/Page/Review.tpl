@@ -257,6 +257,8 @@
               {$payment_data_parsed._party_NBAN_BE}
             {elseif $payment_data_parsed._party_NBAN_AT}
               {$payment_data_parsed._party_NBAN_AT}
+            {else}
+              &nbsp;
             {/if}
           </div>
           <div class="btxlabel">{ts}Address{/ts}</div>

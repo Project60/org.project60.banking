@@ -148,7 +148,7 @@ function civicrm_api3_banking_lookup_contactbyname($params) {
   arsort($contacts_found);
 
   // apply contact_type filters, if given
-  if (!empty($params['ignore_contact_types'])) {
+  if (!empty($params['ignore_contact_types']) && !empty($contacts_found)) {
     // run a SQL filter query instead of loading every contact
     $all_ids = implode(',', array_keys($contacts_found));
     $ignore_types = '"'.implode('","', split(',', $params['ignore_contact_types'])).'"';
@@ -219,7 +219,7 @@ function _civicrm_api3_banking_lookup_contactbyname_penalties(&$contactID2probab
     }
   }
 
-  if (!empty($relation_type_ids)) {
+  if (!empty($relation_type_ids) && !empty($contactID2probability)) {
     // load all relationship data
     $contact_ids_string       = implode(',', array_keys($contactID2probability));
     $relation_type_ids_string = implode(',', $relation_type_ids);

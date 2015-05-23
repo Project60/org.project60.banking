@@ -137,7 +137,7 @@ class CRM_Banking_PluginImpl_Matcher_Membership extends CRM_Banking_PluginModel_
    * @return html code snippet
    */  
   function visualize_match( CRM_Banking_Matcher_Suggestion $match, $btx) {
-    $smarty = CRM_Core_Smarty::singleton();
+    $smarty_vars = array();
 
     // load the contribution
     $membership_id = $match->getParameter('membership_id');
@@ -158,12 +158,17 @@ class CRM_Banking_PluginImpl_Matcher_Membership extends CRM_Banking_PluginModel_
     $membership['title'] = $this->getMembershipOption($membership['membership_type_id'], 'title', $membership_type['name']);
 
     // assign to smarty and compile HTML
-    $smarty->assign('membership',        $membership);
-    $smarty->assign('membership_type',   $membership_type);
-    $smarty->assign('membership_status', $membership_status);
-    $smarty->assign('contact',           $contact);
-    $smarty->assign('last_fee',          $last_fee);
-    return $smarty->fetch('CRM/Banking/PluginImpl/Matcher/Membership.suggestion.tpl');
+    $smarty_vars['membership']        = $membership;
+    $smarty_vars['membership_type']   = $membership_type;
+    $smarty_vars['membership_status'] = $membership_status;
+    $smarty_vars['contact']           = $contact;
+    $smarty_vars['last_fee']          = $last_fee;
+
+    $smarty = CRM_Banking_Helpers_Smarty::singleton();
+    $smarty->pushScope($smarty_vars);
+    $html_snippet = $smarty->fetch('CRM/Banking/PluginImpl/Matcher/Membership.suggestion.tpl');
+    $smarty->popScope();
+    return $html_snippet;
   }
 
   /** 
@@ -175,11 +180,16 @@ class CRM_Banking_PluginImpl_Matcher_Membership extends CRM_Banking_PluginModel_
    */  
   function visualize_execution_info( CRM_Banking_Matcher_Suggestion $match, $btx) {
     // just assign to smarty and compile HTML
-    $smarty = CRM_Core_Smarty::singleton();
-    $smarty->assign('membership_id',    $match->getParameter('membership_id'));
-    $smarty->assign('contribution_id',  $match->getParameter('contribution_id'));
-    $smarty->assign('contact_id',       $match->getParameter('contact_id'));
-    return $smarty->fetch('CRM/Banking/PluginImpl/Matcher/Membership.execution.tpl');
+    $smarty_vars = array();
+    $smarty_vars['membership_id']    = $match->getParameter('membership_id');
+    $smarty_vars['contribution_id']  = $match->getParameter('contribution_id');
+    $smarty_vars['contact_id']       = $match->getParameter('contact_id');
+
+    $smarty = CRM_Banking_Helpers_Smarty::singleton();
+    $smarty->pushScope($smarty_vars);
+    $html_snippet = $smarty->fetch('CRM/Banking/PluginImpl/Matcher/Membership.execution.tpl');
+    $smarty->popScope();
+    return $html_snippet;
   }
 
 

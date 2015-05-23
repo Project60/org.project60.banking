@@ -128,7 +128,7 @@ class CRM_Banking_PluginImpl_Matcher_CreateContribution extends CRM_Banking_Plug
    * @return html code snippet
    */  
   function visualize_match( CRM_Banking_Matcher_Suggestion $match, $btx) {
-    $smarty = CRM_Core_Smarty::singleton();
+    $smarty_vars = array();
 
     $contact_id   = $match->getParameter('contact_id');
     $contribution = $this->get_contribution_data($btx, $match, $contact_id);
@@ -136,7 +136,7 @@ class CRM_Banking_PluginImpl_Matcher_CreateContribution extends CRM_Banking_Plug
     // load contact
     $contact = civicrm_api('Contact', 'getsingle', array('id' => $contact_id, 'version' => 3));
     if (!empty($contact['is_error'])) {
-      $smarty->assign('error', $contact['error_message']);
+      $smarty_vars['error'] = $contact['error_message'];
     }
 
     // look up financial type
@@ -147,20 +147,26 @@ class CRM_Banking_PluginImpl_Matcher_CreateContribution extends CRM_Banking_Plug
     if (!empty($contribution['campaign_id'])) {
       $campaign = civicrm_api('Campaign', 'getsingle', array('id' => $contribution['campaign_id'], 'version' => 3));
       if (!empty($contact['is_error'])) {
-        $smarty->assign('error', $campaign['error_message']);
+        $smarty_vars['error'] = $campaign['error_message'];
       } else {
-        $smarty->assign('campaign', $campaign);
+        $smarty_vars['campaign'] = $campaign;
       }
     }
 
     // assign source
-    $smarty->assign('source', $contribution['source']);
-    $smarty->assign('source_label', $this->_plugin_config->source_label);
+    $smarty_vars['source'] = $contribution['source'];
+    $smarty_vars['source_label'] = $this->_plugin_config->source_label;
 
     // assign to smarty and compile HTML
-    $smarty->assign('contact',           $contact);
-    $smarty->assign('contribution',      $contribution);
-    return $smarty->fetch('CRM/Banking/PluginImpl/Matcher/CreateContribution.suggestion.tpl');
+    $smarty_vars['contact']       = $contact;
+    $smarty_vars['contribution']  = $contribution;
+  
+    // assign to smarty and compile HTML
+    $smarty = CRM_Banking_Helpers_Smarty::singleton();
+    $smarty->pushScope($smarty_vars);
+    $html_snippet = $smarty->fetch('CRM/Banking/PluginImpl/Matcher/CreateContribution.suggestion.tpl');
+    $smarty->popScope();
+    return $html_snippet;
   }
 
   /** 
@@ -172,10 +178,16 @@ class CRM_Banking_PluginImpl_Matcher_CreateContribution extends CRM_Banking_Plug
    */  
   function visualize_execution_info( CRM_Banking_Matcher_Suggestion $match, $btx) {
     // just assign to smarty and compile HTML
-    $smarty = CRM_Core_Smarty::singleton();
-    $smarty->assign('contribution_id',  $match->getParameter('contribution_id'));
-    $smarty->assign('contact_id',       $match->getParameter('contact_id'));
-    return $smarty->fetch('CRM/Banking/PluginImpl/Matcher/CreateContribution.execution.tpl');
+    $smarty_vars = array();
+    $smarty_vars['contribution_id'] = $match->getParameter('contribution_id');
+    $smarty_vars['contact_id']      = $match->getParameter('contact_id');
+
+    // assign to smarty and compile HTML
+    $smarty = CRM_Banking_Helpers_Smarty::singleton();
+    $smarty->pushScope($smarty_vars);
+    $html_snippet = $smarty->fetch('CRM/Banking/PluginImpl/Matcher/CreateContribution.execution.tpl');
+    $smarty->popScope();
+    return $html_snippet;
   }
 
   /**

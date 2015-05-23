@@ -366,44 +366,48 @@ class CRM_Banking_PluginImpl_Matcher_ExistingContribution extends CRM_Banking_Pl
    */  
   function visualize_match( CRM_Banking_Matcher_Suggestion $match, $btx) {
     $config = $this->_plugin_config;
-    $smarty = CRM_Core_Smarty::singleton();
+    $smarty_vars = array();
 
     // load the data
     $contribution_id = $match->getParameter('contribution_id');
-    $smarty->assign('contribution_id', $contribution_id);
+    $smarty_vars['contribution_id'] = $contribution_id;
 
     $contribution = civicrm_api('Contribution', 'getsingle', array('id' => $contribution_id, 'version' => 3));
     if (empty($contribution['is_error'])) {
-      $smarty->assign('contribution', $contribution);      
+      $smarty_vars['contribution'] = $contribution;      
 
       $contact = civicrm_api('Contact', 'getsingle', array('id' => $contribution['contact_id'], 'version' => 3));
       if (empty($contact['is_error'])) {
-        $smarty->assign('contact', $contact);        
+        $smarty_vars['contact'] = $contact;
       } else {
-        $smarty->assign('error', $contact['error_message']);
+        $smarty_vars['error'] = $contact['error_message'];
       }
     } else {
-      $smarty->assign('error', $contribution['error_message']);
+      $smarty_vars['error'] = $contribution['error_message'];
     }
 
-    $smarty->assign('reasons', $match->getEvidence());
+    $smarty_vars['reasons'] = $match->getEvidence();
 
     // add cancellation extra parameters
     if ($config->mode == 'cancellation') {
-      $smarty->assign('cancellation_cancel_reason', $config->cancellation_cancel_reason);
+      $smarty_vars['cancellation_cancel_reason'] = $config->cancellation_cancel_reason;
       if ($config->cancellation_cancel_reason) {
-        $smarty->assign('cancel_reason',      $match->getParameter('cancel_reason'));
-        $smarty->assign('cancel_reason_edit', $config->cancellation_cancel_reason_edit);
+        $smarty_vars['cancel_reason'] = $match->getParameter('cancel_reason');
+        $smarty_vars['cancel_reason_edit'] = $config->cancellation_cancel_reason_edit;
       }
-      $smarty->assign('cancellation_cancel_fee', $config->cancellation_cancel_fee);
+      $smarty_vars['cancellation_cancel_fee'] = $config->cancellation_cancel_fee;
       if ($config->cancellation_cancel_fee) {
-        $smarty->assign('cancel_fee',      $match->getParameter('cancel_fee'));
-        $smarty->assign('cancel_fee_edit', $config->cancellation_cancel_fee_edit);
+        $smarty_vars['cancel_fee'] = $match->getParameter('cancel_fee');
+        $smarty_vars['cancel_fee_edit'] = $config->cancellation_cancel_fee_edit;
       }
     }
 
     // assign to smarty and compile HTML
-    return $smarty->fetch('CRM/Banking/PluginImpl/Matcher/ExistingContribution.suggestion.tpl');
+    $smarty = CRM_Banking_Helpers_Smarty::singleton();
+    $smarty->pushScope($smarty_vars);
+    $html_snippet = $smarty->fetch('CRM/Banking/PluginImpl/Matcher/ExistingContribution.suggestion.tpl');
+    $smarty->popScope();
+    return $html_snippet;
   }
 
   /** 
@@ -415,13 +419,20 @@ class CRM_Banking_PluginImpl_Matcher_ExistingContribution extends CRM_Banking_Pl
    */  
   function visualize_execution_info( CRM_Banking_Matcher_Suggestion $match, $btx) {
     // just assign to smarty and compile HTML
-    $smarty = CRM_Core_Smarty::singleton();
-    $smarty->assign('contribution_id',  $match->getParameter('contribution_id'));
-    $smarty->assign('contact_id',       $match->getParameter('contact_id'));
-    $smarty->assign('mode',             $match->getParameter('mode'));
-    $smarty->assign('cancel_fee',       $match->getParameter('cancel_fee'));
-    $smarty->assign('cancel_reason',    $match->getParameter('cancel_reason'));
-    return $smarty->fetch('CRM/Banking/PluginImpl/Matcher/ExistingContribution.execution.tpl');
+    $smarty_vars = array();
+
+    $smarty_vars['contribution_id']  = $match->getParameter('contribution_id');
+    $smarty_vars['contact_id']       = $match->getParameter('contact_id');
+    $smarty_vars['mode']             = $match->getParameter('mode');
+    $smarty_vars['cancel_fee']       = $match->getParameter('cancel_fee');
+    $smarty_vars['cancel_reason']    = $match->getParameter('cancel_reason');
+
+    // assign to smarty and compile HTML
+    $smarty = CRM_Banking_Helpers_Smarty::singleton();
+    $smarty->pushScope($smarty_vars);
+    $html_snippet = $smarty->fetch('CRM/Banking/PluginImpl/Matcher/ExistingContribution.execution.tpl');
+    $smarty->popScope();
+    return $html_snippet;
   }
 }
 

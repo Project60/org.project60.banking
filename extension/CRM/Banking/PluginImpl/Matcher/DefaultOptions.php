@@ -183,23 +183,29 @@ class CRM_Banking_PluginImpl_Matcher_DefaultOptions extends CRM_Banking_PluginMo
    */  
   function visualize_match( CRM_Banking_Matcher_Suggestion $match, $btx) {
     
-    $smarty = CRM_Core_Smarty::singleton();
+    $smarty_vars = array();
     
     $btx_data = array();
     CRM_Core_DAO::storeValues($btx, $btx_data);
 
-    $smarty->assign('btx',                              $btx_data);
-    $smarty->assign('mode',                             $match->getId());
-    $smarty->assign('contact_ids',                      $match->getParameter('contact_ids'));
-    $smarty->assign('contact_ids2probablility',         $match->getParameter('contact_ids2probablility'));
-    $smarty->assign('ignore_message',                   $this->_plugin_config->ignore_message);
-    $smarty->assign('booking_date',                     date('YmdHis', strtotime($btx->booking_date)));
-    $smarty->assign('status_pending',                   banking_helper_optionvalue_by_groupname_and_name('contribution_status', 'Pending'));
-    $smarty->assign('manual_default_source',            $this->_plugin_config->manual_default_source);
-    $smarty->assign('manual_default_financial_type_id', $this->_plugin_config->manual_default_financial_type_id);
-    $smarty->assign('create_propagation',               $this->getPropagationSet($btx, $match, 'contribution', $this->_plugin_config->createnew_value_propagation));
+    $smarty_vars['btx'] =                            $btx_data;
+    $smarty_vars['mode'] =                           $match->getId();
+    $smarty_vars['contact_ids'] =                    $match->getParameter('contact_ids');
+    $smarty_vars['contact_ids2probablility'] =       $match->getParameter('contact_ids2probablility');
+    $smarty_vars['ignore_message'] =                 $this->_plugin_config->ignore_message;
+    $smarty_vars['booking_date'] =                   date('YmdHis', strtotime($btx->booking_date));
+    $smarty_vars['status_pending'] =                 banking_helper_optionvalue_by_groupname_and_name('contribution_status', 'Pending');
+    $smarty_vars['manual_default_source'] =          $this->_plugin_config->manual_default_source;
+    $smarty_vars['manual_default_financial_type_id']=$this->_plugin_config->manual_default_financial_type_id;
+    $smarty_vars['create_propagation'] =             $this->getPropagationSet($btx, $match, 'contribution', $this->_plugin_config->createnew_value_propagation);
 
-    return $smarty->fetch('CRM/Banking/PluginImpl/Matcher/DefaultOptions.suggestion.tpl');
+    // assign to smarty and compile HTML
+    $smarty = CRM_Banking_Helpers_Smarty::singleton();
+    $smarty->pushScope($smarty_vars);
+    $html_snippet = $smarty->fetch('CRM/Banking/PluginImpl/Matcher/DefaultOptions.suggestion.tpl');
+    $smarty->popScope();
+
+    return $html_snippet;
   }
 
   /** 

@@ -99,6 +99,9 @@
       padding: 4px 8px;
       line-height: 1.2em;
     }
+    .btxamtlarge {
+      font-size: 32px !important;
+    }
     .btxamtneg {
       color: red;
     }
@@ -189,7 +192,7 @@
       </tr>
       <tr>
         <td>
-          <div class="btxvalue btxamt{if $payment->amount lt 0} btxamtneg{/if}">
+          <div class="btxvalue btxamt{if $payment->amount lt 0} btxamtneg{/if}{if $payment->amount gte 10000} btxamtlarge{/if}{if $payment->amount lte -10000} btxamtlarge{/if}">
             <div class="btxcurr">{$payment->currency}</div>
             {$payment->amount}
           </div>

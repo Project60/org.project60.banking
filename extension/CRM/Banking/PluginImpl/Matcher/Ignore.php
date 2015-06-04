@@ -74,7 +74,7 @@ class CRM_Banking_PluginImpl_Matcher_Ignore extends CRM_Banking_PluginModel_Matc
       }
     }
 
-    if ($suggestion->getProbability() > $threshold) {
+    if ($suggestion->getProbability() >= $threshold) {
       $btx->addSuggestion($suggestion);
     }
 

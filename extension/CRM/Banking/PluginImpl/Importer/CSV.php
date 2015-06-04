@@ -36,11 +36,11 @@ class CRM_Banking_PluginImpl_Importer_CSV extends CRM_Banking_PluginModel_Import
     // read config, set defaults
     $config = $this->_plugin_config;
     if (!isset($config->delimiter)) $config->delimiter = ',';
-    if (!isset($config->header)) $config->header = 1;
-    if (!isset($config->skip)) $config->skip = 0;
-    if (!isset($config->defaults)) $config->defaults = array();
-    if (!isset($config->rules)) $config->rules = array();
-    if (!isset($config->BIC)) $config->BIC = rand(1000,10000);
+    if (!isset($config->header))    $config->header = 1;
+    if (!isset($config->warnings))  $config->warnings = true;
+    if (!isset($config->skip))      $config->skip = 0;
+    if (!isset($config->defaults))  $config->defaults = array();
+    if (!isset($config->rules))     $config->rules = array();
   }
 
   /**
@@ -284,12 +284,20 @@ class CRM_Banking_PluginImpl_Importer_CSV extends CRM_Banking_PluginModel_Import
     } else {
       $index = array_search($key, $header);
       if ($index!==FALSE) {
-        return $line[$index];
+        if (isset($line[$index])) {
+          return $line[$index];  
+        } else {
+          // this means, that the column does exist in the header, 
+          //  but not in this row => bad CSV
+          return NULL;
+        }
       } elseif (isset($btx[$key])) {
         // this is not in the line, maybe it's already in the btx
         return $btx[$key];
       } else {
-        error_log("org.project60.banking: CSVImporter - Cannot find source '$key' for rule or filter.");
+        if ($this->_plugin_config->warnings) {
+          error_log("org.project60.banking: CSVImporter - Cannot find source '$key' for rule or filter.");
+        }
       }
     }
     return '';

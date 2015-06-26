@@ -1,6 +1,22 @@
 Version History
 ===============
 
+version 0.5
+===========
+- added CSV exporter (#83)
+- added bank account dedupe (#73)
+- add an analyser to connect transactions to bank accounts after import-phase (#97)
+- extended cancellation matcher to handle fees and reason (#84)
+- extended SEPA cancellation matcher (#96)
+- improved visualisation of create macher (#94)
+- added counter to new, analysed, completed filters (#90)
+- better visualisation of negative amount (#89)
+- added option for file probing to CSV importer (#80)
+- added generic penalties (#85)
+- added more features to name-based search (#93)
+- FIX #82 - last item in review omits execution info
+
+
 version 0.4.3
 =============
 - FIX #79: better prevention of multiple executions

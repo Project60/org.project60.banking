@@ -35,6 +35,7 @@ class CRM_Banking_PluginImpl_Matcher_DefaultOptions extends CRM_Banking_PluginMo
     if (!isset($config->lookup_contact_by_name)) $config->lookup_contact_by_name = array('soft_cap_probability' => 0.8, 'soft_cap_min' => 10, 'hard_cap_probability' => 0.4);
     if (!isset($config->manual_title)) $config->manual_title = "Manually processed.";
     if (!isset($config->manual_message)) $config->manual_message = "Please configure";
+    if (!isset($config->manual_default_source)) $config->manual_default_source = "";
     if (!isset($config->manual_contribution)) $config->manual_contribution = "Contribution:";
     if (!isset($config->default_financial_type_id)) $config->default_financial_type_id = 1;
     if (!isset($config->createnew_value_propagation)) $config->createnew_value_propagation = array();

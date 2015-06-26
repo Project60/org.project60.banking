@@ -193,6 +193,8 @@ class CRM_Banking_Page_Payments extends CRM_Core_Page {
         $status = $payment_states[$entry['status_id']]['label'];
         $data_parsed = json_decode($entry['data_parsed'], true);
 
+
+        // load the bank accounts and associated contact...
         if (empty($entry['ba_id'])) {
           $bank_account = array('description' => ts('Unknown'));
         } else {
@@ -225,19 +227,35 @@ class CRM_Banking_Page_Payments extends CRM_Core_Page {
             $party = "<i>".ts("not yet identified.")."</i>";
           }
         }
+
+        // get the highest probability rating for the suggestions
+        $probability = 0.0;
+        if ('suggestions' == $payment_states[$entry['status_id']]['name']) {
+          $suggestions = json_decode($entry['suggestions'], true);
+          
+          if (is_array($suggestions)) {
+            foreach ($suggestions as $suggestion) {
+              if (   !empty($suggestion['probability']) 
+                  && $probability < (float) $suggestion['probability']) {
+                    $probability = (float) $suggestion['probability'];
+              }
+            }
+          }
+          $status = sprintf("%s (%d%%)", $status, $probability * 100.0);
+        }
         
         array_push($payment_rows, 
             array(  
-                    'id' => $entry['id'], 
-                    'date' => $entry['value_date'], 
-                    'sequence' => $entry['sequence'], 
-                    'currency' => $entry['currency'], 
-                    'amount' => (isset($entry['amount'])?$entry['amount']:"unknown"), 
+                    'id'            => $entry['id'], 
+                    'date'          => $entry['value_date'], 
+                    'sequence'      => $entry['sequence'], 
+                    'currency'      => $entry['currency'], 
+                    'amount'        => (isset($entry['amount'])?$entry['amount']:"unknown"), 
                     'account_owner' => $bank_account['description'], 
-                    'party' => $party,
+                    'party'         => $party,
                     'party_contact' => $contact,
-                    'state' => $status,
-                    'url_link' => CRM_Utils_System::url('civicrm/banking/review', 'id='.$entry['id']),
+                    'state'         => $status,
+                    'url_link'      => CRM_Utils_System::url('civicrm/banking/review', 'id='.$entry['id']),
                     'payment_data_parsed' => $data_parsed,
                 )
         );
@@ -412,19 +430,33 @@ class CRM_Banking_Page_Payments extends CRM_Core_Page {
   }
 
   function _findBTX($status_id, $batch_id) {
-    $params = array('version' => 3,'option.limit'=>1999);
-    if ($status_id!=NULL) $params['status_id'] = $status_id;
-    if ($batch_id!=NULL) $params['tx_batch_id'] = $batch_id;
-    $result = civicrm_api('BankingTransaction', 'get', $params);
-    if (isset($result['is_error']) && $result['is_error']) {
-      CRM_Core_Error::error(sprintf(ts("Error while querying BTX with parameters '%s'!"), implode(',', $params)));
-      return array();
-    } elseif (count($result['values'])>=1999) {
-      CRM_Core_Session::setStatus(sprintf(ts('Internal limit of 2000 transactions hit. Please use smaller statements.')), ts('List incomplete'), 'alert');
-      return $result['values'];
-    } else {
-      return $result['values'];
+    $btxs = array();
+    $btx_search = new CRM_Banking_BAO_BankTransaction();
+    $btx_search->limit(1999);
+    if (!empty($status_id)) $btx_search->status_id =   (int) $status_id;
+    if (!empty($batch_id))  $btx_search->tx_batch_id = (int) $batch_id;
+    $btx_search->find();
+    while ($btx_search->fetch()) {
+      $btxs[] = array(
+        'id'          => $btx_search->id,
+        'value_date'  => $btx_search->value_date,
+        'sequence'    => $btx_search->sequence,
+        'currency'    => $btx_search->currency,
+        'amount'      => $btx_search->amount,
+        'status_id'   => $btx_search->status_id,
+        'data_parsed' => $btx_search->data_parsed,
+        'suggestions' => $btx_search->suggestions,
+        'ba_id'       => $btx_search->ba_id,
+        'party_ba_id' => $btx_search->party_ba_id,
+        'tx_batch_id' => $btx_search->tx_batch_id,
+        );
     }
+
+    if (count($btxs) >= 1999) {
+      CRM_Core_Session::setStatus(sprintf(ts('Internal limit of 2000 transactions hit. Please use smaller statements.')), ts('List incomplete'), 'alert');
+    }
+
+    return $btxs;
   }
 
   /**

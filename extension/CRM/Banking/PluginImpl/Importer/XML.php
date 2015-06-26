@@ -25,12 +25,15 @@ class CRM_Banking_PluginImpl_Importer_XML extends CRM_Banking_PluginModel_Import
 
   /**
    * class constructor
-   */ function __construct($config_name) {
+   */ 
+  function __construct($config_name) {
     parent::__construct($config_name);
 
     // read config, set defaults
     $config = $this->_plugin_config;
-    if (!isset($config->defaults)) $config->defaults = array();
+    if (!isset($config->defaults))      $config->defaults      = array();
+    if (!isset($config->payments))      $config->payments      = array();
+    if (!isset($config->payment_lines)) $config->payment_lines = array();
   }
 
   /**
@@ -162,12 +165,45 @@ class CRM_Banking_PluginImpl_Importer_XML extends CRM_Banking_PluginModel_Import
       $this->apply_rule($rule, NULL, $data);
     }
 
-    // iterate through payments
-    $payments = $this->xpath->query($config->payments->path);
+    // collect payment indentifier specs
+    //  $config->payments is a single, deprecated spec
+    $payment_specs = array();
+    if (!empty($config->payments)) {
+      $payment_specs[] = $config->payments;      
+    }
+    foreach ($config->payment_lines as $payment_line) {
+      $payment_specs[] = $payment_line;      
+    }
+
     $index = 0;
-    foreach ($payments as $payment_node) {
-      $index += 1;
-      $this->import_payment($payment_node, $data, $index, $payments->length, $params);
+    foreach ($payment_specs as $payment_spec) {
+      $payments = $this->xpath->query($payment_spec->path);
+      foreach ($payments as $payment_node) {
+        $index += 1;
+
+        // apply filters
+        if (!empty($payment_spec->filter)) {
+          if ('exists:' == substr($payment_spec->filter, 0, 7)) {
+            $filter_result = $this->xpath->evaluate(substr($payment_spec->filter, 7), $payment_node);
+            if ($filter_result->length == 0) {
+              continue;
+            }
+
+          } elseif ('not_exists:' == substr($payment_spec->filter, 0, 11)) {
+            $filter_result = $this->xpath->evaluate(substr($payment_spec->filter, 11), $payment_node);
+            if ($filter_result->length > 0) {
+              continue;
+            }
+
+
+          } else {
+
+          }
+        }
+
+        // import the line
+        $this->import_payment($payment_spec, $payment_node, $data, $index, $payments->length, $params);
+      }
     }
 
     // finish statement object
@@ -190,14 +226,13 @@ class CRM_Banking_PluginImpl_Importer_XML extends CRM_Banking_PluginModel_Import
     } else {
       $this->closeTransactionBatch(FALSE);
     }
-
     $this->reportDone();
   }
 
   /**
    * Processes and imports one individual payment node
    */
-  protected function import_payment($payment_node, $stmt_data, $index, $count, $params) {
+  protected function import_payment($payment_spec, $payment_node, $stmt_data, $index, $count, $params) {
     $config = $this->_plugin_config;
     $progress = ((float)$index / (float)$count);
     
@@ -226,7 +261,7 @@ class CRM_Banking_PluginImpl_Importer_XML extends CRM_Banking_PluginModel_Import
     }
 
     // now apply the rules
-    foreach ($config->payments->rules as $rule) {
+    foreach ($payment_spec->rules as $rule) {
       $this->apply_rule($rule, $payment_node, $data);
     }
 
@@ -382,7 +417,6 @@ class CRM_Banking_PluginImpl_Importer_XML extends CRM_Banking_PluginModel_Import
     } elseif ($this->startsWith($key, 'xpath:')) {
       $path = substr($key, 6);
       $result = $this->xpath->evaluate($path, $context);
-      print_r($result,1);
       if (get_class($result)=='DOMNode') {
         return $result->nodeValue;
       } elseif (get_class($result)=='DOMNodeList') {

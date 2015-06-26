@@ -102,10 +102,6 @@ function civicrm_api3_banking_transaction_deletelist($params) {
 
   // first, delete the indivdual transactions
   $tx_ids = _civicrm_api3_banking_transaction_getTxIDs($params);
-  if (empty($tx_ids)) {
-    return civicrm_api3_create_error("Something's wrong with your parameters. No payments found.");
-  }
-
   foreach ($tx_ids as $tx_id) {
     civicrm_api3('BankingTransaction', 'delete', array('id' => $tx_id));
     $result['tx_count'] += 1;

@@ -38,10 +38,12 @@ class CRM_Banking_PluginImpl_Matcher_ExistingContribution extends CRM_Banking_Pl
     if (!isset($config->mode)) $config->mode = "default";     // other mode is "cancellation"
     if (!isset($config->accepted_contribution_states)) $config->accepted_contribution_states = array("Completed", "Pending");
     if (!isset($config->lookup_contact_by_name)) $config->lookup_contact_by_name = array('soft_cap_probability' => 0.8, 'soft_cap_min' => 5, 'hard_cap_probability' => 0.4);    
+    if (!isset($config->received_date_check))   $config->received_date_check = "1";
     if (!isset($config->received_date_minimum)) $config->received_date_minimum = "-100 days";
     if (!isset($config->received_date_maximum)) $config->received_date_maximum = "+1 days";
     if (!isset($config->date_penalty)) $config->date_penalty = 1.0;
     if (!isset($config->payment_instrument_penalty)) $config->payment_instrument_penalty = 0.0;
+    if (!isset($config->amount_check))            $config->amount_check = "1";
     if (!isset($config->amount_relative_minimum)) $config->amount_relative_minimum = 1.0;
     if (!isset($config->amount_relative_maximum)) $config->amount_relative_maximum = 1.0;
     if (!isset($config->amount_absolute_minimum)) $config->amount_absolute_minimum = 0;
@@ -89,25 +91,35 @@ class CRM_Banking_PluginImpl_Matcher_ExistingContribution extends CRM_Banking_Pl
     }
     $contribution_amount = $contribution['total_amount'];
     $target_date = strtotime($context->btx->value_date);
-    $contribution_date = strtotime($contribution['receive_date']);
+    $contribution_date = (int) strtotime($contribution['receive_date']);
 
     // check for amount limits
-    $amount_delta = $contribution_amount - $target_amount;
-    if (   ($contribution_amount < ($target_amount * $config->amount_relative_minimum))
-        && ($amount_delta < $config->amount_absolute_minimum)) return -1;
-    if (   ($contribution_amount > ($target_amount * $config->amount_relative_maximum))
-        && ($amount_delta > $config->amount_absolute_maximum)) return -1;
+    if ($config->received_date_check) {
+      $amount_delta = $contribution_amount - $target_amount;
+      if (   ($contribution_amount < ($target_amount * $config->amount_relative_minimum))
+          && ($amount_delta < $config->amount_absolute_minimum)) return -1;
+      if (   ($contribution_amount > ($target_amount * $config->amount_relative_maximum))
+          && ($amount_delta > $config->amount_absolute_maximum)) return -1;      
+      
+      // calculate the date penalties
+      $date_delta = abs($contribution_date - $target_date);
+      $date_range = max(1, strtotime($config->received_date_maximum) - strtotime($config->received_date_minimum));
+    } else {
+      $date_range = 0;
+    }
 
     // check for date limits
-    if ($contribution_date < strtotime($config->received_date_minimum, $target_date)) return -1;
-    if ($contribution_date > strtotime($config->received_date_maximum, $target_date)) return -1;
+    if ($config->amount_check) {
+      if ($contribution_date < strtotime($config->received_date_minimum, $target_date)) return -1;
+      if ($contribution_date > strtotime($config->received_date_maximum, $target_date)) return -1;
 
-    // calculate the penalties
-    $date_delta = abs($contribution_date - $target_date);
-    $date_range = max(1, strtotime($config->received_date_maximum) - strtotime($config->received_date_minimum));
-    $amount_range_rel = $contribution_amount * ($config->amount_relative_maximum - $config->amount_relative_minimum);
-    $amount_range_abs = $config->amount_absolute_maximum - $config->amount_absolute_minimum;
-    $amount_range = max($amount_range_rel, $amount_range_abs);
+      // calculate the amount penalties
+      $amount_range_rel = $contribution_amount * ($config->amount_relative_maximum - $config->amount_relative_minimum);
+      $amount_range_abs = $config->amount_absolute_maximum - $config->amount_absolute_minimum;
+      $amount_range = max($amount_range_rel, $amount_range_abs);      
+    } else {
+      $amount_range = 0;
+    }
 
     // payment_instrument match?
     $payment_instrument_penalty = 0.0;
@@ -120,12 +132,12 @@ class CRM_Banking_PluginImpl_Matcher_ExistingContribution extends CRM_Banking_Pl
       }
     }
 
-
     $penalty = 0.0;
-    if ($date_range) $penalty += $config->date_penalty * ($date_delta / $date_range);
+    if ($date_range)   $penalty += $config->date_penalty * ($date_delta / $date_range);
     if ($amount_range) $penalty += $config->amount_penalty * (abs($amount_delta) / $amount_range);
-    if ($context->btx->currency != $contribution['currency'])
+    if ($context->btx->currency != $contribution['currency']) {
       $penalty += $config->currency_penalty;
+    }
     $penalty =+ $payment_instrument_penalty;
 
     return max(0, 1.0 - $penalty);

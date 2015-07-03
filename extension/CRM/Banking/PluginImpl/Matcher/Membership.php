@@ -152,7 +152,7 @@ class CRM_Banking_PluginImpl_Matcher_Membership extends CRM_Banking_PluginModel_
     $last_fee          = civicrm_api('Contribution', 'getsingle', array('id' => $last_fee_id, 'version'=>3));
 
     // calculate some stuff
-    $last_fee['days']   = round((strtotime($btx->booking_date)-strtotime($last_fee['receive_date'])) / (60 * 60 * 24));
+    $last_fee['days']   = round((strtotime($btx->booking_date)-(int) strtotime($last_fee['receive_date'])) / (60 * 60 * 24));
     $membership['days'] = round((strtotime($btx->booking_date)-strtotime($membership['start_date'])) / (60 * 60 * 24));
     $membership['percentage_of_minimum'] = round(($btx->amount / (float) $membership_type['minimum_fee']) * 100);
     $membership['title'] = $this->getMembershipOption($membership['membership_type_id'], 'title', $membership_type['name']);

@@ -38,7 +38,8 @@ class CRM_Banking_PluginImpl_Matcher_ExistingContribution extends CRM_Banking_Pl
     if (!isset($config->mode)) $config->mode = "default";     // other mode is "cancellation"
     if (!isset($config->accepted_contribution_states)) $config->accepted_contribution_states = array("Completed", "Pending");
     if (!isset($config->lookup_contact_by_name)) $config->lookup_contact_by_name = array('soft_cap_probability' => 0.8, 'soft_cap_min' => 5, 'hard_cap_probability' => 0.4);    
-    if (!isset($config->received_date_check))   $config->received_date_check = "1";
+    if (!isset($config->received_date_check))   $config->received_date_check = "1";  // WARNING: DISABLING THIS COULD MAKE THE PROCESS VERY SLOW
+    if (!isset($config->received_range_days))   $config->received_range_days = 365;  // WARNING: INCREASING THIS COULD MAKE THE PROCESS VERY SLOW    
     if (!isset($config->received_date_minimum)) $config->received_date_minimum = "-100 days";
     if (!isset($config->received_date_maximum)) $config->received_date_maximum = "+1 days";
     if (!isset($config->date_penalty)) $config->date_penalty = 1.0;
@@ -151,19 +152,27 @@ class CRM_Banking_PluginImpl_Matcher_ExistingContribution extends CRM_Banking_Pl
    * @return an array with contributions
    */
   public function getPotentialContributionsForContact($contact_id, CRM_Banking_Matcher_Context $context) {
+    $config = $this->_plugin_config;
     // check in cache
-    $contributions = $context->getCachedEntry("_contributions_${contact_id}");
+    $cache_key = "_contributions_${contact_id}_{$range_back}_{$config->received_date_check}";
+    $contributions = $context->getCachedEntry($cache_key);
     if ($contributions != NULL) return $contributions;
 
     $contributions = array();
-    $sql = "SELECT * FROM civicrm_contribution WHERE contact_id=${contact_id} AND is_test = 0 AND receive_date > (NOW() - INTERVAL 1 YEAR);";
+    if ($config->received_date_check) {
+      $range_back = (int) $config->received_range_days;
+      $date_restriction = " AND receive_date > (NOW() - INTERVAL {$range_back} DAY)";
+    } else {
+      $date_restriction = "";
+    }
+    $sql = "SELECT * FROM civicrm_contribution WHERE contact_id=${contact_id} AND is_test = 0 ${date_restriction};";
     $contribution = CRM_Contribute_DAO_Contribution::executeQuery($sql);
     while ($contribution->fetch()) {
       array_push($contributions, $contribution->toArray());
     }
 
     // cache result and return
-    $context->setCachedEntry("_contributions_${contact_id}", $contributions);
+    $context->setCachedEntry($cache_key, $contributions);
     return $contributions;
   }
 

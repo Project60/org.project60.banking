@@ -204,6 +204,9 @@ class CRM_Banking_PluginImpl_Matcher_ExistingContribution extends CRM_Banking_Pl
     $penalty     = $this->getPenalty($btx);
     $data_parsed = $btx->getDataParsed();
 
+    // first see if all the required values are there
+    if (!$this->requiredValuesPresent($btx)) return null;
+
     // resolve accepted states
     $accepted_status_ids = $this->getAcceptedContributionStatusIDs();
 

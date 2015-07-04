@@ -51,13 +51,7 @@ class CRM_Banking_PluginImpl_Matcher_CreateContribution extends CRM_Banking_Plug
     $data_parsed = $btx->getDataParsed();
 
     // first see if all the required values are there
-    foreach ($config->required_values as $required_key) {
-      if ($this->getPropagationValue($btx, NULL, $required_key)==NULL) {
-        // there is no value given for this key => bail
-        //error_log("Missing: $required_key");
-        return null;
-      }
-    }
+    if (!$this->requiredValuesPresent($btx)) return null;
 
     // then look up potential contacts
     $contacts_found = $context->findContacts($threshold, $data_parsed['name'], $config->lookup_contact_by_name);

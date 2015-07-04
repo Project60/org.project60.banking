@@ -155,6 +155,64 @@ abstract class CRM_Banking_PluginModel_Matcher extends CRM_Banking_PluginModel_B
   }
 
 
+  /**
+   * Checks if the preconditions defined by required_values are met
+   * 
+   * @return TRUE iff all values are as expected (or none are specified)
+   */
+  public function requiredValuesPresent(CRM_Banking_BAO_BankTransaction $btx) {
+    $config = $this->_plugin_config;
+
+    // nothing specified => ALL CLEAR
+    if (empty($config->required_values)) return TRUE;
+
+    // check array type
+    if (is_object($config->required_values)) {
+      // this is an ASSOCIATIVE array
+      foreach ($config->required_values as $required_key => $required_value) {
+        $current_value = $this->getPropagationValue($btx, NULL, $required_key);
+        $split = split(':', $required_value, 2);
+        if (count($split) < 2) {
+          error_log("org.project60.banking: required_value in config option not properly formatted, plugin id [{$this->_plugin_id}]");
+        } else {
+          $command = $split[0];
+          $parameter = $split[1];
+          if ($command == 'equal') {
+            if ($current_value != $parameter) return FALSE;
+          } elseif ($command == 'in') {
+            $exptected_values = explode(",", $parameter);
+            foreach ($exptected_values as $exptected_value) {
+              if ($current_value == $exptected_value) continue;
+            }
+            return FALSE; // not in set
+          } elseif ($command == 'not_in') {
+            $exptected_values = explode(",", $parameter);
+            foreach ($exptected_values as $exptected_value) {
+              if ($current_value == $exptected_value) return FALSE;
+            }
+          } else {
+            error_log("org.project60.banking: unknwon command '$command' in required_value in config of plugin id [{$this->_plugin_id}]");
+          }
+        }
+      }      
+
+    } elseif (is_array($config->required_values)) {
+      // this is a SEQUENTIAL array -> simply check if they are there
+      foreach ($config->required_values as $required_key) {
+        if ($this->getPropagationValue($btx, NULL, $required_key)==NULL) {
+          // there is no value given for this key => bail
+          return FALSE;
+        }
+      }
+
+    } else {
+      error_log("org.project60.banking: WARNING: required_values config option not properly set, plugin id [{$this->_plugin_id}]");      
+    }
+
+    return TRUE;
+  }
+
+
   /**************************************************************
    *                   value propagation                        *
    * allows for a config-driven propagation of extracted values *
@@ -316,7 +374,6 @@ abstract class CRM_Banking_PluginModel_Matcher extends CRM_Banking_PluginModel_B
         $value = array();
         $querySQL = "SELECT " . $variable_spec->query . ";";
         try {
-          // error_log('executing SQL: '.$querySQL);
           $query = CRM_Core_DAO::executeQuery($querySQL);
           while ($query->fetch()) {
             $value[] = $query->value;

@@ -38,19 +38,27 @@ class CRM_Banking_PluginImpl_Matcher_ExistingContribution extends CRM_Banking_Pl
     if (!isset($config->mode)) $config->mode = "default";     // other mode is "cancellation"
     if (!isset($config->accepted_contribution_states)) $config->accepted_contribution_states = array("Completed", "Pending");
     if (!isset($config->lookup_contact_by_name)) $config->lookup_contact_by_name = array('soft_cap_probability' => 0.8, 'soft_cap_min' => 5, 'hard_cap_probability' => 0.4);    
-    if (!isset($config->received_date_check))   $config->received_date_check = "1";  // WARNING: DISABLING THIS COULD MAKE THE PROCESS VERY SLOW
-    if (!isset($config->received_range_days))   $config->received_range_days = 365;  // WARNING: INCREASING THIS COULD MAKE THE PROCESS VERY SLOW    
-    if (!isset($config->received_date_minimum)) $config->received_date_minimum = "-100 days";
-    if (!isset($config->received_date_maximum)) $config->received_date_maximum = "+1 days";
-    if (!isset($config->date_penalty)) $config->date_penalty = 1.0;
+
+    // search IDs and/or external ID list
+    if (!isset($config->contribution_search))   $config->contribution_search = "1";
+    if (!isset($config->contribution_list))     $config->contribution_list   = "";  // expects name of field that contains a comma separated list of contribution IDs
+
+    // date check / date range
+    if (!isset($config->received_date_check))        $config->received_date_check = "1";  // WARNING: DISABLING THIS COULD MAKE THE PROCESS VERY SLOW
+    if (!isset($config->received_range_days))        $config->received_range_days = 366;  // WARNING: INCREASING THIS COULD MAKE THE PROCESS VERY SLOW    
+    if (!isset($config->received_date_minimum))      $config->received_date_minimum = "-100 days";
+    if (!isset($config->received_date_maximum))      $config->received_date_maximum = "+1 days";
+    if (!isset($config->date_penalty))               $config->date_penalty = 1.0;
     if (!isset($config->payment_instrument_penalty)) $config->payment_instrument_penalty = 0.0;
+
+    // amount check / amount penalty
     if (!isset($config->amount_check))            $config->amount_check = "1";
     if (!isset($config->amount_relative_minimum)) $config->amount_relative_minimum = 1.0;
     if (!isset($config->amount_relative_maximum)) $config->amount_relative_maximum = 1.0;
     if (!isset($config->amount_absolute_minimum)) $config->amount_absolute_minimum = 0;
     if (!isset($config->amount_absolute_maximum)) $config->amount_absolute_maximum = 1;
-    if (!isset($config->amount_penalty)) $config->amount_penalty = 1.0;
-    if (!isset($config->currency_penalty)) $config->currency_penalty = 0.5;
+    if (!isset($config->amount_penalty))          $config->amount_penalty = 1.0;
+    if (!isset($config->currency_penalty))        $config->currency_penalty = 0.5;
 
     // extended cancellation features: enter cancel_reason
     if (!isset($config->cancellation_cancel_reason))         $config->cancellation_cancel_reason         = 0; // set to 1 to enable
@@ -96,11 +104,8 @@ class CRM_Banking_PluginImpl_Matcher_ExistingContribution extends CRM_Banking_Pl
 
     // check for amount limits
     if ($config->received_date_check) {
-      $amount_delta = $contribution_amount - $target_amount;
-      if (   ($contribution_amount < ($target_amount * $config->amount_relative_minimum))
-          && ($amount_delta < $config->amount_absolute_minimum)) return -1;
-      if (   ($contribution_amount > ($target_amount * $config->amount_relative_maximum))
-          && ($amount_delta > $config->amount_absolute_maximum)) return -1;      
+      if ($contribution_date < strtotime($config->received_date_minimum, $target_date)) return -1;
+      if ($contribution_date > strtotime($config->received_date_maximum, $target_date)) return -1;
       
       // calculate the date penalties
       $date_delta = abs($contribution_date - $target_date);
@@ -111,13 +116,16 @@ class CRM_Banking_PluginImpl_Matcher_ExistingContribution extends CRM_Banking_Pl
 
     // check for date limits
     if ($config->amount_check) {
-      if ($contribution_date < strtotime($config->received_date_minimum, $target_date)) return -1;
-      if ($contribution_date > strtotime($config->received_date_maximum, $target_date)) return -1;
-
       // calculate the amount penalties
+      $amount_delta = $contribution_amount - $target_amount;
+      if (   ($contribution_amount < ($target_amount * $config->amount_relative_minimum))
+          && ($amount_delta < $config->amount_absolute_minimum)) return -1;
+      if (   ($contribution_amount > ($target_amount * $config->amount_relative_maximum))
+          && ($amount_delta > $config->amount_absolute_maximum)) return -1;      
+
       $amount_range_rel = $contribution_amount * ($config->amount_relative_maximum - $config->amount_relative_minimum);
       $amount_range_abs = $config->amount_absolute_maximum - $config->amount_absolute_minimum;
-      $amount_range = max($amount_range_rel, $amount_range_abs);      
+      $amount_range = max($amount_range_rel, $amount_range_abs);
     } else {
       $amount_range = 0;
     }
@@ -139,7 +147,7 @@ class CRM_Banking_PluginImpl_Matcher_ExistingContribution extends CRM_Banking_Pl
     if ($context->btx->currency != $contribution['currency']) {
       $penalty += $config->currency_penalty;
     }
-    $penalty =+ $payment_instrument_penalty;
+    $penalty += (float) $payment_instrument_penalty;
 
     return max(0, 1.0 - $penalty);
   }
@@ -153,6 +161,7 @@ class CRM_Banking_PluginImpl_Matcher_ExistingContribution extends CRM_Banking_Pl
    */
   public function getPotentialContributionsForContact($contact_id, CRM_Banking_Matcher_Context $context) {
     $config = $this->_plugin_config;
+
     // check in cache
     $cache_key = "_contributions_${contact_id}_{$range_back}_{$config->received_date_check}";
     $contributions = $context->getCachedEntry($cache_key);
@@ -210,32 +219,68 @@ class CRM_Banking_PluginImpl_Matcher_ExistingContribution extends CRM_Banking_Pl
     // resolve accepted states
     $accepted_status_ids = $this->getAcceptedContributionStatusIDs();
 
-    // find contacts    
-    $contacts_found = $context->findContacts($threshold, $data_parsed['name'], $config->lookup_contact_by_name);
-
-    // with the identified contacts, look up contributions
     $contributions = array();
     $contribution2contact = array();
     $contribution2totalamount = array();
+    $contributions_identified = array();
 
-    foreach ($contacts_found as $contact_id => $contact_probabiliy) {
-      if ($contact_probabiliy < $threshold) continue;
+    // check if this is actually enabled
+    if ($config->contribution_search) {
+      // find contacts    
+      $contacts_found = $context->findContacts($threshold, $data_parsed['name'], $config->lookup_contact_by_name);
 
-      $potential_contributions = $this->getPotentialContributionsForContact($contact_id, $context);
-      foreach ($potential_contributions as $contribution) {
-        // check for expected status
-        if (!in_array($contribution['contribution_status_id'], $accepted_status_ids)) continue;
+      // with the identified contacts, look up contributions
+      foreach ($contacts_found as $contact_id => $contact_probabiliy) {
+        if ($contact_probabiliy < $threshold) continue;
 
-        $contribution_probability = $this->rateContribution($contribution, $context);
+        $potential_contributions = $this->getPotentialContributionsForContact($contact_id, $context);
+        foreach ($potential_contributions as $contribution) {
+          // check for expected status
+          if (!in_array($contribution['contribution_status_id'], $accepted_status_ids)) continue;
 
-        // apply penalty
-        $contribution_probability -= $penalty;
+          $contribution_probability = $this->rateContribution($contribution, $context);
 
-        if ($contribution_probability > $threshold) {
-          $contributions[$contribution['id']] = $contribution_probability;
-          $contribution2contact[$contribution['id']] = $contact_id;
-          $contribution2totalamount[$contribution['id']] = $contribution['total_amount'];
-        }        
+          // apply penalty
+          $contribution_probability -= $penalty;
+
+          if ($contribution_probability > $threshold) {
+            $contributions[$contribution['id']] = $contribution_probability;
+            $contribution2contact[$contribution['id']] = $contact_id;
+            $contribution2totalamount[$contribution['id']] = $contribution['total_amount'];
+          }        
+        }
+      }
+    }
+
+    // add the contributions coming in from a list (if any)
+    if (!empty($config->contribution_list)) {
+      if (!empty($data_parsed[$config->contribution_list])) {
+        $id_list = explode(',', $data_parsed[$config->contribution_list]);
+        foreach ($id_list as $contribution_id_string) {
+          $contribution_id = (int) $contribution_id_string;
+          if ($contribution_id) {
+            $contribution_bao = new CRM_Contribute_DAO_Contribution();
+            if ($contribution_bao->get('id', $contribution_id)) {
+              $contribution = $contribution_bao->toArray();
+
+              // check for expected status
+              if (!in_array($contribution['contribution_status_id'], $accepted_status_ids)) continue;
+
+              $contribution_probability = $this->rateContribution($contribution, $context);
+
+              // apply penalty
+              $contribution_probability -= $penalty;
+
+              if ($contribution_probability > $threshold) {
+                $contributions[$contribution['id']] = $contribution_probability;
+                $contribution2contact[$contribution['id']] = $contribution['contact_id'];
+                $contribution2totalamount[$contribution['id']] = $contribution['total_amount'];
+                $contacts_found[$contribution['contact_id']] = 1.0;
+                $contributions_identified[] = $contribution['id'];
+              }
+            }
+          }
+        }
       }
     }
 
@@ -243,10 +288,12 @@ class CRM_Banking_PluginImpl_Matcher_ExistingContribution extends CRM_Banking_Pl
     foreach ($contributions as $contribution_id => $contribution_probability) {
       $contact_id = $contribution2contact[$contribution_id];
       $suggestion = new CRM_Banking_Matcher_Suggestion($this, $btx);
-      if ($contacts_found[$contact_id]>=1.0) {
-        $suggestion->addEvidence(1.0, ts("Contact was positively identified."));
-      } else {
-        $suggestion->addEvidence($contacts_found[$contact_id], ts("Contact was likely identified."));
+      if (!in_array($contribution_id, $contributions_identified)) {
+        if ($contacts_found[$contact_id]>=1.0) {
+          $suggestion->addEvidence(1.0, ts("Contact was positively identified."));
+        } else {
+          $suggestion->addEvidence($contacts_found[$contact_id], ts("Contact was likely identified."));
+        }        
       }
       
       if ($contribution_probability>=1.0) {

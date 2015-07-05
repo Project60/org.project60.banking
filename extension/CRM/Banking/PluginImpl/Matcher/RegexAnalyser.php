@@ -99,6 +99,23 @@ class CRM_Banking_PluginImpl_Matcher_RegexAnalyser extends CRM_Banking_PluginMod
         // SET value regardless of the match context
         $data_parsed[$action->to] = $action->value;
 
+      } elseif ($action->action=='unset') {
+        // UNSET a certain value
+        unset($data_parsed[$action->to]);
+
+      } elseif ($action->action=='strtolower') {
+        // data to lowercase
+        $data_parsed[$action->to] = strtolower($this->getValue($action->from, $match_data, $match_index, $data_parsed));
+
+      } elseif ($action->action=='preg_replace') {
+        // perform preg_replace
+        if (empty($action->search_pattern) || empty($action->replace)) {
+          error_log("org.project60.banking bad 'preg_replace' spec in plugin {$this->_plugin_id}.");
+        } else {
+          $subject = $this->getValue($action->from, $match_data, $match_index, $data_parsed);
+          $data_parsed[$action->to] = preg_replace($action->search_pattern, $action->replace, $subject);
+        }
+
       } elseif ($action->action=='calculate') {
         // CALCULATE the new value with an php expression, using {}-based tokens
         $expression = $action->from;

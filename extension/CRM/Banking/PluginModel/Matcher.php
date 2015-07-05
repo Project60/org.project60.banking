@@ -160,16 +160,30 @@ abstract class CRM_Banking_PluginModel_Matcher extends CRM_Banking_PluginModel_B
    * 
    * @return TRUE iff all values are as expected (or none are specified)
    */
-  public function requiredValuesPresent(CRM_Banking_BAO_BankTransaction $btx) {
+  public function requiredValuesPresent(CRM_Banking_BAO_BankTransaction &$btx, $required_values_override = NULL) {
     $config = $this->_plugin_config;
 
+    if ($required_values_override) {
+      $required_values = $required_values_override;
+      if (is_array($required_values)) {
+        // make sure this is an object...
+        $required_values = json_decode(json_encode($required_values));
+      }
+    } else {
+      if (empty($config->required_values)) {
+        $required_values = NULL;
+      } else {
+        $required_values = $config->required_values;
+      }
+    }
+
     // nothing specified => ALL CLEAR
-    if (empty($config->required_values)) return TRUE;
+    if (empty($required_values)) return TRUE;
 
     // check array type
-    if (is_object($config->required_values)) {
+    if (is_object($required_values)) {
       // this is an ASSOCIATIVE array
-      foreach ($config->required_values as $required_key => $required_value) {
+      foreach ($required_values as $required_key => $required_value) {
         $current_value = $this->getPropagationValue($btx, NULL, $required_key);
         $split = split(':', $required_value, 2);
         if (count($split) < 2) {
@@ -177,26 +191,54 @@ abstract class CRM_Banking_PluginModel_Matcher extends CRM_Banking_PluginModel_B
         } else {
           $command = $split[0];
           $parameter = $split[1];
-          if ($command == 'equal') {
+          if ($command == 'equal_constant') {
             if ($current_value != $parameter) return FALSE;
+
+          } elseif ($command == 'equal') {
+            $compare_value = $this->getPropagationValue($btx, NULL, $parameter);
+            if ($current_value != $compare_value) return FALSE;
+
+          } elseif ($command == 'in_constant') {
+            $exptected_values = explode(",", $parameter);
+            if (in_array($current_value, $exptected_values)) {
+              continue;
+            } else {
+              return FALSE;
+            }
+
           } elseif ($command == 'in') {
-            $exptected_values = explode(",", $parameter);
-            foreach ($exptected_values as $exptected_value) {
-              if ($current_value == $exptected_value) continue;
+            $list_value = $this->getPropagationValue($btx, NULL, $parameter);
+            $exptected_values = explode(",", $list_value);
+            if (in_array($current_value, $exptected_values)) {
+              continue;
+            } else {
+              return FALSE;
             }
-            return FALSE; // not in set
+
+          } elseif ($command == 'not_in_constant') {
+            $exptected_values = explode(",", $parameter);
+            if (!in_array($current_value, $exptected_values)) {
+              continue;
+            } else {
+              return FALSE;
+            }
+
           } elseif ($command == 'not_in') {
-            $exptected_values = explode(",", $parameter);
-            foreach ($exptected_values as $exptected_value) {
-              if ($current_value == $exptected_value) return FALSE;
+            $list_value = $this->getPropagationValue($btx, NULL, $parameter);
+            $exptected_values = explode(",", $list_value);
+            if (!in_array($current_value, $exptected_values)) {
+              continue;
+            } else {
+              return FALSE;
             }
+
           } else {
             error_log("org.project60.banking: unknwon command '$command' in required_value in config of plugin id [{$this->_plugin_id}]");
           }
         }
       }      
 
-    } elseif (is_array($config->required_values)) {
+    } elseif (is_array($required_values)) {
       // this is a SEQUENTIAL array -> simply check if they are there
       foreach ($config->required_values as $required_key) {
         if ($this->getPropagationValue($btx, NULL, $required_key)==NULL) {
@@ -446,7 +488,11 @@ abstract class CRM_Banking_PluginModel_Matcher extends CRM_Banking_PluginModel_B
 
       } elseif ($penalty_rule->type == 'attribute') {
         // ATTRIBUTE/VARIABLE PENALTY
-        // TODO: Implement
+        if (!empty($penalty_rule->triggers)) {
+          if ($this->requiredValuesPresent($btx, $penalty_rule->triggers)) {
+            $penalty += $penalty_rule->amount;
+          }
+        }
 
       } else {
         error_log("org.project60.banking.matcher: penalty type unknwon: " . $penalty_rule->type);        

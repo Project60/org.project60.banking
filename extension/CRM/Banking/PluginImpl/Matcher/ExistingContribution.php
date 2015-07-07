@@ -36,6 +36,7 @@ class CRM_Banking_PluginImpl_Matcher_ExistingContribution extends CRM_Banking_Pl
     $config = $this->_plugin_config;
     if (!isset($config->threshold)) $config->threshold = 0.5;
     if (!isset($config->mode)) $config->mode = "default";     // other mode is "cancellation"
+    if (!isset($config->title)) $config->title = "";          // default title
     if (!isset($config->accepted_contribution_states)) $config->accepted_contribution_states = array("Completed", "Pending");
     if (!isset($config->lookup_contact_by_name)) $config->lookup_contact_by_name = array('soft_cap_probability' => 0.8, 'soft_cap_min' => 5, 'hard_cap_probability' => 0.4);    
 
@@ -347,6 +348,10 @@ class CRM_Banking_PluginImpl_Matcher_ExistingContribution extends CRM_Banking_Pl
 
       // set probability manually, I think the automatic calculation provided by ->addEvidence might not be what we need here
       $suggestion->setProbability($contribution_probability*$contacts_found[$contact_id]);
+
+      // update title if requested
+      if (!empty($config->title)) $suggestion->setTitle($config->title);
+
       $btx->addSuggestion($suggestion);
     }
 

@@ -397,7 +397,8 @@ class CRM_Banking_PluginImpl_Matcher_ExistingContribution extends CRM_Banking_Pl
     
     $result = civicrm_api('Contribution', 'create', $query);
     if (isset($result['is_error']) && $result['is_error']) {
-      CRM_Core_Session::setStatus(ts("Couldn't modify contribution."), ts('Error'), 'error');
+      CRM_Core_Session::setStatus(ts("Couldn't modify contribution.") . "<br/>" . $result['error_message'], ts('Error'), 'error');
+      return false;
     } else {
       // everything seems fine, save the account
       if (!empty($result['values'][$contribution_id]['contact_id'])) {

@@ -31,6 +31,9 @@ class CRM_Banking_PluginImpl_Matcher_RegexAnalyser extends CRM_Banking_PluginMod
     // read config, set defaults
     $config = $this->_plugin_config;
     if (!isset($config->rules)) $config->rules = array();
+
+    // see https://github.com/Project60/org.project60.banking/issues/111
+    if (!isset($config->variable_lookup_compatibility))   $config->variable_lookup_compatibility = FALSE;
   }
 
   /** 
@@ -163,13 +166,25 @@ class CRM_Banking_PluginImpl_Matcher_RegexAnalyser extends CRM_Banking_PluginMod
    * Get the value either from the match context, or the already stored data
    */
   protected function getValue($key, $match_data, $match_index, $data_parsed) {
-    if (!empty($match_data[$key][$match_index])) {
-      return $match_data[$key][$match_index];
-    } else if (!empty($data_parsed[$key])) {
-      return $data_parsed[$key];
+    // see https://github.com/Project60/org.project60.banking/issues/111
+    if ($this->_plugin_config->variable_lookup_compatibility) {
+      if (!empty($match_data[$key][$match_index])) {
+        return $match_data[$key][$match_index];
+      } else if (!empty($data_parsed[$key])) {
+        return $data_parsed[$key];
+      } else {
+        error_log("org.project60.banking: RexgexAnalyser - Cannot find source '$key' for rule or filter.");
+        return '';
+      }      
     } else {
-      error_log("org.project60.banking: RexgexAnalyser - Cannot find source '$key' for rule or filter.");
-      return '';
+      if (isset($match_data[$key][$match_index])) {
+        return $match_data[$key][$match_index];
+      } else if (isset($data_parsed[$key])) {
+        return $data_parsed[$key];
+      } else {
+        error_log("org.project60.banking: RexgexAnalyser - Cannot find source '$key' for rule or filter.");
+        return '';
+      }      
     }
   }  
 }

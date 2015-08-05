@@ -110,6 +110,12 @@ class CRM_Banking_PluginImpl_Matcher_RegexAnalyser extends CRM_Banking_PluginMod
         // data to lowercase
         $data_parsed[$action->to] = strtolower($this->getValue($action->from, $match_data, $match_index, $data_parsed));
 
+      } elseif (substr($action->action, 0, 7) =='sprint:') {
+        // format data
+        $data   = $this->getValue($action->from, $match_data, $match_index, $data_parsed);
+        $format = substr($action->action, 7);
+        $data_parsed[$action->to] = sprintf($format, $data);
+
       } elseif ($action->action=='preg_replace') {
         // perform preg_replace
         if (empty($action->search_pattern) || empty($action->replace)) {

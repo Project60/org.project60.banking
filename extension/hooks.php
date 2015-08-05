@@ -25,12 +25,35 @@
  * Insert Banking menu at top level
  */
 function banking_civicrm_navigationMenu(&$params) {
+  // First: have a look at the menu
+  $index = 0;
+  $banking_entry_index = -1;
+  $contributions_entry_index = -1;
+  foreach ($params as $key => $top_level_entry) {
+    if ($top_level_entry['attributes']['name'] == 'CiviBanking') {
+      $banking_entry_index = $index;
+    } elseif ($top_level_entry['attributes']['name'] == 'Contributions') {
+      $contributions_entry_index = $index;
+    }
+    $index++;
+  }
 
-  //  Get the maximum key of $params
-  $maxKey = ( max(array_keys($params)) );
-  $insert_at = min(4, max(array_keys($params)));
+  if ($banking_entry_index >= 0) {
+    // there already is a CiviBanking top level menu => do nothing
+    return;
+  } elseif ($contributions_entry_index >= 0) {
+    // splice it in right after the contributions menu
+    $insert_at = $contributions_entry_index + 1;
+  } else {
+    // no contributions menu => just put it in somewhere...
+    $insert_at = min(4, max(array_keys($params)));  
+  }
 
-  $level = 1;
+  // NOW: Create a new top level menu
+  $max_key_in_menu = banking_civicrm_get_max_nav_id($params);
+  $max_key_in_db   = CRM_Core_DAO::singleValueQuery("SELECT max(id) FROM civicrm_navigation");
+  $nav_id          = max($max_key_in_db, $max_key_in_menu) + 1;
+
   $banking_entry = array(
       'attributes' => array(
           'label' => 'Banking',
@@ -40,11 +63,11 @@ function banking_civicrm_navigationMenu(&$params) {
           'operator' => null,
           'separator' => null,
           'parentID' => null,
-          'navID' => $insert_at,
+          'navID' => $nav_id,
           'active' => 1
       ),
       'child' => array(
-          $level => array(
+          ($nav_id + 1) => array(
               'attributes' => array(
                   'label' => ts('Dashboard'),
                   'name' => 'Dashboard',
@@ -52,13 +75,13 @@ function banking_civicrm_navigationMenu(&$params) {
                   'permission' => 'access CiviContribute',
                   'operator' => null,
                   'separator' => 0,
-                  'parentID' => $insert_at,
-                  'navID' => $level++,
+                  'parentID' => $nav_id,
+                  'navID' => $nav_id + 1,
                   'active' => 1
               ),
               'child' => null
           ),
-          $level => array(
+          ($nav_id + 2) => array(
               'attributes' => array(
                   'label' => ts('Show Transactions'),
                   'name' => 'Transactions',
@@ -66,13 +89,13 @@ function banking_civicrm_navigationMenu(&$params) {
                   'permission' => 'access CiviContribute',
                   'operator' => null,
                   'separator' => 1,
-                  'parentID' => $insert_at,
-                  'navID' => $level++,
+                  'parentID' => $nav_id,
+                  'navID' => $nav_id + 2,
                   'active' => 1
               ),
               'child' => null
           ),
-          $level => array(
+          ($nav_id + 3) => array(
               'attributes' => array(
                   'label' => ts('Find Accounts'),
                   'name' => 'Find Accounts',
@@ -80,57 +103,44 @@ function banking_civicrm_navigationMenu(&$params) {
                   'permission' => 'access CiviContribute',
                   'operator' => null,
                   'separator' => 0,
-                  'parentID' => $insert_at,
-                  'navID' => $level++,
+                  'parentID' => $nav_id,
+                  'navID' => $nav_id + 3,
                   'active' => 1
               ),
               'child' => null
           ),
-          $level => array(
+          ($nav_id + 4) => array(
               'attributes' => array(
                   'label' => ts('Dedupe Accounts'),
                   'name' => 'Dedupe Accounts',
                   'url' => 'civicrm/banking/dedupe',
                   'permission' => 'access CiviContribute',
                   'operator' => null,
-                  'separator' => 0,
-                  'parentID' => $insert_at,
-                  'navID' => $level++,
+                  'separator' => 1,
+                  'parentID' => $nav_id,
+                  'navID' => $nav_id + 4,
                   'active' => 1
               ),
               'child' => null
           ),
-          $level => array(
+          ($nav_id + 5) => array(
               'attributes' => array(
                   'label' => ts('Import Transactions'),
                   'name' => 'Import Transactions',
                   'url' => 'civicrm/banking/import',
                   'permission' => 'access CiviContribute',
                   'operator' => null,
-                  'separator' => 1,
-                  'parentID' => $insert_at,
-                  'navID' => $level++,
+                  'separator' => 0,
+                  'parentID' => $nav_id,
+                  'navID' => $nav_id + 5,
                   'active' => 1
               ),
               'child' => null
           ),
-          $level => array(
-              'attributes' => array(
-                  'label' => ts('Configuration'),
-                  'name' => 'Configuration',
-                  'url' => 'civicrm/banking/manager',
-                  'permission' => 'access CiviContribute',
-                  'operator' => null,
-                  'separator' => 0,
-                  'parentID' => $insert_at,
-                  'navID' => $level++,
-                  'active' => 1
-              ),
-              'child' => null
-          )
       )
   );
-
+  
+  // ...and insert at the previously determined position
   $params = array_merge(array_slice($params, 0, $insert_at), array($banking_entry), array_slice($params, $insert_at));
 }
 
@@ -195,4 +205,21 @@ function banking_civicrm_alterAPIPermissions($entity, $action, &$params, &$permi
   $permissions['banking_account']['delete'] = array('delete contacts');
   $permissions['banking_account_reference']['create'] = array('delete contacts');
   $permissions['banking_transaction']['analyselist'] = array('edit contributions');
+}
+
+
+
+/**
+ * crawls the menu tree to find the (currently) biggest navID
+ */
+function banking_civicrm_get_max_nav_id($menu) {
+  $max_id = 1;
+  foreach ($menu as $entry) {
+    $max_id = max($max_id, $entry['attributes']['navID']);
+    if (!empty($entry['child'])) {
+      $max_id_children = banking_civicrm_get_max_nav_id($entry['child']);
+      $max_id = max($max_id, $max_id_children);
+    }
+  }
+  return $max_id;
 }

@@ -103,7 +103,7 @@ class CRM_Banking_PluginImpl_Matcher_ExistingContribution extends CRM_Banking_Pl
     $target_date = strtotime($context->btx->value_date);
     $contribution_date = (int) strtotime($contribution['receive_date']);
 
-    // check for amount limits
+    // check for date limits
     if ($config->received_date_check) {
       if ($contribution_date < strtotime($config->received_date_minimum, $target_date)) return -1;
       if ($contribution_date > strtotime($config->received_date_maximum, $target_date)) return -1;
@@ -115,7 +115,7 @@ class CRM_Banking_PluginImpl_Matcher_ExistingContribution extends CRM_Banking_Pl
       $date_range = 0;
     }
 
-    // check for date limits
+    // check for amount limits
     if ($config->amount_check) {
       // calculate the amount penalties
       $amount_delta = $contribution_amount - $target_amount;

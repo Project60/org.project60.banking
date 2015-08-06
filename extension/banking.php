@@ -129,6 +129,11 @@ function banking_civicrm_options() {
                   'value' => 'CRM_Banking_PluginImpl_Matcher_CreateContribution',
                   'is_default' => 0,
               ),
+              'matcher_recurring' => array(
+                  'label' => 'Recurring Contribution Matcher Plugin',
+                  'value' => 'CRM_Banking_PluginImpl_Matcher_RecurringContribution',
+                  'is_default' => 0,
+              ),
               'matcher_membership' => array(
                   'label' => 'Membership Matcher Plugin',
                   'value' => 'CRM_Banking_PluginImpl_Matcher_Membership',

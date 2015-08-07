@@ -32,27 +32,27 @@ class CRM_Banking_PluginImpl_Matcher_RecurringContribution extends CRM_Banking_P
     $config = $this->_plugin_config;
     if (!isset($config->threshold))                     $config->threshold = 0.5;
     if (!isset($config->search_terms))                  $config->search_terms = array();
-    if (!isset($config->contact_id_list))               $config->contact_id_list = '';  // if not empty, take contacts from comma separated list instead of contact search
     if (!isset($config->search_wo_contacts))            $config->search_wo_contacts = FALSE;  // if true, the matcher will keep searching (using the search_terms) even if no contacts are found
+    if (!isset($config->contact_id_list))               $config->contact_id_list = '';  // if not empty, take contacts from comma separated list instead of contact search
     if (!isset($config->recurring_contribution_status)) $config->recurring_contribution_status = array('Pending');
-    if (!isset($config->suggestion_title))              $config->suggestion_title = ts("Installment of Recurring Contribution");
+    if (!isset($config->suggestion_title))              $config->suggestion_title = '';
+    if (!isset($config->recurring_mode))                $config->recurring_mode = 'static'; // see getExpectedDate()
 
     // amount check / amount penalty
-    if (!isset($config->amount_check))            $config->amount_check = "1";
-    if (!isset($config->amount_relative_minimum)) $config->amount_relative_minimum = 1.0;
-    if (!isset($config->amount_relative_maximum)) $config->amount_relative_maximum = 1.0;
-    if (!isset($config->amount_absolute_minimum)) $config->amount_absolute_minimum = 0;
-    if (!isset($config->amount_absolute_maximum)) $config->amount_absolute_maximum = 1;
-    if (!isset($config->amount_penalty))          $config->amount_penalty = 1.0;
-    if (!isset($config->currency_penalty))        $config->currency_penalty = 0.5;
+    if (!isset($config->amount_check))                  $config->amount_check = "1";
+    if (!isset($config->amount_relative_minimum))       $config->amount_relative_minimum = 1.0;
+    if (!isset($config->amount_relative_maximum))       $config->amount_relative_maximum = 1.0;
+    if (!isset($config->amount_absolute_minimum))       $config->amount_absolute_minimum = 0;
+    if (!isset($config->amount_absolute_maximum))       $config->amount_absolute_maximum = 1;
+    if (!isset($config->amount_penalty))                $config->amount_penalty = 1.0;
+    if (!isset($config->currency_penalty))              $config->currency_penalty = 0.5;
 
     // date check / date range
-    if (!isset($config->received_date_check))        $config->received_date_check = "1";  // WARNING: DISABLING THIS COULD MAKE THE PROCESS VERY SLOW
-    if (!isset($config->received_range_days))        $config->received_range_days = 366;  // WARNING: INCREASING THIS COULD MAKE THE PROCESS VERY SLOW    
-    if (!isset($config->received_date_minimum))      $config->received_date_minimum = "-100 days";
-    if (!isset($config->received_date_maximum))      $config->received_date_maximum = "+1 days";
-    if (!isset($config->date_penalty))               $config->date_penalty = 1.0;
-    if (!isset($config->payment_instrument_penalty)) $config->payment_instrument_penalty = 0.0;
+    if (!isset($config->received_date_check))           $config->received_date_check = "1";  // WARNING: DISABLING THIS COULD MAKE THE PROCESS VERY SLOW
+    if (!isset($config->received_date_minimum))         $config->received_date_minimum = "-100 days";
+    if (!isset($config->received_date_maximum))         $config->received_date_maximum = "+1 days";
+    if (!isset($config->date_penalty))                  $config->date_penalty = 1.0;
+    if (!isset($config->payment_instrument_penalty))    $config->payment_instrument_penalty = 0.0;
   }
 
   /** 
@@ -85,10 +85,13 @@ class CRM_Banking_PluginImpl_Matcher_RecurringContribution extends CRM_Banking_P
         }
       }
     }
-    error_log('CONTACTS:'.print_r($contactID2probability,1));
 
     // create suggestions
-    $query = $this->getPropagationSet($btx, $suggestion, '', $config->search_terms);
+    if (!empty($config->search_terms)) {
+      $query = $this->getPropagationSet($btx, $suggestion, '', $config->search_terms);
+    } else {
+      $query = array();
+    }
     if ($config->search_wo_contacts) {
       $suggestions = $this->createRecurringContributionSuggestions($query, 1.0, $btx, $context);
     } else {
@@ -105,7 +108,9 @@ class CRM_Banking_PluginImpl_Matcher_RecurringContribution extends CRM_Banking_P
       $probability = $suggestion->getProbability();
       $probability -= $penalty;
       if ($probability >= $threshold) {
-        $suggestion->addEvidence($penalty, ts("A general penalty was applied."));
+        if ($penalty) {
+          $suggestion->addEvidence($penalty, ts("A general penalty was applied."));
+        }
         $suggestion->setProbability($probability);
         $btx->addSuggestion($suggestion);
       }
@@ -114,91 +119,6 @@ class CRM_Banking_PluginImpl_Matcher_RecurringContribution extends CRM_Banking_P
     // that's it...
     return empty($this->_suggestions) ? null : $this->_suggestions;
   }
-
-  /**
-   * create suggestions for matching recurring contributions
-   */
-  function createRecurringContributionSuggestions($query, $probability, $btx, $context) {
-    error_log(print_r($query,1));
-    $config      = $this->_plugin_config;
-    $data_parsed = $btx->getDataParsed();
-    $suggestions = array();
-
-    $rcur_result = civicrm_api3('ContributionRecur', 'get', $query);
-    foreach ($rcur_result['values'] as $rcur_id => $rcur) {
-      error_log('RCUR ' . print_r($rcur,1));
-      // create a suggestion
-      $suggestion = new CRM_Banking_Matcher_Suggestion($this, $btx);
-      $suggestion->setId("recurring-$rcur_id");
-      $suggestion->setParameter('recurring_contribution_id', $rcur_id);
-      $suggestion->setParameter('contact_id', $rcur['contact_id']);
-
-      // CHECK AMOUNT
-      if ($config->amount_check) {
-        // calculate the amount penalties (equivalent to CRM_Banking_PluginImpl_Matcher_ExistingContribution)
-        $transaction_amount = $btx->amount;
-        $expected_amount = $rcur['amount'];
-
-        $amount_delta = $transaction_amount - $expected_amount;
-        if (   ($transaction_amount < ($expected_amount * $config->amount_relative_minimum))
-            && ($amount_delta < $config->amount_absolute_minimum)) continue;
-        if (   ($transaction_amount > ($expected_amount * $config->amount_relative_maximum))
-            && ($amount_delta > $config->amount_absolute_maximum)) continue;      
-
-        $amount_range_rel = $transaction_amount * ($config->amount_relative_maximum - $config->amount_relative_minimum);
-        $amount_range_abs = $config->amount_absolute_maximum - $config->amount_absolute_minimum;
-        $amount_range = max($amount_range_rel, $amount_range_abs);
-
-        if ($amount_range) {
-          $penalty = $config->amount_penalty * (abs($amount_delta) / $amount_range);
-          $suggestion->addEvidence($penalty, ts("The amount of the transaction differs from the expected amount."));
-          $probability -= $penalty;
-        }
-      }
-
-      // CHECK CURRENCY
-      if ($context->btx->currency != $rcur['currency']) {
-        $suggestion->addEvidence($config->currency_penalty, ts("The currency of the transaction is not as expected."));
-        $probability -= $config->currency_penalty;
-      }
-
-      // CHECK EXPECTED DATE
-      if ($config->received_date_check) {
-        $expected_date = $this->getNextExpectedDate($rcur);
-        $transaction_date = strtotime($context->btx->value_date);
-
-        if ($expected_date < strtotime($config->received_date_minimum, $transaction_date)) continue;
-        if ($expected_date > strtotime($config->received_date_maximum, $transaction_date)) continue;
-        
-        // calculate the date penalties
-        $date_delta = abs($expected_date - $transaction_date);
-        $date_range = max(1, strtotime($config->received_date_maximum) - strtotime($config->received_date_minimum));
-
-        if ($date_range) {
-          $penalty = $config->date_penalty * ($date_delta / $date_range);
-          $suggestion->addEvidence($penalty, ts("The date of the transaction deviates from the expeted date."));
-          $probability -= $penalty;
-        }
-      }
-
-      $suggestion->setProbability($probability);
-      $suggestions[] = $suggestion;
-    }
-
-    return $suggestions;
-  }
-
-
-
-
-
-
-
-
-
-
-
-
 
   /**
    * Handle the different actions, should probably be handles at base class level ...
@@ -266,32 +186,29 @@ class CRM_Banking_PluginImpl_Matcher_RecurringContribution extends CRM_Banking_P
    * @return html code snippet
    */  
   function visualize_match( CRM_Banking_Matcher_Suggestion $match, $btx) {
+    $config      = $this->_plugin_config;
     $smarty_vars = array();
 
-    // // load the contribution
-    // $membership_id = $match->getParameter('membership_id');
-    // $last_fee_id   = $match->getParameter('last_fee_id');
+    // load the recurring contribution
+    $rcontribution_id = $match->getParameter('recurring_contribution_id');
+    $rcontribution = civicrm_api3('ContributionRecur', 'getsingle', array('id' => $rcontribution_id));
 
-    // // LOAD entities
-    // // TODO: error handling
-    // $membership        = civicrm_api('Membership', 'getsingle', array('id' => $membership_id, 'version'=>3));
-    // $membership_type   = civicrm_api('MembershipType', 'getsingle', array('id' => $membership['membership_type_id'], 'version'=>3));
-    // $membership_status = civicrm_api('MembershipStatus', 'getsingle', array('id' => $membership['status_id'], 'version'=>3));
-    // $contact           = civicrm_api('Contact', 'getsingle', array('id' => $membership['contact_id'], 'version'=>3));
-    // $last_fee          = civicrm_api('Contribution', 'getsingle', array('id' => $last_fee_id, 'version'=>3));
+    // load the recurring contribution
+    $contact_id = $match->getParameter('contact_id');
+    $contact = civicrm_api3('Contact', 'getsingle', array('id' => $contact_id));
 
-    // // calculate some stuff
-    // $last_fee['days']   = round((strtotime($btx->booking_date)-(int) strtotime($last_fee['receive_date'])) / (60 * 60 * 24));
-    // $membership['days'] = round((strtotime($btx->booking_date)-strtotime($membership['start_date'])) / (60 * 60 * 24));
-    // $membership['percentage_of_minimum'] = round(($btx->amount / (float) $membership_type['minimum_fee']) * 100);
-    // $membership['title'] = $this->getMembershipOption($membership['membership_type_id'], 'title', $membership_type['name']);
+    // get due date:
+    $last_contribution = NULL;
+    $due_date = self::getExpectedDate($rcontribution, $btx, $config->recurring_mode, $last_contribution);
 
-    // // assign to smarty and compile HTML
-    // $smarty_vars['membership']        = $membership;
-    // $smarty_vars['membership_type']   = $membership_type;
-    // $smarty_vars['membership_status'] = $membership_status;
-    // $smarty_vars['contact']           = $contact;
-    // $smarty_vars['last_fee']          = $last_fee;
+    // assign to smarty and compile HTML
+    $smarty_vars['recurring_contribution'] = $rcontribution;
+    $smarty_vars['last_contribution']      = $last_contribution;
+    $smarty_vars['contact']                = $contact;
+    $smarty_vars['due_date']               = $due_date?date('Ymdhis', $due_date):'';
+    $smarty_vars['expected_date']          = $match->getParameter('expected_date');
+    $smarty_vars['expected_amount']        = $match->getParameter('expected_amount');
+    $smarty_vars['penalties']              = $match->getEvidence();
 
     $smarty = CRM_Banking_Helpers_Smarty::singleton();
     $smarty->pushScope($smarty_vars);
@@ -310,8 +227,9 @@ class CRM_Banking_PluginImpl_Matcher_RecurringContribution extends CRM_Banking_P
   function visualize_execution_info( CRM_Banking_Matcher_Suggestion $match, $btx) {
     // just assign to smarty and compile HTML
     $smarty_vars = array();
-    $smarty_vars['recurring_contribution_id']    = $match->getParameter('recurring_contribution_id');
-    $smarty_vars['contact_id']                   = $match->getParameter('contact_id');
+    $smarty_vars['rcontribution_id'] = $match->getParameter('recurring_contribution_id');
+    $smarty_vars['contribution_id']  = $match->getParameter('contribution_id');
+    $smarty_vars['contact_id']       = $match->getParameter('contact_id');
 
     $smarty = CRM_Banking_Helpers_Smarty::singleton();
     $smarty->pushScope($smarty_vars);
@@ -320,5 +238,229 @@ class CRM_Banking_PluginImpl_Matcher_RecurringContribution extends CRM_Banking_P
     return $html_snippet;
   }
 
-}
 
+
+
+  /*************************************************************
+   *                    HELPER FUNCTIONS                      ** 
+   *************************************************************/
+
+
+  /**
+   * create suggestions for matching recurring contributions
+   */
+  function createRecurringContributionSuggestions($query, $probability, $btx, $context) {
+    $config      = $this->_plugin_config;
+    $data_parsed = $btx->getDataParsed();
+    $suggestions = array();
+
+    $rcur_result = civicrm_api3('ContributionRecur', 'get', $query);
+    foreach ($rcur_result['values'] as $rcur_id => $rcur) {
+      // find the next expected date for the recurring contribution
+      $expected_date = self::getExpectedDate($rcur, $btx, $config->recurring_mode);
+      if ($expected_date==NULL) continue;
+
+      // create a suggestion
+      $suggestion = new CRM_Banking_Matcher_Suggestion($this, $btx);
+      $suggestion->setId("recurring-$rcur_id");
+      $suggestion->setParameter('recurring_contribution_id', $rcur_id);
+      $suggestion->setParameter('contact_id', $rcur['contact_id']);
+      $suggestion->setParameter('expected_date', date('Y-m-d', $expected_date));
+      $suggestion->setParameter('expected_amount', $rcur['amount']);
+      if (!empty($config->suggestion_title)) {
+        $suggestion->setTitle($config->suggestion_title);
+      } 
+      if ($probability<1.0) {
+        $suggestion->addEvidence(1.0-$probability, ts("The contact could not be uniquely identified."));        
+      }
+
+      // CHECK AMOUNT
+      if ($config->amount_check) {
+        // calculate the amount penalties (equivalent to CRM_Banking_PluginImpl_Matcher_ExistingContribution)
+        $transaction_amount = $btx->amount;
+        $expected_amount = $rcur['amount'];
+
+        $amount_delta = $transaction_amount - $expected_amount;
+        if (   ($transaction_amount < ($expected_amount * $config->amount_relative_minimum))
+            && ($amount_delta < $config->amount_absolute_minimum)) continue;
+        if (   ($transaction_amount > ($expected_amount * $config->amount_relative_maximum))
+            && ($amount_delta > $config->amount_absolute_maximum)) continue;      
+
+        $amount_range_rel = $transaction_amount * ($config->amount_relative_maximum - $config->amount_relative_minimum);
+        $amount_range_abs = $config->amount_absolute_maximum - $config->amount_absolute_minimum;
+        $amount_range = max($amount_range_rel, $amount_range_abs);
+
+        if ($amount_range) {
+          $penalty = $config->amount_penalty * (abs($amount_delta) / $amount_range);
+          if ($penalty) {
+            $suggestion->addEvidence($penalty, ts("The amount of the transaction differs from the expected amount."));
+            $probability -= $penalty;            
+          }
+        }
+      }
+
+      // CHECK CURRENCY
+      if ($context->btx->currency != $rcur['currency']) {
+        $suggestion->addEvidence($config->currency_penalty, ts("The currency of the transaction is not as expected."));
+        $probability -= $config->currency_penalty;
+      }
+
+      // CHECK EXPECTED DATE
+      if ($config->received_date_check) {
+        // use date only
+        $transaction_date = strtotime(date('Y-m-d', strtotime($context->btx->value_date)));
+
+        if ($expected_date < strtotime($config->received_date_minimum, $transaction_date)) continue;
+        if ($expected_date > strtotime($config->received_date_maximum, $transaction_date)) continue;
+        
+        // calculate the date penalties
+        $date_delta = abs($expected_date - $transaction_date);
+        $date_range = max(1, strtotime($config->received_date_maximum) - strtotime($config->received_date_minimum));
+
+        if ($date_range) {
+          $penalty = $config->date_penalty * ($date_delta / $date_range);
+          if ($penalty) {
+            $suggestion->addEvidence($penalty, ts("The date of the transaction deviates from the expeted date."));
+            $probability -= $penalty;            
+          }
+        }
+      }
+
+      error_log("YESS: $probability");
+      $suggestion->setProbability($probability);
+      $suggestions[] = $suggestion;
+    }
+
+    return $suggestions;
+  }
+
+
+  /**
+   * Try to find the next expected date for the given
+   * recurring contribution. The behaviour depends on the
+   * $config->recurring_mode setting:
+   *  'static': expects the contribution with a fixed cycle, i.e. start with
+   *            the first cycle day after start_date, and the on that day 
+   *            for each cycle 
+   *  'adapt':  expects the contribution one cycle after the last recorded payment.
+   *            that means, that if one payment is late, the next payment is 
+   *            expected on the next cycle day one cycle after the last one
+   *            (or the start date in case of the first payment)
+   *  'float':  expects the contribution exactly one cycle after the last recorded payment.
+   *            that means, that the cycle day is ignored
+   *  'total':  expects the next payment on the date according to the static calculation
+   *            and the total of the existing payments.
+   *            Example 1: monthly recurring contribution over 10€, but donor paid 30€ in 
+   *            the first installment => next expected date is only 3 months later
+   *            Example 2: same recurring contribution as example 1, but donor paid 10€, then
+   *            nothing, than another 10€ => next expected date is NOT 1 month after the last, but
+   *            two months after start_date, since there's not enough money.
+   *            if the calculated due date is before the current transaction date, it will return the
+   *            transactions's date, so that any payment will be accepted, even if too late.
+   *  (more to come...?)
+   */
+  public static function getExpectedDate($rcontribution, $btx, $recurring_mode, &$last_contribution = NULL) {
+    // find a maximum
+    $max_date = strtotime("+1 year");
+    if (!empty($rcontribution['end_date']) && strtotime($rcontribution['end_date'])<$max_date) {
+      $max_date = strtotime($rcontribution['end_date']);
+    }
+    if (!empty($rcontribution['cancel_date']) && strtotime($rcontribution['cancel_date'])<$max_date) {
+      $max_date = strtotime($rcontribution['cancel_date']);
+    }
+
+    // these modes require the list of recurring contributions
+    $contribution_query = civicrm_api3('Contribution', 'get', array(
+      'contribution_recur_id' => $rcontribution['id'],
+      'options'               => array('limit' => 9999),
+      ));
+
+    // find the last contribution
+    $contributions = $contribution_query['values'];
+    $total_amount      = 0.0;
+    $last_contribution = NULL;
+    foreach ($contributions as $contribution_id => $contribution) {
+      if ($contribution['contribution_status_id'] == 1) {
+        $total_amount += $contribution['total_amount'];
+      }
+      if (empty($contribution['receive_date'])) continue;
+      if ($last_contribution==NULL) {
+        $last_contribution = $contribution;
+        continue;
+      }
+      if (strtotime($last_contribution['receive_date']) < strtotime($contribution['receive_date'])) {
+        $last_contribution = $contribution;
+      }
+    }
+
+    // get some values
+    $cycle_day   = $rcontribution['cycle_day'];
+    $interval    = $rcontribution['frequency_interval'];
+    $unit        = $rcontribution['frequency_unit'];
+    $target_date = strtotime($btx->booking_date);
+
+    
+    if ($recurring_mode == 'static') {
+      $start_date = strtotime($rcontribution['start_date']);
+      $next_date =  mktime(0, 0, 0, date('n', $start_date) + (date('j', $start_date) > $cycle_day), $cycle_day, date('Y', $start_date));
+      
+      $closest_date = $next_date;
+      while ( $next_date <= $max_date) {
+        if (abs($next_date-$target_date) <= abs($closest_date-$target_date)) {
+          $closest_date = $next_date;
+          $next_date = strtotime("+$interval $unit", $next_date);
+        } else {
+          // once we're not improving any more, we can stop
+          return $closest_date;
+        }
+      }
+
+
+    } elseif ($recurring_mode == 'adapt') {
+      if ($last_contribution==NULL) {
+        // this relies on the last contribution
+        return self::getExpectedDate($rcontribution, $btx, 'static');
+      }
+      $last = strtotime($last_contribution['receive_date']);
+      $last_month = strtotime("-1 month", $last);
+      $cycle_day_after  = mktime(0, 0, 0, date('n', $last) + (date('j', $last) > $cycle_day), $cycle_day, date('Y', $last));
+      $cycle_day_before = mktime(0, 0, 0, date('n', $last_month) + (date('j', $last_month) > $cycle_day), $cycle_day, date('Y', $last_month));
+      if (abs($last-$cycle_day_before) < abs($last-$cycle_day_after)) {
+        $last_cycle_date = $cycle_day_before;
+      } else {
+        $last_cycle_date = $cycle_day_after;
+      }
+      $next = strtotime("+$interval $unit", $last_cycle_date);
+      if ($next < $max_date) {
+        return $next;
+      }
+
+
+    } elseif ($recurring_mode == 'float') {
+      if ($last_contribution==NULL) {
+        // this relies on the last contribution
+        return self::getExpectedDate($rcontribution, $btx, 'static');
+      }
+      $last = strtotime($last_contribution['receive_date']);
+      $next = strtotime("+$interval $unit", $last);
+      if ($next < $max_date) {
+        return $next;
+      }
+
+
+    } elseif ($recurring_mode == 'total') {
+      $cycle_count = (int) ($total_amount / $rcontribution['amount']);
+      $unit_count  = $cycle_count * $interval;
+      $start_date  = strtotime($rcontribution['start_date']);
+      $start_date  = mktime(0, 0, 0, date('n', $start_date) + (date('j', $start_date) > $cycle_day), $cycle_day, date('Y', $start_date));
+
+      $due_date   = strtotime("+$unit_count $unit", $start_date);
+      if ($due_date < $target_date) {
+        $due_date = $target_date;
+      }
+      return $due_date;
+    }
+
+    return NULL;
+  }
+}

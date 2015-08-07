@@ -14,26 +14,26 @@
 +--------------------------------------------------------*}
 
 {assign var=contact_id value=$contact.id}
-{assign var=membership_id value=$membership.id}
+{assign var=recurring_contribution_id value=$recurring_contribution.id}
 
-{* calculate a more user friendly display of the membership transaction interval *}
-{if $membership_type.duration_unit eq 'month'}
-  {if $membership_type.duration_interval eq 1}
+{* calculate a more user friendly display of the recurring_contribution transaction interval *}
+{if $recurring_contribution.frequency_unit eq 'month'}
+  {if $recurring_contribution.frequency_interval eq 1}
     {capture assign=frequency_words}{ts}monthly{/ts}{/capture}
-  {elseif $membership_type.duration_interval eq 3}
+  {elseif $recurring_contribution.frequency_interval eq 3}
     {capture assign=frequency_words}{ts}quarterly{/ts}{/capture}
-  {elseif $membership_type.duration_interval eq 6}
+  {elseif $recurring_contribution.frequency_interval eq 6}
     {capture assign=frequency_words}{ts}semi-annually{/ts}{/capture}
-  {elseif $membership_type.duration_interval eq 12}
+  {elseif $recurring_contribution.frequency_interval eq 12}
     {capture assign=frequency_words}{ts}annually{/ts}{/capture}
   {else}
-    {capture assign=frequency_words}{ts 1=$membership_type.duration_interval}every %1 months{/ts}{/capture}
+    {capture assign=frequency_words}{ts 1=$recurring_contribution.frequency_interval}every %1 months{/ts}{/capture}
   {/if}
-{elseif $membership_type.duration_unit eq 'year'}
-  {if $membership_type.duration_interval eq 1}
+{elseif $recurring_contribution.frequency_unit eq 'year'}
+  {if $recurring_contribution.frequency_interval eq 1}
     {capture assign=frequency_words}{ts}annually{/ts}{/capture}
   {else}
-    {capture assign=frequency_words}{ts 1=$membership_type.duration_interval}every %1 years{/ts}{/capture}
+    {capture assign=frequency_words}{ts 1=$recurring_contribution.frequency_interval}every %1 years{/ts}{/capture}
   {/if}
 {else}
   {capture assign=frequency_words}{ts}on an irregular basis{/ts}{/capture}
@@ -42,72 +42,50 @@
 <div>
   {capture assign=address_text}{if $contact.city}{$contact.street_address}, {$contact.city}{else}{ts}Address incomplete{/ts}{/if}{/capture}
   {capture assign=contact_link}<a title="{$address_text}" href="{crmURL p="civicrm/contact/view" q="reset=1&cid=$contact_id"}">{$contact.display_name} [{$contact.id}]</a>{/capture}
-  {assign var=status_text value=$membership_status.label}
-  {capture assign=type_link}<a title="{$membership_type.description}" href="{crmURL p="civicrm/contact/view/membership" q="action=view&reset=1&cid=$contact_id&id=$membership_id&context=membership&selectedChild=member"}">"{$membership.title}"</a>{/capture}
-  {capture assign=date_text}{$membership.start_date|crmDate:$config->dateformatFull}{/capture}
+  {capture assign=contribution_href}{crmURL p="civicrm/contact/view/contributionrecur" q="reset=1&id=$recurring_contribution_id&cid=$contact_id"}{/capture}
+  {capture assign=date_text}{$recurring_contribution.start_date|crmDate:$config->dateformatFull}{/capture}
   <p>
-    {ts 1=$contact_link 2=$status_text 3=$type_link 4=$date_text}%1 has a <i>%2</i> membership of type %3 since %4.{/ts}
-    {ts}If you confirm this suggestion, the transaction will be recorded as a fee payment for this membership.{/ts}
+    {ts 1=$contact_link 2=$recurring_contribution_id 3=$date_text 4=$contribution_href}%1 has a <a href="%4">recurring contribution [%2]</a> since %3.{/ts}
+    {ts}If you confirm this suggestion, the transaction will be recorded as a new installment for this recurring contribution.{/ts}
   </p>
 </div>
 <div>
-{if $last_fee.id}
   <table border="1">
     <tbody>
       <tr>
         <td>
-          <div class="btxlabel">{ts}Last{/ts}:</div>
-          <div class="btxvalue">{$last_fee.total_amount|crmMoney:$last_fee.currency}</div>
-        </td>
-        <td>
-          {capture assign=day_count}{$last_fee.days|abs}{/capture}
-          {if $last_fee.days gt 0}
-            {capture assign=last_fee_days}{ts 1=$day_count}(%1 days earlier){/ts}{/capture}
-          {else}
-            {capture assign=last_fee_days}{ts 1=$day_count}(%1 days later){/ts}{/capture}
-          {/if}
-          <div class="btxlabel">{ts}Paid{/ts}:</div>
-          <div class="btxvalue">{$last_fee.receive_date|crmDate:$config->dateformatFull} {$last_fee_days}</div>
-        </td>
-        <td>
-          <div class="btxlabel">{ts}Type{/ts}:</div>
-          <div class="btxvalue">{$membership_type.period_type}</div>
-        </td>
-        <td>
-          <div class="btxlabel">{ts}Cycle{/ts}:</div>
-          <div class="btxvalue">{$frequency_words}</div>
-        </td>
-      </tr>
-    </tbody>
-  </table>
-{else}
-  <table border="1">
-    <tbody>
-      <tr>
-        <td>
-          <div class="btxlabel">{ts}Last{/ts}:</div>
-          <div class="btxvalue"><strong>{ts}None{/ts}</strong></div>
-        </td>
-        <td>
-          {capture assign=day_count}{$membership.days|abs}{/capture}
-          {if $membership.days gt 0}
-            {capture assign=membership_days}{ts 1=$day_count}(%1 days earlier){/ts}{/capture}
-          {else}
-            {capture assign=membership_days}{ts 1=$day_count}(%1 days later){/ts}{/capture}
-          {/if}
-          <div class="btxlabel">{ts}Due{/ts}:</div>
-          <div class="btxvalue">{$membership.start_date|crmDate:$config->dateformatFull} {$membership_days}</div>
-        </td>
-        <td>
-          <div class="btxlabel">{ts}Fee{/ts}:</div>
-          <div class="btxvalue">{$membership_type.minimum_fee|crmMoney} ({$membership.percentage_of_minimum}%)</div>
+          <div class="btxlabel">{ts}Amount{/ts}:</div>
+          <div class="btxvalue">{$recurring_contribution.amount|crmMoney:$recurring_contribution.currency}</div>
         </td>
         <td>
           <div class="btxlabel">{ts}Cycle{/ts}</div>
           <div class="btxvalue">{$frequency_words}</div>
         </td>
+        <td>
+          <div class="btxlabel">{ts}Last{/ts}:</div>
+          <div class="btxvalue">
+            {if $last_contribution}
+            {$last_contribution.receive_date|crmDate:$config->dateformatFull}
+            {else}
+            <strong>{ts}None{/ts}</strong>
+            {/if}
+          </div>
+        </td>
+        <td>
+          <div class="btxlabel">{ts}Due{/ts}:</div>
+          <div class="btxvalue">{$due_date|crmDate:$config->dateformatFull}</div>
+        </td>
       </tr>
     </tbody>
   </table>
-{/if}
 </div>
+{if $penalties}
+<div>
+  {ts}This suggestion has been downgraded:{/ts}
+  <ul>
+    {foreach from=$penalties item=reason}
+    <li>{$reason}</li>
+    {/foreach}
+  </ul>
+</div>
+{/if}

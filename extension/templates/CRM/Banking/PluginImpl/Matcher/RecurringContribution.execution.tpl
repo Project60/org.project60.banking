@@ -14,8 +14,8 @@
 +--------------------------------------------------------*}
 
 {capture assign=contribution_link}{crmURL p="civicrm/contact/view/contribution" q="reset=1&id=$contribution_id&cid=$contact_id&action=view&context=membership&selectedChild=contribute"}{/capture}
-{capture assign=membership_link}{crmURL p="civicrm/contact/view/membership" q="action=view&reset=1&cid=$contact_id&id=$membership_id&context=membership&selectedChild=member"}{/capture}
+{capture assign=rcontribution_link}{crmURL p="civicrm/contact/view/contributionrecur" q="reset=1&id=$rcontribution_id&cid=$contact_id"}{/capture}
 
 <p>
-  {ts 1=$contribution_link 2=$contribution_id 3=$membership_link 4=$membership_id}This transaction was recorded as <a href="%1">membership fee contribution [%2]</a> for <a href="%3">membership [%4]</a>.{/ts}
+  {ts 1=$contribution_link 2=$contribution_id 3=$rcontribution_link 4=$rcontribution_id}This transaction created <a href="%1">contribution #%2</a> as an installment for <a href="%3">recurring contribution #%4</a>.{/ts}
 </p>

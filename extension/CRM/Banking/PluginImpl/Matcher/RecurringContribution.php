@@ -34,6 +34,7 @@ class CRM_Banking_PluginImpl_Matcher_RecurringContribution extends CRM_Banking_P
     if (!isset($config->search_terms))                  $config->search_terms = array();
     if (!isset($config->search_wo_contacts))            $config->search_wo_contacts = FALSE;  // if true, the matcher will keep searching (using the search_terms) even if no contacts are found
     if (!isset($config->contact_id_list))               $config->contact_id_list = '';  // if not empty, take contacts from comma separated list instead of contact search
+    if (!isset($config->created_contribution_status))   $config->created_contribution_status = 'Completed';
     if (!isset($config->recurring_contribution_status)) $config->recurring_contribution_status = array('Pending');
     if (!isset($config->suggestion_title))              $config->suggestion_title = '';
     if (!isset($config->recurring_mode))                $config->recurring_mode = 'static'; // see getExpectedDate()
@@ -127,43 +128,55 @@ class CRM_Banking_PluginImpl_Matcher_RecurringContribution extends CRM_Banking_P
    * @param type $btx
    */
   public function execute($suggestion, $btx) {
-    $membership_id = $suggestion->getParameter('membership_id');
-    $membership = civicrm_api3('Membership', 'getsingle', array('id' => $membership_id));
-    $membership_type = civicrm_api3('MembershipType', 'getsingle', array('id' => $membership['membership_type_id']));
+    $config      = $this->_plugin_config;
+    $smarty_vars = array();
 
+    // load the recurring contribution
+    $rcontribution_id = $suggestion->getParameter('recurring_contribution_id');
+    $rcontribution = civicrm_api3('ContributionRecur', 'getsingle', array('id' => $rcontribution_id));
+    $last_contribution = NULL;
+    
+    $due_date  = self::getExpectedDate($rcontribution, $btx, $config->recurring_mode, $last_contribution);
+    if ($due_date) {
+      $current_due_date = date('Y-m-d', $due_date);
+    } else {
+      $current_due_date = ts('None');
+    }
+    $recorded_due_date = $suggestion->getParameter('expected_date');
+    if ($recorded_due_date != $current_due_date) {
+      // something changed...
+      CRM_Core_Session::setStatus(ts('The situation for the recurring contribution seems to have changed. Please analyse transaction again.'), ts('Recurring contributtion changed'), 'alert');
+      return false;
+    }
 
-    // TODO: verify validity of suggestion (is outdated?)
+    // go ahead and create the contribution
+    $contribution = array();
+    $contribution['contact_id']                 = $suggestion->getParameter('contact_id');
+    $contribution['total_amount']               = $btx->amount;
+    $contribution['receive_date']               = $btx->booking_date;
+    $contribution['currency']                   = $btx->currency;
+    $contribution['financial_type_id']          = $rcontribution['financial_type_id'];
+    $contribution['payment_instrument_id']      = $rcontribution['payment_instrument_id'];
+    $contribution['campaign_id']                = CRM_Utils_Array::value('campaign_id', $rcontribution);
+    $contribution['recurring_contribution_id']  = $rcontribution_id;
+    $contribution['contribution_status_id']     = banking_helper_optionvalue_by_groupname_and_name('contribution_status', $config->created_contribution_status);
+    $contribution = array_merge($contribution, $this->getPropagationSet($btx, $suggestion, 'contribution'));
+    $contribution['version'] = 3;
+    $result = civicrm_api('Contribution', 'create', $contribution);
+    if (isset($result['is_error']) && $result['is_error']) {
+      CRM_Core_Session::setStatus(ts("Couldn't create contribution.")."<br/>".ts("Error was: ").$result['error_message'], ts('Error'), 'error');
+      return false;
+    } 
 
-    // // 1. create contribution
-    // $contribution_parameters = array(
-    //     'contact_id'        => $membership['contact_id'],
-    //     'total_amount'      => $btx->amount,
-    //     'currency'          => $btx->currency,
-    //     'receive_date'      => $btx->value_date,
-    //     'financial_type_id' => $this->getMembershipOption($membership_type['id'], 'financial_type_id', $membership_type['financial_type_id']),
-    //     'version'           => 3,
-    //   );
-    // $contribution_parameters = array_merge($contribution_parameters, $this->getPropagationSet($btx, $suggestion, 'contribution'));
-    // $contribution = civicrm_api('Contribution', 'create',  $contribution_parameters);
-    // if (!empty($contribution['is_error'])) {
-    //   CRM_Core_Session::setStatus(ts("Couldn't create contribution.")."<br/>".ts("Error was: ").$contribution['error_message'], ts('Error'), 'error');
-    //   return true;      
-    // }
+    // success!
+    $suggestion->setParameter('contribution_id', $result['id']);
 
-    // // 2. connect to membership
-    // civicrm_api3('MembershipPayment', 'create',  array(
-    //   'membership_id'   => $membership_id,
-    //   'contribution_id' => $contribution['id']
-    //   ));
+    // save the account
+    $this->storeAccountWithContact($btx, $suggestion->getParameter('contact_id'));
 
-    // // wrap it up
-    // $suggestion->setParameter('contact_id',      $membership['contact_id']);
-    // $suggestion->setParameter('contribution_id', $contribution['id']);
-    // $this->storeAccountWithContact($btx, $membership['contact_id']);
-
-    // $newStatus = banking_helper_optionvalueid_by_groupname_and_name('civicrm_banking.bank_tx_status', 'Processed');
-    // $btx->setStatus($newStatus);
-    // parent::execute($suggestion, $btx);
+    $newStatus = banking_helper_optionvalueid_by_groupname_and_name('civicrm_banking.bank_tx_status', 'Processed');
+    $btx->setStatus($newStatus);
+    parent::execute($suggestion, $btx);
     return true;
   }
 
@@ -326,7 +339,6 @@ class CRM_Banking_PluginImpl_Matcher_RecurringContribution extends CRM_Banking_P
         }
       }
 
-      error_log("YESS: $probability");
       $suggestion->setProbability($probability);
       $suggestions[] = $suggestion;
     }

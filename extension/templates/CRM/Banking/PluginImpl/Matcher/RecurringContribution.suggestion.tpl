@@ -45,7 +45,7 @@
   {capture assign=contribution_href}{crmURL p="civicrm/contact/view/contributionrecur" q="reset=1&id=$recurring_contribution_id&cid=$contact_id"}{/capture}
   {capture assign=date_text}{$recurring_contribution.start_date|crmDate:$config->dateformatFull}{/capture}
   <p>
-    {ts 1=$contact_link 2=$recurring_contribution_id 3=$date_text 4=$contribution_href}%1 has a <a href="%4">recurring contribution [%2]</a> since %3.{/ts}
+    {ts 1=$contact_link 2=$recurring_contribution_id 3=$date_text 4=$contribution_href}%1 maintains <a href="%4">recurring contribution [%2]</a> since %3.{/ts}
     {ts}If you confirm this suggestion, the transaction will be recorded as a new installment for this recurring contribution.{/ts}
   </p>
 </div>

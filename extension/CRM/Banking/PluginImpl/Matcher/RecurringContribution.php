@@ -54,6 +54,13 @@ class CRM_Banking_PluginImpl_Matcher_RecurringContribution extends CRM_Banking_P
     if (!isset($config->received_date_maximum))         $config->received_date_maximum = "+1 days";
     if (!isset($config->date_penalty))                  $config->date_penalty = 1.0;
     if (!isset($config->payment_instrument_penalty))    $config->payment_instrument_penalty = 0.0;
+
+    // check existing payments
+    if (!isset($config->existing_check))                $config->existing_check = "1";
+    if (!isset($config->existing_penalty))              $config->existing_penalty = 0.3;
+    if (!isset($config->existing_status_ids))           $config->existing_status_ids = array(1,2);
+    if (!isset($config->existing_precision))            $config->existing_precision = "80%"; // allows payment within +/- 20% of the cycle period
+                                                                                             //  would also accept number (e.g. "5") meaning +/- 5 days
   }
 
   /** 
@@ -155,10 +162,10 @@ class CRM_Banking_PluginImpl_Matcher_RecurringContribution extends CRM_Banking_P
     $contribution['total_amount']               = $btx->amount;
     $contribution['receive_date']               = $btx->booking_date;
     $contribution['currency']                   = $btx->currency;
-    $contribution['financial_type_id']          = $rcontribution['financial_type_id'];
-    $contribution['payment_instrument_id']      = $rcontribution['payment_instrument_id'];
+    $contribution['financial_type_id']          = CRM_Utils_Array::value('financial_type_id', $rcontribution);
+    $contribution['payment_instrument_id']      = CRM_Utils_Array::value('payment_instrument_id', $rcontribution);
     $contribution['campaign_id']                = CRM_Utils_Array::value('campaign_id', $rcontribution);
-    $contribution['recurring_contribution_id']  = $rcontribution_id;
+    $contribution['contribution_recur_id']      = $rcontribution_id;
     $contribution['contribution_status_id']     = banking_helper_optionvalue_by_groupname_and_name('contribution_status', $config->created_contribution_status);
     $contribution = array_merge($contribution, $this->getPropagationSet($btx, $suggestion, 'contribution'));
     $contribution['version'] = 3;
@@ -264,8 +271,12 @@ class CRM_Banking_PluginImpl_Matcher_RecurringContribution extends CRM_Banking_P
    */
   function createRecurringContributionSuggestions($query, $probability, $btx, $context) {
     $config      = $this->_plugin_config;
+    $threshold   = $this->getThreshold();
     $data_parsed = $btx->getDataParsed();
     $suggestions = array();
+
+    // don't waste your time contacts below the threshold...
+    if ($probability < $threshold) return $suggestions;
 
     $rcur_result = civicrm_api3('ContributionRecur', 'get', $query);
     foreach ($rcur_result['values'] as $rcur_id => $rcur) {
@@ -338,6 +349,49 @@ class CRM_Banking_PluginImpl_Matcher_RecurringContribution extends CRM_Banking_P
           }
         }
       }
+
+      // CHECK FOR OTHER PAYMENTS
+      if ($config->existing_check) {
+        $other_contributions_id_list = array();
+        $expected_date_string = date('Y-m-d', $expected_date);
+        if (empty($config->existing_status_list)) $config->existing_status_list = array(1,2);
+        $existing_status_list = implode(',', $config->existing_status_list);
+
+        // determine date range
+        if (preg_match("/[0-9]+%/", $config->existing_precision)) {
+          $cycle_length_seconds = strtotime("+{$rcur['frequency_interval']} {$rcur['frequency_unit']}", 0);
+          $date_range = (int) (((100.0 - (float) $config->existing_precision) / 100.0)  * ((float) $cycle_length_seconds / (float) (60 * 60 *24)));
+        } else {
+          $date_range = (int) $config->existing_precision;
+        }
+        $sql = "
+        SELECT id AS contribution_id
+        FROM civicrm_contribution 
+        WHERE contribution_recur_id = $rcur_id
+          AND contribution_status_id IN ($existing_status_list)
+          AND (receive_date BETWEEN ('$expected_date_string' - INTERVAL $date_range DAY)
+                                AND ('$expected_date_string' + INTERVAL $date_range DAY) );";
+        $sql_query = CRM_Core_DAO::executeQuery($sql);
+        while ($sql_query->fetch()) {
+          $other_contributions_id_list[] = $sql_query->contribution_id;
+        }
+
+        if (!empty($other_contributions_id_list)) {
+          $links = array();
+          if (count($other_contributions_id_list) == 1) {
+            $message = ts("There is already another contribution recorded for this interval: ");
+          } else {
+            $message = ts("There are already multiple contributions recorded for this interval: ");
+          }
+          foreach ($other_contributions_id_list as $other_contributions_id) {
+            $links[] = "<a href='" . CRM_Utils_System::url('civicrm/contact/view/contribution', "reset=1&id=$other_contributions_id&cid={$rcur['contact_id']}&action=view") . "'>[$other_contributions_id]</a>";
+          }
+          $message .= implode(', ', $links);
+          $suggestion->addEvidence($config->existing_penalty, $message);
+          $probability -= $config->existing_penalty;
+        }
+      }
+
 
       $suggestion->setProbability($probability);
       $suggestions[] = $suggestion;

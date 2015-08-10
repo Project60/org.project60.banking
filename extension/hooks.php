@@ -18,22 +18,25 @@
 /**
  * CiviBanking hooks
  */
+define('CIVIBANKING_TOPLEVEL_MENU', TRUE);
 
 /**
- * HACK: Implementation of banking_civicrm_navigationMenu
+ * Implementation of banking_civicrm_navigationMenu
  *
- * Insert Banking menu at top level
+ * Insert Banking menu at top level OR submenu of "Contribtion"
  */
 function banking_civicrm_navigationMenu(&$params) {
   // First: have a look at the menu
   $index = 0;
   $banking_entry_index = -1;
+  $contributions_entry = NULL;
   $contributions_entry_index = -1;
   foreach ($params as $key => $top_level_entry) {
     if ($top_level_entry['attributes']['name'] == 'CiviBanking') {
       $banking_entry_index = $index;
     } elseif ($top_level_entry['attributes']['name'] == 'Contributions') {
       $contributions_entry_index = $index;
+      $contributions_entry = $top_level_entry;
     }
     $index++;
   }
@@ -61,7 +64,7 @@ function banking_civicrm_navigationMenu(&$params) {
           'url' => null,
           'permission' => null,
           'operator' => null,
-          'separator' => null,
+          'separator' => 0,
           'parentID' => null,
           'navID' => $nav_id,
           'active' => 1
@@ -141,7 +144,16 @@ function banking_civicrm_navigationMenu(&$params) {
   );
   
   // ...and insert at the previously determined position
-  $params = array_merge(array_slice($params, 0, $insert_at), array($banking_entry), array_slice($params, $insert_at));
+  if (CIVIBANKING_TOPLEVEL_MENU) {
+    // in this case: top level, right after "Contribution"
+    $params = array_merge(array_slice($params, 0, $insert_at), array($banking_entry), array_slice($params, $insert_at));
+  } else {
+    // otherwise: as a submenu of "Contribution"
+    $contributions_entry_id = $contributions_entry['attributes']['navID'];
+    $banking_entry['attributes']['parentID'] = $contributions_entry_id;
+    $banking_entry['attributes']['separator'] = 2;
+    $params[$contributions_entry_id]['child'][] = $banking_entry;
+  }  
 }
 
 function banking_civicrm_entityTypes(&$entityTypes) {

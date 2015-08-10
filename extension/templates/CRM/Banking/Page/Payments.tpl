@@ -40,11 +40,11 @@
 </a>
 {if $show == 'payments'}
   <a class="button" href="{$url_show_statements}" style="float: right;">
-    <span><div class="icon details-icon"></div>{ts}Show Statements{/ts}</span>
+    <span><div class="icon details-icon ui-icon-circle-arrow-e"></div>{ts}Show Statements{/ts}</span>
   </a>
 {else}
   <a class="button" onClick="callWithSelected('{$url_show_payments}', true)" style="float: right;">
-    <span><div class="icon details-icon"></div>{ts}Show Transactions{/ts}</span>
+    <span><div class="icon details-icon ui-icon-circle-arrow-e"></div>{ts}Show Transactions{/ts}</span>
   </a>
 {/if}
 </div>

@@ -32,7 +32,7 @@
 			<td>
 				{assign var=duplicate_reference value=$duplicate.reference_id}
 				<a class="button" href="{crmURL p="civicrm/banking/dedupe" q="fixref=$duplicate_reference"}">
-  				<span align="right"><div class="icon delete-icon"></div>{ts}fix{/ts}</span>
+  				<span align="right"><div class="icon delete-icon ui-icon-trash"></div>{ts}fix{/ts}</span>
   			</a>
 			</td>
 			<td>
@@ -53,7 +53,7 @@
 		<tr>
 			<td>
 				<a class="button" href="{crmURL p="civicrm/banking/dedupe" q="fixref=all"}">
-					<span align="right"><div class="icon delete-icon"></div>{ts}fix all{/ts}</span>
+					<span align="right"><div class="icon delete-icon ui-icon-trash"></div>{ts}fix all{/ts}</span>
 				</a>
 			</td>
 			<td></td>
@@ -85,7 +85,7 @@
 			<td>
 				{assign var=duplicate_reference value=$duplicate.reference_id}
 				<a class="button" href="{crmURL p="civicrm/banking/dedupe" q="fixdupe=$duplicate_reference"}">
-  				<span align="right"><div class="icon delete-icon"></div>{ts}fix{/ts}</span>
+  				<span align="right"><div class="icon delete-icon ui-icon-trash"></div>{ts}fix{/ts}</span>
   			</a>
 			</td>
 			<td>
@@ -106,7 +106,7 @@
 		<tr>
 			<td>
 				<a class="button" href="{crmURL p="civicrm/banking/dedupe" q="fixdupe=all"}">
-					<span align="right"><div class="icon delete-icon"></div>{ts}fix all{/ts}</span>
+					<span align="right"><div class="icon delete-icon ui-icon-trash"></div>{ts}fix all{/ts}</span>
 				</a>
 			</td>
 			<td></td>

@@ -33,7 +33,7 @@
 			<td rowspan="3">CSV Importer</td>
 			<td rowspan="3">Imports CSV based data</td>
 			<td rowspan="3">UI only</td>
-			<td><a class="button" href="#"><span><div class="icon add-icon"></div>Add Profile</span></a></td>
+			<td><a class="button" href="#"><span><div class="icon add-icon ui-icon-circle-plus"></div>Add Profile</span></a></td>
 		</tr>
 		<tr class="odd-row">
 			<td><b>Default</b>&nbsp;&nbsp;<a href='#' class="crm-actions-view">Edit</a></td>
@@ -45,7 +45,7 @@
 			<td rowspan="2">SEPA XML</td>
 			<td rowspan="2">PAIN data processor</td>
 			<td rowspan="2">UI and API</td>
-			<td><a class="button" href="#"><span><div class="icon add-icon"></div>Add Profile</span></a></td>
+			<td><a class="button" href="#"><span><div class="icon add-icon ui-icon-circle-plus"></div>Add Profile</span></a></td>
 		</tr>
 		<tr class="even-row">
 			<td><b>Default</b>&nbsp;&nbsp;<a href='#' class="crm-actions-view">Edit</a></td>
@@ -158,7 +158,7 @@
 			<td rowspan="3">CSV Exporter</td>
 			<td rowspan="3">Imports CSV based data</td>
 			<td rowspan="3">UI only</td>
-			<td><a class="button" href="#"><span><div class="icon add-icon"></div>Add Profile</span></a></td>
+			<td><a class="button" href="#"><span><div class="icon add-icon ui-icon-circle-plus"></div>Add Profile</span></a></td>
 		</tr>
 		<tr class="odd-row">
 			<td><b>Default</b>&nbsp;&nbsp;<a href='#' class="crm-actions-view">{ts}Edit{/ts}</a></td>
@@ -170,7 +170,7 @@
 			<td rowspan="2">SEPA XML</td>
 			<td rowspan="2">PAIN data processor</td>
 			<td rowspan="2">UI and API</td>
-			<td><a class="button" href="#"><span><div class="icon add-icon"></div>{ts}Add Profile{/ts}</span></a></td>
+			<td><a class="button" href="#"><span><div class="icon add-icon ui-icon-circle-plus"></div>{ts}Add Profile{/ts}</span></a></td>
 		</tr>
 		<tr class="even-row">
 			<td><b>Default</b>&nbsp;&nbsp;<a href='#' class="crm-actions-view">{ts}Edit{/ts}</a></td>

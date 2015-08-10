@@ -54,7 +54,7 @@
 	    </td>
 	    <td style="vertical-align: middle;">
 	    	<a title="{ts}Delete{/ts}" class="delete button" onClick="deleteAccount({$account.id});">
-              <span><div class="icon delete-icon"></div>{ts}Delete{/ts}</span>
+              <span><div class="icon delete-icon ui-icon-trash"></div>{ts}Delete{/ts}</span>
             </a>
 	    </td>
 	  </tr>
@@ -67,7 +67,7 @@
 {/if}
 
 <a id="create_account_button" title="{ts}Add{/ts}" class="add button" onClick="showCreateAccount();">
-  <span><div class="icon add-icon"></div>{ts}Add{/ts}</span>
+  <span><div class="icon add-icon ui-icon-circle-plus"></div>{ts}Add{/ts}</span>
 </a>
 
 <form id="create_account_form" hidden="1">

@@ -32,20 +32,20 @@
 </div>
 
 <br/>
-  <a class="button" onclick="manual_match_create_contribution();"><span><div class="icon add-icon"></div>{ts}add new contribution for:{/ts}</span></a>
+  <a class="button" onclick="manual_match_create_contribution();"><span><div class="icon add-icon ui-icon-circle-plus"></div>{ts}add new contribution for:{/ts}</span></a>
   <select style="float:left;" id="manual_match_contact_selector"></select>
   <div onclick="manual_match_show_selected_contact();" class="ui-icon ui-icon-circle-arrow-e" style="float:left;"></div>
   <div style="float:left;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</div>
-  <div style="display: inline-block;"><a class="button" onclick="manual_match_add_contact();"><span><div class="icon add-icon"></div>{ts}add contact ID to list{/ts}:</span></a>
+  <div style="display: inline-block;"><a class="button" onclick="manual_match_add_contact();"><span><div class="icon add-icon ui-icon-circle-plus"></div>{ts}add contact ID to list{/ts}:</span></a>
   <input id="manual_match_add_contact_input" onkeydown="if (event.keyCode == 13) return manual_match_add_contact();" type="text" style="width: 4em; height: 1.4em;"></input>
 </div>
 
 <br/><br/>
 
 <div>
-  <a class="button" onclick="manual_match_refresh_list();"><span><div class="icon refresh-icon"></div>{ts}refresh{/ts}</span></a>
-  <a class="button" onclick="manual_match_open_create_new_contribution();"><span><div class="icon add-icon"></div>{ts}add empty contribution{/ts}</span></a>
-  <a class="button" onclick="manual_match_add_contribution();"><span><div class="icon add-icon"></div>{ts}add existing contribution by ID{/ts}</span></a>
+  <a class="button" onclick="manual_match_refresh_list();"><span><div class="icon refresh-icon ui-icon-refresh"></div>{ts}refresh{/ts}</span></a>
+  <a class="button" onclick="manual_match_open_create_new_contribution();"><span><div class="icon add-icon ui-icon-circle-plus"></div>{ts}add empty contribution{/ts}</span></a>
+  <a class="button" onclick="manual_match_add_contribution();"><span><div class="icon add-icon ui-icon-circle-plus"></div>{ts}add existing contribution by ID{/ts}</span></a>
   <input id="manual_match_add" onkeydown="if (event.keyCode == 13) return manual_match_add_contribution();" type="text" style="width: 4em; height: 1.4em;"></input>
   <div style="float:right;">
     <span id="manual_match_contribution_sum" align="right" style="color: red; font-weight: bold;"><b>{ts}sum{/ts}: 0.00 EUR</b></span>

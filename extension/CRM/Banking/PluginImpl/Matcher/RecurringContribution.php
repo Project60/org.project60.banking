@@ -46,14 +46,18 @@ class CRM_Banking_PluginImpl_Matcher_RecurringContribution extends CRM_Banking_P
     if (!isset($config->amount_absolute_minimum))       $config->amount_absolute_minimum = 0;
     if (!isset($config->amount_absolute_maximum))       $config->amount_absolute_maximum = 1;
     if (!isset($config->amount_penalty))                $config->amount_penalty = 1.0;
-    if (!isset($config->currency_penalty))              $config->currency_penalty = 0.5;
 
     // date check / date range
     if (!isset($config->received_date_check))           $config->received_date_check = "1";  // WARNING: DISABLING THIS COULD MAKE THE PROCESS VERY SLOW
-    if (!isset($config->received_date_minimum))         $config->received_date_minimum = "-100 days";
-    if (!isset($config->received_date_maximum))         $config->received_date_maximum = "+1 days";
-    if (!isset($config->date_penalty))                  $config->date_penalty = 1.0;
+    if (!isset($config->acceptable_date_offset_from))   $config->acceptable_date_offset_from = "-1 days";
+    if (!isset($config->acceptable_date_offset_to))     $config->acceptable_date_offset_to = "+1 days";
+    if (!isset($config->date_offset_minimum))           $config->date_offset_minimum = "-5 days";
+    if (!isset($config->date_offset_maximum))           $config->date_offset_maximum = "+15 days";
+    if (!isset($config->date_penalty))                  $config->date_penalty = 0.5;
+
+    // other checks
     if (!isset($config->payment_instrument_penalty))    $config->payment_instrument_penalty = 0.0;
+    if (!isset($config->currency_penalty))              $config->currency_penalty = 0.5;
 
     // check existing payments
     if (!isset($config->existing_check))                $config->existing_check = "1";
@@ -334,20 +338,34 @@ class CRM_Banking_PluginImpl_Matcher_RecurringContribution extends CRM_Banking_P
         // use date only
         $transaction_date = strtotime(date('Y-m-d', strtotime($context->btx->value_date)));
 
-        if ($expected_date < strtotime($config->received_date_minimum, $transaction_date)) continue;
-        if ($expected_date > strtotime($config->received_date_maximum, $transaction_date)) continue;
-        
-        // calculate the date penalties
-        $date_delta = abs($expected_date - $transaction_date);
-        $date_range = max(1, strtotime($config->received_date_maximum) - strtotime($config->received_date_minimum));
+        // only apply penalties, if the offset is outside the accepted range
+        $date_offset = $transaction_date - $expected_date;
+        if ( $date_offset < strtotime($config->acceptable_date_offset_from, 0)
+          || $date_offset > strtotime($config->acceptable_date_offset_to, 0)) {
 
-        if ($date_range) {
-          $penalty = $config->date_penalty * ($date_delta / $date_range);
-          if ($penalty) {
-            $suggestion->addEvidence($penalty, ts("The date of the transaction deviates from the expeted date."));
-            $probability -= $penalty;            
+          // check if the payment is completely out of bounds
+          if ($date_offset < strtotime($config->date_offset_minimum, 0)) continue;
+          if ($date_offset > strtotime($config->date_offset_maximum, 0)) continue;
+
+          // calculate the date penalties
+          $date_range =   (strtotime($config->date_offset_maximum) - strtotime($config->date_offset_minimum))
+                         -(strtotime($config->acceptable_date_offset_to) - strtotime($config->acceptable_date_offset_from));
+          if ($date_offset < 0) {
+            $date_delta = abs($date_offset - strtotime($config->acceptable_date_offset_from, 0));
+          } else {
+            $date_delta = abs($date_offset - strtotime($config->acceptable_date_offset_to, 0));
           }
+
+          if ($date_range) {
+            $penalty = $config->date_penalty * ($date_delta / $date_range);
+            if ($penalty) {
+              $suggestion->addEvidence($penalty, ts("The date of the transaction deviates too much from the expected date."));
+              $probability -= $penalty;            
+            }
+          }
+
         }
+        
       }
 
       // CHECK FOR OTHER PAYMENTS
@@ -358,6 +376,7 @@ class CRM_Banking_PluginImpl_Matcher_RecurringContribution extends CRM_Banking_P
         $existing_status_list = implode(',', $config->existing_status_list);
 
         // determine date range
+        // TODO: use date_offset_minimum/maximum
         if (preg_match("/[0-9]+%/", $config->existing_precision)) {
           $cycle_length_seconds = strtotime("+{$rcur['frequency_interval']} {$rcur['frequency_unit']}", 0);
           $date_range = (int) (((100.0 - (float) $config->existing_precision) / 100.0)  * ((float) $cycle_length_seconds / (float) (60 * 60 *24)));
@@ -467,7 +486,7 @@ class CRM_Banking_PluginImpl_Matcher_RecurringContribution extends CRM_Banking_P
 
     
     if ($recurring_mode == 'static') {
-      $start_date = strtotime($rcontribution['start_date']);
+      $start_date = strtotime(date('Y-m-d', strtotime($rcontribution['start_date'])));
       $next_date =  mktime(0, 0, 0, date('n', $start_date) + (date('j', $start_date) > $cycle_day), $cycle_day, date('Y', $start_date));
       
       $closest_date = $next_date;

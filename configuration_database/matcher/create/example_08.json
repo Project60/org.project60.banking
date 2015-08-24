@@ -1,0 +1,22 @@
+{
+   "auto_exec":false,
+   "threshold": 0.0,
+   "mode":"default",
+   "title": "Matching contribution (ONLINE) found",
+   "required_values" : {
+        "btx.code_typ": "equal_constant:online",
+        "btx.code_valid": "equal_constant:1"
+      },
+   "contribution_list":"contribution_ids",
+   "contribution_search":false,
+   "accepted_contribution_states":["Pending", "Debiting"],
+   "value_propagation":{
+    "btx.Zahlungsbeleg_gesendet":"contribution.custom_157"
+   },
+   "received_date_check": false,
+   "amount_relative_minimum":0.7,
+   "amount_relative_maximum":1.3,
+   "amount_absolute_minimum":0,
+   "amount_absolute_maximum":0,
+   "amount_penalty":1.0
+}

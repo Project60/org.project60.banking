@@ -1,0 +1,61 @@
+{
+    "rules": [
+        {
+            "comment": "detects offline donation codes",
+            "fields": ["purpose", "reference"],
+            "pattern": "#(?P<OFFLINE_CODE>BFGF[0-9]{8})#",
+            "actions": [
+                {
+                    "action": "lookup:Contribution,id,custom_142",
+                    "from": "OFFLINE_CODE",
+                    "to": "contribution_ids"
+                },
+                {
+                    "action": "set",
+                    "to": "code_typ",
+                    "value": "offline"
+                },
+                {
+                    "comment": "extracts last name of the contact, for later comparison",
+                    "action": "lookup:Contribution,contact_id,id",
+                    "from": "contribution_ids",
+                    "to": "contribution_last_name"
+                },
+                {
+                    "action": "lookup:Contact,last_name,id",
+                    "from": "contribution_last_name",
+                    "to": "contribution_last_name"
+                },
+                {
+                    "action": "strtolower",
+                    "from": "contribution_last_name",
+                    "to": "contribution_last_name"
+                },
+                {
+                    "action": "strtolower",
+                    "from": "name",
+                    "to": "tx_name_list"
+                },
+                {
+                    "action": "preg_replace",
+                    "from": "tx_name_list",
+                    "search_pattern": "#\\s+#",
+                    "replace": ",",
+                    "to": "tx_name_list"
+                }
+            ]
+        },
+        {
+            "comment": "verifies offline code",
+            "fields": ["purpose", "reference"],
+            "pattern": "#BFGF(?P<OFFLINE_CODE>[0-9]{8})#",
+            "actions": [
+                {
+                    "action": "calculate",
+                    "from": "(((int) \"{OFFLINE_CODE}\") % 7) == 1",
+                    "to": "code_valid"
+                }
+            ]
+        }
+    ]
+}

@@ -1,0 +1,19 @@
+{
+  "auto_exec":1.0,
+  "factor":1.0,
+  "threshold":1.0,
+  "required_values":[
+    "btx.code_is_valid",
+    "btx.source",
+    "btx.financial_type_id",
+    "btx.payment_instrument_id"
+  ],
+  "value_propagation":{
+    "btx.source":"contribution.source",
+    "btx.financial_type_id":"contribution.financial_type_id",
+    "btx.campaign_id":"contribution.campaign_id",
+    "btx.payment_instrument_id":"contribution.payment_instrument_id",
+    "btx.receipt_desired":"contribution.custom_62",
+    "btx.receipt_sent":"contribution.custom_63"
+  }
+}

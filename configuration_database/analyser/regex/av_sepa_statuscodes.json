@@ -1,0 +1,39 @@
+{
+    "comment": "detects/maps SEPA status codes",
+    "rules": [
+        {
+            "fields": ["sepa_code"],
+            "pattern": "/(?P<cancelcode>AC01|AC04|AC06|AG01|AG02|AM04|AM05|BE05|FF01|MD01|MD02|MD06|MD07|MS02|MS03|PY01|RC01|RR01|RR02|RR03|SL01)/",
+            "actions": [
+                {
+                    "action": "map",
+                    "from": "cancelcode",
+                    "to": "cancel_reason",
+                    "mapping": {
+                        "AC01":"Account Identifier Incorrect (Invalid IBAN)",
+                        "AC04":"Account closed",
+                        "AC06":"Account blocked",
+                        "AG01":"Direct Debit forbidden on this account for regulatory reasons",
+                        "AG02":"Bank Operation code specified in the message is not valid for receiver",
+                        "AM04":"Insufficient funds (only for debtor not in Belgium)",
+                        "AM05":"Duplication collection",
+                        "BE05":"Identifier of the Creditor Incorrect",
+                        "FF01":"File Format incomplete or invalid",
+                        "MD01":"No valid mandate",
+                        "MD02":"Mandate data missing or incorrect",
+                        "MD06":"Disputed authorised transaction",
+                        "MD07":"Debtor Deceased",
+                        "MS02":"Refusal by the Debtor",
+                        "MS03":"Reason not specified",
+                        "PY01":"Not routable",
+                        "RC01":"Bank Identifier Incorrect (i.e. invalid BIC)",
+                        "RR01":"Regulatory Reason",
+                        "RR02":"Regulatory Reason",
+                        "RR03":"Regulatory Reason",
+                        "SL01":"Specific Service offered by the Debtor Bank"
+                    }
+                }
+            ]
+        }
+    ]
+}

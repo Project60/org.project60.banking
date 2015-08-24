@@ -1,0 +1,37 @@
+{
+    "rules": [
+        {
+            "comment": "detects online donation codes",
+            "fields": ["purpose", "reference"],
+            "pattern": "#BFGN(?P<CONTRIBUTION_ID>[0-9]{7})(?P<CHECKSUM>[0-9])#",
+            "actions": [
+                {
+                    "action": "copy",
+                    "from": "CONTRIBUTION_ID",
+                    "to": "code"
+                },
+                {
+                    "action": "copy_append",
+                    "from": "CHECKSUM",
+                    "to": "code"
+                },
+                {
+                    "action": "copy_ltrim_zeros",
+                    "from": "CONTRIBUTION_ID",
+                    "to": "contribution_ids"
+                },
+                {
+                    "comment": "validate code",
+                    "action": "calculate",
+                    "from": "(((int) \"{code}\") % 7) == 1",
+                    "to": "code_valid"
+                },
+                {
+                    "action": "set",
+                    "to": "code_typ",
+                    "value": "online"
+                }
+            ]
+        }
+    ]
+}

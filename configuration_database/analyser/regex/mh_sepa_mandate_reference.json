@@ -1,0 +1,16 @@
+{
+    "rules": [
+        {
+            "comment": "detects SEPA mandate references",
+            "fields": ["purpose"],
+            "pattern": "/MREF[+](?P<mandate_reference>[0-9]{6}R[0-9]{8}D[0-9]{8}N[0-9]K[0-9]*)/",
+            "actions": [
+                {
+                    "action": "copy",
+                    "from": "mandate_reference",
+                    "to": "sepa_mandate"
+                }
+            ]
+        }
+    ]
+}

@@ -1,0 +1,70 @@
+{
+  "rules":[
+    {
+      "comment":"detects donors by id",
+      "fields":[
+        "purpose"
+      ],
+      "pattern":"/SVWZ[+](?P<spender_id>[0-9]+) /",
+      "actions":[
+        {
+          "action":"copy",
+          "from":"spender_id",
+          "to":"contact_id"
+        }
+      ]
+    },
+    {
+      "comment":"detect financial types",
+      "fields":[
+        "purpose"
+      ],
+      "pattern":"/ Donation FZ /",
+      "actions":[
+        {
+          "action":"set",
+          "value":"7",
+          "to":"financial_type_id"
+        },
+        {
+          "action":"set",
+          "value":"7",
+          "to":"payment_instrument_id"
+        }
+      ]
+    },
+    {
+      "comment":"detect membership due",
+      "fields":[
+        "purpose"
+      ],
+      "pattern":"/Member/",
+      "actions":[
+        {
+          "action":"set",
+          "value":"2",
+          "to":"financial_type_id"
+        },
+        {
+          "action":"set",
+          "value":"7",
+          "to":"payment_instrument_id"
+        }
+      ]
+    },
+    {
+      "comment":"detect SEPA mandate reference",
+      "fields":[
+        "purpose"
+      ],
+      "pattern":"/MREF[+](?P<mandate_reference>ZF-[0-9]{1,10})/",
+      "actions":[
+        {
+          "action":"copy",
+          "from":"mandate_reference",
+          "to":"mandate_reference"
+        }
+      ]
+    }
+  ]
+}

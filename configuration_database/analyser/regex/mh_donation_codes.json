@@ -1,0 +1,55 @@
+{
+    "rules": [
+        {
+            "comment": "detects sophisticated donation code",
+            "fields": ["purpose"],
+            "pattern": "/MH(?P<channel>[A-Z])(?P<ftype>[0-9]{1,2})K(?P<campaign>[O0-9]{4})C(?P<civid>[1-9][0-9]{0,5})ZS/i",
+            "actions": [
+                {
+                    "action": "map",
+                    "from": "channel",
+                    "to": "source",
+                    "mapping": {
+                        "Z": "MHZ",
+                        "M": "Mailing",
+                        "K": "Calendar",
+                        "I": "Info"
+                    }
+                },                
+                {
+                    "action": "copy_ltrim_zeros",
+                    "from": "ftype",
+                    "to": "financial_type_id"
+                },                
+                {
+                    "comment": "default for campaign is empty",
+                    "action": "set",
+                    "to": "campaign_id",
+                    "value": ""
+                },
+                {
+                    "action": "lookup:Campaign,id,external_identifier",
+                    "from": "campaign",
+                    "parameters": { "is_active": 1 },
+                    "to": "campaign_id"
+                },
+                {
+                    "comment": "fallback campaign",
+                    "action": "calculate",
+                    "from": "strlen(\"{campaign_id}\")?\"{campaign_id}\":(({financial_type_id}==13||{financial_type_id}==14)?367:357)",
+                    "to": "campaign_id"
+                },
+                {
+                    "action": "lookup:Contact,sort_name,id",
+                    "from": "civid",
+                    "to": "tx_contact"
+                },
+                {
+                    "action": "set",
+                    "to": "create_donation_automatically",
+                    "value": "1"
+                }
+            ]
+        }
+    ]
+}

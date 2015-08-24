@@ -1,0 +1,17 @@
+{
+    "auto_exec": 1.0,
+    "factor": 1.0,
+    "required_values": [
+        "btx.financial_type_id",
+        "btx.campaign_id",
+        "btx.contact_id",
+        "btx.code_is_valid",
+        "btx.payment_instrument_id"
+    ],
+    "value_propagation": {
+        "btx.financial_type_id": "contribution.financial_type_id",
+        "btx.campaign_id": "contribution.campaign_id",
+        "btx.payment_instrument_id": "contribution.payment_instrument_id",
+        "btx._IBAN":"contribution.custom_72"
+    }
+}

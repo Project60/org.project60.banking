@@ -1,0 +1,55 @@
+{
+    "comment": "detects/maps SEPA status codes (GLS Bank)",
+    "rules": [
+        {
+            "fields": ["purpose"],
+            "pattern": "/(?P<sepa_status_code>AC01|AC04|AC06|AG01|AG02|AM04|AM05|BE04|MD01|MD02|FF01|MD06|MD07|MS02|MS03|NARR|RC01|TM01|RR04|SL01|FOCR|RR01|RR02|PR03|DUPL|TECH|FRAD|AGNT|CURR|CUST|CUTA|UPAY|BE05|AC13|FF05|DNOR|CNOR): /",
+            "actions": [
+                {
+                    "action": "map",
+                    "from": "sepa_status_code",
+                    "to": "cancel_reason",
+                    "mapping": {
+                        "AC01": "Rücklastschrift-IBAN falsch",
+                        "AC04": "Rücklastschrift-Konto gelöscht",
+                        "AC06": "Rücklastschrift-Konto gesperrt",
+                        "AG01": "Rücklastschrift",
+                        "AG02": "Rücklastschrift",
+                        "AM04": "Rücklastschrift mangels Deckung",
+                        "AM05": "Rücklastschrift",
+                        "BE04": "Rücklastschrift",
+                        "MD01": "Rücklastschrift",
+                        "MD02": "Rücklastschrift",
+                        "FF01": "Rücklastschrift",
+                        "MD06": "Rücklastschrift wegen Widerspruch",
+                        "MD07": "Rücklastschrift Inhaber verstorben",
+                        "MS02": "Rücklastschrift",
+                        "MS03": "Rücklastschrift",
+                        "NARR": "Rücklastschrift",
+                        "RC01": "Rücklastschrift BIC falsch",
+                        "TM01": "Rücklastschrift",
+                        "RR04": "Rücklastschrift",
+                        "SL01": "Rücklastschrift",
+                        "FOCR": "Rücklastschrift wegen Widerspruch",
+                        "RR01": "Rücklastschrift-IBAN falsch",
+                        "RR02": "Rücklastschrift",
+                        "PR03": "Rücklastschrift",
+                        "DUPL": "Rücklastschrift",
+                        "TECH": "Rücklastschrift",
+                        "FRAD": "Rücklastschrift",
+                        "AGNT": "Rücklastschrift",
+                        "CURR": "Rücklastschrift",
+                        "CUST": "Rücklastschrift",
+                        "CUTA": "Rücklastschrift",
+                        "UPAY": "Rücklastschrift",
+                        "BE05": "Rücklastschrift",
+                        "AC13": "Rücklastschrift",
+                        "FF05": "Rücklastschrift",
+                        "DNOR": "Rücklastschrift",
+                        "CNOR": "Rücklastschrift"                    
+                    }
+                }
+            ]
+        }
+    ]
+}

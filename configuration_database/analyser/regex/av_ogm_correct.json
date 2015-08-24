@@ -1,0 +1,52 @@
+{
+    "rules": [
+        {
+            "comment": "extract OGMs",
+            "fields": ["purpose"],
+            "pattern": "#(^|[^0-9])(?P<code1>[0-9])(?P<OGMAINR_1>[0-9]{2})[/ ]?(?P<OGMAINR_2>[0-9]{4})[/ ]?(?P<code2>[0-9]{3})(?P<checksum>[0-9]{2})($|[^0-9])#",
+            "actions": [
+                {
+                    "comment": "compile clean OGM",
+                    "action": "copy",
+                    "from": "code1",
+                    "to": "OGM"
+                },
+                {
+                    "comment": "compile clean OGM",
+                    "action": "copy_append",
+                    "from": "OGMAINR_1",
+                    "to": "OGM"
+                },
+                {
+                    "comment": "compile clean OGM",
+                    "action": "copy_append",
+                    "from": "OGMAINR_2",
+                    "to": "OGM"
+                },
+                {
+                    "comment": "compile clean OGM",
+                    "action": "copy_append",
+                    "from": "code2",
+                    "to": "OGM"
+                },
+                {
+                    "comment": "compile clean OGM",
+                    "action": "copy_append",
+                    "from": "checksum",
+                    "to": "OGM"
+                },
+                {
+                    "comment": "correct known OGM mishaps",
+                    "action": "map",
+                    "from": "OGM",
+                    "to": "OGM",
+                    "mapping": {
+                          "305459500643": "305339331460",
+                          "108112010473": "304259531249",
+                          "304911302597": "610643900521"
+                    }
+                }
+            ]
+        }
+    ]
+}

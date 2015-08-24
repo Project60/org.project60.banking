@@ -1,0 +1,32 @@
+{
+    "rules": [
+        {
+            "comment": "detects legacy donation codes",
+            "fields": ["purpose", "reference"],
+            "pattern": "#(?P<PART1>1[0-9]{3})[ -]?(?P<PART2>[0-9]{4})#",
+            "actions": [
+                {
+                    "action": "copy",
+                    "from": "PART1",
+                    "to": "code"
+                },
+                {
+                    "action": "copy_append",
+                    "from": "PART2",
+                    "to": "code"
+                },
+                {
+                    "comment": "validate",
+                    "action": "calculate",
+                    "from": "(((int) \"{code}\") % 7) == 1",
+                    "to": "code_valid"
+                },
+                {
+                    "action": "set",
+                    "to": "code_typ",
+                    "value": "legacy"
+                }                
+            ]
+        }
+    ]
+}

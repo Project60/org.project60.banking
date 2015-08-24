@@ -1,0 +1,47 @@
+{
+  "auto_exec":false,
+  "factor":1.0,
+  "threshold":0.7,
+  "required_values":[
+    "btx.source",
+    "btx.financial_type_id",
+    "btx.payment_instrument_id"
+  ],
+  "value_propagation":{
+    "btx.source":"contribution.source",
+    "btx.financial_type_id":"contribution.financial_type_id",
+    "btx.campaign_id":"contribution.campaign_id",
+    "btx.payment_instrument_id":"contribution.payment_instrument_id",
+    "btx.receipt_desired":"contribution.custom_62",
+    "btx.receipt_sent":"contribution.custom_63"
+  },
+  "lookup_contact_by_name":{
+    "soft_cap_probability":1.0,
+    "soft_cap_min":4,
+    "hard_cap_probability":0.85,
+    "ignore_contact_types":"Household",
+    "comment": "modifiers for common German transcriptions",
+    "modifiers":[
+      {
+        "search":":ss:",
+        "replace":"ß",
+        "mode":"alternative"
+      },
+      {
+        "search":":ue:",
+        "replace":"ü",
+        "mode":"alternative"
+      },
+      {
+        "search":":oe:",
+        "replace":"ö",
+        "mode":"alternative"
+      },
+      {
+        "search":":ae:",
+        "replace":"ä",
+        "mode":"alternative"
+      }
+    ]
+  }
+}

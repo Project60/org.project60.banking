@@ -1,0 +1,53 @@
+{
+    "auto_exec": false,
+    "factor": 1.0,
+    "threshold": 0.7,
+    "source_label": "Channel",
+    "required_values": [
+        "btx.automatically_create_contribution",
+        "btx.source",
+        "btx.campaign_id",
+        "btx.financial_type_id",
+        "btx.payment_instrument_id",
+        "ba.name_id"
+    ],
+    "value_propagation": {
+        "ba.name_id":"contribution.custom_14",
+        "btx.source":"contribution.source",
+        "btx.financial_type_id":"contribution.financial_type_id",
+        "btx.campaign_id":"contribution.campaign_id",
+        "btx.payment_instrument_id":"contribution.payment_instrument_id"
+    },
+    "lookup_contact_by_name":{
+      "soft_cap_probability":0.8,
+      "soft_cap_min":10,
+      "hard_cap_probability":0.4,
+      "ignore_contact_types": "Household",
+      "comment": "modifiers for common German transcriptions",
+      "modifiers":[
+         {
+            "search":":^herr :",
+            "replace":" "
+         },
+         {
+            "search":":^frau :",
+            "replace":" "
+         },
+         {
+            "search":":ue:",
+            "replace":"ü",
+            "mode":"alternative"
+         },
+         {
+            "search":":oe:",
+            "replace":"ö",
+            "mode":"alternative"
+         },
+         {
+            "search":":ae:",
+            "replace":"ä",
+            "mode":"alternative"
+         }
+      ]
+   }
+}

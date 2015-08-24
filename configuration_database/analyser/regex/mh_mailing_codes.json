@@ -1,0 +1,92 @@
+{
+    "rules": [
+        {
+            "comment": "analyses mailing codes",
+            "fields": ["purpose"],
+            "pattern": "/R(?P<extid>[1-9][0-9]{1,5})K(?P<campaign>[1-9][0-9]{1,3})L(?P<liste>[0-9]{1,2})/",
+            "actions": [
+                {
+                    "action": "copy",
+                    "from": "extid",
+                    "to": "external_identifier"
+                },
+                {
+                    "action": "lookup:Campaign,id,id",
+                    "from": "campaign",
+                    "to": "campaign_id"
+                },
+                {
+                    "action": "lookup:Campaign,title,id",
+                    "from": "campaign_id",
+                    "to": "campaign_title"
+                },
+                {
+                    "action": "copy",
+                    "from": "liste",
+                    "to": "Liste"
+                },
+                {
+                    "action": "set",
+                    "to": "financial_type_id",
+                    "value": "1"
+                },
+                {
+                    "action": "set",
+                    "to": "has_code",
+                    "value": "true"
+                }
+            ]
+        },
+        {
+            "comment": "analyses regular payments",
+            "fields": ["purpose"],
+            "pattern": "/Abo:[+](?P<extid>[1-9][0-9]{1,5})[+]/i",
+            "actions": [
+                {
+                    "action": "copy",
+                    "from": "extid",
+                    "to": "external_identifier"
+                },
+                {
+                    "action": "set",
+                    "to": "financial_type_id",
+                    "value": "10"
+                }
+            ]
+        },
+        {
+            "comment": "analyses campaigns",
+            "fields": ["purpose"],
+            "pattern": "/RWCAMPAIGN(?P<campaign>[0-9]{4})/i",
+            "actions": [
+                {
+                    "action": "lookup:Campaign,id,id",
+                    "from": "campaign",
+                    "to": "campaign_id"
+                },
+                {
+                    "action": "lookup:Campaign,title,id",
+                    "from": "campaign_id",
+                    "to": "campaign_title"
+                },
+                {
+                    "action": "set",
+                    "to": "financial_type_id",
+                    "value": "1"
+                }
+            ]
+        },
+        {
+            "comment": "detects regular payments",
+            "fields": ["transaction_key"],
+            "pattern": "/STO/",
+            "actions": [
+                {
+                    "action": "set",
+                    "to": "payment_instrument_id",
+                    "value": "7"
+                }
+            ]
+        }
+    ]
+}

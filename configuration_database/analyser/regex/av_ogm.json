@@ -1,0 +1,82 @@
+{
+    "rules": [
+        {
+            "comment": "detect OGM donation code",
+            "fields": ["OGM"],
+            "pattern": "/(?P<code1>[0-9])(?P<OGMAINR>[0-9]{6})(?P<code2>[0-9]{3})(?P<checksum>[0-9]{2})/",
+            "actions": [
+                {
+                    "comment": "Validate Code",
+                    "action": "copy",
+                    "from": "code1",
+                    "to": "code_is_valid"
+                },
+                {
+                    "comment": "Validate Code",
+                    "action": "copy_append",
+                    "from": "OGMAINR",
+                    "to": "code_is_valid"
+                },
+                {
+                    "comment": "Validate Code",
+                    "action": "copy_append",
+                    "from": "code2",
+                    "to": "code_is_valid"
+                },
+                {
+                    "comment": "Validate Code",
+                    "action": "calculate",
+                    "from": "(((int) \"{code_is_valid}\") % 97) == (((int) \"{checksum}\") % 97)",
+                    "to": "code_is_valid"
+                },
+                {
+                    "comment": "add AINR",
+                    "action": "copy_ltrim_zeros",
+                    "from": "OGMAINR",
+                    "to": "AINR"
+                },
+                {
+                    "action": "lookup:Contact,id,external_identifier",
+                    "from": "AINR",
+                    "to": "contact_id"
+                },
+                {
+                    "comment": "join code",
+                    "action": "copy",
+                    "from": "code1",
+                    "to": "sourcecode"
+                },
+                {
+                    "comment": "join code",
+                    "action": "copy_append",
+                    "from": "code2",
+                    "to": "sourcecode"
+                },
+                {
+                    "action": "map",
+                    "from": "sourcecode",
+                    "to": "sourcecode",
+                    "mapping": {
+                                    "1001": "1270",
+                                    "4307": "3312"
+                                }
+                },      
+                {
+                    "action": "lookup:Campaign,id,external_identifier",
+                    "from": "sourcecode",
+                    "to": "campaign_id"
+                },
+                {
+                    "comment": "Campaign->FinancialType mapping",
+                    "action": "map",
+                    "from": "sourcecode",
+                    "to": "financial_type_id",
+                    "mapping": {
+                                    "0001": "1",
+                                    "4306": "5"
+                    }
+                }
+            ]
+        }
+    ]
+}

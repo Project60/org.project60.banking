@@ -35,12 +35,13 @@ class CRM_Banking_PluginImpl_Importer_CSV extends CRM_Banking_PluginModel_Import
 
     // read config, set defaults
     $config = $this->_plugin_config;
-    if (!isset($config->delimiter)) $config->delimiter = ',';
-    if (!isset($config->header))    $config->header = 1;
-    if (!isset($config->warnings))  $config->warnings = true;
-    if (!isset($config->skip))      $config->skip = 0;
-    if (!isset($config->defaults))  $config->defaults = array();
-    if (!isset($config->rules))     $config->rules = array();
+    if (!isset($config->delimiter))      $config->delimiter = ',';
+    if (!isset($config->header))         $config->header = 1;
+    if (!isset($config->warnings))       $config->warnings = true;
+    if (!isset($config->skip))           $config->skip = 0;
+    if (!isset($config->defaults))       $config->defaults = array();
+    if (!isset($config->rules))          $config->rules = array();
+    if (!isset($config->drop_columns))   $config->drop_columns = array();
   }
 
   /**
@@ -138,6 +139,16 @@ class CRM_Banking_PluginImpl_Importer_CSV extends CRM_Banking_PluginModel_Import
           array_push($decoded_line, mb_convert_encoding($item, mb_internal_encoding(), $config->encoding));
         }
         $line = $decoded_line;
+      }
+
+      // exclude ignored columns from further processing
+      if (!empty($config->drop_columns)) {
+        foreach ($config->drop_columns as $column) {
+          $index = array_search($column, $header);
+          if ($index !== FALSE) {
+            unset($line[$index]);
+          }
+        }
       }
 
       if ($line_nr == $config->header) {

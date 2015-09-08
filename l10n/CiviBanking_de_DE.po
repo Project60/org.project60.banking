@@ -1470,7 +1470,7 @@ msgstr "monatlich"
 
 #: extension/templates/CRM/Banking/PluginImpl/Matcher/Membership.suggestion.tpl
 msgid "quarterly"
-msgstr "viertejährlich"
+msgstr "vierteljährlich"
 
 #: extension/templates/CRM/Banking/PluginImpl/Matcher/Membership.suggestion.tpl
 msgid "semi-annually"

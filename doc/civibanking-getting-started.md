@@ -1,6 +1,8 @@
 Getting Started with CiviBanking
 ================================
 
+by Aidan Saunders
+
 Background
 ----------
 
@@ -10,7 +12,7 @@ In its current form, it is a toolkit requiring some work to put it together, but
 
 These notes are not comprehensive, but they show the steps needed to import a file of contributions.
 
-The project code is on https://github.com/Project60/org.project60.banking  The CiviCRM extension is installed from the /extension directory.
+The project code is on https://github.com/Project60/org.project60.banking  The CiviCRM extension should be installed from a dedicated release (https://github.com/Project60/org.project60.banking/releases). The ``master`` version is bleeding edge and not always stable.
 
 Overview
 --------
@@ -22,7 +24,7 @@ The workflow consists of multiple steps to read and parse the data file and then
 Plugins are of 3 types:
    * Import - reading a file and storing in the database
    * Match - the meat
-   * Export - for outputs other than CiviCRM changes
+   * Export - export the reconciliation data for processing in other systems
 
 You will need at least one import and one match plugin.  
 
@@ -32,13 +34,15 @@ All the plugins are configured using JSON.  JSON is fairly simply to read but it
 
 Configuration examples are included in the /configuration_database directory on the github repo and provide many clues.
 
+A configuration UI along with an extensive documenation of the paramters of the standard matchers is planned and subject to funding.
+
 Import Plugins
 --------------
 
 The import plugins are:
-   * Dummy Data Importer Plugin
    * Configurable CSV Importer
    * Configurable XML Importer
+   * Dummy Data Importer Plugin (testing purposes only, not maintained any more)
 
 For the common case of CSV, the config specifies the things you would expect: the delimiter, the character set encoding and whether the first line is a header line. The main section of the config are the "rules" that specify how the fields are parsed.
 
@@ -62,7 +66,7 @@ For example, this parses a date such as 31/12/2015 into a donation_date field.
 `
 
 Available action types are:
-   * amount -
+   * amount - try some basic formatting for amounts
    * append - used to create one attribute from multiple fields in the input
    * format - for parsing numbers in a specified format
    * set - copy value
@@ -81,24 +85,43 @@ The attribute names are arbitrary except these four that must be defined by the 
    * amount
    * currency
 
+There is also a set of *magic* attributes, that can be interpreted by the review screen. Thes can be set by the importer, or later on in the process using an "analyser" type matcher.
+   * name - plain text name of the party
+   * contact_id - the party CiviCRM contact (only if it can be uniquely identified)
+   * purpose - a description of the transaction's purpose
+   * _IBAN - our own IBAN (in case of bank transactions)
+   * _party_IBAN - party IBAN (in case of bank transactions)
+
 The end result of the importer plugin is a set of records ("bank transactions") parsed to  a collection of attributes used by the matcher plugins.
+
 
 Match Plugins
 -------------
 
-Much of the work happens in these plugins.  The available plugins are:
+There are two basic kinds of matchers. On the one hand, there are those that produce suggestions, that the user (or the system) can accept in order to reconcile the transaction in a certain way. On the other had, matcher might not produce suggestions at all, but rather just expand the knowlege on a certain transaction by setting more of the attributes mentioned above. These matcher are referred to as analysers.
+
+Analyser Plugins
+----------------
    * Account Lookup Analyser
-   * Batch Matcher
-   * Contribution Matcher
-   * Create Contribution Matcher Plugin
-   * Default Options
+   * RegEx Analyser
+
+Matcher Plugins
+---------------
+Much of the work happens in these plugins.  The available plugins are:
+   * Default Options - creates two default suggestions: manual reconciliation and ignore
+   * Batch Matcher - matches to payment batches
+   * Contribution Matcher - matches to existing contributions
+   * Create Contribution Matcher - creates suggestions to create now contribtuions
+   * Ignore Matcher - can be configured to automatically ignore certain transactions
+   * Membership Matcher Plugin - records transactions as membership dues
+   * Recurring Contribution Matcher Plugin - reccords transactions as installments of recurring contribtuions
+   * SEPA Matcher - intgrates with the CiviSEPA extension
+
+Depricated / Test Matchers
+--------------------------
    * Dummy Matcher Test Plugin
    * Generic Matcher Plugin
-   * Ignore Matcher
-   * Membership Matcher Plugin
-   * RegEx Analyser
-   * Recurring Contribution Matcher Plugin
-   * SEPA Matcher
+
 
 Describing all of these would take this document way beyond a "Getting started" doc!  We will look at those relevant for importing a file of contributions.  We configure as many plugins as needed to turn the imported data into contribution records that can be added to CiviCRM.
 
@@ -131,7 +154,7 @@ For example:
 
 This looks at the donor_e-mail attribute (created during the import), and matches it against the regex `"/^(?P<d_email>.+@.+)/"`.  If that match is successful, (anything containing '@' - a very rudimentary syntax check for email addresses), the result is stored temporarily in d_email.
 
-Note that 'd_email' it is not stored as an attribute.  The first of the actions copies the matched value (d_email) to the attribute 'matched_d_email'.  In this case, the email address is already available, but creating a new attribute helps with debugging since we can see what data the second action is working with.
+Note that 'd_email' it is not automatically stored as an attribute.  The first of the actions copies the matched value (d_email) to the attribute 'matched_d_email'.  In this case, the email address is already available, but creating a new attribute helps with debugging since we can see what data the second action is working with.
 
 The second action means: lookup a Contact record, returning the id by searching on the email attribute of the Civi contact record.  The email address to search for is "d_email", and if the lookup is successful, store the id in the contact_id_from_email attribute.
 
@@ -148,11 +171,11 @@ In our case, the import records contain a unique id for the contact that is stor
 The contact_id attribute is one of the "magic" or reserved ones.  When that is populated, it is understood to be the internal contact id of the CiviCRM contact that owns the transaction.  This will show in the GUI.
 
 Available actions include:
-   * calculate - run code
+   * calculate - run PHP expression (CAUTION!)
    * copy - as above
    * copy_append - append the value to an existing attribute
    * copy_ltrim_zeros - copy and remove leading zeros
-   * lookup - as above
+   * lookup - as described above
    * map - map from the matched value to a new value
    * set - sets an attribute to a specified value
    * preg_replace - substitute part of the string
@@ -197,7 +220,7 @@ A simple create contribution matcher is:
 
    * "value_propagation" - this section copies the values from the btx namespace to the contribution one.
 
-Note the ordering of the unintuitive ordering of the parameters!  This is understood as "copy the value of btx.fin_type_id to contribution.financial_type_id".
+Note the unintuitive order of the parameters!  This is understood as "copy the value of btx.fin_type_id to contribution.financial_type_id" instead of the usual "assign contribution.financial_type_id to btx.fin_type_id".
 
 The amount, currency and date are automatically propagated to the contribution namespace.
 
@@ -206,7 +229,7 @@ Configuring Plugins
 
 As of this writing, there is no GUI for configuring plugins.  Configuration is done by SQL statements and hand-coding JSON config strings.
 
-Start by installing the CiviCRM extension.  This is not available through the extensions GUI.  Download (or git clone) the code from the github repository and copy the 'extension' directory to Civi's extension directory and then enable it.
+Start by installing the CiviCRM extension.  This is not available through the extensions GUI.  Download a release zip file or tarball from https://github.com/Project60/org.project60.banking/releases.
 
 Fire up your SQL client of choice such as mysql or phpmyadmin and you should see some new tables in the civi database:
    * civicrm_bank_account

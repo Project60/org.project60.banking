@@ -202,11 +202,13 @@ function banking_civicrm_options() {
               'IBAN' => array(
                   'label' => 'International Bank Account Number',
                   'value' => 'IBAN',
+                  'description' => 'See https://en.wikipedia.org/wiki/International_Bank_Account_Number',
                   'is_default' => 1,
               ),
               'NBAN_DE' => array(
                   'label' => 'German (national) Bank Account Number',
                   'value' => 'NBAN_DE',
+                  'description' => 'Format is "BLZ{8}/Kontonummer{10}", eg. "12345678/0000123456"',
                   'is_default' => 0,
               ),
               'NBAN_AT' => array(
@@ -215,8 +217,19 @@ function banking_civicrm_options() {
                   'is_default' => 0,
               ),
               'NBAN_BE' => array(
+                  'label' => 'Belgian (national) Bank Account Number',
+                  'value' => 'NBAN_BE',
+                  'is_default' => 0,
+              ),
+              'NBAN_CH' => array(
                   'label' => 'Swiss (national) Bank Account Number',
                   'value' => 'NBAN_CH',
+                  'is_default' => 0,
+              ),
+              'NBAN_FP' => array(
+                  'label' => 'Fingerprint',
+                  'value' => 'NBAN_FP',
+                  'description' => 'SHA1 fingerprint of some tell-tale value in the transaction information',
                   'is_default' => 0,
               ),
               'ENTITY' => array(

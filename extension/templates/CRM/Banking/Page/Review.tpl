@@ -249,7 +249,7 @@
           <div class="btxvalue btxl">
             {if $party_ba_references.0}
               {assign var=ba_contact_id value=$party_ba_references.0.contact_id}
-              <a title="{$party_ba_references.0.reference_type}">{$party_ba_references.0.reference}</a>
+              <a title="{$party_ba_references.0.reference_type_label}">{$party_ba_references.0.reference}</a>
               <a href="{crmURL p="civicrm/contact/view" q="reset=1&cid=$ba_contact_id"}">[{$ba_contact_id}]</a>
             {* TODO: replace the following hack: *}
             {elseif $payment_data_parsed._party_IBAN}
@@ -263,6 +263,7 @@
             {else}
               &nbsp;
             {/if}
+
           </div>
           <div class="btxlabel">{ts}Address{/ts}</div>
           <div class="btxvalue btxl">

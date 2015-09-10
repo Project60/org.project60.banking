@@ -91,6 +91,7 @@ class CRM_Banking_BAO_BankAccount extends CRM_Banking_DAO_BankAccount {
     $orderedReferences = array();
     $sql = "SELECT 
                 civicrm_option_value.value               AS reference_type, 
+                civicrm_option_value.label               AS reference_type_label, 
                 civicrm_bank_account_reference.reference AS reference,
                 civicrm_bank_account.contact_id          AS contact_id
             FROM civicrm_bank_account_reference
@@ -101,9 +102,10 @@ class CRM_Banking_BAO_BankAccount extends CRM_Banking_DAO_BankAccount {
             ORDER BY civicrm_option_value.weight ASC;";
     $orderedReferenceQuery = CRM_Core_DAO::executeQuery($sql);
     while ($orderedReferenceQuery->fetch()) {
-      $orderedReferences[] = array(  'reference_type' => $orderedReferenceQuery->reference_type,
-                                     'reference'      => $orderedReferenceQuery->reference,
-                                     'contact_id'     => $orderedReferenceQuery->contact_id);
+      $orderedReferences[] = array(  'reference_type'       => $orderedReferenceQuery->reference_type,
+                                     'reference_type_label' => $orderedReferenceQuery->reference_type_label,
+                                     'reference'            => $orderedReferenceQuery->reference,
+                                     'contact_id'           => $orderedReferenceQuery->contact_id);
     }
     return $orderedReferences;
   }

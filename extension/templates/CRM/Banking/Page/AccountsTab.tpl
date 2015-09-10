@@ -36,7 +36,7 @@
 	    			{elseif $reference.reference_type eq 'ENTITY'}
 	    			{* We hide entity references for the moment *}
 	    			{else}
-	    			{$reference.reference_type}:&nbsp;{$reference.reference}
+	    			<span title="{$reference.reference_type_label}">[{$reference.reference_type}]&nbsp;{$reference.reference}</span>
 	    			{/if}
 	    		</td></tr>
 	    		{/foreach}

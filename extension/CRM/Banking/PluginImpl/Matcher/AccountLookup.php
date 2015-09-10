@@ -31,9 +31,9 @@ class CRM_Banking_PluginImpl_Matcher_AccountLookup extends CRM_Banking_PluginMod
     // read config, set defaults
     $config = $this->_plugin_config;
 
-    if (!isset($config->lookup_org_account_mode))     $config->lookup_org_account_mode      = 'off'; // on of 'off', 'fill', 'update'
+    if (!isset($config->lookup_org_account_mode))     $config->lookup_org_account_mode      = 'off'; // one of 'off', 'fill', 'update'
     if (!isset($config->lookup_org_account_prefix))   $config->lookup_org_account_prefix    = '_'; // '/^(_NBAN_..|_IBAN)$/';
-    if (!isset($config->lookup_donor_account_mode))   $config->lookup_donor_account_mode    = 'update'; // on of 'off', 'fill', 'update'
+    if (!isset($config->lookup_donor_account_mode))   $config->lookup_donor_account_mode    = 'update'; // one of 'off', 'fill', 'update'
     if (!isset($config->lookup_donor_account_prefix)) $config->lookup_donor_account_prefix  = '_party_'; //^(_party_NBAN_..|_party_IBAN)$/';
   }
 

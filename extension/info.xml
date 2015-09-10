@@ -9,11 +9,12 @@
     <email>endres@systopia.de</email>
   </maintainer>
   <releaseDate></releaseDate>
-  <version>0.5.1-dev</version>
+  <version>0.5.2</version>
   <develStage>testing</develStage>
   <compatibility>
     <ver>4.4</ver>
     <ver>4.5</ver>
+    <ver>4.6</ver>
   </compatibility>
   <comments>More information here: http://wiki.civicrm.org/confluence/display/CRM/CiviBanking</comments>
   <civix>

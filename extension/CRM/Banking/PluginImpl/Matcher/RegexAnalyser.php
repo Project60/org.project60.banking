@@ -110,6 +110,10 @@ class CRM_Banking_PluginImpl_Matcher_RegexAnalyser extends CRM_Banking_PluginMod
         // data to lowercase
         $data_parsed[$action->to] = strtolower($this->getValue($action->from, $match_data, $match_index, $data_parsed));
 
+      } elseif ($action->action=='sha1') {
+        // reduce to SHA1 checksum
+        $data_parsed[$action->to] = sha1($this->getValue($action->from, $match_data, $match_index, $data_parsed));
+
       } elseif (substr($action->action, 0, 7) =='sprint:') {
         // format data
         $data   = $this->getValue($action->from, $match_data, $match_index, $data_parsed);

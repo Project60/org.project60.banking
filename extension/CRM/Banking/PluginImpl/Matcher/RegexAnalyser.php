@@ -122,7 +122,7 @@ class CRM_Banking_PluginImpl_Matcher_RegexAnalyser extends CRM_Banking_PluginMod
 
       } elseif ($action->action=='preg_replace') {
         // perform preg_replace
-        if (empty($action->search_pattern) || empty($action->replace)) {
+        if (empty($action->search_pattern) || !isset($action->replace)) {
           error_log("org.project60.banking bad 'preg_replace' spec in plugin {$this->_plugin_id}.");
         } else {
           $subject = $this->getValue($action->from, $match_data, $match_index, $data_parsed);

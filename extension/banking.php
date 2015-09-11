@@ -226,6 +226,12 @@ function banking_civicrm_options() {
                   'value' => 'NBAN_CH',
                   'is_default' => 0,
               ),
+              'NBAN_CZ' => array(
+                  'label' => 'Czech (national) Bank Account Number',
+                  'value' => 'NBAN_CZ',
+                  'description' => 'Format is "prefix-account_number/bank_code{4}". The first part (prefix-) is optional.',
+                  'is_default' => 0,
+              ),
               'NBAN_FP' => array(
                   'label' => 'Fingerprint',
                   'value' => 'NBAN_FP',

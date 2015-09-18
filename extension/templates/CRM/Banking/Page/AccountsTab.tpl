@@ -72,9 +72,21 @@
 
 <form id="create_account_form" hidden="1">
 	<table>
-		<tr>	<!-- IBAN -->
-			<td>IBAN:</td>
-			<td><input name="iban" type="text" size="32" value=""/></td>
+		<tr>
+			<td>{ts}Account Type{/ts}:</td>
+			<td>
+				<select name="reference_type_id" id="reference_type_id">
+					{foreach from=$reference_types item=reference_type}
+					<option value={$reference_type.id}>{$reference_type.label}</option>
+					{/foreach}
+				</select>
+				<br/>
+				<span id="reference_format_help"></span>
+			</td>
+		</tr>
+		<tr>	<!-- Bank Name -->
+			<td>Account Number</td>
+			<td><input name="reference" type="text" size="40" value=""/></td>
 		</tr>
 		<tr>	<!-- Bank Name -->
 			<td>{ts}Bank Name{/ts}:</td>

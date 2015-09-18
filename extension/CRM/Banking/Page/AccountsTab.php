@@ -37,9 +37,10 @@ class CRM_Banking_Page_AccountsTab extends CRM_Core_Page {
         $this->assign('results', $bank_accounts);
         $this->assign('contact_id', $contact_id);
 
-        // look up IBAN reference type FIXME: remove when we have proper account editor
-        $result = civicrm_api('OptionValue', 'getsingle', array('version' => 3, 'name' => 'IBAN', 'value' => 'IBAN'));
-        $this->assign('iban_type_id', $result['id']);
+        // add all account types
+        $option_group = civicrm_api3('OptionGroup', 'getsingle', array('name' => 'civicrm_banking.reference_types'));
+        $result =       civicrm_api3('OptionValue', 'get', array('option_group_id' => $option_group['id'], 'is_reserved' => 0));
+        $this->assign('reference_types', $result['values']);
     }
     parent::run();
   }

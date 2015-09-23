@@ -254,13 +254,12 @@ function banking_civicrm_install_options($data) {
           'name'            => $valueName, 
           'option_group_id' => $group_id
           ));
-        error_log(print_r($result,1));
         if (count($result['values']) == 0) {
           // create a new entry
           $params = array(); 
           $params['option_group_id'] = $group_id;
           $params['name']            = $valueName;
-          $params['is_active']       = 1;          
+          $params['is_active']       = 1;
           $params['weight']          = $weight;
           $weight += 10;          
         } else {

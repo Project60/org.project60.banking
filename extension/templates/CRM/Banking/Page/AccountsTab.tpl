@@ -70,7 +70,15 @@
   <span><div class="icon add-icon ui-icon-circle-plus"></div>{ts}Add{/ts}</span>
 </a>
 
-<form id="create_account_form" hidden="1">
+<div>
+  <div class="crm-section">
+    <div class="label">{$form.country.label}</div>
+    <div class="content">{$form.country.html}</div>
+    <div class="clear"></div>
+  </div>
+</div>
+
+<!--form id="create_account_form" hidden="1">
 	<table>
 		<tr>
 			<td>{ts}Account Type{/ts}:</td>
@@ -84,21 +92,31 @@
 				<span id="reference_format_help"></span>
 			</td>
 		</tr>
-		<tr>	<!-- Bank Name -->
+		<tr>
 			<td>Account Number</td>
 			<td><input name="reference" type="text" size="40" value=""/></td>
 		</tr>
-		<tr>	<!-- Bank Name -->
+		<tr>
 			<td>{ts}Bank Name{/ts}:</td>
 			<td><input name="bank_name" type="text" size="40" value=""/></td>
 		</tr>
-		<tr>	<!-- BIC -->
+		<tr>
 			<td>BIC:</td>
 			<td><input name="bic" type="text" size="14" value=""/></td>
 		</tr>
+		<tr>
+			<td>{ts}Country{/ts}:</td>
+			<td>
+				<select name="country" id="country">
+					{foreach from=$countries key=iso item=name}
+					<option value={$iso}>{$name}</option>
+					{/foreach}
+				</select>
+			</td>
+		</tr>
 	</table>
 	<input type="submit" value="{ts}Add{/ts}" />
-</form>
+</form-->
 
 <script type="text/javascript">
 var accounts_reload_url = "{crmURL p="civicrm/contact/view" q="reset=1&cid=$contact_id&selectedChild=bank_accounts"}";

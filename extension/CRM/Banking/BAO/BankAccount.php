@@ -92,20 +92,23 @@ class CRM_Banking_BAO_BankAccount extends CRM_Banking_DAO_BankAccount {
     $sql = "SELECT 
                 civicrm_option_value.value               AS reference_type, 
                 civicrm_option_value.label               AS reference_type_label, 
+                civicrm_option_value.description         AS reference_type_description, 
                 civicrm_bank_account_reference.reference AS reference,
+                civicrm_bank_account_reference.id        AS reference_id,
                 civicrm_bank_account.contact_id          AS contact_id
             FROM civicrm_bank_account_reference
             LEFT JOIN civicrm_option_value ON civicrm_bank_account_reference.reference_type_id = civicrm_option_value.id
             LEFT JOIN civicrm_bank_account ON civicrm_bank_account_reference.ba_id = civicrm_bank_account.id
-            WHERE civicrm_option_value.is_active = 1
-              AND civicrm_bank_account_reference.ba_id = {$this->id}
+            WHERE civicrm_bank_account_reference.ba_id = {$this->id}
             ORDER BY civicrm_option_value.weight ASC;";
     $orderedReferenceQuery = CRM_Core_DAO::executeQuery($sql);
     while ($orderedReferenceQuery->fetch()) {
-      $orderedReferences[] = array(  'reference_type'       => $orderedReferenceQuery->reference_type,
-                                     'reference_type_label' => $orderedReferenceQuery->reference_type_label,
-                                     'reference'            => $orderedReferenceQuery->reference,
-                                     'contact_id'           => $orderedReferenceQuery->contact_id);
+      $orderedReferences[] = array(  'reference_type'             => $orderedReferenceQuery->reference_type,
+                                     'reference_type_label'       => $orderedReferenceQuery->reference_type_label,
+                                     'reference_type_description' => $orderedReferenceQuery->reference_type_description,
+                                     'reference'                  => $orderedReferenceQuery->reference,
+                                     'id'                         => $orderedReferenceQuery->reference_id,
+                                     'contact_id'                 => $orderedReferenceQuery->contact_id);
     }
     return $orderedReferences;
   }

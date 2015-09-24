@@ -179,7 +179,6 @@ function banking_editaccount(ba_id) {
 
 /** JS function for adding a bank account reference */
 function banking_addreference(ba_id) {
-  console.log(ba_id);
   cj("#banking_account_addbtn").hide();
   cj("#banking_account_form").show();
   cj("#bank_name").val(bank_accounts[ba_id].data_parsed.name);

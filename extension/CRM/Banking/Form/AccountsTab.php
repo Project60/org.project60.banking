@@ -166,7 +166,7 @@ class CRM_Banking_Form_AccountsTab extends CRM_Core_Form {
     if (!empty($values['country'])) {
         CRM_Core_BAO_Setting::setItem($values['country'], 'CiviBanking', 'account.default_country');
     }
-    error_log(print_r($values,1));
+    
     // create bank account
     $ba_id = $values['ba_id'];
     if (empty($ba_id)) {
@@ -202,7 +202,7 @@ class CRM_Banking_Form_AccountsTab extends CRM_Core_Form {
     if (!empty($values['reference_id'])) {
         $reference_update['id'] = $values['reference_id'];
     }
-    error_log(print_r($reference_update,1));
+    
     civicrm_api3('BankingAccountReference', 'create', $reference_update);
 
     if ($was_created) {

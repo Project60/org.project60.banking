@@ -125,7 +125,7 @@ function _banking_options() {
               'IBAN' => array(
                   'label' => ts('International Bank Account Number'),
                   'value' => 'IBAN',
-                  'description' => ts('See <a href="https://en.wikipedia.org/wiki/International_Bank_Account_Number">IBAN on WikiPedia<a>.'),
+                  'description' => ts('Format: see <a href="https://en.wikipedia.org/wiki/International_Bank_Account_Number">IBAN on WikiPedia<a>.'),
                   'is_default' => 1,
               ),
               'NBAN_DE' => array(

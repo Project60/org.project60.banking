@@ -28,7 +28,7 @@
     <tr class="{cycle values="odd,even"}">      
       <td>
         <table style="border: 0;">
-        {foreach from=$account.references item=reference}
+        {foreach from=$account.references item=reference name=account_reference}
           <tr><td>
             {if $reference.reference_type eq 'NBAN_DE'}
             {assign var=german value="/"|explode:$reference.reference} 
@@ -36,19 +36,29 @@
             {elseif $reference.reference_type eq 'ENTITY'}
             {* We hide entity references for the moment *}
             {else}
-            <span title="{$reference.reference_type_label}">[{$reference.reference_type}]&nbsp;{$reference.reference}</span>
+            <span title="{$reference.reference_type_label}">{$reference.reference}&nbsp;({$reference.reference_type})</span>
+            {/if}
             <a onClick="banking_deletereference({$account.id}, {$reference.id});" class="action-item action-item-first" title="{ts}delete{/ts}">{ts}[-]{/ts}</a>
+            {if $smarty.foreach.account_reference.last}
+            <a onClick="banking_addreference({$account.id});" class="action-item action-item-first" title="{ts}add{/ts}">{ts}[+]{/ts}</a>
             {/if}
           </td></tr>
           {/foreach}
-          <tr><td><a onClick="banking_addreference({$account.id});" class="action-item action-item-first" title="{ts}add{/ts}">{ts}[+]{/ts}</a></td></tr>
         </table>
       </td>
       <td>
         <table style="border: 0;">
         {foreach from=$account.data_parsed item=value key=key}
           <tr>
-            <td style="width: 130px;"><b>{ts}{$key}{/ts}</b></td>
+            <td style="width: 130px;"><b>
+              {if $key eq 'bank' or $key eq 'name'}
+                {ts}Bank Name{/ts}
+              {elseif $key eq 'country'}
+                {ts}Country{/ts}
+              {else}
+                {$key}
+              {/if}
+            </b></td>
             <td>{$value}</td>
           </tr>
           {/foreach}
@@ -91,6 +101,7 @@
     <div class="clear"></div>
   </div>
   <hr/>
+  <div>{$form.contact_id.html}</div>
   <div>{$form.reference_id.html}</div>
   <div>{$form.ba_id.html}</div>
   <div class="crm-section">
@@ -116,7 +127,8 @@
 
 
 <script type="text/javascript">
-var bank_accounts = {$bank_accounts_json};
+var bank_accounts   = {$bank_accounts_json};
+var reference_types = {$reference_types_json};
 {literal}
 
 // divert Cancel button
@@ -126,8 +138,8 @@ cj("input.cancel").click(function() {
   cj("#bank_name").val('');
   cj("#bic").val('');
   cj("#country").val('');
-  cj("#ba_id").val('');
-  cj("#reference_id").val('');
+  cj("input[name='ba_id']").val('');
+  cj("input[name='reference_id']").val('');
   cj("#reference").val('');
   cj("#reference_type").val('');
   return false;  
@@ -136,15 +148,19 @@ cj("input.cancel").click(function() {
 // show description of reference type
 cj("#reference_type").change(function() {
   var type_id = cj(this).val();
-  cj("#reference_description").text(type_id);
+  cj("#reference_description").text('');
+  if (reference_types[type_id].description) {
+    cj("#reference_description").prepend(reference_types[type_id].description);
+  }
 });
+cj("#reference_type").trigger('change');
 
 /** JS function for creating a bank account */
 function banking_addaccount() {
   cj("#banking_account_addbtn").hide();
   cj("#banking_account_form").show();
-  cj("#ba_id").val('');
-  cj("#reference_id").val('');
+  cj("input[name='ba_id']").val('');
+  cj("input[name='reference_id']").val('');
 }
 
 /** JS function for editing a bank account */
@@ -154,22 +170,23 @@ function banking_editaccount(ba_id) {
   cj("#bank_name").val(bank_accounts[ba_id].data_parsed.name);
   cj("#bic").val(bank_accounts[ba_id].data_parsed.BIC);
   cj("#country").val(bank_accounts[ba_id].data_parsed.country);
-  cj("#ba_id").val(ba_id);
+  cj("input[name='ba_id']").val(ba_id);
 
-  cj("#reference_id").val(bank_accounts[ba_id].references[0].id);
+  cj("input[name='reference_id']").val(bank_accounts[ba_id].references[0].id);
   cj("#reference").val(bank_accounts[ba_id].references[0].reference);
   cj("#reference_type").val(bank_accounts[ba_id].references[0].reference_type);
 }
 
 /** JS function for adding a bank account reference */
 function banking_addreference(ba_id) {
+  console.log(ba_id);
   cj("#banking_account_addbtn").hide();
   cj("#banking_account_form").show();
   cj("#bank_name").val(bank_accounts[ba_id].data_parsed.name);
   cj("#bic").val(bank_accounts[ba_id].data_parsed.BIC);
   cj("#country").val(bank_accounts[ba_id].data_parsed.country);
-  cj("#ba_id").val(ba_id);
-  cj("#reference_id").val('');
+  cj("input[name='ba_id']").val(ba_id);
+  cj("input[name='reference_id']").val('');
   cj("#reference").val('');
 }
 

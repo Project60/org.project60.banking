@@ -49,7 +49,7 @@ class CRM_Banking_Form_AccountsTab extends CRM_Core_Form {
     // load all account types
     $option_group    = civicrm_api3('OptionGroup', 'getsingle', array('name' => 'civicrm_banking.reference_types'));
     $reference_types = civicrm_api3('OptionValue', 'get', array('option_group_id' => $option_group['id'], 'is_reserved' => 0));
-    $this->assign('reference_types_json', json_encode($reference_types));
+    $this->assign('reference_types_json', json_encode($reference_types['values']));
     $reference_type_list = array();
     $this->assign('reference_types', $reference_types['values']);
     foreach ($reference_types['values'] as $reference_type_id => $reference_type) {
@@ -66,6 +66,7 @@ class CRM_Banking_Form_AccountsTab extends CRM_Core_Form {
     }
 
     // ACCOUNT REFRENCE ITEMS
+    $this->add('hidden', 'contact_id', $contact_id, true);
     $this->add('hidden', 'reference_id');
 
     $reference_type = $this->add(
@@ -133,19 +134,85 @@ class CRM_Banking_Form_AccountsTab extends CRM_Core_Form {
     parent::buildQuickForm();
   }
 
-  // TODO: VALIDATE
+  /**
+   * form validate function => check date order
+   */
+  public function validate() {
+    $error = parent::validate();
+    // if (empty($this->_submitValues['channel'])) {
+    //   $this->_errors['channel'] = "Bitte Kanal auswählen";
+    // }
+    $values = $this->exportValues();
+    
+    if (0 == count($this->_errors)) {
+        return TRUE;
+    } else {
+        CRM_Utils_System::redirect(CRM_Utils_System::url('civicrm/contact/view', "reset=1&cid=2&selectedChild=bank_accounts"));
+        return FALSE;
+    }
+  }
 
   /**
-   * 
+   * Save presets and create/update account/reference
    */
   function postProcess() {
     $values = $this->exportValues();
+    $was_created = FALSE;
     
-    // TODO: save presets
-
-    // TODO: create update ba/ba_ref
+    // save presets
+    if (!empty($values['reference_type'])) {
+        CRM_Core_BAO_Setting::setItem($values['reference_type'], 'CiviBanking', 'account.default_reference_id');
+    }
+    if (!empty($values['country'])) {
+        CRM_Core_BAO_Setting::setItem($values['country'], 'CiviBanking', 'account.default_country');
+    }
     error_log(print_r($values,1));
+    // create bank account
+    $ba_id = $values['ba_id'];
+    if (empty($ba_id)) {
+        $bank_account = civicrm_api3('BankingAccount', 'create', array(
+            'contact_id'  => $values['contact_id'],
+            'data_parsed' => '{}',
+            ));
+        $was_created = TRUE;
+        $ba_id = $bank_account['id'];
+    }
 
+    // update bank account data
+    $bank_data_attributes = array('bic' => 'BIC', 'bank_name' => 'name', 'country' => 'country');
+    $bank_bao = new CRM_Banking_BAO_BankAccount();
+    $bank_bao->get('id', $ba_id);
+    $bank_data = $bank_bao->getDataParsed();
+    foreach ($bank_data_attributes as $form_attribute => $bank_data_attribute) {
+        if (empty($values[$form_attribute])) {
+            unset($bank_data[$bank_data_attribute]);
+        } else {
+            $bank_data[$bank_data_attribute] = $values[$form_attribute];
+        }
+    }
+    $bank_bao->setDataParsed($bank_data);
+    $bank_bao->save();
+
+    // update/create bank reference
+    $reference_update = array(
+        'reference'         => $values['reference'],
+        'reference_type_id' => $values['reference_type'],
+        'ba_id'             => $ba_id,
+        );
+    if (!empty($values['reference_id'])) {
+        $reference_update['id'] = $values['reference_id'];
+    }
+    error_log(print_r($reference_update,1));
+    civicrm_api3('BankingAccountReference', 'create', $reference_update);
+
+    if ($was_created) {
+        CRM_Core_Session::setStatus(ts("Bank account '%1' was created.", $values['reference']), ts('Success'));
+    } else {
+        CRM_Core_Session::setStatus(ts("Bank account '%1' was updated.", $values['reference']), ts('Success'));
+    }
+
+    // return to accounts tab
+    CRM_Utils_System::redirect(CRM_Utils_System::url('civicrm/contact/view', "reset=1&cid=2&selectedChild=bank_accounts"));
     parent::postProcess();
   }
 

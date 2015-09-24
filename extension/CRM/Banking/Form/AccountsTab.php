@@ -76,8 +76,8 @@ class CRM_Banking_Form_AccountsTab extends CRM_Core_Form {
         $reference_type_list,
         true // is required
     );
-    // FIXME: last value
-    $reference_type->setSelected('IBAN'); 
+    // set last value
+    $reference_type->setSelected(CRM_Core_BAO_Setting::getItem('CiviBanking', 'account.default_reference_id'));
 
     $reference_type = $this->add(
         'text',
@@ -114,8 +114,8 @@ class CRM_Banking_Form_AccountsTab extends CRM_Core_Form {
         $countries,
         false
     );
-    // FIXME: last value
-    $country->setSelected('DE'); 
+    // set last value
+    $country->setSelected(CRM_Core_BAO_Setting::getItem('CiviBanking', 'account.default_country'));
 
 
     $this->addButtons(array(

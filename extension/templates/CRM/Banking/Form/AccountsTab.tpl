@@ -105,6 +105,11 @@
   <div>{$form.reference_id.html}</div>
   <div>{$form.ba_id.html}</div>
   <div class="crm-section">
+    <div class="label">{$form.bic.label}</div>
+    <div class="content">{$form.bic.html}</div>
+    <div class="clear"></div>
+  </div>
+  <div class="crm-section">
     <div class="label">{$form.bank_name.label}</div>
     <div class="content">{$form.bank_name.html}</div>
     <div class="clear"></div>
@@ -112,11 +117,6 @@
   <div class="crm-section">
     <div class="label">{$form.country.label}</div>
     <div class="content">{$form.country.html}</div>
-    <div class="clear"></div>
-  </div>
-  <div class="crm-section">
-    <div class="label">{$form.bic.label}</div>
-    <div class="content">{$form.bic.html}</div>
     <div class="clear"></div>
   </div>
   <div class="crm-submit-buttons">

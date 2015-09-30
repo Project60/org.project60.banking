@@ -13,6 +13,10 @@
 | written permission from the original author(s).        |
 +--------------------------------------------------------*}
 
+{* check for the org.project60.bic extension *}
+{crmAPI var='bic_extension_check' entity='Bic' action='findbyiban' q='civicrm/ajax/rest' bic='TEST'}
+{capture assign=bic_extension_installed}{if $bic_extension_check.is_error eq 0}1{/if}{/capture}
+
 {if $bank_accounts}
 <div>
   <table id="contact-activity-selector-dashlet">
@@ -238,3 +242,70 @@ function banking_deletereference(ba_id, ref_id) {
 
 {/literal}
 </script>
+
+{if $bic_extension_installed}
+<script type="text/javascript">
+var busy_icon_url = "{$config->resourceBase}i/loading.gif";
+
+{literal}
+
+// Look up bank name by BIC
+cj("#bic").change(function() {
+  var bic = cj(this).val();
+  if (bic.length < 5) return;
+  cj(this).parent().append('&nbsp;<img id="bic_busy" height="12" src="' + busy_icon_url + '"/>');
+  CRM.api('Bic', 'get', {'q': 'civicrm/ajax/rest', 'bic': bic},
+    {success: function(data) {
+      if (data.count==1) {
+        var ba = data.values[data.id];
+        cj("#bank_name").val(ba.title);
+        cj("#country").val(ba.country);
+      } else if (data.count==0) {
+        // no data found
+      } else {
+        // TODO: common substring?
+        // console.log("found multiple");
+      }
+      cj("#bic_busy").remove();
+    }, error: function(result, settings) {
+      // we suppress the message box here
+      // and log the error via console
+      cj("#bic_busy").remove();
+      return false;
+    }});  
+});
+
+// Look up IBAN
+cj("#reference").change(function() {
+  // ...only if long enough
+  var reference = cj(this).val();
+  if (reference.length < 10) return; // IBAN not long enough
+
+  // ...only if IBAN
+  var reference_type_id = cj("#reference_type").val();
+  var reference_type    = reference_types[reference_type_id];
+  if (reference_type.name != 'IBAN') return;
+
+  cj(this).parent().append('&nbsp;<img id="iban_busy" height="12" src="' + busy_icon_url + '"/>');
+  CRM.api('Bic', 'findbyiban', {'q': 'civicrm/ajax/rest', 'iban': reference},
+    {success: function(data) {
+      if (data.is_error==0) {
+        cj("#bic").val(data.bic);
+        cj("#bank_name").val(data.title);
+        cj("#country").val(data.country);
+      } else {
+        // not found.
+      }
+      cj("#iban_busy").remove();
+    }, error: function(result, settings) {
+      // we suppress the message box here
+      // and log the error via console
+      cj("#iban_busy").remove();
+      return false;
+    }});  
+});
+
+
+</script>
+{/literal}
+{/if}

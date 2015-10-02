@@ -131,7 +131,7 @@ function _banking_options() {
               'NBAN_DE' => array(
                   'label' => ts('German (national) Bank Account Number'),
                   'value' => 'NBAN_DE',
-                  'description' => ts('Format is "BLZ{8}/Kontonummer{10}", eg. "12345678/0000123456"'),
+                  'description' => ts('Format is "BBBBBBBB/KKKKKKKKKK", (B="BLZ", K="Kontonummer") eg. "12345678/0000123456"'),
                   'is_default' => 0,
               ),
               'NBAN_AT' => array(
@@ -152,7 +152,7 @@ function _banking_options() {
               'NBAN_CZ' => array(
                   'label' => ts('Czech (national) Bank Account Number'),
                   'value' => 'NBAN_CZ',
-                  'description' => ts('Format is "prefix-account_number/bank_code{4}". The first part (prefix-) is optional.'),
+                  'description' => ts('Format is "PPPPPP-UUUUUUUUUU/CCCC" (P="predcisli/prefix", U="vlastni cislo/bank account", C="bank code") The first part (PPPPPP-) is optional.'),
                   'is_default' => 0,
               ),
               'NBAN_FP' => array(

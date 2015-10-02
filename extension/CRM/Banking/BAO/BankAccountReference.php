@@ -70,6 +70,7 @@ class CRM_Banking_BAO_BankAccountReference extends CRM_Banking_DAO_BankAccountRe
    *        format('bban','979367954852' should return '979-3679548-52'
    * Format functions should be defined as civicrm_banking_format_MYTYPE($value)
    * 
+   * @deprecated
    * @param string $reference_type
    * @param string $value
    * @return string
@@ -81,5 +82,84 @@ class CRM_Banking_BAO_BankAccountReference extends CRM_Banking_DAO_BankAccountRe
     return $value;
   }
 
-}
+  /**
+   * Normalise a reference (if a normalisation is available)
+   *
+   * @param $reference_type_name the name of the type, e.g. IBAN, NBAN_DE, ...
+   *
+   * @return  FALSE if no normalisation is possible (not implemented)
+   *          0     if doesn't comply with standard 
+   *          1     if reference is already normalised
+   *          2     if reference was normalised
+   */
+  public static function normalise($reference_type_name, &$reference) {
+    $match = array();
+    switch ($reference_type_name) {
+      case 'IBAN':
+        $structure_correct = self::std_normalisation($reference_type_name, $reference, 
+          "#^(?P<IBAN>[a-zA-Z]{2}[0-9]{2}[a-zA-Z0-9]{4}[0-9]{7}([a-zA-Z0-9]?){0,16})$#", "%s");
+        if (!$structure_correct) {
+          return $structure_correct;
+        } else {
+          // structure correct, check the checksum...
+          if ((TRUE == include('packages/php-iban-1.4.0/php-iban.php'))
+                 && function_exists('verify_iban')) {
+            if (verify_iban($reference)) {
+              return $structure_correct;
+            } else {
+              return 0;
+            }            
+          } else {
+            // this means we cannot check beyond structural compliance...
+            //   ...but what can we do?
+            return $structure_correct;
+          }
+        }
+        return FALSE; // we shouldn't get here
 
+      case 'NBAN_DE':
+        return self::std_normalisation($reference_type_name, $reference, 
+          "#^(?P<BLZ>\\d{8})/(?P<KTO>\\d{2,10})$#", "%08d/%010d");
+      
+      case 'NBAN_CZ':
+        // first, try with prefix
+        $result = self::std_normalisation($reference_type_name, $reference, 
+          "#^(?P<PREFIX>\\d{1,6})-(?P<ACCT>\\d{1,10})/(?P<BANK>\\d{1,4})$#", "%06d-%010d/%04d");
+        if ($result) {
+          return $result;
+        } else {
+          // if failed, try with shortened form (no prefix)
+          return self::std_normalisation($reference_type_name, $reference, 
+            "#^(?P<ACCT>\\d{1,10})/(?P<BANK>\\d{1,4})$#", "%010d/%04d");
+        }
+      
+      default:
+        // not implemented
+        return FALSE;
+    }
+  }
+
+  /**
+   * helper function for normalised strings
+   */
+  protected static function std_normalisation($reference_type_name, &$reference, $pattern, $format) {
+    // first convert to upper case and strip whitespaces
+    $normalised_reference = strtoupper($reference);
+    $normalised_reference = preg_replace('#\\s#', '', $normalised_reference);
+    // error_log("Filtered: $normalised_reference");
+
+    if (preg_match($pattern, $normalised_reference, $match)) {
+      $normalised_reference = sprintf($format, CRM_Utils_Array::value(1, $match), CRM_Utils_Array::value(2, $match), CRM_Utils_Array::value(3, $match), CRM_Utils_Array::value(4, $match), CRM_Utils_Array::value(5, $match));
+      // error_log("Normalised: $normalised_reference");
+      if ($reference===$normalised_reference) {
+        return 1;
+      } else {
+        $reference = $normalised_reference;
+        return 2;
+      }
+    } else {
+      return 0;
+    }
+  }
+
+}

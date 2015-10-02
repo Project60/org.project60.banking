@@ -101,7 +101,7 @@
   </div>
   <div class="crm-section">
     <div class="label">{$form.reference.label}</div>
-    <div class="content">{$form.reference.html}</div>
+    <div class="content">{$form.reference.html}<img id="reference_status_img" src="{$config->resourceBase}i/spacer.gif" height="10"/></div>
     <div class="clear"></div>
   </div>
   <hr/>
@@ -133,6 +133,10 @@
 <script type="text/javascript">
 var bank_accounts   = {$bank_accounts_json};
 var reference_types = {$reference_types_json};
+var busy_icon_url   = "{$config->resourceBase}i/loading.gif";
+var error_icon_url  = "{$config->resourceBase}i/Error.gif";
+var good_icon_url   = "{$config->resourceBase}i/check.gif";
+var no_icon_url     = "{$config->resourceBase}i/spacer.gif";
 {literal}
 
 // divert Cancel button
@@ -206,10 +210,8 @@ function banking_deleteaccount(ba_id) {
           CRM.alert("{/literal}" + data['error_message'], "{ts}Error{/ts}{literal}", "error");
         }
       }
-    }
-  );
-  },
-  {
+    });
+  },{
     message: {/literal}"{ts}Are you sure you want to delete this bank account?{/ts}"{literal}
   });
 }
@@ -240,14 +242,52 @@ function banking_deletereference(ba_id, ref_id) {
   });
 }
 
+// Verify REFERENCE
+cj("#reference").change(function() {
+  // ...only if long enough
+  var reference = cj(this).val();
+  if (reference.length < 3) return; // reference not long enough
+
+  // get reference type
+  var reference_type_id = cj("#reference_type").val();
+  var reference_type    = reference_types[reference_type_id];
+
+  // call API to check/normalise reference
+  cj(this).parent().append('&nbsp;<img id="reference_checking" height="12" src="' + busy_icon_url + '"/>');
+  cj("#reference_status_img").attr('src', no_icon_url);
+  CRM.api('BankingAccountReference', 'check', {'q': 'civicrm/ajax/rest', 'reference': reference, 'reference_type_name': reference_type.name},
+    {success: function(data) {
+      cj("#reference_checking").remove();
+      cj("#reference_status_img").attr('src', no_icon_url);
+      var result = data.values;
+      if (result.checked && !result.is_valid) {
+        // this is not a valid!
+        cj("#reference_status_img").attr('src', error_icon_url);
+      }
+      if (result.is_valid) {
+        cj("#reference_status_img").attr('src', good_icon_url);
+        {/literal}{if $bic_extension_installed}
+        {* if the BIC extension is installed, look up bank information based on IBAN *}
+        banking_iban_lookup();
+        {/if}{literal}
+      }
+      if (result.normalised) {
+        cj("#reference").val(result.reference);
+      }
+    }, error: function(result, settings) {
+      // we suppress the message box here
+      // and log the error via console
+      cj("#reference_checking").remove();
+      return false;
+    }});  
+});
+
 {/literal}
 </script>
 
 {if $bic_extension_installed}
-<script type="text/javascript">
-var busy_icon_url = "{$config->resourceBase}i/loading.gif";
-
 {literal}
+<script type="text/javascript">
 
 // Look up bank name by BIC
 cj("#bic").change(function() {
@@ -276,10 +316,10 @@ cj("#bic").change(function() {
 });
 
 // Look up IBAN
-cj("#reference").change(function() {
+function banking_iban_lookup() {
   // ...only if long enough
-  var reference = cj(this).val();
-  if (reference.length < 10) return; // IBAN not long enough
+  var reference = cj("#reference").val();
+  if (reference.length < 6) return; // IBAN not long enough
 
   // ...only if IBAN
   var reference_type_id = cj("#reference_type").val();
@@ -303,9 +343,7 @@ cj("#reference").change(function() {
       cj("#iban_busy").remove();
       return false;
     }});  
-});
-
-
+}
 </script>
 {/literal}
 {/if}

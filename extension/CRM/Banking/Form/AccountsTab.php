@@ -139,10 +139,22 @@ class CRM_Banking_Form_AccountsTab extends CRM_Core_Form {
    */
   public function validate() {
     $error = parent::validate();
-    // if (empty($this->_submitValues['channel'])) {
-    //   $this->_errors['channel'] = "Bitte Kanal auswählen";
-    // }
     $values = $this->exportValues();
+
+    if (!empty($values['reference_type']) && !empty($values['reference'])) {
+        // verify/normalise reference
+        $query = civicrm_api3('BankingAccountReference', 'check', array(
+            'reference_type' => (int) $values['reference_type'],
+            'reference'      => $values['reference']));
+        $result = $query['values'];
+        if ($result['checked'] && !$result['is_valid']) {
+            $this->_errors['reference'] = ts("Invalid reference.");
+            CRM_Core_Session::setStatus(ts("Invalid reference '%s'", $values['reference']), ts('Failure'));
+        } elseif ($result['normalised']) {
+            $values['reference'] = $result['reference'];
+            $this->set('reference', $result['reference']);
+        }
+    }
     
     if (0 == count($this->_errors)) {
         return TRUE;

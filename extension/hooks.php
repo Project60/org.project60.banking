@@ -18,7 +18,7 @@
 /**
  * CiviBanking hooks
  */
-define('CIVIBANKING_TOPLEVEL_MENU', TRUE);
+define('CIVIBANKING_TOPLEVEL_MENU', FALSE);
 
 /**
  * Implementation of banking_civicrm_navigationMenu

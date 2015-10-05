@@ -62,7 +62,9 @@ class CRM_Banking_Form_AccountsTab extends CRM_Core_Form {
     $country_id2name = CRM_Core_PseudoConstant::country();
     $countries = array('' => ts("Unknown"));
     foreach ($country_iso2id as $iso => $id) {
-        $countries[$iso] = $country_id2name[$id];
+        if (!empty($country_id2name[$id])) {
+            $countries[$iso] = $country_id2name[$id];
+        }
     }
 
     // ACCOUNT REFRENCE ITEMS
@@ -149,7 +151,7 @@ class CRM_Banking_Form_AccountsTab extends CRM_Core_Form {
         $result = $query['values'];
         if ($result['checked'] && !$result['is_valid']) {
             $this->_errors['reference'] = ts("Invalid reference.");
-            CRM_Core_Session::setStatus(ts("Invalid reference '%s'", $values['reference']), ts('Failure'));
+            CRM_Core_Session::setStatus(ts("Invalid reference '%1'", array(1=>$values['reference'])), ts('Failure'));
         } elseif ($result['normalised']) {
             $values['reference'] = $result['reference'];
             $this->set('reference', $result['reference']);

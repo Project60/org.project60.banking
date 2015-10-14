@@ -175,6 +175,12 @@ function banking_civicrm_options() {
                   'description' => 'Will match SEPA DD transactions to contributions created by the org.project60.sepa module.',
                   'is_default' => 0,
               ),
+              'matcher_contact_contribution' => array(
+                  'label' => 'Create Contact and Contribution',
+                  'value' => 'CRM_Banking_PluginImpl_Matcher_CreateContactAndContribution',
+                  'description' => 'Create a new contact along with a contribution',
+                  'is_default' => 0,
+              ),
               'analyser_regex' => array(
                   'label' => 'RegEx Analyser',
                   'value' => 'CRM_Banking_PluginImpl_Matcher_RegexAnalyser',

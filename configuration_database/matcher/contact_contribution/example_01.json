@@ -1,0 +1,16 @@
+{
+    "auto_exec": false,
+    "create_new_threshold": 1.0,
+    "create_softcredit_contact": true,
+    "required_values": [
+        "btx.financial_type_id",
+        "btx.payment_instrument_id",
+        "ba.name_id"
+    ],
+    "value_propagation": {
+        "btx.first_name": "contact.first_name",
+        "btx.campaign_id": "contribution.campaign_id",
+        "btx.payment_instrument_id": "contribution.payment_instrument_id",
+        "btx.first_name": "softcredit_contact.first_name"
+    }
+}

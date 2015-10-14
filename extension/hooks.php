@@ -18,7 +18,6 @@
 /**
  * CiviBanking hooks
  */
-define('CIVIBANKING_TOPLEVEL_MENU', TRUE);
 
 /**
  * Implementation of banking_civicrm_navigationMenu
@@ -26,6 +25,9 @@ define('CIVIBANKING_TOPLEVEL_MENU', TRUE);
  * Insert Banking menu at top level OR submenu of "Contribtion"
  */
 function banking_civicrm_navigationMenu(&$params) {
+  $menu_position = (int) CRM_Core_BAO_Setting::getItem('CiviBanking', 'menu_position');
+  if ($menu_position == 2) return; // menu is off, see CRM_Admin_Form_Setting_BankingSettings
+
   // First: have a look at the menu
   $index = 0;
   $banking_entry_index = -1;
@@ -144,16 +146,19 @@ function banking_civicrm_navigationMenu(&$params) {
   );
   
   // ...and insert at the previously determined position
-  if (CIVIBANKING_TOPLEVEL_MENU) {
+  if ($menu_position == 0) {
     // in this case: top level, right after "Contribution"
     $params = array_merge(array_slice($params, 0, $insert_at), array($banking_entry), array_slice($params, $insert_at));
-  } else {
+  } elseif ($menu_position == 1) {
     // otherwise: as a submenu of "Contribution"
     $contributions_entry_id = $contributions_entry['attributes']['navID'];
     $banking_entry['attributes']['parentID'] = $contributions_entry_id;
     $banking_entry['attributes']['separator'] = 2;
     $params[$contributions_entry_id]['child'][] = $banking_entry;
-  }  
+  } else {
+    // undefined menu position... ignore
+    error_log("org.project60.banking: invalid menu_position $menu_position");
+  }
 }
 
 function banking_civicrm_entityTypes(&$entityTypes) {

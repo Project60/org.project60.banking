@@ -66,4 +66,13 @@
     <title>Accounts</title>
     <access_arguments>access CiviCRM</access_arguments>
   </item>
+  <item>
+    <path>civicrm/admin/setting/banking</path>
+    <page_callback>CRM_Admin_Form_Setting_BankingSettings</page_callback>
+    <title>CiviBanking Settings</title>
+    <access_arguments>administer CiviCRM</access_arguments>
+    <desc>Settings for the CiviBanking module</desc>
+    <adminGroup>CiviContribute</adminGroup>
+    <icon>admin/small/online_contribution_pages.png</icon>
+  </item>
 </menu>

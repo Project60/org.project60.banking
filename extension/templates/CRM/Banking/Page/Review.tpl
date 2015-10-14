@@ -138,11 +138,11 @@
       background-color: #eee;
     }
     table.suggestions table tr.suggestion-selected {
-      background-color: #fafaea;
+      background-color: #e6e6bb;
       border: 2px solid gray;
     }
     table.suggestions table tr.suggestion-selected:hover {
-      background-color: #fafada;
+      background-color: #dedeb6;
       border: 2px solid gray;
     }
     td.prob {

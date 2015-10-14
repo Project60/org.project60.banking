@@ -81,7 +81,6 @@
       width: 100%;
       margin: 0;
     }
-
     .btxvalue {
       background-color: #F4F4ED;  
       border-bottom: 1px solid white;
@@ -137,6 +136,14 @@
     }
     table.suggestions table tr.suggestion:hover {
       background-color: #eee;
+    }
+    table.suggestions table tr.suggestion-selected {
+      background-color: #e6e6bb;
+      border: 2px solid gray;
+    }
+    table.suggestions table tr.suggestion-selected:hover {
+      background-color: #dedeb6;
+      border: 2px solid gray;
     }
     td.prob {
       font-size: 18px;
@@ -367,9 +374,10 @@
         <td  class="layout">
           <table>
             {foreach from=$suggestions item=suggestion name=action_loop}
-              <tr  class="suggestion">
+              <tr  class="suggestion {if $smarty.foreach.action_loop.first}suggestion-selected{/if}">
                 <td class="prob" width="60" align="center">
                   <span style="color: {$suggestion.color};">{$suggestion.probability}</span>
+                  <input type="radio" name="selected_suggestion" value="{$suggestion.hash}" style="display: none;" {if $smarty.foreach.action_loop.first}checked{/if} />
                 </td>
                 <td width="10" align="center" style="background-color: {$suggestion.color};"></span>
                 </td>
@@ -380,10 +388,7 @@
                   <h4 style="color: {$suggestion.color};">{$suggestion.title}</h4>
                   {$suggestion.visualization}
                   {$suggestion.actions}
-                  </form>                
-                </td>
-                <td valign="middle">
-                    <input type="radio" name="selected_suggestion" value="{$suggestion.hash}" style="width:2em; height:2em;" {if $smarty.foreach.action_loop.first}checked{/if} />
+                  </form>
                 </td>
               <tr>
               {/foreach}
@@ -413,7 +418,9 @@ cj(".suggestion").on('change', '*', select_suggestion);
 cj(".suggestion").on('click', '*', select_suggestion);
 
 function select_suggestion(e) {
+  cj(".suggestion").removeClass('suggestion-selected');
   var suggestion = cj(e.target).closest(".suggestion");
+  suggestion.addClass('suggestion-selected');
   var button = suggestion.find("input[name=selected_suggestion]");
   button.prop('checked', true);
 }

@@ -47,23 +47,25 @@ The import plugins are:
 For the common case of CSV, the config specifies the things you would expect: the delimiter, the character set encoding and whether the first line is a header line. The main section of the config are the "rules" that specify how the fields are parsed.
 
 Assuming our header line includes "...,First Name,..." then a config rule of  
-`    {  
-        "from": "First Name",  
-        "to":  "firstname",  
-        "type": "set"  
-    }  
-`
+```
+{  
+  "from": "First Name",  
+  "to":  "firstname",  
+  "type": "set"  
+}  
+```
 simply sets the "firstname" attribute to the value in the "First Name" column.
 
 It needs a little more help to interpret dates correctly and uses strtotime and a time format - see http://php.net/manual/en/datetime.createfromformat.php
 
 For example, this parses a date such as 31/12/2015 into a donation_date field.
-`     {
-        "from": "Donation Date",
-        "to": "donation_date",
-        "type": "strtotime:d/m/Y"
-    }
-`
+```
+{
+  "from": "Donation Date",
+  "to": "donation_date",
+  "type": "strtotime:d/m/Y"
+}
+```
 
 Available action types are:
    * amount - try some basic formatting for amounts
@@ -76,7 +78,7 @@ Available action types are:
 Rules can also contain an "if" clause to match conditionally.
 
 For example:
-`       "if": "matches:/^[0-9]{8}$/"`
+```       "if": "matches:/^[0-9]{8}$/"```
 This will only apply when the field being matched is 8 digits long.
 
 The attribute names are arbitrary except these four that must be defined by the import plugin:
@@ -117,11 +119,10 @@ Much of the work happens in these plugins.  The available plugins are:
    * Recurring Contribution Matcher Plugin - reccords transactions as installments of recurring contribtuions
    * SEPA Matcher - intgrates with the CiviSEPA extension
 
-Depricated / Test Matchers
+Deprecated / Test Matchers
 --------------------------
    * Dummy Matcher Test Plugin
    * Generic Matcher Plugin
-
 
 Describing all of these would take this document way beyond a "Getting started" doc!  We will look at those relevant for importing a file of contributions.  We configure as many plugins as needed to turn the imported data into contribution records that can be added to CiviCRM.
 
@@ -132,25 +133,27 @@ As its name suggests, this provides a regular expression engine to analyse attri
 Similar to the CSV Importer, the RegEx Analyser config contains a list of rules.  Each rule defines the variable that it is examining and a regex pattern along with a set of actions to take when it matches successfully.
 
 For example:
-`    {
-      "comment": "get donor contact_id from donor_e-mail ",
-      "fields": [
-        "donor_e-mail"
-      ],
-      "pattern": "/^(?P<d_email>.*@.*)/",
-      "actions": [
-        {
-          "action": "copy",
-          "from": "d_email",
-          "to": "matched_d_email"
-        },
-        {
-          "action": "lookup:Contact,id,email",
-          "from": "d_email",
-          "to": "contact_id_from_email"
-        }
-      ]
-    }`
+``` 
+{
+  "comment": "get donor contact_id from donor_e-mail ",
+  "fields": [
+    "donor_e-mail"
+  ],
+  "pattern": "/^(?P<d_email>.*@.*)/",
+  "actions": [
+    {
+      "action": "copy",
+      "from": "d_email",
+      "to": "matched_d_email"
+    },
+    {
+      "action": "lookup:Contact,id,email",
+      "from": "d_email",
+      "to": "contact_id_from_email"
+    }
+  ]
+}
+```
 
 This looks at the donor_e-mail attribute (created during the import), and matches it against the regex `"/^(?P<d_email>.+@.+)/"`.  If that match is successful, (anything containing '@' - a very rudimentary syntax check for email addresses), the result is stored temporarily in d_email.
 
@@ -160,7 +163,7 @@ The second action means: lookup a Contact record, returning the id by searching 
 
 A site such as https://regex101.com is helpful for testing your regexes - and explaining someone else's!  Check that you use the PCRE flavour.
 
-Note that the pattern should include the delimiters "/", or alternate delimiters such as "#" if you need to match / within your pattern. Check the '(?P<var>...)' description for named capturing groups here if that is not familiar:  http://www.regular-expressions.info/named.html
+Note that the pattern should include the delimiters "/", or alternate delimiters such as "#" if you need to match / within your pattern. Check the `(?P<var>...)` description for named capturing groups here if that is not familiar:  http://www.regular-expressions.info/named.html
 
 The actions often just need to copy the matched string (substring) into a new attribute.
 
@@ -196,19 +199,21 @@ The 'contribution' namespace needs to be populated with values from 'btx' but he
 Note that there is also a 'ba' namespace for Bank Accounts, but we will not address that further.
 
 A simple create contribution matcher is:
-`{
-    "auto_exec": false,
-    "factor": 1.0,
-    "required_values": [
-        "btx.fin_type_id",
-        "btx.payment_id",
-    ],
-    "value_propagation": {
-        "btx.fin_type_id": "contribution.financial_type_id",
-        "btx.campaign_id": "contribution.campaign_id",
-        "btx.payment_id": "contribution.payment_instrument_id"
-    }
-}`
+```
+{
+  "auto_exec": false,
+  "factor": 1.0,
+  "required_values": [
+    "btx.fin_type_id",
+    "btx.payment_id",
+  ],
+  "value_propagation": {
+    "btx.fin_type_id": "contribution.financial_type_id",
+    "btx.campaign_id": "contribution.campaign_id",
+    "btx.payment_id": "contribution.payment_instrument_id"
+  }
+}
+```
 
    * "auto_exec" - determines when the matcher will automatically create the contribution. For example, a value of 0.8 would mean contributions are automatically created if the suggestion exceeds the 80% confidence.  If false, the process will never automatically create a transaction but instead propose the action to the user for them to approve.
 
@@ -243,35 +248,43 @@ civicrm_bank_plugin_instance is the one you will be dealing with most.  It deter
 In addition, new entries are made in the civicrm_option_value and civicrm_option_group tables.  You will need the values from these and these will be specific to your Civi instance.
 
 The plugin types can be found with:
-`select civicrm_option_value.id, civicrm_option_value.label
-  from
+```SQL
+SELECT civicrm_option_value.id, civicrm_option_value.label
+  FROM
     civicrm_option_value,
     civicrm_option_group
-  where
+  WHERE
     civicrm_option_group.name='civicrm_banking.plugin_classes'
-  and civicrm_option_value.option_group_id=civicrm_option_group.id`
+  AND civicrm_option_value.option_group_id=civicrm_option_group.id
+```
 
 Output:
-`+-----+---------------+  
+```
++-----+---------------+  
 | id  | label         |
 +-----+---------------+
 | 787 | Import plugin |
 | 788 | Match plugin  |
 | 789 | Export plugin |
-+-----+---------------+`
++-----+---------------+
+```
 
 The plugins themselves are found with:
 
-`select civicrm_option_value.id, civicrm_option_value.label
-  from
+```SQL
+SELECT civicrm_option_value.id, civicrm_option_value.label
+  FROM
     civicrm_option_value,
     civicrm_option_group
-  where
+  WHERE
     civicrm_option_group.name='civicrm_banking.plugin_types'
-    and civicrm_option_value.option_group_id=civicrm_option_group.id`
+  AND
+    civicrm_option_value.option_group_id=civicrm_option_group.id
+```
 
 Output:
-`+-----+---------------------------------------+
+```
++-----+---------------------------------------+
 | id  | label                                 |
 +-----+---------------------------------------+
 | 766 | Dummy Data Importer Plugin            |
@@ -290,36 +303,55 @@ Output:
 | 779 | RegEx Analyser                        |
 | 780 | Account Lookup Analyser               |
 | 781 | Configurable CSV Exporter             |
-+-----+---------------------------------------+`
++-----+---------------------------------------+
+```
 
 Create an unconfigured CSV importer with the following:
-`insert into civicrm_bank_plugin_instance
-(plugin_type_id, plugin_class_id, name, description, enabled, weight, config, state)
-values (787, 767, 'My importer', 'Import stuff', 1, 100, '{}', '{}')`
+```SQL
+INSERT INTO civicrm_bank_plugin_instance
+  (plugin_type_id, plugin_class_id, name, description, enabled, weight, config, state)
+VALUES 
+  (787, 767, 'My importer', 'Import stuff', 1, 100, '{}', '{}')
+```
 
 The values of 787 and 767 relate to the tables above.  Replace with values for your own system.
 
 Similarly for a RegEx analyser:
-`insert into civicrm_bank_plugin_instance
-(plugin_type_id, plugin_class_id, name, description, enabled, weight, config, state)
-values (788, 779, 'My RegEx matcher', 'Enrich the data', 1, 200, '{}', '{}')`
+```SQL
+INSERT INTO civicrm_bank_plugin_instance
+  (plugin_type_id, plugin_class_id, name, description, enabled, weight, config, state)
+VALUES 
+  (788, 779, 'My RegEx matcher', 'Enrich the data', 1, 200, '{}', '{}')
+```
 
 And the Create Contribution Matcher
-`insert into civicrm_bank_plugin_instance
-(plugin_type_id, plugin_class_id, name, description, enabled, weight, config, state)
-values (788, 770, 'Create contribs', 'Create contribs', 1, 300, '{}', '{}')`
+```SQL
+INSERT INTO civicrm_bank_plugin_instance
+  (plugin_type_id, plugin_class_id, name, description, enabled, weight, config, state)
+VALUES 
+  (788, 770, 'Create contribs', 'Create contribs', 1, 300, '{}', '{}')
+```
 
 Use the weight parameter to control the order in which the plugins run.
 
 Get the ids of these:
-`select id, name from civicrm_bank_plugin_instance`
-`+----+------------------+
+```SQL
+SELECT id, name 
+FROM civicrm_bank_plugin_instance
+```
+```
++----+------------------+
 | id | name             |
 +----+------------------+
 |  1 | My importer      |
 |  2 | My RegEx matcher |
 |  3 | Create contribs  |
-+----+------------------+`
++----+------------------+
+```
 
 Then configure them by adding the JSON string:
-`update civicrm_bank_plugin_instance set config='{ lots of lovely JSON }' where id = 1`
+```SQL
+UPDATE civicrm_bank_plugin_instance 
+SET config = '{ lots of lovely JSON }' 
+WHERE id = 1
+```

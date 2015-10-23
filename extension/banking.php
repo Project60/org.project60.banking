@@ -238,6 +238,24 @@ function banking_civicrm_options() {
                   'description' => 'SHA1 fingerprint of some tell-tale value in the transaction information',
                   'is_default' => 0,
               ),
+              'NBAN_GC' => array(
+                  'label' => 'GoCardless',
+                  'value' => 'NBAN_GC',
+                  'description' => 'GoCardless customer ID',
+                  'is_default' => 0,
+              ),
+              'NBAN_WP' => array(
+                  'label' => 'WorldPay',
+                  'value' => 'NBAN_WP',
+                  'description' => 'WorldPay merchant ID',
+                  'is_default' => 0,
+              ),
+              'NBAN_PP' => array(
+                  'label' => 'PayPal',
+                  'value' => 'NBAN_PP',
+                  'description' => 'PayPal account identification (email)',
+                  'is_default' => 0,
+              ),
               'ENTITY' => array(
                   'label' => 'Links a bank account to a CiviCRM entity, reference format is "<entity_table>:<entity_id>"',
                   'value' => 'ENTITY',

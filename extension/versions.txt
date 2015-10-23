@@ -1,6 +1,19 @@
 Version History
 ===============
 
+version 0.5.2 (0.5.1 not released)
+==================================
+- improvements on UI (#116, #122)
+- improved 4.6 compatibility
+- added "drop column" option to CSV importer (#115)
+- added recurring contribution matcher
+- option for a custom title for existing contribution matcher (#109)
+- added 'unset', 'sha1', 'sprint' and 'preg_replace' actions to regex analyser (#107, #116)
+- option to disable received_date check in existing contribution matcher (#103)
+- fixed/improved tx attribute lookup (#106, #111)
+- fixed/improved menu integration (#110)
+
+
 version 0.5
 ===========
 - added CSV exporter (#83)

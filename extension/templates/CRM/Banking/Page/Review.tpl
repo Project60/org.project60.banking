@@ -258,15 +258,8 @@
               {assign var=ba_contact_id value=$party_ba_references.0.contact_id}
               <a title="{$party_ba_references.0.reference_type_label}">{$party_ba_references.0.reference}</a>
               <a href="{crmURL p="civicrm/contact/view" q="reset=1&cid=$ba_contact_id"}">[{$ba_contact_id}]</a>
-            {* TODO: replace the following hack: *}
-            {elseif $payment_data_parsed._party_IBAN}
-              {$payment_data_parsed._party_IBAN}
-            {elseif $payment_data_parsed._party_NBAN_DE}
-              {$payment_data_parsed._party_NBAN_DE}
-            {elseif $payment_data_parsed._party_NBAN_BE}
-              {$payment_data_parsed._party_NBAN_BE}
-            {elseif $payment_data_parsed._party_NBAN_AT}
-              {$payment_data_parsed._party_NBAN_AT}
+            {elseif $party_account_ref}
+              <span title="{$party_account_reftypename}" class="notfound">{$party_account_ref} ({$party_account_reftype2})</span>
             {else}
               &nbsp;
             {/if}

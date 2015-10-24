@@ -69,28 +69,9 @@ class CRM_Banking_Page_Review extends CRM_Core_Page {
         }
       }
 
-      // look up some stuff regarding this btx
-      $my_bao = new CRM_Banking_BAO_BankAccount();
-      $my_bao->get('id', $btx_bao->ba_id);
-
-      if ($btx_bao->party_ba_id) {
-        $ba_bao = new CRM_Banking_BAO_BankAccount();
-        $ba_bao->get('id', $btx_bao->party_ba_id);        
-
-        $this->assign('party_ba', $ba_bao);
-        $this->assign('party_ba_data_parsed', json_decode($ba_bao->data_parsed, true));
-        $this->assign('party_ba_references', $ba_bao->getReferences());
-
-        // deprecated: contact can also be indetified via other means, see below
-        if ($ba_bao->contact_id) {
-          $contact = civicrm_api('Contact','getsingle',array('version'=>3,'id'=>$ba_bao->contact_id));
-        }
-      }
-
       // parse structured data
       $this->assign('btxstatus', $choices[$btx_bao->status_id]);
       $this->assign('payment', $btx_bao);
-      $this->assign('my_bao', $my_bao);
       $this->assign('payment_data_raw', json_decode($btx_bao->data_raw, true));
 
       $data_parsed = json_decode($btx_bao->data_parsed, true);
@@ -118,7 +99,41 @@ class CRM_Banking_Page_Review extends CRM_Core_Page {
       $this->assign('extra_data', $extra_data);
 
 
+      // Look up bank accoutns
+      $my_bao = new CRM_Banking_BAO_BankAccount();
+      $my_bao->get('id', $btx_bao->ba_id);
+      $this->assign('my_bao', $my_bao);
 
+      if ($btx_bao->party_ba_id) {
+        // there is a party bank account connected to this
+        $ba_bao = new CRM_Banking_BAO_BankAccount();
+        $ba_bao->get('id', $btx_bao->party_ba_id);        
+
+        $this->assign('party_ba', $ba_bao);
+        $this->assign('party_ba_data_parsed', json_decode($ba_bao->data_parsed, true));
+        $this->assign('party_ba_references', $ba_bao->getReferences());
+
+        // deprecated: contact can also be indetified via other means, see below
+        if ($ba_bao->contact_id) {
+          $contact = civicrm_api('Contact','getsingle',array('version'=>3,'id'=>$ba_bao->contact_id));
+        }
+      } else {
+        // there is no party bank account connected this (yet)
+        foreach ($data_parsed as $key => $value) {
+          if (preg_match('/^_party_[IN]BAN(_..)?$/', $key)) {
+            $reftype = substr($key, 7);
+            $this->assign('party_account_ref',     $value);
+            $this->assign('party_account_reftype', $reftype);
+            $reftype_name = CRM_Core_OptionGroup::getValue('civicrm_banking.reference_types', $reftype, 'name', 'String', 'label');
+            $this->assign('party_account_reftypename', $reftype_name);
+            if ($reftype=='IBAN') {
+              $this->assign('party_account_reftype2', $reftype);  
+            } else {
+              $this->assign('party_account_reftype2', substr($reftype, 5));
+            }
+          }
+        }
+      }
 
 
       // check if closed ('processed' or 'ignored')

@@ -121,6 +121,10 @@ class CRM_Banking_BAO_BankAccountReference extends CRM_Banking_DAO_BankAccountRe
         return self::std_normalisation($reference_type_name, $reference, 
           "#^(?P<BLZ>\\d{8})/(?P<KTO>\\d{2,10})$#", "%08d/%010d");
       
+      case 'NBAN_CH':
+        return self::std_normalisation($reference_type_name, $reference, 
+          "#^(?P<PRE>\\d{1,2})-(?P<KTO>\\d{2,9})-(?P<SUF>\\d{1})$#", "%02d-%09d-%01d");
+
       case 'NBAN_CZ':
         // first, try with prefix
         $result = self::std_normalisation($reference_type_name, $reference, 

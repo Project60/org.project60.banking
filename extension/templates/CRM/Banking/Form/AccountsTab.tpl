@@ -42,7 +42,9 @@
             {else}
             <span title="{$reference.reference_type_label}">{$reference.reference}&nbsp;({$reference.reference_type})</span>
             {/if}
+            {if $account.references|@count gt 1}
             <a onClick="banking_deletereference({$account.id}, {$reference.id});" class="action-item action-item-first" title="{ts}delete{/ts}">{ts}[-]{/ts}</a>
+            {/if}
             {if $smarty.foreach.account_reference.last}
             <a onClick="banking_addreference({$account.id});" class="action-item action-item-first" title="{ts}add{/ts}">{ts}[+]{/ts}</a>
             {/if}
@@ -90,7 +92,7 @@
 </a>
 
 <div id="banking_account_form" hidden="1">
-  <h3>{ts}Add Bank Account{/ts}</h3>
+  <h3>{ts}Edit Bank Account{/ts}</h3>
   <div class="crm-section">
     <div class="label">{$form.reference_type.label}</div>
     <div class="content">{$form.reference_type.html}</div>
@@ -104,24 +106,26 @@
     <div class="content">{$form.reference.html}<img id="reference_status_img" src="{$config->resourceBase}i/spacer.gif" height="10"/></div>
     <div class="clear"></div>
   </div>
-  <hr/>
-  <div>{$form.contact_id.html}</div>
-  <div>{$form.reference_id.html}</div>
-  <div>{$form.ba_id.html}</div>
-  <div class="crm-section">
-    <div class="label">{$form.bic.label}</div>
-    <div class="content">{$form.bic.html}</div>
-    <div class="clear"></div>
-  </div>
-  <div class="crm-section">
-    <div class="label">{$form.bank_name.label}</div>
-    <div class="content">{$form.bank_name.html}</div>
-    <div class="clear"></div>
-  </div>
-  <div class="crm-section">
-    <div class="label">{$form.country.label}</div>
-    <div class="content">{$form.country.html}</div>
-    <div class="clear"></div>
+  <div id="banking_account_data">
+    <hr/>
+    <div>{$form.contact_id.html}</div>
+    <div>{$form.reference_id.html}</div>
+    <div>{$form.ba_id.html}</div>
+    <div class="crm-section">
+      <div class="label">{$form.bic.label}</div>
+      <div class="content">{$form.bic.html}</div>
+      <div class="clear"></div>
+    </div>
+    <div class="crm-section">
+      <div class="label">{$form.bank_name.label}</div>
+      <div class="content">{$form.bank_name.html}</div>
+      <div class="clear"></div>
+    </div>
+    <div class="crm-section">
+      <div class="label">{$form.country.label}</div>
+      <div class="content">{$form.country.html}</div>
+      <div class="clear"></div>
+    </div>
   </div>
   <div class="crm-submit-buttons">
   {include file="CRM/common/formButtons.tpl" location="bottom"}
@@ -167,14 +171,17 @@ cj("#reference_type").trigger('change');
 function banking_addaccount() {
   cj("#banking_account_addbtn").hide();
   cj("#banking_account_form").show();
+  cj("#banking_account_data").show();
   cj("input[name='ba_id']").val('');
   cj("input[name='reference_id']").val('');
+  cj('html, body').animate({scrollTop: cj("#banking_account_form").offset().top});
 }
 
 /** JS function for editing a bank account */
 function banking_editaccount(ba_id) {
   cj("#banking_account_addbtn").hide();
   cj("#banking_account_form").show();
+  cj("#banking_account_data").show();
   cj("#bank_name").val(bank_accounts[ba_id].data_parsed.name);
   cj("#bic").val(bank_accounts[ba_id].data_parsed.BIC);
   cj("#country").val(bank_accounts[ba_id].data_parsed.country);
@@ -182,19 +189,23 @@ function banking_editaccount(ba_id) {
 
   cj("input[name='reference_id']").val(bank_accounts[ba_id].references[0].id);
   cj("#reference").val(bank_accounts[ba_id].references[0].reference);
-  cj("#reference_type").val(bank_accounts[ba_id].references[0].reference_type);
+  var reference_type = bank_accounts[ba_id].references[0].reference_type;
+  cj("#reference_type").val(bank_accounts[ba_id].references[0].reference_type_id);
+  cj('html, body').animate({scrollTop: cj("#banking_account_form").offset().top});
 }
 
 /** JS function for adding a bank account reference */
 function banking_addreference(ba_id) {
   cj("#banking_account_addbtn").hide();
   cj("#banking_account_form").show();
+  cj("#banking_account_data").hide();
   cj("#bank_name").val(bank_accounts[ba_id].data_parsed.name);
   cj("#bic").val(bank_accounts[ba_id].data_parsed.BIC);
   cj("#country").val(bank_accounts[ba_id].data_parsed.country);
   cj("input[name='ba_id']").val(ba_id);
   cj("input[name='reference_id']").val('');
   cj("#reference").val('');
+  cj('html, body').animate({scrollTop: cj("#banking_account_form").offset().top});
 }
 
 /** JS function for deleting a bank account */

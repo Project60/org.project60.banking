@@ -93,6 +93,7 @@ class CRM_Banking_BAO_BankAccount extends CRM_Banking_DAO_BankAccount {
                 civicrm_option_value.value               AS reference_type, 
                 civicrm_option_value.label               AS reference_type_label, 
                 civicrm_option_value.description         AS reference_type_description, 
+                civicrm_option_value.id                  AS reference_type_id, 
                 civicrm_bank_account_reference.reference AS reference,
                 civicrm_bank_account_reference.id        AS reference_id,
                 civicrm_bank_account.contact_id          AS contact_id
@@ -106,6 +107,7 @@ class CRM_Banking_BAO_BankAccount extends CRM_Banking_DAO_BankAccount {
       $orderedReferences[] = array(  'reference_type'             => $orderedReferenceQuery->reference_type,
                                      'reference_type_label'       => $orderedReferenceQuery->reference_type_label,
                                      'reference_type_description' => $orderedReferenceQuery->reference_type_description,
+                                     'reference_type_id'          => $orderedReferenceQuery->reference_type_id,
                                      'reference'                  => $orderedReferenceQuery->reference,
                                      'id'                         => $orderedReferenceQuery->reference_id,
                                      'contact_id'                 => $orderedReferenceQuery->contact_id);

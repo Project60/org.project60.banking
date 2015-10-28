@@ -37,9 +37,25 @@ class CRM_Admin_Form_Setting_BankingSettings extends CRM_Core_Form {
       'menu_position',
       ts('CiviBanking Menu Position'),
       $menu_position_options,
-      true // is required
+      false // is not required
     );
     $menu_position->setSelected((int) $this->getCurrentValue('menu_position'));
+
+    // add data generation (PDFs/Mails)
+    $this->addElement(
+      'checkbox', 
+      'reference_normalisation', 
+      ts('Normalise bank account references'),
+      '',
+      ($this->getCurrentValue('reference_normalisation')?array('checked' => 'checked'):array()));
+
+    // add data generation (PDFs/Mails)
+    $this->addElement(
+      'checkbox', 
+      'reference_validation', 
+      ts('Validate bank account references'),
+      '',
+      ($this->getCurrentValue('reference_validation')?array('checked' => 'checked'):array()));
 
 
     $this->addButtons(array(
@@ -64,6 +80,10 @@ class CRM_Admin_Form_Setting_BankingSettings extends CRM_Core_Form {
       CRM_Core_BAO_Setting::setItem($new_menu_position, 'CiviBanking', 'menu_position');
       CRM_Core_Invoke::rebuildMenuAndCaches();
     }
+
+    // process reference normalisation / validation
+    CRM_Core_BAO_Setting::setItem(!empty($values['reference_normalisation']), 'CiviBanking', 'reference_normalisation');
+    CRM_Core_BAO_Setting::setItem(!empty($values['reference_validation']),    'CiviBanking', 'reference_validation');
 
     parent::postProcess();
   }

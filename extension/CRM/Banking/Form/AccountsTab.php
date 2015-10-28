@@ -67,6 +67,10 @@ class CRM_Banking_Form_AccountsTab extends CRM_Core_Form {
         }
     }
 
+    // load settings
+    $this->assign('reference_normalisation', (int) CRM_Core_BAO_Setting::getItem('CiviBanking', 'reference_normalisation'));
+    $this->assign('reference_validation',    (int) CRM_Core_BAO_Setting::getItem('CiviBanking', 'reference_validation'));
+
     // ACCOUNT REFRENCE ITEMS
     $this->add('hidden', 'contact_id', $contact_id, true);
     $this->add('hidden', 'reference_id');
@@ -142,19 +146,23 @@ class CRM_Banking_Form_AccountsTab extends CRM_Core_Form {
   public function validate() {
     $error = parent::validate();
     $values = $this->exportValues();
+    $normalise = CRM_Core_BAO_Setting::getItem('CiviBanking', 'reference_normalisation');
+    $validate  = CRM_Core_BAO_Setting::getItem('CiviBanking', 'reference_validation');
 
     if (!empty($values['reference_type']) && !empty($values['reference'])) {
-        // verify/normalise reference
-        $query = civicrm_api3('BankingAccountReference', 'check', array(
-            'reference_type' => (int) $values['reference_type'],
-            'reference'      => $values['reference']));
-        $result = $query['values'];
-        if ($result['checked'] && !$result['is_valid']) {
-            $this->_errors['reference'] = ts("Invalid reference.");
-            CRM_Core_Session::setStatus(ts("Invalid reference '%1'", array(1=>$values['reference'])), ts('Failure'));
-        } elseif ($result['normalised']) {
-            $values['reference'] = $result['reference'];
-            $this->set('reference', $result['reference']);
+        if ($validate || $normalise) {
+            // verify/normalise reference
+            $query = civicrm_api3('BankingAccountReference', 'check', array(
+                'reference_type' => (int) $values['reference_type'],
+                'reference'      => $values['reference']));
+            $result = $query['values'];
+            if ($validate && $result['checked'] && !$result['is_valid']) {
+                $this->_errors['reference'] = ts("Invalid reference.");
+                CRM_Core_Session::setStatus(ts("Invalid reference '%1'", array(1=>$values['reference'])), ts('Failure'));
+            } elseif ($normalise && $result['normalised'] ) {
+                $values['reference'] = $result['reference'];
+                $this->set('reference', $result['reference']);
+            }            
         }
     }
     

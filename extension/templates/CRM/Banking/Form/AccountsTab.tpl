@@ -137,6 +137,8 @@
 <script type="text/javascript">
 var bank_accounts   = {$bank_accounts_json};
 var reference_types = {$reference_types_json};
+var validate_ref    = {$reference_validation};
+var normalise_ref   = {$reference_normalisation};
 var busy_icon_url   = "{$config->resourceBase}i/loading.gif";
 var error_icon_url  = "{$config->resourceBase}i/Error.gif";
 var good_icon_url   = "{$config->resourceBase}i/check.gif";
@@ -255,6 +257,9 @@ function banking_deletereference(ba_id, ref_id) {
 
 // Verify REFERENCE
 cj("#reference").change(function() {
+  // ...only if enabled
+  if (!validate_ref && !normalise_ref) return;
+
   // ...only if long enough
   var reference = cj(this).val();
   if (reference.length < 3) return; // reference not long enough
@@ -271,18 +276,20 @@ cj("#reference").change(function() {
       cj("#reference_checking").remove();
       cj("#reference_status_img").attr('src', no_icon_url);
       var result = data.values;
-      if (result.checked && !result.is_valid) {
-        // this is not a valid!
-        cj("#reference_status_img").attr('src', error_icon_url);
+      if (validate_ref) {
+        if (result.checked && !result.is_valid) {
+          // this is not a valid!
+          cj("#reference_status_img").attr('src', error_icon_url);
+        }
+        if (result.is_valid) {
+          cj("#reference_status_img").attr('src', good_icon_url);
+          {/literal}{if $bic_extension_installed}
+          {* if the BIC extension is installed, look up bank information based on IBAN *}
+          banking_iban_lookup();
+          {/if}{literal}
+        }        
       }
-      if (result.is_valid) {
-        cj("#reference_status_img").attr('src', good_icon_url);
-        {/literal}{if $bic_extension_installed}
-        {* if the BIC extension is installed, look up bank information based on IBAN *}
-        banking_iban_lookup();
-        {/if}{literal}
-      }
-      if (result.normalised) {
+      if (normalise_ref && result.normalised) {
         cj("#reference").val(result.reference);
       }
     }, error: function(result, settings) {

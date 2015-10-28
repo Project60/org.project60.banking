@@ -3,6 +3,8 @@ Version History
 
 version 0.5.2 (0.5.1 not released)
 ==================================
+- greatly improved account editor (#118)
+- added bank account reference validation and normalisation (#118)
 - improvements on UI (#116, #122)
 - improved 4.6 compatibility
 - added "drop column" option to CSV importer (#115)

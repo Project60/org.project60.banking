@@ -156,7 +156,7 @@ class CRM_Banking_PluginImpl_Matcher_RecurringContribution extends CRM_Banking_P
     $recorded_due_date = $suggestion->getParameter('expected_date');
     if ($recorded_due_date != $current_due_date) {
       // something changed...
-      CRM_Core_Session::setStatus(ts('The situation for the recurring contribution seems to have changed. Please analyse transaction again.'), ts('Recurring contributtion changed'), 'alert');
+      CRM_Core_Session::setStatus(ts('The situation for the recurring contribution seems to have changed. Please analyse transaction again.'), ts('Recurring contribution changed'), 'alert');
       return false;
     }
 

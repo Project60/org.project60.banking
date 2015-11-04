@@ -44,5 +44,5 @@ function banking_helper_buildURL($base, $set_params, $keep_params=array(), $dele
         $pstring = $pstring.$key."=".$value;
     }
 
-    return CRM_Utils_System::url($base, $pstring);
+    return CRM_Utils_System::url($base, $pstring, FALSE, NULL, FALSE);
 }

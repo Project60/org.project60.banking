@@ -155,7 +155,7 @@ class CRM_Banking_PluginImpl_Matcher_RegexAnalyser extends CRM_Banking_PluginMod
         //   parameters are in format: "EntityName,result_field,lookup_field"
         $params = split(',', substr($action->action, 7));
         $value = $this->getValue($action->from, $match_data, $match_index, $data_parsed);
-        $query = array($params[2] => $value, 'version' => 3);
+        $query = array($params[2] => $value, 'version' => 3, 'return' => $params[1]);
         if (!empty($action->parameters)) {
           foreach($action->parameters as $key => $value) {
             $query[$key] = $value;

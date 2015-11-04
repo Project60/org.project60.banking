@@ -258,7 +258,13 @@ function banking_deletereference(ba_id, ref_id) {
 // Verify REFERENCE
 cj("#reference").change(function() {
   // ...only if enabled
-  if (!validate_ref && !normalise_ref) return;
+  if (!validate_ref && !normalise_ref) {
+    {/literal}{if $bic_extension_installed}
+    {* if the BIC extension is installed, still look up bank information based on IBAN *}
+    banking_iban_lookup();
+    {/if}{literal}
+    return;
+  }
 
   // ...only if long enough
   var reference = cj(this).val();
@@ -282,16 +288,16 @@ cj("#reference").change(function() {
           cj("#reference_status_img").attr('src', error_icon_url);
         }
         if (result.is_valid) {
-          cj("#reference_status_img").attr('src', good_icon_url);
-          {/literal}{if $bic_extension_installed}
-          {* if the BIC extension is installed, look up bank information based on IBAN *}
-          banking_iban_lookup();
-          {/if}{literal}
+          cj("#reference_status_img").attr('src', good_icon_url);          
         }        
       }
       if (normalise_ref && result.normalised) {
         cj("#reference").val(result.reference);
       }
+      {/literal}{if $bic_extension_installed}
+      {* if the BIC extension is installed, look up bank information based on IBAN *}
+      banking_iban_lookup();
+      {/if}{literal}
     }, error: function(result, settings) {
       // we suppress the message box here
       // and log the error via console

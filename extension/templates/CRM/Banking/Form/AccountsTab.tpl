@@ -103,7 +103,7 @@
   </div>
   <div class="crm-section">
     <div class="label">{$form.reference.label}</div>
-    <div class="content">{$form.reference.html}<img id="reference_status_img" src="{$config->resourceBase}i/spacer.gif" height="10"/></div>
+    <div class="content">{$form.reference.html}&nbsp;<img id="reference_status_img" src="{$config->resourceBase}i/spacer.gif" height="10"/></div>
     <div class="clear"></div>
   </div>
   <div id="banking_account_data">

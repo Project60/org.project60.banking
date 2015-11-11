@@ -221,6 +221,7 @@ function banking_civicrm_alterAPIPermissions($entity, $action, &$params, &$permi
   $permissions['banking_account']['create'] = array('delete contacts');
   $permissions['banking_account']['delete'] = array('delete contacts');
   $permissions['banking_account_reference']['create'] = array('delete contacts');
+  $permissions['banking_account_reference']['check'] = array('access CiviCRM');
   $permissions['banking_transaction']['analyselist'] = array('edit contributions');
 }
 

@@ -182,6 +182,12 @@ function _banking_options() {
                   'description' => ts('WorldPay merchant ID'),
                   'is_default' => 0,
               ),
+              'NBAN_SP' => array(
+                  'label' => ts('Stewardship'),
+                  'value' => 'NBAN_SP',
+                  'description' => ts('Stewardship merchant ID'),
+                  'is_default' => 0,
+              ),
               'NBAN_PP' => array(
                   'label' => ts('PayPal'),
                   'value' => 'NBAN_PP',

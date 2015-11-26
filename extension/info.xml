@@ -8,8 +8,8 @@
     <author>Björn Endres / Project 60</author>
     <email>endres@systopia.de</email>
   </maintainer>
-  <releaseDate>2015-11-12</releaseDate>
-  <version>0.5.2rc2</version>
+  <releaseDate></releaseDate>
+  <version>0.5.3dev-69d4bf8</version>
   <develStage>beta</develStage>
   <compatibility>
     <ver>4.4</ver>

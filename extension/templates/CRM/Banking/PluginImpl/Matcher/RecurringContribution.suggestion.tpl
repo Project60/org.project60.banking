@@ -14,30 +14,6 @@
 +--------------------------------------------------------*}
 
 {assign var=contact_id value=$contact.id}
-{assign var=recurring_contribution_id value=$recurring_contribution.id}
-
-{* calculate a more user friendly display of the recurring_contribution transaction interval *}
-{if $recurring_contribution.frequency_unit eq 'month'}
-  {if $recurring_contribution.frequency_interval eq 1}
-    {capture assign=frequency_words}{ts}monthly{/ts}{/capture}
-  {elseif $recurring_contribution.frequency_interval eq 3}
-    {capture assign=frequency_words}{ts}quarterly{/ts}{/capture}
-  {elseif $recurring_contribution.frequency_interval eq 6}
-    {capture assign=frequency_words}{ts}semi-annually{/ts}{/capture}
-  {elseif $recurring_contribution.frequency_interval eq 12}
-    {capture assign=frequency_words}{ts}annually{/ts}{/capture}
-  {else}
-    {capture assign=frequency_words}{ts 1=$recurring_contribution.frequency_interval}every %1 months{/ts}{/capture}
-  {/if}
-{elseif $recurring_contribution.frequency_unit eq 'year'}
-  {if $recurring_contribution.frequency_interval eq 1}
-    {capture assign=frequency_words}{ts}annually{/ts}{/capture}
-  {else}
-    {capture assign=frequency_words}{ts 1=$recurring_contribution.frequency_interval}every %1 years{/ts}{/capture}
-  {/if}
-{else}
-  {capture assign=frequency_words}{ts}on an irregular basis{/ts}{/capture}
-{/if}
 
 <div>
   {capture assign=address_text}{if $contact.city}{$contact.street_address}, {$contact.city}{else}{ts}Address incomplete{/ts}{/if}{/capture}
@@ -52,6 +28,31 @@
 <div>
   <table border="1">
     <tbody>
+    {foreach from=$recurring_contributions item=recurring_contribution}
+      {assign var=recurring_contribution_id value=$recurring_contribution.id}
+
+      {* calculate a more user friendly display of the recurring_contribution transaction interval *}
+      {if $recurring_contribution.frequency_unit eq 'month'}
+        {if $recurring_contribution.frequency_interval eq 1}
+          {capture assign=frequency_words}{ts}monthly{/ts}{/capture}
+        {elseif $recurring_contribution.frequency_interval eq 3}
+          {capture assign=frequency_words}{ts}quarterly{/ts}{/capture}
+        {elseif $recurring_contribution.frequency_interval eq 6}
+          {capture assign=frequency_words}{ts}semi-annually{/ts}{/capture}
+        {elseif $recurring_contribution.frequency_interval eq 12}
+          {capture assign=frequency_words}{ts}annually{/ts}{/capture}
+        {else}
+          {capture assign=frequency_words}{ts 1=$recurring_contribution.frequency_interval}every %1 months{/ts}{/capture}
+        {/if}
+      {elseif $recurring_contribution.frequency_unit eq 'year'}
+        {if $recurring_contribution.frequency_interval eq 1}
+          {capture assign=frequency_words}{ts}annually{/ts}{/capture}
+        {else}
+          {capture assign=frequency_words}{ts 1=$recurring_contribution.frequency_interval}every %1 years{/ts}{/capture}
+        {/if}
+      {else}
+        {capture assign=frequency_words}{ts}on an irregular basis{/ts}{/capture}
+      {/if}
       <tr>
         <td>
           <div class="btxlabel">{ts}Amount{/ts}:</div>
@@ -64,8 +65,8 @@
         <td>
           <div class="btxlabel">{ts}Last{/ts}:</div>
           <div class="btxvalue">
-            {if $last_contribution}
-            {$last_contribution.receive_date|crmDate:$config->dateformatFull}
+            {if $recurring_contribution.last_contribution}
+            {$recurring_contribution.last_contribution.receive_date|crmDate:$config->dateformatFull}
             {else}
             <strong>{ts}None{/ts}</strong>
             {/if}
@@ -73,9 +74,10 @@
         </td>
         <td>
           <div class="btxlabel">{ts}Due{/ts}:</div>
-          <div class="btxvalue">{$due_date|crmDate:$config->dateformatFull}</div>
+          <div class="btxvalue">{$recurring_contribution.due_date|crmDate:$config->dateformatFull}</div>
         </td>
       </tr>
+    {/foreach}
     </tbody>
   </table>
 </div>

@@ -33,9 +33,11 @@ class CRM_Banking_PluginImpl_Matcher_RecurringContribution extends CRM_Banking_P
     if (!isset($config->threshold))                     $config->threshold = 0.5;
     if (!isset($config->search_terms))                  $config->search_terms = array();
     if (!isset($config->search_wo_contacts))            $config->search_wo_contacts = FALSE;  // if true, the matcher will keep searching (using the search_terms) even if no contacts are found
+    if (!isset($config->multimatch))                    $config->multimatch = FALSE;     // if true, the matcher will also try and match a multitude of recurring contributions
+    if (!isset($config->multimatch_cutoff))             $config->multimatch_cutoff = 30; // max number of multimatches (the number grows exponentially).
     if (!isset($config->contact_id_list))               $config->contact_id_list = '';  // if not empty, take contacts from comma separated list instead of contact search
     if (!isset($config->created_contribution_status))   $config->created_contribution_status = 'Completed';
-    if (!isset($config->recurring_contribution_status)) $config->recurring_contribution_status = array('Pending');
+    if (!isset($config->recurring_contribution_status)) $config->recurring_contribution_status = array('Pending', 'In Progress');
     if (!isset($config->suggestion_title))              $config->suggestion_title = '';
     if (!isset($config->recurring_mode))                $config->recurring_mode = 'static'; // see getExpectedDate()
 
@@ -282,8 +284,10 @@ class CRM_Banking_PluginImpl_Matcher_RecurringContribution extends CRM_Banking_P
     // don't waste your time contacts below the threshold...
     if ($probability < $threshold) return $suggestions;
 
-    $rcur_result = civicrm_api3('ContributionRecur', 'get', $query);
-    foreach ($rcur_result['values'] as $rcur_id => $rcur) {
+    $recurring_contributions = $this->findCandidates($query, $config);
+    foreach ($recurring_contributions as $rcur) {
+      $rcur_id = $rcur['id'];
+
       // find the next expected date for the recurring contribution
       $expected_date = self::getExpectedDate($rcur, $btx, $config->recurring_mode);
       if ($expected_date==NULL) continue;
@@ -444,7 +448,12 @@ class CRM_Banking_PluginImpl_Matcher_RecurringContribution extends CRM_Banking_P
    *            transactions's date, so that any payment will be accepted, even if too late.
    *  (more to come...?)
    */
-  public static function getExpectedDate($rcontribution, $btx, $recurring_mode, &$last_contribution = NULL) {
+  public static function getExpectedDate(&$rcontribution, &$btx, $recurring_mode, &$last_contribution = NULL) {
+    // virtual recurring contributions require special treatment:
+    if (isset($rcontribution)) {
+      return self::getExpectedDateVirtual($rcontribution, $btx, $recurring_mode, $last_contribution);
+    }
+
     // find a maximum
     $max_date = strtotime("+1 year");
     if (!empty($rcontribution['end_date']) && strtotime($rcontribution['end_date'])<$max_date) {
@@ -547,5 +556,113 @@ class CRM_Banking_PluginImpl_Matcher_RecurringContribution extends CRM_Banking_P
     }
 
     return NULL;
+  }
+
+  /**
+   * This is the hook for multimatches. If deactivated (default), it will simply
+   * return the recurring contributions found.
+   * If activated, it will also return virtual recurring contributions, that
+   * are a combination of the ones found.
+   **/
+  function findCandidates($query, $config) {
+    $rcur_result = civicrm_api3('ContributionRecur', 'get', $query);
+    $rcontributions = array();
+    foreach ($rcur_result['values'] as $key => $value) {
+      $rcontributions[] = $value;
+    }
+
+    if ($config->multimatch) {
+      $all_tuples = array();
+      for ($count=1; $count <= count($rcontributions); $count++) {
+        // now create all <count>-tuples
+        $count_tuples = $this->createTuples($rcontributions, 0, $count);
+        $all_tuples = array_merge($all_tuples, $count_tuples);
+        if (count($all_tuples) >= $config->multimatch_cutoff) {
+          break;
+        }
+      }
+      // joint the tuples into a virtual recurring contribution
+      foreach ($count_tuples as $tuple) {
+        $result[] = $this->createVirtualRecurringContribution($tuple);
+        if (count($result) >= $config->multimatch_cutoff) break;
+      }
+      return $result;
+    } else {
+      return $rcontributions;
+    }
+  }
+
+  /**
+   * will create all possible <count>-tuples after $startindex
+   */
+  function createTuples(&$rcontributions, $start_index, $count) {
+    $tuples = array();
+    for ($i=$start_index; $i < count($rcontributions); $i++) {
+      $tuple = array($rcontributions[$i]);
+      if ($count > 1) { // $i < count($rcontributions) - $count
+        $extensions = $this->createTuples($rcontributions, $i+1, $count-1);
+        foreach ($extensions as $tuple_extension) {
+          $tuples[] = array_merge($tuple, $tuple_extension) // TODO: append!
+        }
+      } else {
+        $tuples[] = $tuple;
+      }
+    }
+    return $tuples;
+  }
+
+  /**
+   * joins the tuple of recurring_contributions into 1 virtual one
+   */
+  function createVirtualRecurringContribution($tuple) {
+    if (count($tuple) == 1) {
+      return $tuple[0];
+    } else {
+      $virtual_rcur = $tuple[0];
+      $virtual_rcur['virtual'] = $tuple;
+      for ($i=1; $i < count($tuple); $i++) {
+        $rcur2merge = $tuple[$i];
+        foreach ($rcur2merge as $key => $value) {
+          if ($key=='amount') {           // amounts get added
+            $virtual_rcur['amount'] = $virtual_rcur['amount'] + $value;
+          
+          } elseif ($key=='contact_id') { // multiple contacts become a list
+            if (empty($virtual_rcur['contact_id'])) {
+              $virtual_rcur['contact_id'] = $value;
+            } else {
+              $contact_list = explode(',', $virtual_rcur['contact_id']);
+              if (!in_array($value, $contact_list)) {
+                $contact_list[] = $value;
+                $virtual_rcur['contact_id'] = implode(',', $contact_list);
+              }
+            }
+          
+          } else {
+            if ($rcur2merge[$key] != CRM_Utils_Array::value($key, $virtual_rcur)) {
+              $virtual_rcur[$key] = '';
+            }
+          }
+        }
+      }
+    }
+  }
+
+  /**
+   * this is a meta-function designed to deal with virtual recurring contribtuions
+   */
+  public static function getExpectedDateVirtual(&$rcontribution_virtual, &$btx, $recurring_mode, &$last_contribution = NULL) {
+    $min_date = NULL;
+    $max_date = NULL;
+    foreach ($rcontribution_virtual['virtual'] as $rcontribution) {
+      $date = self::getExpectedDate($rcontribution, $btx, $recurring_mode, $last_contribution);
+      if ($date == NULL) return NULL;
+      if ($min_date == NULL) $min_date = $date;
+      if ($max_date == NULL) $min_date = $date;
+      if ($min_date > $date) $min_date = $date;
+      if ($max_date < $date) $min_date = $date;
+    }
+
+    // now check, if the dates are too far apart
+    ::346    
   }
 }

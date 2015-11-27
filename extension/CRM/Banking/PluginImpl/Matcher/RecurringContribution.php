@@ -65,8 +65,6 @@ class CRM_Banking_PluginImpl_Matcher_RecurringContribution extends CRM_Banking_P
     if (!isset($config->existing_check))                $config->existing_check = "1";
     if (!isset($config->existing_penalty))              $config->existing_penalty = 0.3;
     if (!isset($config->existing_status_ids))           $config->existing_status_ids = array(1,2);
-    if (!isset($config->existing_precision))            $config->existing_precision = "80%"; // allows payment within +/- 20% of the cycle period
-                                                                                             //  would also accept number (e.g. "5") meaning +/- 5 days
   }
 
   /** 
@@ -306,7 +304,7 @@ class CRM_Banking_PluginImpl_Matcher_RecurringContribution extends CRM_Banking_P
         $suggestion->addEvidence(1.0-$probability, ts("The contact could not be uniquely identified."));        
       }
 
-      // CHECK AMOUNT
+      // RCUR LOOP: CHECK AMOUNT
       if ($config->amount_check) {
         // calculate the amount penalties (equivalent to CRM_Banking_PluginImpl_Matcher_ExistingContribution)
         $transaction_amount = $btx->amount;
@@ -331,13 +329,13 @@ class CRM_Banking_PluginImpl_Matcher_RecurringContribution extends CRM_Banking_P
         }
       }
 
-      // CHECK CURRENCY
+      // RCUR LOOP: CHECK CURRENCY
       if ($context->btx->currency != $rcur['currency']) {
         $suggestion->addEvidence($config->currency_penalty, ts("The currency of the transaction is not as expected."));
         $probability -= $config->currency_penalty;
       }
 
-      // CHECK EXPECTED DATE
+      // RCUR LOOP: CHECK EXPECTED DATE
       if ($config->received_date_check) {
         // use date only
         $transaction_date = strtotime(date('Y-m-d', strtotime($context->btx->value_date)));
@@ -367,12 +365,10 @@ class CRM_Banking_PluginImpl_Matcher_RecurringContribution extends CRM_Banking_P
               $probability -= $penalty;            
             }
           }
-
         }
-        
       }
 
-      // CHECK FOR OTHER PAYMENTS
+      // RCUR LOOP: CHECK FOR OTHER PAYMENTS
       if ($config->existing_check) {
         $other_contributions_id_list = array();
         $expected_date_string = date('Y-m-d', $expected_date);
@@ -380,20 +376,16 @@ class CRM_Banking_PluginImpl_Matcher_RecurringContribution extends CRM_Banking_P
         $existing_status_list = implode(',', $config->existing_status_list);
 
         // determine date range
-        // TODO: use date_offset_minimum/maximum
-        if (preg_match("/[0-9]+%/", $config->existing_precision)) {
-          $cycle_length_seconds = strtotime("+{$rcur['frequency_interval']} {$rcur['frequency_unit']}", 0);
-          $date_range = (int) (((100.0 - (float) $config->existing_precision) / 100.0)  * ((float) $cycle_length_seconds / (float) (60 * 60 *24)));
-        } else {
-          $date_range = (int) $config->existing_precision;
-        }
+        $date_offset_minimum = str_replace('DAYS', 'DAY', strtoupper($config->date_offset_minimum));
+        $date_offset_maximum = str_replace('DAYS', 'DAY', strtoupper($config->date_offset_maximum));
+
         $sql = "
         SELECT id AS contribution_id
         FROM civicrm_contribution 
-        WHERE contribution_recur_id = $rcur_id
+        WHERE contribution_recur_id IN ($rcur_id)
           AND contribution_status_id IN ($existing_status_list)
-          AND (receive_date BETWEEN ('$expected_date_string' - INTERVAL $date_range DAY)
-                                AND ('$expected_date_string' + INTERVAL $date_range DAY) );";
+          AND (receive_date BETWEEN ('$expected_date_string' - INTERVAL $date_offset_minimum)
+                                AND ('$expected_date_string' + INTERVAL $date_offset_maximum) );";
         $sql_query = CRM_Core_DAO::executeQuery($sql);
         while ($sql_query->fetch()) {
           $other_contributions_id_list[] = $sql_query->contribution_id;
@@ -415,10 +407,9 @@ class CRM_Banking_PluginImpl_Matcher_RecurringContribution extends CRM_Banking_P
         }
       }
 
-
       $suggestion->setProbability($probability);
       $suggestions[] = $suggestion;
-    }
+    } // END RCUR LOOP
 
     return $suggestions;
   }
@@ -626,14 +617,14 @@ class CRM_Banking_PluginImpl_Matcher_RecurringContribution extends CRM_Banking_P
           if ($key=='amount') {           // amounts get added
             $virtual_rcur['amount'] = $virtual_rcur['amount'] + $value;
           
-          } elseif ($key=='contact_id') { // multiple contacts become a list
-            if (empty($virtual_rcur['contact_id'])) {
-              $virtual_rcur['contact_id'] = $value;
+          } elseif ($key=='id' || $key=='contact_id') { // multiple IDs become a list
+            if (empty($virtual_rcur[$key])) {
+              $virtual_rcur[$key] = $value;
             } else {
-              $contact_list = explode(',', $virtual_rcur['contact_id']);
-              if (!in_array($value, $contact_list)) {
-                $contact_list[] = $value;
-                $virtual_rcur['contact_id'] = implode(',', $contact_list);
+              $id_list = explode(',', $virtual_rcur[$key]);
+              if (!in_array($value, $id_list)) {
+                $id_list[] = $value;
+                $virtual_rcur[$key] = implode(',', $id_list);
               }
             }
           
@@ -651,18 +642,33 @@ class CRM_Banking_PluginImpl_Matcher_RecurringContribution extends CRM_Banking_P
    * this is a meta-function designed to deal with virtual recurring contribtuions
    */
   public static function getExpectedDateVirtual(&$rcontribution_virtual, &$btx, $recurring_mode, &$last_contribution = NULL) {
+    $config   = $this->_plugin_config;
     $min_date = NULL;
     $max_date = NULL;
+    $sum_date = 0.0;
     foreach ($rcontribution_virtual['virtual'] as $rcontribution) {
       $date = self::getExpectedDate($rcontribution, $btx, $recurring_mode, $last_contribution);
       if ($date == NULL) return NULL;
+      $sum_date += $date;
       if ($min_date == NULL) $min_date = $date;
       if ($max_date == NULL) $min_date = $date;
       if ($min_date > $date) $min_date = $date;
       if ($max_date < $date) $min_date = $date;
     }
 
-    // now check, if the dates are too far apart
-    ::346    
+    // now check, if the dates are too far apart, 
+    //  using the config settings for rating indivdual rcontributions
+    $date_offset = $max_date - $min_date;
+    if ( $date_offset < strtotime($config->acceptable_date_offset_from, 0)
+      || $date_offset > strtotime($config->acceptable_date_offset_to, 0)) {
+
+      // now use the same checks as for the individual rcontribution boundaries
+      // to discard implausible virtual rcontributions:
+      if ($date_offset < strtotime($config->date_offset_minimum, 0)) return NULL;
+      if ($date_offset > strtotime($config->date_offset_maximum, 0)) return NULL;
+    }
+
+    // use the mean date as expected date for the virtual rcontribution
+    return ((double) $sum_date) / (double) count($rcontribution_virtual['virtual']);
   }
 }

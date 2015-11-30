@@ -142,45 +142,85 @@ class CRM_Banking_PluginImpl_Matcher_RecurringContribution extends CRM_Banking_P
     $config      = $this->_plugin_config;
     $smarty_vars = array();
 
-    // load the recurring contribution
-    $rcontribution_id = $suggestion->getParameter('recurring_contribution_id');
-    $rcontribution = civicrm_api3('ContributionRecur', 'getsingle', array('id' => $rcontribution_id));
+    // load the recurring contribution(s)
+    $rcontribution_id_list = $suggestion->getParameter('recurring_contribution_ids');
+    $rcontribution_ids = explode(',', $rcontribution_id_list);
+    $rcontributions = array();
+    foreach ($rcontribution_ids as $rcontribution_id) {
+      $rcontributions[] = civicrm_api3('ContributionRecur', 'getsingle', array('id' => $rcontribution_id));
+    }
+    $virtual_rcur = $this->createVirtualRecurringContribution($rcontributions);
+
+    // verify expected amount
+    $recorded_amount = $suggestion->getParameter('expected_amount');
+    if ($virtual_rcur['amount'] != $recorded_amount) {
+      CRM_Core_Session::setStatus(ts('The expected amount for the recurring contribution(s) seems to have changed. Please analyse transaction again.'), ts('Recurring contribution changed'), 'alert');
+      return false;      
+    }
+
+    // verify due date
     $last_contribution = NULL;
-    
-    $due_date  = $this->getExpectedDate($rcontribution, $btx, $config->recurring_mode, $last_contribution);
+    $recorded_due_date = $suggestion->getParameter('expected_date');
+    $due_date = $this->getExpectedDate($virtual_rcur, $btx, $config->recurring_mode, $last_contribution);
     if ($due_date) {
       $current_due_date = date('Y-m-d', $due_date);
     } else {
       $current_due_date = ts('None');
     }
-    $recorded_due_date = $suggestion->getParameter('expected_date');
     if ($recorded_due_date != $current_due_date) {
       // something changed...
       CRM_Core_Session::setStatus(ts('The situation for the recurring contribution seems to have changed. Please analyse transaction again.'), ts('Recurring contribution changed'), 'alert');
       return false;
     }
 
-    // go ahead and create the contribution
-    $contribution = array();
-    $contribution['contact_id']                 = $suggestion->getParameter('contact_id');
-    $contribution['total_amount']               = $btx->amount;
-    $contribution['receive_date']               = $btx->booking_date;
-    $contribution['currency']                   = $btx->currency;
-    $contribution['financial_type_id']          = CRM_Utils_Array::value('financial_type_id', $rcontribution);
-    $contribution['payment_instrument_id']      = CRM_Utils_Array::value('payment_instrument_id', $rcontribution);
-    $contribution['campaign_id']                = CRM_Utils_Array::value('campaign_id', $rcontribution);
-    $contribution['contribution_recur_id']      = $rcontribution_id;
-    $contribution['contribution_status_id']     = banking_helper_optionvalue_by_groupname_and_name('contribution_status', $config->created_contribution_status);
-    $contribution = array_merge($contribution, $this->getPropagationSet($btx, $suggestion, 'contribution'));
-    $contribution['version'] = 3;
-    $result = civicrm_api('Contribution', 'create', $contribution);
-    if (isset($result['is_error']) && $result['is_error']) {
-      CRM_Core_Session::setStatus(ts("Couldn't create contribution.")."<br/>".ts("Error was: ").$result['error_message'], ts('Error'), 'error');
-      return false;
-    } 
+    // go ahead and create the contributions
+    $contribution_ids = array();
+    if (count($rcontributions) == 1) {
+      $contribution = array();
+      $contribution['contact_id']                 = $suggestion->getParameter('contact_id');
+      $contribution['total_amount']               = $btx->amount;
+      $contribution['receive_date']               = $btx->booking_date;
+      $contribution['currency']                   = $btx->currency;
+      $contribution['financial_type_id']          = CRM_Utils_Array::value('financial_type_id', $rcontribution);
+      $contribution['payment_instrument_id']      = CRM_Utils_Array::value('payment_instrument_id', $rcontribution);
+      $contribution['campaign_id']                = CRM_Utils_Array::value('campaign_id', $rcontribution);
+      $contribution['contribution_recur_id']      = $rcontribution_id;
+      $contribution['contribution_status_id']     = banking_helper_optionvalue_by_groupname_and_name('contribution_status', $config->created_contribution_status);
+      $contribution = array_merge($contribution, $this->getPropagationSet($btx, $suggestion, 'contribution'));
+      $contribution['version'] = 3;
+      $result = civicrm_api('Contribution', 'create', $contribution);
+      if (isset($result['is_error']) && $result['is_error']) {
+        CRM_Core_Session::setStatus(ts("Couldn't create contribution.")."<br/>".ts("Error was: ").$result['error_message'], ts('Error'), 'error');
+        return false;
+      }
+      $contribution_ids[] = $result['id'];
+      $suggestion->setParameter('contribution_id', $result['id']);
+    } else {
+      foreach ($rcontributions as $rcontribution) {
+        $contribution = array();
+        $contribution['contact_id']                 = $rcontribution['contact_id'];
+        $contribution['total_amount']               = $rcontribution['amount'];
+        $contribution['receive_date']               = $btx->booking_date;
+        $contribution['currency']                   = $rcontribution['currency'];
+        $contribution['financial_type_id']          = CRM_Utils_Array::value('financial_type_id', $rcontribution);
+        $contribution['payment_instrument_id']      = CRM_Utils_Array::value('payment_instrument_id', $rcontribution);
+        $contribution['campaign_id']                = CRM_Utils_Array::value('campaign_id', $rcontribution);
+        $contribution['contribution_recur_id']      = $rcontribution['id'];
+        $contribution['contribution_status_id']     = banking_helper_optionvalue_by_groupname_and_name('contribution_status', $config->created_contribution_status);
+        $contribution = array_merge($contribution, $this->getPropagationSet($btx, $suggestion, 'contribution'));
+        $contribution['version'] = 3;
+        $result = civicrm_api('Contribution', 'create', $contribution);
+        if (isset($result['is_error']) && $result['is_error']) {
+          CRM_Core_Session::setStatus(ts("Couldn't create contribution.")."<br/>".ts("Error was: ").$result['error_message'], ts('Error'), 'error');
+          return false;
+        }
+        $contribution_ids[] = $result['id'];
+      }
+    }
 
     // success!
-    $suggestion->setParameter('contribution_id', $result['id']);
+    $contribution_id_list = implode(',', $contribution_ids);
+    $suggestion->setParameter('contribution_ids', $contribution_id_list);
 
     // save the account
     $this->storeAccountWithContact($btx, $suggestion->getParameter('contact_id'));
@@ -247,8 +287,6 @@ class CRM_Banking_PluginImpl_Matcher_RecurringContribution extends CRM_Banking_P
     // assign to smarty and compile HTML
     $smarty_vars['recurring_contributions'] = $rcontributions;
     $smarty_vars['contacts']                = $contacts;
-    $smarty_vars['expected_date']           = $match->getParameter('expected_date');
-    $smarty_vars['expected_amount']         = $match->getParameter('expected_amount');
     $smarty_vars['penalties']               = $match->getEvidence();
 
     $smarty = CRM_Banking_Helpers_Smarty::singleton();
@@ -266,11 +304,21 @@ class CRM_Banking_PluginImpl_Matcher_RecurringContribution extends CRM_Banking_P
    * @return html code snippet
    */  
   function visualize_execution_info( CRM_Banking_Matcher_Suggestion $match, $btx) {
+    $contribution_id_list = $match->getParameter('contribution_ids');
+    if ($contribution_id_list == NULL) {
+      // legacy
+      $contribution_id_list = $match->getParameter('contribution_id');
+    }
+
+    $contribution_ids = explode(',', $contribution_id_list);
+    $contributions = array();
+    foreach ($contribution_ids as $contribution_id) {
+      $contributions[] = civicrm_api3('Contribution', 'getsingle', array('id' => $contribution_id));
+    }
+
     // just assign to smarty and compile HTML
     $smarty_vars = array();
-    $smarty_vars['rcontribution_id'] = $match->getParameter('recurring_contribution_id');
-    $smarty_vars['contribution_id']  = $match->getParameter('contribution_id');
-    $smarty_vars['contact_id']       = $match->getParameter('contact_id');
+    $smarty_vars['contributions'] = $contributions;
 
     $smarty = CRM_Banking_Helpers_Smarty::singleton();
     $smarty->pushScope($smarty_vars);
@@ -580,7 +628,6 @@ class CRM_Banking_PluginImpl_Matcher_RecurringContribution extends CRM_Banking_P
     }
 
     if ($config->multimatch) {
-      error_log("MULTI");
       $all_tuples = array();
       for ($count=1; $count <= count($rcontributions); $count++) {
         // now create all <count>-tuples

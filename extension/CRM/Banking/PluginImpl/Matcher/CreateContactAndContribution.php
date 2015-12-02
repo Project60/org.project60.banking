@@ -31,7 +31,7 @@ class CRM_Banking_PluginImpl_Matcher_CreateContactAndContribution extends CRM_Ba
     // read config, set defaults
     $config = $this->_plugin_config;
     if (!isset($config->auto_exec))              $config->auto_exec = false;
-    if (!isset($config->required_values))        $config->required_values = array("btx.financial_type_id", "btx.campaign_id");
+    if (!isset($config->required_values))        $config->required_values = array("btx.financial_type_id");
     if (!isset($config->create_new_threshold))   $config->create_new_threshold = 1.0;
   }
 
@@ -79,18 +79,36 @@ class CRM_Banking_PluginImpl_Matcher_CreateContactAndContribution extends CRM_Ba
     // create contribution
     $contact_data = $this->getPropagationSet($btx, $match, 'contact');
 
-    // TODO: create contact
+    // create the contact
+    $query = $contact_data;
+    $query['version'] = 3;
+    // TODO: API Chaining for adding more data
+    $contact_result = civicrm_api('Contact', 'create', $query);
+    if (isset($contact_result['is_error']) && $contact_result['is_error']) {
+      CRM_Core_Session::setStatus(ts("Couldn't create contact.")."<br/>".ts("Error was: ").$result['error_message'], ts('Error'), 'error');
+      return true;
+    }     
+
+    $contact_id = $contact_result['id'];
     $suggestion->setParameter('contact_id', $contact_id);
-
-
     $contribution_data = $this->get_contribution_data($btx, $suggestion, $contact_id);
+    $contribution_data['contact_id'] = $contact_id;
+
+    // Now lets create the contribution
+    $query = $contribution_data;
+    $query['version'] = 3;
+    $result = civicrm_api('Contribution', 'create', $query);
+    if (isset($result['is_error']) && $result['is_error']) {
+      CRM_Core_Session::setStatus(ts("Couldn't create contribution.")."<br/>".ts("Error was: ").$result['error_message'], ts('Error'), 'error');
+      return true;
+    } 
 
     // TODO: create contribution
     $suggestion->setParameter('contribution_id', $result['id']);
 
 
     // save the account
-    $this->storeAccountWithContact($btx, $suggestion->getParameter('contact_id'));
+    $this->storeAccountWithContact($btx, $contact_id);
 
     // wrap it up
     $newStatus = banking_helper_optionvalueid_by_groupname_and_name('civicrm_banking.bank_tx_status', 'Processed');

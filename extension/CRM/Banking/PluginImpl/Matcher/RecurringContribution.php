@@ -176,6 +176,7 @@ class CRM_Banking_PluginImpl_Matcher_RecurringContribution extends CRM_Banking_P
     // go ahead and create the contributions
     $contribution_ids = array();
     if (count($rcontributions) == 1) {
+      $rcontribution = $rcontributions[0];
       $contribution = array();
       $contribution['contact_id']                 = $suggestion->getParameter('contact_id');
       $contribution['total_amount']               = $btx->amount;
@@ -313,6 +314,7 @@ class CRM_Banking_PluginImpl_Matcher_RecurringContribution extends CRM_Banking_P
     $contribution_ids = explode(',', $contribution_id_list);
     $contributions = array();
     foreach ($contribution_ids as $contribution_id) {
+      if (empty($contribution_id)) continue;
       $contributions[] = civicrm_api3('Contribution', 'getsingle', array('id' => $contribution_id));
     }
 

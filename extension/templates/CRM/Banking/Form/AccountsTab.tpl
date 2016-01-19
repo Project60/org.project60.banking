@@ -36,7 +36,7 @@
           <tr><td>
             {if $reference.reference_type eq 'NBAN_DE'}
             {assign var=german value="/"|explode:$reference.reference} 
-            BLZ:&nbsp;{$german.0}&nbsp;&nbsp;&nbsp;Kto#:&nbsp;{$german.1}&nbsp;({ts}German{/ts})
+            BLZ:&nbsp;{$german.0}&nbsp;&nbsp;&nbsp;Kto:&nbsp;{$german.1}&nbsp;({ts}German{/ts})
             {elseif $reference.reference_type eq 'ENTITY'}
             {* We hide entity references for the moment *}
             {else}

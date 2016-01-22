@@ -195,9 +195,8 @@ class CRM_Banking_PluginImpl_Importer_XML extends CRM_Banking_PluginModel_Import
               continue;
             }
 
-
           } else {
-
+            // unknown filter spec
           }
         }
 
@@ -292,7 +291,11 @@ class CRM_Banking_PluginImpl_Importer_XML extends CRM_Banking_PluginModel_Import
     // do some post processing
     if (!isset($config->bank_reference)) {
       // set MD5 hash as unique reference
-      $data['bank_reference'] = md5($raw_data);
+      if (isset($stmt_data['tx_reference_seed'])) {
+        $data['bank_reference'] = md5($raw_data . $stmt_data['tx_reference_seed']);
+      } else {
+        $data['bank_reference'] = md5($raw_data . json_encode($stmt_data));
+      }
     } else {
       // otherwise use the template
       $bank_reference = $config->bank_reference;

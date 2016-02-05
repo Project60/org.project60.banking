@@ -75,7 +75,17 @@ class CRM_Banking_Page_Import extends CRM_Core_Page {
       }
 
       // add the resulting log
-      $this->assign('log', $plugin_instance->getLog());
+      $log = $plugin_instance->getLog();
+      $this->assign('log', $log);
+
+      // skim through the log and make error messages pop up, see BANKING-136
+      foreach ($log as $log_entry) {
+        if ($log_entry[3]==CRM_Banking_PluginModel_Base::REPORT_LEVEL_WARN) {
+          CRM_Core_Session::setStatus($log_entry[2], ts('Import Warning'), 'warn');
+        } elseif ($log_entry[3]==CRM_Banking_PluginModel_Base::REPORT_LEVEL_WARN) {
+          CRM_Core_Session::setStatus($log_entry[2], ts('Import Error'), 'error');
+        }
+      }
     } else {
       // CONFIGURATION MODE:
       $this->assign('page_mode', 'config');

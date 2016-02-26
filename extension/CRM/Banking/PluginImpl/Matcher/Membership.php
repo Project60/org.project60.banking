@@ -232,6 +232,10 @@ class CRM_Banking_PluginImpl_Matcher_Membership extends CRM_Banking_PluginModel_
     $result = array();
     foreach ($memberships as $membership) {
       $probability = $this->rateMembership($membership, $btx, $context);
+      if (isset($contact2probability[$membership['contact_id']])) {
+        $probability *= $contact2probability[$membership['contact_id']];
+      }
+
       $probability -= $penalty;
       if ($probability >= $config->threshold) {
         $membership['probability'] = $probability;

@@ -54,8 +54,8 @@ class CRM_Banking_PluginImpl_Matcher_Membership extends CRM_Banking_PluginModel_
     // transform all memberships into suggestions
     foreach ($memberships as $membership) {
       $suggestion = new CRM_Banking_Matcher_Suggestion($this, $btx);
-      if (isset($contact->general_options->suggestion_title)) {
-        $suggestion->setTitle($contact->general_options->suggestion_title);  
+      if (isset($config->general_options->suggestion_title)) {
+        $suggestion->setTitle($config->general_options->suggestion_title);  
       } else {
         $suggestion->setTitle(ts("Record as Membership Fee"));
       }

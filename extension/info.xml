@@ -8,8 +8,8 @@
     <author>Björn Endres</author>
     <email>endres@systopia.de</email>
   </maintainer>
-  <releaseDate>2016-02-09</releaseDate>
-  <version>0.5.3-ai-dev-16ab15f</version>
+  <releaseDate>2016-02-26</releaseDate>
+  <version>0.5.3-ap-dev-01b161b</version>
   <develStage>testing</develStage>
   <compatibility>
     <ver>4.4</ver>

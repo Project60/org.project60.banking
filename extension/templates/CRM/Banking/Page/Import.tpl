@@ -33,11 +33,11 @@
     <table class="form-layout">
       <tbody>
         <tr class="crm-import-datasource-form-block-dataSource">
-          <td class="label"><label for="dataSource">{ts}Choose configuration{/ts}<span title="This field is required." class="crm-marker">*</span></label>
+          <td class="label">
+            <label for="dataSource">{ts}Choose configuration{/ts}<span title="This field is required." class="crm-marker">*</span></label>
           </td>
           <td>
-            <select class="form-select required" id="banking-importer-plugin" name="importer-plugin" onchange="selected_plugin_changed(this.value);" 
-            {if $page_mode == 'run'}disabled{/if}>
+            <select class="form-select required" id="banking-importer-plugin" name="importer-plugin" onchange="selected_plugin_changed(this.value);" {if $page_mode == 'run'}disabled{/if}>
               <option value="-9999">-- {ts}select{/ts} --</option>
             {foreach from=$plugin_list item=field key=fieldName}
               <option value="{$field->id}" {if $plugin_id == $field->id} selected{/if}>{$field->name}</option>
@@ -96,14 +96,11 @@
       {ts}Dry run{/ts}</input>
     </td>
   </tr>
-  <tr class="crm-import-datasource-form-block-dataSource">
+  <!--tr class="crm-import-datasource-form-block-dataSource">
     <td>
-      <input type="checkbox" disabled class="form-checkbox" value="on" name="process" id="process" 
-      {if $page_mode == 'run'} disabled {/if}
-    {if $process == 'on'} checked {/if}>
-  {ts}Process transactions right away{/ts}</input>
-</td>
-</tr>
+      <input type="checkbox" disabled class="form-checkbox" value="on" name="process" id="process" {if $page_mode == 'run'} disabled {/if}{if $process == 'on'} checked {/if}>{ts}Process transactions right away{/ts}</input>
+    </td>
+  </tr-->
 </tbody>
 </table>
 </div>

@@ -228,13 +228,15 @@ class CRM_Banking_Form_AccountsTab extends CRM_Core_Form {
     civicrm_api3('BankingAccountReference', 'create', $reference_update);
 
     if ($was_created) {
-        CRM_Core_Session::setStatus(ts("Bank account '%1' was created.", $values['reference']), ts('Success'));
+        CRM_Core_Session::setStatus(ts("Bank account '%1' was created.", array(1=>$values['reference'])), ts('Success'));
     } else {
-        CRM_Core_Session::setStatus(ts("Bank account '%1' was updated.", $values['reference']), ts('Success'));
+        CRM_Core_Session::setStatus(ts("Bank account '%1' was updated.", array(1=>$values['reference'])), ts('Success'));
     }
 
     // return to accounts tab
-    CRM_Utils_System::redirect(CRM_Utils_System::url('civicrm/contact/view', "reset=1&cid=2&selectedChild=bank_accounts"));
+    if (!empty($values['contact_id'])) {
+        CRM_Utils_System::redirect(CRM_Utils_System::url('civicrm/contact/view', "reset=1&cid={$values['contact_id']}&selectedChild=bank_accounts"));        
+    }
     parent::postProcess();
   }
 

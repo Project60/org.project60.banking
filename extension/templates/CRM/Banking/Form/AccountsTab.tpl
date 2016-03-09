@@ -75,7 +75,7 @@
           <span><div class="icon delete-icon ui-icon-trash"></div>{ts}Delete{/ts}</span>
         </a>
         <a title="{ts}Edit{/ts}" class="edit button" onClick="banking_editaccount({$account.id});">
-          <span><div class="icon edit-icon ui-icon-edit"></div>{ts}Edit{/ts}</span>
+          <span><div class="icon edit-icon ui-icon-pencil"></div>{ts}Edit{/ts}</span>
         </a>
       </td>
     </tr>
@@ -88,7 +88,7 @@
 {/if}
 
 <a id="banking_account_addbtn" title="{ts}Add{/ts}" class="add button" onClick="banking_addaccount();">
-  <span><div class="icon add-icon ui-icon-add"></div>{ts}Add{/ts}</span>
+  <span><div class="icon add-icon ui-icon-add ui-icon-circle-plus"></div>{ts}Add{/ts}</span>
 </a>
 
 <div id="banking_account_form" hidden="1">

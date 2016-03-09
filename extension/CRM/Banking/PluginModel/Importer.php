@@ -235,7 +235,7 @@ abstract class CRM_Banking_PluginModel_Importer extends CRM_Banking_PluginModel_
       // test currency
       if ($this->_current_transaction_batch->currency && isset($btx['currency'])) {
         if ($this->_current_transaction_batch->currency != $btx['currency']) {
-          $this->reportProgress(CRM_Banking_PluginModel_Base::REPORT_PROGRESS_NONE, ts("WARNING: multiple currency batches not fully supported"));
+          $this->reportProgress(CRM_Banking_PluginModel_Base::REPORT_PROGRESS_NONE, ts("WARNING: multiple currency batches not fully supported"), CRM_Banking_PluginModel_Base::REPORT_LEVEL_WARN);
         }
       } else {
         $this->_current_transaction_batch->currency = $btx['currency'];

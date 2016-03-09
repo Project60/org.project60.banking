@@ -244,6 +244,10 @@ class CRM_Banking_Page_Review extends CRM_Core_Page {
         CRM_Utils_System::setTitle(ts("Review Bank Transaction"));
       }
 
+      // tell the page if popups are available
+      $popups_allowed = (int) version_compare(CRM_Utils_System::version(), '4.6', '>=');
+      $this->assign('popups_allowed', $popups_allowed);
+
       // perform redirect, if requested
       if ($url_redirect) {
         CRM_Utils_System::redirect($url_redirect);

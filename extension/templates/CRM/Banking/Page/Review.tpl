@@ -463,5 +463,27 @@ function analysePayment() {
   );
 }
 
+/**
+ * common function to bring CiviCRM 4.5+ popups into the game
+ */
+function banking_open_link(dirty_link, replacements, asPopup) {
+  // "clean" the link
+  var link = cj("<div/>").html(dirty_link).text();
+
+  // replace the tokens
+  for (var token in replacements) {
+    link = link.replace(token, replacements[token]);
+  }
+
+  if (asPopup && {/literal}{$popups_allowed}{literal}) {
+    // popup requested and possible => do it!
+    var popup_node = cj('<a href="' + link + '" class="crm-popup" />');
+    popup_node.click(CRM.popup); // add handler
+    popup_node.click(); // execute handler
+  } else {
+    // open in an extra tab
+    window.open(link, "_blank");
+  }
+}
 </script>
 {/literal} 

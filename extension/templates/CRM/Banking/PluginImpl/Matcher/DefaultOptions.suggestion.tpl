@@ -44,7 +44,7 @@
 
 <div>
   <a class="button" onclick="manual_match_refresh_list();"><span><div class="icon refresh-icon ui-icon-refresh"></div>{ts}refresh{/ts}</span></a>
-  <a class="button" onclick="manual_match_open_create_new_contribution();"><span><div class="icon add-icon ui-icon-circle-plus"></div>{ts}add empty contribution{/ts}</span></a>
+  <a class="button" onclick="manual_match_open_create_new_contribution();"><span><div class="icon add-icon ui-icon-circle-plus"></div>{ts}create empty contribution{/ts}</span></a>
   <a class="button" onclick="manual_match_add_contribution();"><span><div class="icon add-icon ui-icon-circle-plus"></div>{ts}add existing contribution by ID{/ts}</span></a>
   <input id="manual_match_add" onkeydown="if (event.keyCode == 13) return manual_match_add_contribution();" type="text" style="width: 4em; height: 1.4em;"></input>
   <div style="float:right;">
@@ -91,7 +91,7 @@
       cid = parseInt(list[cid_idx]);
       if (!isNaN(cid) && cid>0) {
         // load the contribution
-        CRM.api("Contribution", "get", {"q": "civicrm/ajax/rest", "sequential": 1, "id": cid},
+        CRM.api("Contribution", "get", {"sequential": 1, "id": cid},
           { success: manual_match_add_data_to_list });
       }
     }
@@ -102,7 +102,7 @@
    * It also triggers loading the next id from the list in the hidden field 
    */
   function manual_match_load_contact_into_contact_list(contact_id, select) {
-    CRM.api("Contact", "get", {"q": "civicrm/ajax/rest", "sequential": 1, "id": contact_id},
+    CRM.api("Contact", "get", {"sequential": 1, "id": contact_id},
         { success: function(data) {
           if (data.count > 0) {
             // generate contact select option
@@ -180,7 +180,7 @@
 
         var row = "<tr id=\"manual_match_row_cid_" + contribution.id + "\">";
         row += "<td><a href=\"#\" onclick=\"manual_match_remove_contribution(" + contribution.id + ");\">[{/literal}{ts}remove{/ts}{literal}]</a>";
-        row += "&nbsp;<a href=\"" + view_link + "\" target=\"_blank\">[{/literal}{ts}view{/ts}{literal}]</a></td>";
+        row += "&nbsp;<a href=\"" + view_link + "\" target=\"_blank\" class=\"crm-popup\">[{/literal}{ts}view{/ts}{literal}]</a></td>";
         row += "<td>" + contribution.display_name + "</td>";
         row += "<td>" + contribution.financial_type + "</td>";
         row += "<td>" + contribution.receive_date.replace(" 00:00:00","");  + "</td>";
@@ -234,7 +234,7 @@
       return;
     }
     // ok, we have a contact -> create a new (test) contribution
-    CRM.api("Contribution", "create", { "q": "civicrm/ajax/rest", "sequential": 1, 
+    CRM.api("Contribution", "create", { "sequential": 1, 
                                         "contact_id": contact_id, 
                                         "is_test": 1, 
                                         "total_amount": parseFloat({/literal}{$btx.amount}{literal}).toFixed(2), 
@@ -255,11 +255,8 @@
         manual_match_add_contribution_to_field(contribution.id);
         manual_match_refresh_list();
 
-        // also open editor
-        var link = cj("<div/>").html("{/literal}{$edit_contribution_link}{literal}").text();
-        link = link.replace("__contributionid__", contribution.id);
-        link = link.replace("__contactid__", contribution.contact_id);
-        window.open(link, "_blank");
+        // ...also open editor
+        banking_open_link("{/literal}{$edit_contribution_link}{literal}", {"__contributionid__":contribution.id, "__contactid__":contribution.contact_id}, true);
       }
     });                    
   }
@@ -269,10 +266,7 @@
    * to automatically add this contribution to the list.
    */
   function manual_match_open_create_new_contribution() {
-    // decode the value here (idk why...)
-    var link = cj("<div/>").html("{/literal}{$new_contribution_link}{literal}").text();
-    // and open it in another tab/window
-    window.open(link, "_blank");            
+    banking_open_link("{/literal}{$new_contribution_link}{literal}", {}, false);
   }
 
   /** 
@@ -379,13 +373,10 @@
       // get contact_id from selector
       var contact_id = cj("#manual_match_contact_selector").val();
       if (parseInt(contact_id) > 0) {
-        var link = cj("<div/>").html("{/literal}{$view_contact_link}{literal}").text();
-        link = link.replace("__contactid__", contact_id);
+        banking_open_link("{/literal}{$view_contact_link}{literal}", {"__contactid__":contact_id}, false);
       } else {
-        var link = cj("<div/>").html("{/literal}{$view_search_link}{literal}").text();
+        banking_open_link("{/literal}{$view_search_link}{literal}", {}, false);
       }
-      // open link
-      window.open(link, "_blank");
   }
   
   // call some updates once...

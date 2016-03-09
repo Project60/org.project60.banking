@@ -51,6 +51,11 @@ class CRM_Banking_PluginImpl_Importer_XML extends CRM_Banking_PluginModel_Import
    */
   protected $account_cache = array();
 
+  /**
+   * This will be used to suppress duplicates within the same statement
+   *  when automatically generating references
+   */
+  protected $bank_reference_cache = array();
 
   /** 
    * the plugin's user readable name
@@ -195,9 +200,8 @@ class CRM_Banking_PluginImpl_Importer_XML extends CRM_Banking_PluginModel_Import
               continue;
             }
 
-
           } else {
-
+            // unknown filter spec
           }
         }
 
@@ -292,7 +296,23 @@ class CRM_Banking_PluginImpl_Importer_XML extends CRM_Banking_PluginModel_Import
     // do some post processing
     if (!isset($config->bank_reference)) {
       // set MD5 hash as unique reference
-      $data['bank_reference'] = md5($raw_data);
+      if (isset($stmt_data['tx_reference_seed'])) {
+        $bank_reference = md5($raw_data . $stmt_data['tx_reference_seed']);
+      } else {
+        $bank_reference = md5($raw_data . json_encode($data));
+      }
+
+      if (!isset($this->bank_reference_cache[$bank_reference])) {
+        // this is a new reference (within this bank statement)
+        $this->bank_reference_cache[$bank_reference] = 1;
+      } else {
+        // this reference already exists => append number
+        $counter = $this->bank_reference_cache[$bank_reference];
+        $this->bank_reference_cache[$bank_reference] = $counter + 1;
+        $bank_reference = md5($bank_reference . $counter);
+      }
+      $data['bank_reference'] = $bank_reference;
+
     } else {
       // otherwise use the template
       $bank_reference = $config->bank_reference;

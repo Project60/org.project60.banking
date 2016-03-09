@@ -37,6 +37,7 @@ class CRM_Banking_PluginImpl_Matcher_DefaultOptions extends CRM_Banking_PluginMo
     if (!isset($config->manual_message)) $config->manual_message = "Please configure";
     if (!isset($config->manual_default_source)) $config->manual_default_source = "";
     if (!isset($config->manual_contribution)) $config->manual_contribution = "Contribution:";
+    if (!isset($config->manual_default_contacts)) $config->manual_default_contacts = array(); // contacts to always be added to the list (contact_id => probability)
     if (!isset($config->default_financial_type_id)) $config->default_financial_type_id = 1;
     if (!isset($config->createnew_value_propagation)) $config->createnew_value_propagation = array();
 
@@ -64,9 +65,22 @@ class CRM_Banking_PluginImpl_Matcher_DefaultOptions extends CRM_Banking_PluginMo
         $manually_processed->setTitle($config->manual_title);
         $manually_processed->setId('manual');
 
-        // add related contacts
+        // find related contacts
         $data_parsed = $btx->getDataParsed();
         $contacts = $context->findContacts(0, $data_parsed['name'], $config->lookup_contact_by_name);
+
+        // add default contacts
+        foreach ($config->manual_default_contacts as $contact_id => $probability) {
+          if (isset($contacts[$contact_id])) {
+            // only override probability if it would be improved
+            $contacts[$contact_id] = max($probability, $contacts[$contact_id]);
+          } else {
+            // not set yet, add to list
+            $contacts[$contact_id] = $probability;
+          }
+        }
+
+        // add result to paramters
         $manually_processed->setParameter('contact_ids', implode(',', array_keys($contacts)));
         $manually_processed->setParameter('contact_ids2probablility', json_encode($contacts));
 

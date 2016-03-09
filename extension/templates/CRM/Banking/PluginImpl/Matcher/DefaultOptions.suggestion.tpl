@@ -135,15 +135,27 @@
 
             // ...add to selector list
             cj("#manual_match_contact_selector").append(item);
-
-            // finally, trigger the next contact to be loaded
-            var list = cj("#manual_match_contacts").val().split(",");
-            var index = cj.inArray(contact_id.toString(), list);
-            if (index != -1 && (index+1) < list.length) {
-              manual_match_load_contact_into_contact_list(list[index+1], select);
-            }
+          
           } else {
-            alert("Contact not found!");
+            alert("Contact [" + contact_id + "] not found!");
+
+          }
+
+          // finally, trigger the next contact to be loaded
+          var list = cj("#manual_match_contacts").val().split(",");
+          var index = -1;
+
+          // find last index of contact_id (to prevent loops)
+          for (var i = list.length - 1; i >= 0; i--) {
+            if (list[i] == contact_id.toString()) {
+              index = i;
+              break;
+            }
+          };
+
+          // load next if there is one
+          if (index != -1 && (index+1) < list.length) {
+            manual_match_load_contact_into_contact_list(list[index+1], select);
           }
         }
       });

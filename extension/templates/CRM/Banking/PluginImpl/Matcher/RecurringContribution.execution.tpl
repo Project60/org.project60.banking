@@ -13,9 +13,30 @@
 | written permission from the original author(s).        |
 +--------------------------------------------------------*}
 
-{capture assign=contribution_link}{crmURL p="civicrm/contact/view/contribution" q="reset=1&id=$contribution_id&cid=$contact_id&action=view&context=membership&selectedChild=contribute"}{/capture}
-{capture assign=rcontribution_link}{crmURL p="civicrm/contact/view/contributionrecur" q="reset=1&id=$rcontribution_id&cid=$contact_id"}{/capture}
+{* compile contribution list *}
+{assign var=contribution_list value=''}
+{assign var=rcontribution_list value=''}
+
+{foreach from=$contributions item=contribution name=cloop}
+  {assign var=contribution_id value=$contribution.id}
+  {assign var=rcontribution_id value=$contribution.contribution_recur_id}
+  {assign var=contact_id value=$contribution.contact_id}
+  
+  {capture assign=contribution_link}<a href="{crmURL p="civicrm/contact/view/contribution" q="reset=1&id=$contribution_id&cid=$contact_id&action=view"}">[{$contribution_id}]</a>{/capture}
+  {capture assign=rcontribution_link}<a href="{crmURL p="civicrm/contact/view/contributionrecur" q="reset=1&id=$rcontribution_id&cid=$contact_id"}">[{$rcontribution_id}]</a>{/capture} 
+
+  {if $smarty.foreach.cloop.first}
+    {capture assign=contribution_list}{$contribution_link}{/capture}
+    {capture assign=rcontribution_list}{$rcontribution_link}{/capture}
+  {elseif $smarty.foreach.cloop.last}
+    {capture assign=contribution_list}{$contribution_list} and {$contribution_link}{/capture}
+    {capture assign=rcontribution_list}{$rcontribution_list} and {$rcontribution_link}{/capture}
+  {else}
+    {capture assign=contribution_list}{$contribution_list}, {$contribution_link}{/capture}
+    {capture assign=rcontribution_list}{$rcontribution_list}, {$rcontribution_link}{/capture}
+  {/if}
+{/foreach}
 
 <p>
-  {ts 1=$contribution_link 2=$contribution_id 3=$rcontribution_link 4=$rcontribution_id}This transaction created <a href="%1">contribution #%2</a> as an installment for <a href="%3">recurring contribution #%4</a>.{/ts}
+  {ts 1=$contribution_list 2=$rcontribution_list}This transaction has created contribution %1 for recurring contribution %2{/ts}
 </p>

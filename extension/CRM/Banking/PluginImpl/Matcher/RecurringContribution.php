@@ -33,9 +33,11 @@ class CRM_Banking_PluginImpl_Matcher_RecurringContribution extends CRM_Banking_P
     if (!isset($config->threshold))                     $config->threshold = 0.5;
     if (!isset($config->search_terms))                  $config->search_terms = array();
     if (!isset($config->search_wo_contacts))            $config->search_wo_contacts = FALSE;  // if true, the matcher will keep searching (using the search_terms) even if no contacts are found
+    if (!isset($config->multimatch))                    $config->multimatch = FALSE;     // if true, the matcher will also try and match a multitude of recurring contributions
+    if (!isset($config->multimatch_cutoff))             $config->multimatch_cutoff = 30; // max number of multimatches (the number grows exponentially).
     if (!isset($config->contact_id_list))               $config->contact_id_list = '';  // if not empty, take contacts from comma separated list instead of contact search
     if (!isset($config->created_contribution_status))   $config->created_contribution_status = 'Completed';
-    if (!isset($config->recurring_contribution_status)) $config->recurring_contribution_status = array('Pending');
+    if (!isset($config->recurring_contribution_status)) $config->recurring_contribution_status = array('Pending', 'In Progress');
     if (!isset($config->suggestion_title))              $config->suggestion_title = '';
     if (!isset($config->recurring_mode))                $config->recurring_mode = 'static'; // see getExpectedDate()
 
@@ -63,8 +65,6 @@ class CRM_Banking_PluginImpl_Matcher_RecurringContribution extends CRM_Banking_P
     if (!isset($config->existing_check))                $config->existing_check = "1";
     if (!isset($config->existing_penalty))              $config->existing_penalty = 0.3;
     if (!isset($config->existing_status_ids))           $config->existing_status_ids = array(1,2);
-    if (!isset($config->existing_precision))            $config->existing_precision = "80%"; // allows payment within +/- 20% of the cycle period
-                                                                                             //  would also accept number (e.g. "5") meaning +/- 5 days
   }
 
   /** 
@@ -142,45 +142,86 @@ class CRM_Banking_PluginImpl_Matcher_RecurringContribution extends CRM_Banking_P
     $config      = $this->_plugin_config;
     $smarty_vars = array();
 
-    // load the recurring contribution
-    $rcontribution_id = $suggestion->getParameter('recurring_contribution_id');
-    $rcontribution = civicrm_api3('ContributionRecur', 'getsingle', array('id' => $rcontribution_id));
+    // load the recurring contribution(s)
+    $rcontribution_id_list = $suggestion->getParameter('recurring_contribution_ids');
+    $rcontribution_ids = explode(',', $rcontribution_id_list);
+    $rcontributions = array();
+    foreach ($rcontribution_ids as $rcontribution_id) {
+      $rcontributions[] = civicrm_api3('ContributionRecur', 'getsingle', array('id' => $rcontribution_id));
+    }
+    $virtual_rcur = $this->createVirtualRecurringContribution($rcontributions);
+
+    // verify expected amount
+    $recorded_amount = $suggestion->getParameter('expected_amount');
+    if ($virtual_rcur['amount'] != $recorded_amount) {
+      CRM_Core_Session::setStatus(ts('The expected amount for the recurring contribution(s) seems to have changed. Please analyse transaction again.'), ts('Recurring contribution changed'), 'alert');
+      return false;      
+    }
+
+    // verify due date
     $last_contribution = NULL;
-    
-    $due_date  = self::getExpectedDate($rcontribution, $btx, $config->recurring_mode, $last_contribution);
+    $recorded_due_date = $suggestion->getParameter('expected_date');
+    $due_date = $this->getExpectedDate($virtual_rcur, $btx, $config->recurring_mode, $last_contribution);
     if ($due_date) {
       $current_due_date = date('Y-m-d', $due_date);
     } else {
       $current_due_date = ts('None');
     }
-    $recorded_due_date = $suggestion->getParameter('expected_date');
     if ($recorded_due_date != $current_due_date) {
       // something changed...
       CRM_Core_Session::setStatus(ts('The situation for the recurring contribution seems to have changed. Please analyse transaction again.'), ts('Recurring contribution changed'), 'alert');
       return false;
     }
 
-    // go ahead and create the contribution
-    $contribution = array();
-    $contribution['contact_id']                 = $suggestion->getParameter('contact_id');
-    $contribution['total_amount']               = $btx->amount;
-    $contribution['receive_date']               = $btx->booking_date;
-    $contribution['currency']                   = $btx->currency;
-    $contribution['financial_type_id']          = CRM_Utils_Array::value('financial_type_id', $rcontribution);
-    $contribution['payment_instrument_id']      = CRM_Utils_Array::value('payment_instrument_id', $rcontribution);
-    $contribution['campaign_id']                = CRM_Utils_Array::value('campaign_id', $rcontribution);
-    $contribution['contribution_recur_id']      = $rcontribution_id;
-    $contribution['contribution_status_id']     = banking_helper_optionvalue_by_groupname_and_name('contribution_status', $config->created_contribution_status);
-    $contribution = array_merge($contribution, $this->getPropagationSet($btx, $suggestion, 'contribution'));
-    $contribution['version'] = 3;
-    $result = civicrm_api('Contribution', 'create', $contribution);
-    if (isset($result['is_error']) && $result['is_error']) {
-      CRM_Core_Session::setStatus(ts("Couldn't create contribution.")."<br/>".ts("Error was: ").$result['error_message'], ts('Error'), 'error');
-      return false;
-    } 
+    // go ahead and create the contributions
+    $contribution_ids = array();
+    if (count($rcontributions) == 1) {
+      $rcontribution = $rcontributions[0];
+      $contribution = array();
+      $contribution['contact_id']                 = $suggestion->getParameter('contact_id');
+      $contribution['total_amount']               = $btx->amount;
+      $contribution['receive_date']               = $btx->booking_date;
+      $contribution['currency']                   = $btx->currency;
+      $contribution['financial_type_id']          = CRM_Utils_Array::value('financial_type_id', $rcontribution);
+      $contribution['payment_instrument_id']      = CRM_Utils_Array::value('payment_instrument_id', $rcontribution);
+      $contribution['campaign_id']                = CRM_Utils_Array::value('campaign_id', $rcontribution);
+      $contribution['contribution_recur_id']      = $rcontribution_id;
+      $contribution['contribution_status_id']     = banking_helper_optionvalue_by_groupname_and_name('contribution_status', $config->created_contribution_status);
+      $contribution = array_merge($contribution, $this->getPropagationSet($btx, $suggestion, 'contribution'));
+      $contribution['version'] = 3;
+      $result = civicrm_api('Contribution', 'create', $contribution);
+      if (isset($result['is_error']) && $result['is_error']) {
+        CRM_Core_Session::setStatus(ts("Couldn't create contribution.")."<br/>".ts("Error was: ").$result['error_message'], ts('Error'), 'error');
+        return false;
+      }
+      $contribution_ids[] = $result['id'];
+      $suggestion->setParameter('contribution_id', $result['id']);
+    } else {
+      foreach ($rcontributions as $rcontribution) {
+        $contribution = array();
+        $contribution['contact_id']                 = $rcontribution['contact_id'];
+        $contribution['total_amount']               = $rcontribution['amount'];
+        $contribution['receive_date']               = $btx->booking_date;
+        $contribution['currency']                   = $rcontribution['currency'];
+        $contribution['financial_type_id']          = CRM_Utils_Array::value('financial_type_id', $rcontribution);
+        $contribution['payment_instrument_id']      = CRM_Utils_Array::value('payment_instrument_id', $rcontribution);
+        $contribution['campaign_id']                = CRM_Utils_Array::value('campaign_id', $rcontribution);
+        $contribution['contribution_recur_id']      = $rcontribution['id'];
+        $contribution['contribution_status_id']     = banking_helper_optionvalue_by_groupname_and_name('contribution_status', $config->created_contribution_status);
+        $contribution = array_merge($contribution, $this->getPropagationSet($btx, $suggestion, 'contribution'));
+        $contribution['version'] = 3;
+        $result = civicrm_api('Contribution', 'create', $contribution);
+        if (isset($result['is_error']) && $result['is_error']) {
+          CRM_Core_Session::setStatus(ts("Couldn't create contribution.")."<br/>".ts("Error was: ").$result['error_message'], ts('Error'), 'error');
+          return false;
+        }
+        $contribution_ids[] = $result['id'];
+      }
+    }
 
     // success!
-    $suggestion->setParameter('contribution_id', $result['id']);
+    $contribution_id_list = implode(',', $contribution_ids);
+    $suggestion->setParameter('contribution_ids', $contribution_id_list);
 
     // save the account
     $this->storeAccountWithContact($btx, $suggestion->getParameter('contact_id'));
@@ -214,25 +255,40 @@ class CRM_Banking_PluginImpl_Matcher_RecurringContribution extends CRM_Banking_P
     $smarty_vars = array();
 
     // load the recurring contribution
-    $rcontribution_id = $match->getParameter('recurring_contribution_id');
-    $rcontribution = civicrm_api3('ContributionRecur', 'getsingle', array('id' => $rcontribution_id));
+    $rcontributions = array();
+    $contacts = array();
 
-    // load the recurring contribution
-    $contact_id = $match->getParameter('contact_id');
-    $contact = civicrm_api3('Contact', 'getsingle', array('id' => $contact_id));
+    $rcontribution_ids = $match->getParameter('recurring_contribution_ids');
+    $rcontribution_ids = explode(',', $rcontribution_ids);
+    foreach ($rcontribution_ids as $rcontribution_id) {
+      // load recurring contribution
+      $rcontribution = civicrm_api3('ContributionRecur', 'getsingle', array('id' => $rcontribution_id));
+
+      // load contact
+      $contact_id = $rcontribution['contact_id'];
+      if (empty($contact[$contact_id])) {
+        $contacts[$contact_id] = civicrm_api3('Contact', 'getsingle', array('id' => $contact_id));
+      }
+
+      $last_contribution = NULL;
+      $due_date = $this->getExpectedDate($rcontribution, $btx, $config->recurring_mode, $last_contribution);
+      if (empty($due_date)) {
+        $rcontribution['due_date'] = '';
+      } else {
+        $rcontribution['due_date'] = date('Ymdhis', $due_date);
+      }
+      $rcontribution['last_contribution'] = $last_contribution;
+
+      $rcontributions[$rcontribution_id] = $rcontribution;
+    }
 
     // get due date:
-    $last_contribution = NULL;
-    $due_date = self::getExpectedDate($rcontribution, $btx, $config->recurring_mode, $last_contribution);
+    $due_date = $this->getExpectedDate($rcontribution, $btx, $config->recurring_mode, $last_contribution);
 
     // assign to smarty and compile HTML
-    $smarty_vars['recurring_contribution'] = $rcontribution;
-    $smarty_vars['last_contribution']      = $last_contribution;
-    $smarty_vars['contact']                = $contact;
-    $smarty_vars['due_date']               = $due_date?date('Ymdhis', $due_date):'';
-    $smarty_vars['expected_date']          = $match->getParameter('expected_date');
-    $smarty_vars['expected_amount']        = $match->getParameter('expected_amount');
-    $smarty_vars['penalties']              = $match->getEvidence();
+    $smarty_vars['recurring_contributions'] = $rcontributions;
+    $smarty_vars['contacts']                = $contacts;
+    $smarty_vars['penalties']               = $match->getEvidence();
 
     $smarty = CRM_Banking_Helpers_Smarty::singleton();
     $smarty->pushScope($smarty_vars);
@@ -249,11 +305,22 @@ class CRM_Banking_PluginImpl_Matcher_RecurringContribution extends CRM_Banking_P
    * @return html code snippet
    */  
   function visualize_execution_info( CRM_Banking_Matcher_Suggestion $match, $btx) {
+    $contribution_id_list = $match->getParameter('contribution_ids');
+    if ($contribution_id_list == NULL) {
+      // legacy
+      $contribution_id_list = $match->getParameter('contribution_id');
+    }
+
+    $contribution_ids = explode(',', $contribution_id_list);
+    $contributions = array();
+    foreach ($contribution_ids as $contribution_id) {
+      if (empty($contribution_id)) continue;
+      $contributions[] = civicrm_api3('Contribution', 'getsingle', array('id' => $contribution_id));
+    }
+
     // just assign to smarty and compile HTML
     $smarty_vars = array();
-    $smarty_vars['rcontribution_id'] = $match->getParameter('recurring_contribution_id');
-    $smarty_vars['contribution_id']  = $match->getParameter('contribution_id');
-    $smarty_vars['contact_id']       = $match->getParameter('contact_id');
+    $smarty_vars['contributions'] = $contributions;
 
     $smarty = CRM_Banking_Helpers_Smarty::singleton();
     $smarty->pushScope($smarty_vars);
@@ -273,25 +340,27 @@ class CRM_Banking_PluginImpl_Matcher_RecurringContribution extends CRM_Banking_P
   /**
    * create suggestions for matching recurring contributions
    */
-  function createRecurringContributionSuggestions($query, $probability, $btx, $context) {
+  function createRecurringContributionSuggestions($query, $base_probability, $btx, $context) {
     $config      = $this->_plugin_config;
     $threshold   = $this->getThreshold();
     $data_parsed = $btx->getDataParsed();
     $suggestions = array();
-
     // don't waste your time contacts below the threshold...
-    if ($probability < $threshold) return $suggestions;
+    if ($base_probability < $threshold) return $suggestions;
 
-    $rcur_result = civicrm_api3('ContributionRecur', 'get', $query);
-    foreach ($rcur_result['values'] as $rcur_id => $rcur) {
+    $recurring_contributions = $this->findCandidates($query, $config);
+    foreach ($recurring_contributions as $rcur) {
+      $probability = $base_probability;
+      $rcur_id = $rcur['id'];
+
       // find the next expected date for the recurring contribution
-      $expected_date = self::getExpectedDate($rcur, $btx, $config->recurring_mode);
+      $expected_date = $this->getExpectedDate($rcur, $btx, $config->recurring_mode);
       if ($expected_date==NULL) continue;
 
       // create a suggestion
       $suggestion = new CRM_Banking_Matcher_Suggestion($this, $btx);
       $suggestion->setId("recurring-$rcur_id");
-      $suggestion->setParameter('recurring_contribution_id', $rcur_id);
+      $suggestion->setParameter('recurring_contribution_ids', $rcur_id);
       $suggestion->setParameter('contact_id', $rcur['contact_id']);
       $suggestion->setParameter('expected_date', date('Y-m-d', $expected_date));
       $suggestion->setParameter('expected_amount', $rcur['amount']);
@@ -302,7 +371,7 @@ class CRM_Banking_PluginImpl_Matcher_RecurringContribution extends CRM_Banking_P
         $suggestion->addEvidence(1.0-$probability, ts("The contact could not be uniquely identified."));        
       }
 
-      // CHECK AMOUNT
+      // RCUR LOOP: CHECK AMOUNT
       if ($config->amount_check) {
         // calculate the amount penalties (equivalent to CRM_Banking_PluginImpl_Matcher_ExistingContribution)
         $transaction_amount = $btx->amount;
@@ -322,18 +391,18 @@ class CRM_Banking_PluginImpl_Matcher_RecurringContribution extends CRM_Banking_P
           $penalty = $config->amount_penalty * (abs($amount_delta) / $amount_range);
           if ($penalty) {
             $suggestion->addEvidence($penalty, ts("The amount of the transaction differs from the expected amount."));
-            $probability -= $penalty;            
+            $probability -= $penalty;
           }
         }
       }
 
-      // CHECK CURRENCY
+      // RCUR LOOP: CHECK CURRENCY
       if ($context->btx->currency != $rcur['currency']) {
         $suggestion->addEvidence($config->currency_penalty, ts("The currency of the transaction is not as expected."));
         $probability -= $config->currency_penalty;
       }
 
-      // CHECK EXPECTED DATE
+      // RCUR LOOP: CHECK EXPECTED DATE
       if ($config->received_date_check) {
         // use date only
         $transaction_date = strtotime(date('Y-m-d', strtotime($context->btx->value_date)));
@@ -363,12 +432,10 @@ class CRM_Banking_PluginImpl_Matcher_RecurringContribution extends CRM_Banking_P
               $probability -= $penalty;            
             }
           }
-
         }
-        
       }
 
-      // CHECK FOR OTHER PAYMENTS
+      // RCUR LOOP: CHECK FOR OTHER PAYMENTS
       if ($config->existing_check) {
         $other_contributions_id_list = array();
         $expected_date_string = date('Y-m-d', $expected_date);
@@ -376,20 +443,16 @@ class CRM_Banking_PluginImpl_Matcher_RecurringContribution extends CRM_Banking_P
         $existing_status_list = implode(',', $config->existing_status_list);
 
         // determine date range
-        // TODO: use date_offset_minimum/maximum
-        if (preg_match("/[0-9]+%/", $config->existing_precision)) {
-          $cycle_length_seconds = strtotime("+{$rcur['frequency_interval']} {$rcur['frequency_unit']}", 0);
-          $date_range = (int) (((100.0 - (float) $config->existing_precision) / 100.0)  * ((float) $cycle_length_seconds / (float) (60 * 60 *24)));
-        } else {
-          $date_range = (int) $config->existing_precision;
-        }
+        $date_offset_minimum = str_replace('DAYS', 'DAY', strtoupper($config->date_offset_minimum));
+        $date_offset_maximum = str_replace('DAYS', 'DAY', strtoupper($config->date_offset_maximum));
+
         $sql = "
         SELECT id AS contribution_id
         FROM civicrm_contribution 
-        WHERE contribution_recur_id = $rcur_id
+        WHERE contribution_recur_id IN ($rcur_id)
           AND contribution_status_id IN ($existing_status_list)
-          AND (receive_date BETWEEN ('$expected_date_string' - INTERVAL $date_range DAY)
-                                AND ('$expected_date_string' + INTERVAL $date_range DAY) );";
+          AND (receive_date BETWEEN ('$expected_date_string' - INTERVAL $date_offset_minimum)
+                                AND ('$expected_date_string' + INTERVAL $date_offset_maximum) );";
         $sql_query = CRM_Core_DAO::executeQuery($sql);
         while ($sql_query->fetch()) {
           $other_contributions_id_list[] = $sql_query->contribution_id;
@@ -411,10 +474,9 @@ class CRM_Banking_PluginImpl_Matcher_RecurringContribution extends CRM_Banking_P
         }
       }
 
-
       $suggestion->setProbability($probability);
       $suggestions[] = $suggestion;
-    }
+    } // END RCUR LOOP
 
     return $suggestions;
   }
@@ -444,7 +506,12 @@ class CRM_Banking_PluginImpl_Matcher_RecurringContribution extends CRM_Banking_P
    *            transactions's date, so that any payment will be accepted, even if too late.
    *  (more to come...?)
    */
-  public static function getExpectedDate($rcontribution, $btx, $recurring_mode, &$last_contribution = NULL) {
+  public function getExpectedDate(&$rcontribution, &$btx, $recurring_mode, &$last_contribution = NULL) {
+    // virtual recurring contributions require special treatment:
+    if (isset($rcontribution['virtual'])) {
+      return $this->getExpectedDateVirtual($rcontribution, $btx, $recurring_mode, $last_contribution);
+    }
+
     // find a maximum
     $max_date = strtotime("+1 year");
     if (!empty($rcontribution['end_date']) && strtotime($rcontribution['end_date'])<$max_date) {
@@ -504,7 +571,7 @@ class CRM_Banking_PluginImpl_Matcher_RecurringContribution extends CRM_Banking_P
     } elseif ($recurring_mode == 'adapt') {
       if ($last_contribution==NULL) {
         // this relies on the last contribution
-        return self::getExpectedDate($rcontribution, $btx, 'static');
+        return $this->getExpectedDate($rcontribution, $btx, 'static');
       }
       $last = strtotime($last_contribution['receive_date']);
       $last_month = strtotime("-1 month", $last);
@@ -524,7 +591,7 @@ class CRM_Banking_PluginImpl_Matcher_RecurringContribution extends CRM_Banking_P
     } elseif ($recurring_mode == 'float') {
       if ($last_contribution==NULL) {
         // this relies on the last contribution
-        return self::getExpectedDate($rcontribution, $btx, 'static');
+        return $this->getExpectedDate($rcontribution, $btx, 'static');
       }
       $last = strtotime($last_contribution['receive_date']);
       $next = strtotime("+$interval $unit", $last);
@@ -547,5 +614,130 @@ class CRM_Banking_PluginImpl_Matcher_RecurringContribution extends CRM_Banking_P
     }
 
     return NULL;
+  }
+
+  /**
+   * This is the hook for multimatches. If deactivated (default), it will simply
+   * return the recurring contributions found.
+   * If activated, it will also return virtual recurring contributions, that
+   * are a combination of the ones found.
+   **/
+  function findCandidates($query, $config) {
+    $rcur_result = civicrm_api3('ContributionRecur', 'get', $query);
+    $rcontributions = array();
+    foreach ($rcur_result['values'] as $key => $value) {
+      $rcontributions[] = $value;
+    }
+
+    if ($config->multimatch) {
+      $all_tuples = array();
+      for ($count=1; $count <= count($rcontributions); $count++) {
+        // now create all <count>-tuples
+        $count_tuples = $this->createTuples($rcontributions, 0, $count);
+        $all_tuples = array_merge($all_tuples, $count_tuples);
+        if (count($all_tuples) >= $config->multimatch_cutoff) {
+          break;
+        }
+      }
+      // joint the tuples into a virtual recurring contribution
+      foreach ($all_tuples as $tuple) {
+        $result[] = $this->createVirtualRecurringContribution($tuple);
+        if (count($result) >= $config->multimatch_cutoff) break;
+      }
+      return $result;
+    } else {
+      return $rcontributions;
+    }
+  }
+
+  /**
+   * will create all possible <count>-tuples after $startindex
+   */
+  function createTuples(&$rcontributions, $start_index, $count) {
+    $tuples = array();
+    for ($i=$start_index; $i < count($rcontributions); $i++) {
+      $tuple = array($rcontributions[$i]);
+      if ($count > 1) { // $i < count($rcontributions) - $count
+        $extensions = $this->createTuples($rcontributions, $i+1, $count-1);
+        foreach ($extensions as $tuple_extension) {
+          $tuples[] = array_merge($tuple, $tuple_extension);
+        }
+      } else {
+        $tuples[] = $tuple;
+      }
+    }
+    return $tuples;
+  }
+
+  /**
+   * joins the tuple of recurring_contributions into 1 virtual one
+   */
+  function createVirtualRecurringContribution($tuple) {
+    if (count($tuple) == 1) {
+      return $tuple[0];
+    } else {
+      $virtual_rcur = $tuple[0];
+      $virtual_rcur['virtual'] = $tuple;
+      for ($i=1; $i < count($tuple); $i++) {
+        $rcur2merge = $tuple[$i];
+        foreach ($rcur2merge as $key => $value) {
+          if ($key=='amount') {           // amounts get added
+            $virtual_rcur['amount'] = $virtual_rcur['amount'] + $value;
+          
+          } elseif ($key=='id' || $key=='contact_id') { // multiple IDs become a list
+            if (empty($virtual_rcur[$key])) {
+              $virtual_rcur[$key] = $value;
+            } else {
+              $id_list = explode(',', $virtual_rcur[$key]);
+              if (!in_array($value, $id_list)) {
+                $id_list[] = $value;
+                $virtual_rcur[$key] = implode(',', $id_list);
+              }
+            }
+          
+          } else {
+            if ($rcur2merge[$key] != CRM_Utils_Array::value($key, $virtual_rcur)) {
+              $virtual_rcur[$key] = '';
+            }
+          }
+        }
+      }
+      return $virtual_rcur;
+    }
+  }
+
+  /**
+   * this is a meta-function designed to deal with virtual recurring contribtuions
+   */
+  public function getExpectedDateVirtual(&$rcontribution_virtual, &$btx, $recurring_mode, &$last_contribution = NULL) {
+    $config   = $this->_plugin_config;
+    $min_date = NULL;
+    $max_date = NULL;
+    $sum_date = 0.0;
+    foreach ($rcontribution_virtual['virtual'] as $rcontribution) {
+      $date = $this->getExpectedDate($rcontribution, $btx, $recurring_mode, $last_contribution);
+      if ($date == NULL) return NULL;
+      $sum_date += $date;
+      if ($min_date == NULL) $min_date = $date;
+      if ($max_date == NULL) $max_date = $date;
+      if ($min_date > $date) $min_date = $date;
+      if ($max_date < $date) $max_date = $date;
+    }
+
+    // now check, if the dates are too far apart, 
+    //  using the config settings for rating indivdual rcontributions
+    $date_offset = $max_date - $min_date;
+    if ( $date_offset < strtotime($config->acceptable_date_offset_from, 0)
+      || $date_offset > strtotime($config->acceptable_date_offset_to, 0)) {
+
+      // now use the same checks as for the individual rcontribution boundaries
+      // to discard implausible virtual rcontributions:
+      if ($date_offset < strtotime($config->date_offset_minimum, 0)) return NULL;
+      if ($date_offset > strtotime($config->date_offset_maximum, 0)) return NULL;
+    }
+
+    // use the mean date as expected date for the virtual rcontribution
+    $mean_date = ((double) $sum_date) / (double) count($rcontribution_virtual['virtual']);
+    return $mean_date;
   }
 }

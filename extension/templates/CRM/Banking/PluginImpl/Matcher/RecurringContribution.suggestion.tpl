@@ -13,69 +13,127 @@
 | written permission from the original author(s).        |
 +--------------------------------------------------------*}
 
-{assign var=contact_id value=$contact.id}
-{assign var=recurring_contribution_id value=$recurring_contribution.id}
-
-{* calculate a more user friendly display of the recurring_contribution transaction interval *}
-{if $recurring_contribution.frequency_unit eq 'month'}
-  {if $recurring_contribution.frequency_interval eq 1}
-    {capture assign=frequency_words}{ts}monthly{/ts}{/capture}
-  {elseif $recurring_contribution.frequency_interval eq 3}
-    {capture assign=frequency_words}{ts}quarterly{/ts}{/capture}
-  {elseif $recurring_contribution.frequency_interval eq 6}
-    {capture assign=frequency_words}{ts}semi-annually{/ts}{/capture}
-  {elseif $recurring_contribution.frequency_interval eq 12}
-    {capture assign=frequency_words}{ts}annually{/ts}{/capture}
-  {else}
-    {capture assign=frequency_words}{ts 1=$recurring_contribution.frequency_interval}every %1 months{/ts}{/capture}
-  {/if}
-{elseif $recurring_contribution.frequency_unit eq 'year'}
-  {if $recurring_contribution.frequency_interval eq 1}
-    {capture assign=frequency_words}{ts}annually{/ts}{/capture}
-  {else}
-    {capture assign=frequency_words}{ts 1=$recurring_contribution.frequency_interval}every %1 years{/ts}{/capture}
-  {/if}
-{else}
-  {capture assign=frequency_words}{ts}on an irregular basis{/ts}{/capture}
-{/if}
-
 <div>
-  {capture assign=address_text}{if $contact.city}{$contact.street_address}, {$contact.city}{else}{ts}Address incomplete{/ts}{/if}{/capture}
-  {capture assign=contact_link}<a title="{$address_text}" href="{crmURL p="civicrm/contact/view" q="reset=1&cid=$contact_id"}">{$contact.display_name} [{$contact.id}]</a>{/capture}
-  {capture assign=contribution_href}{crmURL p="civicrm/contact/view/contributionrecur" q="reset=1&id=$recurring_contribution_id&cid=$contact_id"}{/capture}
-  {capture assign=date_text}{$recurring_contribution.start_date|crmDate:$config->dateformatFull}{/capture}
   <p>
-    {ts 1=$contact_link 2=$recurring_contribution_id 3=$date_text 4=$contribution_href}%1 maintains a <a href="%4">recurring contribution [%2]</a> since %3.{/ts}
+  {if $recurring_contributions|@count eq 1}
+    {assign var=contact_id value=$contacts|@key}
+    {assign var=contact value=$contacts.$contact_id}
+    {capture assign=address_text}{if $contact.city}{$contact.street_address}, {$contact.city}{else}{ts}Address incomplete{/ts}{/if}{/capture}
+    {capture assign=contact_link}<a title="{$address_text}" href="{crmURL p="civicrm/contact/view" q="reset=1&cid=$contact_id"}">{$contact.display_name} [{$contact.id}]</a>{/capture}
+
+    {ts 1=$contact_link}%1 maintains a matching recurring contribution.{/ts}
     {ts}If you confirm this suggestion, the transaction will be recorded as a new installment for this recurring contribution.{/ts}
+
+  {else}
+    {assign var=recurring_contribution_count value=$recurring_contributions|@count}
+    {if $contacts|@count eq 1}
+      {assign var=contact_id value=$contacts|@key}
+      {assign var=contact value=$contacts.$contact_id}
+      {capture assign=address_text}{if $contact.city}{$contact.street_address}, {$contact.city}{else}{ts}Address incomplete{/ts}{/if}{/capture}
+      {capture assign=contact_link}<a title="{$address_text}" href="{crmURL p="civicrm/contact/view" q="reset=1&cid=$contact_id"}">{$contact.display_name} [{$contact.id}]</a>{/capture}
+
+      {ts 1=$contact_link 2=$recurring_contribution_count}%1 maintains %2 matching recurring contributions.{/ts}
+
+    {else}
+      {* compile contact list *}
+      {foreach from=$contacts item=contact name=cloop}
+        {assign var=contact_id value=$contact.id}
+        {capture assign=address_text}{if $contact.city}{$contact.street_address}, {$contact.city}{else}{ts}Address incomplete{/ts}{/if}{/capture}
+        {capture assign=contact_link}<a title="{$address_text}" href="{crmURL p="civicrm/contact/view" q="reset=1&cid=$contact_id"}">{$contact.display_name} [{$contact.id}]</a>{/capture}
+
+        {if $smarty.foreach.cloop.first}
+          {capture assign=contact_list}{$contact_link}{/capture}
+        {elseif $smarty.foreach.cloop.last}
+          {capture assign=contact_list}{$contact_list} and {$contact_link}{/capture}
+        {else}
+          {capture assign=contact_list}{$contact_list}, {$contact_link}{/capture}
+        {/if}
+      {/foreach}
+
+      {ts 1=$contact_link 2=$recurring_contribution_count}%1 maintain %2 matching recurring contributions.{/ts}
+    {/if}
+    {ts}If you confirm this suggestion, the transaction will be recorded as new installments for these recurring contributions.{/ts}
+  {/if}
   </p>
 </div>
+
 <div>
   <table border="1">
     <tbody>
       <tr>
         <td>
-          <div class="btxlabel">{ts}Amount{/ts}:</div>
-          <div class="btxvalue">{$recurring_contribution.amount|crmMoney:$recurring_contribution.currency}</div>
+          <div class="suggestion-header">{ts}ID{/ts}</div>
         </td>
         <td>
-          <div class="btxlabel">{ts}Cycle{/ts}</div>
-          <div class="btxvalue">{$frequency_words}</div>
+          <div class="suggestion-header">{ts}Amount{/ts}</div>
         </td>
         <td>
-          <div class="btxlabel">{ts}Last{/ts}:</div>
-          <div class="btxvalue">
-            {if $last_contribution}
-            {$last_contribution.receive_date|crmDate:$config->dateformatFull}
+          <div class="suggestion-header">{ts}Active Since{/ts}</div>
+        </td>
+        <td>
+          <div class="suggestion-header">{ts}Cycle{/ts}</div>
+        </td>
+        <td>
+          <div class="suggestion-header">{ts}Last Installment{/ts}</div>
+        </td>
+        <td>
+          <div class="suggestion-header">{ts}Due{/ts}</div>
+        </td>
+      </tr>
+    {foreach from=$recurring_contributions item=recurring_contribution}
+      {assign var=recurring_contribution_id value=$recurring_contribution.id}
+      {assign var=contact_id value=$recurring_contribution.contact_id}
+
+      {* calculate a more user friendly display of the recurring_contribution transaction interval *}
+      {if $recurring_contribution.frequency_unit eq 'month'}
+        {if $recurring_contribution.frequency_interval eq 1}
+          {capture assign=frequency_words}{ts}monthly{/ts}{/capture}
+        {elseif $recurring_contribution.frequency_interval eq 3}
+          {capture assign=frequency_words}{ts}quarterly{/ts}{/capture}
+        {elseif $recurring_contribution.frequency_interval eq 6}
+          {capture assign=frequency_words}{ts}semi-annually{/ts}{/capture}
+        {elseif $recurring_contribution.frequency_interval eq 12}
+          {capture assign=frequency_words}{ts}annually{/ts}{/capture}
+        {else}
+          {capture assign=frequency_words}{ts 1=$recurring_contribution.frequency_interval}every %1 months{/ts}{/capture}
+        {/if}
+      {elseif $recurring_contribution.frequency_unit eq 'year'}
+        {if $recurring_contribution.frequency_interval eq 1}
+          {capture assign=frequency_words}{ts}annually{/ts}{/capture}
+        {else}
+          {capture assign=frequency_words}{ts 1=$recurring_contribution.frequency_interval}every %1 years{/ts}{/capture}
+        {/if}
+      {else}
+        {capture assign=frequency_words}{ts}on an irregular basis{/ts}{/capture}
+      {/if}
+      <tr>
+        <td>
+          {capture assign=contribution_href}{crmURL p="civicrm/contact/view/contributionrecur" q="reset=1&id=$recurring_contribution_id&cid=$contact_id"}{/capture}
+          <div class="suggestion-value popup"><a href="{$contribution_href}">[{$recurring_contribution.id}]</a></div>
+        </td>
+        <td>
+          <div class="suggestion-value">{$recurring_contribution.amount|crmMoney:$recurring_contribution.currency}</div>
+        </td>
+        <td>
+          <div class="suggestion-value">{$recurring_contribution.start_date|crmDate:$config->dateformatFull}</div>
+        </td>
+        <td>
+          <div class="suggestion-value">{$frequency_words}</div>
+        </td>
+        <td>
+          <div class="suggestion-value">
+            {if $recurring_contribution.last_contribution}
+            {$recurring_contribution.last_contribution.receive_date|crmDate:$config->dateformatFull}
             {else}
             <strong>{ts}None{/ts}</strong>
             {/if}
           </div>
         </td>
         <td>
-          <div class="btxlabel">{ts}Due{/ts}:</div>
-          <div class="btxvalue">{$due_date|crmDate:$config->dateformatFull}</div>
+          <div class="suggestion-value">{$recurring_contribution.due_date|crmDate:$config->dateformatFull}</div>
         </td>
       </tr>
+    {/foreach}
     </tbody>
   </table>
 </div>

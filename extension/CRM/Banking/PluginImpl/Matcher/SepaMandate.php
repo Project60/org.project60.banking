@@ -47,6 +47,7 @@ class CRM_Banking_PluginImpl_Matcher_SepaMandate extends CRM_Banking_PluginModel
     if (!isset($config->cancellation_default_reason)) $config->cancellation_default_reason = ts("Unspecified SEPA cancellation");
     if (!isset($config->cancellation_date_minimum)) $config->cancellation_date_minimum = "-10 days";
     if (!isset($config->cancellation_date_maximum)) $config->cancellation_date_maximum = "+30 days";
+    if (!isset($config->cancellation_status_penalty)) $config->cancellation_status_penalty = array("1" => 0.0, "5" => 0); // is a mapping of "contribution status id" => "penalty". If status not in list, no suggestion will be generated
     if (!isset($config->cancellation_amount_relative_minimum)) $config->cancellation_amount_relative_minimum = 1.0;
     if (!isset($config->cancellation_amount_relative_maximum)) $config->cancellation_amount_relative_maximum = 1.0;
     if (!isset($config->cancellation_amount_absolute_minimum)) $config->cancellation_amount_absolute_minimum = 1.0;
@@ -190,6 +191,14 @@ class CRM_Banking_PluginImpl_Matcher_SepaMandate extends CRM_Banking_PluginModel
       // CANCELLATION SUGGESTION:
       $suggestion->setTitle(ts("Cancel SEPA SDD Transaction"));
       $suggestion->setParameter('cancellation_mode', $cancellation_mode);
+      $suggestion->setParameter('contribution_status_id', $contribution['contribution_status_id']);
+
+      // check contribution status (see BANKING-135)
+      if (!isset($config->cancellation_status_penalty[$contribution['contribution_status_id']])) {
+        // the status is not in the list => don't create suggestion
+        return NULL;
+      }
+      $probability -= $config->cancellation_status_penalty[$contribution['contribution_status_id']];
 
       // calculate penalties (based on CRM_Banking_PluginImpl_Matcher_ExistingContribution::rateContribution)
       $contribution_amount = $contribution['total_amount'];
@@ -371,13 +380,24 @@ class CRM_Banking_PluginImpl_Matcher_SepaMandate extends CRM_Banking_PluginModel
   public function executeCancellation($match, $btx) {
     $config = $this->_plugin_config;
     $contribution_id = $match->getParameter('contribution_id');
+    $contribution_status_id = $match->getParameter('contribution_status_id');
     $mandate_id = $match->getParameter('mandate_id');
     $status_cancelled = banking_helper_optionvalue_by_groupname_and_name('contribution_status', 'Cancelled');
+
+    // load contribution to double-check status (see BANKING-135)
+    $contribution = civicrm_api3('Contribution', 'getsingle', array('id' => $contribution_id));
+    if ($contribution_status_id) {
+      if ($contribution['contribution_status_id'] != $contribution_status_id) {
+        CRM_Core_Session::setStatus(ts("Contribution status has been modified."), ts('Error'), 'error');
+        return FALSE;
+      }
+    }
 
     // set the status to 'Cancelled'
     $query = array('version' => 3, 'id' => $contribution_id);
     $query['contribution_status_id'] = $status_cancelled;
     $query['cancel_date'] = date('Ymdhis', strtotime($btx->value_date));
+    $query['currency'] = $contribution['currency'];
     $query = array_merge($query, $this->getPropagationSet($btx, $match, 'contribution', $config->cancellation_value_propagation));   // add propagated values
     if (empty($query['cancel_reason'])) // add default values
       $query['cancel_reason'] = $config->cancellation_default_reason;

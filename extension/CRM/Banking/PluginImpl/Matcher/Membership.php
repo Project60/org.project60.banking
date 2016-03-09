@@ -30,9 +30,13 @@ class CRM_Banking_PluginImpl_Matcher_Membership extends CRM_Banking_PluginModel_
 
     // read config, set defaults
     $config = $this->_plugin_config;
-    if (!isset($config->threshold))          $config->threshold = 0.5;
-    if (!isset($config->general_options))    $config->general_options = array();
-    if (!isset($config->membership_options)) $config->membership_options = array();
+    if (!isset($config->threshold))           $config->threshold = 0.5;
+    if (!isset($config->general_options))     $config->general_options = array();
+    if (!isset($config->membership_options))  $config->membership_options = array();
+
+    // if TRUE, the start_date will be used to determine the payment cycle,
+    //   if FALSE, the join_date will be used.
+    if (!isset($config->based_on_start_date)) $config->based_on_start_date = TRUE; 
   }
 
   /** 
@@ -137,6 +141,7 @@ class CRM_Banking_PluginImpl_Matcher_Membership extends CRM_Banking_PluginModel_
    * @return html code snippet
    */  
   function visualize_match( CRM_Banking_Matcher_Suggestion $match, $btx) {
+    $config = $this->_plugin_config;
     $smarty_vars = array();
 
     // load the contribution
@@ -152,8 +157,9 @@ class CRM_Banking_PluginImpl_Matcher_Membership extends CRM_Banking_PluginModel_
     $last_fee          = civicrm_api('Contribution', 'getsingle', array('id' => $last_fee_id, 'version'=>3));
 
     // calculate some stuff
+    $date_field = ($config->based_on_start_date)?'start_date':'join_date';
     $last_fee['days']   = round((strtotime($btx->booking_date)-(int) strtotime($last_fee['receive_date'])) / (60 * 60 * 24));
-    $membership['days'] = round((strtotime($btx->booking_date)-strtotime($membership['start_date'])) / (60 * 60 * 24));
+    $membership['days'] = round((strtotime($btx->booking_date)-strtotime($membership[$date_field])) / (60 * 60 * 24));
     $membership['percentage_of_minimum'] = round(($btx->amount / (float) $membership_type['minimum_fee']) * 100);
     $membership['title'] = $this->getMembershipOption($membership['membership_type_id'], 'title', $membership_type['name']);
 
@@ -254,12 +260,13 @@ class CRM_Banking_PluginImpl_Matcher_Membership extends CRM_Banking_PluginModel_
     if ($query == NULL) {
       // NOT CACHED, build query
       $config = $this->_plugin_config;
+      $date_field = ($config->based_on_start_date)?'start_date':'join_date';
       $base_query = "
       SELECT 
         civicrm_membership.id                     AS id,
         civicrm_membership.contact_id             AS contact_id,
         civicrm_membership.membership_type_id     AS membership_type_id,
-        civicrm_membership.start_date             AS membership_start_date,
+        civicrm_membership.$date_field            AS membership_start_date,
         civicrm_membership_type.duration_unit     AS membership_duration_unit,
         civicrm_membership_type.duration_interval AS membership_duration_interval,
         civicrm_membership_type.period_type       AS membership_period_type,

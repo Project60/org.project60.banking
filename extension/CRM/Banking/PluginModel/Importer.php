@@ -252,6 +252,9 @@ abstract class CRM_Banking_PluginModel_Importer extends CRM_Banking_PluginModel_
    * @return TRUE, if successful, FALSE if not, or a duplicate existing BTX as property array
    */
   function checkAndStoreBTX($btx, $progress, $params = array()) {
+    // make sure the version is set
+    $btx['version'] = 3;
+
     // first, test for duplicates:
     $duplicate_test = array_intersect_key($btx, $this->_compare_btx_fields);
     $result = civicrm_api('BankingTransaction', 'get', $duplicate_test);

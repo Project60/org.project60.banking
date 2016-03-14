@@ -63,6 +63,11 @@ class CRM_Banking_PluginImpl_Importer_Fixed extends CRM_Banking_PluginModel_Impo
    */
   protected $tx_data = NULL;
 
+  /**
+   * current RAW transaction data
+   */
+  protected $tx_raw_lines = NULL;
+
 
 
   /** 
@@ -130,7 +135,7 @@ class CRM_Banking_PluginImpl_Importer_Fixed extends CRM_Banking_PluginModel_Impo
 
 
   /** 
-   * Imports the given XML file
+   * Imports the given TXT file
    *
    */
   function import_file( $file_path, $params )
@@ -144,13 +149,20 @@ class CRM_Banking_PluginImpl_Importer_Fixed extends CRM_Banking_PluginModel_Impo
 
     // all good -> start creating stament 
     $this->data = array();
+    foreach ($config->defaults as $key => $value) {
+      $this->data[$key] = $value;
+    }
+
     $batch = $this->openTransactionBatch();
     $line = NULL;
 
-    while ( ($line = fgets($this->file_handle)) !== false) {
-      error_log("processing $line");
+    while ( ($line = fgets($this->file_handle)) !== FALSE ) {
       $this->apply_rules('generic_rules', $line, $params);
 
+      // add line to current tx (if not already there)
+      if ($this->tx_raw_lines && end($this->tx_raw_lines) != $line) {
+        $this->tx_raw_lines[] = $line;
+      }
     }
     fclose($this->file_handle);
 
@@ -160,7 +172,7 @@ class CRM_Banking_PluginImpl_Importer_Fixed extends CRM_Banking_PluginModel_Impo
       if (!empty($data['tx_batch.reference'])) {
         $this->getCurrentTransactionBatch()->reference = $data['tx_batch.reference'];
       } else {
-        $this->getCurrentTransactionBatch()->reference = "XML-File {md5}";
+        $this->getCurrentTransactionBatch()->reference = "TXT-File {md5}";
       }
 
       if (!empty($data['tx_batch.sequence']))
@@ -183,8 +195,6 @@ class CRM_Banking_PluginImpl_Importer_Fixed extends CRM_Banking_PluginModel_Impo
   protected function apply_rules($rules_name, $line, &$params) {
     $config = $this->_plugin_config;
 
-    error_log("applying rule set $rules_name");
-
     if (empty($config->$rules_name) || !is_array($config->$rules_name)) {
       // TODO: error handling
       return;
@@ -200,14 +210,12 @@ class CRM_Banking_PluginImpl_Importer_Fixed extends CRM_Banking_PluginModel_Impo
   /**
    * executes ONE import rule
    */
-  protected function apply_rule($rule, $line, &$params) {
-    error_log("applying rule {$rule->type}");
-
+  protected function apply_rule($rule, &$line, &$params) {
     switch ($rule->type) {
       case 'extract':
         if (strpos($rule->position, '-') !== FALSE) {
           list($pos_from, $pos_to) = split('-', $rule->position);
-          $length = $pos_to - $pos_from;
+          $length = $pos_to - $pos_from + 1;
         } elseif (strpos($rule->position, '+') !== FALSE) {
           list($pos_from, $length) = split('+', $rule->position);
         } else {
@@ -215,7 +223,7 @@ class CRM_Banking_PluginImpl_Importer_Fixed extends CRM_Banking_PluginModel_Impo
         }
         
         $value = substr($line, $pos_from-1, $length);
-        $this->storeValue($value, $rule->to);
+        $this->storeValue($rule->to, $value);
         break;
 
       case 'apply_rules':
@@ -224,13 +232,30 @@ class CRM_Banking_PluginImpl_Importer_Fixed extends CRM_Banking_PluginModel_Impo
         }
         break;
 
+      case 'replace':
+        $value = $this->getValue($rule->from);
+        $new_value = preg_replace($rule->search, $rule->replace, $value);
+        $this->storeValue($rule->to, $new_value);
+        break;
+
+      case 'date':
+        $value = $this->getValue($rule->from);
+        $datetime = DateTime::createFromFormat($rule->format, $value);
+        if ($datetime) {
+          $date_value = $datetime->format('YmdHis');
+          $this->storeValue($rule->to, $date_value);
+        } else {
+          // TODO: error handling date format wrong
+        }
+        break;
+
       case 'transaction:open':
-        $this->closeTransaction($params);
-        $this->openTransaction();
+        $this->closeTransaction($line, $params);
+        $this->openTransaction($line);
         break;
 
       case 'transaction:close':
-        $this->closeTransaction($params);
+        $this->closeTransaction($line, $params);
         break;        
       
       default:
@@ -271,28 +296,87 @@ class CRM_Banking_PluginImpl_Importer_Fixed extends CRM_Banking_PluginModel_Impo
   /** 
    * @TODO: document
    */
-  protected function openTransaction() {
+  protected function openTransaction(&$line) {
     $this->tx_data = array();
+    $this->tx_raw_lines = array($line);
 
     // copy all tx.* fields from general data
     foreach ($this->data as $key => $value) {
       if (substr($key, 0, 3) == 'tx.') {
         $this->tx_data[substr($key, 3)] = $value;
-      }       
+      }
     }
   }
 
   /** 
    * @TODO: document
    */
-  protected function closeTransaction(&$params) {
+  protected function closeTransaction(&$line, &$params) {
     if (empty($this->tx_data)) return;
+    
+    $btx = $this->tx_data;
+    $btx['data_raw'] = implode("||", $this->tx_raw_lines);
 
     // TODO: progress
     $progress = 0.0;
 
-    $duplicate = $this->checkAndStoreBTX($this->tx_data, $progress, $params);
-  }
+    // // look up the bank accounts??? => use analyser instead!
+    // foreach ($btx as $key => $value) {
+    //   // check for NBAN_?? or IBAN endings
+    //   if (preg_match('/^_.*NBAN_..$/', $key) || preg_match('/^_.*IBAN$/', $key)) {
+    //     // this is a *BAN entry -> look it up
+    //     if (!isset($this->account_cache[$value])) {
+    //       $result = civicrm_api('BankingAccountReference', 'getsingle', array('version' => 3, 'reference' => $value));
+    //       if (!empty($result['is_error'])) {
+    //         $this->account_cache[$value] = NULL;
+    //       } else {
+    //         $this->account_cache[$value] = $result['ba_id'];
+    //       }
+    //     }
 
+    //     if ($this->account_cache[$value] != NULL) {
+    //       if (substr($key, 0, 7)=="_party_") {
+    //         $btx['party_ba_id'] = $this->account_cache[$value];  
+    //       } elseif (substr($key, 0, 1)=="_") {
+    //         $btx['ba_id'] = $this->account_cache[$value];  
+    //       }
+    //     }
+    //   }
+    // }
+
+    // do some post processing
+    if (!isset($config->bank_reference)) {
+      // set SHA1 hash as unique reference
+      $btx['bank_reference'] = sha1($btx['data_raw']);
+    } else {
+      // we have a template
+      $bank_reference = $config->bank_reference;
+      $tokens = array(); 
+      preg_match('/\{([^\}]+)\}/', $bank_reference, $tokens);
+      foreach ($tokens as $key => $token_name) {
+        if (!$key) continue;  // match#0 is not relevant
+        $token_value = isset($btx[$token_name])?$btx[$token_name]:'';
+        $bank_reference = str_replace("{{$token_name}}", $token_value, $bank_reference);
+      }
+      $btx['bank_reference'] = $bank_reference;
+    }    
+
+    // prepare $btx: put all entries, that are not for the basic object, into parsed data
+    $btx_parsed_data = array();
+    foreach ($btx as $key => $value) {
+      if (!in_array($key, $this->_primary_btx_fields)) {
+        // this entry has to be moved to the $btx_parsed_data records
+        $btx_parsed_data[$key] = $value;
+        unset($btx[$key]);
+      }
+    }
+    $btx['data_parsed'] = json_encode($btx_parsed_data);
+
+    $duplicate = $this->checkAndStoreBTX($btx, $progress, $params);
+
+    // reset data
+    $this->tx_data = NULL;
+    $this->tx_raw_lines = NULL;
+  }
 }
 

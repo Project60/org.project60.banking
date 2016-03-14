@@ -125,6 +125,7 @@ class CRM_Banking_PluginImpl_Importer_Fixed extends CRM_Banking_PluginModel_Impo
   function probe_file( $file_path, $params )
   {
     // TODO: use sentinel if exists
+    return true;
   }
 
 
@@ -144,8 +145,10 @@ class CRM_Banking_PluginImpl_Importer_Fixed extends CRM_Banking_PluginModel_Impo
     // all good -> start creating stament 
     $this->data = array();
     $batch = $this->openTransactionBatch();
+    $line = NULL;
 
-    while ( ($line == fgets($this->file_handle)) !== false) {
+    while ( ($line = fgets($this->file_handle)) !== false) {
+      error_log("processing $line");
       $this->apply_rules('generic_rules', $line, $params);
 
     }
@@ -180,13 +183,15 @@ class CRM_Banking_PluginImpl_Importer_Fixed extends CRM_Banking_PluginModel_Impo
   protected function apply_rules($rules_name, $line, &$params) {
     $config = $this->_plugin_config;
 
-    if (empty($config->$rules_name) && is_array($config->$rules_name)) {
+    error_log("applying rule set $rules_name");
+
+    if (empty($config->$rules_name) || !is_array($config->$rules_name)) {
       // TODO: error handling
       return;
     }
 
     foreach ($config->$rules_name as $rule) {
-      $this->apply_rule($rule, $params);
+      $this->apply_rule($rule, $line, $params);
     }
   }
 
@@ -196,6 +201,7 @@ class CRM_Banking_PluginImpl_Importer_Fixed extends CRM_Banking_PluginModel_Impo
    * executes ONE import rule
    */
   protected function apply_rule($rule, $line, &$params) {
+    error_log("applying rule {$rule->type}");
 
     switch ($rule->type) {
       case 'extract':
@@ -208,13 +214,13 @@ class CRM_Banking_PluginImpl_Importer_Fixed extends CRM_Banking_PluginModel_Impo
           // TODO: error handling
         }
         
-        $value = substr($line, $pos_from, $length);
+        $value = substr($line, $pos_from-1, $length);
         $this->storeValue($value, $rule->to);
         break;
 
       case 'apply_rules':
         if (preg_match($rule->regex, $line)) {
-          $this->apply_rules($rule->rules, $line);
+          $this->apply_rules($rule->rules, $line, $params);
         }
         break;
 
@@ -258,7 +264,7 @@ class CRM_Banking_PluginImpl_Importer_Fixed extends CRM_Banking_PluginModel_Impo
       $this->tx_data[substr($name, 3)] = $value;
     } else {
       // TODO: remove prefix? other prefixes?
-      $this->data[$name] -> $value;
+      $this->data[$name] = $value;
     }
   }
 

@@ -4,20 +4,20 @@
       {
          "comment": "11 is the file header",
          "type": "apply_rules",
-         "regex": "^11",
-         "rules": "rules_header",
+         "regex": "#^11#",
+         "rules": "rules_header"
       },
       {
          "comment": "22 is transaction",
          "type": "apply_rules",
-         "regex": "^22",
-         "rules": "rules_transaction",
+         "regex": "#^22#",
+         "rules": "rules_transaction"
       },
       {
          "comment": "33 is the footer",
          "type": "apply_rules",
-         "regex": "^33",
-         "rules": "rules_footer",
+         "regex": "#^33#",
+         "rules": "rules_footer"
       }
 	],
    "rules_header": [
@@ -35,9 +35,14 @@
          "type": "extract",
          "position": "17-22",
          "to": "tx.value_date"
+      },
+      {
+         "type": "extract",
+         "position": "29-42",
+         "to": "tx.amount"
       }
    ],
-   "rules_header": [
+   "rules_footer": [
       {
          "type": "transaction:close"
       }

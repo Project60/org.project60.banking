@@ -1,0 +1,45 @@
+{
+   "sentinel": "#^1121#",
+	"generic_rules": [
+      {
+         "comment": "11 is the file header",
+         "type": "apply_rules",
+         "regex": "^11",
+         "rules": "rules_header",
+      },
+      {
+         "comment": "22 is transaction",
+         "type": "apply_rules",
+         "regex": "^22",
+         "rules": "rules_transaction",
+      },
+      {
+         "comment": "33 is the footer",
+         "type": "apply_rules",
+         "regex": "^33",
+         "rules": "rules_footer",
+      }
+	],
+   "rules_header": [
+   ],
+   "rules_transaction": [
+      {
+         "type": "transaction:open"
+      },
+      {
+         "type": "extract",
+         "position": "11-16",
+         "to": "tx.booking_date"
+      },
+      {
+         "type": "extract",
+         "position": "17-22",
+         "to": "tx.value_date"
+      }
+   ],
+   "rules_header": [
+      {
+         "type": "transaction:close"
+      }
+   ]
+}

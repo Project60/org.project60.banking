@@ -112,10 +112,10 @@
     </span>
   {else}
     <a class="button" href="{$url_payments}">
-      <span align="right"><div class="icon details-icon"></div>{ts}See Results{/ts}</span>
+      <span align="right"><div class="icon details-icon ui-icon-search"></div>{ts}See Results{/ts}</span>
     </a>
     <a class="button" href="{$url_action}">
-      <span align="right"><div class="icon details-icon"></div>{ts}Import More{/ts}</span>
+      <span align="right"><div class="icon details-icon ui-icon-plus"></div>{ts}Import More{/ts}</span>
     </a>
   {/if}
 </div>
@@ -144,10 +144,10 @@
 <div class="crm-submit-buttons">
   {if $page_mode != 'config'}
     <a class="button" href="{$url_payments}">
-      <span align="right"><div class="icon details-icon"></div>{ts}See Results{/ts}</span>
+      <span align="right"><div class="icon details-icon ui-icon-search"></div>{ts}See Results{/ts}</span>
     </a>
     <a class="button" href="{$url_action}">
-      <span align="right"><div class="icon details-icon"></div>{ts}Import More{/ts}</span>
+      <span align="right"><div class="icon details-icon ui-icon-plus"></div>{ts}Import More{/ts}</span>
     </a>
   {/if}
 </div>

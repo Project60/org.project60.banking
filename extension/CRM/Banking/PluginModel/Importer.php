@@ -187,8 +187,21 @@ abstract class CRM_Banking_PluginModel_Importer extends CRM_Banking_PluginModel_
         $reference = str_replace('{md5}', md5($this->_current_transaction_batch_attributes['references']), $reference);
         $reference = str_replace('{starting_date}', date($dateFormat, strtotime($this->_current_transaction_batch->starting_date)), $reference);
         $reference = str_replace('{ending_date}', date($dateFormat, strtotime($this->_current_transaction_batch->ending_date)), $reference);
-        $this->_current_transaction_batch->reference = $reference;
 
+        // make sure, this reference doesn't exist yet
+        $final_reference = $reference;
+        $counter = 0;
+        $query_params = array(
+          1 => array($final_reference, 'String'),
+          2 => array($this->_current_transaction_batch->id, 'Integer'));
+        $query_sql = "SELECT COUNT(id) FROM civicrm_bank_tx_batch WHERE reference = %1 AND id != %2;";
+        while (CRM_Core_DAO::singleValueQuery($query_sql, $query_params)) {
+          $counter += 1;
+          $final_reference = $reference . "-DUPLICATE-$counter";
+          $query_params[1] = array($final_reference, 'String');
+        }
+
+        $this->_current_transaction_batch->reference = $final_reference;
         $this->_current_transaction_batch->save();
       } else if ($this->_current_transaction_batch_attributes['isnew']) {
         // since the batch object had to be created in order to get the ID, we would have to

@@ -211,6 +211,11 @@ function _banking_options() {
                   'value' => 2,
                   'is_default' => 0,
               ),
+              'postprocessor' => array(
+                  'label' => 'Post Processor',
+                  'value' => 4,
+                  'is_default' => 0,
+              ),
               'export' => array(
                   'label' => 'Export plugin',
                   'value' => 3,

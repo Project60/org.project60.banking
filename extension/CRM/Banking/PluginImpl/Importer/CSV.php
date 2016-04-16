@@ -39,6 +39,7 @@ class CRM_Banking_PluginImpl_Importer_CSV extends CRM_Banking_PluginModel_Import
     if (!isset($config->header))         $config->header = 1;
     if (!isset($config->warnings))       $config->warnings = true;
     if (!isset($config->skip))           $config->skip = 0;
+    if (!isset($config->line_filter))    $config->line_filter = NULL;
     if (!isset($config->defaults))       $config->defaults = array();
     if (!isset($config->rules))          $config->rules = array();
     if (!isset($config->drop_columns))   $config->drop_columns = array();
@@ -129,8 +130,17 @@ class CRM_Banking_PluginImpl_Importer_CSV extends CRM_Banking_PluginModel_Import
       foreach ($line as $item) $bytes_read += strlen($item);
       $bytes_read += sizeof($line) * sizeof($config->delimiter);
 
-      // check if we want to skip lines
+      // check if we want to skip line (by count)
       if ($line_nr <= $config->skip) continue;
+
+      // check if we want to skip line (by filter)
+      if (!empty($config->line_filter)) {
+        $full_line = trim(implode(',', $line));
+        if (!preg_match($config->line_filter, $full_line)) {
+          $config->header += 1;  // bump line numbers if filtered out
+          continue;
+        }
+      }
 
       // check encoding if necessary
       if (isset($config->encoding)) {

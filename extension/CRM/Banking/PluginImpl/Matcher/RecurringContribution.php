@@ -76,7 +76,7 @@ class CRM_Banking_PluginImpl_Matcher_RecurringContribution extends CRM_Banking_P
     $config      = $this->_plugin_config;
     $threshold   = $this->getThreshold();
     $data_parsed = $btx->getDataParsed();
-    $penalty     = $this->getPenalty();
+    $penalty     = $this->getPenalty($btx);
 
     // find potential contacts
     $contactID2probability = array();

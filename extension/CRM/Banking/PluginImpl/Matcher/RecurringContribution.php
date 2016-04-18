@@ -630,6 +630,7 @@ class CRM_Banking_PluginImpl_Matcher_RecurringContribution extends CRM_Banking_P
     }
 
     if ($config->multimatch) {
+      $result = array();
       $all_tuples = array();
       for ($count=1; $count <= count($rcontributions); $count++) {
         // now create all <count>-tuples

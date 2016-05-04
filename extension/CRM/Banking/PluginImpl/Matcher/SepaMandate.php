@@ -47,7 +47,7 @@ class CRM_Banking_PluginImpl_Matcher_SepaMandate extends CRM_Banking_PluginModel
     if (!isset($config->cancellation_default_reason)) $config->cancellation_default_reason = ts("Unspecified SEPA cancellation");
     if (!isset($config->cancellation_date_minimum)) $config->cancellation_date_minimum = "-10 days";
     if (!isset($config->cancellation_date_maximum)) $config->cancellation_date_maximum = "+30 days";
-    if (!isset($config->cancellation_status_penalty)) $config->cancellation_status_penalty = array("1" => 0.0, "5" => 0); // is a mapping of "contribution status id" => "penalty". If status not in list, no suggestion will be generated
+    if (!isset($config->cancellation_status_penalty)) $config->cancellation_status_penalty = array("1" => 0.0, "5" => 0.2); // is a mapping of "contribution status id" => "penalty". If status not in list, no suggestion will be generated
     if (!isset($config->cancellation_amount_relative_minimum)) $config->cancellation_amount_relative_minimum = 1.0;
     if (!isset($config->cancellation_amount_relative_maximum)) $config->cancellation_amount_relative_maximum = 1.0;
     if (!isset($config->cancellation_amount_absolute_minimum)) $config->cancellation_amount_absolute_minimum = 1.0;

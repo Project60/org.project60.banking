@@ -179,6 +179,7 @@ class CRM_Banking_Matcher_Engine {
         }
       }
     }
+    return $false;
   }
 
   /**

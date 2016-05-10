@@ -77,6 +77,10 @@
   var contact_ids2probablility = {$contact_ids2probablility};
 
   {literal}
+  
+  // add 'refresh list' action after all AJAX calls
+  cj(document).on('crmPopupClose', manual_match_refresh_list);
+  cj(document).on('crmPopupFormSuccess', manual_match_refresh_list);
 
   /** 
    * refresh the table showing the related contributions 
@@ -191,7 +195,7 @@
         view_link = view_link.replace("__contactid__", contribution.contact_id);
 
         var row = "<tr id=\"manual_match_row_cid_" + contribution.id + "\">";
-        row += "<td><a href=\"#\" onclick=\"manual_match_remove_contribution(" + contribution.id + ");\">[{/literal}{ts}remove{/ts}{literal}]</a>";
+        row += "<td><a onclick=\"manual_match_remove_contribution(" + contribution.id + ");\">[{/literal}{ts}remove{/ts}{literal}]</a>";
         row += "&nbsp;<a href=\"" + view_link + "\" target=\"_blank\" class=\"crm-popup\">[{/literal}{ts}view{/ts}{literal}]</a></td>";
         row += "<td>" + contribution.display_name + "</td>";
         row += "<td>" + contribution.financial_type + "</td>";

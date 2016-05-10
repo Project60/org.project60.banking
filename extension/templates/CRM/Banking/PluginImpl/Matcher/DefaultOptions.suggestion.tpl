@@ -81,6 +81,7 @@
   // add 'refresh list' action after all AJAX calls
   cj(document).on('crmPopupClose', manual_match_refresh_list);
   cj(document).on('crmPopupFormSuccess', manual_match_refresh_list);
+  cj(document).on('crmFormSuccess', manual_match_refresh_list);
 
   /** 
    * refresh the table showing the related contributions 

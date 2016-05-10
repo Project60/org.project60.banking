@@ -623,6 +623,11 @@ class CRM_Banking_PluginImpl_Matcher_RecurringContribution extends CRM_Banking_P
    * are a combination of the ones found.
    **/
   function findCandidates($query, $config) {
+    // add status restriction
+    if (!empty($config->recurring_contribution_status)) {
+      $query['contribution_status_id'] = array('IN' => $config->recurring_contribution_status);
+    }
+
     $rcur_result = civicrm_api3('ContributionRecur', 'get', $query);
     $rcontributions = array();
     foreach ($rcur_result['values'] as $key => $value) {

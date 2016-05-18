@@ -193,12 +193,25 @@ class CRM_Banking_PluginImpl_Matcher_SepaMandate extends CRM_Banking_PluginModel
       $suggestion->setParameter('cancellation_mode', $cancellation_mode);
       $suggestion->setParameter('contribution_status_id', $contribution['contribution_status_id']);
 
+      
       // check contribution status (see BANKING-135)
-      if (!isset($config->cancellation_status_penalty[$contribution['contribution_status_id']])) {
-        // the status is not in the list => don't create suggestion
+      $cancellation_status_penalty = NULL;
+      $contribution_status_id      = $contribution['contribution_status_id'];
+      if (is_array($config->cancellation_status_penalty)) {
+        if (isset($config->cancellation_status_penalty[$contribution_status_id])) {
+          $cancellation_status_penalty = (float) $config->cancellation_status_penalty[$contribution_status_id];
+        }
+      } else {
+        if (isset($config->cancellation_status_penalty->$contribution_status_id)) {
+          $cancellation_status_penalty = (float) $config->cancellation_status_penalty->$contribution_status_id;
+        }
+      }
+      if ($cancellation_status_penalty === NULL) {
+        // the status is not in the list => don't even create a suggestion
         return NULL;
       }
-      $probability -= $config->cancellation_status_penalty[$contribution['contribution_status_id']];
+      $probability -= $cancellation_status_penalty;
+
 
       // calculate penalties (based on CRM_Banking_PluginImpl_Matcher_ExistingContribution::rateContribution)
       $contribution_amount = $contribution['total_amount'];

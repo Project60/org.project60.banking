@@ -246,6 +246,9 @@ class CRM_Banking_Page_Review extends CRM_Core_Page {
 
       // tell the page if popups are available
       $popups_allowed = (int) version_compare(CRM_Utils_System::version(), '4.6', '>=');
+      if ($popups_allowed) { // take the popup switch into account (thanks @VangelisP)
+        $popups_allowed = (int) CRM_Core_BAO_Setting::getItem('CiviCRM Preferences', 'ajaxPopupsEnabled');
+      }
       $this->assign('popups_allowed', $popups_allowed);
 
       // perform redirect, if requested

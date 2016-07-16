@@ -64,7 +64,7 @@ class CRM_Banking_PluginImpl_Matcher_Membership extends CRM_Banking_PluginModel_
         $suggestion->setTitle(ts("Record as Membership Fee"));
       }
 
-      $suggestion->setId("existing-$contribution_id");
+      $suggestion->setId("membership-".$membership['id']);
       $suggestion->setParameter('membership_id', $membership['id']);
       $suggestion->setParameter('last_fee_id',   $membership['last_fee_id']);
       $suggestion->setProbability($membership['probability']);

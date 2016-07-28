@@ -40,6 +40,7 @@ class CRM_Banking_PluginImpl_Matcher_DefaultOptions extends CRM_Banking_PluginMo
     if (!isset($config->manual_default_contacts)) $config->manual_default_contacts = array(); // contacts to always be added to the list (contact_id => probability)
     if (!isset($config->default_financial_type_id)) $config->default_financial_type_id = 1;
     if (!isset($config->createnew_value_propagation)) $config->createnew_value_propagation = array();
+    if (!isset($config->manual_default_financial_type_id)) $config->manual_default_financial_type_id = NULL;
 
     if (!isset($config->ignore_enabled)) $config->ignore_enabled = true;
     if (!isset($config->ignore_probability)) $config->ignore_probability = 0.1;

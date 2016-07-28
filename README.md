@@ -17,6 +17,6 @@ Development Installation
 
 Clone Repository and link the 'extension' folder of the CiviBanking project into you CiviCRM extensions folder, e.g. like this:
 ```
-> cd ~/Documents/mamp_root/drupal/sites/default/files/extensions/
-> ln -s ~/Documents/workspace/CiviBanking/extension CiviBanking
+> cd /var/www/drupal/sites/default/files/extensions/
+> ln -s ~/Documents/workspace/CiviBanking/extension org.project60.banking
 ```

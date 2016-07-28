@@ -154,11 +154,16 @@ class CRM_Banking_PluginImpl_Matcher_Membership extends CRM_Banking_PluginModel_
     $membership_type   = civicrm_api('MembershipType', 'getsingle', array('id' => $membership['membership_type_id'], 'version'=>3));
     $membership_status = civicrm_api('MembershipStatus', 'getsingle', array('id' => $membership['status_id'], 'version'=>3));
     $contact           = civicrm_api('Contact', 'getsingle', array('id' => $membership['contact_id'], 'version'=>3));
-    $last_fee          = civicrm_api('Contribution', 'getsingle', array('id' => $last_fee_id, 'version'=>3));
+    
+    // load last fee
+    if (!empty($last_fee_id)) {
+      $last_fee                = civicrm_api('Contribution', 'getsingle', array('id' => $last_fee_id, 'version'=>3));
+      $last_fee['days']        = round((strtotime($btx->booking_date)-(int) strtotime($last_fee['receive_date'])) / (60 * 60 * 24));
+      $smarty_vars['last_fee'] = $last_fee;
+    }
 
     // calculate some stuff
     $date_field = ($config->based_on_start_date)?'start_date':'join_date';
-    $last_fee['days']   = round((strtotime($btx->booking_date)-(int) strtotime($last_fee['receive_date'])) / (60 * 60 * 24));
     $membership['days'] = round((strtotime($btx->booking_date)-strtotime($membership[$date_field])) / (60 * 60 * 24));
     $membership['percentage_of_minimum'] = round(($btx->amount / (float) $membership_type['minimum_fee']) * 100);
     $membership['title'] = $this->getMembershipOption($membership['membership_type_id'], 'title', $membership_type['name']);
@@ -168,7 +173,6 @@ class CRM_Banking_PluginImpl_Matcher_Membership extends CRM_Banking_PluginModel_
     $smarty_vars['membership_type']   = $membership_type;
     $smarty_vars['membership_status'] = $membership_status;
     $smarty_vars['contact']           = $contact;
-    $smarty_vars['last_fee']          = $last_fee;
 
     $smarty = CRM_Banking_Helpers_Smarty::singleton();
     $smarty->pushScope($smarty_vars);

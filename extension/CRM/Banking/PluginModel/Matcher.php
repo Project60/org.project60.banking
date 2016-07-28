@@ -272,10 +272,14 @@ abstract class CRM_Banking_PluginModel_Matcher extends CRM_Banking_PluginModel_B
    */
   public function getPropagationKeys($subset='', $propagation_config = NULL) {
     if ($propagation_config==NULL) {
-      $propagation_config = $this->_plugin_config->value_propagation;
+      if (isset($this->_plugin_config->value_propagation)) {
+        $propagation_config = $this->_plugin_config->value_propagation;
+      } else {
+        $propagation_config = NULL;
+      }
     }
     $keys = array();
-    if (!isset($propagation_config)) {
+    if (!isset($propagation_config) || $propagation_config===NULL) {
       return $keys;
     }
 

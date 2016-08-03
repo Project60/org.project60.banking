@@ -169,14 +169,24 @@ function banking_civicrm_entityTypes(&$entityTypes) {
       'table' => 'civicrm_bank_account',
   );
   $entityTypes[] = array(
+      'name' => 'BankAccountReference',
+      'class' => 'CRM_Banking_DAO_BankAccountReference',
+      'table' => 'civicrm_bank_account_reference',
+  );
+  $entityTypes[] = array(
       'name' => 'BankTransaction',
       'class' => 'CRM_Banking_DAO_BankTransaction',
       'table' => 'civicrm_bank_tx',
   );
   $entityTypes[] = array(
+      'name' => 'BankTransactionBatch',
+      'class' => 'CRM_Banking_DAO_BankTransactionBatch',
+      'table' => 'civicrm_bank_tx_batch',
+  );
+  $entityTypes[] = array(
       'name' => 'PluginInstance',
       'class' => 'CRM_Banking_DAO_PluginInstance',
-      'table' => 'civicrm_bank_plugin_instabce',
+      'table' => 'civicrm_bank_plugin_instance',
   );
 }
 

@@ -23,6 +23,9 @@ require_once 'packages/eval-math/evalmath.class.php';
  * There are two modes:
  *   default      - matches e.g. to pending contributions and changes the status to completed
  *   cancellation - matches negative amounts to completed contributions and changes the status to cancelled
+ *
+ * The right contributions are identified based on data_parsed['sepa_mandate'] and data_parsed['sepa_batch'].
+ * if data_parsed['sepa_batch'] is missing, it will try to identify the correct contribution based on the date.
  */
 class CRM_Banking_PluginImpl_Matcher_SepaMandate extends CRM_Banking_PluginModel_Matcher {
 
@@ -109,40 +112,65 @@ class CRM_Banking_PluginImpl_Matcher_SepaMandate extends CRM_Banking_PluginModel
     // find the contribution
     if ($mandate['type']=='OOFF' && $mandate['entity_table']=='civicrm_contribution') {
       $contribution_id = $mandate['entity_id'];
+
+
     } elseif ($mandate['entity_table']=='civicrm_contribution_recur') {
       $contribution_recur_id = $mandate['entity_id'];
-      $value_date = strtotime($btx->value_date);
-      if ($cancellation_mode) {
-        $earliest_date = date('Ymdhis', strtotime($config->cancellation_date_minimum, $value_date));
-        $latest_date = date('Ymdhis', strtotime($config->cancellation_date_maximum, $value_date));        
-      } else {
-        $earliest_date = date('Ymdhis', strtotime($config->received_date_minimum, $value_date));
-        $latest_date = date('Ymdhis', strtotime($config->received_date_maximum, $value_date));        
-      }
 
-      $contribution_id = 0;
-      $find_contribution_query = "
-      SELECT  id
-      FROM    civicrm_contribution
-      WHERE   contribution_recur_id=$contribution_recur_id
-      AND     receive_date <= DATE('$latest_date')
-      AND     receive_date >= DATE('$earliest_date');";
-      $found_contribution = CRM_Core_DAO::executeQuery($find_contribution_query);
-      while ($found_contribution->fetch()) {
-        if (!$contribution_id) {
-          $contribution_id = $found_contribution->id;
+      if (empty($data_parsed['sepa_batch'])) {
+        // NO group information given -> try to find by date
+        $value_date = strtotime($btx->value_date);
+        if ($cancellation_mode) {
+          $earliest_date = date('Ymdhis', strtotime($config->cancellation_date_minimum, $value_date));
+          $latest_date = date('Ymdhis', strtotime($config->cancellation_date_maximum, $value_date));        
         } else {
-          // this is the second contribution found!
-          CRM_Core_Session::setStatus(ts("There was more than one matching contribution found! Try to configure the plugin with a smaller search time span."), ts('Error'), 'error');
-          return null;
+          $earliest_date = date('Ymdhis', strtotime($config->received_date_minimum, $value_date));
+          $latest_date = date('Ymdhis', strtotime($config->received_date_maximum, $value_date));        
+        }
+
+        $contribution_id = 0;
+        $find_contribution_query = "
+            SELECT  id
+            FROM    civicrm_contribution
+            WHERE   contribution_recur_id = {$contribution_recur_id}
+            AND     receive_date <= DATE('$latest_date')
+            AND     receive_date >= DATE('$earliest_date');";
+        $found_contribution = CRM_Core_DAO::executeQuery($find_contribution_query);
+        while ($found_contribution->fetch()) {
+          if (!$contribution_id) {
+            $contribution_id = $found_contribution->id;
+          } else {
+            // this is the second contribution found!
+            CRM_Core_Session::setStatus(ts("There was more than one matching contribution found! Try to configure the plugin with a smaller search time span."), ts('Error'), 'error');
+            return null;
+          }
+        }
+        if (!$contribution_id) {
+          // no contribution found
+          CRM_Core_Session::setStatus(ts("There was no matching contribution! Try to configure the plugin with a larger search time span."), ts('Error'), 'error');
+          return null;        
+        }
+
+      } else {
+        // we have the reference to the group -> that should make it unique
+        $find_contribution_query = "
+            SELECT  civicrm_contribution.id
+            FROM    civicrm_contribution
+            LEFT JOIN civicrm_sdd_contribution_txgroup ON civicrm_sdd_contribution_txgroup.contribution_id = civicrm_contribution.id
+            LEFT JOIN civicrm_sdd_txgroup ON civicrm_sdd_contribution_txgroup.txgroup_id = civicrm_sdd_txgroup.id
+            WHERE   civicrm_contribution.contribution_recur_id = %1
+            AND     civicrm_sdd_txgroup.reference = %2;";
+        $contribution_id = CRM_Core_DAO::singleValueQuery($find_contribution_query, array(
+            1 => array($contribution_recur_id, 'Integer'),
+            2 => array($data_parsed['sepa_batch'], 'String')));
+
+        if (!$contribution_id) {
+          // no contribution found
+          CRM_Core_Session::setStatus(ts("There is no contribution for mandate '{$data_parsed['sepa_mandate']}' in group '{$data_parsed['sepa_batch']}'"), ts('Error'), 'error');
+          return null;        
         }
       }
 
-      if (!$contribution_id) {
-        // no contribution found
-        CRM_Core_Session::setStatus(ts("There was no matching contribution! Try to configure the plugin with a larger search time span."), ts('Error'), 'error');
-        return null;        
-      }
 
     } else {
       error_log("org.project60.sepa: matcher_sepa: Bad mandate type.");

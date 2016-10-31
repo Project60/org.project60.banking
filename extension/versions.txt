@@ -1,6 +1,24 @@
 Version History
 ===============
 
+version 0.5.3
+==================================
+- SEPA matcher uses batch reference (#152)
+- SEPA improved cancellation (#135)
+- CSV importer line filter (#146)
+- Processing transactions by date (not ID) in overnight hook (#147)
+- Default matcher - add fallback contact (#143)
+- Default matcher - use popups (#142)
+- Importer - better warnigns (#136)
+- XML importer duplicate detection (#134)
+- Membership matcher date choice (#130)
+- Recurring matcher improvements (#129)
+- BUG: membership matcher confidence (#139)
+- BUG: broken links (#119)
+- BUG: importer references (#145)
+- BUG: entity hook (#151)
+
+
 version 0.5.2 (0.5.1 not released)
 ==================================
 - greatly improved account editor (#118)

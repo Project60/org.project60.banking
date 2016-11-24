@@ -166,6 +166,54 @@ class CRM_Banking_PluginImpl_Matcher_RegexAnalyser extends CRM_Banking_PluginMod
           // something was found... copy value
           $data_parsed[$action->to] = $result[$params[1]];
         }
+
+      } elseif (substr($action->action, 0, 4) =='api:') {
+        /**
+         * Look up parameters via API call
+         *  the 'action' format is: "<entity>:<action>:<result_field>[:multiple]"
+         *     EntityName    the CiviCRM API entity
+         *     action        the CiviCRM API action
+         *     result_field  the field to take from the result
+         *     multiple      if this is given, multiple results will be added to the field, separated by comma
+         *                     otherwise the result will only be copied if exactly one match was found
+         *
+         * further attributes can be given as follows:
+         *  const_<param>    set the API parameter to a constant, e.g. const_contact_type = 'Individual'
+         *  param_<param>    set the API parameter to the value of another field, e.g. const_first_name = 'first_name'
+         */        
+        // compile query
+        $params = split(':', substr($action->action, 4));
+        $query = array('return' => $params[2]);
+        foreach ($action as $key => $value) {
+          if (substr($key, 0, 6) =='const_') {
+            $query[substr($key, 6)] = $value;
+          } elseif (substr($key, 0, 6) =='param_') {
+             $query[substr($key, 6)] = $this->getValue($value, $match_data, $match_index, $data_parsed);
+          }
+        }
+
+        // execute query
+        try {
+          $result = civicrm_api3($params[0], $params[1], $query);        
+          if (isset($params[3]) && $params[3]=='multiple') {
+            // multiple values allowed
+            $results = array();
+            foreach ($result['values'] as $entity) {
+              $results[] = $entity[$params[2]];
+            }
+            $data_parsed[$action->to] = implode(',', $results);
+          
+          } else {
+            // only valid if it's the only value
+            if ($results['count'] == 1) {
+              $entity = reset($results['values']);
+              $data_parsed[$action->to] = $entity[$params[2]];
+            }
+          }
+        } catch (Exception $e) {
+          // TODO: this didn't work... how can we do this?
+        }
+
       } else {
         error_log("org.project60.banking: RegexAnalyser - bad action: '".$action->action."'");
       }

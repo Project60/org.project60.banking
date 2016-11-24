@@ -137,6 +137,7 @@ function _banking_options() {
               'NBAN_AT' => array(
                   'label' => ts('Austrian Bank Account Number'),
                   'value' => 'NBAN_AT',
+                  'description' => ts('Format is "BBBBB/KKKKKKKKKKK", (B="BLZ", K="Kontonummer") eg. "12345/00001234567"'),
                   'is_default' => 0,
               ),
               'NBAN_BE' => array(

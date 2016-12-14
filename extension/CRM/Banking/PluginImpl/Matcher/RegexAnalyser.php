@@ -205,8 +205,8 @@ class CRM_Banking_PluginImpl_Matcher_RegexAnalyser extends CRM_Banking_PluginMod
           
           } else {
             // only valid if it's the only value
-            if ($results['count'] == 1) {
-              $entity = reset($results['values']);
+            if ($result['count'] == 1) {
+              $entity = reset($result['values']);
               $data_parsed[$action->to] = $entity[$params[2]];
             }
           }

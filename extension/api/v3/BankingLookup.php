@@ -95,6 +95,7 @@ function civicrm_api3_banking_lookup_contactbyname($params) {
 
   // prepare all possible 2-tuples to feed to quicksearch
   $name_mutations = array();
+  $name_mutations[] = $name; // add full name, see https://github.com/Project60/org.project60.banking/issues/157
   for ($i=0; $i < count($name_bits); $i++) {
     if (strlen($name_bits[$i])>2) {
       $name_mutations[] = $name_bits[$i];

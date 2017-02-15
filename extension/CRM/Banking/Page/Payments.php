@@ -188,6 +188,7 @@ class CRM_Banking_Page_Payments extends CRM_Core_Page {
   function build_paymentPage($payment_states) {
     // read all transactions
     $btxs = $this->load_btx($payment_states);
+    error_log(json_encode($btxs));
     $payment_rows = array();
     foreach ($btxs as $entry) {
         $status = $payment_states[$entry['status_id']]['label'];
@@ -420,10 +421,9 @@ class CRM_Banking_Page_Payments extends CRM_Core_Page {
     // run the queries
     $results = array();
     foreach ($status_ids as $status_id) {
-        foreach ($batch_ids as $batch_id) {
-            //$results = array_merge($results, $this->_findBTX($status_id, $batch_id));
-            $results += $this->_findBTX($status_id, $batch_id);
-        }
+      foreach ($batch_ids as $batch_id) {
+        $results = array_merge($results, $this->_findBTX($status_id, $batch_id));
+      }
     }
 
     return $results;
@@ -456,6 +456,7 @@ class CRM_Banking_Page_Payments extends CRM_Core_Page {
       CRM_Core_Session::setStatus(sprintf(ts('Internal limit of 2000 transactions hit. Please use smaller statements.')), ts('List incomplete'), 'alert');
     }
 
+    error_log("FOUND FOR {$status_id}/{$batch_id}: " . count($btxs));
     return $btxs;
   }
 

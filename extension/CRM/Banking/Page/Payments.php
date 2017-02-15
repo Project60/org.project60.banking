@@ -370,10 +370,11 @@ class CRM_Banking_Page_Payments extends CRM_Core_Page {
    */
   function assignTransactionCountStats($payment_states) {
     // pre-assign zero values
-    $this->assign('count_new',       0);
-    $this->assign('count_analysed',  0);
-    $this->assign('count_completed', 0);      
+    $count_new = 0;
+    $count_analysed = 0;
+    $count_completed = 0;
 
+    // find batches
     $clean_batch_ids = array();
     if (isset($_REQUEST['s_list'])) {
       $batch_ids = explode(',', $_REQUEST['s_list']);
@@ -391,14 +392,21 @@ class CRM_Banking_Page_Payments extends CRM_Core_Page {
       $query = CRM_Core_DAO::executeQuery($sql);
       while ($query->fetch()) {
         if ($query->status_id == $payment_states['new']['id']) {
-          $this->assign('count_new',       $query->count);
+          $count_new += $query->count;
         } elseif ($query->status_id == $payment_states['processed']['id']) {
-          $this->assign('count_completed', $query->count);
+          $count_completed += $query->count;
+        } elseif ($query->status_id == $payment_states['ignored']['id']) {
+          $count_completed += $query->count;
         } elseif ($query->status_id == $payment_states['suggestions']['id']) {
-          $this->assign('count_analysed',  $query->count);
+          $count_analysed += $query->count;
         }
       }
     }
+
+    // pass values to template
+    $this->assign('count_new',       $count_new);
+    $this->assign('count_analysed',  $count_analysed);
+    $this->assign('count_completed', $count_completed);
   }
 
 

@@ -188,7 +188,11 @@ class CRM_Banking_PluginImpl_Matcher_RegexAnalyser extends CRM_Banking_PluginMod
           if (substr($key, 0, 6) =='const_') {
             $query[substr($key, 6)] = $value;
           } elseif (substr($key, 0, 6) =='param_') {
-             $query[substr($key, 6)] = $this->getValue($value, $match_data, $match_index, $data_parsed);
+            $query[substr($key, 6)] = $this->getValue($value, $match_data, $match_index, $data_parsed);
+          } elseif (substr($key, 0, 10) =='jsonparam_') {
+            $query[substr($key, 10)] = json_decode($this->getValue($value, $match_data, $match_index, $data_parsed), TRUE);
+          } elseif (substr($key, 0, 10) =='jsonconst_') {
+            $query[substr($key, 10)] = json_decode($value, TRUE);
           }
         }
 

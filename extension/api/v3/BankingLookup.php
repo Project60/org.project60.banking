@@ -199,7 +199,7 @@ function _civicrm_api3_banking_lookup_contactbyname_sql($name_mutations, $params
   // query quicksearch for each combination
   foreach ($name_mutations as $name_mutation) {
     $name_mutation = CRM_Utils_Type::escape($name_mutation, 'String');
-    $sql_clauses[] = "(`sort_name` LIKE '{$name_mutation}')";
+    $sql_clauses[] = "(`sort_name` LIKE '{$name_mutation}%')";
   };
 
   $search_term = implode(' OR ', $sql_clauses);

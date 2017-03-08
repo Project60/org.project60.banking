@@ -15,7 +15,7 @@
 +--------------------------------------------------------*/
 
 class CRM_Banking_Matcher_Context {
-  
+
   public $btx;
 
   // will store generic attributes from the various matchers
@@ -23,7 +23,7 @@ class CRM_Banking_Matcher_Context {
 
   // will store cached data needed/produced by the helper functions
   private $_caches;
-  
+
   public function __construct( CRM_Banking_BAO_BankTransaction $btx ) {
     $this->btx = $btx;
   }
@@ -45,7 +45,7 @@ class CRM_Banking_Matcher_Context {
       $contacts = array();
     } else {
       $contacts = $this->lookupContactByName($name, $lookup_by_name_parameters);
-      //error_log('after lookup:'.print_r($contacts, true));      
+      //error_log('after lookup:'.print_r($contacts, true));
     }
 
     // then look for 'contact_id' or 'external_identifier'
@@ -102,7 +102,7 @@ class CRM_Banking_Matcher_Context {
    */
   public function lookupContactByName($name, $parameters=array()) {
     $parameters = (array) $parameters;
-    
+
     if (!$name) {
       // no name given, no results:
       return array();
@@ -120,8 +120,10 @@ class CRM_Banking_Matcher_Context {
     // call the lookup function (API)
     $parameters['version'] = 3;
     $parameters['name'] = $name;
-    if (isset($parameters['modifiers'])) 
+    if (isset($parameters['modifiers']))
       $parameters['modifiers'] = json_encode($parameters['modifiers']);
+    if (isset($parameters['use_sql']))
+      $parameters['use_sql'] = json_encode($parameters['use_sql']);
     $result = civicrm_api('BankingLookup', 'contactbyname', $parameters);
     if (isset($result['is_error']) && $result['is_error']) {
       // TODO: more error handling?
@@ -204,7 +206,7 @@ class CRM_Banking_Matcher_Context {
     if (isset($this->_caches[$key])) {
       return $this->_caches[$key];
     } else {
-      return NULL;      
+      return NULL;
     }
   }
 

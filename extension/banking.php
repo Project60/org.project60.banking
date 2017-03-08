@@ -68,6 +68,13 @@ function banking_civicrm_enable() {
   $sql = file_get_contents(dirname(__FILE__) . '/sql/upgrade.sql', true);
   CRM_Utils_File::sourceSQLFile($config->dsn, $sql, NULL, true);
 
+  // FIXME: move to upgrade
+  // add missing index (https://github.com/Project60/org.project60.banking/issues/158)
+  $index = CRM_Core_DAO::executeQuery("SHOW INDEX FROM civicrm_bank_account_reference WHERE column_name = 'reference'");
+  if (!$index->fetch()) {
+    CRM_Core_DAO::executeQuery("ALTER TABLE civicrm_bank_account_reference ADD INDEX `reference` (reference);");
+  }
+
   return _banking_civix_civicrm_enable();
 }
 

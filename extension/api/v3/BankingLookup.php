@@ -25,9 +25,9 @@
 /**
  * Will provide a name based lookup for contacts. It is designed to take care of
  *  'tainted' string, i.e. containing abbreviations, initals, titles, etc.
- * 
- * @param name                    the name string to look for 
- * @param modifiers               are used to modfiy the string: expects a JSON encoded list 
+ *
+ * @param name                    the name string to look for
+ * @param modifiers               are used to modfiy the string: expects a JSON encoded list
  *                                  of arrays with the following entries:
  *                                  'search':     regex to search (for preg_replace)
  *                                  'replace':    string to replace it with (for preg_replace)
@@ -38,17 +38,16 @@
  * @param soft_cap_probability    will purge all entries with less that the given probability
  *                                    but will keep the first [soft_cap_min] entries if given
  * @param soft_cap_min            see soft_cap_probability
- * 
+ *
  * @return array(contact_id => probability), where probability is from [0..1)
  */
 function civicrm_api3_banking_lookup_contactbyname($params) {
   if (!isset($params['name']) || empty($params['name'])) {
     // no name given, no results:
     return civicrm_api3_create_error("No 'name' parameter given.");
-  } else {
-    $name = strtolower($params['name']);
-    $contacts_found = array();
   }
+
+  $name = strtolower($params['name']);
 
   // get modifiers
   if (!isset($params['modifiers']) || empty($params['modifiers'])) {
@@ -83,7 +82,7 @@ function civicrm_api3_banking_lookup_contactbyname($params) {
   while (count($name_bits)>4) {
     $shortest_index = 0;
     $shortest_length = strlen($name_bits[0]);
-    for ($i=1; $i < count($name_bits); $i++) { 
+    for ($i=1; $i < count($name_bits); $i++) {
       if (strlen($name_bits[$i]) < $shortest_length) {
         $shortest_length = strlen($name_bits[$i]);
         $shortest_index = $i;
@@ -101,43 +100,34 @@ function civicrm_api3_banking_lookup_contactbyname($params) {
       $name_mutations[] = $name_bits[$i];
     }
 
+    // EXTRACT sort_name format
+    if (empty($params['sort_name_format'])) {
+      $config = CRM_Core_Config::singleton();
+      if (empty($config->sort_name_format)) {
+        $sort_name_format = "{contact.last_name}{, }{contact.first_name}";
+      } else {
+        $sort_name_format = $config->sort_name_format;
+      }
+    } else {
+      $sort_name_format = $params['sort_name_format'];
+    }
+    // replace stuff
+    $sort_name_format = str_replace('{, }', ', ', $sort_name_format);
+    $sort_name_format = str_replace('{ }', ' ', $sort_name_format);
+
     for ($j=$i+1; $j < count($name_bits); $j++) {
-      $name_mutations[] = $name_bits[$i].', '.$name_bits[$j];
-      $name_mutations[] = $name_bits[$j].', '.$name_bits[$i];
+      $mutation = preg_replace('#\{[\w\.]+\}#', $name_bits[$i], $sort_name_format, 1);
+      $name_mutations[] = preg_replace('#\{[\w\.]+\}#', $name_bits[$j], $mutation);
+
+      $mutation = preg_replace('#\{[\w\.]+\}#', $name_bits[$j], $sort_name_format, 1);
+      $name_mutations[] = preg_replace('#\{[\w\.]+\}#', $name_bits[$i], $mutation);
     }
   }
 
-  // query quicksearch for each combination
-  foreach ($name_mutations as $name_mutation) {
-    $result = civicrm_api('Contact', 'getquick', array('name' => $name_mutation, 'version' => 3));
-    if ($result['is_error']) {
-      // that didn't go well...
-      return civicrm_api3_create_error($result['error_message']);
-    } 
-
-    foreach ($result['values'] as $contact) {
-      // get the current maximum similarity...
-      if (isset($contacts_found[$contact['id']])) {
-        $probability = $contacts_found[$contact['id']]; 
-      } else {
-        $probability = 0.0;
-      }
-
-      // now, we'll have to find the maximum similarity with any of the name mutations
-      $compare_name = strtolower($contact['sort_name']);
-      foreach ($name_mutations as $name_mutation) {
-        $new_probability = 0.0;
-        similar_text(strtolower($name_mutation), $compare_name, $new_probability);
-        //error_log("Compare '$name_mutation' to '".$contact['sort_name']."' => $new_probability");
-        $new_probability /= 100.0;
-        if ($new_probability > $probability) {
-          // square value for better distribution, multiply by 0.999 to avoid 100% match based on name
-          $probability = $new_probability * $new_probability * 0.999;
-        }
-      }
-
-      $contacts_found[$contact['id']] = $probability;
-    }
+  if (empty($params['use_sql']) || $params['use_sql']=='false') {
+    $contacts_found = _civicrm_api3_banking_lookup_contactbyname_api($name_mutations, $params);
+  } else {
+    $contacts_found = _civicrm_api3_banking_lookup_contactbyname_sql($name_mutations, $params);
   }
 
   // apply penalties
@@ -166,7 +156,7 @@ function civicrm_api3_banking_lookup_contactbyname($params) {
       $contacts_found = array_slice($contacts_found, 0, (int) $params['hard_cap'], true);
     }
   }
-  
+
   // apply hard cap probability, if given
   if (!empty($params['hard_cap_probability']) && is_numeric($params['hard_cap_probability'])) {
     $hard_cap_probability = (float) $params['hard_cap_probability'];
@@ -197,12 +187,92 @@ function civicrm_api3_banking_lookup_contactbyname($params) {
   return civicrm_api3_create_success($contacts_found);
 }
 
+/**
+ * find some contacts via SQL
+ */
+function _civicrm_api3_banking_lookup_contactbyname_sql($name_mutations, $params) {
+  $contacts_found = array();
+
+  // compile SQL query
+  $sql_clauses = array();
+
+  // query quicksearch for each combination
+  foreach ($name_mutations as $name_mutation) {
+    $name_mutation = CRM_Utils_Type::escape($name_mutation, 'String');
+    $sql_clauses[] = "(`sort_name` LIKE '{$name_mutation}')";
+  };
+
+  $search_term = implode(' OR ', $sql_clauses);
+  $search_query = "SELECT id, sort_name FROM civicrm_contact WHERE is_deleted=0 AND ({$search_term});";
+  // error_log($search_query);
+  $search_results = CRM_Core_DAO::executeQuery($search_query);
+  while ($search_results->fetch()) {
+    $compare_name = strtolower($search_results->sort_name);
+    foreach ($name_mutations as $name_mutation) {
+      if (isset($contacts_found[$search_results->id])) {
+        $probability = $contacts_found[$search_results->id];
+      } else {
+        $probability = 0.0;
+      }
+
+      $new_probability = 0.0;
+      similar_text(strtolower($name_mutation), $compare_name, $new_probability);
+      $new_probability /= 100.0;
+      if ($new_probability > $probability) {
+        // square value for better distribution, multiply by 0.999 to avoid 100% match based on name
+        $probability = $new_probability * $new_probability * 0.999;
+      }
+    }
+
+    $contacts_found[$search_results->id] = $probability;
+  }
+
+  return $contacts_found;
+}
+
+/**
+ * find some contacts via API
+ */
+function _civicrm_api3_banking_lookup_contactbyname_api($name_mutations, $params) {
+  $contacts_found = array();
+
+  // query quicksearch for each combination
+  foreach ($name_mutations as $name_mutation) {
+    $result = civicrm_api3('Contact', 'getquick', array('name' => $name_mutation));
+
+    foreach ($result['values'] as $contact) {
+      // get the current maximum similarity...
+      if (isset($contacts_found[$contact['id']])) {
+        $probability = $contacts_found[$contact['id']];
+      } else {
+        $probability = 0.0;
+      }
+
+      // now, we'll have to find the maximum similarity with any of the name mutations
+      $compare_name = strtolower($contact['sort_name']);
+      foreach ($name_mutations as $name_mutation) {
+        $new_probability = 0.0;
+        similar_text(strtolower($name_mutation), $compare_name, $new_probability);
+        //error_log("Compare '$name_mutation' to '".$contact['sort_name']."' => $new_probability");
+        $new_probability /= 100.0;
+        if ($new_probability > $probability) {
+          // square value for better distribution, multiply by 0.999 to avoid 100% match based on name
+          $probability = $new_probability * $new_probability * 0.999;
+        }
+      }
+
+      $contacts_found[$contact['id']] = $probability;
+    }
+  }
+
+  return $contacts_found;
+}
 
 /**
  * helper function for civicrm_api3_banking_lookup_contactbyname:
  * will apply penalties to the $contactID2probability list
  *
- * @param contactID2probability list of contact_ids with the currently assigned probability. 
+ * @param contactID2probability list of contact_ids with the currently assigned probability.
  *                               values will be adjusted by this method
  * @param penalty_specs         penalty specification from the matcher's configuration
  */

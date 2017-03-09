@@ -127,8 +127,6 @@ class CRM_Banking_Matcher_Context {
     $parameters['name'] = $name;
     if (isset($parameters['modifiers']))
       $parameters['modifiers'] = json_encode($parameters['modifiers']);
-    if (isset($parameters['mode']))
-      $parameters['mode'] = json_encode($parameters['mode']);
     $result = civicrm_api('BankingLookup', 'contactbyname', $parameters);
     if (isset($result['is_error']) && $result['is_error']) {
       // TODO: more error handling?

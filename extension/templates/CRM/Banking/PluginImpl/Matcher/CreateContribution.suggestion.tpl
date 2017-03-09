@@ -49,15 +49,13 @@
         </tr>
         {if $campaign or $source}
         <tr>
-          <td style="border: none !important;"></td>
-          <td style="border: none !important;"></td>
-          <td>
-            <div class="btxlabel">{$source_label}:&nbsp;</div>
-            <div class="btxvalue">{$source}</div>
-          </td>
-          <td>
+          <td colspan="2">
             <div class="btxlabel">{ts}Campaign{/ts}:&nbsp;</div>
             <div class="btxvalue">{$campaign.title}</div>
+          </td>
+          <td colspan="2">
+            <div class="btxlabel">{$source_label}:&nbsp;</div>
+            <div class="btxvalue">{$source}</div>
           </td>
         </tr>
         {/if}

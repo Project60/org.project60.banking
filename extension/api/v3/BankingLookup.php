@@ -26,6 +26,10 @@
  * Will provide a name based lookup for contacts. It is designed to take care of
  *  'tainted' string, i.e. containing abbreviations, initals, titles, etc.
  *
+ * @param mode                    which mode to use (default: 'getquick')
+ *                                  'getquick' - use Contact.getquick API call
+ *                                  'sql'      - use SQL query
+ *                                  'off'      - turn the search off completely
  * @param name                    the name string to look for
  * @param modifiers               are used to modfiy the string: expects a JSON encoded list
  *                                  of arrays with the following entries:
@@ -124,10 +128,12 @@ function civicrm_api3_banking_lookup_contactbyname($params) {
     }
   }
 
-  if (empty($params['use_sql']) || $params['use_sql']=='false') {
+  if (empty($params['mode']) || $params['mode']=='getquick') {
     $contacts_found = _civicrm_api3_banking_lookup_contactbyname_api($name_mutations, $params);
-  } else {
+  } elseif ($params['mode']=='sql') {
     $contacts_found = _civicrm_api3_banking_lookup_contactbyname_sql($name_mutations, $params);
+  } else { // OFF / invalid
+    $contacts_found = array();
   }
 
   // apply penalties

@@ -41,11 +41,15 @@ class CRM_Banking_Matcher_Context {
    */
   public function findContacts($threshold=0.0, $name=NULL, $lookup_by_name_parameters=array()) {
     // we'll start with the findContacts method
-    if ($name==NULL) {
+    if (!empty($lookup_by_name_parameters['mode']) && $lookup_by_name_parameters['mode']=='off') {
+      // search turned off
+      $contacts = array();
+    } elseif (empty($name)) {
+      // no name given
       $contacts = array();
     } else {
+      // all good, let's go:
       $contacts = $this->lookupContactByName($name, $lookup_by_name_parameters);
-      //error_log('after lookup:'.print_r($contacts, true));
     }
 
     // then look for 'contact_id' or 'external_identifier'
@@ -61,7 +65,6 @@ class CRM_Banking_Matcher_Context {
     if (!empty($data_parsed['contact_id'])) {
       $contacts[$data_parsed['contact_id']] = 1.0;
     }
-    //error_log('after direct ident:'.print_r($contacts, true));
 
     // look up accounts
     $account_owners = $this->getAccountContacts();

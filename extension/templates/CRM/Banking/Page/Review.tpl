@@ -82,7 +82,7 @@
       margin: 0;
     }
     .btxvalue {
-      background-color: #F4F4ED;  
+      background-color: #F4F4ED;
       border-bottom: 1px solid white;
     }
     .btxc {
@@ -105,10 +105,10 @@
       color: red;
     }
     .btxlabel {
-      background-color: #FAFAFA;  
+      background-color: #FAFAFA;
       float: left;
-      width: 45px;
-      font-size: 10px;
+      width: 46px;
+      font-size: 9px;
       color: #999;
       margin-right: 4px;
     }
@@ -173,13 +173,13 @@
       margin: 0 0 0 15px;
     }
     table.explorer td.xk {
-      background-color: #FAFAFA;  
+      background-color: #FAFAFA;
       font-size: 10px;
       color: #999;
       width: 25%;
     }
     table.explorer td {
-      background-color: #F4F4ED;  
+      background-color: #F4F4ED;
       border-bottom: 1px solid white;
       padding: 1px 4px !important;
     }
@@ -347,7 +347,7 @@
         <a href="" class="button disabled"><span title="{ts}Confirm and Exit{/ts}"><div class="icon next-icon ui-icon-check"></div>{ts}Confirm and Exit{/ts}</span></a>
         <a href="{$url_back}" class="button"><span title="{ts}Skip and Exit{/ts}"><div class="icon next-icon ui-icon-seek-next"></div>{ts}Skip and Exit{/ts}</span></a>
       {/if}
-    {/if}    
+    {/if}
     <a href="{$url_back}" class="button" style="float:right;">
       <span title="{ts}Back{/ts}"><div class="icon back-icon ui-icon-arrowreturnthick-1-w"></div>{ts}Back to transaction list{/ts}</span>
     </a>
@@ -388,7 +388,7 @@
         </td>
       </tr>
     </table>
-  
+
   {else}
     <br/><br/>
     <h2>{$status_message}</h2>
@@ -443,15 +443,15 @@ function analysePayment() {
           // remove 'execute' bit from URL before reload
           var newURL = window.location.href.replace(reload_regex, '');
           if (window.location.href == newURL) {
-            window.location.reload(false); 
+            window.location.reload(false);
           } else {
             window.location = newURL;
-          }          
+          }
         } else {
           cj('<div title="{/literal}{ts}Error{/ts}{literal}"><span class="ui-icon ui-icon-alert" style="float:left;"></span>' + data['error_message'] + '</div>').dialog({
             modal: true,
             buttons: {
-              Ok: function() { 
+              Ok: function() {
                 window.location = window.location.href.replace(reload_regex, '');
               }
             }
@@ -485,4 +485,4 @@ function banking_open_link(dirty_link, replacements, asPopup) {
   }
 }
 </script>
-{/literal} 
+{/literal}

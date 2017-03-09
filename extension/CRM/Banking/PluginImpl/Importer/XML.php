@@ -418,8 +418,10 @@ class CRM_Banking_PluginImpl_Importer_XML extends CRM_Banking_PluginModel_Import
         // we found it!
         $data[$rule->to] = $matches[1];
       } else {
-        $this->reportProgress(CRM_Banking_PluginModel_Base::REPORT_PROGRESS_NONE, 
-          sprintf(ts("Pattern '%s' was not found in entry '%s'."), $pattern, $value));
+        if (!empty($rule->warn)) {
+          $this->reportProgress(CRM_Banking_PluginModel_Base::REPORT_PROGRESS_NONE,
+            sprintf(ts("Pattern '%s' was not found in entry '%s'."), $pattern, $value));
+        }
       }
 
     } else {

@@ -40,6 +40,8 @@ class CRM_Banking_Matcher_Context {
    * @return array(contact_id => similarity), where similarity is from [0..1]
    */
   public function findContacts($threshold=0.0, $name=NULL, $lookup_by_name_parameters=array()) {
+    $lookup_by_name_parameters = (array) $lookup_by_name_parameters;
+
     // we'll start with the findContacts method
     if (!empty($lookup_by_name_parameters['mode']) && $lookup_by_name_parameters['mode']=='off') {
       // search turned off
@@ -125,8 +127,8 @@ class CRM_Banking_Matcher_Context {
     $parameters['name'] = $name;
     if (isset($parameters['modifiers']))
       $parameters['modifiers'] = json_encode($parameters['modifiers']);
-    if (isset($parameters['use_sql']))
-      $parameters['use_sql'] = json_encode($parameters['use_sql']);
+    if (isset($parameters['mode']))
+      $parameters['mode'] = json_encode($parameters['mode']);
     $result = civicrm_api('BankingLookup', 'contactbyname', $parameters);
     if (isset($result['is_error']) && $result['is_error']) {
       // TODO: more error handling?

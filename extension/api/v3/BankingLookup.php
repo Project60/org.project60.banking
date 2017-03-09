@@ -198,14 +198,14 @@ function civicrm_api3_banking_lookup_contactbyname($params) {
  */
 function _civicrm_api3_banking_lookup_contactbyname_sql($name_mutations, $params) {
   $contacts_found = array();
+  $longest_mutation = 0;
 
   // compile SQL query
   $sql_clauses = array();
-
-  // query quicksearch for each combination
   foreach ($name_mutations as $name_mutation) {
     $name_mutation = CRM_Utils_Type::escape($name_mutation, 'String');
     $sql_clauses[] = "(`sort_name` LIKE '{$name_mutation}%')";
+    $longest_mutation = max($longest_mutation, strlen($name_mutation));
   };
 
   $search_term = implode(' OR ', $sql_clauses);
@@ -213,24 +213,31 @@ function _civicrm_api3_banking_lookup_contactbyname_sql($name_mutations, $params
   // error_log($search_query);
   $search_results = CRM_Core_DAO::executeQuery($search_query);
   while ($search_results->fetch()) {
+    // evaluate each result
     $compare_name = strtolower($search_results->sort_name);
+    $probability = 0.0;
     foreach ($name_mutations as $name_mutation) {
-      if (isset($contacts_found[$search_results->id])) {
-        $probability = $contacts_found[$search_results->id];
+      if ($compare_name == $name_mutation) {
+        $probability = 1.0;
       } else {
-        $probability = 0.0;
+        // not a full match -> calculate similarity
+        $similarity = 0.0; // value [0..100]
+        similar_text(strtolower($name_mutation), $compare_name, $similarity);
+        $probability = max($probability, $similarity / 100.0);
       }
 
-      $new_probability = 0.0;
-      similar_text(strtolower($name_mutation), $compare_name, $new_probability);
-      $new_probability /= 100.0;
-      if ($new_probability > $probability) {
-        // square value for better distribution, multiply by 0.999 to avoid 100% match based on name
-        $probability = $new_probability * $new_probability * 0.999;
+      if ($probability == 1.0) {
+        break;
       }
     }
 
-    $contacts_found[$search_results->id] = $probability;
+    // deduct percent points for shorter matches
+    $probability -= ($longest_mutation - strlen($name_mutation)) / 100.0;
+
+    if ($probability > 0) {
+      // square value for better distribution, multiply by 0.999 to avoid 100% match based on name
+      $contacts_found[$search_results->id] = $probability * $probability * 0.999;
+    }
   }
 
   return $contacts_found;

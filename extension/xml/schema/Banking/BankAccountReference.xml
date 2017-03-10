@@ -18,7 +18,6 @@
         <name>id</name>
         <autoincrement>true</autoincrement>
     </primaryKey>
-
     <field>
         <name>reference</name>
         <title>Reference value</title>
@@ -27,8 +26,12 @@
         <comment>The value for this account</comment>
         <add>4.3</add>
     </field>
-
-        <field>
+    <index>
+       <name>reference</name>
+       <fieldName>reference</fieldName>
+       <add>4.3</add>
+    </index>
+    <field>
         <name>reference_type_id</name>
         <type>int unsigned</type>
         <title>Reference type</title>
@@ -36,8 +39,7 @@
         <comment>Link to an option list</comment>
         <add>4.3</add>
     </field>
-        
-        <field>
+    <field>
         <name>ba_id</name>
         <title>Bank Account ID</title>
         <type>int unsigned</type>
@@ -51,12 +53,10 @@
         <add>4.3</add>
         <onDelete>SET NULL</onDelete>
     </foreignKey>
-    
-     <index>
+    <index>
        <name>reftype</name>
        <fieldName>ba_id</fieldName>
        <fieldName>reference_type_id</fieldName>
        <add>4.3</add>
-  </index>
-
+    </index>
 </table>

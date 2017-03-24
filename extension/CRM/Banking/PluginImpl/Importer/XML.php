@@ -182,28 +182,31 @@ class CRM_Banking_PluginImpl_Importer_XML extends CRM_Banking_PluginModel_Import
 
     $index = 0;
     foreach ($payment_specs as $payment_spec) {
+      // compile filter list
+      if (!empty($payment_spec->filters)) {
+        $filters = $payment_spec->filters;
+      } else {
+        $filters = array();
+      }
+      if (!empty($payment_spec->filter)) {
+        $filters[] = $payment_spec->filter;
+      }
+
+      // iterate nodes
       $payments = $this->xpath->query($payment_spec->path);
       foreach ($payments as $payment_node) {
         $index += 1;
 
-        // apply filters
-        if (!empty($payment_spec->filter)) {
-          if ('exists:' == substr($payment_spec->filter, 0, 7)) {
-            $filter_result = $this->xpath->evaluate(substr($payment_spec->filter, 7), $payment_node);
-            if ($filter_result->length == 0) {
-              continue;
-            }
-
-          } elseif ('not_exists:' == substr($payment_spec->filter, 0, 11)) {
-            $filter_result = $this->xpath->evaluate(substr($payment_spec->filter, 11), $payment_node);
-            if ($filter_result->length > 0) {
-              continue;
-            }
-
-          } else {
-            // unknown filter spec
+        // evaluate filters
+        $node_accepted = TRUE;
+        foreach ($filters as $filter) {
+          $filter_maches = $this->filterMatches($payment_node, $filter);
+          if ($filter_maches) {
+            $node_accepted = FALSE;
+            break;
           }
         }
+        if (!$node_accepted) continue;
 
         // import the line
         $this->import_payment($payment_spec, $payment_node, $data, $index, $payments->length, $params);
@@ -231,6 +234,31 @@ class CRM_Banking_PluginImpl_Importer_XML extends CRM_Banking_PluginModel_Import
       $this->closeTransactionBatch(FALSE);
     }
     $this->reportDone();
+  }
+
+  /**
+   * see if the filter matches
+   *
+   * @return TRUE if the expression is true for the payment node
+   */
+  protected function filterMatches($payment_node, $filter) {
+    if ('exists:' == substr($filter, 0, 7)) {
+      $filter_result = $this->xpath->evaluate(substr($filter, 7), $payment_node);
+      if ($filter_result->length == 0) {
+        return TRUE;
+      }
+
+    } elseif ('not_exists:' == substr($filter, 0, 11)) {
+      $filter_result = $this->xpath->evaluate(substr($filter, 11), $payment_node);
+      if ($filter_result->length > 0) {
+        return TRUE;
+      }
+
+    } else {
+      // unknown filter spec
+
+    }
+    return FALSE;
   }
 
   /**
@@ -418,8 +446,10 @@ class CRM_Banking_PluginImpl_Importer_XML extends CRM_Banking_PluginModel_Import
         // we found it!
         $data[$rule->to] = $matches[1];
       } else {
-        $this->reportProgress(CRM_Banking_PluginModel_Base::REPORT_PROGRESS_NONE, 
-          sprintf(ts("Pattern '%s' was not found in entry '%s'."), $pattern, $value));
+        if (!empty($rule->warn)) {
+          $this->reportProgress(CRM_Banking_PluginModel_Base::REPORT_PROGRESS_NONE,
+            sprintf(ts("Pattern '%s' was not found in entry '%s'."), $pattern, $value));
+        }
       }
 
     } else {

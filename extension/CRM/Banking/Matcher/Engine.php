@@ -26,11 +26,11 @@
 require_once 'CRM/Banking/Helpers/OptionValue.php';
 
 class CRM_Banking_Matcher_Engine {
-  
+
   // CLASS METHODS
 
   static private $singleton = null;
-  
+
   public static function getInstance() {
     if (self::$singleton === null) {
       $bm = new CRM_Banking_Matcher_Engine();
@@ -39,28 +39,28 @@ class CRM_Banking_Matcher_Engine {
     }
     return self::$singleton;
   }
-  
+
   //----------------------------------------------------------------------------
   //
-  // INSTANCE METHODS 
-  
+  // INSTANCE METHODS
+
   private $plugins;
-  
-  /** 
-   * Initialize this instance 
+
+  /**
+   * Initialize this instance
    */
   private function init() {
     $this->initPlugins();
   }
-  
+
   /**
    * Initialize the list of plugins
    */
   private function initPlugins() {
-    // perform a BAO query to select all active match plugins and insert instances for them into 
+    // perform a BAO query to select all active match plugins and insert instances for them into
     //    the matchers array by weight, then ksort descending
     $this->plugins = array();
-    
+
     $matcher_type_id = banking_helper_optionvalueid_by_groupname_and_name('civicrm_banking.plugin_classes', 'match');
     $params = array('version' => 3, 'plugin_type_id' => $matcher_type_id, 'enabled' => 1);
     $result = civicrm_api('BankingPluginInstance', 'get', $params);
@@ -80,12 +80,12 @@ class CRM_Banking_Matcher_Engine {
     // sort array by weight
     ksort($this->plugins);
   }
-  
+
   /**
    * Run this BTX through the matchers
-   * 
+   *
    * @param CRM_Banking_BAO_BankTransaction $btx
-   * @param bool $override_processed   Set this to TRUE if you want to re-match processed transactions. 
+   * @param bool $override_processed   Set this to TRUE if you want to re-match processed transactions.
    *                                    This will destroy all records of the execution!
    */
   public function match( $btx_id, $override_processed = FALSE ) {
@@ -115,10 +115,11 @@ class CRM_Banking_Matcher_Engine {
 
     // reset the BTX suggestion list
     $btx->resetSuggestions();
-    
+
     // reset the cache / context object
     $context = new CRM_Banking_Matcher_Context( $btx );
-    
+    $logger = CRM_Banking_Helpers_Logger::getLogger();
+
     // run through the list of matchers
     if (empty($this->plugins)) {
       CRM_Core_Session::setStatus(ts("No matcher plugins configured!"), ts('No processors'), 'alert');
@@ -127,7 +128,10 @@ class CRM_Banking_Matcher_Engine {
         foreach ($plugins as $plugin) {
           try {
             // run matchers to generate suggestions
+            $logger->setTimer('matching');
             $continue = $this->matchPlugin( $plugin, $context );
+            $logger->logTime("Matcher [{$plugin->getPluginID()}]", 'matching');
+
             if (!$continue) {
               $lock->release();
               return true;
@@ -136,6 +140,7 @@ class CRM_Banking_Matcher_Engine {
             // check if we can execute the suggestion right aways
             $abort = $this->checkAutoExecute($plugin, $btx);
             if ($abort) {
+              $logger->logDebug("Matcher [{$plugin->getPluginID()}] executed automatically.");
               $lock->release();
               return false;
             }
@@ -147,7 +152,7 @@ class CRM_Banking_Matcher_Engine {
           }
         }
       }
-    }    
+    }
     $btx->saveSuggestions();
 
     // set the status
@@ -158,10 +163,10 @@ class CRM_Banking_Matcher_Engine {
     $lock->release();
     return false;
   }
-  
+
   /**
    * Test if the given plugin can execute a suggestion right away
-   * 
+   *
    * @return true iff the plugin was executed and the payment is fully processed
    */
   protected function checkAutoExecute($plugin, $btx) {
@@ -184,7 +189,7 @@ class CRM_Banking_Matcher_Engine {
 
   /**
    * Run a single plugin to check for a match
-   * 
+   *
    * @param type $plugin
    * @param type $btx
    * @param type $context
@@ -197,12 +202,12 @@ class CRM_Banking_Matcher_Engine {
     $suggestions = $plugin->match( $btx, $context );
     if ($suggestions !== null) {
       // handle the possibility to get multiple matches in return
-      if (!is_array($suggestions)) $suggestions = array( $suggestions->probability => $suggestions );      
+      if (!is_array($suggestions)) $suggestions = array( $suggestions->probability => $suggestions );
     }
     return true;
   }
-  
-  
+
+
   /**
    * Bulk-run a set of <n> unprocessed items
    *

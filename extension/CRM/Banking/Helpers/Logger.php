@@ -1,0 +1,136 @@
+<?php
+/*-------------------------------------------------------+
+| Project 60 - CiviBanking                               |
+| Copyright (C) 2017 SYSTOPIA                            |
+| Author: B. Endres (endres -at- systopia.de)            |
+| http://www.systopia.de/                                |
++--------------------------------------------------------+
+| This program is released as free software under the    |
+| Affero GPL v3 license. You can redistribute it and/or  |
+| modify it under the terms of this license which you    |
+| can read by viewing the included agpl.txt or online    |
+| at www.gnu.org/licenses/agpl.html. Removal of this     |
+| copyright header is strictly prohibited without        |
+| written permission from the original author(s).        |
++--------------------------------------------------------*/
+
+class CRM_Banking_Helpers_Logger {
+
+  /** singleton */
+  private static $_singleton = NULL;
+
+  /** currenlty active log level */
+  protected $log_level = 'off';
+  // protected $log_level = 'debug';
+
+  /** timers can be used to time stuff */
+  protected $timers = array();
+
+  /**
+   * get Logger object
+   */
+  public static function getLogger() {
+    if (self::$_singleton === NULL) {
+      self::$_singleton = new CRM_Banking_Helpers_Logger();
+    }
+    return self::$_singleton;
+  }
+
+
+
+  /**
+   * Constructor
+   */
+  protected function __construct() {
+    // TODO: init $log_level
+    // TODO: create log file, etc.
+    $this->timers = array();
+  }
+
+  /**
+   * set a timer for later use with logTime
+   */
+  public function setTimer($name = 'default') {
+    $this->timers[$name] = microtime(TRUE);
+  }
+
+  /**
+   * set a timer for later use with logTime
+   */
+  public function logTime($process_name, $name = 'default') {
+    $time = (microtime(TRUE) - $this->timers[$name]);
+    $time_ms = (int) ($time * 1000.0);
+    $this->logDebug("Process '{$process_name}' took {$time_ms}ms.");
+  }
+
+  public function logDebug($message, $reference = NULL) {
+    return $this->log($message, 'debug', $reference);
+  }
+
+  public function logInfo($message, $reference = NULL) {
+    return $this->log($message, 'info', $reference);
+  }
+
+  public function logWarn($message, $reference = NULL) {
+    return $this->log($message, 'warn', $reference);
+  }
+
+  public function logError($message, $reference = NULL) {
+    return $this->log($message, 'error', $reference);
+  }
+
+  /**
+   * log message
+   *
+   * @param $level  one of 'error', 'warn', 'info', 'debug'
+   */
+  public function log($message, $level = 'info', $reference = NULL) {
+    switch ($level) {
+      case 'off':
+        return;
+
+      case 'error':
+        if   ($this->log_level == 'error'
+           || $this->log_level == 'warn'
+           || $this->log_level == 'info'
+           || $this->log_level == 'debug') {
+          break;
+        } else {
+          return;
+        }
+
+      case 'warn':
+        if   ($this->log_level == 'warn'
+           || $this->log_level == 'info'
+           || $this->log_level == 'debug') {
+          break;
+        } else {
+          return;
+        }
+
+      case 'info':
+        if   ($this->log_level == 'info'
+           || $this->log_level == 'debug') {
+          break;
+        } else {
+          return;
+        }
+
+      case 'debug':
+        if ($this->log_level == 'debug') {
+          break;
+        } else {
+          return;
+        }
+
+      default:
+        $this->logError("Unknown log level '{$level}' given. Ignored.", $reference);
+        return;
+    }
+
+    // now log it
+    // TODO: find better outlet
+    error_log("org.project60.banking: " . $message);
+  }
+
+}

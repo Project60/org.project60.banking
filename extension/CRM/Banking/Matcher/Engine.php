@@ -121,6 +121,7 @@ class CRM_Banking_Matcher_Engine {
     $logger = CRM_Banking_Helpers_Logger::getLogger();
 
     // run through the list of matchers
+    $logger->setTimer('matching');
     if (empty($this->plugins)) {
       CRM_Core_Session::setStatus(ts("No matcher plugins configured!"), ts('No processors'), 'alert');
     } else {
@@ -128,12 +129,13 @@ class CRM_Banking_Matcher_Engine {
         foreach ($plugins as $plugin) {
           try {
             // run matchers to generate suggestions
-            $logger->setTimer('matching');
+            $logger->setTimer('matcher');
             $continue = $this->matchPlugin( $plugin, $context );
-            $logger->logTime("Matcher [{$plugin->getPluginID()}]", 'matching');
+            $logger->logTime("Matcher [{$plugin->getPluginID()}]", 'matcher');
 
             if (!$continue) {
               $lock->release();
+              $logger->logTime("Matching of btx [{$btx_id}]", 'matcher');
               return true;
             }
 
@@ -142,6 +144,7 @@ class CRM_Banking_Matcher_Engine {
             if ($abort) {
               $logger->logDebug("Matcher [{$plugin->getPluginID()}] executed automatically.");
               $lock->release();
+              $logger->logTime("Matching of btx [{$btx_id}]", 'matcher');
               return false;
             }
           } catch (Exception $e) {
@@ -161,6 +164,7 @@ class CRM_Banking_Matcher_Engine {
     $btx->setStatus($newStatus);
 
     $lock->release();
+    $logger->logTime("Matching of btx [{$btx_id}]", 'matcher');
     return false;
   }
 

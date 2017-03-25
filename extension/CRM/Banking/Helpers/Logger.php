@@ -85,6 +85,8 @@ class CRM_Banking_Helpers_Logger {
    * @param $level  one of 'error', 'warn', 'info', 'debug'
    */
   public function log($message, $level = 'info', $reference = NULL) {
+    if ($this->log_level == 'off') return;
+
     switch ($level) {
       case 'off':
         return;

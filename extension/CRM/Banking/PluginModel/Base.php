@@ -81,7 +81,7 @@ abstract class CRM_Banking_PluginModel_Base {
   public function logMessage($message, $log_level) {
     // TODO: evaluate log_level
     if (isset($this->_plugin_config->log_level) && $this->_plugin_config->log_level != 'off') {
-      $this->logger->log("[{$plugin_dao->id}]: {$message}", $this->_plugin_config->log_level);
+      $this->logger->log("[{$this->_plugin_id}]: {$message}", $this->_plugin_config->log_level);
     }
   }
 
@@ -91,7 +91,7 @@ abstract class CRM_Banking_PluginModel_Base {
   public function logTime($process, $timer) {
     // TODO: evaluate log_level
     if (isset($this->_plugin_config->log_level) && $this->_plugin_config->log_level != 'off') {
-      $this->logger->logTime("[{$plugin_dao->id}]: {$progress}", $timer);
+      $this->logger->logTime("[{$this->_plugin_id}]: {$process}", $timer);
     }
   }
 

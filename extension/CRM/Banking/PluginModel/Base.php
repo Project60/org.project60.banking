@@ -28,7 +28,7 @@ abstract class CRM_Banking_PluginModel_Base {
   CONST REPORT_LEVEL_WARN  = "WARN";
   CONST REPORT_LEVEL_ERROR = "ERROR";
 
-  CONST REPORT_PROGRESS_NONE = -1.0;  
+  CONST REPORT_PROGRESS_NONE = -1.0;
 
   /**
    * The task that the wizard is currently processing
@@ -47,7 +47,7 @@ abstract class CRM_Banking_PluginModel_Base {
 
   /**
    * the plugin's user readable name
-   * 
+   *
    * @return string
    */
   static function displayName() {
@@ -59,6 +59,7 @@ abstract class CRM_Banking_PluginModel_Base {
    */
   function __construct($plugin_dao) {
     $this->__setDAO($plugin_dao);
+    $this->logger = CRM_Banking_Helpers_Logger::getLogger();
   }
 
   protected function __setDAO($plugin_dao) {
@@ -74,13 +75,34 @@ abstract class CRM_Banking_PluginModel_Base {
     }
   }
 
+  /**
+   * Generic logging function for any plugin
+   */
+  public function logMessage($message, $log_level) {
+    // TODO: evaluate log_level
+    if (isset($this->_plugin_config->log_level) && $this->_plugin_config->log_level != 'off') {
+      $this->logger->log("[{$plugin_dao->id}]: {$message}", $this->_plugin_config->log_level);
+    }
+  }
+
+  /**
+   * Generic logging function for any plugin
+   */
+  public function logTime($process, $timer) {
+    // TODO: evaluate log_level
+    if (isset($this->_plugin_config->log_level) && $this->_plugin_config->log_level != 'off') {
+      $this->logger->logTime("[{$plugin_dao->id}]: {$progress}", $timer);
+    }
+  }
+
+
   // ------------------------------------------------------
   // utility functions provided to the plugin implementations
   // ------------------------------------------------------
   /**
    * Set a callback for progress reports (reported by match(), import_*() and export()_*)
-   * 
-   * TODO: data format? float [0..1]?   
+   *
+   * TODO: data format? float [0..1]?
    */
   function setProgressCallback($callback) {
     // TODO: sanity checks?
@@ -90,8 +112,8 @@ abstract class CRM_Banking_PluginModel_Base {
 
   /**
    * Report progress of the import/export/matching process
-   * 
-   * TODO: data format? float [0..1]?   
+   *
+   * TODO: data format? float [0..1]?
    */
   function reportProgress($progress, $message=None, $level=self::REPORT_LEVEL_INFO) {
     if ($progress==self::REPORT_PROGRESS_NONE) {
@@ -157,7 +179,7 @@ abstract class CRM_Banking_PluginModel_Base {
   // -------------------------------------------------------
   /**
    * Look up contact with the given attributes
-   * 
+   *
    * This method is to be preferred over BAO or API calls, since results will be cached in future versions
    *
    * @return array of contacts
@@ -169,7 +191,7 @@ abstract class CRM_Banking_PluginModel_Base {
 
   /**
    * Look up contributions with the given attributes
-   * 
+   *
    * This method is to be preferred over BAO or API calls, since results will be cached in future versions
    *
    * @return array of contacts

@@ -24,7 +24,7 @@ class CRM_Banking_PluginImpl_Matcher_RegexAnalyser extends CRM_Banking_PluginMod
 
   /**
    * class constructor
-   */ 
+   */
   function __construct($config_name) {
     parent::__construct($config_name);
 
@@ -36,7 +36,7 @@ class CRM_Banking_PluginImpl_Matcher_RegexAnalyser extends CRM_Banking_PluginMod
     if (!isset($config->variable_lookup_compatibility))   $config->variable_lookup_compatibility = FALSE;
   }
 
-  /** 
+  /**
    * this matcher does not really create suggestions, but rather enriches the parsed data
    */
   public function analyse(CRM_Banking_BAO_BankTransaction $btx, CRM_Banking_Matcher_Context $context) {    $config = $this->_plugin_config;
@@ -71,6 +71,7 @@ class CRM_Banking_PluginImpl_Matcher_RegexAnalyser extends CRM_Banking_PluginMod
 
           // and execute the actions for each match...
           for ($i=0; $i < $match_count; $i++) {
+            $this->logMessage("Rule '{$rule->pattern}' matched.", 'debug');
             $this->processMatch($matches, $i, $data_parsed, $rule);
           }
         }
@@ -81,7 +82,7 @@ class CRM_Banking_PluginImpl_Matcher_RegexAnalyser extends CRM_Banking_PluginMod
     $btx->setDataParsed($data_parsed);
   }
 
-  /** 
+  /**
    * execute all the action defined by the rule to the given match
    */
   function processMatch($match_data, $match_index, &$data_parsed, $rule) {
@@ -161,7 +162,11 @@ class CRM_Banking_PluginImpl_Matcher_RegexAnalyser extends CRM_Banking_PluginMod
             $query[$key] = $value;
           }
         }
+        // execute and log
+        $this->logger->setTimer('regex:lookup');
         $result = civicrm_api($params[0], 'getsingle', $query);
+        $this->logTime("Calling {$params[0]} API" . json_encode($query), 'regex:lookup');
+
         if (empty($result['is_error'])) {
           // something was found... copy value
           $data_parsed[$action->to] = $result[$params[1]];
@@ -180,7 +185,7 @@ class CRM_Banking_PluginImpl_Matcher_RegexAnalyser extends CRM_Banking_PluginMod
          * further attributes can be given as follows:
          *  const_<param>    set the API parameter to a constant, e.g. const_contact_type = 'Individual'
          *  param_<param>    set the API parameter to the value of another field, e.g. const_first_name = 'first_name'
-         */        
+         */
         // compile query
         $params = split(':', substr($action->action, 4));
         $query = array('return' => $params[2]);
@@ -198,7 +203,10 @@ class CRM_Banking_PluginImpl_Matcher_RegexAnalyser extends CRM_Banking_PluginMod
 
         // execute query
         try {
-          $result = civicrm_api3($params[0], $params[1], $query);        
+          $this->logger->setTimer('regex:api');
+          $result = civicrm_api3($params[0], $params[1], $query);
+          $this->logTime("Calling {$params[0]}.{$params[1]} API" . json_encode($query), 'regex:api');
+
           if (isset($params[3]) && $params[3]=='multiple') {
             // multiple values allowed
             $results = array();
@@ -206,7 +214,7 @@ class CRM_Banking_PluginImpl_Matcher_RegexAnalyser extends CRM_Banking_PluginMod
               $results[] = $entity[$params[2]];
             }
             $data_parsed[$action->to] = implode(',', $results);
-          
+
           } else {
             // only valid if it's the only value
             if ($result['count'] == 1) {
@@ -237,7 +245,7 @@ class CRM_Banking_PluginImpl_Matcher_RegexAnalyser extends CRM_Banking_PluginMod
       } else {
         error_log("org.project60.banking: RexgexAnalyser - Cannot find source '$key' for rule or filter.");
         return '';
-      }      
+      }
     } else {
       if (isset($match_data[$key][$match_index])) {
         return $match_data[$key][$match_index];
@@ -246,9 +254,9 @@ class CRM_Banking_PluginImpl_Matcher_RegexAnalyser extends CRM_Banking_PluginMod
       } else {
         error_log("org.project60.banking: RexgexAnalyser - Cannot find source '$key' for rule or filter.");
         return '';
-      }      
+      }
     }
-  }  
+  }
 }
 
 

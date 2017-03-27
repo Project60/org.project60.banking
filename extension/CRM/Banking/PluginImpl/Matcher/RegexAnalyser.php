@@ -254,11 +254,12 @@ class CRM_Banking_PluginImpl_Matcher_RegexAnalyser extends CRM_Banking_PluginMod
    * execute API Query
    */
   protected function executeAPIQuery($entity, $command, $query, $action) {
-    if (empty($action->sql) || !$action->sql) {
+    $command = strtolower($command);
+    if (empty($action->sql) || !$action->sql || !in_array($command, array('get', 'getsingle'))) {
       // execute via API
       return civicrm_api($entity, $command, $query);
 
-    } else {
+    } else  {
       // execute via SQL
       // compile select
       if (empty($query['return'])) {
@@ -275,6 +276,7 @@ class CRM_Banking_PluginImpl_Matcher_RegexAnalyser extends CRM_Banking_PluginMod
       $query_params = array();
       foreach ($query as $key => $value) {
         if (!in_array($key, array('return', 'sort', 'limit', 'option', 'version'))) {
+          // TODO: support for sort, limit, etc.
           if (is_array($value)) {
             // TODO: support for LIKE, IN, etc.
           } else {
@@ -290,13 +292,30 @@ class CRM_Banking_PluginImpl_Matcher_RegexAnalyser extends CRM_Banking_PluginMod
         $where_clause = '(' . implode(') AND (', $where_clauses) . ')';
       }
 
-      // execute the query
-      $dao_query = CRM_Core_DAO::executeQuery("SELECT {$select_clause} FROM {$from} WHERE {$where_clause};", $query_params);
-      $results = array();
-      while ($dao_query->fetch()) {
-        $results[] = $dao_query->toArray();
+      // should there be a limit
+      if ($command == 'getsingle') {
+        $limit = 'LIMIT 1';
+      } elseif ($query['limit']) {
+        $limit = "LIMIT {$query['limit']}";
+      } else {
+        $limit = '';
       }
-      return civicrm_api3_create_success($results);
+
+      // execute the query
+      $dao_query = CRM_Core_DAO::executeQuery("SELECT {$select_clause} FROM {$from} WHERE {$where_clause} {$limit};", $query_params);
+      if ($command == 'getsingle') {
+        if ($dao_query->fetch()) {
+          return $dao_query->toArray();
+        } else {
+          return civicrm_api3_create_error("Not found");
+        }
+      } else { // $command == 'get'
+        $results = array();
+        while ($dao_query->fetch()) {
+          $results[] = $dao_query->toArray();
+        }
+        return civicrm_api3_create_success($results);
+      }
     }
   }
 

@@ -57,9 +57,11 @@ class CRM_Banking_Matcher_Context {
     // then look for 'contact_id' or 'external_identifier'
     $data_parsed = $this->btx->getDataParsed();
     if (!empty($data_parsed['external_identifier'])) {
-      $contact = civicrm_api('Contact', 'getsingle', array('external_identifier' => $data_parsed['external_identifier'], 'version' => 3));
-      if (empty($contact['is_error'])) {
-        $contacts[$contact['id']] = 1.0;
+      // RUN SQL query instead of API (see BANKING-165)
+      $contact_id = CRM_Core_DAO::singleValueQuery('SELECT id FROM civicrm_contact WHERE external_identifier = %1 AND is_deleted=0;',
+          array(1 => array($data_parsed['external_identifier'], 'String')));
+      if ($contact_id) {
+        $contacts[$contact_id] = 1.0;
       }
     }
 

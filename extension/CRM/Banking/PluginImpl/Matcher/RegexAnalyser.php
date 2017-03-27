@@ -24,7 +24,7 @@ class CRM_Banking_PluginImpl_Matcher_RegexAnalyser extends CRM_Banking_PluginMod
 
   /**
    * class constructor
-   */ 
+   */
   function __construct($config_name) {
     parent::__construct($config_name);
 
@@ -36,7 +36,7 @@ class CRM_Banking_PluginImpl_Matcher_RegexAnalyser extends CRM_Banking_PluginMod
     if (!isset($config->variable_lookup_compatibility))   $config->variable_lookup_compatibility = FALSE;
   }
 
-  /** 
+  /**
    * this matcher does not really create suggestions, but rather enriches the parsed data
    */
   public function analyse(CRM_Banking_BAO_BankTransaction $btx, CRM_Banking_Matcher_Context $context) {    $config = $this->_plugin_config;
@@ -81,7 +81,7 @@ class CRM_Banking_PluginImpl_Matcher_RegexAnalyser extends CRM_Banking_PluginMod
     $btx->setDataParsed($data_parsed);
   }
 
-  /** 
+  /**
    * execute all the action defined by the rule to the given match
    */
   function processMatch($match_data, $match_index, &$data_parsed, $rule) {
@@ -161,7 +161,7 @@ class CRM_Banking_PluginImpl_Matcher_RegexAnalyser extends CRM_Banking_PluginMod
             $query[$key] = $value;
           }
         }
-        $result = civicrm_api($params[0], 'getsingle', $query);
+        $result = $this->executeAPIQuery($params[0], 'getsingle', $query, $action);
         if (empty($result['is_error'])) {
           // something was found... copy value
           $data_parsed[$action->to] = $result[$params[1]];
@@ -180,7 +180,7 @@ class CRM_Banking_PluginImpl_Matcher_RegexAnalyser extends CRM_Banking_PluginMod
          * further attributes can be given as follows:
          *  const_<param>    set the API parameter to a constant, e.g. const_contact_type = 'Individual'
          *  param_<param>    set the API parameter to the value of another field, e.g. const_first_name = 'first_name'
-         */        
+         */
         // compile query
         $params = split(':', substr($action->action, 4));
         $query = array('return' => $params[2]);
@@ -198,7 +198,7 @@ class CRM_Banking_PluginImpl_Matcher_RegexAnalyser extends CRM_Banking_PluginMod
 
         // execute query
         try {
-          $result = civicrm_api3($params[0], $params[1], $query);        
+          $result = $this->executeAPIQuery($params[0], $params[1], $query, $action);
           if (isset($params[3]) && $params[3]=='multiple') {
             // multiple values allowed
             $results = array();
@@ -206,7 +206,7 @@ class CRM_Banking_PluginImpl_Matcher_RegexAnalyser extends CRM_Banking_PluginMod
               $results[] = $entity[$params[2]];
             }
             $data_parsed[$action->to] = implode(',', $results);
-          
+
           } else {
             // only valid if it's the only value
             if ($result['count'] == 1) {
@@ -237,7 +237,7 @@ class CRM_Banking_PluginImpl_Matcher_RegexAnalyser extends CRM_Banking_PluginMod
       } else {
         error_log("org.project60.banking: RexgexAnalyser - Cannot find source '$key' for rule or filter.");
         return '';
-      }      
+      }
     } else {
       if (isset($match_data[$key][$match_index])) {
         return $match_data[$key][$match_index];
@@ -246,9 +246,73 @@ class CRM_Banking_PluginImpl_Matcher_RegexAnalyser extends CRM_Banking_PluginMod
       } else {
         error_log("org.project60.banking: RexgexAnalyser - Cannot find source '$key' for rule or filter.");
         return '';
-      }      
+      }
     }
-  }  
+  }
+
+  /**
+   * execute API Query
+   */
+  protected function executeAPIQuery($entity, $command, $query, $action) {
+    if (empty($action->sql) || !$action->sql) {
+      // execute via API
+      return civicrm_api($entity, $command, $query);
+
+    } else {
+      // execute via SQL
+      // compile select
+      if (empty($query['return'])) {
+        $select_clause = '*';
+      } else {
+        $select_clause = $query['return'];
+      }
+
+      // compile from
+      $from = $this->getTableName($entity);
+
+      // compile where
+      $where_clauses = array();
+      $query_params = array();
+      foreach ($query as $key => $value) {
+        if (!in_array($key, array('return', 'sort', 'limit', 'option', 'version'))) {
+          if (is_array($value)) {
+            // TODO: support for LIKE, IN, etc.
+          } else {
+            $index = count($query_params) + 1;
+            $where_clauses[] = "`$key` = %$index";
+            $query_params[$index] = array($value, 'String');
+          }
+        }
+      }
+      if (empty($where_clauses)) {
+        $where_clause = 'TRUE';
+      } else {
+        $where_clause = '(' . implode(') AND (', $where_clauses) . ')';
+      }
+
+      // execute the query
+      $dao_query = CRM_Core_DAO::executeQuery("SELECT {$select_clause} FROM {$from} WHERE {$where_clause};", $query_params);
+      $results = array();
+      while ($dao_query->fetch()) {
+        $results[] = $dao_query->toArray();
+      }
+      return civicrm_api3_create_success($results);
+    }
+  }
+
+  /**
+   * get the CiviCRM table name for an entity
+   */
+  protected function getTableName($entity) {
+    // from: https://stackoverflow.com/questions/1993721/how-to-convert-camelcase-to-camel-case#1993772
+    preg_match_all('!([A-Z][A-Z0-9]*(?=$|[A-Z][a-z0-9])|[A-Za-z][a-z0-9]+)!', $entity, $matches);
+    $ret = $matches[0];
+    foreach ($ret as &$match) {
+      $match = $match == strtoupper($match) ? strtolower($match) : lcfirst($match);
+    }
+    return 'civicrm_' . implode('_', $ret);
+  }
+
 }
 
 

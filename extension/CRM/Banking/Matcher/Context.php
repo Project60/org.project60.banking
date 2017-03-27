@@ -106,6 +106,8 @@ class CRM_Banking_Matcher_Context {
    * @return array(contact_id => similarity), where similarity is from [0..1]
    */
   public function lookupContactByName($name, $parameters=array()) {
+    $logger = CRM_Banking_Helpers_Logger::getLogger();
+    $logger->setTimer('lookupContactByName');
     $parameters = (array) $parameters;
 
     if (!$name) {
@@ -117,6 +119,7 @@ class CRM_Banking_Matcher_Context {
     $cache_key = "banking.matcher.context.name_lookup.".md5(serialize($name).serialize($parameters));
     $contacts_found = $this->getCachedEntry($cache_key);
     if ($contacts_found!=NULL) {
+      $logger->logDebug("lookupContactByName: cache hit");
       return $contacts_found;
     } else {
       $contacts_found = array();
@@ -138,6 +141,7 @@ class CRM_Banking_Matcher_Context {
     // update the cache
     $this->setCachedEntry($cache_key, $contacts_found);
 
+    $logger->logTime('lookupContactByName', 'lookupContactByName');
   	return $contacts_found;
   }
 

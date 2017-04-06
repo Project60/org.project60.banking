@@ -264,6 +264,7 @@ class CRM_Banking_PluginImpl_Matcher_RegexAnalyser extends CRM_Banking_PluginMod
     $command = strtolower($command);
     if (empty($action->sql) || !$action->sql || !in_array($command, array('get', 'getsingle'))) {
       // execute via API
+      $query['version'] = 3;
       return civicrm_api($entity, $command, $query);
 
     } else  {

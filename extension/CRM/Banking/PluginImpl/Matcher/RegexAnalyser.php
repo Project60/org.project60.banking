@@ -261,6 +261,8 @@ class CRM_Banking_PluginImpl_Matcher_RegexAnalyser extends CRM_Banking_PluginMod
    * execute API Query
    */
   protected function executeAPIQuery($entity, $command, $query, $action) {
+    $this->logger->logDebug("calling {$entity}.{$command} with " . json_encode($query));
+
     $command = strtolower($command);
     if (empty($action->sql) || !$action->sql || !in_array($command, array('get', 'getsingle'))) {
       // execute via API

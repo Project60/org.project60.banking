@@ -21,7 +21,9 @@ class CRM_Banking_Helpers_Logger {
 
   /** currenlty active log level */
   protected $log_level = 'off';
-  // protected $log_level = 'debug';
+
+  /** currenlty active log level */
+  protected $log_file_handle = NULL;
 
   /** timers can be used to time stuff */
   protected $timers = array();
@@ -42,9 +44,28 @@ class CRM_Banking_Helpers_Logger {
    * Constructor
    */
   protected function __construct() {
-    // TODO: init $log_level
-    // TODO: create log file, etc.
+    // read log level
+    $all_levels = self::getLoglevels();
+    $this->log_level = CRM_Core_BAO_Setting::getItem('CiviBanking', 'banking_log_level');
+    if (!isset($all_levels[$this->log_level])) {
+      // invalid log level -> fall back to 'off'
+      $this->log_level = 'off';
+    }
+
+    // init timers
     $this->timers = array();
+
+    // create log file
+    $log_file = CRM_Core_BAO_Setting::getItem('CiviBanking', 'banking_log_file');
+    if (!empty($log_file)) {
+      // log to file:
+      if (substr($log_file, 0, 1) != '/') {
+        // not an absolute path, prepend log folder
+        $config = CRM_Core_Config::singleton();
+        $log_file = "{$config->configAndLogDir}{$log_file}";
+      }
+      $this->log_file_handle = fopen($log_file, 'a');
+    }
   }
 
   /**
@@ -131,8 +152,24 @@ class CRM_Banking_Helpers_Logger {
     }
 
     // now log it
-    // TODO: find better outlet
-    error_log("org.project60.banking: " . $message);
+    if ($this->log_file_handle) {
+      fwrite($this->log_file_handle, date('Y-m-d H:i:s') . ' ' . $message . "\n");
+    } else {
+      error_log("org.project60.banking: " . $message);
+    }
+  }
+
+  /**
+   * get a list of all log levels
+   */
+  public static function getLoglevels() {
+    return array(
+      'off'   => ts('No Logging'),
+      'debug' => ts('Debug'),
+      'info'  => ts('Info'),
+      'warn'  => ts('Warnings'),
+      'error' => ts('Errors'),
+    );
   }
 
 }

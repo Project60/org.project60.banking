@@ -21,6 +21,18 @@
   <div class="clear"></div>
 </div>
 
+<div class="crm-section">
+  <div class="label">{$form.banking_log_level.label}</div>
+  <div class="content">{$form.banking_log_level.html}</div>
+  <div class="clear"></div>
+</div>
+
+<div class="crm-section">
+  <div class="label">{$form.banking_log_file.label}</div>
+  <div class="content">{$form.banking_log_file.html}</div>
+  <div class="clear"></div>
+</div>
+
 <br/>
 <h3>{ts}Bank Account Settings{/ts}</h3>
 

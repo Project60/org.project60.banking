@@ -41,18 +41,37 @@ class CRM_Admin_Form_Setting_BankingSettings extends CRM_Core_Form {
     );
     $menu_position->setSelected((int) $this->getCurrentValue('menu_position'));
 
-    // add data generation (PDFs/Mails)
+    // logging
+    $log_level = $this->add(
+      'select',
+      'banking_log_level',
+      ts('Log Level'),
+      CRM_Banking_Helpers_Logger::getLoglevels()
+    );
+    $log_level->setSelected($this->getCurrentValue('banking_log_level'));
+
+    $log_file = $this->add(
+      'text',
+      'banking_log_file',
+      ts('Log File'),
+      "TEST"
+    );
+
+
+
+
+    // normalise bank account references?
     $this->addElement(
-      'checkbox', 
-      'reference_normalisation', 
+      'checkbox',
+      'reference_normalisation',
       ts('Normalise bank account references'),
       '',
       ($this->getCurrentValue('reference_normalisation')?array('checked' => 'checked'):array()));
 
-    // add data generation (PDFs/Mails)
+    // validate bank account references?
     $this->addElement(
-      'checkbox', 
-      'reference_validation', 
+      'checkbox',
+      'reference_validation',
       ts('Validate bank account references'),
       '',
       ($this->getCurrentValue('reference_validation')?array('checked' => 'checked'):array()));
@@ -81,13 +100,26 @@ class CRM_Admin_Form_Setting_BankingSettings extends CRM_Core_Form {
       CRM_Core_Invoke::rebuildMenuAndCaches();
     }
 
+    // log levels
+    CRM_Core_BAO_Setting::setItem($values['banking_log_level'], 'CiviBanking', 'banking_log_level');
+    CRM_Core_BAO_Setting::setItem($values['banking_log_file'],  'CiviBanking', 'banking_log_file');
+
     // process reference normalisation / validation
     CRM_Core_BAO_Setting::setItem(!empty($values['reference_normalisation']), 'CiviBanking', 'reference_normalisation');
     CRM_Core_BAO_Setting::setItem(!empty($values['reference_validation']),    'CiviBanking', 'reference_validation');
 
+    // log results
+    $logger = CRM_Banking_Helpers_Logger::getLogger();
+    $logger->logDebug("Log level changed to '{$values['banking_log_level']}', file is: {$values['banking_log_file']}");
+
     parent::postProcess();
   }
 
+  /**
+   * Get the temporarily valid value
+   *
+   * @todo USE setDefaults() instead!
+   */
   public function getCurrentValue($key) {
     if (!empty($this->_submitValues[$key])) {
       return $this->_submitValues[$key];

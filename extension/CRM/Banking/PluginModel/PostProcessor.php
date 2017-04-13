@@ -23,15 +23,26 @@
  */
 abstract class CRM_Banking_PluginModel_PostProcessor extends CRM_Banking_PluginModel_Base {
 
+  function __construct($plugin_dao) {
+    parent::__construct($plugin_dao);
+
+    // read config, set defaults
+    $config = $this->_plugin_config;
+
+    if (!isset($config->contribution_fields_checked)) $config->contribution_fields_checked = 'id,financial_type_id,total_amount';
+    if (!isset($config->btx_status_list))             $config->btx_status_list = array('processed');
+  }
+
   /**
    * Postprocess the (already executed) match
    *
    * @param $match    the executed match
    * @param $btx      the related transaction
+   * @param $matcher  the matcher plugin executed
    * @param $context  the matcher context contains cache data and context information
    *
    */
-  public abstract function processExecutedMatch(CRM_Banking_Matcher_Suggestion $match, CRM_Banking_BAO_BankTransaction $btx, CRM_Banking_PluginModel_Matcher $matcher);
+  public abstract function processExecutedMatch(CRM_Banking_Matcher_Suggestion $match, CRM_Banking_PluginModel_Matcher $matcher, CRM_Banking_Matcher_Context $context);
 
   /**
    * Should this postprocessor spring into action?
@@ -43,8 +54,12 @@ abstract class CRM_Banking_PluginModel_PostProcessor extends CRM_Banking_PluginM
    *
    * @return bool     should the this postprocessor be activated
    */
-  protected function shouldExecute(CRM_Banking_Matcher_Suggestion $match, CRM_Banking_BAO_BankTransaction $btx, CRM_Banking_PluginModel_Matcher $matcher) {
+  protected function shouldExecute(CRM_Banking_Matcher_Suggestion $match, CRM_Banking_PluginModel_Matcher $matcher, CRM_Banking_Matcher_Context $context) {
     // TODO:
+    // default criteria: status should be 'processed'
+
+    // TODO: evaluate 'required'
+    return TRUE;
   }
 
   /**
@@ -57,7 +72,7 @@ abstract class CRM_Banking_PluginModel_PostProcessor extends CRM_Banking_PluginM
    *
    * @return int      contact_id of the unique contact linked to the transaction, NULL if not exists/unique
    */
-  protected function getSoleContactID(CRM_Banking_Matcher_Suggestion $match, CRM_Banking_BAO_BankTransaction $btx, CRM_Banking_PluginModel_Matcher $matcher) {
+  protected function getSoleContactID(CRM_Banking_Matcher_Suggestion $match, CRM_Banking_PluginModel_Matcher $matcher, CRM_Banking_Matcher_Context $context) {
     // TODO:
   }
 
@@ -70,9 +85,26 @@ abstract class CRM_Banking_PluginModel_PostProcessor extends CRM_Banking_PluginM
    *
    * @return array    contribution IDs
    */
-  protected function getContributionIDs(CRM_Banking_Matcher_Suggestion $match, CRM_Banking_BAO_BankTransaction $btx, CRM_Banking_PluginModel_Matcher $matcher) {
-    // TODO:
-  }
+  protected function getContributionIDs(CRM_Banking_Matcher_Suggestion $match, CRM_Banking_PluginModel_Matcher $matcher, CRM_Banking_Matcher_Context $context) {
+    $contribution_ids = array();
 
+    // get the single-style ('contribution_id')
+    $single_id = $match->getParameter('contribution_id');
+    if (is_numeric($single_id)) {
+      $contribution_ids[$single_id] = 1;
+    }
+
+    // get the multi-style ('contribution_ids')
+    $multi_ids = $match->getParameter('contribution_ids');
+    if (is_array($multi_ids)) {
+      foreach ($multi_ids as $contribution_id) {
+        if (is_numeric($contribution_id)) {
+          $contribution_ids[$contribution_id] = 1;
+        }
+      }
+    }
+
+    return array_keys($contribution_ids);
+  }
 }
 

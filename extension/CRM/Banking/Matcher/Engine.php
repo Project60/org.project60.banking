@@ -51,7 +51,7 @@ class CRM_Banking_Matcher_Engine {
   private function getMatchers() {
     if ($this->matchers === NULL) {
       $this->matchers = array();
-      $postprocessor_type_id = banking_helper_optionvalueid_by_groupname_and_name('civicrm_banking.plugin_classes', 'match');
+      $matcher_type_id = banking_helper_optionvalueid_by_groupname_and_name('civicrm_banking.plugin_classes', 'match');
       $params = array('version' => 3, 'plugin_type_id' => $matcher_type_id, 'enabled' => 1);
       $result = civicrm_api('BankingPluginInstance', 'get', $params);
       if (isset($result['is_error']) && $result['is_error']) {
@@ -144,7 +144,6 @@ class CRM_Banking_Matcher_Engine {
 
     // run through the list of matchers
     $all_matchers = $this->getMatchers();
-    error_log("NOW match");
     if (empty($all_matchers)) {
       CRM_Core_Session::setStatus(ts("No matcher plugins configured!"), ts('No processors'), 'alert');
     } else {
@@ -152,7 +151,6 @@ class CRM_Banking_Matcher_Engine {
         foreach ($matchers as $matcher) {
           try {
             // run matchers to generate suggestions
-            error_log(json_encode($matcher));
             $continue = $this->matchPlugin( $matcher, $context );
             if (!$continue) {
               $lock->release();
@@ -189,11 +187,12 @@ class CRM_Banking_Matcher_Engine {
    * will run the postprocessors on the recently executed match
    */
   public function runPostProcessors($suggestion, $btx, $matcher) {
+    $context = new CRM_Banking_Matcher_Context( $btx );
     $all_postprocessors = $this->getPostprocessors();
     foreach ($all_postprocessors as $weight => $postprocessors) {
       foreach ($postprocessors as $postprocessor) {
         try {
-          $postprocessor->processExecutedMatch($suggestion, $btx, $matcher);
+          $postprocessor->processExecutedMatch($suggestion, $matcher, $context);
         } catch (Exception $e) {
           $matcher_id = $matcher->getPluginID();
           error_log("org.project60.banking - Exception during the execution of postprocessor [$matcher_id], error was: ".$e->getMessage());

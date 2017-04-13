@@ -194,28 +194,35 @@ class CRM_Banking_Matcher_Suggestion {
         return $this->_plugin->update_parameters($this, $parameters);
     }
 
+    /**
+     * Execute this suggestion on the given transaction
+     */
     public function execute(CRM_Banking_BAO_BankTransaction $btx) {
         // only execute if not completed yet
         if (!banking_helper_tx_status_closed($btx->status_id)) {
             // perform execute
+            $this->setParameter("test", "test");
             $result = $this->_plugin->execute($this, $btx);
-            if ($result) {
-                // run postprocessors if execution was successful
-                $engine = CRM_Banking_Matcher_Engine::getInstance();
-                $engine->runPostProcessors($this, $btx, $this->_plugin);
-            }
+            $engine = CRM_Banking_Matcher_Engine::getInstance();
+            $engine->runPostProcessors($this, $btx, $this->_plugin);
             return $result;
         } else {
             return TRUE;
         }
     }
 
+    /**
+     * Visualize this suggestion
+     */
     public function visualize(CRM_Banking_BAO_BankTransaction $btx = null, CRM_Banking_PluginModel_Matcher $plugin = null) {
         // if btx/plugin is not supplied (by the matcher engine), recreate it
         $this->_updateObjects($btx, $plugin);
         return $this->_plugin->visualize_match($this, $btx);
     }
 
+    /**
+     * Visualize this execution
+     */
     public function visualize_execution(CRM_Banking_BAO_BankTransaction $btx = null, CRM_Banking_PluginModel_Matcher $plugin = null) {
         // if btx/plugin is not supplied (by the matcher engine), recreate it
         $this->_updateObjects($btx, $plugin);

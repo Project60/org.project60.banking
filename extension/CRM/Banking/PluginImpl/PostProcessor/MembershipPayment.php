@@ -43,25 +43,26 @@ class CRM_Banking_PluginImpl_PostProcessor_MembershipPayment extends CRM_Banking
    * @param $context  the matcher context contains cache data and context information
    *
    */
-  public function processExecutedMatch(CRM_Banking_Matcher_Suggestion $match, CRM_Banking_BAO_BankTransaction $btx, CRM_Banking_PluginModel_Matcher $matcher) {
-    error_log("YEAH!");
+  public function processExecutedMatch(CRM_Banking_Matcher_Suggestion $match, CRM_Banking_PluginModel_Matcher $matcher, CRM_Banking_Matcher_Context $context) {
     $config = $this->_plugin_config;
 
-    if ($this->shouldExecute($match, $btx, $context)) {
+    if ($this->shouldExecute($match, $matcher, $context)) {
       // TODO: get membership ID
       $membership_id = 1;
 
-      $contribution_ids = $this->getContributionIDs($match, $btx, $context);
-      $contributions = civicrm_api3('Contribution', 'get', array(
-        'id'     => array('IN' => $contribution_ids),
-        'return' =>$config->contribution_fields_checked,
-        ));
-      foreach ($contributions['values'] as $contribution) {
-        if ($this->isContributionEligibleForMembership($contribution)) {
-          civicrm_api3('MembershipPayment', 'create', array(
-            'contribution_id' => $contribution['id'],
-            'membership_id'   => $membership_id,
-            ));
+      $contribution_ids = $this->getContributionIDs($match, $matcher, $context);
+      if (!empty($contribution_ids)) {
+        $contributions = civicrm_api3('Contribution', 'get', array(
+          'id'     => array('IN' => $contribution_ids),
+          'return' =>$config->contribution_fields_checked,
+          ));
+        foreach ($contributions['values'] as $contribution) {
+          if ($this->isContributionEligibleForMembership($contribution)) {
+            civicrm_api3('MembershipPayment', 'create', array(
+              'contribution_id' => $contribution['id'],
+              'membership_id'   => $membership_id,
+              ));
+          }
         }
       }
     }

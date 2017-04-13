@@ -40,7 +40,7 @@ function civicrm_api3_banking_transaction_create($params) {
 
 /**
  * Adjust Metadata for Create action
- * 
+ *
  * The metadata is used for setting defaults, documentation & validation
  * @param array $params array or parameters determined by getfields
  */
@@ -119,7 +119,7 @@ function civicrm_api3_banking_transaction_deletelist($params) {
     }
   }
 
-  return civicrm_api3_create_success($result); 
+  return civicrm_api3_create_success($result);
 }
 
 /**
@@ -156,8 +156,8 @@ function civicrm_api3_banking_transaction_analyselist($params) {
   $payment_states  = banking_helper_optiongroup_id_name_mapping('civicrm_banking.bank_tx_status');
   $state_ignored   = (int) $payment_states['ignored']['id'];
   $state_processed = (int) $payment_states['processed']['id'];
-  $filter_query = "SELECT `id` 
-                   FROM `civicrm_bank_tx` 
+  $filter_query = "SELECT `id`
+                   FROM `civicrm_bank_tx`
                    WHERE `status_id` NOT IN ($state_ignored,$state_processed)
                      AND `id` IN ($list_string);";
   $filter_result = CRM_Core_DAO::executeQuery($filter_query);
@@ -240,7 +240,7 @@ function civicrm_api3_banking_transaction_analyseoldest($params) {
   // then execute
   $engine = CRM_Banking_Matcher_Engine::getInstance();
   $processed_count = $engine->bulkRun($max_count);
-  
+
   // finally, compile the result
   $after_exec = strtotime('now');
   $result = array(
@@ -251,7 +251,7 @@ function civicrm_api3_banking_transaction_analyseoldest($params) {
   if ($processed_count > 0) {
     $result['time_per_tx'] = ($after_exec - $now) / $processed_count;
   }
-    
+
   return civicrm_api3_create_success($result);
 }
 
@@ -260,7 +260,7 @@ function civicrm_api3_banking_transaction_analyseoldest($params) {
  * extracts the individual transaction IDs from the parameter set
  * @param  list    comma separated list of bank_tx ids to process
  * @param  s_list  comma separated list of bank_tx_batch ids to process
- * 
+ *
  * @return array of IDs
  */
 function _civicrm_api3_banking_transaction_getTxIDs($params) {

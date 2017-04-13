@@ -17,9 +17,9 @@ class CRM_Banking_Matcher_Suggestion {
 
     private $_btx = null;
     private $_plugin = null;
-    
+
     private $_blob = array();
-    
+
     public function __construct($plugin, $btx, $blob = null) {
         $this->_btx = $btx;
         $this->_plugin = $plugin;
@@ -36,14 +36,14 @@ class CRM_Banking_Matcher_Suggestion {
         }
 
         if ($this->_btx) {
-            $this->setParameter('btx_id', $this->_btx->id);            
+            $this->setParameter('btx_id', $this->_btx->id);
         }
 
         if ($this->_plugin) {
-            $this->setParameter('plugin_id', $this->_plugin->_plugin_id); 
+            $this->setParameter('plugin_id', $this->_plugin->_plugin_id);
         }
     }
-    
+
     public function getParameter($key) {
         if (isset($this->_blob[$key])) {
             return $this->_blob[$key];
@@ -194,11 +194,17 @@ class CRM_Banking_Matcher_Suggestion {
         return $this->_plugin->update_parameters($this, $parameters);
     }
 
-    public function execute(CRM_Banking_BAO_BankTransaction $btx, CRM_Banking_PluginModel_Matcher $plugin = null) {
+    public function execute(CRM_Banking_BAO_BankTransaction $btx) {
         // only execute if not completed yet
         if (!banking_helper_tx_status_closed($btx->status_id)) {
             // perform execute
-            return $this->_plugin->execute($this, $btx);
+            $result = $this->_plugin->execute($this, $btx);
+            if ($result) {
+                // run postprocessors if execution was successful
+                $engine = CRM_Banking_Matcher_Engine::getInstance();
+                $engine->runPostProcessors($this, $btx, $this->_plugin);
+            }
+            return $result;
         } else {
             return TRUE;
         }
@@ -215,7 +221,7 @@ class CRM_Banking_Matcher_Suggestion {
         $this->_updateObjects($btx, $plugin);
         return $this->_plugin->visualize_execution_info($this, $btx);
     }
-    
+
     public function prepForJson() {
         return $this->_blob;
     }

@@ -31,7 +31,16 @@ class CRM_Banking_PluginImpl_PostProcessor_MembershipPayment extends CRM_Banking
     $config = $this->_plugin_config;
 
     if (!isset($config->contribution_fields_checked)) $config->contribution_fields_checked = 'id,financial_type_id,total_amount';
+    if (!isset($config->membership_id))               $config->membership_id = 'btx.membership_id';
+    if (!isset($config->financial_type_ids))          $config->financial_type_ids = array(2);
+    if (!isset($config->contribution_status_ids))     $config->contribution_status_ids = array(1);
     // if (!isset($config->received_date_minimum)) $config->received_date_minimum = "-10 days";
+
+
+     "membership_id": "btx.membership_id",
+   "financial_type_ids": [2],
+   "contribution_status_ids": [1]
+
 
   }
 
@@ -67,6 +76,8 @@ class CRM_Banking_PluginImpl_PostProcessor_MembershipPayment extends CRM_Banking
       }
     }
   }
+
+
 
   protected function isContributionEligibleForMembership($contribution) {
     // TODO:

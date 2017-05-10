@@ -135,16 +135,30 @@ function banking_civicrm_navigationMenu(&$params) {
                   'url' => 'civicrm/banking/import',
                   'permission' => 'access CiviContribute',
                   'operator' => null,
-                  'separator' => 0,
+                  'separator' => 1,
                   'parentID' => $nav_id,
                   'navID' => $nav_id + 5,
                   'active' => 1
               ),
               'child' => null
           ),
+          ($nav_id + 6) => array(
+              'attributes' => array(
+                  'label' => ts('Configuration Manager'),
+                  'name' => 'CiviBanking Configuration',
+                  'url' => 'civicrm/banking/manager',
+                  'permission' => 'administer CiviCRM',
+                  'operator' => null,
+                  'separator' => 0,
+                  'parentID' => $nav_id,
+                  'navID' => $nav_id + 6,
+                  'active' => 1
+              ),
+              'child' => null
+          ),
       )
   );
-  
+
   // ...and insert at the previously determined position
   if ($menu_position == 0) {
     // in this case: top level, right after "Contribution"

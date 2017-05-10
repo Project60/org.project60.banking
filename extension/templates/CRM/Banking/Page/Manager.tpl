@@ -13,8 +13,6 @@
 | written permission from the original author(s).        |
 +--------------------------------------------------------*}
 
-<h2><font color="red">{ts}Sorry, the configuration interface is not yet functional!{/ts}</font></h2>
-<br/>
 <h3>{ts}Import Plugins{/ts}</h3>
 <div id="help">
 	{ts}Import plugins are used to transport transaction data obtained from banks and accounting software into CiviBanking. They source the information from files as well as from data feeds from external systems. Once imported, the payments will be processed by the matcher plugins.{/ts}

@@ -21,6 +21,10 @@ class CRM_Banking_Page_Manager extends CRM_Core_Page {
   function run() {
     CRM_Utils_System::setTitle(ts('Manage CiviBanking Configuration'));
 
+    // first: process commands (if any)
+    $this->processEnableDisableCommand();
+    $this->processRearrangeCommand();
+
     // load all plugins and sort by
     $plugin_type_to_instance = array();
     $plugin_query = CRM_Core_DAO::executeQuery("
@@ -53,10 +57,98 @@ class CRM_Banking_Page_Manager extends CRM_Core_Page {
     // assign lists to template
     $this->assign('importers',      CRM_Utils_Array::value('Import plugin', $plugin_type_to_instance, array()));
     $this->assign('matchers',       CRM_Utils_Array::value('Match plugin', $plugin_type_to_instance, array()));
-    $this->assign('postprocessors', CRM_Utils_Array::value('Postprocessor plugin', $plugin_type_to_instance, array()));
+    $this->assign('postprocessors', CRM_Utils_Array::value('Post Processor', $plugin_type_to_instance, array()));
     $this->assign('exporters',      CRM_Utils_Array::value('Export plugin', $plugin_type_to_instance, array()));
     $this->assign('baseurl', CRM_Utils_System::url('civicrm/banking/manager'));
 
     parent::run();
+  }
+
+  /**
+   * Process the 'enable' and 'disable' command
+   */
+  protected function processEnableDisableCommand() {
+    $enable_id  = CRM_Utils_Request::retrieve('enable', 'Integer');
+    $disable_id = CRM_Utils_Request::retrieve('disable', 'Integer');
+
+    if ($enable_id) {
+      CRM_Core_DAO::executeQuery("UPDATE civicrm_bank_plugin_instance SET enabled = 1 WHERE id = {$enable_id};");
+    }
+
+    if ($disable_id) {
+      CRM_Core_DAO::executeQuery("UPDATE civicrm_bank_plugin_instance SET enabled = 0 WHERE id = {$disable_id};");
+    }
+  }
+
+  /**
+   * Process the order rearrangement commands
+   */
+  protected function processRearrangeCommand() {
+    foreach (array('top', 'up', 'down', 'bottom') as $cmd) {
+      $plugin_id = CRM_Utils_Request::retrieve($cmd, 'Integer');
+      if (!$plugin_id) continue;
+
+      $plugin_order = $this->getAllPluginSiblings($plugin_id);
+      $original_plugin_order = $plugin_order;
+      $index = array_search($plugin_id, $plugin_order);
+      if ($index !== FALSE) {
+        switch ($cmd) {
+          case 'top':
+            $new_index = 0;
+            break;
+          case 'up':
+            $new_index = max(0, $index-1);
+            break;
+          case 'down':
+            $new_index = min(count($plugin_order)-1, $index+1);
+            break;
+          default:
+          case 'bottom':
+            $new_index = count($plugin_order)-1;
+            break;
+        }
+        // copied from https://stackoverflow.com/questions/12624153/move-an-array-element-to-a-new-index-in-php
+        $out = array_splice($plugin_order, $index, 1);
+        array_splice($plugin_order, $new_index, 0, $out);
+      }
+
+      // store the new plugin order
+      if ($plugin_order != $original_plugin_order) {
+        $this->storePluginOrder($plugin_order);
+      }
+    }
+  }
+
+  /**
+   * get all plugins that are in the same class as the given one
+   *
+   * @return list of plugin IDs in order of weight
+   */
+  protected function getAllPluginSiblings($plugin_id) {
+    $plugin_order = array();
+    if (!$plugin_id) return $plugin_order;
+
+    $query = CRM_Core_DAO::executeQuery("
+      SELECT id AS plugin_id
+        FROM civicrm_bank_plugin_instance
+       WHERE plugin_type_id = (SELECT plugin_type_id FROM civicrm_bank_plugin_instance WHERE id = {$plugin_id})
+       ORDER BY weight ASC");
+    while ($query->fetch()) {
+      $plugin_order[] = $query->plugin_id;
+    }
+    return $plugin_order;
+  }
+
+  /**
+   * Will update the plugin's weights so it reflects the given order
+   *
+   * @return list of plugin IDs in order of weight
+   */
+  protected function storePluginOrder($plugin_order) {
+    $weight = 10;
+    foreach ($plugin_order as $plugin_id) {
+      CRM_Core_DAO::executeQuery("UPDATE civicrm_bank_plugin_instance SET weight={$weight} WHERE id = {$plugin_id}");
+      $weight = $weight + 10;
+    }
   }
 }

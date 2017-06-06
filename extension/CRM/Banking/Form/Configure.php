@@ -1,0 +1,119 @@
+<?php
+/*-------------------------------------------------------+
+| Project 60 - CiviBanking                               |
+| Copyright (C) 2017 SYSTOPIA                            |
+| Author: B. Endres (endres -at- systopia.de)            |
+| http://www.systopia.de/                                |
++--------------------------------------------------------+
+| This program is released as free software under the    |
+| Affero GPL v3 license. You can redistribute it and/or  |
+| modify it under the terms of this license which you    |
+| can read by viewing the included agpl.txt or online    |
+| at www.gnu.org/licenses/agpl.html. Removal of this     |
+| copyright header is strictly prohibited without        |
+| written permission from the original author(s).        |
++--------------------------------------------------------*/
+
+/**
+ * Form controller class
+ *
+ * @see https://wiki.civicrm.org/confluence/display/CRMDOC/QuickForm+Reference
+ */
+class CRM_Banking_Form_Configure extends CRM_Core_Form {
+
+  protected $plugin = NULL;
+
+  public function buildQuickForm() {
+    $return_url = CRM_Utils_System::url('civicrm/banking/manager');
+
+    // load Plugin
+    $plugin_id = CRM_Utils_Request::retrieve('pid', 'Integer');
+    if (empty($plugin_id)) {
+      CRM_Core_Session::setStatus(ts("No plugin ID (pid) given"), ts("Error"), "error");
+      CRM_Utils_System::redirect($return_url);
+    }
+    $this->plugin = civicrm_api3('BankingPluginInstance', 'getsingle', array('id' => $plugin_id));
+
+    // set title
+    CRM_Utils_System::setTitle(ts('Configure Plugin "%1"', array(1 => $this->plugin['name'])));
+
+    // add form elements
+    $this->addElement('text',
+                      'name',
+                      ts('Plugin Name', array('domain' => 'org.project60.banking')),
+                      TRUE);
+
+    $this->addElement('select',
+                      'plugin_class_id',
+                      ts('Plugin Class', array('domain' => 'org.project60.banking')),
+                      $this->getOptionValueList('civicrm_banking.plugin_classes'),
+                      array('class' => 'crm-select2 huge'));
+
+    $this->addElement('select',
+                      'plugin_type_id',
+                      ts('Implementation', array('domain' => 'org.project60.banking')),
+                      $this->getOptionValueList('civicrm_banking.plugin_types'),
+                      array('class' => 'crm-select2 huge'));
+
+    $this->addElement('textarea',
+                      'description',
+                      ts('Description', array('domain' => 'org.project60.banking')),
+                      TRUE);
+
+    $this->add('hidden', 'configuration', $this->plugin['configuration']);
+
+    $this->addButtons(array(
+      array(
+        'type' => 'submit',
+        'name' => ts('Save'),
+        'isDefault' => TRUE,
+      ),
+    ));
+
+
+    // add JSONEditor resources
+    $resources = CRM_Core_Resources::singleton();
+    $resources->addScriptFile('org.project60.banking', 'packages/jsoneditor/jsoneditor.min.js');
+    $resources->addStyleFile('org.project60.banking', 'packages/jsoneditor/jsoneditor.min.css');
+
+    parent::buildQuickForm();
+  }
+
+  /**
+   * set the default (=current) values in the form
+   */
+  public function setDefaultValues() {
+    // error_log(json_encode($this->plugin['config']));
+    if ($this->plugin) {
+      return array(
+        'name'            => $this->plugin['name'],
+        'description'     => $this->plugin['description'],
+        'plugin_type_id'  => $this->plugin['plugin_type_id'],
+        'plugin_class_id' => $this->plugin['plugin_class_id'],
+        'configuration'   => $this->plugin['config']
+      );
+    }
+  }
+
+  public function postProcess() {
+    $values = $this->exportValues();
+    // TODO
+    parent::postProcess();
+  }
+
+  /**
+   * get an OptionValue.id => OptionValue.id list for the given group name
+   */
+  protected function getOptionValueList($option_group_name) {
+    $list = array();
+    $values = civicrm_api3('OptionValue', 'get', array(
+      'option_group_id' => $option_group_name,
+      'options' => array('limit' => 0,
+                         'sort' => "weight"),
+      ));
+    foreach ($values['values'] as $option_value) {
+      $list[$option_value['id']] = $option_value['label'];
+    }
+    return $list;
+  }
+}

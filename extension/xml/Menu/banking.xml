@@ -75,4 +75,10 @@
     <adminGroup>CiviContribute</adminGroup>
     <icon>admin/small/online_contribution_pages.png</icon>
   </item>
+  <item>
+    <path>civicrm/banking/configure</path>
+    <page_callback>CRM_Banking_Form_Configure</page_callback>
+    <title>Configure</title>
+    <access_arguments>administer CiviCRM</access_arguments>
+  </item>
 </menu>

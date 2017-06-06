@@ -15,6 +15,8 @@
 
 {$form.configuration.html}
 
+<h3>{ts}Basic Information{/ts}</h3>
+
 <div class="crm-section">
   <div class="label">{$form.name.label}</div>
   <div class="content">{$form.name.html}</div>
@@ -41,6 +43,9 @@
 
 <h3>{ts}Configuration{/ts}</h3>
 <div class="crm-section">
+  <div id="help" class="description">
+    Configuring CiviBanking plugins is not easy. Maybe have a look at the examples at our <a href="https://github.com/Project60/org.project60.banking/tree/master/configuration_database">configuration database</a>.
+  </div>
   <div id="jsoneditor"></div>
 </div>
 
@@ -53,7 +58,7 @@
     var container = document.getElementById('jsoneditor');
     var options = {
       modes: ['text', 'code', 'tree', 'form', 'view'],
-      mode: 'tree',
+      mode: 'form',
       ace: null
     };
     var configuration = cj("input[name=configuration]").val();

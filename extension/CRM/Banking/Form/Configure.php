@@ -60,7 +60,7 @@ class CRM_Banking_Form_Configure extends CRM_Core_Form {
                       ts('Description', array('domain' => 'org.project60.banking')),
                       TRUE);
 
-    $this->add('hidden', 'configuration', $this->plugin['configuration']);
+    $this->add('hidden', 'configuration', $this->plugin['config']);
 
     $this->addButtons(array(
       array(
@@ -90,7 +90,6 @@ class CRM_Banking_Form_Configure extends CRM_Core_Form {
         'description'     => $this->plugin['description'],
         'plugin_type_id'  => $this->plugin['plugin_type_id'],
         'plugin_class_id' => $this->plugin['plugin_class_id'],
-        'configuration'   => $this->plugin['config']
       );
     }
   }

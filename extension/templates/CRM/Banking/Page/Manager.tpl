@@ -13,6 +13,16 @@
 | written permission from the original author(s).        |
 +--------------------------------------------------------*}
 
+{* TODO: move to CSS file? *}
+<style type="text/css">
+{literal}
+tr.banking-plugin-disabled {
+	color: lightgray;
+}
+{/literal}
+</style>
+
+
 <h3>{ts}Import Plugins{/ts}</h3>
 <div id="help">
 	{ts}Import plugins are used to transport transaction data obtained from banks and accounting software into CiviBanking. They source the information from files as well as from data feeds from external systems. Once imported, the payments will be processed by the matcher plugins.{/ts}
@@ -30,7 +40,7 @@
 	</thead>
 	<tbody>
 	{foreach from=$importers item=importer}
-		<tr class="{cycle values="odd-row,even-row"}">
+		<tr class="{cycle values="odd-row,even-row"} {if not $importer.enabled}banking-plugin-disabled{/if}">
 			{assign var=plugin_id value=$importer.id}
 			<td>{$importer.name}</td>
 			<td>{$importer.description}</td>
@@ -51,7 +61,7 @@
 							{else}
 								<a href="{crmURL p='civicrm/banking/manager' q="enable=$plugin_id"}" class="action-item crm-hover-button delete-contact small-popup" title="{ts}Enable{/ts}">{ts}Enable{/ts}</a>
 							{/if}
-							<a href="{crmURL p='civicrm/banking/configure_plugin' q="pid=$plugin_id"}" class="action-item crm-hover-button delete-contact small-popup" title="{ts}Configure{/ts}">{ts}Configure{/ts}</a>
+							<a href="{crmURL p='civicrm/banking/configure' q="pid=$plugin_id"}" class="action-item crm-hover-button delete-contact small-popup" title="{ts}Configure{/ts}">{ts}Configure{/ts}</a>
 							<a href="{crmURL p='civicrm/banking/manager' q="delete=$plugin_id"}" class="action-item crm-hover-button delete-contact small-popup" title="{ts}Delete{/ts}">{ts}Delete{/ts}</a>
 						</li>
 					</ul>
@@ -80,7 +90,7 @@
 	</thead>
 	<tbody>
 	{foreach from=$matchers item=matcher}
-		<tr class="{cycle values="odd-row,even-row"}">
+		<tr class="{cycle values="odd-row,even-row"} {if not $matcher.enabled}banking-plugin-disabled{/if}">
 			{assign var=plugin_id value=$matcher.id}
 			<td>{$matcher.name}</td>
 			<td>{$matcher.description}</td>
@@ -130,7 +140,7 @@
 	</thead>
 	<tbody>
 	{foreach from=$postprocessors item=postprocessor}
-		<tr class="{cycle values="odd-row,even-row"}">
+		<tr class="{cycle values="odd-row,even-row"} {if not $postprocessor.enabled}banking-plugin-disabled{/if}">
 			{assign var=plugin_id value=$postprocessor.id}
 			<td>{$postprocessor.name}</td>
 			<td>{$postprocessor.description}</td>
@@ -180,7 +190,7 @@
 	</thead>
 	<tbody>
 	{foreach from=$exporters item=exporter}
-		<tr class="{cycle values="odd-row,even-row"}">
+		<tr class="{cycle values="odd-row,even-row"} {if not $exporter.enabled}banking-plugin-disabled{/if}">
 			{assign var=plugin_id value=$exporter.id}
 			<td>{$exporter.name}</td>
 			<td>{$exporter.description}</td>

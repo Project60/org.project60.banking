@@ -68,7 +68,6 @@ function banking_civicrm_enable() {
   $sqlfile = dirname(__FILE__) . '/sql/upgrade.sql';
   CRM_Utils_File::sourceSQLFile($config->dsn, $sqlfile, NULL, false);
 
-
   return _banking_civix_civicrm_enable();
 }
 

@@ -40,8 +40,8 @@ function banking_civicrm_xmlMenu(&$files) {
 function banking_civicrm_install() {
   $config = CRM_Core_Config::singleton();
   //create the tables
-  $sql = file_get_contents(dirname(__FILE__) . '/sql/banking.sql', true);
-  CRM_Utils_File::sourceSQLFile($config->dsn, $sql, NULL, true);
+  $sqlfile = dirname(__FILE__) . '/sql/banking.sql';
+  CRM_Utils_File::sourceSQLFile($config->dsn, $sqlfile, NULL, false);
 
   //add the required option groups
   banking_civicrm_install_options(_banking_options());
@@ -65,8 +65,9 @@ function banking_civicrm_enable() {
 
   // run the update script
   $config = CRM_Core_Config::singleton();
-  $sql = file_get_contents(dirname(__FILE__) . '/sql/upgrade.sql', true);
-  CRM_Utils_File::sourceSQLFile($config->dsn, $sql, NULL, true);
+  $sqlfile = dirname(__FILE__) . '/sql/upgrade.sql';
+  CRM_Utils_File::sourceSQLFile($config->dsn, $sqlfile, NULL, false);
+
 
   return _banking_civix_civicrm_enable();
 }

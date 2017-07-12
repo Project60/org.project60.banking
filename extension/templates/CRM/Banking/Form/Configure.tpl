@@ -14,6 +14,7 @@
 +--------------------------------------------------------*}
 
 {$form.configuration.html}
+{$form.plugin_id.html}
 
 <h3>{ts}Basic Information{/ts}</h3>
 
@@ -64,7 +65,10 @@
     var options = {
       modes: ['text', 'code', 'tree', 'form', 'view'],
       mode: 'form',
-      ace: null
+      ace: null,
+      onChange: function() {
+        cj("input[name=configuration]").val(JSON.stringify(editor.get()));
+      }
     };
     var configuration = cj("input[name=configuration]").val();
     var editor = new JSONEditor(container, options, JSON.parse(configuration));

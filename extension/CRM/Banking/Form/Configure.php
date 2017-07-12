@@ -61,6 +61,7 @@ class CRM_Banking_Form_Configure extends CRM_Core_Form {
                       TRUE);
 
     $this->add('hidden', 'configuration', $this->plugin['config']);
+    $this->add('hidden', 'pid', $plugin_id);
 
     $this->addButtons(array(
       array(
@@ -96,8 +97,9 @@ class CRM_Banking_Form_Configure extends CRM_Core_Form {
 
   public function postProcess() {
     $values = $this->exportValues();
+    error_log($values['configuration']);
     // TODO
-    parent::postProcess();
+    // parent::postProcess();
   }
 
   /**

@@ -14,7 +14,8 @@
 +--------------------------------------------------------*}
 
 {capture assign=contribution_link}{crmURL p="civicrm/contact/view/contribution" q="reset=1&id=$contribution_id&cid=$contact_id&action=view&context=membership&selectedChild=contribute"}{/capture}
+{capture assign=contact_link}{crmURL p="civicrm/contact/view" q="reset=1&cid=$contact_id"}{/capture}
 
 <p>
-  {ts 1=$contribution_link 2=$contribution_id}This transaction was associated with the new <a href="%1">contribution #%2</a>.{/ts}
+  {ts 1=$contribution_link 2=$contribution_id 3=$contact_link 4=$contact_id}This transaction was associated with the new <a href="%1">contribution #%2</a> on new contact <a href="%3">#%4</a>.{/ts}
 </p>

@@ -24,7 +24,7 @@ class CRM_Banking_PluginImpl_Matcher_CreateContactAndContribution extends CRM_Ba
 
   /**
    * class constructor
-   */ 
+   */
   function __construct($config_name) {
     parent::__construct($config_name);
 
@@ -32,16 +32,20 @@ class CRM_Banking_PluginImpl_Matcher_CreateContactAndContribution extends CRM_Ba
     $config = $this->_plugin_config;
     if (!isset($config->auto_exec))              $config->auto_exec = false;
     if (!isset($config->required_values))        $config->required_values = array("btx.financial_type_id");
-    if (!isset($config->create_new_threshold))   $config->create_new_threshold = 1.0;
+    if (!isset($config->factor))                 $config->factor = 1.0;
+    if (!isset($config->threshold))              $config->threshold = 0.0;
+    if (!isset($config->source_label))           $config->source_label = ts('Source');
+    if (!isset($config->lookup_contact_by_name)) $config->lookup_contact_by_name = array("hard_cap_probability" => 0.9);
   }
 
 
-  /** 
+  /**
    * Generate a set of suggestions for the given bank transaction
-   * 
+   *
    * @return array(match structures)
    */
   public function match(CRM_Banking_BAO_BankTransaction $btx, CRM_Banking_Matcher_Context $context) {
+
     $config = $this->_plugin_config;
     $threshold   = $this->getThreshold();
     $penalty     = $this->getPenalty($btx);
@@ -50,20 +54,25 @@ class CRM_Banking_PluginImpl_Matcher_CreateContactAndContribution extends CRM_Ba
     // first see if all the required values are there
     if (!$this->requiredValuesPresent($btx)) return null;
 
-    // then look up potential contacts
-    $contacts_found = $context->findContacts($threshold, $data_parsed['name'], $config->lookup_contact_by_name);
+    // Force a fake flag that we've found a new contact id
+    $contacts_found = array(
+      0 => '0.90',
+    );
 
-    // Bail if there is one (or more) contacts sufficiently well matched
+    // finally generate suggestions
     foreach ($contacts_found as $contact_id => $contact_probability) {
-      if ($contact_probability >= $config->create_new_threshold) return null;
-    }
+      $suggestion = new CRM_Banking_Matcher_Suggestion($this, $btx);
+      $suggestion->setTitle(ts("Create a new contact and assign contribution"));
+      $suggestion->setId("create-$contact_id");
+      $suggestion->setParameter('contact_id', $contact_id);
 
-    // Create a suggestion
-    $suggestion = new CRM_Banking_Matcher_Suggestion($this, $btx);
-    $suggestion->setTitle(ts("Create a new contact with a contribution"));
-    $suggestion->setId("create_contact");
-    $suggestion->setProbability(1.0 - $penalty);
-    $btx->addSuggestion($suggestion);
+      // set probability manually, I think the automatic calculation provided by ->addEvidence might not be what we need here
+      $contact_probability -= $penalty;
+      if ($contact_probability >= $threshold) {
+        $suggestion->setProbability($contact_probability);
+        $btx->addSuggestion($suggestion);
+      }
+    }
 
     // that's it...
     return empty($this->_suggestions) ? null : $this->_suggestions;
@@ -71,44 +80,100 @@ class CRM_Banking_PluginImpl_Matcher_CreateContactAndContribution extends CRM_Ba
 
   /**
    * Handle the different actions, should probably be handles at base class level ...
-   * 
+   *
    * @param type $match
    * @param type $btx
    */
   public function execute($suggestion, $btx) {
-    // create contribution
-    $contact_data = $this->getPropagationSet($btx, $match, 'contact');
 
-    // create the contact
-    $query = $contact_data;
+    $cnt = $this->get_contact_data($btx, $match, $contact_id);
+    $prefix = 'cm_';
+
+    foreach ($cnt as $cnt_key => $cnt_value) {
+      if(preg_match('/^cm_/', $cnt_key)) {
+        if ($cnt_value != '') {
+          if (substr($cnt_key, 0, strlen($prefix)) == $prefix) {
+            $cnt_key = substr($cnt_key, strlen($prefix));
+          }
+          $contact[$cnt_key] = $cnt_value;
+        }
+      }
+    }
+
+    // create contact
+    $query = $contact;
     $query['version'] = 3;
-    // TODO: API Chaining for adding more data
+
+    // First check if we have address / email / phone to assign
+
     $contact_result = civicrm_api('Contact', 'create', $query);
     if (isset($contact_result['is_error']) && $contact_result['is_error']) {
-      CRM_Core_Session::setStatus(ts("Couldn't create contact.")."<br/>".ts("Error was: ").$result['error_message'], ts('Error'), 'error');
+      CRM_Core_Session::setStatus(ts("Couldn't create contact.")."<br/>".ts("Error was: ").$contact_result['error_message'], ts('Error'), 'error');
       return true;
-    }     
+    }
 
-    $contact_id = $contact_result['id'];
-    $suggestion->setParameter('contact_id', $contact_id);
-    $contribution_data = $this->get_contribution_data($btx, $suggestion, $contact_id);
-    $contribution_data['contact_id'] = $contact_id;
+    // Create address, if any
+    if ($contact['street_address']) {
+      $address_query['street_address'] = $contact['street_address'];
+    }
+    if ($contact['postal_code']) {
+      $address_query['postal_code'] = $contact['postal_code'];
+    }
+    if ($contact['city']) {
+      $address_query['city'] = $contact['city'];
+    }
+    if ($contact['country']) {
+      $address_query['country'] = $contact['country'];
+    }
+    if ($contact['location_type_id']) {
+      $address_query['location_type_id'] = $contact['location_type_id'];
+    } else {
+      $address_query['location_type_id'] = '3';
+    }
+    // Do we have enough data to create an address entry for that contact?
+    if (count($address_query) > 0) {
+      $address_query['contact_id'] = $contact_result['id'];
+      $address_query['version'] = 3;
+      $address_query['is_primary'] = '1';
+      $address_result = civicrm_api('Address', 'create', $address_query);
+      if (isset($address_result['is_error']) && $address_result['is_error']) {
+        CRM_Core_Session::setStatus(ts("Couldn't create address.")."<br/>".ts("Error was: ").$address_result['error_message'], ts('Error'), 'error');
+      }
+    }
 
-    // Now lets create the contribution
-    $query = $contribution_data;
+    // Create phone, if any
+    if ($contact['phone']) {
+      $phone_query['phone'] = $contact['phone'];
+      $phone_query['location_type_id'] = '3';
+      $phone_query['phone_type_id'] = '1';
+    }
+
+    // // Do we have enough data to create a phone entry for that contact?
+    if (count($phone_query) > 0) {
+      $phone_query['contact_id'] = $contact_result['id'];
+      $phone_query['version'] = 3;
+      $phone_query['is_primary'] = '1';
+      $phone_result = civicrm_api('Phone', 'create', $phone_query);
+      if (isset($phone_result['is_error']) && $phone_result['is_error']) {
+        CRM_Core_Session::setStatus(ts("Couldn't create phone.")."<br/>".ts("Error was: ").$phone_result['error_message'], ts('Error'), 'error');
+      }
+    }
+
+    // create contribution
+    $query = $this->get_contribution_data($btx, $suggestion, $contact_result['id']);
+
     $query['version'] = 3;
     $result = civicrm_api('Contribution', 'create', $query);
     if (isset($result['is_error']) && $result['is_error']) {
       CRM_Core_Session::setStatus(ts("Couldn't create contribution.")."<br/>".ts("Error was: ").$result['error_message'], ts('Error'), 'error');
       return true;
-    } 
+    }
 
-    // TODO: create contribution
     $suggestion->setParameter('contribution_id', $result['id']);
-
+    $suggestion->setParameter('contact_id', $contact_result['id']);
 
     // save the account
-    $this->storeAccountWithContact($btx, $contact_id);
+    $this->storeAccountWithContact($btx, $contact_result['id']);
 
     // wrap it up
     $newStatus = banking_helper_optionvalueid_by_groupname_and_name('civicrm_banking.bank_tx_status', 'Processed');
@@ -128,52 +193,50 @@ class CRM_Banking_PluginImpl_Matcher_CreateContactAndContribution extends CRM_Ba
     // NOTHING to do...
   }
 
-  /** 
+  /**
    * Generate html code to visualize the given match. The visualization may also provide interactive form elements.
-   * 
+   *
    * @val $match    match data as previously generated by this plugin instance
    * @val $btx      the bank transaction the match refers to
    * @return html code snippet
-   */  
+   */
   function visualize_match( CRM_Banking_Matcher_Suggestion $match, $btx) {
     $smarty_vars = array();
 
-    $contact_data      = $this->getPropagationSet($btx, $match, 'contact');
-    $sc_contact_data   = $this->getPropagationSet($btx, $match, 'softcredit_contact');
-    $contribution_data = $this->get_contribution_data($btx, $suggestion, $contact_id);
+    $cnt = $this->get_contact_data($btx, $match, $contact_id);
+    $contact['display_name'] = $cnt['cm_display_name'];
+
+    $contribution = $this->get_contribution_data($btx, $match, $contact_id);
 
     // look up financial type
     $financial_types = CRM_Contribute_PseudoConstant::financialType();
     $contribution['financial_type'] = $financial_types[$contribution['financial_type_id']];
 
-    // look up campaign
-    if (!empty($contribution['campaign_id'])) {
-      $campaign = civicrm_api('Campaign', 'getsingle', array('id' => $contribution['campaign_id'], 'version' => 3));
-      if (!empty($contact['is_error'])) {
-        $smarty_vars['error'] = $campaign['error_message'];
-      } else {
-        $smarty_vars['campaign'] = $campaign;
-      }
-    }
-    
-    $smarty_vars['contact']      = $contact_data;
-    $smarty_vars['contribution'] = $contribution_data;
-    
+    // assign source
+    $smarty_vars['source']       = CRM_Utils_Array::value('source', $contribution);
+    $smarty_vars['source_label'] = $this->_plugin_config->source_label;
+
+    // Assign Contact Data
+    $smarty_vars['contact_display_name'] = $contact['display_name'];
+
+    // assign to smarty and compile HTML
+    $smarty_vars['contribution']  = $contribution;
+
     // assign to smarty and compile HTML
     $smarty = CRM_Banking_Helpers_Smarty::singleton();
     $smarty->pushScope($smarty_vars);
-    $html_snippet = $smarty->fetch('CRM/Banking/PluginImpl/Matcher/CreateContactAndContribution.suggestion.tpl');
+    $html_snippet = $smarty->fetch('CRM/Banking/PluginImpl/Matcher/CreateContact.suggestion.tpl');
     $smarty->popScope();
     return $html_snippet;
   }
 
-  /** 
+  /**
    * Generate html code to visualize the executed match.
-   * 
+   *
    * @val $match    match data as previously generated by this plugin instance
    * @val $btx      the bank transaction the match refers to
    * @return html code snippet
-   */  
+   */
   function visualize_execution_info( CRM_Banking_Matcher_Suggestion $match, $btx) {
     // just assign to smarty and compile HTML
     $smarty_vars = array();
@@ -183,7 +246,7 @@ class CRM_Banking_PluginImpl_Matcher_CreateContactAndContribution extends CRM_Ba
     // assign to smarty and compile HTML
     $smarty = CRM_Banking_Helpers_Smarty::singleton();
     $smarty->pushScope($smarty_vars);
-    $html_snippet = $smarty->fetch('CRM/Banking/PluginImpl/Matcher/CreateContactAndContribution.execution.tpl');
+    $html_snippet = $smarty->fetch('CRM/Banking/PluginImpl/Matcher/CreateContact.execution.tpl');
     $smarty->popScope();
     return $html_snippet;
   }
@@ -193,12 +256,17 @@ class CRM_Banking_PluginImpl_Matcher_CreateContactAndContribution extends CRM_Ba
    */
   function get_contribution_data($btx, $match, $contact_id) {
     $contribution = array();
+    $contribution['contact_id'] = $contact_id;
     $contribution['total_amount'] = $btx->amount;
     $contribution['receive_date'] = $btx->value_date;
     $contribution['currency'] = $btx->currency;
     $contribution = array_merge($contribution, $this->getPropagationSet($btx, $match, 'contribution'));
     return $contribution;
   }
-
+  function get_contact_data($btx,$match,$contact_id) {
+    $data_parsed = $btx->getDataParsed();
+    $contact = array_merge($data_parsed, $this->getPropagationSet($btx, $match, 'contact'));
+    return $contact;
+  }
 }
 

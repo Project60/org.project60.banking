@@ -13,9 +13,8 @@
 | written permission from the original author(s).        |
 +--------------------------------------------------------*}
 
-{assign var=contact_id value=$contact.id}
 {capture assign=address_text}{if $contact.city}{$contact.street_address}, {$contact.city}{else}{ts}Address incomplete{/ts}{/if}{/capture}
-{capture assign=contact_link}<a title="{$address_text}" href="{crmURL p="civicrm/contact/view" q="reset=1&cid=$contact_id"}">{$contact.display_name} [{$contact.id}]</a>{/capture}
+
 
 {if $error}
 <div>
@@ -32,7 +31,7 @@
         <tr>
           <td>
             <div class="btxlabel">{ts}Donor{/ts}:&nbsp;</div>
-            <div class="btxvalue">{$contact_link}</div>
+            <div class="btxvalue">{$contact_display_name}</div>
           </td>
           <td>
             <div class="btxlabel">{ts}Amount{/ts}:&nbsp;</div>
@@ -51,13 +50,15 @@
         <tr>
           <td style="border: none !important;"></td>
           <td style="border: none !important;"></td>
-          <td>
-            <div class="btxlabel">{$source_label}:&nbsp;</div>
-            <div class="btxvalue">{$source}</div>
-          </td>
+          <td style="border: none !important;"></td>
+          <td style="border: none !important;"></td>
           <td>
             <div class="btxlabel">{ts}Campaign{/ts}:&nbsp;</div>
             <div class="btxvalue">{$campaign.title}</div>
+          </td>
+          <td>
+            <div class="btxlabel">{$source_label}:&nbsp;</div>
+            <div class="btxvalue">{$source}</div>
           </td>
         </tr>
         {/if}

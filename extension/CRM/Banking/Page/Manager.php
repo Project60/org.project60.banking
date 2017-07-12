@@ -54,11 +54,20 @@ class CRM_Banking_Page_Manager extends CRM_Core_Page {
 
     // TODO: enrich data with information from the class,config,...?
 
+    // set the type IDs
+    $class_search = civicrm_api3('OptionValue', 'get', array(
+      'option_group_id' => 'civicrm_banking.plugin_classes',
+      'options' => array('limit' => 0, 'sort' => "weight"),
+      ));
+    foreach ($class_search['values'] as $optionValue) {
+      $this->assign("type_{$optionValue['name']}", $optionValue['id']);
+    }
+
     // assign lists to template
-    $this->assign('importers',      CRM_Utils_Array::value('Import plugin', $plugin_type_to_instance, array()));
-    $this->assign('matchers',       CRM_Utils_Array::value('Match plugin', $plugin_type_to_instance, array()));
+    $this->assign('importers',      CRM_Utils_Array::value('Import plugin',  $plugin_type_to_instance, array()));
+    $this->assign('matchers',       CRM_Utils_Array::value('Match plugin',   $plugin_type_to_instance, array()));
     $this->assign('postprocessors', CRM_Utils_Array::value('Post Processor', $plugin_type_to_instance, array()));
-    $this->assign('exporters',      CRM_Utils_Array::value('Export plugin', $plugin_type_to_instance, array()));
+    $this->assign('exporters',      CRM_Utils_Array::value('Export plugin',  $plugin_type_to_instance, array()));
     $this->assign('baseurl', CRM_Utils_System::url('civicrm/banking/manager'));
 
     parent::run();

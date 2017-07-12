@@ -26,6 +26,7 @@ tr.banking-plugin-disabled {
 <h3>{ts}Import Plugins{/ts}</h3>
 <div id="help">
 	{ts}Import plugins are used to transport transaction data obtained from banks and accounting software into CiviBanking. They source the information from files as well as from data feeds from external systems. Once imported, the payments will be processed by the matcher plugins.{/ts}
+	<a href="{crmURL p="civicrm/banking/configure" q="reset=1&type=$type_import"}">{ts}Add a new one.{/ts}</a>
 </div>
 <table class="display" id="option11">
 	<thead>
@@ -61,7 +62,7 @@ tr.banking-plugin-disabled {
 							{else}
 								<a href="{crmURL p='civicrm/banking/manager' q="enable=$plugin_id"}" class="action-item crm-hover-button delete-contact small-popup" title="{ts}Enable{/ts}">{ts}Enable{/ts}</a>
 							{/if}
-							<a href="{crmURL p='civicrm/banking/configure' q="pid=$plugin_id"}" class="action-item crm-hover-button delete-contact small-popup" title="{ts}Configure{/ts}">{ts}Configure{/ts}</a>
+							<a href="{crmURL p='civicrm/banking/configure' q="reset=1&pid=$plugin_id"}" class="action-item crm-hover-button delete-contact small-popup" title="{ts}Configure{/ts}">{ts}Configure{/ts}</a>
 							<a href="{crmURL p='civicrm/banking/manager' q="delete=$plugin_id"}" class="action-item crm-hover-button delete-contact small-popup" title="{ts}Delete{/ts}">{ts}Delete{/ts}</a>
 						</li>
 					</ul>
@@ -76,6 +77,7 @@ tr.banking-plugin-disabled {
 <h3>{ts}Analyser / Matcher Plugins{/ts}</h3>
 <div id="help">
 	{ts}Matcher Plugins are used to match the transactions with the expected financial transactions, such as contributions, membership fees, etc. If no perfect match can be found, they will generate proposals for the user to review and confirm.{/ts}
+	<a href="{crmURL p="civicrm/banking/configure" q="reset=1&type=$type_match"}">{ts}Add a new one.{/ts}</a>
 </div>
 <table class="display" id="option11">
 	<thead>
@@ -111,7 +113,7 @@ tr.banking-plugin-disabled {
 							{else}
 								<a href="{crmURL p='civicrm/banking/manager' q="enable=$plugin_id"}" class="action-item crm-hover-button delete-contact small-popup" title="{ts}Enable{/ts}">{ts}Enable{/ts}</a>
 							{/if}
-							<a href="{crmURL p='civicrm/banking/configure' q="pid=$plugin_id"}" class="action-item crm-hover-button delete-contact small-popup" title="{ts}Configure{/ts}">{ts}Configure{/ts}</a>
+							<a href="{crmURL p='civicrm/banking/configure' q="reset=1&pid=$plugin_id"}" class="action-item crm-hover-button delete-contact small-popup" title="{ts}Configure{/ts}">{ts}Configure{/ts}</a>
 							<a href="{crmURL p='civicrm/banking/manager' q="delete=$plugin_id"}" class="action-item crm-hover-button delete-contact small-popup" title="{ts}Delete{/ts}">{ts}Delete{/ts}</a>
 						</li>
 					</ul>
@@ -126,6 +128,7 @@ tr.banking-plugin-disabled {
 <h3>{ts}Postprocessors{/ts}</h3>
 <div id="help">
 	{ts}Postprocessors are plugins that perform certain extra tasks once the correct contact, contribution, or other entity has been identified.{/ts}
+	<a href="{crmURL p="civicrm/banking/configure" q="reset=1&type=$type_postprocessor"}">{ts}Add a new one.{/ts}</a>
 </div>
 <table class="display" id="option11">
 	<thead>
@@ -161,7 +164,7 @@ tr.banking-plugin-disabled {
 							{else}
 								<a href="{crmURL p='civicrm/banking/manager' q="enable=$plugin_id"}" class="action-item crm-hover-button delete-contact small-popup" title="{ts}Enable{/ts}">{ts}Enable{/ts}</a>
 							{/if}
-							<a href="{crmURL p='civicrm/banking/configure' q="pid=$plugin_id"}" class="action-item crm-hover-button delete-contact small-popup" title="{ts}Configure{/ts}">{ts}Configure{/ts}</a>
+							<a href="{crmURL p='civicrm/banking/configure' q="reset=1&pid=$plugin_id"}" class="action-item crm-hover-button delete-contact small-popup" title="{ts}Configure{/ts}">{ts}Configure{/ts}</a>
 							<a href="{crmURL p='civicrm/banking/manager' q="delete=$plugin_id"}" class="action-item crm-hover-button delete-contact small-popup" title="{ts}Delete{/ts}">{ts}Delete{/ts}</a>
 						</li>
 					</ul>
@@ -176,6 +179,7 @@ tr.banking-plugin-disabled {
 <h3>{ts}Exporter Plugins{/ts}</h3>
 <div id="help">
 	{ts}Export plugins are used to save the processed transaction data along with their matching financial transactions into files or accounting systems.{/ts}
+	<a href="{crmURL p="civicrm/banking/configure" q="reset=1&type=$type_export"}">{ts}Add a new one.{/ts}</a>
 </div>
 <table class="display" id="option11">
 	<thead>
@@ -211,7 +215,7 @@ tr.banking-plugin-disabled {
 							{else}
 								<a href="{crmURL p='civicrm/banking/manager' q="enable=$plugin_id"}" class="action-item crm-hover-button delete-contact small-popup" title="{ts}Enable{/ts}">{ts}Enable{/ts}</a>
 							{/if}
-							<a href="{crmURL p='civicrm/banking/configure' q="pid=$plugin_id"}" class="action-item crm-hover-button delete-contact small-popup" title="{ts}Configure{/ts}">{ts}Configure{/ts}</a>
+							<a href="{crmURL p='civicrm/banking/configure' q="reset=1&pid=$plugin_id"}" class="action-item crm-hover-button delete-contact small-popup" title="{ts}Configure{/ts}">{ts}Configure{/ts}</a>
 							<a href="{crmURL p='civicrm/banking/manager' q="delete=$plugin_id"}" class="action-item crm-hover-button delete-contact small-popup" title="{ts}Delete{/ts}">{ts}Delete{/ts}</a>
 						</li>
 					</ul>

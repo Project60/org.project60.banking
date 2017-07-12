@@ -24,15 +24,23 @@ class CRM_Banking_Form_Configure extends CRM_Core_Form {
   protected $plugin = NULL;
 
   public function buildQuickForm() {
-    $return_url = CRM_Utils_System::url('civicrm/banking/manager');
 
     // load Plugin
     $plugin_id = CRM_Utils_Request::retrieve('pid', 'Integer');
+    // if (empty($plugin_id)) {
+    //   CRM_Core_Session::setStatus(ts("No plugin ID (pid) given"), ts("Error"), "error");
+    //   CRM_Utils_System::redirect(CRM_Utils_System::url('civicrm/banking/manager'));
+    // }
     if (empty($plugin_id)) {
-      CRM_Core_Session::setStatus(ts("No plugin ID (pid) given"), ts("Error"), "error");
-      CRM_Utils_System::redirect($return_url);
+      $this->plugin = array(
+        'name'            => ts("Enter name"),
+        'description'     => ts("Enter description"),
+        'config'          => '{}',
+        'plugin_type_id'  => CRM_Utils_Request::retrieve('type', 'Integer'),
+        'plugin_class_id' => '');
+    } else {
+      $this->plugin = civicrm_api3('BankingPluginInstance', 'getsingle', array('id' => $plugin_id));
     }
-    $this->plugin = civicrm_api3('BankingPluginInstance', 'getsingle', array('id' => $plugin_id));
 
     // set title
     CRM_Utils_System::setTitle(ts('Configure Plugin "%1"', array(1 => $this->plugin['name'])));

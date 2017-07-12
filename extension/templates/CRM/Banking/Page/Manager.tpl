@@ -111,7 +111,7 @@ tr.banking-plugin-disabled {
 							{else}
 								<a href="{crmURL p='civicrm/banking/manager' q="enable=$plugin_id"}" class="action-item crm-hover-button delete-contact small-popup" title="{ts}Enable{/ts}">{ts}Enable{/ts}</a>
 							{/if}
-							<a href="{crmURL p='civicrm/banking/configure_plugin' q="pid=$plugin_id"}" class="action-item crm-hover-button delete-contact small-popup" title="{ts}Configure{/ts}">{ts}Configure{/ts}</a>
+							<a href="{crmURL p='civicrm/banking/configure' q="pid=$plugin_id"}" class="action-item crm-hover-button delete-contact small-popup" title="{ts}Configure{/ts}">{ts}Configure{/ts}</a>
 							<a href="{crmURL p='civicrm/banking/manager' q="delete=$plugin_id"}" class="action-item crm-hover-button delete-contact small-popup" title="{ts}Delete{/ts}">{ts}Delete{/ts}</a>
 						</li>
 					</ul>
@@ -161,7 +161,7 @@ tr.banking-plugin-disabled {
 							{else}
 								<a href="{crmURL p='civicrm/banking/manager' q="enable=$plugin_id"}" class="action-item crm-hover-button delete-contact small-popup" title="{ts}Enable{/ts}">{ts}Enable{/ts}</a>
 							{/if}
-							<a href="{crmURL p='civicrm/banking/configure_plugin' q="pid=$plugin_id"}" class="action-item crm-hover-button delete-contact small-popup" title="{ts}Configure{/ts}">{ts}Configure{/ts}</a>
+							<a href="{crmURL p='civicrm/banking/configure' q="pid=$plugin_id"}" class="action-item crm-hover-button delete-contact small-popup" title="{ts}Configure{/ts}">{ts}Configure{/ts}</a>
 							<a href="{crmURL p='civicrm/banking/manager' q="delete=$plugin_id"}" class="action-item crm-hover-button delete-contact small-popup" title="{ts}Delete{/ts}">{ts}Delete{/ts}</a>
 						</li>
 					</ul>
@@ -211,7 +211,7 @@ tr.banking-plugin-disabled {
 							{else}
 								<a href="{crmURL p='civicrm/banking/manager' q="enable=$plugin_id"}" class="action-item crm-hover-button delete-contact small-popup" title="{ts}Enable{/ts}">{ts}Enable{/ts}</a>
 							{/if}
-							<a href="{crmURL p='civicrm/banking/configure_plugin' q="pid=$plugin_id"}" class="action-item crm-hover-button delete-contact small-popup" title="{ts}Configure{/ts}">{ts}Configure{/ts}</a>
+							<a href="{crmURL p='civicrm/banking/configure' q="pid=$plugin_id"}" class="action-item crm-hover-button delete-contact small-popup" title="{ts}Configure{/ts}">{ts}Configure{/ts}</a>
 							<a href="{crmURL p='civicrm/banking/manager' q="delete=$plugin_id"}" class="action-item crm-hover-button delete-contact small-popup" title="{ts}Delete{/ts}">{ts}Delete{/ts}</a>
 						</li>
 					</ul>

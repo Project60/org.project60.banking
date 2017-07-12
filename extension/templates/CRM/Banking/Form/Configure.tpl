@@ -57,8 +57,26 @@
 
 {include file="CRM/common/formButtons.tpl" location="bottom"}
 
-{literal}
 <script>
+  var type_map = {$type_map};
+
+  {literal}
+  function updateTypeList() {
+    var plugin_class_id = cj("#plugin_class_id").val();
+    var plugin_type_list = type_map[plugin_class_id];
+    // remove all options
+    cj("#plugin_type_id").find("option").remove();
+
+    // and add the new ones
+    for (plugin_type_id in plugin_type_list) {
+      cj("#plugin_type_id").append('<option value="' + plugin_type_id + '">' + plugin_type_list[plugin_type_id] + '</option>');
+    }
+
+    // select the first one
+    cj("#plugin_type_id").find("option").first().prop('selected', true);
+  }
+  cj("#plugin_class_id").change(updateTypeList);
+
   cj(document).ready(function() {
     // create the editor
     var container = document.getElementById('jsoneditor');

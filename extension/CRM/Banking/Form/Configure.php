@@ -49,10 +49,12 @@ class CRM_Banking_Form_Configure extends CRM_Core_Form {
                       $this->getOptionValueList('civicrm_banking.plugin_classes'),
                       array('class' => 'crm-select2 huge'));
 
+    $type_map = $this->getPluginTypeMap();
+    $this->assign('type_map', json_encode($type_map));
     $this->addElement('select',
                       'plugin_type_id',
                       ts('Implementation', array('domain' => 'org.project60.banking')),
-                      $this->getOptionValueList('civicrm_banking.plugin_types'),
+                      $type_map[$this->plugin['plugin_type_id']],
                       array('class' => 'crm-select2 huge'));
 
     $this->addElement('textarea',
@@ -89,17 +91,55 @@ class CRM_Banking_Form_Configure extends CRM_Core_Form {
       return array(
         'name'            => $this->plugin['name'],
         'description'     => $this->plugin['description'],
-        'plugin_type_id'  => $this->plugin['plugin_type_id'],
-        'plugin_class_id' => $this->plugin['plugin_class_id'],
+        'plugin_type_id'  => $this->plugin['plugin_class_id'], // yes, it's reversed...don't ask
+        'plugin_class_id' => $this->plugin['plugin_type_id'],  // yes, it's reversed...don't ask
       );
     }
   }
 
   public function postProcess() {
     $values = $this->exportValues();
+
+
     error_log($values['configuration']);
     // TODO
     // parent::postProcess();
+  }
+
+  /**
+   *
+   */
+  protected function getPluginTypeMap() {
+    $class_search = civicrm_api3('OptionValue', 'get', array(
+      'option_group_id' => 'civicrm_banking.plugin_classes',
+      'options' => array('limit' => 0, 'sort' => "weight"),
+      ));
+    $class_prefix2id = array();
+    foreach ($class_search['values'] as $class_id => $option_value) {
+      $class_name = $option_value['name'];
+      $class_prefix2id[$class_name] = $class_id;
+      if ($class_name == 'match') {
+        $class_prefix2id['analy'] = $class_id;
+      }
+    }
+
+    $type_search = civicrm_api3('OptionValue', 'get', array(
+      'option_group_id' => 'civicrm_banking.plugin_types',
+      'options' => array('limit' => 0, 'sort' => "weight"),
+      ));
+    $class_id2type_id2label = array();
+    foreach ($type_search['values'] as $type_id => $option_value) {
+      // determine the class id
+      foreach ($class_prefix2id as $prefix => $class_id) {
+        $type_name   = $option_value['name'];
+        $type_prefix = substr($type_name, 0, strlen($prefix));
+        if ($type_prefix == $prefix) {
+          $class_id2type_id2label[$class_id][$type_id] = $option_value['label'];
+        }
+      }
+    }
+    error_log(json_encode($class_id2type_id2label));
+    return $class_id2type_id2label;
   }
 
   /**

@@ -25,14 +25,14 @@
 </div>
 
 <div class="crm-section">
-  <div class="label">{$form.plugin_class_id.label}</div>
-  <div class="content">{$form.plugin_class_id.html}</div>
+  <div class="label">{$form.plugin_type_id.label}</div>
+  <div class="content">{$form.plugin_type_id.html}</div>
   <div class="clear"></div>
 </div>
 
 <div class="crm-section">
-  <div class="label">{$form.plugin_type_id.label}</div>
-  <div class="content">{$form.plugin_type_id.html}</div>
+  <div class="label">{$form.plugin_class_id.label}</div>
+  <div class="content">{$form.plugin_class_id.html}</div>
   <div class="clear"></div>
 </div>
 
@@ -62,20 +62,20 @@
 
   {literal}
   function updateTypeList() {
-    var plugin_class_id = cj("#plugin_class_id").val();
-    var plugin_type_list = type_map[plugin_class_id];
+    var plugin_type_id = cj("#plugin_type_id").val();
+    var plugin_class_list = type_map[plugin_type_id];
     // remove all options
-    cj("#plugin_type_id").find("option").remove();
+    cj("#plugin_class_id").find("option").remove();
 
     // and add the new ones
-    for (plugin_type_id in plugin_type_list) {
-      cj("#plugin_type_id").append('<option value="' + plugin_type_id + '">' + plugin_type_list[plugin_type_id] + '</option>');
+    for (plugin_class_id in plugin_class_list) {
+      cj("#plugin_class_id").append('<option value="' + plugin_class_id + '">' + plugin_class_list[plugin_class_id] + '</option>');
     }
 
     // select the first one
-    cj("#plugin_type_id").find("option").first().prop('selected', true);
+    cj("#plugin_class_id").select2().find("option").first().prop('selected', true);
   }
-  cj("#plugin_class_id").change(updateTypeList);
+  cj("#plugin_type_id").change(updateTypeList);
 
   cj(document).ready(function() {
     // create the editor

@@ -44,15 +44,15 @@ class CRM_Banking_Form_Configure extends CRM_Core_Form {
                       TRUE);
 
     $this->addElement('select',
-                      'plugin_class_id',
+                      'plugin_type_id',
                       ts('Plugin Class', array('domain' => 'org.project60.banking')),
-                      $this->getOptionValueList('civicrm_banking.plugin_classes'),
+                      $this->getOptionValueList('civicrm_banking.plugin_classes'), // yes, it's swapped
                       array('class' => 'crm-select2 huge'));
 
     $type_map = $this->getPluginTypeMap();
     $this->assign('type_map', json_encode($type_map));
     $this->addElement('select',
-                      'plugin_type_id',
+                      'plugin_class_id',
                       ts('Implementation', array('domain' => 'org.project60.banking')),
                       $type_map[$this->plugin['plugin_type_id']],
                       array('class' => 'crm-select2 huge'));
@@ -91,8 +91,8 @@ class CRM_Banking_Form_Configure extends CRM_Core_Form {
       return array(
         'name'            => $this->plugin['name'],
         'description'     => $this->plugin['description'],
-        'plugin_type_id'  => $this->plugin['plugin_class_id'], // yes, it's reversed...don't ask
-        'plugin_class_id' => $this->plugin['plugin_type_id'],  // yes, it's reversed...don't ask
+        'plugin_type_id'  => $this->plugin['plugin_type_id'],
+        'plugin_class_id' => $this->plugin['plugin_class_id'],
       );
     }
   }
@@ -100,10 +100,27 @@ class CRM_Banking_Form_Configure extends CRM_Core_Form {
   public function postProcess() {
     $values = $this->exportValues();
 
+    // create/update
+    $update = array(
+      'plugin_class_id' => $values['plugin_class_id'],
+      'plugin_type_id'  => $values['plugin_type_id'],
+      'name'            => $values['name'],
+      'description'     => $values['description'],
+      'config'          => $values['configuration'],
+      );
+    if (!empty($values['pid'])) {
+      // update
+      $update['id'] = $values['pid'];
+    } else {
+      // create
+      $update['enabled'] = 1;
+      $update['weight']  = 1000;
+      $update['state']   = '{}';
+    }
+    civicrm_api3('BankingPluginInstance', 'create', $update);
 
-    error_log($values['configuration']);
-    // TODO
-    // parent::postProcess();
+    parent::postProcess();
+    CRM_Utils_System::redirect(CRM_Utils_System::url('civicrm/banking/manager'));
   }
 
   /**
@@ -138,7 +155,6 @@ class CRM_Banking_Form_Configure extends CRM_Core_Form {
         }
       }
     }
-    error_log(json_encode($class_id2type_id2label));
     return $class_id2type_id2label;
   }
 

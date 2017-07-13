@@ -22,6 +22,7 @@ class CRM_Banking_Page_Manager extends CRM_Core_Page {
     CRM_Utils_System::setTitle(ts('Manage CiviBanking Configuration'));
 
     // first: process commands (if any)
+    $this->processDeleteCommand();
     $this->processEnableDisableCommand();
     $this->processRearrangeCommand();
 
@@ -71,6 +72,25 @@ class CRM_Banking_Page_Manager extends CRM_Core_Page {
     $this->assign('baseurl', CRM_Utils_System::url('civicrm/banking/manager'));
 
     parent::run();
+  }
+
+
+  /**
+   *
+   */
+  protected function processDeleteCommand() {
+    $delete_id = CRM_Utils_Request::retrieve('delete', 'Integer');
+    $confirmed = CRM_Utils_Request::retrieve('confirmed', 'Integer');
+    if ($delete_id) {
+      if ($confirmed) {
+        civicrm_api3('BankingPluginInstance', 'delete', array('id' => $delete_id));
+        CRM_Core_Session::setStatus(ts("CiviBanking plugin [%1] deleted.", array(1 => $delete_id)), ts("Plugin deleted"), "info");
+        CRM_Utils_System::redirect(CRM_Utils_System::url('civicrm/banking/manager'));
+      } else {
+        $plugin = civicrm_api3('BankingPluginInstance', 'getsingle', array('id' => $delete_id));
+        $this->assign('delete', $plugin);
+      }
+    }
   }
 
   /**

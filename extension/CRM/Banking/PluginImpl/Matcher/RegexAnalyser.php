@@ -162,9 +162,10 @@ class CRM_Banking_PluginImpl_Matcher_RegexAnalyser extends CRM_Banking_PluginMod
             $query[$key] = $value;
           }
         }
+
         // execute and log
         $this->logger->setTimer('regex:lookup');
-        $result = civicrm_api($params[0], 'getsingle', $query);
+        $result = $this->executeAPIQuery($params[0], 'getsingle', $query, $action);
         $this->logTime("Calling {$params[0]} API" . json_encode($query), 'regex:lookup');
 
         if (empty($result['is_error'])) {
@@ -204,7 +205,7 @@ class CRM_Banking_PluginImpl_Matcher_RegexAnalyser extends CRM_Banking_PluginMod
         // execute query
         try {
           $this->logger->setTimer('regex:api');
-          $result = civicrm_api3($params[0], $params[1], $query);
+          $result = $this->executeAPIQuery($params[0], $params[1], $query, $action);
           $this->logTime("Calling {$params[0]}.{$params[1]} API" . json_encode($query), 'regex:api');
 
           if (isset($params[3]) && $params[3]=='multiple') {
@@ -257,6 +258,88 @@ class CRM_Banking_PluginImpl_Matcher_RegexAnalyser extends CRM_Banking_PluginMod
       }
     }
   }
+
+  /**
+   * execute API Query
+   */
+  protected function executeAPIQuery($entity, $command, $query, $action) {
+    $command = strtolower($command);
+    if (empty($action->sql) || !$action->sql || !in_array($command, array('get', 'getsingle'))) {
+      // execute via API
+      $query['version'] = 3;
+      return civicrm_api($entity, $command, $query);
+
+    } else  {
+      // execute via SQL
+      // compile select
+      if (empty($query['return'])) {
+        $select_clause = '*';
+      } else {
+        $select_clause = $query['return'];
+      }
+
+      // compile from
+      $from = $this->getTableName($entity);
+
+      // compile where
+      $where_clauses = array();
+      $query_params = array();
+      foreach ($query as $key => $value) {
+        if (!in_array($key, array('return', 'sort', 'limit', 'option', 'version'))) {
+          // TODO: support for sort, limit, etc.
+          if (is_array($value)) {
+            // TODO: support for LIKE, IN, etc.
+          } else {
+            $index = count($query_params) + 1;
+            $where_clauses[] = "`$key` = %$index";
+            $query_params[$index] = array($value, 'String');
+          }
+        }
+      }
+      if (empty($where_clauses)) {
+        $where_clause = 'TRUE';
+      } else {
+        $where_clause = '(' . implode(') AND (', $where_clauses) . ')';
+      }
+
+      // should there be a limit
+      if ($command == 'getsingle') {
+        $limit = 'LIMIT 1';
+      } elseif ($query['limit']) {
+        $limit = "LIMIT {$query['limit']}";
+      } else {
+        $limit = '';
+      }
+
+      // execute the query
+      $dao_query = CRM_Core_DAO::executeQuery("SELECT {$select_clause} FROM {$from} WHERE {$where_clause} {$limit};", $query_params);
+      if ($command == 'getsingle') {
+        if ($dao_query->fetch()) {
+          return $dao_query->toArray();
+        } else {
+          return civicrm_api3_create_error("Not found");
+        }
+      } else { // $command == 'get'
+        $results = array();
+        while ($dao_query->fetch()) {
+          $results[] = $dao_query->toArray();
+        }
+        return civicrm_api3_create_success($results);
+      }
+    }
+  }
+
+  /**
+   * get the CiviCRM table name for an entity
+   */
+  protected function getTableName($entity) {
+    // from: https://stackoverflow.com/questions/1993721/how-to-convert-camelcase-to-camel-case#1993772
+    preg_match_all('!([A-Z][A-Z0-9]*(?=$|[A-Z][a-z0-9])|[A-Za-z][a-z0-9]+)!', $entity, $matches);
+    $ret = $matches[0];
+    foreach ($ret as &$match) {
+      $match = $match == strtoupper($match) ? strtolower($match) : lcfirst($match);
+    }
+    return 'civicrm_' . implode('_', $ret);
+  }
+
 }
-
-

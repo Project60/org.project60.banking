@@ -110,6 +110,18 @@ function _banking_options() {
                   'description' => 'Looks up a transaction\'s bank accounts (again)',
                   'is_default' => 0,
               ),
+              'postprocessor_addressupdate' => array(
+                  'label' => 'Update Address PostProcessor',
+                  'value' => 'CRM_Banking_PluginImpl_PostProcessor_AddressUpdate',
+                  'description' => 'Updates a contact\'s address with the one from the transaction',
+                  'is_default' => 0,
+              ),
+              'postprocessor_membership_payment' => array(
+                  'label' => 'MembershipPayment PostProcessor',
+                  'value' => 'CRM_Banking_PluginImpl_PostProcessor_MembershipPayment',
+                  'description' => 'Assigns newly created contributions to memberships',
+                  'is_default' => 0,
+              ),
               'exporter_csv' => array(
                   'label' => 'Configurable CSV Exporter',
                   'value' => 'CRM_Banking_PluginImpl_Exporter_CSV',
@@ -211,6 +223,11 @@ function _banking_options() {
                   'value' => 2,
                   'is_default' => 0,
               ),
+              'postprocess' => array(
+                  'label' => 'Post Processor',
+                  'value' => 4,
+                  'is_default' => 0,
+              ),
               'export' => array(
                   'label' => 'Export plugin',
                   'value' => 3,
@@ -277,17 +294,17 @@ function banking_civicrm_install_options($data) {
       foreach ($groupValues as $valueName => $value) {
         // find option value
         $result = civicrm_api3('OptionValue', 'get', array(
-          'name'            => $valueName, 
+          'name'            => $valueName,
           'option_group_id' => $group_id
           ));
         if (count($result['values']) == 0) {
           // create a new entry
-          $params = array(); 
+          $params = array();
           $params['option_group_id'] = $group_id;
           $params['name']            = $valueName;
           $params['is_active']       = 1;
           $params['weight']          = $weight;
-          $weight += 10;          
+          $weight += 10;
         } else {
           // update existing entry
           $params = reset($result['values']); // update

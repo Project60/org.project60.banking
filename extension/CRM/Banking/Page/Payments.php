@@ -14,7 +14,7 @@
 | written permission from the original author(s).        |
 +--------------------------------------------------------*/
 
-    
+
 require_once 'CRM/Core/Page.php';
 require_once 'CRM/Banking/Helpers/OptionValue.php';
 require_once 'CRM/Banking/Helpers/URLBuilder.php';
@@ -56,7 +56,7 @@ class CRM_Banking_Page_Payments extends CRM_Core_Page {
     $this->assign('url_export_selected_payments', banking_helper_buildURL('civicrm/banking/export', array($list_type=>"__selected__")));
 
     $this->assign('can_delete', CRM_Core_Permission::check('administer CiviCRM'));
-    
+
     // status filter button styles
     if (isset($_REQUEST['status_ids']) && strlen($_REQUEST['status_ids'])>0) {
       if ($_REQUEST['status_ids']==$payment_states['new']['id']) {
@@ -85,34 +85,34 @@ class CRM_Banking_Page_Payments extends CRM_Core_Page {
     $statements_new = array();
     $statements_analysed = array();
     $statements_completed = array();
-    
+
     // collect an array of target accounts, serving to limit the display
     $target_accounts = array();
-    
+
     // TODO: we NEED a tx_batch status field, see https://github.com/Project60/CiviBanking/issues/20
     $sql_query =    // this query joins the bank_account table to determine the target account
-        "SELECT 
-          btxb.id AS id, 
-          ba.id AS ba_id, 
-          reference, 
-          btxb.sequence as sequence, 
-          starting_date, 
-          tx_count, 
-          ba_id, 
+        "SELECT
+          btxb.id AS id,
+          ba.id AS ba_id,
+          reference,
+          btxb.sequence as sequence,
+          starting_date,
+          tx_count,
+          ba_id,
           ba.data_parsed as data_parsed,
           sum(btx.amount) as total,
           btx.currency as currency
-        FROM 
+        FROM
           civicrm_bank_tx_batch btxb
-          LEFT JOIN civicrm_bank_tx btx ON btx.tx_batch_id = btxb.id 
+          LEFT JOIN civicrm_bank_tx btx ON btx.tx_batch_id = btxb.id
           LEFT JOIN civicrm_bank_account ba ON ba.id = btx.ba_id "
           .
             ($target_ba_id ? ' WHERE ba_id = ' . $target_ba_id : '')
-          . 
+          .
           "
-        GROUP BY 
+        GROUP BY
           id
-        ORDER BY 
+        ORDER BY
           starting_date DESC;";
     $stmt = CRM_Core_DAO::executeQuery($sql_query);
     while($stmt->fetch()) {
@@ -127,14 +127,14 @@ class CRM_Banking_Page_Payments extends CRM_Core_Page {
       }
 
       // finally, create the data row
-      $row = array(  
-                    'id' => $stmt->id, 
-                    'reference' => $stmt->reference, 
-                    'sequence' => $stmt->sequence, 
-                    'total' => $stmt->total, 
-                    'currency' => $stmt->currency, 
-                    'date' => strtotime($stmt->starting_date), 
-                    'count' => $stmt->tx_count, 
+      $row = array(
+                    'id' => $stmt->id,
+                    'reference' => $stmt->reference,
+                    'sequence' => $stmt->sequence,
+                    'total' => $stmt->total,
+                    'currency' => $stmt->currency,
+                    'date' => strtotime($stmt->starting_date),
+                    'count' => $stmt->tx_count,
                     'target' => $target_name,
                     'analysed' => $info['analysed'].'%',
                     'completed' => $info['completed'].'%',
@@ -151,10 +151,10 @@ class CRM_Banking_Page_Payments extends CRM_Core_Page {
           array_push($statements_new, $row);
         }
       }
-      
+
       // collect the target BA
       $target_accounts[ $stmt->ba_id ] = $target_name;
-      
+
     }
 
     if ($_REQUEST['status_ids']==$payment_states['new']['id']) {
@@ -172,7 +172,7 @@ class CRM_Banking_Page_Payments extends CRM_Core_Page {
       $this->assign('rows', $statements_completed);
       $this->assign('status_message', sprintf(ts("%d completed statments."), sizeof($statements_completed)));
     }
-    
+
     $this->assign('count_new',       count($statements_new));
     $this->assign('count_analysed',  count($statements_analysed));
     $this->assign('count_completed', count($statements_completed));
@@ -201,8 +201,8 @@ class CRM_Banking_Page_Payments extends CRM_Core_Page {
           $ba_id = $entry['ba_id'];
           $params = array('version' => 3, 'id' => $ba_id);
           $bank_account = civicrm_api('BankingAccount', 'getsingle', $params);
-        } 
-        
+        }
+
         $contact = null;
         $attached_ba = null;
         $party = null;
@@ -211,7 +211,7 @@ class CRM_Banking_Page_Payments extends CRM_Core_Page {
           $params = array('version' => 3, 'id' => $pba_id);
           $attached_ba = civicrm_api('BankingAccount', 'getsingle', $params);
         }
-        
+
         $cid = isset($attached_ba['contact_id']) ? $attached_ba['contact_id'] : null;
         if ($cid) {
           $params = array('version' => 3, 'id' => $cid);
@@ -232,10 +232,10 @@ class CRM_Banking_Page_Payments extends CRM_Core_Page {
         $probability = 0.0;
         if ('suggestions' == $payment_states[$entry['status_id']]['name']) {
           $suggestions = json_decode($entry['suggestions'], true);
-          
+
           if (is_array($suggestions)) {
             foreach ($suggestions as $suggestion) {
-              if (   !empty($suggestion['probability']) 
+              if (   !empty($suggestion['probability'])
                   && $probability < (float) $suggestion['probability']) {
                     $probability = (float) $suggestion['probability'];
               }
@@ -243,15 +243,15 @@ class CRM_Banking_Page_Payments extends CRM_Core_Page {
           }
           $status = sprintf("%s (%d%%)", $status, $probability * 100.0);
         }
-        
-        array_push($payment_rows, 
-            array(  
-                    'id'            => $entry['id'], 
-                    'date'          => $entry['value_date'], 
-                    'sequence'      => $entry['sequence'], 
-                    'currency'      => $entry['currency'], 
-                    'amount'        => (isset($entry['amount'])?$entry['amount']:"unknown"), 
-                    'account_owner' => $bank_account['description'], 
+
+        array_push($payment_rows,
+            array(
+                    'id'            => $entry['id'],
+                    'date'          => $entry['value_date'],
+                    'sequence'      => $entry['sequence'],
+                    'currency'      => $entry['currency'],
+                    'amount'        => (isset($entry['amount'])?$entry['amount']:"unknown"),
+                    'account_owner' => CRM_Utils_Array::value('description', $bank_account),
                     'party'         => $party,
                     'party_contact' => $contact,
                     'state'         => $status,
@@ -262,7 +262,7 @@ class CRM_Banking_Page_Payments extends CRM_Core_Page {
     }
 
     $this->assign('rows', $payment_rows);
-    $this->assign('show', 'payments');        
+    $this->assign('show', 'payments');
     if ($_REQUEST['status_ids']==$payment_states['new']['id']) {
       // 'NEW' mode will show all that have not been completely analysed
       $this->assign('status_message', sprintf(ts("%d new transactions."), count($payment_rows)));
@@ -325,7 +325,7 @@ class CRM_Banking_Page_Payments extends CRM_Core_Page {
     $sql_query = "SELECT status_id, COUNT(status_id) AS count FROM civicrm_bank_tx WHERE tx_batch_id=$stmt_id GROUP BY status_id;";
     $stats = CRM_Core_DAO::executeQuery($sql_query);
     // this creates a table: | status_id | count |
-    
+
     $status2count = array();
     while ($stats->fetch()) {
       $status2count[$stats->status_id] = $stats->count;
@@ -381,7 +381,7 @@ class CRM_Banking_Page_Payments extends CRM_Core_Page {
       foreach ($batch_ids as $batch_id) {
         if ((int) $batch_id) {
           $clean_batch_ids[] = (int) $batch_id;
-        }  
+        }
       }
     }
 
@@ -468,7 +468,7 @@ class CRM_Banking_Page_Payments extends CRM_Core_Page {
 
   /**
    * creates an array of all properties defining the current page's state
-   * 
+   *
    * if $override is given, it will be taken into the array regardless
    */
   function _pageParameters($override=array()) {

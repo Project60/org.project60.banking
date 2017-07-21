@@ -162,7 +162,7 @@ class CRM_Banking_Matcher_Engine {
             // run matchers to generate suggestions
             $logger->setTimer('matcher');
             $continue = $this->matchPlugin( $matcher, $context );
-            $logger->logTime("Matcher [{$plugin->getPluginID()}]", 'matcher');
+            $logger->logTime("Matcher [{$matcher->getPluginID()}]", 'matcher');
 
             if (!$continue) {
               $lock->release();
@@ -173,7 +173,7 @@ class CRM_Banking_Matcher_Engine {
             // check if we can execute the suggestion right aways
             $abort = $this->checkAutoExecute($matcher, $btx);
             if ($abort) {
-              $logger->logDebug("Matcher [{$plugin->getPluginID()}] executed automatically.");
+              $logger->logDebug("Matcher [{$matcher->getPluginID()}] executed automatically.");
               $lock->release();
               $logger->logTime("Matching of btx [{$btx_id}]", 'matcher');
               return false;

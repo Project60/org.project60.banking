@@ -52,7 +52,7 @@
     <path>civicrm/banking/manager</path>
     <page_callback>CRM_Banking_Page_Manager</page_callback>
     <title>Manager</title>
-    <access_arguments>access CiviCRM</access_arguments>
+    <access_arguments>administer CiviCRM</access_arguments>
   </item>
   <item>
     <path>civicrm/banking/dashboard</path>
@@ -74,5 +74,11 @@
     <desc>Settings for the CiviBanking module</desc>
     <adminGroup>CiviContribute</adminGroup>
     <icon>admin/small/online_contribution_pages.png</icon>
+  </item>
+  <item>
+    <path>civicrm/banking/configure</path>
+    <page_callback>CRM_Banking_Form_Configure</page_callback>
+    <title>Configure</title>
+    <access_arguments>administer CiviCRM</access_arguments>
   </item>
 </menu>

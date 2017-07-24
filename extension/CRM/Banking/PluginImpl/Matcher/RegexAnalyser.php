@@ -244,7 +244,7 @@ class CRM_Banking_PluginImpl_Matcher_RegexAnalyser extends CRM_Banking_PluginMod
       } else if (!empty($data_parsed[$key])) {
         return $data_parsed[$key];
       } else {
-        error_log("org.project60.banking: RexgexAnalyser - Cannot find source '$key' for rule or filter.");
+        $this->logMessage("RexgexAnalyser - Cannot find source '$key' for rule or filter.", 'debug');
         return '';
       }
     } else {
@@ -253,7 +253,7 @@ class CRM_Banking_PluginImpl_Matcher_RegexAnalyser extends CRM_Banking_PluginMod
       } else if (isset($data_parsed[$key])) {
         return $data_parsed[$key];
       } else {
-        error_log("org.project60.banking: RexgexAnalyser - Cannot find source '$key' for rule or filter.");
+        $this->logMessage("RexgexAnalyser - Cannot find source '$key' for rule or filter.", 'debug');
         return '';
       }
     }

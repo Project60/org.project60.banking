@@ -27,14 +27,11 @@ class CRM_Banking_Form_Configure extends CRM_Core_Form {
 
     // load Plugin
     $plugin_id = CRM_Utils_Request::retrieve('pid', 'Integer');
-    // if (empty($plugin_id)) {
-    //   CRM_Core_Session::setStatus(ts("No plugin ID (pid) given"), ts("Error"), "error");
-    //   CRM_Utils_System::redirect(CRM_Utils_System::url('civicrm/banking/manager'));
-    // }
+    $type_map = $this->getPluginTypeMap();
     if (empty($plugin_id)) {
       $this->plugin = array(
         'name'            => ts("Enter name"),
-        'description'     => ts("Enter description"),
+        'description'     => ts("Describe here what this plugin does."),
         'config'          => '{}',
         'plugin_type_id'  => CRM_Utils_Request::retrieve('type', 'Integer'),
         'plugin_class_id' => '');
@@ -49,6 +46,7 @@ class CRM_Banking_Form_Configure extends CRM_Core_Form {
     $this->addElement('text',
                       'name',
                       ts('Plugin Name', array('domain' => 'org.project60.banking')),
+                      array('class' => 'huge'),
                       TRUE);
 
     $this->addElement('select',
@@ -57,17 +55,17 @@ class CRM_Banking_Form_Configure extends CRM_Core_Form {
                       $this->getOptionValueList('civicrm_banking.plugin_classes'), // yes, it's swapped
                       array('class' => 'crm-select2 huge'));
 
-    $type_map = $this->getPluginTypeMap();
     $this->assign('type_map', json_encode($type_map));
     $this->addElement('select',
                       'plugin_class_id',
                       ts('Implementation', array('domain' => 'org.project60.banking')),
-                      $type_map[$this->plugin['plugin_type_id']],
+                      CRM_Utils_Array::value($this->plugin['plugin_type_id'], $type_map),
                       array('class' => 'crm-select2 huge'));
 
     $this->addElement('textarea',
                       'description',
                       ts('Description', array('domain' => 'org.project60.banking')),
+                      array('class' => 'huge'),
                       TRUE);
 
     $this->add('hidden', 'configuration', $this->plugin['config']);
@@ -127,7 +125,7 @@ class CRM_Banking_Form_Configure extends CRM_Core_Form {
     }
     civicrm_api3('BankingPluginInstance', 'create', $update);
 
-    parent::postProcess();
+    // parent::postProcess();
     CRM_Utils_System::redirect(CRM_Utils_System::url('civicrm/banking/manager'));
   }
 

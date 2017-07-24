@@ -145,7 +145,7 @@ tr.banking-plugin-disabled {
 <h3>{ts}Postprocessors{/ts}</h3>
 <div id="help">
 	{ts}Postprocessors are plugins that perform certain extra tasks once the correct contact, contribution, or other entity has been identified.{/ts}
-	<a href="{crmURL p="civicrm/banking/configure" q="reset=1&type=$type_postprocessor"}">{ts}Add a new one.{/ts}</a>
+	<a href="{crmURL p="civicrm/banking/configure" q="reset=1&type=$type_postprocess"}">{ts}Add a new one.{/ts}</a>
 </div>
 <table class="display" id="option11">
 	<thead>

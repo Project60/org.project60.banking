@@ -1,0 +1,13 @@
+TODO
+OK sync json/editor
+OK save
+OK create new (buttons + adjust form)
+OK adjust implementation dropdown
+OK CSS for disabled rows in manager
+OK delete (+question)
+ - deep links to config database
+
+
+
+- create help/editor/schema/etc. methods in plugin class
+- panel for matchers: auto-exec, threshold, penalties?

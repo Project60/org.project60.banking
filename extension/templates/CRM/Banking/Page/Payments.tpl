@@ -64,7 +64,7 @@
 <br/>
 
 {if not $rows}    {* NO ROWS FOUND *}
-  {if $show=='payments'}    
+  {if $show=='payments'}
     <div id="help" class="description">
       {ts}No transactions could be found with the requested status. Try the other status filter buttons above to find your imported payments.{/ts}
     </div>
@@ -124,7 +124,7 @@
       {/if}
       {if $field.payment_data_parsed.purpose}
         <br/>
-        <span style="color: #ccc;">{$field.payment_data_parsed.purpose}</span>  
+        <span style="color: #ccc;">{$field.payment_data_parsed.purpose}</span>
       {/if}
     </td>
     <td class="status_{$field.state}">
@@ -174,7 +174,7 @@
     <td class="">
       {if $field.sequence}
       <span style="background-color: #cccccc; padding: 2px 4px; border-radius: 3px;">{$field.sequence}</span>
-      {/if} 
+      {/if}
       {$field.total} {$field.currency}
       <br/>
       <span style="color: #ccc; font-size: 0.9em;">{$field.reference}</span>
@@ -261,12 +261,23 @@ function processSelected() {
   }
 
   // AJAX call the analyser
-  var query = {'q': 'civicrm/ajax/rest', 'sequential': 1};
-  // set the list or s_list parameter depending on the page mode
-  query['{/literal}{if $show eq statements}s_list{else}list{/if}{literal}'] = selected_string;
+  var query = {
+    'q': 'civicrm/ajax/rest',
+    'sequential': 1,
+    '{/literal}{if $show eq statements}s_list{else}list{/if}{literal}': selected_string,
+    'use_runner': 50, // TODO: setting?
+    'back_url': window.location.href
+  };
   CRM.api('BankingTransaction', 'analyselist', query,
     {success: function(data) {
         if (!data['is_error']) {
+          if ('runner_url' in data.values) {
+            // this is a runner -> jump there to execute
+            var runner_url = cj("<div/>").html(data.values['runner_url']).text();
+            window.location = runner_url;
+            return;
+          }
+
           if (!data.values.timed_out) {
             // perfectly normal result, notify user
             {/literal}
@@ -308,7 +319,7 @@ function processSelected() {
 function deleteSelected() {
   if (cj("#deleteButton").hasClass('disabled')) return;
 
-  CRM.confirm(function() 
+  CRM.confirm(function()
   {
     // disable ALL buttons
     cj(".button").addClass('disabled');
@@ -354,5 +365,5 @@ function deleteSelected() {
   });
 }
 </script>
-{/literal} 
+{/literal}
 

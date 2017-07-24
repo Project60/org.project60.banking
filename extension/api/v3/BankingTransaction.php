@@ -40,7 +40,7 @@ function civicrm_api3_banking_transaction_create($params) {
 
 /**
  * Adjust Metadata for Create action
- * 
+ *
  * The metadata is used for setting defaults, documentation & validation
  * @param array $params array or parameters determined by getfields
  */
@@ -119,7 +119,7 @@ function civicrm_api3_banking_transaction_deletelist($params) {
     }
   }
 
-  return civicrm_api3_create_success($result); 
+  return civicrm_api3_create_success($result);
 }
 
 /**
@@ -133,6 +133,41 @@ function civicrm_api3_banking_transaction_deletelist($params) {
  * @access public
  */
 function civicrm_api3_banking_transaction_analyselist($params) {
+  // extract payment IDs from parameters
+  $tx_ids = _civicrm_api3_banking_transaction_getTxIDs($params);
+  if (empty($tx_ids)) {
+    return civicrm_api3_create_error("Something's wrong with your parameters. No payments found.");
+  }
+
+  // filter for non-closed statements
+  $payment_states  = banking_helper_optiongroup_id_name_mapping('civicrm_banking.bank_tx_status');
+  $state_ignored   = (int) $payment_states['ignored']['id'];
+  $state_processed = (int) $payment_states['processed']['id'];
+  $list_string = implode(',', $tx_ids);
+  $filter_query = "SELECT `id`
+                   FROM `civicrm_bank_tx`
+                   WHERE `status_id` NOT IN ({$state_ignored},{$state_processed})
+                     AND `id` IN ($list_string);";
+  $filter_result = CRM_Core_DAO::executeQuery($filter_query);
+  $filtered_list = array();
+  while ($filter_result->fetch()) {
+    $filtered_list[] = $filter_result->id;
+  }
+
+  // check if we should use a runner
+  if (!empty($params['use_runner']) && count($filtered_list) >= $params['use_runner']) {
+    // use the runner instead of the immediate execution
+    $runner_url = CRM_Banking_Helpers_AnalysisRunner::createRunner($filtered_list, $params['back_url']);
+    $result = array(
+      'payment_count'   =>  count($filtered_list),
+      'processed_count' =>  0,
+      'skipped_count'   =>  0,
+      'time'            =>  0,
+      'timed_out'       =>  0,
+      'runner_url'      => $runner_url);
+    return civicrm_api3_create_success($result);
+  }
+
   // calculate a timeout, so we wouldn't get killed off
   $now = strtotime('now');
   $max_execution_time = ini_get('max_execution_time');
@@ -142,29 +177,6 @@ function civicrm_api3_banking_transaction_analyselist($params) {
     $max_execution_time = min(10*60, (int) $max_execution_time*0.9);
   }
   $timeout = strtotime("+$max_execution_time seconds");
-
-  // extract payment IDs from parameters
-  $tx_ids = _civicrm_api3_banking_transaction_getTxIDs($params);
-  if (empty($tx_ids)) {
-    return civicrm_api3_create_error("Something's wrong with your parameters. No payments found.");
-  }
-
-  // no funny business...
-  $list_string = implode(',', $tx_ids);
-
-  // filter for non-closed statements
-  $payment_states  = banking_helper_optiongroup_id_name_mapping('civicrm_banking.bank_tx_status');
-  $state_ignored   = (int) $payment_states['ignored']['id'];
-  $state_processed = (int) $payment_states['processed']['id'];
-  $filter_query = "SELECT `id` 
-                   FROM `civicrm_bank_tx` 
-                   WHERE `status_id` NOT IN ($state_ignored,$state_processed)
-                     AND `id` IN ($list_string);";
-  $filter_result = CRM_Core_DAO::executeQuery($filter_query);
-  $filtered_list = array();
-  while ($filter_result->fetch()) {
-    $filtered_list[] = $filter_result->id;
-  }
 
   // now run the matchers
   $engine = CRM_Banking_Matcher_Engine::getInstance();
@@ -191,6 +203,36 @@ function civicrm_api3_banking_transaction_analyselist($params) {
   );
 
   return civicrm_api3_create_success($result);
+}
+
+/**
+ * Metadata for BankingTransaction.analyselist
+ */
+function _civicrm_api3_banking_transaction_analyselist_spec(&$spec) {
+  $spec['list'] = array(
+    'title'       => 'BTX ID List',
+    'description' => 'List of bank transaction IDs, comma-separated',
+    'required'    => FALSE,
+    'type'        => CRM_Utils_Type::T_STRING,
+  );
+  $spec['s_list'] = array(
+    'title'       => 'Statement ID List',
+    'description' => 'List of bank statement IDs, comma-separated',
+    'required'    => FALSE,
+    'type'        => CRM_Utils_Type::T_STRING,
+  );
+  $spec['use_runner'] = array(
+    'title'       => 'Runner Threshold (count)',
+    'description' => 'Of the number of transactions to be anaylysed exceeds this number, the runner is used.',
+    'required'    => FALSE,
+    'type'        => CRM_Utils_Type::T_INT,
+  );
+  $spec['back_url'] = array(
+    'title'       => 'Return URL',
+    'description' => 'If the runner is used, this URL is set as return path',
+    'required'    => FALSE,
+    'type'        => CRM_Utils_Type::T_STRING,
+  );
 }
 
 
@@ -240,7 +282,7 @@ function civicrm_api3_banking_transaction_analyseoldest($params) {
   // then execute
   $engine = CRM_Banking_Matcher_Engine::getInstance();
   $processed_count = $engine->bulkRun($max_count);
-  
+
   // finally, compile the result
   $after_exec = strtotime('now');
   $result = array(
@@ -251,7 +293,7 @@ function civicrm_api3_banking_transaction_analyseoldest($params) {
   if ($processed_count > 0) {
     $result['time_per_tx'] = ($after_exec - $now) / $processed_count;
   }
-    
+
   return civicrm_api3_create_success($result);
 }
 
@@ -260,7 +302,7 @@ function civicrm_api3_banking_transaction_analyseoldest($params) {
  * extracts the individual transaction IDs from the parameter set
  * @param  list    comma separated list of bank_tx ids to process
  * @param  s_list  comma separated list of bank_tx_batch ids to process
- * 
+ *
  * @return array of IDs
  */
 function _civicrm_api3_banking_transaction_getTxIDs($params) {

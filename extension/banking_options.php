@@ -122,6 +122,18 @@ function _banking_options() {
                   'description' => 'Assigns newly created contributions to memberships',
                   'is_default' => 0,
               ),
+              'postprocessor_api' => array(
+                  'label' => 'API PostProcessor',
+                  'value' => 'CRM_Banking_PluginImpl_PostProcessor_API',
+                  'description' => 'Triggers any API action',
+                  'is_default' => 0,
+              ),
+              'postprocessor_contact_deceased' => array(
+                  'label' => 'Contact Deceased PostProcessor',
+                  'value' => 'CRM_Banking_PluginImpl_PostProcessor_ContactDeceased',
+                  'description' => 'Marks a contact as "deceased"',
+                  'is_default' => 0,
+              ),
               'exporter_csv' => array(
                   'label' => 'Configurable CSV Exporter',
                   'value' => 'CRM_Banking_PluginImpl_Exporter_CSV',

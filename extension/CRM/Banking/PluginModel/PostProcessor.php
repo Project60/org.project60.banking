@@ -29,7 +29,6 @@ abstract class CRM_Banking_PluginModel_PostProcessor extends CRM_Banking_PluginM
     // read config, set defaults
     $config = $this->_plugin_config;
 
-    if (!isset($config->contribution_fields_checked)) $config->contribution_fields_checked = 'id,financial_type_id,total_amount';
     if (!isset($config->require_btx_status_list))     $config->require_btx_status_list = array('processed');
   }
 
@@ -67,12 +66,39 @@ abstract class CRM_Banking_PluginModel_PostProcessor extends CRM_Banking_PluginM
       return FALSE;
     }
 
+    // check required values
+    if (!$this->requiredValuesPresent($context->btx)) {
+      // TODO: log
+      return FALSE;
+    }
+
 
     // TODO:
     // default criteria: status should be 'processed'
 
     // TODO: evaluate 'required'
     return TRUE;
+  }
+
+  /**
+   * Fetch a named propagation object.
+   * @see CRM_Banking_PluginModel_BtxBase::getPropagationValue
+   */
+  public function getPropagationObject($name, $btx, $suggestion) {
+    // in this default implementation, no extra objects are provided
+    // please overwrite in the plugin implementation
+    switch ($name) {
+      case 'contract':
+        return $this->getFirstContribution();
+
+      case 'contact':
+        return $this->getSoleContact();
+
+      default:
+        // nothing to do here
+        break;
+    }
+    return super::getPropagationObject($name, $btx, $suggestion);
   }
 
   /**
@@ -88,6 +114,26 @@ abstract class CRM_Banking_PluginModel_PostProcessor extends CRM_Banking_PluginM
   protected function getSoleContactID(CRM_Banking_Matcher_Suggestion $match, CRM_Banking_PluginModel_Matcher $matcher, CRM_Banking_Matcher_Context $context) {
     // TODO:
   }
+
+  protected function getSoleContact(CRM_Banking_Matcher_Suggestion $match, CRM_Banking_PluginModel_Matcher $matcher, CRM_Banking_Matcher_Context $context) {
+    // TODO:
+  }
+
+
+  /**
+   * Get the list of contributions linked to this trxn ID
+   *
+   * @param $match    the executed match
+   * @param $btx      the related transaction
+   * @param $context  the matcher context contains cache data and context information
+   *
+   * @return array    contribution IDs
+   */
+  protected function getContributions(CRM_Banking_Matcher_Suggestion $match, CRM_Banking_PluginModel_Matcher $matcher, CRM_Banking_Matcher_Context $context) {
+    $contribution_ids = $this->getContributionIDs($match, $matcher, $context);
+
+  }
+
 
   /**
    * Get the list of contributions linked to this trxn ID

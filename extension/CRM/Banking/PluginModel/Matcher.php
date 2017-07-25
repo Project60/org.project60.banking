@@ -185,7 +185,7 @@ abstract class CRM_Banking_PluginModel_Matcher extends CRM_Banking_PluginModel_B
       // this is an ASSOCIATIVE array
       foreach ($required_values as $required_key => $required_value) {
         $current_value = $this->getPropagationValue($btx, NULL, $required_key);
-        $split = preg_split(':', $required_value, 2);
+        $split = explode(":", $required_value, 2);
         if (count($split) < 2) {
           error_log("org.project60.banking: required_value in config option not properly formatted, plugin id [{$this->_plugin_id}]");
         } else {
@@ -299,7 +299,7 @@ abstract class CRM_Banking_PluginModel_Matcher extends CRM_Banking_PluginModel_B
    * Get the value of the propagation value spec
    */
   public function getPropagationValue($btx, $suggestion, $key) {
-    $key_bits = preg_split("[.]", $key, 2);
+    $key_bits = explode(".", $key, 2);
     if ($key_bits[0]=='ba' || $key_bits[0]=='party_ba') {
       // read bank account stuff
       if ($key_bits[0]=='ba') {

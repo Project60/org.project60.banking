@@ -335,9 +335,9 @@ abstract class CRM_Banking_PluginModel_Matcher extends CRM_Banking_PluginModel_B
 
     } elseif ($key_bits[0]=='btx') {
       // read BTX stuff
-      if (isset($btx->$key_bits[1])) {
+      if (isset($btx->{$key_bits[1]})) {
         // look in the BA directly
-        return $btx->$key_bits[1];
+        return $btx->{$key_bits[1]};
       } else {
         // look in the parsed values
         $data = $btx->getDataParsed();

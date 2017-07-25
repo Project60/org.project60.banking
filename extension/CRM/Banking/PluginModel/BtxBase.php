@@ -52,7 +52,7 @@ abstract class CRM_Banking_PluginModel_BtxBase extends CRM_Banking_PluginModel_B
     if (is_object($required_values)) {
       // this is an ASSOCIATIVE array
       foreach ($required_values as $required_key => $required_value) {
-        $current_value = $this->getPropagationValue($btx, NULL, $required_key);
+        $current_value = $this->getPropagationValue($btx, NULL, $required_key, $objects);
         $split = split(':', $required_value, 2);
         if (count($split) < 2) {
           error_log("org.project60.banking: required_value in config option not properly formatted, plugin id [{$this->_plugin_id}]");
@@ -95,6 +95,9 @@ abstract class CRM_Banking_PluginModel_BtxBase extends CRM_Banking_PluginModel_B
 
               case 'numeric':
                 if (is_numeric($current_value)) { continue; } else { return FALSE; }
+
+              case 'not_empty':
+                if (!empty($current_value)) { continue; } else { return FALSE; }
 
               default:
                 error_log("Unknown required type: {$parameter}");
@@ -195,6 +198,9 @@ abstract class CRM_Banking_PluginModel_BtxBase extends CRM_Banking_PluginModel_B
    */
   public function getPropagationValue($btx, $suggestion, $key) {
     $key_bits = split("[.]", $key, 2);
+
+    // check the custom object firsts
+
     if ($key_bits[0]=='ba' || $key_bits[0]=='party_ba') {
       // read bank account stuff
       if ($key_bits[0]=='ba') {
@@ -220,6 +226,7 @@ abstract class CRM_Banking_PluginModel_BtxBase extends CRM_Banking_PluginModel_B
         }
       }
 
+    // access suggestion data
     } elseif ($key_bits[0]=='suggestion' || $key_bits[0]=='match') {
       // read suggestion parameters
       if ($suggestion != NULL) {
@@ -228,6 +235,7 @@ abstract class CRM_Banking_PluginModel_BtxBase extends CRM_Banking_PluginModel_B
         return NULL;
       }
 
+    // access btx custom data
     } elseif ($key_bits[0]=='btx') {
       // read BTX stuff
       if (isset($btx->$key_bits[1])) {
@@ -242,6 +250,14 @@ abstract class CRM_Banking_PluginModel_BtxBase extends CRM_Banking_PluginModel_B
           return NULL;
         }
       }
+
+    // look for alternative objects
+    } else {
+      $object = $this->getPropagationObject($key_bits[0], $btx, $suggestion);
+
+      if ($this->hasPropagationObject($key_bits[0], $btx, $suggestion)) {
+      $object = $this->getPropagationObject($key_bits[0], $btx, $suggestion);
+      return CRM_Utils_Array::value($key_bits[1], $object);
     }
 
     return NULL;
@@ -274,6 +290,16 @@ abstract class CRM_Banking_PluginModel_BtxBase extends CRM_Banking_PluginModel_B
     }
 
     return $propagation_values;
+  }
+
+  /**
+   * Fetch a named propagation object.
+   * @see CRM_Banking_PluginModel_BtxBase::getPropagationValue
+   */
+  public function getPropagationObject($name, $btx, $suggestion) {
+    // in this default implementation, no extra objects are provided
+    // please overwrite in the plugin implementation
+    return NULL;
   }
 
 

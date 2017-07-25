@@ -201,7 +201,6 @@ class CRM_Banking_Matcher_Suggestion {
         // only execute if not completed yet
         if (!banking_helper_tx_status_closed($btx->status_id)) {
             // perform execute
-            $this->setParameter("test", "test");
             $result = $this->_plugin->execute($this, $btx);
             $engine = CRM_Banking_Matcher_Engine::getInstance();
             $engine->runPostProcessors($this, $btx, $this->_plugin);

@@ -29,19 +29,31 @@ class CRM_Banking_PluginImpl_PostProcessor_MembershipPayment extends CRM_Banking
 
     // read config, set defaults
     $config = $this->_plugin_config;
+    if (!isset($config->membership_id)) $config->membership_id = 'btx.membership_id';
+    if (!isset($config->financial_type_ids)) $config->financial_type_ids = array(3);
+    if (!isset($config->contribution_status_ids)) $config->contribution_status_ids = NULL;
+    if (!isset($config->contribution_fields_required)) $config->contribution_fields_required = '';
+  }
 
-    if (!isset($config->contribution_fields_checked)) $config->contribution_fields_checked = 'id,financial_type_id,total_amount';
-    if (!isset($config->membership_id))               $config->membership_id = 'btx.membership_id';
-    if (!isset($config->financial_type_ids))          $config->financial_type_ids = array(2);
-    if (!isset($config->contribution_status_ids))     $config->contribution_status_ids = array(1);
-    // if (!isset($config->received_date_minimum)) $config->received_date_minimum = "-10 days";
+  /**
+   * Should this postprocessor spring into action?
+   * Evaluates the common 'required' fields in the configuration
+   *
+   * @param $match    the executed match
+   * @param $btx      the related transaction
+   * @param $context  the matcher context contains cache data and context information
+   *
+   * @return bool     should the this postprocessor be activated
+   */
+  protected function shouldExecute(CRM_Banking_Matcher_Suggestion $match, CRM_Banking_PluginModel_Matcher $matcher, CRM_Banking_Matcher_Context $context) {
+    $membership_id = $this->getMembershipID($match, $matcher, $context);
+    if (empty($membership_id)) return FALSE;
 
+    $contributions = $this->getEligibleContributions($match, $matcher, $context);
+    if (empty($contributions)) return FALSE;
 
-     "membership_id": "btx.membership_id",
-   "financial_type_ids": [2],
-   "contribution_status_ids": [1]
-
-
+    // pass on to parent to check generic reasons
+    return parent::shouldExecute($match, $matcher, $context);
   }
 
   /**
@@ -53,35 +65,60 @@ class CRM_Banking_PluginImpl_PostProcessor_MembershipPayment extends CRM_Banking
    *
    */
   public function processExecutedMatch(CRM_Banking_Matcher_Suggestion $match, CRM_Banking_PluginModel_Matcher $matcher, CRM_Banking_Matcher_Context $context) {
-    $config = $this->_plugin_config;
-
+    // this is pretty straightforward
     if ($this->shouldExecute($match, $matcher, $context)) {
-      // TODO: get membership ID
-      $membership_id = 1;
-
-      $contribution_ids = $this->getContributionIDs($match, $matcher, $context);
-      if (!empty($contribution_ids)) {
-        $contributions = civicrm_api3('Contribution', 'get', array(
-          'id'     => array('IN' => $contribution_ids),
-          'return' =>$config->contribution_fields_checked,
+      $membership_id = $this->getMembershipID($match, $matcher, $context);
+      $contributions = $this->getEligibleContributions($match, $matcher, $context);
+      foreach ($contributions as $contribution) {
+        civicrm_api3('MembershipPayment', 'create', array(
+          'contribution_id' => $contribution['id'],
+          'membership_id'   => $membership_id,
           ));
-        foreach ($contributions['values'] as $contribution) {
-          if ($this->isContributionEligibleForMembership($contribution)) {
-            civicrm_api3('MembershipPayment', 'create', array(
-              'contribution_id' => $contribution['id'],
-              'membership_id'   => $membership_id,
-              ));
-          }
-        }
+        // TODO: log: payment connected
       }
     }
   }
 
+  /**
+   * Extract the membership ID from the BTX
+   */
+  protected function getMembershipID($match, $matcher, $context) {
 
+  }
 
-  protected function isContributionEligibleForMembership($contribution) {
-    // TODO:
-    return TRUE;
+  /**
+   * Extract the membership ID from the BTX
+   */
+  protected function getEligibleContributions($match, $matcher, $context) {
+    $connected_contribution_ids = $this->getContributionIDs($match, $matcher, $context);
+    if (empty($connected_contribution_ids)) {
+      return array();
+    }
+
+    // compile a query
+    $config = $this->_plugin_config;
+    $contribution_query = array(
+      'id'           => array('IN' => $connected_contribution_ids),
+      'option.limit' => 0,
+      'sequential'   => 1);
+
+    // add financial types
+    if (!empty($config->financial_type_ids && is_array($config->financial_type_ids))) {
+      $contribution_query['financial_type_ids'] = array('IN' => $config->financial_type_ids);
+    }
+
+    // add status ids
+    if (!empty($config->contribution_status_ids && is_array($config->contribution_status_ids))) {
+      $contribution_query['contribution_status_ids'] = array('IN' => $config->contribution_status_ids);
+    }
+
+    // add return clause
+    if (!empty($config->contribution_fields_required)) {
+      $contribution_query['return'] = $config->contribution_fields_required;
+    }
+
+    $result = civicrm_api3('Contribution', 'get', $contribution_query);
+    // TODO: cache and return
   }
 }
 

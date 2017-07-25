@@ -254,10 +254,9 @@ abstract class CRM_Banking_PluginModel_BtxBase extends CRM_Banking_PluginModel_B
     // look for alternative objects
     } else {
       $object = $this->getPropagationObject($key_bits[0], $btx, $suggestion);
-
-      if ($this->hasPropagationObject($key_bits[0], $btx, $suggestion)) {
-      $object = $this->getPropagationObject($key_bits[0], $btx, $suggestion);
-      return CRM_Utils_Array::value($key_bits[1], $object);
+      if ($object) {
+        return CRM_Utils_Array::value($key_bits[1], $object);
+      }
     }
 
     return NULL;

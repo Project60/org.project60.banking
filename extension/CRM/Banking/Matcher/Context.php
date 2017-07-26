@@ -16,7 +16,11 @@
 
 class CRM_Banking_Matcher_Context {
 
+  // reference to the BTX being processed
   public $btx;
+
+  // set to the executed suggestion
+  protected $executed_suggestion = NULL;
 
   // will store generic attributes from the various matchers
   private $_attributes = array();
@@ -26,6 +30,7 @@ class CRM_Banking_Matcher_Context {
 
   public function __construct( CRM_Banking_BAO_BankTransaction $btx ) {
     $this->btx = $btx;
+    $btx->context = $this;
   }
 
   /**
@@ -52,6 +57,10 @@ class CRM_Banking_Matcher_Context {
     } else {
       // all good, let's go:
       $contacts = $this->lookupContactByName($name, $lookup_by_name_parameters);
+<<<<<<< HEAD
+=======
+      //error_log('after lookup:'.print_r($contacts, true));
+>>>>>>> origin/dev_67
     }
 
     // then look for 'contact_id' or 'external_identifier'
@@ -223,5 +232,20 @@ class CRM_Banking_Matcher_Context {
    */
   public function setCachedEntry($key, $value) {
     $this->_caches[$key] = $value;
+  }
+
+  /**
+   * Set the executed suggestion
+   */
+  public function setExecutedSuggestion($suggestion) {
+    $this->executed_suggestion = $suggestion;
+  }
+
+  /**
+   * Get the executed suggestion.
+   * Will be NULL if non has been executed yet
+   */
+  public function getExecutedSuggestion() {
+    return $this->executed_suggestion;
   }
 }

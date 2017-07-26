@@ -29,7 +29,8 @@ abstract class CRM_Banking_PluginModel_PostProcessor extends CRM_Banking_PluginM
     // read config, set defaults
     $config = $this->_plugin_config;
 
-    if (!isset($config->require_btx_status_list))     $config->require_btx_status_list = array('processed');
+    if (!isset($config->require_btx_status_list))      $config->require_btx_status_list = array('processed');
+    if (!isset($config->contribution_fields_required)) $config->contribution_fields_required = '';
   }
 
   /**
@@ -67,6 +68,7 @@ abstract class CRM_Banking_PluginModel_PostProcessor extends CRM_Banking_PluginM
     // check required values
     if (!$this->requiredValuesPresent($context->btx)) {
       // TODO: log
+      error_log("REQUIRED VALUES MISSING");
       return FALSE;
     }
 
@@ -77,12 +79,12 @@ abstract class CRM_Banking_PluginModel_PostProcessor extends CRM_Banking_PluginM
    * Fetch a named propagation object.
    * @see CRM_Banking_PluginModel_BtxBase::getPropagationValue
    */
-  public function getPropagationObject($name, $btx, $suggestion) {
+  public function getPropagationObject($name, $btx) {
     // in this default implementation, no extra objects are provided
     // please overwrite in the plugin implementation
     switch ($name) {
       case 'contribution':
-        return $this->getFirstContribution();
+        return $this->getFirstContribution($btx->context);
 
       case 'contact':
         return $this->getSoleContact();
@@ -91,7 +93,7 @@ abstract class CRM_Banking_PluginModel_PostProcessor extends CRM_Banking_PluginM
         // nothing to do here
         break;
     }
-    return parent::getPropagationObject($name, $btx, $suggestion);
+    return parent::getPropagationObject($name, $btx);
   }
 
   /**
@@ -112,19 +114,17 @@ abstract class CRM_Banking_PluginModel_PostProcessor extends CRM_Banking_PluginM
     // TODO:
   }
 
-
   /**
-   * Get the list of contributions linked to this trxn ID
-   *
-   * @param $match    the executed match
-   * @param $btx      the related transaction
-   * @param $context  the matcher context contains cache data and context information
-   *
-   * @return array    contribution IDs
+   * deliver the first of the eligible contributions
+   * overwrites parent::getFirstContribution()
    */
-  protected function getContributions(CRM_Banking_Matcher_Suggestion $match, CRM_Banking_PluginModel_Matcher $matcher, CRM_Banking_Matcher_Context $context) {
-    $contribution_ids = $this->getContributionIDs($match, $matcher, $context);
-    // TODO:
+  protected function getFirstContribution($context) {
+    $contributions = $this->getContributions($context);
+    if (empty($contributions)) {
+      return NULL;
+    } else {
+      return reset($contributions);
+    }
   }
 
 
@@ -137,7 +137,49 @@ abstract class CRM_Banking_PluginModel_PostProcessor extends CRM_Banking_PluginM
    *
    * @return array    contribution IDs
    */
-  protected function getContributionIDs(CRM_Banking_Matcher_Suggestion $match, CRM_Banking_PluginModel_Matcher $matcher, CRM_Banking_Matcher_Context $context) {
+  protected function getContributions(CRM_Banking_Matcher_Suggestion $match, CRM_Banking_PluginModel_Matcher $matcher, CRM_Banking_Matcher_Context $context) {
+    $cache_key = "{$this->_plugin_id}_contributions_{$context->btx->id}";
+    $cached_result = $context->getCachedEntry($cache_key);
+    if ($cached_result !== NULL) return $cached_result;
+
+    $connected_contribution_ids = $this->getContributionIDs($context);
+    if (empty($connected_contribution_ids)) {
+      return array();
+    }
+
+    // compile a query
+    $config = $this->_plugin_config;
+    $contribution_query = array(
+      'id'           => array('IN' => $connected_contribution_ids),
+      'option.limit' => 0,
+      'sequential'   => 1);
+
+    // add return clause
+    if (!empty($config->contribution_fields_required)) {
+      $contribution_query['return'] = $config->contribution_fields_required;
+    }
+
+    // query DB
+    $result = civicrm_api3('Contribution', 'get', $contribution_query);
+    $contributions = $result['values'];
+
+    // cache result
+    $context->setCachedEntry($cache_key, $contributions);
+    return $contributions;
+  }
+
+
+  /**
+   * Get the list of contributions linked to this trxn ID
+   *
+   * @param $match    the executed match
+   * @param $btx      the related transaction
+   * @param $context  the matcher context contains cache data and context information
+   *
+   * @return array    contribution IDs
+   */
+  protected function getContributionIDs(CRM_Banking_Matcher_Context $context) {
+    $match = $context->getExecutedSuggestion();
     $contribution_ids = array();
 
     // get the single-style ('contribution_id')

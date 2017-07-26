@@ -15,17 +15,22 @@
 +--------------------------------------------------------*/
 
 class CRM_Banking_Matcher_Context {
-  
+
+  // reference to the BTX being processed
   public $btx;
+
+  // set to the executed suggestion
+  protected $executed_suggestion = NULL;
 
   // will store generic attributes from the various matchers
   private $_attributes = array();
 
   // will store cached data needed/produced by the helper functions
   private $_caches;
-  
+
   public function __construct( CRM_Banking_BAO_BankTransaction $btx ) {
     $this->btx = $btx;
+    $btx->context = $this;
   }
 
   /**
@@ -45,7 +50,7 @@ class CRM_Banking_Matcher_Context {
       $contacts = array();
     } else {
       $contacts = $this->lookupContactByName($name, $lookup_by_name_parameters);
-      //error_log('after lookup:'.print_r($contacts, true));      
+      //error_log('after lookup:'.print_r($contacts, true));
     }
 
     // then look for 'contact_id' or 'external_identifier'
@@ -102,7 +107,7 @@ class CRM_Banking_Matcher_Context {
    */
   public function lookupContactByName($name, $parameters=array()) {
     $parameters = (array) $parameters;
-    
+
     if (!$name) {
       // no name given, no results:
       return array();
@@ -120,7 +125,7 @@ class CRM_Banking_Matcher_Context {
     // call the lookup function (API)
     $parameters['version'] = 3;
     $parameters['name'] = $name;
-    if (isset($parameters['modifiers'])) 
+    if (isset($parameters['modifiers']))
       $parameters['modifiers'] = json_encode($parameters['modifiers']);
     $result = civicrm_api('BankingLookup', 'contactbyname', $parameters);
     if (isset($result['is_error']) && $result['is_error']) {
@@ -204,7 +209,7 @@ class CRM_Banking_Matcher_Context {
     if (isset($this->_caches[$key])) {
       return $this->_caches[$key];
     } else {
-      return NULL;      
+      return NULL;
     }
   }
 
@@ -213,5 +218,20 @@ class CRM_Banking_Matcher_Context {
    */
   public function setCachedEntry($key, $value) {
     $this->_caches[$key] = $value;
+  }
+
+  /**
+   * Set the executed suggestion
+   */
+  public function setExecutedSuggestion($suggestion) {
+    $this->executed_suggestion = $suggestion;
+  }
+
+  /**
+   * Get the executed suggestion.
+   * Will be NULL if non has been executed yet
+   */
+  public function getExecutedSuggestion() {
+    return $this->executed_suggestion;
   }
 }

@@ -59,7 +59,7 @@ class CRM_Banking_PluginImpl_PostProcessor_API extends CRM_Banking_PluginModel_P
       // TODO: get membership ID
       $membership_id = 1;
 
-      $contribution_ids = $this->getContributionIDs($match, $matcher, $context);
+      $contribution_ids = $this->getContributionIDs($context);
       if (!empty($contribution_ids)) {
         $contributions = civicrm_api3('Contribution', 'get', array(
           'id'     => array('IN' => $contribution_ids),

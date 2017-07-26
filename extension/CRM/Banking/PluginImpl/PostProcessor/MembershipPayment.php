@@ -47,9 +47,11 @@ class CRM_Banking_PluginImpl_PostProcessor_MembershipPayment extends CRM_Banking
    */
   protected function shouldExecute(CRM_Banking_Matcher_Suggestion $match, CRM_Banking_PluginModel_Matcher $matcher, CRM_Banking_Matcher_Context $context) {
     $membership_id = $this->getMembershipID($match, $matcher, $context);
+    error_log("MEMBERSHIP_ID $membership_id");
     if (empty($membership_id)) return FALSE;
 
     $contributions = $this->getEligibleContributions($match, $matcher, $context);
+    error_log("Contributions " . json_encode($contributions));
     if (empty($contributions)) return FALSE;
 
     // pass on to parent to check generic reasons
@@ -83,13 +85,33 @@ class CRM_Banking_PluginImpl_PostProcessor_MembershipPayment extends CRM_Banking
    * Extract the membership ID from the BTX
    */
   protected function getMembershipID($match, $matcher, $context) {
+    // resolve the setting to a value
+    error_log("MID " . $this->_plugin_config->membership_id);
+    return (int) $this->getPropagationValue($context->btx, $match, $this->_plugin_config->membership_id);
+  }
 
+  /**
+   * deliver the first of the eligible contributions
+   * overwrites parent::getFirstContribution()
+   */
+  protected function getFirstContribution() {
+    $contributions = $this->getEligibleContributions();
+    if (empty($contributions)) {
+      return NULL;
+    } else {
+      return reset($contributions);
+    }
   }
 
   /**
    * Extract the membership ID from the BTX
    */
   protected function getEligibleContributions($match, $matcher, $context) {
+    $cache_key = "{$this->_plugin_id}_contributions_{$context->btx->id}";
+    error_log("CACHE KEY $cache_key");
+    $cached_result = $context->getCachedEntry($cache_key);
+    if ($cached_result !== NULL) return $cached_result;
+
     $connected_contribution_ids = $this->getContributionIDs($match, $matcher, $context);
     if (empty($connected_contribution_ids)) {
       return array();
@@ -117,8 +139,13 @@ class CRM_Banking_PluginImpl_PostProcessor_MembershipPayment extends CRM_Banking
       $contribution_query['return'] = $config->contribution_fields_required;
     }
 
+    // query DB
+    error_log("QUERY " . json_encode($contribution_query));
     $result = civicrm_api3('Contribution', 'get', $contribution_query);
-    // TODO: cache and return
+    $contributions = $result['values'];
+
+    // cache result
+    $context->setCachedEntry($cache_key, $contributions);
+    return $contributions;
   }
 }
-

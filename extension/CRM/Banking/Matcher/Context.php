@@ -57,10 +57,6 @@ class CRM_Banking_Matcher_Context {
     } else {
       // all good, let's go:
       $contacts = $this->lookupContactByName($name, $lookup_by_name_parameters);
-<<<<<<< HEAD
-=======
-      //error_log('after lookup:'.print_r($contacts, true));
->>>>>>> origin/dev_67
     }
 
     // then look for 'contact_id' or 'external_identifier'

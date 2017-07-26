@@ -137,7 +137,7 @@ abstract class CRM_Banking_PluginModel_PostProcessor extends CRM_Banking_PluginM
    *
    * @return array    contribution IDs
    */
-  protected function getContributions(CRM_Banking_Matcher_Suggestion $match, CRM_Banking_PluginModel_Matcher $matcher, CRM_Banking_Matcher_Context $context) {
+  protected function getContributions(CRM_Banking_Matcher_Context $context) {
     $cache_key = "{$this->_plugin_id}_contributions_{$context->btx->id}";
     $cached_result = $context->getCachedEntry($cache_key);
     if ($cached_result !== NULL) return $cached_result;

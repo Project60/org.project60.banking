@@ -29,9 +29,9 @@ class CRM_Banking_PluginImpl_PostProcessor_MembershipPayment extends CRM_Banking
 
     // read config, set defaults
     $config = $this->_plugin_config;
-    if (!isset($config->membership_id))                $config->membership_id = 'btx.membership_id';
-    if (!isset($config->financial_type_ids))           $config->financial_type_ids = array(3);
-    if (!isset($config->contribution_status_ids))      $config->contribution_status_ids = NULL;
+    if (!isset($config->membership_id))                $config->membership_id                = 'btx.membership_id';
+    if (!isset($config->financial_type_ids))           $config->financial_type_ids           = array(3);
+    if (!isset($config->contribution_status_ids))      $config->contribution_status_ids      = NULL;
     if (!isset($config->contribution_fields_required)) $config->contribution_fields_required = '';
   }
 

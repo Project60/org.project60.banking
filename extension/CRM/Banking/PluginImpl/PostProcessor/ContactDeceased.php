@@ -16,8 +16,7 @@
 
 
 /**
- * This PostProcessor will connect the generated/matched contribution
- * with a membership
+ * This PostProcessor will mark the matched contact as 'deceased'
  */
 class CRM_Banking_PluginImpl_PostProcessor_ContactDeceased extends CRM_Banking_PluginModel_PostProcessor {
 
@@ -30,18 +29,9 @@ class CRM_Banking_PluginImpl_PostProcessor_ContactDeceased extends CRM_Banking_P
     // read config, set defaults
     $config = $this->_plugin_config;
 
-    if (!isset($config->contribution_fields_checked)) $config->contribution_fields_checked = 'id,financial_type_id,total_amount';
-    if (!isset($config->membership_id))               $config->membership_id = 'btx.membership_id';
-    if (!isset($config->financial_type_ids))          $config->financial_type_ids = array(2);
-    if (!isset($config->contribution_status_ids))     $config->contribution_status_ids = array(1);
-    // if (!isset($config->received_date_minimum)) $config->received_date_minimum = "-10 days";
-
-
-     "membership_id": "btx.membership_id",
-   "financial_type_ids": [2],
-   "contribution_status_ids": [1]
-
-
+    if (!isset($config->set_deceased_date))            $config->set_deceased_date            = 'btx.booking_date';
+    if (!isset($config->tag_contact))                  $config->tag_contact                  = array();
+    if (!isset($config->contribution_fields_required)) $config->contribution_fields_required = 'contact_id';
   }
 
   /**
@@ -56,32 +46,62 @@ class CRM_Banking_PluginImpl_PostProcessor_ContactDeceased extends CRM_Banking_P
     $config = $this->_plugin_config;
 
     if ($this->shouldExecute($match, $matcher, $context)) {
-      // TODO: get membership ID
-      $membership_id = 1;
+      // first: identify contact(s)
+      $contact_id = NULL;
+      $contributions = $this->getContributions($context);
+      foreach ($contributions as $contribution) {
+        if ($contact_id == NULL) {
+          $contact_id = $contribution['contact_id'];
+        } elseif ($contact_id != $contribution['contact_id']) {
+          // there are multiple contacts connected to this match
+          // TODO: log
+          return;
+        }
+      }
 
-      $contribution_ids = $this->getContributionIDs($context);
-      if (!empty($contribution_ids)) {
-        $contributions = civicrm_api3('Contribution', 'get', array(
-          'id'     => array('IN' => $contribution_ids),
-          'return' =>$config->contribution_fields_checked,
+      // if we have a contact:
+      if ($contact_id) {
+        $contact_lookup = civicrm_api3('Contact', 'get', array(
+          'id'     => $contact_id,
+          'return' => 'is_deceased,is_deleted,deceased_date,id',
           ));
-        foreach ($contributions['values'] as $contribution) {
-          if ($this->isContributionEligibleForMembership($contribution)) {
-            civicrm_api3('MembershipPayment', 'create', array(
-              'contribution_id' => $contribution['id'],
-              'membership_id'   => $membership_id,
-              ));
+        if ($contact_lookup['id']) {
+
+          // mark contact as deceased
+          $contact = reset($contact_lookup['values']);
+          if (!$contact['is_deceased']) {
+            $contact_update = array(
+              'id'            => $contact['id'],
+              'is_deceased'   => 1
+              );
+
+            // calculate the deceased date
+            $deceased_date = $this->getPropagationValue($context->btx, $match, $config->set_deceased_date);
+            if ($deceased_date) {
+              $contact_update['deceased_date'] = date('YmdHis', strtotime($deceased_date));
+            }
+            civicrm_api3('Contact', 'create', $contact_update);
+            // TODO: log
+          }
+
+          // set Tag in any case
+          if (is_array($config->tag_contact)) {
+            foreach ($config->tag_contact as $tag_name) {
+              $tag = civicrm_api3('Tag', 'get', array(
+                'name'     => $tag_name,
+                'used_for' => 'civicrm_contact'));
+              if (!empty($tag['id'])) {
+                civicrm_api3('EntityTag', 'create', array(
+                  'entity_id'    => $contact_id,
+                  'entity_table' => 'civicrm_contact',
+                  'tag_id'       => $tag['id']));
+                // TODO: log
+              }
+            }
           }
         }
       }
     }
-  }
-
-
-
-  protected function isContributionEligibleForMembership($contribution) {
-    // TODO:
-    return TRUE;
   }
 }
 

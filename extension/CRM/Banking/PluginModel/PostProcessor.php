@@ -57,9 +57,7 @@ abstract class CRM_Banking_PluginModel_PostProcessor extends CRM_Banking_PluginM
     // check if the btx status is accepted
     $config = $this->_plugin_config;
     $btx_status_id = $context->btx->status_id;
-    error_log("STATUS $btx_status_id");
     $btx_status_name = CRM_Core_OptionGroup::getValue('civicrm_banking.bank_tx_status', $context->btx->status_id, 'id', 'String', 'name');
-    error_log("STATUS $btx_status_name");
     if (!in_array($btx_status_name, $config->require_btx_status_list)) {
       // TODO: log: NOT IN STATUS
       error_log("NOT THE RIGHT STATUS");
@@ -72,11 +70,6 @@ abstract class CRM_Banking_PluginModel_PostProcessor extends CRM_Banking_PluginM
       return FALSE;
     }
 
-
-    // TODO:
-    // default criteria: status should be 'processed'
-
-    // TODO: evaluate 'required'
     return TRUE;
   }
 
@@ -88,7 +81,7 @@ abstract class CRM_Banking_PluginModel_PostProcessor extends CRM_Banking_PluginM
     // in this default implementation, no extra objects are provided
     // please overwrite in the plugin implementation
     switch ($name) {
-      case 'contract':
+      case 'contribution':
         return $this->getFirstContribution();
 
       case 'contact':
@@ -98,7 +91,7 @@ abstract class CRM_Banking_PluginModel_PostProcessor extends CRM_Banking_PluginM
         // nothing to do here
         break;
     }
-    return super::getPropagationObject($name, $btx, $suggestion);
+    return parent::getPropagationObject($name, $btx, $suggestion);
   }
 
   /**
@@ -131,7 +124,7 @@ abstract class CRM_Banking_PluginModel_PostProcessor extends CRM_Banking_PluginM
    */
   protected function getContributions(CRM_Banking_Matcher_Suggestion $match, CRM_Banking_PluginModel_Matcher $matcher, CRM_Banking_Matcher_Context $context) {
     $contribution_ids = $this->getContributionIDs($match, $matcher, $context);
-
+    // TODO:
   }
 
 

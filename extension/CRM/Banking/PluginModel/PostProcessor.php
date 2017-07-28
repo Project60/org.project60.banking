@@ -100,18 +100,44 @@ abstract class CRM_Banking_PluginModel_PostProcessor extends CRM_Banking_PluginM
    * Get the ONE contact this transaction has been associated with. If there are
    *  multiple candidates, NULL is returned
    *
-   * @param $match    the executed match
-   * @param $btx      the related transaction
    * @param $context  the matcher context contains cache data and context information
    *
    * @return int      contact_id of the unique contact linked to the transaction, NULL if not exists/unique
    */
-  protected function getSoleContactID(CRM_Banking_Matcher_Suggestion $match, CRM_Banking_PluginModel_Matcher $matcher, CRM_Banking_Matcher_Context $context) {
-    // TODO:
+  protected function getSoleContactID(CRM_Banking_Matcher_Context $context) {
+    $contact_id = NULL;
+    $contributions = $this->getContributions($context);
+    foreach ($contributions as $contribution) {
+      if (empty($contribution['contact_id'])) {
+        // log: problem
+      }
+      if ($contact_id == NULL) {
+        $contact_id = $contribution['contact_id'];
+      } elseif ($contact_id == $contribution['contact_id']) {
+        continue;
+      } else {
+        // there is more than one contact:
+        return NULL;
+      }
+    }
+    return $contact_id;
   }
 
-  protected function getSoleContact(CRM_Banking_Matcher_Suggestion $match, CRM_Banking_PluginModel_Matcher $matcher, CRM_Banking_Matcher_Context $context) {
-    // TODO:
+  /**
+   * Get the ONE contact this transaction has been associated with. If there are
+   *  multiple candidates, NULL is returned
+   *
+   * @param $context  the matcher context contains cache data and context information
+   *
+   * @return contact  contact data or NULL
+   */
+  protected function getSoleContact(CRM_Banking_Matcher_Context $context) {
+    $contact_id = $this->getSoleContactID($context);
+    if ($contact_id) {
+      return civicrm_api3('Contact', 'getsingle', array('id' => $contact_id));
+    } else {
+      return NULL;
+    }
   }
 
   /**
@@ -199,6 +225,24 @@ abstract class CRM_Banking_PluginModel_PostProcessor extends CRM_Banking_PluginM
     }
 
     return array_keys($contribution_ids);
+  }
+
+  /**
+   * Add all given tags to the given contact
+   */
+  protected function tagContact($contact_id, $tag_names) {
+    foreach ($tag_names as $tag_name) {
+      $tag = civicrm_api3('Tag', 'get', array(
+        'name'     => $tag_name,
+        'used_for' => 'civicrm_contact'));
+      if (!empty($tag['id'])) {
+        civicrm_api3('EntityTag', 'create', array(
+          'entity_id'    => $contact_id,
+          'entity_table' => 'civicrm_contact',
+          'tag_id'       => $tag['id']));
+        // TODO: log
+      }
+    }
   }
 }
 

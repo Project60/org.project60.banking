@@ -180,6 +180,7 @@ class CRM_Banking_Matcher_Engine {
     $btx->setStatus($newStatus);
 
     $lock->release();
+    $context->destroy();
     return false;
   }
 
@@ -200,6 +201,7 @@ class CRM_Banking_Matcher_Engine {
         }
       }
     }
+    $context->destroy();
   }
 
   /**

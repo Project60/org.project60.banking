@@ -244,4 +244,14 @@ class CRM_Banking_Matcher_Context {
   public function getExecutedSuggestion() {
     return $this->executed_suggestion;
   }
+
+  /**
+   * remove the internal values, so the GC can pick it up
+   */
+  public function destroy() {
+    $this->btx = NULL;
+    $this->executed_suggestion = NULL;
+    $this->_caches = array();
+    $this->_attributes = array();
+  }
 }

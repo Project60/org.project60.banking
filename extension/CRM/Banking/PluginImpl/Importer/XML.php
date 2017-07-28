@@ -378,7 +378,10 @@ class CRM_Banking_PluginImpl_Importer_XML extends CRM_Banking_PluginModel_Import
   protected function apply_rule($rule, $context, &$data) {
 
     // get value
-    $value = $this->getValue($rule->from, $data, $context);
+    $value = NULL;
+    if (isset($rule->from)) {
+      $value = $this->getValue($rule->from, $data, $context);
+    }
 
     // execute the rule
     if ($this->startsWith($rule->type, 'set')) {

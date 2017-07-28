@@ -86,18 +86,7 @@ class CRM_Banking_PluginImpl_PostProcessor_ContactDeceased extends CRM_Banking_P
 
           // set Tag in any case
           if (is_array($config->tag_contact)) {
-            foreach ($config->tag_contact as $tag_name) {
-              $tag = civicrm_api3('Tag', 'get', array(
-                'name'     => $tag_name,
-                'used_for' => 'civicrm_contact'));
-              if (!empty($tag['id'])) {
-                civicrm_api3('EntityTag', 'create', array(
-                  'entity_id'    => $contact_id,
-                  'entity_table' => 'civicrm_contact',
-                  'tag_id'       => $tag['id']));
-                // TODO: log
-              }
-            }
+            $this->tagContact($contact_id, $config->tag_contact);
           }
         }
       }

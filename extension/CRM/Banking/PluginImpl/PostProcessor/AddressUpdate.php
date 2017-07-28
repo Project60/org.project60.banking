@@ -16,7 +16,7 @@
 
 
 /**
- * This PostProcessor update the contact's address with the one from the bank statement
+ * This PostProcessor can update the contact's address with the one from the bank statement
  */
 class CRM_Banking_PluginImpl_PostProcessor_AddressUpdate extends CRM_Banking_PluginModel_PostProcessor {
 
@@ -28,10 +28,52 @@ class CRM_Banking_PluginImpl_PostProcessor_AddressUpdate extends CRM_Banking_Plu
 
     // read config, set defaults
     $config = $this->_plugin_config;
-    // if (!isset($config->threshold)) $config->threshold = 0.5;
-    // if (!isset($config->received_date_minimum)) $config->received_date_minimum = "-10 days";
+    if (!isset($config->default_location_type))        $config->default_location_type        = CRM_Core_BAO_LocationType::getDefault();
+    if (!isset($config->default_country))              $config->default_country              = CRM_Core_Config::singleton()->defaultContactCountry();
+    if (!isset($config->required_fields))              $config->required_fields              = array("city", "postal_code", "street_address");
+    if (!isset($config->btx_field_prefix))             $config->btx_field_prefix             = '';
+    if (!isset($config->create_if_missing))            $config->create_if_missing            = true;
+    if (!isset($config->create_diff))                  $config->create_diff                  = ['note']; // also accepts 'activity' and 'tag'
+    if (!isset($config->create_diff_activity_type))    $config->create_diff_activity_type    = 1;
+    if (!isset($config->create_diff_activity_subject)) $config->create_diff_activity_subject = ts("New Address Received");
+    if (!isset($config->tag_diff))                     $config->tag_diff                     = array();
+    if (!isset($config->tag_create))                   $config->tag_create                   = array();
 
+    // TODO: implement create_diff = ['api']
   }
+
+  /**
+   * Should this postprocessor spring into action?
+   * Evaluates the common 'required' fields in the configuration
+   *
+   * @param $match    the executed match
+   * @param $btx      the related transaction
+   * @param $context  the matcher context contains cache data and context information
+   *
+   * @return bool     should the this postprocessor be activated
+   */
+  protected function shouldExecute(CRM_Banking_Matcher_Suggestion $match, CRM_Banking_PluginModel_Matcher $matcher, CRM_Banking_Matcher_Context $context) {
+    $config = $this->_plugin_config;
+
+    // check if there is a single contact
+    $contact_id = $this->getSoleContactID($context);
+    if (empty($contact_id)) {
+      return FALSE;
+    }
+
+    // check if there is enough data
+    $prefix = $config->btx_field_prefix;
+    $data   = $context->btx->getDataParsed();
+    foreach ($config->required_fields as $required_field) {
+      if (empty($data[$prefix . $required_field])) {
+        return FALSE;
+      }
+    }
+
+    // pass on to parent to check generic reasons
+    return parent::shouldExecute($match, $matcher, $context);
+  }
+
 
   /**
    * Postprocess the (already executed) match
@@ -41,18 +83,176 @@ class CRM_Banking_PluginImpl_PostProcessor_AddressUpdate extends CRM_Banking_Plu
    * @param $context  the matcher context contains cache data and context information
    *
    */
-  public function processExecutedMatch(CRM_Banking_Matcher_Suggestion $match, CRM_Banking_BAO_BankTransaction $btx, CRM_Banking_PluginModel_Matcher $matcher) {
+  public function processExecutedMatch(CRM_Banking_Matcher_Suggestion $match, CRM_Banking_PluginModel_Matcher $matcher, CRM_Banking_Matcher_Context $context) {
+    $config = $this->_plugin_config;
+    $prefix = $config->btx_field_prefix;
+    $data   = $context->btx->getDataParsed();
+
     // this matcher only makes sense for individuals
-    $contact_id = $this->getSoleContactID($match, $btx, $context);
-    if ($contact_id && $this->shouldExecute($match, $btx, $context)) {
+    $contact_id = $this->getSoleContactID($context);
+    if (empty($contact_id)) {
+      // this shouldn't happen, since it's checked in shouldExecute
+      return;
+    }
 
-      // see if the address is complete
+    // compile what we have
+    $address_fields = array('location_type_id', 'postal_code', 'street_address', 'city', 'country_id', 'is_primary', 'is_billing');
+    $address_data = array();
+    foreach ($address_fields as $address_field) {
+      $field_key = $prefix . $address_field;
+      if (isset($data[$field_key]) && $data[$field_key] != '') {
+        $address_data[$address_field] = $data[$field_key];
+      }
+    }
 
-      // calculate the differences, score
+    // fill defaults
+    if (empty($address_data['country_id'])) {
+      $address_data['country_id'] = $config->default_country;
+    }
+    $this->resolveCountryID($address_data);
+    if (empty($address_data['location_type_id'])) {
+      $address_data['location_type_id'] = $config->default_location_type;
+    }
+    $this->addCountryName($address_data);
 
-      // decide what to do
+    error_log("ADDRESS " . json_encode($address_data));
+    // now: find the given address
+    $existing_addresses = civicrm_api3('Address', 'get', array(
+      'location_type_id' => $address_data['location_type_id'],
+      'contact_id'       => $contact_id));
+    error_log("RESULT : " . json_encode($existing_addresses));
 
-      // do it
+    if ($existing_addresses['count'] == 0 && $config->create_if_missing) {
+      error_log("CREATE " . json_encode($address_data));
+      // config wants us to creaete a new address:
+      $address_data['contact_id'] = $contact_id;
+      civicrm_api3('Address', 'create', $address_data);
+
+      // and tag it
+      if (is_array($config->tag_create)) {
+        $this->tagContact($contact_id, $config->tag_create);
+      }
+
+    } elseif (!empty($existing_addresses['id'])) {
+      // CREATE DIFF
+      $existing_address = reset($existing_addresses['values']);
+      $this->addCountryName($existing_address);
+      error_log("EXSTING " . json_encode($existing_address));
+      $diff = array();
+      foreach ($address_data as $key => $value) {
+        $existing_value = CRM_Utils_Array::value($key, $existing_address);
+        if ($value != $existing_value) {
+          $diff[$key] = array($existing_value, $value);
+        }
+      }
+
+      // only continue if there is a difference
+      if (!empty($diff)) {
+        error_log("DIFF " . json_encode($diff));
+        if (is_array($config->create_diff)) {
+          foreach ($config->create_diff as $action) {
+            $this->createDiff($action, $contact_id, $diff, $existing_address, $address_data);
+          }
+        }
+      }
+
+    } else {
+      // there's multiple addresses
+      // TODO: LOG
+    }
+  }
+
+  /**
+   * process the given action
+   */
+  protected function createDiff($action, $contact_id, $diff, $existing_address, $address_data) {
+    $config = $this->_plugin_config;
+    error_log("ACTION $action");
+    switch ($action) {
+      case 'note':
+        $smarty = CRM_Banking_Helpers_Smarty::singleton();
+        $smarty->pushScope(array('contact_id' => $contact_id, 'diff' => $diff, 'existing_address' => $existing_address, 'address_data' => $address_data));
+        $note = $smarty->fetch('CRM/Banking/PluginImpl/PostProcessor/AddressUpdate.note.tpl');
+        $smarty->popScope();
+        error_log($note);
+        // check if the same note already exists
+        $existing_note = civicrm_api3('Note', 'get', array(
+          'note'         => $note,
+          'subject'      => ts("New Address Received"),
+          'entity_table' => 'civicrm_contact',
+          'entity_id'    => $contact_id));
+        if ($existing_note['count'] == 0) {
+          civicrm_api3('Note', 'create', array(
+            'note'         => $note,
+            'subject'      => ts("New Address Received"),
+            'entity_table' => 'civicrm_contact',
+            'entity_id'    => $contact_id));
+        }
+        break;
+
+      case 'tag':
+        if ($config->tag_diff) {
+          $this->tagContact($contact_id, $config->tag_diff);
+        }
+        break;
+
+      case 'activity':
+        $smarty = CRM_Banking_Helpers_Smarty::singleton();
+        $smarty->pushScope(array('contact_id' => $contact_id, 'diff' => $diff, 'existing_address' => $existing_address, 'address_data' => $address_data));
+        $details = $smarty->fetch('CRM/Banking/PluginImpl/PostProcessor/AddressUpdate.activity.tpl');
+        $smarty->popScope();
+
+        civicrm_api3('Activity', 'create', array(
+          'subject'          => $config->create_diff_activity_subject,
+          'details'          => $details,
+          'activity_type_id' => $config->create_diff_activity_type,
+          'target_id'        => $contact_id));
+        break;
+
+      default:
+        // TODO: log
+    }
+  }
+
+  /**
+   * fill the address' country field with the name
+   */
+  protected function addCountryName(&$address) {
+    if (!empty($address['country_id'])) {
+      try {
+        if (is_numeric($address['country_id'])) {
+          $country = civicrm_api3('Country', 'getsingle', array('id' => $address['country_id']));
+          $address['country'] = $country['name'];
+        } elseif (strlen($address['country_id']) == 2) {
+          $country = civicrm_api3('Country', 'getsingle', array('iso_code' => strtoupper($address['country_id'])));
+          $address['country'] = $country['name'];
+        } else {
+          $address['country'] = "ERROR";
+        }
+      } catch (Exception $e) {
+        $address['country'] = "ERROR";
+      }
+    }
+  }
+
+
+  /**
+   * make sure the country_id is numeric
+   */
+  protected function resolveCountryID(&$address) {
+    if (isset($address['country_id'])) {
+      try {
+        if (is_numeric($address['country_id'])) {
+          return; // all good here
+        } elseif (strlen($address['country_id']) == 2) {
+          $country = civicrm_api3('Country', 'getsingle', array('iso_code' => strtoupper($address['country_id'])));
+          $address['country_id'] = $country['id'];
+        } else {
+          unset($address['country_id']);
+        }
+      } catch (Exception $e) {
+        unset($address['country_id']);
+      }
     }
   }
 }

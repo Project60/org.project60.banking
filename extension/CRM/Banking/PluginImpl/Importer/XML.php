@@ -475,8 +475,7 @@ class CRM_Banking_PluginImpl_Importer_XML extends CRM_Banking_PluginModel_Import
    */
   protected function checkCondition($rule, $context, $data) {
     if (empty($rule->if)) return TRUE;
-
-    $pattern = "#^(?P<term1>.+) (?P<op>=|!=|<|>|>=|<=|IN|!IN) (?P<term2>.+)$#";
+    $pattern = '#^(?P<term1>[\w:.]+) +(?P<op>=|!=|<|>|>=|<=|IN|!IN) +(?P<term2>[\w:.]+)$#';
     if (preg_match($pattern, $rule->if, $matches)) {
       $term1 = $this->getValue($matches['term1'], $data, $context);
       $term2 = $this->getValue($matches['term2'], $data, $context);

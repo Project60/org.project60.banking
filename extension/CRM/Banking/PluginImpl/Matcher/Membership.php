@@ -59,12 +59,12 @@ class CRM_Banking_PluginImpl_Matcher_Membership extends CRM_Banking_PluginModel_
     foreach ($memberships as $membership) {
       $suggestion = new CRM_Banking_Matcher_Suggestion($this, $btx);
       if (isset($config->general_options->suggestion_title)) {
-        $suggestion->setTitle($config->general_options->suggestion_title);  
+        $suggestion->setTitle($config->general_options->suggestion_title);
       } else {
         $suggestion->setTitle(ts("Record as Membership Fee"));
       }
 
-      $suggestion->setId("existing-$contribution_id");
+      $suggestion->setId("membership-".$membership['id']);
       $suggestion->setParameter('membership_id', $membership['id']);
       $suggestion->setParameter('last_fee_id',   $membership['last_fee_id']);
       $suggestion->setProbability($membership['probability']);

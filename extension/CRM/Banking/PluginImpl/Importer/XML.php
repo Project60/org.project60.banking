@@ -371,22 +371,24 @@ class CRM_Banking_PluginImpl_Importer_XML extends CRM_Banking_PluginModel_Import
     $this->reportProgress($progress, sprintf("Imported transaction #%d", $index));
   }
 
-
   /**
    * executes an import rule
    */
   protected function apply_rule($rule, $context, &$data) {
-
-    // get value
-    $value = $this->getValue($rule->from, $data, $context);
+    // evaluat the condition (if present)
+    if (!$this->checkCondition($rule, $context, $data)) {
+      return;
+    }
 
     // execute the rule
     if ($this->startsWith($rule->type, 'set')) {
       // SET is a simple copy command:
+      $value = $this->getValue($rule->from, $data, $context);
       $data[$rule->to] = $value;
 
     } elseif ($this->startsWith($rule->type, 'append')) {
       // APPEND appends the string to a give value
+      $value = $this->getValue($rule->from, $data, $context);
       if (!isset($data[$rule->to])) $data[$rule->to] = '';
       $params = explode(":", $rule->type);
       if (isset($params[1])) {
@@ -398,7 +400,8 @@ class CRM_Banking_PluginImpl_Importer_XML extends CRM_Banking_PluginModel_Import
       }
 
     } elseif ($this->startsWith($rule->type, 'trim')) {
-      // TRIM will strip the string of 
+      // TRIM will strip the string of
+      $value = $this->getValue($rule->from, $data, $context);
       $params = explode(":", $rule->type);
       if (isset($params[1])) {
         // the user provided a the trim parameters
@@ -407,13 +410,19 @@ class CRM_Banking_PluginImpl_Importer_XML extends CRM_Banking_PluginModel_Import
         $data[$rule->to] = trim($value);
       }
 
+    } elseif ($this->startsWith($rule->type, 'unset')) {
+      // UNSET will remove temporary variables
+      unset($data[$rule->to]);
+
     } elseif ($this->startsWith($rule->type, 'replace')) {
       // REPLACE will replace a substring
+      $value = $this->getValue($rule->from, $data, $context);
       $params = explode(":", $rule->type);
       $data[$rule->to] = str_replace($params[1], $params[2], $value);
 
     } elseif ($this->startsWith($rule->type, 'format')) {
       // will use the sprintf format
+      $value = $this->getValue($rule->from, $data, $context);
       $params = explode(":", $rule->type);
       $data[$rule->to] = sprintf($params[1], $value);
 
@@ -423,12 +432,13 @@ class CRM_Banking_PluginImpl_Importer_XML extends CRM_Banking_PluginModel_Import
 
     } elseif ($this->startsWith($rule->type, 'strtotime')) {
       // STRTOTIME is a date parser
+      $value = $this->getValue($rule->from, $data, $context);
       $params = explode(":", $rule->type, 2);
       if (isset($params[1])) {
         // the user provided a date format
         $datetime = DateTime::createFromFormat($params[1], $value);
         if ($datetime) {
-          $data[$rule->to] = $datetime->format('YmdHis');  
+          $data[$rule->to] = $datetime->format('YmdHis');
         }
       } else {
         $data[$rule->to] = date('YmdHis', strtotime($value));
@@ -436,10 +446,12 @@ class CRM_Banking_PluginImpl_Importer_XML extends CRM_Banking_PluginModel_Import
 
     } elseif ($this->startsWith($rule->type, 'amount')) {
       // AMOUNT will take care of currency issues, like "," instead of "."
+      $value = $this->getValue($rule->from, $data, $context);
       $data[$rule->to] = str_replace(",", ".", $value);
 
     } elseif ($this->startsWith($rule->type, 'regex:')) {
       // REGEX will extract certain values from the line
+      $value = $this->getValue($rule->from, $data, $context);
       $pattern = substr($rule->type, 6);
       $matches = array();
       if (preg_match($pattern, $value, $matches)) {
@@ -455,7 +467,7 @@ class CRM_Banking_PluginImpl_Importer_XML extends CRM_Banking_PluginModel_Import
     } else {
       error_log("org.project60.banking XMLImporter: rule type '{$rule->type}' unknown.");
     }
-  }  
+  }
 
   /**
    * Extract the value for the given key from the resources (line, btx).
@@ -483,6 +495,43 @@ class CRM_Banking_PluginImpl_Importer_XML extends CRM_Banking_PluginModel_Import
     } else {
       error_log("org.project60.banking: XMLImporter - Cannot find source '$key' for rule or filter.");
       return '';
+    }
+  }
+
+  /**
+   * Test the rule->if condition.
+   */
+  protected function checkCondition($rule, $context, $data) {
+    if (empty($rule->if)) return TRUE;
+
+    $pattern = "#^(?P<term1>.+) (?P<op>=|!=|<|>|>=|<=|IN|!IN) (?P<term2>.+)$#";
+    if (preg_match($pattern, $rule->if, $matches)) {
+      $term1 = $this->getValue($matches['term1'], $data, $context);
+      $term2 = $this->getValue($matches['term2'], $data, $context);
+      switch ($matches['op']) {
+        case '=':
+          return $term1 == $term2;
+        case '!=':
+          return $term1 != $term2;
+        case '<':
+          return $term1 < $term2;
+        case '>':
+          return $term1 > $term2;
+        case '<=':
+          return $term1 <= $term2;
+        case '>=':
+          return $term1 >= $term2;
+        case 'IN':
+          return strstr($term2, $term1);
+        case '!IN':
+          return !strstr($term2, $term1);
+        default:
+          // invalid rule
+          return TRUE;
+      }
+    } else {
+      // invalid rule
+      return TRUE;
     }
   }
 

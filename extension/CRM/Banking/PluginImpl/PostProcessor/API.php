@@ -92,12 +92,10 @@ class CRM_Banking_PluginImpl_PostProcessor_API extends CRM_Banking_PluginModel_P
 
       // perform the call
       try {
-        // TODO: log
-        error_log("CALLING {$config->entity}.{$config->action} with " . json_encode($params));
+        $this->logMessage("CALLING {$config->entity}.{$config->action} with " . json_encode($params), 'debug');
         civicrm_api3($config->entity, $config->action, $params);
       } catch (Exception $e) {
-        // TODO: log
-        error_log("CALLING {$config->entity}.{$config->action} failed: " . $e->getMessage());
+        $this->logMessage("CALLING {$config->entity}.{$config->action} failed: " . $e->getMessage(), 'error');
       }
     }
   }

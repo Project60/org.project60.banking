@@ -153,7 +153,7 @@ class CRM_Banking_PluginImpl_PostProcessor_AddressUpdate extends CRM_Banking_Plu
 
     } else {
       // there's multiple addresses
-      // TODO: LOG
+      $this->logMessage("Multiple addresses found. Not doing anything.", 'error');
     }
   }
 
@@ -204,7 +204,7 @@ class CRM_Banking_PluginImpl_PostProcessor_AddressUpdate extends CRM_Banking_Plu
         break;
 
       default:
-        // TODO: log
+        $this->logMessage("Unknown action '{$action}' no diff created.", 'error');
     }
   }
 

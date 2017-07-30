@@ -74,7 +74,7 @@ class CRM_Banking_PluginImpl_PostProcessor_MembershipPayment extends CRM_Banking
           'contribution_id' => $contribution['id'],
           'membership_id'   => $membership_id,
           ));
-        // TODO: log: payment connected
+          $this->logMessage("Contribution [{$contribution['id']}] connected to membership [{$membership_id}]", 'info');
       }
     }
   }

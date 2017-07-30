@@ -62,14 +62,13 @@ abstract class CRM_Banking_PluginModel_PostProcessor extends CRM_Banking_PluginM
     $btx_status_name = CRM_Core_OptionGroup::getValue('civicrm_banking.bank_tx_status', $context->btx->status_id, 'id', 'String', 'name');
     if (!in_array($btx_status_name, $config->require_btx_status_list)) {
       // TODO: log: NOT IN STATUS
-      error_log("NOT THE RIGHT STATUS");
+      $this->logMessage("Not executing, not in status " . json_encode($config->require_btx_status_list), 'debug');
       return FALSE;
     }
 
     // check required values
     if (!$this->requiredValuesPresent($context->btx)) {
-      // TODO: log
-      error_log("REQUIRED VALUES MISSING");
+      $this->logMessage("Not executing, required values missing.", 'debug');
       return FALSE;
     }
 
@@ -312,7 +311,7 @@ abstract class CRM_Banking_PluginModel_PostProcessor extends CRM_Banking_PluginM
           'entity_id'    => $contact_id,
           'entity_table' => 'civicrm_contact',
           'tag_id'       => $tag['id']));
-        // TODO: log
+        $this->logMessage("Tagged [{$contact_id}] with '{$tag_name}'.", 'info');
       }
     }
   }

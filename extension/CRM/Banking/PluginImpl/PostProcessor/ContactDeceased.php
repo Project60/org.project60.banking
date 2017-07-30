@@ -54,7 +54,7 @@ class CRM_Banking_PluginImpl_PostProcessor_ContactDeceased extends CRM_Banking_P
           $contact_id = $contribution['contact_id'];
         } elseif ($contact_id != $contribution['contact_id']) {
           // there are multiple contacts connected to this match
-          // TODO: log
+          $this->logMessage("Multiple contacts connected to this match, cannot proceed", 'error');
           return;
         }
       }
@@ -81,7 +81,7 @@ class CRM_Banking_PluginImpl_PostProcessor_ContactDeceased extends CRM_Banking_P
               $contact_update['deceased_date'] = date('YmdHis', strtotime($deceased_date));
             }
             civicrm_api3('Contact', 'create', $contact_update);
-            // TODO: log
+            $this->logMessage("Contact [{$contact['id']}] marked as deceased.", 'info');
           }
 
           // set Tag in any case

@@ -154,7 +154,7 @@ class CRM_Banking_PluginImpl_Matcher_RegexAnalyser extends CRM_Banking_PluginMod
       } elseif (substr($action->action, 0, 7) =='lookup:') {
         // LOOK UP values via API::getsingle
         //   parameters are in format: "EntityName,result_field,lookup_field"
-        $params = split(',', substr($action->action, 7));
+        $params = explode(',', substr($action->action, 7));
         $value = $this->getValue($action->from, $match_data, $match_index, $data_parsed);
         $query = array($params[2] => $value, 'version' => 3, 'return' => $params[1]);
         if (!empty($action->parameters)) {
@@ -188,7 +188,7 @@ class CRM_Banking_PluginImpl_Matcher_RegexAnalyser extends CRM_Banking_PluginMod
          *  param_<param>    set the API parameter to the value of another field, e.g. const_first_name = 'first_name'
          */
         // compile query
-        $params = split(':', substr($action->action, 4));
+        $params = explode(':', substr($action->action, 4));
         $query = array('return' => $params[2]);
         foreach ($action as $key => $value) {
           if (substr($key, 0, 6) =='const_') {

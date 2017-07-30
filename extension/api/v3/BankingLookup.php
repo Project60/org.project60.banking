@@ -148,7 +148,7 @@ function civicrm_api3_banking_lookup_contactbyname($params) {
   if (!empty($params['ignore_contact_types']) && !empty($contacts_found)) {
     // run a SQL filter query instead of loading every contact
     $all_ids = implode(',', array_keys($contacts_found));
-    $ignore_types = '"'.implode('","', split(',', $params['ignore_contact_types'])).'"';
+    $ignore_types = '"'.implode('","', explode(',', $params['ignore_contact_types'])).'"';
     $filtered_ids_query = "SELECT id FROM civicrm_contact WHERE id IN ($all_ids) AND (contact_type IN ($ignore_types) OR contact_sub_type IN ($ignore_types));";
     $filtered_ids = CRM_Core_DAO::executeQuery($filtered_ids_query);
     while ($filtered_ids->fetch()) {

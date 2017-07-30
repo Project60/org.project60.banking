@@ -16,17 +16,18 @@
 {ts}The following address was received from a bank statment:{/ts}
 
 {ts}Street Address{/ts}: {$address_data.street_address}
-{if $address_data.supplemental_address_1}{ts}Suppelemental Address 1{/ts}: {$address_data.supplemental_address_1}{/if}
-{if $address_data.supplemental_address_2}{ts}Suppelemental Address 2{/ts}: {$address_data.supplemental_address_2}{/if}
+{if $address_data.supplemental_address_1}{ts}Supplemental Address 1{/ts}: {$address_data.supplemental_address_1}{/if}
+{if $address_data.supplemental_address_2}{ts}Supplemental Address 2{/ts}: {$address_data.supplemental_address_2}{/if}
 {ts}Postal Code{/ts}: {$address_data.postal_code}
 {ts}City{/ts}: {$address_data.city}
 {ts}Country{/ts}: {$address_data.country}
 
+
 {ts}Which differs from the existing one:{/ts}
 
 {ts}Street Address{/ts}: {$existing_address.street_address}
-{if $existing_address.supplemental_address_1}{ts}Suppelemental Address 1{/ts}: {$existing_address.supplemental_address_1}{/if}
-{if $existing_address.supplemental_address_2}{ts}Suppelemental Address 2{/ts}: {$existing_address.supplemental_address_2}{/if}
+{if $existing_address.supplemental_address_1}{ts}Supplemental Address 1{/ts}: {$existing_address.supplemental_address_1}{/if}
+{if $existing_address.supplemental_address_2}{ts}Supplemental Address 2{/ts}: {$existing_address.supplemental_address_2}{/if}
 {ts}Postal Code{/ts}: {$existing_address.postal_code}
 {ts}City{/ts}: {$existing_address.city}
 {ts}Country{/ts}: {$existing_address.country}

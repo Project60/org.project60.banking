@@ -31,6 +31,7 @@ abstract class CRM_Banking_PluginModel_PostProcessor extends CRM_Banking_PluginM
 
     if (!isset($config->require_btx_status_list))      $config->require_btx_status_list = array('processed');
     if (!isset($config->contribution_fields_required)) $config->contribution_fields_required = '';
+    if (!isset($config->membership_fields_required))   $config->membership_fields_required = '';
   }
 
   /**
@@ -85,6 +86,9 @@ abstract class CRM_Banking_PluginModel_PostProcessor extends CRM_Banking_PluginM
     switch ($name) {
       case 'contribution':
         return $this->getFirstContribution($btx->context);
+
+      case 'membership':
+        return $this->getFirstMembership($btx->context);
 
       case 'contact':
         return $this->getSoleContact();
@@ -157,8 +161,6 @@ abstract class CRM_Banking_PluginModel_PostProcessor extends CRM_Banking_PluginM
   /**
    * Get the list of contributions linked to this trxn ID
    *
-   * @param $match    the executed match
-   * @param $btx      the related transaction
    * @param $context  the matcher context contains cache data and context information
    *
    * @return array    contribution IDs
@@ -196,10 +198,80 @@ abstract class CRM_Banking_PluginModel_PostProcessor extends CRM_Banking_PluginM
 
 
   /**
+   * Get the first Membership linked the contribution via MembershipPayments
+   *
+   * @param $context  the matcher context contains cache data and context information
+   *
+   * @return array    membership data
+   */
+  protected function getFirstMembership(CRM_Banking_Matcher_Context $context) {
+    $memberships = $this->getMemberships($context);
+    if (empty($memberships)) {
+      return NULL;
+    } else {
+      return reset($memberships);
+    }
+  }
+
+  /**
+   * Get the Memberships linked the contribution via MembershipPayments
+   *
+   * @param $context  the matcher context contains cache data and context information
+   *
+   * @return array    memberships data
+   */
+  protected function getMemberships(CRM_Banking_Matcher_Context $context) {
+    $cache_key = "{$this->_plugin_id}_memberships_{$context->btx->id}";
+    $cached_result = $context->getCachedEntry($cache_key);
+    if ($cached_result !== NULL) return $cached_result;
+
+    $connected_contribution_ids = $this->getContributionIDs($context);
+    if (empty($connected_contribution_ids)) {
+      return array();
+    }
+
+    $membership_search = civicrm_api3('MembershipPayment', 'get', array(
+      'contribution_id' => array('IN' => $connected_contribution_ids),
+      'option.limit'    => 0,
+      'sequential'      => 1));
+    $membership2contribution = array();
+    foreach ($membership_search['values'] as $membership_payment) {
+      if (isset($membership2contribution[$membership_payment['membership_id']])) {
+        $membership2contribution[$membership_payment['membership_id']][] = $membership_payment['contribution_id'];
+      } else {
+        $membership2contribution[$membership_payment['membership_id']] = array($membership_payment['contribution_id']);
+      }
+    }
+
+    if (!empty($membership2contribution)) {
+      $config = $this->_plugin_config;
+      $membership_query = array(
+        'id'           => array('IN' => array_keys($membership2contribution)),
+        'option.limit' => 0,
+        'sequential'   => 1);
+
+      // add return clause
+      if (!empty($config->membership_fields_required)) {
+        $membership_query['return'] = $config->membership_fields_required;
+      }
+
+      // query DB
+      $result = civicrm_api3('Membership', 'get', $membership_query);
+      $memberships = $result['values'];
+
+    } else {
+      $memberships = array();
+    }
+
+    // cache result
+    $context->setCachedEntry($cache_key, $memberships);
+    return $memberships;
+  }
+
+
+  /**
    * Get the list of contributions linked to this trxn ID
    *
-   * @param $match    the executed match
-   * @param $btx      the related transaction
    * @param $context  the matcher context contains cache data and context information
    *
    * @return array    contribution IDs

@@ -115,15 +115,12 @@ class CRM_Banking_PluginImpl_PostProcessor_AddressUpdate extends CRM_Banking_Plu
     }
     $this->addCountryName($address_data);
 
-    error_log("ADDRESS " . json_encode($address_data));
     // now: find the given address
     $existing_addresses = civicrm_api3('Address', 'get', array(
       'location_type_id' => $address_data['location_type_id'],
       'contact_id'       => $contact_id));
-    error_log("RESULT : " . json_encode($existing_addresses));
 
     if ($existing_addresses['count'] == 0 && $config->create_if_missing) {
-      error_log("CREATE " . json_encode($address_data));
       // config wants us to creaete a new address:
       $address_data['contact_id'] = $contact_id;
       civicrm_api3('Address', 'create', $address_data);
@@ -137,7 +134,6 @@ class CRM_Banking_PluginImpl_PostProcessor_AddressUpdate extends CRM_Banking_Plu
       // CREATE DIFF
       $existing_address = reset($existing_addresses['values']);
       $this->addCountryName($existing_address);
-      error_log("EXSTING " . json_encode($existing_address));
       $diff = array();
       foreach ($address_data as $key => $value) {
         $existing_value = CRM_Utils_Array::value($key, $existing_address);
@@ -148,7 +144,6 @@ class CRM_Banking_PluginImpl_PostProcessor_AddressUpdate extends CRM_Banking_Plu
 
       // only continue if there is a difference
       if (!empty($diff)) {
-        error_log("DIFF " . json_encode($diff));
         if (is_array($config->create_diff)) {
           foreach ($config->create_diff as $action) {
             $this->createDiff($action, $contact_id, $diff, $existing_address, $address_data);
@@ -167,14 +162,13 @@ class CRM_Banking_PluginImpl_PostProcessor_AddressUpdate extends CRM_Banking_Plu
    */
   protected function createDiff($action, $contact_id, $diff, $existing_address, $address_data) {
     $config = $this->_plugin_config;
-    error_log("ACTION $action");
     switch ($action) {
       case 'note':
         $smarty = CRM_Banking_Helpers_Smarty::singleton();
         $smarty->pushScope(array('contact_id' => $contact_id, 'diff' => $diff, 'existing_address' => $existing_address, 'address_data' => $address_data));
         $note = $smarty->fetch('CRM/Banking/PluginImpl/PostProcessor/AddressUpdate.note.tpl');
         $smarty->popScope();
-        error_log($note);
+
         // check if the same note already exists
         $existing_note = civicrm_api3('Note', 'get', array(
           'note'         => $note,

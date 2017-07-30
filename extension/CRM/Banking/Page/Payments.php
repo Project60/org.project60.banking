@@ -251,7 +251,7 @@ class CRM_Banking_Page_Payments extends CRM_Core_Page {
                     'sequence'      => $entry['sequence'], 
                     'currency'      => $entry['currency'], 
                     'amount'        => (isset($entry['amount'])?$entry['amount']:"unknown"), 
-                    'account_owner' => $bank_account['description'], 
+                    'account_owner' => CRM_Utils_Array::value('description', $bank_account),
                     'party'         => $party,
                     'party_contact' => $contact,
                     'state'         => $status,

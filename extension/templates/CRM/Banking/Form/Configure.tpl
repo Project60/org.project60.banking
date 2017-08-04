@@ -47,7 +47,7 @@
   <div id="help" class="description">
     Configuring CiviBanking plugins is not easy. Maybe have a look at the examples at our <a href="https://github.com/Project60/org.project60.banking/tree/master/configuration_database">configuration database</a>.
   </div>
-  <div id="jsoneditor"></div>
+  <div id="jsoneditor" style="width: 100%; height: 600px;"></div>
   <div align="right">
     <font size="-2" color="gray">
       This brilliant <a href="http://jsoneditoronline.org">JSON editor</a> is being developed by <a href="mailto:wjosdejong@gmail.com">Jos de Jong</a>.
@@ -82,7 +82,7 @@
     var container = document.getElementById('jsoneditor');
     var options = {
       modes: ['text', 'code', 'tree', 'form', 'view'],
-      mode: 'form',
+      mode: '{/literal}{$json_editor_mode}{literal}',
       ace: null,
       onChange: function() {
         cj("input[name=configuration]").val(JSON.stringify(editor.get()));

@@ -39,6 +39,13 @@ class CRM_Banking_Form_Configure extends CRM_Core_Form {
       $this->plugin = civicrm_api3('BankingPluginInstance', 'getsingle', array('id' => $plugin_id));
     }
 
+    // set default editor mode
+    $json_editor_mode = CRM_Core_BAO_Setting::getItem('CiviBanking', 'json_editor_mode');
+    if (empty($json_editor_mode)) {
+      $json_editor_mode = 'text';
+    }
+    $this->assign('json_editor_mode', $json_editor_mode);
+
     // set title
     CRM_Utils_System::setTitle(ts('Configure Plugin "%1"', array(1 => $this->plugin['name'])));
 

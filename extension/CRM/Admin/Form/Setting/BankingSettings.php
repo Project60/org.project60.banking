@@ -41,6 +41,25 @@ class CRM_Admin_Form_Setting_BankingSettings extends CRM_Core_Form {
     );
     $menu_position->setSelected((int) $this->getCurrentValue('menu_position'));
 
+
+    // add JSON editor mode
+    $json_editor_mode = array(
+      'view' => ts("Tree View"),
+      'text' => ts("Simple Text"),
+      'code' => ts("JSON Code"),
+      'tree' => ts("Tree Editor"),
+      'form' => ts("Form Editor"),
+    );
+
+    $json_editor_mode = $this->add(
+      'select',
+      'json_editor_mode',
+      ts('Configuration Editor Default Mode'),
+      $json_editor_mode,
+      TRUE
+    );
+    $json_editor_mode->setSelected((int) $this->getCurrentValue('json_editor_mode'));
+
     // logging
     $log_level = $this->add(
       'select',
@@ -99,6 +118,9 @@ class CRM_Admin_Form_Setting_BankingSettings extends CRM_Core_Form {
       CRM_Core_BAO_Setting::setItem($new_menu_position, 'CiviBanking', 'menu_position');
       CRM_Core_Invoke::rebuildMenuAndCaches();
     }
+
+    // process menu entry
+    CRM_Core_BAO_Setting::setItem($values['json_editor_mode'], 'CiviBanking', 'json_editor_mode');
 
     // log levels
     CRM_Core_BAO_Setting::setItem($values['banking_log_level'], 'CiviBanking', 'banking_log_level');

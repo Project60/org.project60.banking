@@ -42,7 +42,7 @@ abstract class CRM_Banking_PluginModel_Importer extends CRM_Banking_PluginModel_
   // ------------------------------------------------------
   /**
    * Report if the plugin is capable of importing files
-   * 
+   *
    * @return bool
    */
   static function does_import_files() {
@@ -51,7 +51,7 @@ abstract class CRM_Banking_PluginModel_Importer extends CRM_Banking_PluginModel_
 
   /**
    * Report if the plugin is capable of importing streams, i.e. data from a non-file source, e.g. the web
-   * 
+   *
    * @return bool
    */
   static function does_import_stream() {
@@ -60,30 +60,30 @@ abstract class CRM_Banking_PluginModel_Importer extends CRM_Banking_PluginModel_
 
   /**
    * Test if the given file can be imported
-   * 
-   * @var 
-   * @return TODO: data format? 
+   *
+   * @var
+   * @return TODO: data format?
    */
   abstract function probe_file($file_path, $params);
 
   /**
    * Import the given file
-   * 
-   * @return TODO: data format? 
+   *
+   * @return TODO: data format?
    */
   abstract function import_file($file_path, $params);
 
   /**
    * Test if the configured source is available and ready
-   * 
-   * @var 
+   *
+   * @var
    * @return TODO: data format?
    */
   abstract function probe_stream($params);
 
   /**
    * Import from the configured source
-   * 
+   *
    * @return TODO: data format?
    */
   abstract function import_stream($params);
@@ -127,6 +127,7 @@ abstract class CRM_Banking_PluginModel_Importer extends CRM_Banking_PluginModel_
           }
 
           // search for references
+          $this->logMessage("Looking up bank account reference: " . json_encode($reference_search_params), 'debug');
           $reference_search = civicrm_api3('BankingAccountReference', 'get', $reference_search_params);
           $potential_ba_ids = array();
           foreach ($reference_search['values'] as $reference) {
@@ -135,12 +136,13 @@ abstract class CRM_Banking_PluginModel_Importer extends CRM_Banking_PluginModel_
 
           if (!empty($potential_ba_ids) && !empty($this->_plugin_config->organisation_contact_ids)) {
             // apply the restriction to contact IDs
-            $ba_search = civicrm_api3('BankingAccount', 'get', array(
+            $ba_search_params = array(
               'contact_id'   => array('IN' => explode(',', $this->_plugin_config->organisation_contact_ids)),
               'ba_id'        => array('IN' => $potential_ba_ids),
               'return'       => 'id',
-              'option.limit' => 0,
-              ));
+              'option.limit' => 0);
+            $this->logMessage("Looking up bank account: " . json_encode($ba_search_params), 'debug');
+            $ba_search = civicrm_api3('BankingAccount', 'get', $ba_search_params);
 
             // reset potential_ba_ids
             $potential_ba_ids = array();
@@ -171,7 +173,7 @@ abstract class CRM_Banking_PluginModel_Importer extends CRM_Banking_PluginModel_
 
 
   /**
-   * This will create a new transaction batch, that all bankt transcations created 
+   * This will create a new transaction batch, that all bankt transcations created
    * with checkAndStoreBTX will be attached to. The transaction gets written when calling
    * the corresponding closeTransactionBatch counterpart.
    *
@@ -193,7 +195,7 @@ abstract class CRM_Banking_PluginModel_Importer extends CRM_Banking_PluginModel_
         $this->_current_transaction_batch->reference = '';
         $this->_current_transaction_batch->sequence = 0;
         $this->_current_transaction_batch->tx_count = 0;
-        //       /\ 
+        //       /\
 
         // add a (unique) default reference (see https://github.com/Project60/CiviBanking/issues/60)
         $this->_current_transaction_batch->reference = 'NOREF-' . md5(microtime());
@@ -208,7 +210,7 @@ abstract class CRM_Banking_PluginModel_Importer extends CRM_Banking_PluginModel_
 
   /**
    * This will return the current BTX batch as a BAO to the client for modification.
-   * Please DON'T SAVE THE OBJECT. Saving should take place when calling the 
+   * Please DON'T SAVE THE OBJECT. Saving should take place when calling the
    * closeTransactionBatch() method.
    */
   function getCurrentTransactionBatch($store = TRUE) {
@@ -374,8 +376,8 @@ abstract class CRM_Banking_PluginModel_Importer extends CRM_Banking_PluginModel_
     // check for dry run
     if (isset($params['dry_run']) && $params['dry_run'] == "on") {
       // DRY RUN ENABLED
-      $log_entry = ts("DRY RUN: Did not create bank transaction (%1 on %2)", 
-                    array(  1 => CRM_Utils_Money::format($btx['amount'], $btx['currency']), 
+      $log_entry = ts("DRY RUN: Did not create bank transaction (%1 on %2)",
+                    array(  1 => CRM_Utils_Money::format($btx['amount'], $btx['currency']),
                             2 => CRM_Utils_Date::customFormat($btx['booking_date'], CRM_Core_Config::singleton()->dateformatFull)));
       $this->reportProgress($progress, $log_entry);
       return TRUE;
@@ -388,14 +390,14 @@ abstract class CRM_Banking_PluginModel_Importer extends CRM_Banking_PluginModel_
       $result = civicrm_api('BankingTransaction', 'create', $btx);
       if ($result['is_error']) {
         $this->reportProgress(
-                $progress, 
-                sprintf(ts("Error while storing BTX: %s"),implode("<br>", $result)), 
+                $progress,
+                sprintf(ts("Error while storing BTX: %s"),implode("<br>", $result)),
                 CRM_Banking_PluginModel_Base::REPORT_LEVEL_ERROR);
         return FALSE;
       } else {
-        $log_entry = ts("Created BTX <b>%1</b> for <b>%2</b> on %3", 
+        $log_entry = ts("Created BTX <b>%1</b> for <b>%2</b> on %3",
                     array(  1 => $result['id'],
-                            2 => CRM_Utils_Money::format($btx['amount'], $btx['currency']), 
+                            2 => CRM_Utils_Money::format($btx['amount'], $btx['currency']),
                             3 => CRM_Utils_Date::customFormat($btx['booking_date'], CRM_Core_Config::singleton()->dateformatFull)));
         $this->reportProgress($progress, $log_entry);
         $this->_updateTransactionBatchInfo($btx);

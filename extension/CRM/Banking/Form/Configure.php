@@ -119,7 +119,6 @@ class CRM_Banking_Form_Configure extends CRM_Core_Form {
       'plugin_type_id'  => $values['plugin_type_id'],
       'name'            => $values['name'],
       'description'     => $values['description'],
-      'config'          => $values['configuration'],
       );
     if (!empty($values['pid'])) {
       // update
@@ -130,7 +129,15 @@ class CRM_Banking_Form_Configure extends CRM_Core_Form {
       $update['weight']  = 1000;
       $update['state']   = '{}';
     }
-    civicrm_api3('BankingPluginInstance', 'create', $update);
+    $plugin_instance = civicrm_api3('BankingPluginInstance', 'create', $update);
+
+    // set the config via SQL (API causes issues)
+    if (empty($plugin_instance['id'])) {
+      throw new Exception("Couldn't store configuration");
+    } else {
+      $config = mysql_escape_string($values['configuration']);
+      CRM_Core_DAO::executeQuery("UPDATE civicrm_bank_plugin_instance SET config='{$config}' WHERE id={$plugin_instance['id']}");
+    }
 
     // parent::postProcess();
     CRM_Utils_System::redirect(CRM_Utils_System::url('civicrm/banking/manager'));

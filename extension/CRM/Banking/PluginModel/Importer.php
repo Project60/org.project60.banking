@@ -138,7 +138,7 @@ abstract class CRM_Banking_PluginModel_Importer extends CRM_Banking_PluginModel_
             // apply the restriction to contact IDs
             $ba_search_params = array(
               'contact_id'   => array('IN' => explode(',', $this->_plugin_config->organisation_contact_ids)),
-              'ba_id'        => array('IN' => $potential_ba_ids),
+              'id'           => array('IN' => $potential_ba_ids),
               'return'       => 'id',
               'option.limit' => 0);
             $this->logMessage("Looking up bank account: " . json_encode($ba_search_params), 'debug');

@@ -34,6 +34,9 @@ abstract class CRM_Banking_PluginModel_Importer extends CRM_Banking_PluginModel_
   protected $_current_transaction_batch_attributes = array();
   protected $_default_btx_state_id = 0;
 
+  // this will be used to avoid multiple account lookups
+  protected $account_cache = array();
+
   // ------------------------------------------------------
   // Functions to be provided by the plugin implementations
   // ------------------------------------------------------
@@ -91,11 +94,81 @@ abstract class CRM_Banking_PluginModel_Importer extends CRM_Banking_PluginModel_
   function __construct($plugin_dao) {
     parent::__construct($plugin_dao);
     $this->_default_btx_state_id = banking_helper_optionvalueid_by_groupname_and_name('civicrm_banking.bank_tx_status', 'new');
+
+    // restrict the lookup for the organisation's (own) bank account (see #178)
+    $config = $this->_plugin_config;
+    if (!isset($config->organisation_contact_ids)) $config->organisation_contact_ids = '';
+    if (!isset($config->organisation_ba_ids))      $config->organisation_ba_ids = '';
   }
 
   // ------------------------------------------------------
   //            utility functions
   // ------------------------------------------------------
+
+  /**
+   * try identify the two bank accounts involved,
+   * and set the party_ba_id and ba_id fields
+   */
+  protected function lookupBankAccounts(&$data) {
+    foreach ($data as $key => $value) {
+      // check for NBAN_?? or IBAN endings
+      if (preg_match('/^_.*NBAN_..$/', $key) || preg_match('/^_.*IBAN$/', $key)) {
+        // this is a *BAN entry -> look it up
+        if (!isset($this->account_cache[$value])) {
+          // not cached? ok, do a lookup:
+          $reference_search_params = array(
+            'reference'    => $value,
+            'return'       => 'ba_id',
+            'option.limit' => 0);
+
+          // add ba_restriction
+          if (!empty($this->_plugin_config->organisation_ba_ids)) {
+            $reference_search_params['ba_id'] = array('IN' => explode(',', $this->_plugin_config->organisation_ba_ids));
+          }
+
+          // search for references
+          $reference_search = civicrm_api3('BankingAccountReference', 'get', $reference_search_params);
+          $potential_ba_ids = array();
+          foreach ($reference_search['values'] as $reference) {
+            $potential_ba_ids[] = $reference['ba_id'];
+          }
+
+          if (!empty($potential_ba_ids) && !empty($this->_plugin_config->organisation_contact_ids)) {
+            // apply the restriction to contact IDs
+            $ba_search = civicrm_api3('BankingAccount', 'get', array(
+              'contact_id'   => array('IN' => explode(',', $this->_plugin_config->organisation_contact_ids)),
+              'ba_id'        => array('IN' => $potential_ba_ids),
+              'return'       => 'id',
+              'option.limit' => 0,
+              ));
+
+            // reset potential_ba_ids
+            $potential_ba_ids = array();
+            foreach ($ba_search['values'] as $ba) {
+              $potential_ba_ids[] = $ba['id'];
+            }
+          }
+
+          // cache the result
+          if (count($potential_ba_ids) == 1) {
+            // found exactly 1!
+            $this->account_cache[$value] = $potential_ba_ids[0];
+          } else {
+            $this->account_cache[$value] = NULL;
+          }
+        }
+
+        if ($this->account_cache[$value] != NULL) {
+          if (substr($key, 0, 7)=="_party_") {
+            $data['party_ba_id'] = $this->account_cache[$value];
+          } elseif (substr($key, 0, 1)=="_") {
+            $data['ba_id'] = $this->account_cache[$value];
+          }
+        }
+      }
+    }
+  }
+
 
   /**
    * This will create a new transaction batch, that all bankt transcations created 

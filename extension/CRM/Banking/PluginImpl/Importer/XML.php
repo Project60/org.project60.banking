@@ -47,11 +47,6 @@ class CRM_Banking_PluginImpl_Importer_XML extends CRM_Banking_PluginModel_Import
   protected $xpath = NULL;
 
   /**
-   * will be used to avoid multiple account lookups
-   */
-  protected $account_cache = array();
-
-  /**
    * This will be used to suppress duplicates within the same statement
    *  when automatically generating references
    */
@@ -298,28 +293,7 @@ class CRM_Banking_PluginImpl_Importer_XML extends CRM_Banking_PluginModel_Import
     }
 
     // look up the bank accounts
-    foreach ($data as $key => $value) {
-      // check for NBAN_?? or IBAN endings
-      if (preg_match('/^_.*NBAN_..$/', $key) || preg_match('/^_.*IBAN$/', $key)) {
-        // this is a *BAN entry -> look it up
-        if (!isset($this->account_cache[$value])) {
-          $result = civicrm_api('BankingAccountReference', 'getsingle', array('version' => 3, 'reference' => $value));
-          if (!empty($result['is_error'])) {
-            $this->account_cache[$value] = NULL;
-          } else {
-            $this->account_cache[$value] = $result['ba_id'];
-          }
-        }
-
-        if ($this->account_cache[$value] != NULL) {
-          if (substr($key, 0, 7)=="_party_") {
-            $data['party_ba_id'] = $this->account_cache[$value];
-          } elseif (substr($key, 0, 1)=="_") {
-            $data['ba_id'] = $this->account_cache[$value];
-          }
-        }
-      }
-    }
+    $this->lookupBankAccounts($data);
 
     // do some post processing
     if (!isset($config->bank_reference)) {

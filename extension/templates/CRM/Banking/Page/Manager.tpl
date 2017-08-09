@@ -60,7 +60,7 @@ tr.banking-plugin-disabled {
 	{foreach from=$importers item=importer}
 		<tr class="{cycle values="odd-row,even-row"} {if not $importer.enabled}banking-plugin-disabled{/if}">
 			{assign var=plugin_id value=$importer.id}
-			<td>{$importer.name}</td>
+			<td>[{$importer.id}] {$importer.name}</td>
 			<td>{$importer.description}</td>
 			<td>{$importer.class}</td>
 			<td>{if $importer.enabled}{ts}Yes{/ts}{else}{ts}No{/ts}{/if}</td>
@@ -111,7 +111,7 @@ tr.banking-plugin-disabled {
 	{foreach from=$matchers item=matcher}
 		<tr class="{cycle values="odd-row,even-row"} {if not $matcher.enabled}banking-plugin-disabled{/if}">
 			{assign var=plugin_id value=$matcher.id}
-			<td>{$matcher.name}</td>
+			<td>[{$matcher.id}] {$matcher.name}</td>
 			<td>{$matcher.description}</td>
 			<td>{$matcher.class}</td>
 			<td>{if $matcher.enabled}{ts}Yes{/ts}{else}{ts}No{/ts}{/if}</td>
@@ -162,7 +162,7 @@ tr.banking-plugin-disabled {
 	{foreach from=$postprocessors item=postprocessor}
 		<tr class="{cycle values="odd-row,even-row"} {if not $postprocessor.enabled}banking-plugin-disabled{/if}">
 			{assign var=plugin_id value=$postprocessor.id}
-			<td>{$postprocessor.name}</td>
+			<td>[{$postprocessor.id}] {$postprocessor.name}</td>
 			<td>{$postprocessor.description}</td>
 			<td>{$postprocessor.class}</td>
 			<td>{if $postprocessor.enabled}{ts}Yes{/ts}{else}{ts}No{/ts}{/if}</td>
@@ -213,7 +213,7 @@ tr.banking-plugin-disabled {
 	{foreach from=$exporters item=exporter}
 		<tr class="{cycle values="odd-row,even-row"} {if not $exporter.enabled}banking-plugin-disabled{/if}">
 			{assign var=plugin_id value=$exporter.id}
-			<td>{$exporter.name}</td>
+			<td>[{$exporter.id}] {$exporter.name}</td>
 			<td>{$exporter.description}</td>
 			<td>{$exporter.class}</td>
 			<td>{if $exporter.enabled}{ts}Yes{/ts}{else}{ts}No{/ts}{/if}</td>

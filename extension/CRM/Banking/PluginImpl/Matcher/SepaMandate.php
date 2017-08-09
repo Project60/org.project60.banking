@@ -435,6 +435,7 @@ class CRM_Banking_PluginImpl_Matcher_SepaMandate extends CRM_Banking_PluginModel
     }
 
     // set the status to 'Cancelled'
+    $this->logger->setTimer('sepa_mandate_cancel_contribution');
     $query = array('version' => 3, 'id' => $contribution_id);
     $query['contribution_status_id'] = $status_cancelled;
     $query['cancel_date'] = date('Ymdhis', strtotime($btx->value_date));
@@ -446,6 +447,7 @@ class CRM_Banking_PluginImpl_Matcher_SepaMandate extends CRM_Banking_PluginModel
       $query['cancel_reason'] = $match->getParameter('cancel_reason');
     }
     $result = civicrm_api('Contribution', 'create', $query);
+    $this->logTime('Cancel Contribution', 'sepa_mandate_cancel_contribution');
 
     if (isset($result['is_error']) && $result['is_error']) {
       error_log("org.project60.sepa: matcher_sepa: Couldn't modify contribution, error was: ".$result['error_message']);

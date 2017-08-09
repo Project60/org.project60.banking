@@ -141,7 +141,7 @@ abstract class CRM_Banking_PluginModel_BtxBase extends CRM_Banking_PluginModel_B
       error_log("org.project60.banking: WARNING: required_values config option not properly set, plugin id [{$this->_plugin_id}]");
     }
 
-    $this->logMessage("Required values passed", 'debug');
+    $this->logMessage("Required values are present.", 'debug');
     return TRUE;
   }
 

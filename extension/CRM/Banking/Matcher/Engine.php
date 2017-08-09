@@ -204,19 +204,28 @@ class CRM_Banking_Matcher_Engine {
    * will run the postprocessors on the recently executed match
    */
   public function runPostProcessors($suggestion, $btx, $matcher) {
+    // run through the list of matchers
+    $logger = CRM_Banking_Helpers_Logger::getLogger();
+    $logger->setTimer('postprocessing');
+
     $context = new CRM_Banking_Matcher_Context( $btx );
     $context->setExecutedSuggestion($suggestion);
     $all_postprocessors = $this->getPostprocessors();
     foreach ($all_postprocessors as $weight => $postprocessors) {
       foreach ($postprocessors as $postprocessor) {
         try {
+          $logger->setTimer('postprocessor');
           $postprocessor->processExecutedMatch($suggestion, $matcher, $context);
+          $logger->logTime("Postprocessor [{$postprocessor->getPluginID()}]", 'postprocessor');
+
         } catch (Exception $e) {
           $matcher_id = $matcher->getPluginID();
           error_log("org.project60.banking - Exception during the execution of postprocessor [$matcher_id], error was: ".$e->getMessage());
         }
       }
     }
+
+    $logger->logTime("Postprocessing of btx [{$btx_id}]", 'postprocessing');
     $context->destroy();
   }
 

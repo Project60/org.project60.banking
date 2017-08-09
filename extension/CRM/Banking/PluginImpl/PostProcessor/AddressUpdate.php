@@ -84,6 +84,11 @@ class CRM_Banking_PluginImpl_PostProcessor_AddressUpdate extends CRM_Banking_Plu
    *
    */
   public function processExecutedMatch(CRM_Banking_Matcher_Suggestion $match, CRM_Banking_PluginModel_Matcher $matcher, CRM_Banking_Matcher_Context $context) {
+    if (!$this->shouldExecute($match, $matcher, $context)) {
+      // TODO: log: not executing...
+      return;
+    }
+
     $config = $this->_plugin_config;
     $prefix = $config->btx_field_prefix;
     $data   = $context->btx->getDataParsed();

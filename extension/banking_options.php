@@ -110,6 +110,12 @@ function _banking_options() {
                   'description' => 'Looks up a transaction\'s bank accounts (again)',
                   'is_default' => 0,
               ),
+              'postprocessor_accounts' => array(
+                  'label' => 'Bank Accounts PostProcessor',
+                  'value' => 'CRM_Banking_PluginImpl_PostProcessor_Accounts',
+                  'description' => 'Allows you to store the bank accounts with the contact or contribution',
+                  'is_default' => 0,
+              ),
               'postprocessor_addressupdate' => array(
                   'label' => 'Update Address PostProcessor',
                   'value' => 'CRM_Banking_PluginImpl_PostProcessor_AddressUpdate',

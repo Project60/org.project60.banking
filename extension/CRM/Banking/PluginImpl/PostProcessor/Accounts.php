@@ -55,6 +55,7 @@ class CRM_Banking_PluginImpl_PostProcessor_Accounts extends CRM_Banking_PluginMo
 
     // only be active if there are fields to be written into...
     if (empty($config->own_account) && empty($config->party_account)) {
+      error_log("No accounts set. Please configure.");
       return FALSE;
     }
 
@@ -92,9 +93,13 @@ class CRM_Banking_PluginImpl_PostProcessor_Accounts extends CRM_Banking_PluginMo
    *
    */
   public function processExecutedMatch(CRM_Banking_Matcher_Suggestion $match, CRM_Banking_PluginModel_Matcher $matcher, CRM_Banking_Matcher_Context $context) {
-    $config = $this->_plugin_config;
+    if (!$this->shouldExecute($match, $matcher, $context)) {
+      // TODO: log: not executing...
+      return;
+    }
 
     // compile update
+    $config = $this->_plugin_config;
     $update = array();
 
     if (!empty($config->own_account)) {
@@ -105,7 +110,7 @@ class CRM_Banking_PluginImpl_PostProcessor_Accounts extends CRM_Banking_PluginMo
     }
 
     if (!empty($config->party_account)) {
-      $party_account_reference = $this->getAccountData($context, '_');
+      $party_account_reference = $this->getAccountData($context, '_party_');
       if ($party_account_reference) {
         $update[$config->party_account] = $party_account_reference;
       }
@@ -133,8 +138,9 @@ class CRM_Banking_PluginImpl_PostProcessor_Accounts extends CRM_Banking_PluginMo
    * get the desired account data to write into the custom fields
    */
   protected function getAccountData($context, $prefix, $cache = FALSE) {
-    $data  = $context->btx->getDataParsed();
-    $value = CRM_Utils_Array::value("{prefix}{$config->ref_type}", $data);
+    $config = $this->_plugin_config;
+    $data   = $context->btx->getDataParsed();
+    $value  = CRM_Utils_Array::value("{$prefix}{$config->ref_type}", $data);
     if (empty($value)) {
       // no account reference given
       return NULL;
@@ -145,6 +151,7 @@ class CRM_Banking_PluginImpl_PostProcessor_Accounts extends CRM_Banking_PluginMo
       $contact_id = $this->getSoleContactID($context);
       if (empty($contact_id)) {
         // we cannot create/find the bank account if there is no contact
+        // TODO: log ("NO SINGLE CONTACT");
         return NULL;
       }
 

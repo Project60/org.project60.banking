@@ -225,7 +225,7 @@ class CRM_Banking_Matcher_Engine {
       }
     }
 
-    $logger->logTime("Postprocessing of btx [{$btx_id}]", 'postprocessing');
+    $logger->logTime("Postprocessing of btx [{$btx->id}]", 'postprocessing');
     $context->destroy();
   }
 

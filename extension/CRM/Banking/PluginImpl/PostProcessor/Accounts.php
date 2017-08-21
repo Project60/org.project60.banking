@@ -157,7 +157,7 @@ class CRM_Banking_PluginImpl_PostProcessor_Accounts extends CRM_Banking_PluginMo
 
       $cache_key = "{$contact_id}-#-{$value}";
       if ($cache && isset(self::$_account_cache[$cache_key])) {
-        $values = self::$_account_cache[$cache_key];
+        $value = self::$_account_cache[$cache_key];
       } else {
         // compile get-or-create
         $bank_account_data = array(

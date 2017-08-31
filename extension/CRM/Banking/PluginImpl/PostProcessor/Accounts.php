@@ -95,7 +95,7 @@ class CRM_Banking_PluginImpl_PostProcessor_Accounts extends CRM_Banking_PluginMo
    */
   public function processExecutedMatch(CRM_Banking_Matcher_Suggestion $match, CRM_Banking_PluginModel_Matcher $matcher, CRM_Banking_Matcher_Context $context) {
     if (!$this->shouldExecute($match, $matcher, $context)) {
-      // TODO: log: not executing...
+      $this->logMessage("PostProcessor not executing", 'info');
       return;
     }
 
@@ -132,7 +132,7 @@ class CRM_Banking_PluginImpl_PostProcessor_Accounts extends CRM_Banking_PluginMo
       // now if this is a proper entity, we'll have to store it
       $object = $this->getPropagationObject($config->target, $context->btx);
       if (empty($object['id'])) {
-        // TODO: log: object $config->target could not be uniquely identified
+        $this->logMessage("Related object '{$config->target}' could not be (uniquely) identified.", 'warn');
         return;
       } else {
         $update['id'] = $object['id'];
@@ -159,7 +159,7 @@ class CRM_Banking_PluginImpl_PostProcessor_Accounts extends CRM_Banking_PluginMo
       // this means we want the account ID, not just the reference
       if (empty($contact_id)) {
         // we cannot create/find the bank account if there is no contact
-        // TODO: log ("NO SINGLE CONTACT");
+        $this->logMessage("No (single) contact associated.", 'warn');
         return NULL;
       }
 

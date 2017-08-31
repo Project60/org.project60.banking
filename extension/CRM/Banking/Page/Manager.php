@@ -76,7 +76,7 @@ class CRM_Banking_Page_Manager extends CRM_Core_Page {
 
 
   /**
-   *
+   * Delete Plugin
    */
   protected function processDeleteCommand() {
     $delete_id = CRM_Utils_Request::retrieve('delete', 'Integer');

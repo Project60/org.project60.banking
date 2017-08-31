@@ -31,12 +31,13 @@ class CRM_Banking_PluginImpl_PostProcessor_Accounts extends CRM_Banking_PluginMo
 
     // read config, set defaults
     $config = $this->_plugin_config;
-    if (!isset($config->mode))          $config->mode          = 'both'; // or 'debit' or 'credit'
-    if (!isset($config->type))          $config->type          = 'reference'; // or 'ba_id'
-    if (!isset($config->ref_type))      $config->ref_type      = 'IBAN'; // or any other reference type name
-    if (!isset($config->target))        $config->target        = 'contribution'; // or 'contact'
-    if (!isset($config->own_account))   $config->own_account   = NULL;
-    if (!isset($config->party_account)) $config->party_account = NULL;
+    if (!isset($config->mode))           $config->mode           = 'both'; // or 'debit' or 'credit'
+    if (!isset($config->type))           $config->type           = 'reference'; // or 'ba_id'
+    if (!isset($config->ref_type))       $config->ref_type       = 'IBAN'; // or any other reference type name
+    if (!isset($config->target))         $config->target         = 'contribution'; // or 'contact', or 'createonly'
+    if (!isset($config->own_contact_id)) $config->own_contact_id = 1; // TODO: use domain default contact?
+    if (!isset($config->own_account))    $config->own_account    = NULL;
+    if (!isset($config->party_account))  $config->party_account  = NULL;
   }
 
   /**
@@ -103,14 +104,15 @@ class CRM_Banking_PluginImpl_PostProcessor_Accounts extends CRM_Banking_PluginMo
     $update = array();
 
     if (!empty($config->own_account)) {
-      $own_account_reference = $this->getAccountData($context, '_', TRUE);
+      $own_account_reference = $this->getAccountData($context, $config->own_contact_id, '_', TRUE);
       if ($own_account_reference) {
         $update[$config->own_account] = $own_account_reference;
       }
     }
 
     if (!empty($config->party_account)) {
-      $party_account_reference = $this->getAccountData($context, '_party_');
+      $contact_id = $this->getSoleContactID($context);
+      $party_account_reference = $this->getAccountData($context, $contact_id, '_party_');
       if ($party_account_reference) {
         $update[$config->party_account] = $party_account_reference;
       }
@@ -122,22 +124,29 @@ class CRM_Banking_PluginImpl_PostProcessor_Accounts extends CRM_Banking_PluginMo
     }
 
     // get the entity ID
-    $object = $this->getPropagationObject($config->target, $context->btx);
-    if (empty($object['id'])) {
-      // TODO: log: object $config->target could not be uniquely identified
-      return;
+    if ($config->target == 'createonly') {
+      // 'createonly' means: just store the BA with the contact,
+      //   which is already done by the getAccountData() calls
+      //   => nothing to do here
     } else {
-      $update['id'] = $object['id'];
-    }
+      // now if this is a proper entity, we'll have to store it
+      $object = $this->getPropagationObject($config->target, $context->btx);
+      if (empty($object['id'])) {
+        // TODO: log: object $config->target could not be uniquely identified
+        return;
+      } else {
+        $update['id'] = $object['id'];
+      }
 
-    // execute update to store the bank accounts
-    civicrm_api3($config->target, 'create', $update);
+      // execute update to store the bank accounts
+      civicrm_api3($config->target, 'create', $update);
+    }
   }
 
   /**
    * get the desired account data to write into the custom fields
    */
-  protected function getAccountData($context, $prefix, $cache = FALSE) {
+  protected function getAccountData($context, $contact_id, $prefix, $cache = FALSE) {
     $config = $this->_plugin_config;
     $data   = $context->btx->getDataParsed();
     $value  = CRM_Utils_Array::value("{$prefix}{$config->ref_type}", $data);
@@ -148,7 +157,6 @@ class CRM_Banking_PluginImpl_PostProcessor_Accounts extends CRM_Banking_PluginMo
 
     if ($config->type == 'ba_id') {
       // this means we want the account ID, not just the reference
-      $contact_id = $this->getSoleContactID($context);
       if (empty($contact_id)) {
         // we cannot create/find the bank account if there is no contact
         // TODO: log ("NO SINGLE CONTACT");

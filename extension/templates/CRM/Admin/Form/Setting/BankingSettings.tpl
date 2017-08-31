@@ -43,6 +43,12 @@
 <h3>{ts}Bank Account Settings{/ts}</h3>
 
 <div class="crm-section">
+  <div class="label">{$form.reference_store_disabled.label}</div>
+  <div class="content">{$form.reference_store_disabled.html}</div>
+  <div class="clear"></div>
+</div>
+
+<div class="crm-section">
   <div class="label">{$form.reference_validation.label}</div>
   <div class="content">{$form.reference_validation.html}</div>
   <div class="clear"></div>

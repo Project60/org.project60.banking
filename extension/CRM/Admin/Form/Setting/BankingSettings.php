@@ -17,9 +17,9 @@
 require_once 'CRM/Core/Form.php';
 
 /**
- * Form controller class
+ * CiviBanking settings form
  *
- * @see http://wiki.civicrm.org/confluence/display/CRMDOC43/QuickForm+Reference
+ * @todo refactor to use CRM_Core_Form correctly
  */
 class CRM_Admin_Form_Setting_BankingSettings extends CRM_Core_Form {
 
@@ -78,6 +78,13 @@ class CRM_Admin_Form_Setting_BankingSettings extends CRM_Core_Form {
 
 
 
+    // store bank accounts
+    $this->addElement(
+      'checkbox',
+      'reference_store_disabled',
+      ts("Don't store bank accounts automatically"),
+      '',
+      ($this->getCurrentValue('reference_store_disabled')?array('checked' => 'checked'):array()));
 
     // normalise bank account references?
     $this->addElement(
@@ -127,6 +134,7 @@ class CRM_Admin_Form_Setting_BankingSettings extends CRM_Core_Form {
     CRM_Core_BAO_Setting::setItem($values['banking_log_file'],  'CiviBanking', 'banking_log_file');
 
     // process reference normalisation / validation
+    CRM_Core_BAO_Setting::setItem(!empty($values['reference_store_disabled']),         'CiviBanking', 'reference_store_disabled');
     CRM_Core_BAO_Setting::setItem(!empty($values['reference_normalisation']), 'CiviBanking', 'reference_normalisation');
     CRM_Core_BAO_Setting::setItem(!empty($values['reference_validation']),    'CiviBanking', 'reference_validation');
 

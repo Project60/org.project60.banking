@@ -215,6 +215,7 @@ class CRM_Banking_Matcher_Engine {
       foreach ($postprocessors as $postprocessor) {
         try {
           $logger->setTimer('postprocessor');
+          $logger->logDebug("Calling PostProcessor [{$postprocessor->getName()}]...");
           $postprocessor->processExecutedMatch($suggestion, $matcher, $context);
           $logger->logTime("Postprocessor [{$postprocessor->getPluginID()}]", 'postprocessor');
 

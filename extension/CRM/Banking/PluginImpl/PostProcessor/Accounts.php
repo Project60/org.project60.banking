@@ -56,7 +56,7 @@ class CRM_Banking_PluginImpl_PostProcessor_Accounts extends CRM_Banking_PluginMo
 
     // only be active if there are fields to be written into...
     if (empty($config->own_account) && empty($config->party_account)) {
-      error_log("No accounts set. Please configure.");
+      error_log("No target variables set. Please configure.");
       return FALSE;
     }
 
@@ -95,7 +95,7 @@ class CRM_Banking_PluginImpl_PostProcessor_Accounts extends CRM_Banking_PluginMo
    */
   public function processExecutedMatch(CRM_Banking_Matcher_Suggestion $match, CRM_Banking_PluginModel_Matcher $matcher, CRM_Banking_Matcher_Context $context) {
     if (!$this->shouldExecute($match, $matcher, $context)) {
-      $this->logMessage("PostProcessor not executing", 'info');
+      $this->logMessage("Accounts PostProcessor not executing", 'info');
       return;
     }
 
@@ -139,6 +139,7 @@ class CRM_Banking_PluginImpl_PostProcessor_Accounts extends CRM_Banking_PluginMo
       }
 
       // execute update to store the bank accounts
+      $this->logMessage("Accounts Post Processor calling {$config->target}.create: " . json_encode($update), 'debug');
       civicrm_api3($config->target, 'create', $update);
     }
   }

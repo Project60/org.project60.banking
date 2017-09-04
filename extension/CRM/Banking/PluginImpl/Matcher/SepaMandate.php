@@ -29,6 +29,8 @@ require_once 'packages/eval-math/evalmath.class.php';
  */
 class CRM_Banking_PluginImpl_Matcher_SepaMandate extends CRM_Banking_PluginModel_Matcher {
 
+  protected $contribution = NULL;
+
   /**
    * class constructor
    */
@@ -433,6 +435,8 @@ class CRM_Banking_PluginImpl_Matcher_SepaMandate extends CRM_Banking_PluginModel
         return FALSE;
       }
     }
+    // store contribution for reference (e.g. in propagation)
+    $this->contribution = $contribution;
 
     // set the status to 'Cancelled'
     $this->logger->setTimer('sepa_mandate_cancel_contribution');
@@ -585,6 +589,26 @@ class CRM_Banking_PluginImpl_Matcher_SepaMandate extends CRM_Banking_PluginModel
         $match->setParameter('cancel_fee', number_format((float) $parameters['cancel_fee'], 2));
       }
     }
+  }
+
+
+  /**
+   * Fetch a named propagation object.
+   * @see CRM_Banking_PluginModel_BtxBase::getPropagationValue
+   */
+  public function getPropagationObject($name, $btx) {
+    // in this default implementation, no extra objects are provided
+    // please overwrite in the plugin implementation
+    switch ($name) {
+      case 'contribution':
+        // currently only works for cancellation
+        return $this->contribution;
+
+      default:
+        // nothing to do here
+        break;
+    }
+    return parent::getPropagationObject($name, $btx);
   }
 
     /**

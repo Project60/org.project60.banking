@@ -99,6 +99,7 @@ class CRM_Banking_PluginImpl_Matcher_SepaMandate extends CRM_Banking_PluginModel
     $data_parsed = $btx->getDataParsed();
     $probability = 1.0 - $this->getPenalty($btx);
     $cancellation_mode = ((bool) $config->cancellation_enabled) && ($btx->amount < 0);
+    $this->contribution = NULL;
 
     // look for the 'sepa_mandate' key
     if (empty($data_parsed['sepa_mandate'])) return null;
@@ -304,6 +305,7 @@ class CRM_Banking_PluginImpl_Matcher_SepaMandate extends CRM_Banking_PluginModel
    * @param type $btx
    */
   public function execute($match, $btx) {
+    $this->contribution = NULL;
     $cancellation_mode = $match->getParameter('cancellation_mode');
     if (!empty($cancellation_mode)) {
       // CANCELLATION is an entirely different process...

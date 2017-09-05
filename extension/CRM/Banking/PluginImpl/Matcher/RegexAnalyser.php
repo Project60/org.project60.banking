@@ -165,8 +165,11 @@ class CRM_Banking_PluginImpl_Matcher_RegexAnalyser extends CRM_Banking_PluginMod
 
         // execute and log
         $this->logger->setTimer('regex:lookup');
+
+        $this->logMessage("Calling API {$params[0]}.getsingle: " . json_encode($query), 'debug');
         $result = $this->executeAPIQuery($params[0], 'getsingle', $query, $action);
-        $this->logTime("Calling {$params[0]} API" . json_encode($query), 'regex:lookup');
+        $this->logMessage("API result: " . json_encode($result), 'debug');
+        $this->logTime("API {$params[0]}.getsingle", 'regex:lookup');
 
         if (empty($result['is_error'])) {
           // something was found... copy value
@@ -205,8 +208,10 @@ class CRM_Banking_PluginImpl_Matcher_RegexAnalyser extends CRM_Banking_PluginMod
         // execute query
         try {
           $this->logger->setTimer('regex:api');
+          $this->logMessage("Calling API {$params[0]}.{$params[1]}: " . json_encode($query), 'debug');
           $result = $this->executeAPIQuery($params[0], $params[1], $query, $action);
-          $this->logTime("Calling {$params[0]}.{$params[1]} API" . json_encode($query), 'regex:api');
+          $this->logMessage("API result: " . json_encode($result), 'debug');
+          $this->logTime("API {$params[0]}.{$params[1]}", 'regex:api');
 
           if (isset($params[3]) && $params[3]=='multiple') {
             // multiple values allowed

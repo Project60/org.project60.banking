@@ -251,10 +251,12 @@ class CRM_Banking_PluginImpl_Matcher_RegexAnalyser extends CRM_Banking_PluginMod
       } else {
         // try value propagation
         $value = $this->getPropagationValue($btx, NULL, $key);
-        if (!$value) {
+        if ($value) {
+          return $value;
+        } else {
           $this->logMessage("RexgexAnalyser - Cannot find source '$key' for rule or filter.", 'debug');
+          return '';
         }
-        return '';
       }
     } else {
       if (isset($match_data[$key][$match_index])) {
@@ -264,10 +266,12 @@ class CRM_Banking_PluginImpl_Matcher_RegexAnalyser extends CRM_Banking_PluginMod
       } else {
         // try value propagation
         $value = $this->getPropagationValue($btx, NULL, $key);
-        if (!$value) {
+        if ($value) {
+          return $value;
+        } else {
           $this->logMessage("RexgexAnalyser - Cannot find source '$key' for rule or filter.", 'debug');
+          return '';
         }
-        return '';
       }
     }
   }

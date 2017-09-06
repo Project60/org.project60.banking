@@ -72,7 +72,7 @@ class CRM_Banking_PluginImpl_Matcher_RegexAnalyser extends CRM_Banking_PluginMod
           // and execute the actions for each match...
           for ($i=0; $i < $match_count; $i++) {
             $this->logMessage("Rule '{$rule->pattern}' matched.", 'debug');
-            $this->processMatch($matches, $i, $data_parsed, $rule);
+            $this->processMatch($matches, $i, $data_parsed, $rule, $btx);
           }
         }
       }
@@ -85,19 +85,19 @@ class CRM_Banking_PluginImpl_Matcher_RegexAnalyser extends CRM_Banking_PluginMod
   /**
    * execute all the action defined by the rule to the given match
    */
-  function processMatch($match_data, $match_index, &$data_parsed, $rule) {
+  function processMatch($match_data, $match_index, &$data_parsed, $rule, $btx) {
     foreach ($rule->actions as $action) {
       if ($action->action=='copy') {
         // COPY value from match group to parsed data
-        $data_parsed[$action->to] = $this->getValue($action->from, $match_data, $match_index, $data_parsed);
+        $data_parsed[$action->to] = $this->getValue($action->from, $match_data, $match_index, $data_parsed, $btx);
 
       } elseif ($action->action=='copy_append') {
         // COPY value, but append to the target
-        $data_parsed[$action->to] .= $this->getValue($action->from, $match_data, $match_index, $data_parsed);
+        $data_parsed[$action->to] .= $this->getValue($action->from, $match_data, $match_index, $data_parsed, $btx);
 
       } elseif ($action->action=='copy_ltrim_zeros') {
         // COPY value, but remove leading zeros
-        $data_parsed[$action->to] = ltrim($this->getValue($action->from, $match_data, $match_index, $data_parsed), '0');
+        $data_parsed[$action->to] = ltrim($this->getValue($action->from, $match_data, $match_index, $data_parsed, $btx), '0');
 
       } elseif ($action->action=='set') {
         // SET value regardless of the match context
@@ -109,15 +109,15 @@ class CRM_Banking_PluginImpl_Matcher_RegexAnalyser extends CRM_Banking_PluginMod
 
       } elseif ($action->action=='strtolower') {
         // data to lowercase
-        $data_parsed[$action->to] = strtolower($this->getValue($action->from, $match_data, $match_index, $data_parsed));
+        $data_parsed[$action->to] = strtolower($this->getValue($action->from, $match_data, $match_index, $data_parsed, $btx));
 
       } elseif ($action->action=='sha1') {
         // reduce to SHA1 checksum
-        $data_parsed[$action->to] = sha1($this->getValue($action->from, $match_data, $match_index, $data_parsed));
+        $data_parsed[$action->to] = sha1($this->getValue($action->from, $match_data, $match_index, $data_parsed, $btx));
 
       } elseif (substr($action->action, 0, 7) =='sprint:') {
         // format data
-        $data   = $this->getValue($action->from, $match_data, $match_index, $data_parsed);
+        $data   = $this->getValue($action->from, $match_data, $match_index, $data_parsed, $btx);
         $format = substr($action->action, 7);
         $data_parsed[$action->to] = sprintf($format, $data);
 
@@ -126,7 +126,7 @@ class CRM_Banking_PluginImpl_Matcher_RegexAnalyser extends CRM_Banking_PluginMod
         if (empty($action->search_pattern) || !isset($action->replace)) {
           error_log("org.project60.banking bad 'preg_replace' spec in plugin {$this->_plugin_id}.");
         } else {
-          $subject = $this->getValue($action->from, $match_data, $match_index, $data_parsed);
+          $subject = $this->getValue($action->from, $match_data, $match_index, $data_parsed, $btx);
           $data_parsed[$action->to] = preg_replace($action->search_pattern, $action->replace, $subject);
         }
 
@@ -137,14 +137,14 @@ class CRM_Banking_PluginImpl_Matcher_RegexAnalyser extends CRM_Banking_PluginMod
         while (preg_match('#(?P<variable>{[^}]+})#', $expression, $matches)) {
           // replace variable with value
           $token = trim($matches[0], '{}');
-          $value = $this->getValue($token, $match_data, $match_index, $data_parsed);
+          $value = $this->getValue($token, $match_data, $match_index, $data_parsed, $btx);
           $expression = preg_replace('#(?P<variable>{[^}]+})#', $value, $expression, 1);
         }
         $data_parsed[$action->to] = eval("return $expression;");
 
       } elseif ($action->action=='map') {
         // MAP a value given a list of replacements
-        $value = $this->getValue($action->from, $match_data, $match_index, $data_parsed);
+        $value = $this->getValue($action->from, $match_data, $match_index, $data_parsed, $btx);
         if (isset($action->mapping->$value)) {
           $data_parsed[$action->to] = $action->mapping->$value;
         // DISABLED WARNINGS } else {
@@ -155,7 +155,7 @@ class CRM_Banking_PluginImpl_Matcher_RegexAnalyser extends CRM_Banking_PluginMod
         // LOOK UP values via API::getsingle
         //   parameters are in format: "EntityName,result_field,lookup_field"
         $params = explode(',', substr($action->action, 7));
-        $value = $this->getValue($action->from, $match_data, $match_index, $data_parsed);
+        $value = $this->getValue($action->from, $match_data, $match_index, $data_parsed, $btx);
         $query = array($params[2] => $value, 'version' => 3, 'return' => $params[1]);
         if (!empty($action->parameters)) {
           foreach($action->parameters as $key => $value) {
@@ -197,9 +197,9 @@ class CRM_Banking_PluginImpl_Matcher_RegexAnalyser extends CRM_Banking_PluginMod
           if (substr($key, 0, 6) =='const_') {
             $query[substr($key, 6)] = $value;
           } elseif (substr($key, 0, 6) =='param_') {
-            $query[substr($key, 6)] = $this->getValue($value, $match_data, $match_index, $data_parsed);
+            $query[substr($key, 6)] = $this->getValue($value, $match_data, $match_index, $data_parsed, $btx);
           } elseif (substr($key, 0, 10) =='jsonparam_') {
-            $query[substr($key, 10)] = json_decode($this->getValue($value, $match_data, $match_index, $data_parsed), TRUE);
+            $query[substr($key, 10)] = json_decode($this->getValue($value, $match_data, $match_index, $data_parsed, $btx), TRUE);
           } elseif (substr($key, 0, 10) =='jsonconst_') {
             $query[substr($key, 10)] = json_decode($value, TRUE);
           }
@@ -241,7 +241,7 @@ class CRM_Banking_PluginImpl_Matcher_RegexAnalyser extends CRM_Banking_PluginMod
   /**
    * Get the value either from the match context, or the already stored data
    */
-  protected function getValue($key, $match_data, $match_index, $data_parsed) {
+  protected function getValue($key, $match_data, $match_index, $data_parsed, $btx = NULL) {
     // see https://github.com/Project60/org.project60.banking/issues/111
     if ($this->_plugin_config->variable_lookup_compatibility) {
       if (!empty($match_data[$key][$match_index])) {
@@ -249,7 +249,11 @@ class CRM_Banking_PluginImpl_Matcher_RegexAnalyser extends CRM_Banking_PluginMod
       } else if (!empty($data_parsed[$key])) {
         return $data_parsed[$key];
       } else {
-        $this->logMessage("RexgexAnalyser - Cannot find source '$key' for rule or filter.", 'debug');
+        // try value propagation
+        $value = $this->getPropagationValue($btx, NULL, $key);
+        if (!$value) {
+          $this->logMessage("RexgexAnalyser - Cannot find source '$key' for rule or filter.", 'debug');
+        }
         return '';
       }
     } else {
@@ -258,7 +262,11 @@ class CRM_Banking_PluginImpl_Matcher_RegexAnalyser extends CRM_Banking_PluginMod
       } else if (isset($data_parsed[$key])) {
         return $data_parsed[$key];
       } else {
-        $this->logMessage("RexgexAnalyser - Cannot find source '$key' for rule or filter.", 'debug');
+        // try value propagation
+        $value = $this->getPropagationValue($btx, NULL, $key);
+        if (!$value) {
+          $this->logMessage("RexgexAnalyser - Cannot find source '$key' for rule or filter.", 'debug');
+        }
         return '';
       }
     }

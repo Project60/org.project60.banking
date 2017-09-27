@@ -13,25 +13,22 @@
 | written permission from the original author(s).        |
 +--------------------------------------------------------*}
 
-<style>
-  #btx-details .btxheader.collapsible-closed {ldelim}
-  background: url("{$base_url}/sites/all/modules/civicrm/i/TreeMinus.gif")  4px 4px no-repeat;
-  background-color: #CCC;
-  color: #000;
-  font-weight: bold;
-  padding-left: 20px;
-  {rdelim}
-  #btx-details .btxheader {ldelim}
-  background: url("{$base_url}/sites/all/modules/civicrm/i/TreePlus.gif") 4px 4px no-repeat;
-  background-color: #CCC;
-  color: #000;
-  font-weight: bold;
-  padding-left: 20px;
-  {rdelim}
-</style>
-
 {literal}
   <style>
+    #btx-details .btxheader.collapsible-closed {
+      background: url("{$base_url}/sites/all/modules/civicrm/i/TreeMinus.gif")  4px 4px no-repeat;
+      background-color: #CCC;
+      color: #000;
+      font-weight: bold;
+      padding-left: 20px;
+    }
+    #btx-details .btxheader {
+      background: url("{$base_url}/sites/all/modules/civicrm/i/TreePlus.gif") 4px 4px no-repeat;
+      background-color: #CCC;
+      color: #000;
+      font-weight: bold;
+      padding-left: 20px;
+    }
     #btx {
       background-color: #F4F4ED;
     }
@@ -80,6 +77,10 @@
       float: left;
       width: 100%;
       margin: 0;
+    }
+    td.btx-detail-entry {
+      white-space: pre-wrap;
+      font-family: Courier;
     }
     .btxvalue {
       background-color: #F4F4ED;
@@ -310,7 +311,7 @@
         <td>
           <table class="explorer">
             {foreach from=$extra_data key=k item=v}
-              <tr><td class="xk">{ts}{$k}{/ts}</td><td>{$v}</td></tr>
+              <tr><td class="xk">{ts}{$k}{/ts}</td><td class="btx-detail-entry">{$v}</td></tr>
             {/foreach}
           </table>
         </td>

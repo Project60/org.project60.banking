@@ -39,8 +39,6 @@ class CRM_Admin_Form_Setting_BankingSettings extends CRM_Core_Form {
       $menu_position_options,
       false // is not required
     );
-    $menu_position->setSelected((int) $this->getCurrentValue('menu_position'));
-
 
     // add JSON editor mode
     $json_editor_mode = array(
@@ -58,7 +56,6 @@ class CRM_Admin_Form_Setting_BankingSettings extends CRM_Core_Form {
       $json_editor_mode,
       TRUE
     );
-    $json_editor_mode->setSelected((int) $this->getCurrentValue('json_editor_mode'));
 
     // logging
     $log_level = $this->add(
@@ -67,7 +64,6 @@ class CRM_Admin_Form_Setting_BankingSettings extends CRM_Core_Form {
       ts('Log Level'),
       CRM_Banking_Helpers_Logger::getLoglevels()
     );
-    $log_level->setSelected($this->getCurrentValue('banking_log_level'));
 
     $log_file = $this->add(
       'text',
@@ -76,31 +72,26 @@ class CRM_Admin_Form_Setting_BankingSettings extends CRM_Core_Form {
       "TEST"
     );
 
-
-
     // store bank accounts
     $this->addElement(
       'checkbox',
       'reference_store_disabled',
       ts("Don't store bank accounts automatically"),
-      '',
-      ($this->getCurrentValue('reference_store_disabled')?array('checked' => 'checked'):array()));
+      '');
 
     // normalise bank account references?
     $this->addElement(
       'checkbox',
       'reference_normalisation',
       ts('Normalise bank account references'),
-      '',
-      ($this->getCurrentValue('reference_normalisation')?array('checked' => 'checked'):array()));
+      '');
 
     // validate bank account references?
     $this->addElement(
       'checkbox',
       'reference_validation',
       ts('Validate bank account references'),
-      '',
-      ($this->getCurrentValue('reference_validation')?array('checked' => 'checked'):array()));
+      '');
 
 
     $this->addButtons(array(
@@ -115,6 +106,28 @@ class CRM_Admin_Form_Setting_BankingSettings extends CRM_Core_Form {
   }
 
 
+  /**
+   * Overridden parent method to set default values
+   * @return array
+   */
+  function setDefaultValues() {
+    $defaults = array();
+
+    $defaults['menu_position']            = CRM_Core_BAO_Setting::getItem('CiviBanking', 'menu_position');
+    $defaults['json_editor_mode']         = CRM_Core_BAO_Setting::getItem('CiviBanking', 'json_editor_mode');
+    $defaults['banking_log_level']        = CRM_Core_BAO_Setting::getItem('CiviBanking', 'banking_log_level');
+    $defaults['banking_log_file']         = CRM_Core_BAO_Setting::getItem('CiviBanking', 'banking_log_file');
+    $defaults['reference_store_disabled'] = CRM_Core_BAO_Setting::getItem('CiviBanking', 'reference_store_disabled');
+    $defaults['reference_normalisation']  = CRM_Core_BAO_Setting::getItem('CiviBanking', 'reference_normalisation');
+    $defaults['reference_validation']     = CRM_Core_BAO_Setting::getItem('CiviBanking', 'reference_validation');
+
+    return $defaults;
+  }
+
+
+  /**
+   * store settings
+   */
   function postProcess() {
     $values = $this->exportValues();
 
@@ -144,18 +157,4 @@ class CRM_Admin_Form_Setting_BankingSettings extends CRM_Core_Form {
 
     parent::postProcess();
   }
-
-  /**
-   * Get the temporarily valid value
-   *
-   * @todo USE setDefaults() instead!
-   */
-  public function getCurrentValue($key) {
-    if (!empty($this->_submitValues[$key])) {
-      return $this->_submitValues[$key];
-    } else {
-      return CRM_Core_BAO_Setting::getItem('CiviBanking', $key);
-    }
-  }
-
 }

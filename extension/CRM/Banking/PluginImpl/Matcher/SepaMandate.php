@@ -466,7 +466,13 @@ class CRM_Banking_PluginImpl_Matcher_SepaMandate extends CRM_Banking_PluginModel
       if (!empty($contribution['is_error'])) {
         error_log("org.project60.sepa: matcher_sepa: Couldn't load contribution, error was: ".$result['error_message']);
         CRM_Core_Session::setStatus(ts("Couldn't modify contribution."), ts('Error'), 'error');
+
       } else {
+          // compatibility: contribution_payment_instrument isn't set any more...
+        if (!empty($contribution['payment_instrument'])) {
+          $contribution['contribution_payment_instrument'] = $contribution['payment_instrument'];
+        }
+
         if (   'OOFF' == $contribution['contribution_payment_instrument']
             && !empty($config->cancellation_update_mandate_status_OOFF)) {
           // everything seems fine, adjust the mandate's status

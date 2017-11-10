@@ -54,7 +54,7 @@ abstract class CRM_Banking_PluginModel_BtxBase extends CRM_Banking_PluginModel_B
       foreach ($required_values as $required_key => $required_value) {
         $this->logMessage("Evaluating {$required_key}: {$required_value}", 'debug');
         $current_value = $this->getPropagationValue($btx, NULL, $required_key);
-        $split = split(':', $required_value, 2);
+        $split = explode(':', $required_value, 2);
         if (count($split) < 2) {
           error_log("org.project60.banking: required_value in config option not properly formatted, plugin id [{$this->_plugin_id}]");
         } else {

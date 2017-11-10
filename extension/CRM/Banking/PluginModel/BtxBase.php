@@ -206,9 +206,9 @@ abstract class CRM_Banking_PluginModel_BtxBase extends CRM_Banking_PluginModel_B
         return NULL;
       }
 
-      if (isset($bank_account->$key_bits[1])) {
+      if (isset($bank_account->{$key_bits[1]})) {
         // look in the BA directly
-        return $bank_account->$key_bits[1];
+        return $bank_account->{$key_bits[1]};
       } else {
         // look in the parsed values
         $data = $bank_account->getDataParsed();
@@ -231,9 +231,9 @@ abstract class CRM_Banking_PluginModel_BtxBase extends CRM_Banking_PluginModel_B
     // access btx custom data
     } elseif ($key_bits[0]=='btx') {
       // read BTX stuff
-      if (isset($btx->$key_bits[1])) {
+      if (isset($btx->{$key_bits[1]})) {
         // look in the BA directly
-        return $btx->$key_bits[1];
+        return $btx->{$key_bits[1]};
       } else {
         // look in the parsed values
         $data = $btx->getDataParsed();

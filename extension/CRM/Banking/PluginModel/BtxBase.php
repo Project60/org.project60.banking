@@ -190,7 +190,7 @@ abstract class CRM_Banking_PluginModel_BtxBase extends CRM_Banking_PluginModel_B
    * Get the value of the propagation value spec
    */
   public function getPropagationValue($btx, $suggestion, $key) {
-    $key_bits = split("[.]", $key, 2);
+    $key_bits = explode('.', $key, 2);
 
     // check the custom object firsts
 

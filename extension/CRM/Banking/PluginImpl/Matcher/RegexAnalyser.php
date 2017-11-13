@@ -62,18 +62,16 @@ class CRM_Banking_PluginImpl_Matcher_RegexAnalyser extends CRM_Banking_PluginMod
 
       // appy rule to all the fields listed...
       foreach ($fields as $field) {
-        if (isset($data_parsed[$field])) {
-          $field_data = $data_parsed[$field];
-          $matches = array();
+        $matches = array();
+        $field_data = $this->getValue($field, NULL, NULL, $data_parsed, $btx);
 
-          // match the pattern on the given field data
-          $match_count = preg_match_all($pattern, $field_data, $matches);
+        // match the pattern on the given field data
+        $match_count = preg_match_all($pattern, $field_data, $matches);
 
-          // and execute the actions for each match...
-          for ($i=0; $i < $match_count; $i++) {
-            $this->logMessage("Rule '{$rule->pattern}' matched.", 'debug');
-            $this->processMatch($matches, $i, $data_parsed, $rule, $btx);
-          }
+        // and execute the actions for each match...
+        for ($i=0; $i < $match_count; $i++) {
+          $this->logMessage("Rule '{$rule->pattern}' matched.", 'debug');
+          $this->processMatch($matches, $i, $data_parsed, $rule, $btx);
         }
       }
     }

@@ -1,0 +1,41 @@
+{
+   "comment_0": "The SEPA matcher requires the field 'sepa_mandate', and ideally 'sepa_batch'",
+   "comment_1": "this section is for the verification of collected transactions:",
+   "auto_exec":1.0,
+   "received_date_minimum":"-6 days",
+   "received_date_maximum":"+10 days",
+   "deviation_penalty":0.15,
+   "value_propagation":{
+      "btx._IBAN":"contribution.custom_72"
+   },
+   "comment_1": "this section is processing cancellations:",
+   "cancellation_enabled": true,
+   "cancellation_general_penalty": 0.00,
+   "cancellation_default_reason": "Unknown Reason",
+   "cancellation_amount_relative_minimum": 1.0,
+   "cancellation_amount_relative_maximum": 1.0,
+   "cancellation_amount_absolute_minimum": -8.7,
+   "cancellation_amount_absolute_maximum": 0,
+   "cancellation_amount_penalty": 0.3,
+   "cancellation_penalty_threshold": 0.3,
+   "cancellation_date_minimum":"-15 days",
+   "cancellation_date_maximum":"+1 days",
+   "cancellation_status_penalty": {"1": 0.0, "5": 0.2},
+   "cancellation_cancel_reason": 1,
+   "cancellation_cancel_reason_source": "cancel_reason",
+   "cancellation_cancel_reason_default": "Unknown Reason",
+   "cancellation_cancel_fee": 0,
+   "cancellation_cancel_fee_source": null,
+   "cancellation_cancel_fee_store": "contribution.custom_73",
+   "cancellation_create_activity": false,
+   "cancellation_create_activity_type_id": 76,
+   "cancellation_create_activity_subject": "SEPA Cancellation",
+   "cancellation_create_activity_assignee_id": 4657,
+   "cancellation_update_mandate_status_OOFF": "INVALID",
+   "cancellation_update_mandate_status_RCUR": false,
+   "cancellation_value_propagation": {
+      "btx.cancel_reason": "contribution.cancel_reason",
+      "btx._IBAN":"contribution.custom_72",
+      "btx._IBAN":"contribution.custom_75"
+   }
+}

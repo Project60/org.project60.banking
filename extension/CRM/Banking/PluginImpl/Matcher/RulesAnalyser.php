@@ -100,8 +100,80 @@ class CRM_Banking_PluginImpl_Matcher_RulesAnalyser extends CRM_Banking_PluginMod
    * @param type $btx
    */
   public function execute($match, $btx) {
-    CRM_Core_Session::setStatus(ts("These shouldn't be executed."), ts('Error'), 'error');
-    return NULL;
+
+    // Is this this correct way to do it?
+    $input = $_POST;
+
+    if (empty($input['rules-analyser__create-new-rule'])) {
+      // User did not want to create a new rule.
+      CRM_Core_Session::setStatus(ts("Confirm button used on the rules analyser plugin; nothing to do."), ts('Error'), 'error');
+      return NULL;
+    }
+
+
+    // User wants to create a rule.
+    $i = 1;
+    $params = [];
+    $row = [];
+
+    // Simple fields.
+    $map = [
+      'rules-analyser__party-iban'   => 'party_ba_ref',
+      'rules-analyser__our-iban'     => 'ba_ref',
+      'rules-analyser__party-name'   => 'party_name',
+      'rules-analyser__tx-reference' => 'tx_reference',
+      'rules-analyser__tx-purpose'   => 'tx_purpose',
+    ];
+    foreach ($map as $i => $o) {
+      if (!empty($input["$i-cb"])) {
+        // This field is needed.
+        $row[$o] = $input[$i];
+      }
+    }
+
+    // Amount.
+    if (!empty($input['rules-analyser__amount-cb'])) {
+      // Amount is needed.
+      $row['amount_min'] = $input['rules-analyser__amount'];
+
+      if ($input['rules-analyser__amount-op'] == 'equals') {
+        // Use same value for amount if 'equals'.
+        $row['amount_max'] = $input['rules-analyser__amount'];
+      }
+      else {
+        // 'between' case.
+        $row['amount_max'] = $input['rules-analyser__amount-2'];
+      }
+    }
+
+    // @todo other conditions.
+
+    // Instructions ("Actions").
+    $execution = [];
+    foreach ([
+      'rules-analyser__set-campaign'   => 'campaign',
+      'rules-analyser__set-membership' => 'membership',
+      'rules-analyser__set-contact'    => 'contact',
+    ] as $i => $o) {
+      if (!empty($input["$i-cb"])) {
+        $execution[$o] = $input[$i];
+      }
+    }
+    $row['execution'] = serialize($execution);
+
+    if (!$execution) {
+      CRM_Core_Session::setStatus(ts("Cannot create a rule with no actions."), ts('Error'), 'error');
+      return NULL;
+    }
+
+    // Create rule.
+    $row['type'] = 1;
+    $row['is_enabled'] = 1;
+    $row['created_by'] = CRM_Core_Session::singleton()->getLoggedInContactID();
+    $row['match_counter'] = 0;
+    $insert = CRM_Utils_SQL_Insert::into('civicrm_bank_rules')->row($row)->toSQL();
+    $dao = CRM_Core_DAO::executeQuery($insert);
+    $rule_id = $dao->id;
 
     // update status
     // $newStatus = banking_helper_optionvalueid_by_groupname_and_name('civicrm_banking.bank_tx_status', 'Processed');

@@ -35,10 +35,11 @@
 
 <div class="rules-analyser-new">
   <a class="button rules-analyser__show-ui-btn"><span><div class="icon ui-icon-plus"></div>{ts}create new rule{/ts}</span></a>
+  <input type="hidden" name="rules-analyser__create-new-rule" value="0" />
 
   <div class='rules-analyser__create-ui' style="display:none;">
     <a class="not-floated rules-analyser__hide-create-ui-btn button" href=""><span><div class="icon add-icon  ui-icon-circle-minus"></div>Cancel</span></a>
-    <h4 class="rules-analyser__section-heading">New Rule Criteria</h4>
+    <h4 class="rules-analyser__section-heading">{ts}New Rule Criteria{/ts}</h4>
     <p>{ts}What information must match to trigger this rule?{/ts}</p>
     <table>
       <thead><tr><th>Include</th><th>Match</th></tr></thead>
@@ -92,7 +93,6 @@
 
       </tbody>
     </table>
-    <a class="button not-floated" href=""><span><div class="icon add-icon  ui-icon-circle-triangle-e"></div>{ts}Test Rule{/ts}</span></a>
 
     <h4 class="rules-analyser__section-heading">{ts}New Rule Actions{/ts}</h4>
     <p>{ts}What information is added by this rule?{/ts}</p>
@@ -100,25 +100,29 @@
       <thead><tr><th>{ts}Field to set{/ts}</th><th>{ts}Value{/ts}</th></tr></thead>
       <tbody>
         <tr>
-          <td><input type="checkbox" id="rules-analyser__set-campaign-cb" name="rules-analyser__set-campaign-cb" class="rules-analyser__set-campaign-cb">
+          <td>
+            <input type="checkbox" id="rules-analyser__set-campaign-cb" name="rules-analyser__set-campaign-cb" class="rules-analyser__set-campaign-cb rules-analyser__action">
             <label for="rules-analyser__set-campaign-cb">{ts}Campaign{/ts}</label> </td>
           <td class="rules-analyser__set-campaign-ui"><input name="rules-analyser__set-campaign" value="" type="text"> </td>
         </tr>
 
         <tr>
-          <td><input type="checkbox" id="rules-analyser__set-contact-cb" name="rules-analyser__set-contact-cb" class="rules-analyser__set-contact-cb">
+          <td><input type="checkbox" id="rules-analyser__set-contact-cb" name="rules-analyser__set-contact-cb" class="rules-analyser__set-contact-cb rules-analyser__action">
             <label for="rules-analyser__set-contact-cb">{ts}Contact{/ts}</label> </td>
           <td class="rules-analyser__set-contact-ui"><input name="rules-analyser__set-contact" value="" type="text"> </td>
         </tr>
 
         <tr>
-          <td><input type="checkbox" id="rules-analyser__set-membership-cb" name="rules-analyser__set-membership-cb" class="rules-analyser__set-membership-cb">
+          <td><input type="checkbox" id="rules-analyser__set-membership-cb" name="rules-analyser__set-membership-cb" class="rules-analyser__set-membership-cb rules-analyser__action">
              <label for="rules-analyser__set-membership-cb">{ts}Membership ID{/ts}</label> </td>
           <td class="rules-analyser__set-membership-ui"><input name="rules-analyser__set-membership" value="" type="text"> </td>
         </tr>
 
       </tbody>
     </table>
+
+    <a class="button not-floated" href=""><span><div class="icon add-icon  ui-icon-circle-triangle-e"></div>{ts}Test Rule{/ts}</span></a>
+    <span class="rules-analyser__status" ></span>
 
   </div>
 </div>
@@ -137,6 +141,9 @@ if (!rulesAnalyser) {
 
     // Close UI btn.
     $el.find('.rules-analyser__hide-create-ui-btn').on('click', this.toggleNewRuleUi.bind(this));
+
+    // Hidden input remembers whether we want to add a rule.
+    this.$new_rule = this.$el.find('input[name="rules-analyser__create-new-rule"]');
 
     // Checkboxes to enable/disable match fields.
     var updateUi = this.updateUi.bind(this);
@@ -167,7 +174,14 @@ if (!rulesAnalyser) {
     ],
     toggleNewRuleUi: function(e) {
       e.preventDefault();
-      if (this.$ui.is(':hidden')) {
+      this.$new_rule.val( parseInt(this.$new_rule.val()) ? 0 : 1 );
+      this.updateUi();
+    },
+    updateUi: function() {
+
+      var errors = [];
+
+      if (parseInt(this.$new_rule.val())) {
         this.$ui.show();
         this.$open_btn.hide();
       }
@@ -175,8 +189,6 @@ if (!rulesAnalyser) {
         this.$ui.hide();
         this.$open_btn.show();
       }
-    },
-    updateUi: function() {
 
       var self = this;
       CRM._.each(this.toggleableFields, function(v) {
@@ -199,6 +211,17 @@ if (!rulesAnalyser) {
         $amount2.show();
       }
 
+      // If no actions are selected this is not going to be useful.
+      if (this.$el.find('.rules-analyser__action:checked').length == 0) {
+        errors.push("{/literal}{ts}You must select at least one action.{/ts}{literal}");
+      }
+
+      if (errors.length) {
+        this.$el.find('.rules-analyser__status').addClass('error').text(errors.join(' '));
+      }
+      else {
+        this.$el.find('.rules-analyser__status').removeClass('error').text('');
+      }
     }
   });
 }

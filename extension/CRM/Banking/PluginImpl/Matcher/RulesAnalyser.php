@@ -18,13 +18,16 @@
 
 require_once 'CRM/Banking/Helpers/OptionValue.php';
 
+define('BANKING_MATCHER_RULE_TYPE_ANALYSER', 1);
+define('BANKING_MATCHER_RULE_TYPE_MATCHER',  2);
+
 /**
  * This matcher will try to match any transaction
  *  to the rules recorded in a rule table
  *
  * It will also offer the user to to create new rules
  */
-class CRM_Banking_PluginImpl_Matcher_Rules extends CRM_Banking_PluginModel_Matcher {
+class CRM_Banking_PluginImpl_Matcher_RulesAnalyser extends CRM_Banking_PluginModel_Matcher {
 
   /**
    * class constructor
@@ -34,37 +37,56 @@ class CRM_Banking_PluginImpl_Matcher_Rules extends CRM_Banking_PluginModel_Match
 
     // read config, set defaults
     $config = $this->_plugin_config;
+    if (!isset($config->show_matched_rules))    $config->show_matched_rules = TRUE;
+    if (!isset($config->suggest_create_new))    $config->suggest_create_new = TRUE;
+    if (!isset($config->create_new_confidence)) $config->create_new_confidence = 0.75;
 
     // TODO: set default parameters like this:
     // if (!isset($config->threshold)) $config->threshold = 0.5;
   }
 
   /**
-   * Generate a set of suggestions for the given bank transaction
+   * Suggestion listing the currently matched rules and/or
+   *  offer to create new ones
    *
    * @return array(match structures)
    */
   public function match(CRM_Banking_BAO_BankTransaction $btx, CRM_Banking_Matcher_Context $context) {
-    $config      = $this->_plugin_config;
-    $threshold   = $this->getThreshold();
-    $penalty     = $this->getPenalty($btx);
+    $config = $this->_plugin_config;
 
     // run the rule matcher
-    $rule_matches = CRM_Banking_Rules_Match::matchTransaction($btx, $context, $threshold);
+    $rule_matches = CRM_Banking_Rules_Match::matchTransaction($btx, $context, BANKING_MATCHER_RULE_TYPE_ANALYSER, $threshold);
+    $matched_rule_ids = array();
 
     // generate a suggestion for each match
     foreach ($rule_matches as $rule_match) {
-      $suggestion = new CRM_Banking_Matcher_Suggestion($this, $btx);
-      $suggestion->setParameter('mode', 'matched');
-      $suggestion->setParameter('rule_id', $rule_match->getRule()->getID());
-      $suggestion->setProbability($rule_match->getConfidence() - $penalty);
-      $btx->addSuggestion($suggestion);
+      // apply the match
+      $rule_match->execute();
+
+      // add the ID
+      $matched_rule_ids[] = $rule_match->getRule()->getID();
     }
 
-    // if there has been no matches, add a 'create rule' match
-    if (empty($rule_matches)) {
+    // see if we want to create a "suggestion"
+    if (   $config->suggest_create_new
+        || ($config->show_matched_rules && !empty($rule_matches)) ) {
+
+      // create a suggestion
       $suggestion = new CRM_Banking_Matcher_Suggestion($this, $btx);
-      $suggestion->setParameter('mode', 'new');
+      $suggestion->setTitle("BankingRules");
+      $suggestion->setProbability($config->create_new_confidence);
+
+      // add all matches rules to be displayed
+      $rule2confidence = array();
+      foreach ($rule_matches as $rule_match) {
+        $rule2confidence[$rule_match->getRule()->getID()] = $rule_match->getConfidence();
+      }
+      $suggestion->setParameter('matched_rules', $rule2confidence);
+
+      if ($config->suggest_create_new) {
+        $suggestion->setParameter('matched_rules', $rule2confidence);
+      }
+
       $btx->addSuggestion($suggestion);
     }
 
@@ -78,23 +100,14 @@ class CRM_Banking_PluginImpl_Matcher_Rules extends CRM_Banking_PluginModel_Match
    * @param type $btx
    */
   public function execute($match, $btx) {
-    if (!$rule) {
-      CRM_Core_Session::setStatus(ts("You cannot "), ts('Error'), 'error');
-      return;
-    }
-
-    $rule_id = $match->getParameter('rule_id');
-    $rule = CRM_Banking_Rules_Rule::get($rule_id);
-
-    // execute rule
-    $rule_match = new CRM_Banking_Rules_Match($rule, $btx);
-    $rule_match->execute($match);
+    CRM_Core_Session::setStatus(ts("These shouldn't be executed."), ts('Error'), 'error');
+    return NULL;
 
     // update status
-    $newStatus = banking_helper_optionvalueid_by_groupname_and_name('civicrm_banking.bank_tx_status', 'Processed');
-    $btx->setStatus($newStatus);
-    parent::execute($match, $btx);
-    return true;
+    // $newStatus = banking_helper_optionvalueid_by_groupname_and_name('civicrm_banking.bank_tx_status', 'Processed');
+    // $btx->setStatus($newStatus);
+    // parent::execute($match, $btx);
+    // return true;
   }
 
   /**
@@ -105,17 +118,7 @@ class CRM_Banking_PluginImpl_Matcher_Rules extends CRM_Banking_PluginModel_Match
    *  'belong' to your suggestion.
    */
   public function update_parameters(CRM_Banking_Matcher_Suggestion $match, $parameters) {
-    // TODO: implement
-    // $config = $this->_plugin_config;
-    // if ($match->getParameter('cancellation_mode')) {
-    //   // store potentially modified extended cancellation values
-    //   if ($config->cancellation_cancel_reason) {
-    //     $match->setParameter('cancel_reason', $parameters['cancel_reason']);
-    //   }
-    //   if ($config->cancellation_cancel_fee) {
-    //     $match->setParameter('cancel_fee', number_format((float) $parameters['cancel_fee'], 2));
-    //   }
-    // }
+    // TODO: implement 'create new' based on $parameters
   }
 
  /**
@@ -129,41 +132,21 @@ class CRM_Banking_PluginImpl_Matcher_Rules extends CRM_Banking_PluginModel_Match
     $config = $this->_plugin_config;
     $smarty_vars = array();
 
-    // add mode
-    $smarty_vars['mode']    = $match->getParameter('mode');
-    $smarty_vars['rule_id'] = $match->getParameter('rule_id');
-
-    // load the rule
-    $rule_id = $match->getParameter('rule_id');
-    $rule = CRM_Banking_Rules_Rule::get($rule_id);
-    if ($rule) {
-      $rule->addRenderParameters($smarty_vars);
+    // add rule render information
+    $matched_rules = $match->getParameter('matched_rules');
+    $rules_data    = array();
+    foreach ($matched_rules as $rule_id => $confidence) {
+      $rule_data = array('confidence' => $confidence);
+      $rule = CRM_Banking_Rules_Rule::get($rule_id);
+      $rule->addRenderParameters($rule_data);
+      $rules_data[$rule_id] = $rule_data;
     }
+    $smarty_vars['rules'] = $rules_data;
 
     // render template
     $smarty = CRM_Banking_Helpers_Smarty::singleton();
     $smarty->pushScope($smarty_vars);
-    $html_snippet = $smarty->fetch('CRM/Banking/PluginImpl/Matcher/Rules.suggestion.tpl');
-    $smarty->popScope();
-    return $html_snippet;
-  }
-
-  /**
-   * Generate html code to visualize the executed match.
-   *
-   * @val $match    match data as previously generated by this plugin instance
-   * @val $btx      the bank transaction the match refers to
-   * @return html code snippet
-   */
-  function visualize_execution_info( CRM_Banking_Matcher_Suggestion $match, $btx) {
-    // just assign to smarty and compile HTML
-    $smarty_vars = array();
-    $smarty_vars['contribution_id'] = $match->getParameter('contribution_id');
-    $smarty_vars['rule_id'] = $match->getParameter('rule_id');
-
-    $smarty = CRM_Banking_Helpers_Smarty::singleton();
-    $smarty->pushScope($smarty_vars);
-    $html_snippet = $smarty->fetch('CRM/Banking/PluginImpl/Matcher/Rules.execution.tpl');
+    $html_snippet = $smarty->fetch('CRM/Banking/PluginImpl/Matcher/RulesAnalyser.suggestion.tpl');
     $smarty->popScope();
     return $html_snippet;
   }

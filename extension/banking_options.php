@@ -115,6 +115,11 @@ function _banking_options() {
                   'description' => 'Looks up a transaction\'s bank accounts (again)',
                   'is_default' => 0,
               ),
+              'analyser_rules' => array(
+                  'label' => 'Rule Analyser Plugin',
+                  'value' => 'CRM_Banking_PluginImpl_Matcher_RulesAnalyser',
+                  'is_default' => 0,
+              ),
               'postprocessor_accounts' => array(
                   'label' => 'Bank Accounts PostProcessor',
                   'value' => 'CRM_Banking_PluginImpl_PostProcessor_Accounts',

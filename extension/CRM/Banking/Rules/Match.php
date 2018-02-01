@@ -31,11 +31,12 @@ class CRM_Banking_Rules_Match {
    *
    * @param $btx        CRM_Banking_BAO_BankTransaction to be analysed
    * @param $context    CRM_Banking_Matcher_Context     matching context, can be used for caching
+   * @param $type       int    rule type to be matched: 1=analyser, 2=matcher
    * @param $confidence float  discard any matches with a confidence below this value
    *
    * @return array a list of CRM_Banking_Rules_Match objects
    */
-  public static function matchTransaction($btx, $context, $threshold = 0.0) {
+  public static function matchTransaction($btx, $context, $type = 1, $threshold = 0.0) {
     // TODO: implement
     return array();
   }
@@ -80,9 +81,12 @@ class CRM_Banking_Rules_Match {
    * it should also update the execution info in the suggestion
    *  accordingly, so the changes performed are recorded
    *
-   * @param $suggestion CRM_Banking_Matcher_Suggestion the suggestion being executed
+   * Remark: if this is a 'analyser style rule', this would only
+   *   update the btx data, but not
+   *
+   * @param $suggestion CRM_Banking_Matcher_Suggestion the suggestion being executed or NULL
    */
-  public function execute($suggestion) {
+  public function execute($suggestion = NULL) {
     // TODO
     // this object should already contain the right btx and rule objects
   }

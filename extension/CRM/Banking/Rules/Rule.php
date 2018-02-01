@@ -38,6 +38,15 @@ class CRM_Banking_Rules_Rule {
   }
 
   /**
+   * Return the type of rule:
+   *  'analyser rules' will only update the btx data, while
+   *  'matcher rules'  will actually go ahead and create contributions
+   */
+  public function isAnalyserRule() {
+    return TRUE; // for now we'll only implement these
+  }
+
+  /**
    * Adds all parameters needed to the given
    * variable set. These will end up in the
    * smarty template
@@ -45,8 +54,5 @@ class CRM_Banking_Rules_Rule {
   public function addRenderParameters(&$variables) {
     // TODO
   }
-
-
-  // TODO
 
 }

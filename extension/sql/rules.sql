@@ -36,6 +36,7 @@ CREATE TABLE IF NOT EXISTS `civicrm_bank_rules` (
 
 -- rule metadata:
      `name`           varchar(64)           COMMENT 'optional rule name',
+     `type`               tinyint  NOT NULL COMMENT '1 = analyser, 2 = matcher type',
      `is_enabled`         tinyint  NOT NULL COMMENT 'set to 1 to enable the rule',
      `valid_until`       datetime           COMMENT 'this rule should not match after this date',
      `created_by`    int unsigned           COMMENT 'contact who created this rule',
@@ -50,5 +51,6 @@ CREATE TABLE IF NOT EXISTS `civicrm_bank_rules` (
      INDEX `tx_reference` (`tx_reference`),
      INDEX `tx_purpose`   (`tx_purpose`),
      INDEX `is_enabled`   (`is_enabled`),
+     INDEX `type`         (`type`),
      CONSTRAINT FK_civicrm_bank_rules_created_by FOREIGN KEY (`created_by`) REFERENCES `civicrm_contact`(`id`) ON DELETE SET NULL
 ) ENGINE=InnoDB DEFAULT CHARACTER SET utf8 COLLATE utf8_unicode_ci;

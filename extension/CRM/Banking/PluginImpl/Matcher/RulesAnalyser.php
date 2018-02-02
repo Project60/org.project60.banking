@@ -40,6 +40,13 @@ class CRM_Banking_PluginImpl_Matcher_RulesAnalyser extends CRM_Banking_PluginMod
     if (!isset($config->show_matched_rules))    $config->show_matched_rules = TRUE;
     if (!isset($config->suggest_create_new))    $config->suggest_create_new = TRUE;
     if (!isset($config->create_new_confidence)) $config->create_new_confidence = 0.75;
+    if (!isset($config->field_mapping))         $config->field_mapping = array();
+    if (!isset($config->fields_to_set))         $config->fields_to_set = array(
+                                                  'campaign_id'           => ts('Campaign ID'),
+                                                  'contact_id'            => ts('Contact ID'),
+                                                  'membership_id'         => ts('Membership ID'),
+                                                  'financial_type_id'     => ts('Financial Type ID'),
+                                                  'payment_instrument_id' => ts('Payment Instrument ID'));
   }
 
   /**

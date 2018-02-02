@@ -68,6 +68,11 @@ class CRM_Banking_Page_Review extends CRM_Core_Page {
           if (!isset($next_pid) && ($_REQUEST['execute']==$pid)) {
             $url_redirect = banking_helper_buildURL('civicrm/banking/payments',  $this->_pageParameters());
           }
+        } else {
+          // execution failed -> go back
+          if (isset($prev_pid)) {
+            $url_redirect = banking_helper_buildURL('civicrm/banking/review',  $this->_pageParameters(array('id'=>$prev_pid)));
+          }
         }
       }
 
@@ -346,6 +351,7 @@ class CRM_Banking_Page_Review extends CRM_Core_Page {
       $suggestion->update_parameters($parameters);
       $btx_bao->saveSuggestions();
       $result = $suggestion->execute($btx_bao);
+      error_log($result);
       if ($result) {
         if ($result == 're-run') {
           // just reload the page

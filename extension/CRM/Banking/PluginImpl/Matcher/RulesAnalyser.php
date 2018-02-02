@@ -118,8 +118,8 @@ class CRM_Banking_PluginImpl_Matcher_RulesAnalyser extends CRM_Banking_PluginMod
 
     if (empty($input['rules-analyser__create-new-rule'])) {
       // User did not want to create a new rule.
-      CRM_Core_Session::setStatus(ts("Confirm button used on the rules analyser plugin; nothing to do."), ts('Error'), 'error');
-      return NULL;
+      CRM_Core_Session::setStatus(ts("No new rule was created."), ts('Nothing to do'), 'warn');
+      return 're-run';
     }
 
 
@@ -175,10 +175,11 @@ class CRM_Banking_PluginImpl_Matcher_RulesAnalyser extends CRM_Banking_PluginMod
 
     if (!$execution) {
       CRM_Core_Session::setStatus(ts("Cannot create a rule with no actions."), ts('Error'), 'error');
-      return NULL;
+      return 're-run';
     }
 
     // Create rule.
+    // FIXME: could we move this code into the CRM_Banking_Rules_Rule?
     $row['type'] = 1;
     $row['is_enabled'] = 1;
     $row['created_by'] = CRM_Core_Session::singleton()->getLoggedInContactID();

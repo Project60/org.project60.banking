@@ -40,9 +40,6 @@ class CRM_Banking_PluginImpl_Matcher_RulesAnalyser extends CRM_Banking_PluginMod
     if (!isset($config->show_matched_rules))    $config->show_matched_rules = TRUE;
     if (!isset($config->suggest_create_new))    $config->suggest_create_new = TRUE;
     if (!isset($config->create_new_confidence)) $config->create_new_confidence = 0.75;
-
-    // TODO: set default parameters like this:
-    // if (!isset($config->threshold)) $config->threshold = 0.5;
   }
 
   /**
@@ -53,6 +50,8 @@ class CRM_Banking_PluginImpl_Matcher_RulesAnalyser extends CRM_Banking_PluginMod
    */
   public function match(CRM_Banking_BAO_BankTransaction $btx, CRM_Banking_Matcher_Context $context) {
     $config = $this->_plugin_config;
+
+    // TODO: threshold
 
     // run the rule matcher
     $rule_matches = CRM_Banking_Rules_Match::matchTransaction($btx, $context, BANKING_MATCHER_RULE_TYPE_ANALYSER, $threshold);
@@ -94,20 +93,28 @@ class CRM_Banking_PluginImpl_Matcher_RulesAnalyser extends CRM_Banking_PluginMod
   }
 
   /**
+   * DISABLE auto-exec for this.
+   */
+  public function autoExecute() {
+    return FALSE;
+  }
+
+  /**
    * Handle the different actions, should probably be handles at base class level ...
    *
    * @param type $match
    * @param type $btx
    */
   public function execute($match, $btx) {
-    CRM_Core_Session::setStatus(ts("These shouldn't be executed."), ts('Error'), 'error');
+    CRM_Core_Session::setStatus(ts("TODO: Rule as been created"), ts('Rule'), 'info');
     return NULL;
 
     // update status
     // $newStatus = banking_helper_optionvalueid_by_groupname_and_name('civicrm_banking.bank_tx_status', 'Processed');
     // $btx->setStatus($newStatus);
     // parent::execute($match, $btx);
-    // return true;
+    // return true;r
+    return 're-run';
   }
 
   /**

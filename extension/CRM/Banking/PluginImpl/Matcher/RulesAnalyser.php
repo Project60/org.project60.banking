@@ -179,14 +179,7 @@ class CRM_Banking_PluginImpl_Matcher_RulesAnalyser extends CRM_Banking_PluginMod
     }
 
     // Create rule.
-    // FIXME: could we move this code into the CRM_Banking_Rules_Rule?
-    $row['type'] = 1;
-    $row['is_enabled'] = 1;
-    $row['created_by'] = CRM_Core_Session::singleton()->getLoggedInContactID();
-    $row['match_counter'] = 0;
-    $insert = CRM_Utils_SQL_Insert::into('civicrm_bank_rules')->row($row)->toSQL();
-    $dao = CRM_Core_DAO::executeQuery($insert);
-    $rule_id = $dao->id;
+    $rule = CRM_Banking_Rules_Rule::createRule($row);
 
     // return 're-run' to indicate that this transaction needs to
     //  be analysed again

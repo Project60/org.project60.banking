@@ -218,6 +218,7 @@ class CRM_Banking_PluginImpl_Matcher_RulesAnalyser extends CRM_Banking_PluginMod
       $rules_data[$rule_id] = $rule_data;
     }
     $smarty_vars['rules'] = $rules_data;
+    $smarty_vars['fields_to_set'] = isset($config->fields_to_set) ? $config->fields_to_set : [];
 
     // render template
     $smarty = CRM_Banking_Helpers_Smarty::singleton();

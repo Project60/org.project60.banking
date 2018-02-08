@@ -99,25 +99,14 @@
     <table>
       <thead><tr><th>{ts}Field to set{/ts}</th><th>{ts}Value{/ts}</th></tr></thead>
       <tbody>
-        <tr>
-          <td>
-            <input type="checkbox" id="rules-analyser__set-campaign-cb" name="rules-analyser__set-campaign-cb" class="rules-analyser__set-campaign-cb rules-analyser__action">
-            <label for="rules-analyser__set-campaign-cb">{ts}Campaign{/ts}</label> </td>
-          <td class="rules-analyser__set-campaign-ui"><input name="rules-analyser__set-campaign" value="" type="text"> </td>
-        </tr>
-
-        <tr>
-          <td><input type="checkbox" id="rules-analyser__set-contact-cb" name="rules-analyser__set-contact-cb" class="rules-analyser__set-contact-cb rules-analyser__action">
-            <label for="rules-analyser__set-contact-cb">{ts}Contact{/ts}</label> </td>
-          <td class="rules-analyser__set-contact-ui"><input name="rules-analyser__set-contact" value="" type="text"> </td>
-        </tr>
-
-        <tr>
-          <td><input type="checkbox" id="rules-analyser__set-membership-cb" name="rules-analyser__set-membership-cb" class="rules-analyser__set-membership-cb rules-analyser__action">
-             <label for="rules-analyser__set-membership-cb">{ts}Membership ID{/ts}</label> </td>
-          <td class="rules-analyser__set-membership-ui"><input name="rules-analyser__set-membership" value="" type="text"> </td>
-        </tr>
-
+        {foreach from=$fields_to_set item=field_ui key=rule_field}
+          <tr>
+            <td>
+              <input type="checkbox" id="rules-analyser__set-{$rule_field}-cb" name="rules-analyser__set-{$rule_field}-cb" class="rules-analyser__set-{$rule_field}-cb rules-analyser__action">
+              <label for="rules-analyser__set-{$rule_field}-cb">{ts}{$field_ui->label}{/ts}</label> </td>
+            <td class="rules-analyser__set-{$rule_field}-ui"><input name="rules-analyser__set-{$rule_field}" value="" type="text"> </td>
+          </tr>
+        {/foreach}
       </tbody>
     </table>
 
@@ -161,16 +150,17 @@ if (!rulesAnalyser) {
   CRM._.extend(rulesAnalyser.prototype, {
 
     toggleableFields: [
+      // Fields to set, from config.
+      {/literal}{foreach from=$fields_to_set item=field_ui key=rule_field}
+      'set-{$rule_field}',
+      {/foreach}{literal}
+      // Filter fields.
       'party-iban',
       'party-name',
       'our-iban',
       'tx-reference',
       'tx-purpose',
       'amount',
-      // Fields to set.
-      'set-campaign',
-      'set-membership',
-      'set-contact'
     ],
     toggleNewRuleUi: function(e) {
       e.preventDefault();

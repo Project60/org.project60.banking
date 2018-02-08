@@ -21,3 +21,41 @@ This runs as both analyser and matcher, each being a different instance of the M
     2. A 'test' button provides the user creating the rule to check whether their new rule matches the current transaction or not. (Usually the rule should match, but it is possible that the user does need to create one that does not match.)
 
 6. When the user clicks **Confirm and Continue** the rule is created and either the analysers are re-run, or the user is informed that they should re-run the analysers using the **Analyse (again)** button.
+
+## Configuration
+
+Example:
+
+    {
+      "suggest_create_new": true,
+      "show_matched_rules": true,
+      "create_new_confidence": 0.8,
+      "fields_to_set": {
+        "contact_id": {
+          "label": "Contact"
+        },
+        "membership_id": {
+          "label": "Membership ID"
+        }
+      },
+      "field_mapping": {
+        "a": "b"
+      }
+    }
+
+- `suggest_create_new` (bool) Should this plugin offer the Create New Rule UI?
+
+- `show_matched_rules` (bool) Should this plugin show any matched rules?
+
+- `create_new_confidence` (float) FIXME
+
+- `fields_to_set` (obj) Which (contribution) fields should be set on execution
+  of this rule. This is keyed by the field name and the value is a structure
+  with keys:
+
+   - `label` (string) The untranslated name in the UI.
+
+   - (others not yet implemented)
+
+- `field_mapping` a mapping to be applied to the btx parameters before
+   the rule gets executed.

@@ -163,12 +163,14 @@ class CRM_Banking_PluginImpl_Matcher_RulesAnalyser extends CRM_Banking_PluginMod
     // Instructions ("Actions").
     $execution = [];
     foreach ([
-      'rules-analyser__set-campaign'   => 'campaign',
-      'rules-analyser__set-membership' => 'membership',
-      'rules-analyser__set-contact'    => 'contact',
-    ] as $i => $o) {
-      if (!empty($input["$i-cb"])) {
-        $execution[$o] = $input[$i];
+      'campaign_id',
+      'contact_id',
+      'membership_id',
+      'financial_type_id',
+      'payment_instrument_id',
+    ] as $_) {
+      if (!empty($input["rules-analyser__set-$_-cb"])) {
+        $execution[$_] = $input["rules-analyser__set-$_"];
       }
     }
     $row['execution'] = serialize($execution);
@@ -180,6 +182,7 @@ class CRM_Banking_PluginImpl_Matcher_RulesAnalyser extends CRM_Banking_PluginMod
 
     // Create rule.
     $rule = CRM_Banking_Rules_Rule::createRule($row);
+    CRM_Core_Session::setStatus(ts("New rule created."), ts('Success'), 'success');
 
     // return 're-run' to indicate that this transaction needs to
     //  be analysed again

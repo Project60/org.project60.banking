@@ -37,31 +37,6 @@ class CRM_Banking_Rules_Match {
    * @return array a list of CRM_Banking_Rules_Match objects
    */
   public static function matchTransaction($btx, $context, $type = 1, $threshold = 0.0) {
-    // TODO: implement
-
-    /*
-     *
-     ▾ $btx_parsed = (array [14])
-     ⬦ $btx_parsed['_IBAN'] = (string [20]) `ATxxxxxxxxxxxxxxxxxx`
-     ⬦ $btx_parsed['_party_IBAN'] = (string [20]) `ATxxxxxxxxxxxxxxxxxx`
-     ⬦ $btx_parsed['amount_parsed'] = (string [5]) `30.00`
-     ⬦ $btx_parsed['purpose'] = (string [51]) `Foo Bar`
-     ⬦ $btx_parsed['reference'] = (string [0]) ``
-     ⬦ $btx_parsed['name'] = (string [36]) `Food Bars`
-
-     These not available yet.
-
-     ⬦ $btx_parsed['_BIC'] = (string [11]) `GIBxxxxxxxx`
-     ⬦ $btx_parsed['_party_BIC'] = (string [11]) `STxxxxxxxxx`
-     ⬦ $btx_parsed['assignment'] = (string [6]) `Spende`
-     ⬦ $btx_parsed['address_line'] = (string [0]) ``
-     ⬦ $btx_parsed['sepa_mandate'] = (string [0]) ``
-     ⬦ $btx_parsed['end_to_end_id'] = (string [0]) ``
-     ⬦ $btx_parsed['_sepa_batch'] = (string [16]) `201111801020J38Q`
-     ⬦ $btx_parsed['sepa_code'] = (string [0]) ``
-     */
-
-
     $data_parsed = $btx->getDataParsed();
 
     $sql = CRM_Utils_SQL_Select::from('civicrm_bank_rules')
@@ -76,7 +51,7 @@ class CRM_Banking_Rules_Match {
         'btx_amount'       => $data_parsed['amount_parsed'],
         'btx_party_ba_ref' => $data_parsed['_party_IBAN'],
         'btx_party_name'   => $data_parsed['name'],
-        'btx_tx_reference' => $btx->bank_reference, // xxx
+        'btx_tx_reference' => $data_parsed['reference'],
         'btx_tx_purpose'   => $data_parsed['purpose'],
       ])
       ->toSQL();
@@ -102,8 +77,18 @@ class CRM_Banking_Rules_Match {
    * @return bool
    */
   public function ruleConditionsMatch() {
-    // TODO.
-    foreach ($this->rule->getConditions() as $condition) {
+    $data_parsed = $this->btx->getDataParsed();
+    foreach ($this->rule->getConditions() as $field => $value) {
+      // For now we just look in data_parsed.
+      if (
+        // If we're not supposed to have a value but we do, it's a fail.
+        (empty($value) && !empty($data_parsed[$field]))
+        ||
+        // If we're supposed to have a value, and either we don't have it or it's not the same, it's a fail.
+        (!empty($value) && (empty($data_parsed[$field]) || $value != $data_parsed[$field]))
+      ) {
+        return FALSE;
+      }
     }
     return TRUE;
   }

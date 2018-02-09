@@ -50,12 +50,6 @@ class CRM_Banking_PluginImpl_Matcher_RulesAnalyser extends CRM_Banking_PluginMod
   }
 
   /**
-   * For the given transaction, see which rules match it and use them to enrich the data.
-   */
-  public function analyse(CRM_Banking_BAO_BankTransaction $btx, CRM_Banking_Matcher_Context $context) {
-    // this is never called. FIXME? Instead the work is done inside match()
-  }
-  /**
    * Suggestion listing the currently matched rules and/or
    *  offer to create new ones
    *
@@ -166,7 +160,23 @@ class CRM_Banking_PluginImpl_Matcher_RulesAnalyser extends CRM_Banking_PluginMod
       }
     }
 
-    // @todo other conditions.
+    // Custom conditions.
+    $max = empty($input['rules-analyser__custom-fields-count']) ? 0 : $input['rules-analyser__custom-fields-count'];
+    $conditions = [];
+    for ($i=1; $i<=$max; $i++) {
+      // Only add fields with names(!) silently ignore others.
+      if (!empty($input["rules-analyser__custom-name-$i"])) {
+
+        // Found a custom condition.
+        if (!preg_match('/^[a-zA-Z0-9_-]+$/', $input["rules-analyser__custom-name-$i"])) {
+          // Invalid field name.
+          CRM_Core_Session::setStatus(ts("Invalid custom field name."), ts('Error'), 'error');
+          return 're-run';
+        }
+        $conditions[$input["rules-analyser__custom-name-$i"]] = $input["rules-analyser__custom-value-$i"];
+      }
+    }
+    $row['conditions'] = $conditions;
 
     // Instructions ("Actions").
     $execution = [];
@@ -181,7 +191,7 @@ class CRM_Banking_PluginImpl_Matcher_RulesAnalyser extends CRM_Banking_PluginMod
         $execution[$_] = $input["rules-analyser__set-$_"];
       }
     }
-    $row['execution'] = serialize($execution);
+    $row['execution'] = $execution;
 
     if (!$execution) {
       CRM_Core_Session::setStatus(ts("Cannot create a rule with no actions."), ts('Error'), 'error');

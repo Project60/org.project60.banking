@@ -108,7 +108,7 @@ class CRM_Banking_Rules_Rule {
       $params['created_by'] = CRM_Core_Session::singleton()->getLoggedInContactID();
     };
     $obj = new static();
-    $obj->setFromArray($params);
+    $obj->setFromArray($params, FALSE);
     $obj->save();
     return $obj;
   }

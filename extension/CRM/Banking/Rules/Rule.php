@@ -184,7 +184,7 @@ class CRM_Banking_Rules_Rule {
     }
 
     $sql = 'DELETE FROM civicrm_bank_rules WHERE id = %1';
-    $params = [ 1 => [ $this->id, 'Integer '] ];
+    $params = [ 1 => [ $this->id, 'Integer'] ];
     $this->executeQuery($sql, $params);
 
     // Unset our ID.

@@ -16,7 +16,6 @@
 
 {* this panel should display the matched rules (if any)
    AND offer to create a new one *}
-
 {* this is just an example *}
 <div class="rules-analyser-list">
 {if $rules}
@@ -137,7 +136,7 @@
       </tbody>
     </table>
 
-    <a class="button not-floated" href=""><span><div class="icon add-icon  ui-icon-circle-triangle-e"></div>{ts}Test Rule{/ts}</span></a>
+    <a class="button not-floated rules-analyser__test-rule" href=""><span><div class="icon add-icon  ui-icon-circle-triangle-e"></div>{ts}Test Rule{/ts}</span></a>
     <span class="rules-analyser__status" ></span>
 
   </div>
@@ -173,6 +172,9 @@ if (!rulesAnalyser) {
     // Allow adding custom conditions.
     this.custom_count = 0;
     $el.find('.rules-analyser__add-condition').on('click', this.addCustomCondition.bind(this));
+
+    // Test button.
+    $el.find('.rules-analyser__test-rule').on('click', this.testRule.bind(this));
 
     updateUi();
 
@@ -272,6 +274,33 @@ if (!rulesAnalyser) {
         this.$el.find('.rules-analyser__status').removeClass('error').text('');
       }
 
+    },
+    testRule: function(e) {
+      e.preventDefault();
+
+      // Get everything from the form in an object.
+      var form_data_array = this.$el.closest('form').serializeArray();
+      var params = {};
+      CRM._.each(form_data_array, function(v) {
+        params[v.name] = v.value;
+      });
+
+      // Add props for the API call.
+      params.btx_id = {/literal}{$btx_id}{literal};
+
+      CRM.api3('CiviBankingRule', 'match', params)
+        .done(function(result) {
+          console.log("RESULT", result);
+          if (result.is_error) {
+            CRM.alert(result.error_message, 'Error Testing rule', 'error');
+          }
+          else if (result.values.match) {
+            CRM.alert("{/literal}{ts}The new rule matches this bank transaction{/ts}{literal}", 'Match result', 'success');
+          }
+          else {
+            CRM.alert("{/literal}{ts}The new rule does not match this bank transaction{/ts}{literal}", 'Match result');
+          }
+        });
     },
     addCustomCondition: function(e) {
       e.preventDefault();

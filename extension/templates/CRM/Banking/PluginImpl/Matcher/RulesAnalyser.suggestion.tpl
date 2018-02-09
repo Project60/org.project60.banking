@@ -20,14 +20,25 @@
 {* this is just an example *}
 <div class="rules-analyser-list">
 {if $rules}
-  <p>
-    Rules Matched:
-    <ul>
-    {foreach from=$rules item=rule}
-      <li>Rule [{$rule.id}] "{$rule->name}" matched.</li>
-    {/foreach}
-    </ul>
-  </p>
+  <p>Rules Matched:</p>
+    <table>
+      <thead>
+        <tr>
+          <th>Rule ID</th>
+          <th>Provided</th>
+          <th>Edit</th>
+        </tr>
+      </thead>
+      <tbody>
+        {foreach from=$rules item=rule}
+          <tr>
+          <td>{$rule.id}</td>
+          <td>{$rule.execution}</td>
+          <td><a href="javascript:alert('not coded yet');" >Edit Rule</a></td>
+          </tr>
+        {/foreach}
+      </tbody>
+    </table>
 {else}
   <p>No <em>rules</em> currently match this transaction.</p>
 {/if}

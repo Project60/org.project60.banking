@@ -50,27 +50,35 @@ class CRM_Banking_PluginImpl_Matcher_RulesAnalyser extends CRM_Banking_PluginMod
   }
 
   /**
+   * For the given transaction, see which rules match it and use them to enrich the data.
+   */
+  public function analyse(CRM_Banking_BAO_BankTransaction $btx, CRM_Banking_Matcher_Context $context) {
+    // this is never called. FIXME? Instead the work is done inside match()
+  }
+  /**
    * Suggestion listing the currently matched rules and/or
    *  offer to create new ones
    *
    * @return array(match structures)
    */
   public function match(CRM_Banking_BAO_BankTransaction $btx, CRM_Banking_Matcher_Context $context) {
+
     $config = $this->_plugin_config;
 
     // TODO: threshold
+    $threshold = 0; // FIXME
 
     // run the rule matcher
     $rule_matches = CRM_Banking_Rules_Match::matchTransaction($btx, $context, BANKING_MATCHER_RULE_TYPE_ANALYSER, $threshold);
     $matched_rule_ids = array();
 
-    // generate a suggestion for each match
+    // Execute the rule matches (which will enrich the parsed data).
     foreach ($rule_matches as $rule_match) {
       // apply the match
       $rule_match->execute();
 
       // add the ID
-      $matched_rule_ids[] = $rule_match->getRule()->getID();
+      $matched_rule_ids[] = $rule_match->getRule()->getId();
     }
 
     // see if we want to create a "suggestion"
@@ -85,7 +93,7 @@ class CRM_Banking_PluginImpl_Matcher_RulesAnalyser extends CRM_Banking_PluginMod
       // add all matches rules to be displayed
       $rule2confidence = array();
       foreach ($rule_matches as $rule_match) {
-        $rule2confidence[$rule_match->getRule()->getID()] = $rule_match->getConfidence();
+        $rule2confidence[$rule_match->getRule()->getId()] = $rule_match->getConfidence();
       }
       $suggestion->setParameter('matched_rules', $rule2confidence);
 
@@ -215,7 +223,10 @@ class CRM_Banking_PluginImpl_Matcher_RulesAnalyser extends CRM_Banking_PluginMod
     $matched_rules = $match->getParameter('matched_rules');
     $rules_data    = array();
     foreach ($matched_rules as $rule_id => $confidence) {
-      $rule_data = array('confidence' => $confidence);
+      $rule_data = [
+        'id' => $rule_id,
+        'confidence' => $confidence,
+      ];
       $rule = CRM_Banking_Rules_Rule::get($rule_id);
       $rule->addRenderParameters($rule_data);
       $rules_data[$rule_id] = $rule_data;
@@ -231,4 +242,3 @@ class CRM_Banking_PluginImpl_Matcher_RulesAnalyser extends CRM_Banking_PluginMod
     return $html_snippet;
   }
 }
-

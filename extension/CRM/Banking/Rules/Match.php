@@ -42,7 +42,7 @@ class CRM_Banking_Rules_Match {
 
     $sql = CRM_Utils_SQL_Select::from('civicrm_bank_rules');
     $params = [
-        'btx_amount'       => $data_parsed['amount_parsed'],
+        'btx_amount'       => $btx->amount,
         'btx_party_ba_ref' => $data_parsed['_party_IBAN'],
         'btx_party_name'   => $data_parsed['name'],
         'btx_tx_reference' => $data_parsed['reference'],
@@ -67,6 +67,7 @@ class CRM_Banking_Rules_Match {
       ->where('party_name IS NULL OR party_name = @btx_party_name')
       ->where('tx_reference IS NULL OR tx_reference = @btx_tx_reference')
       ->where('tx_purpose IS NULL OR tx_purpose = @btx_tx_purpose')
+      ->where('valid_until IS NULL OR valid_until > NOW()')
       ->param($params)
       ->toSQL();
 

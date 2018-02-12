@@ -354,9 +354,10 @@ class CRM_Banking_Page_Review extends CRM_Core_Page {
       if ($result) {
         if ($result === 're-run') {
           // re-analyse + reload the page
-          civicrm_api('BankingTransaction', 'analyselist', array('list' => $parameters['execute']));
+          $engine = CRM_Banking_Matcher_Engine::getInstance();
+          $engine->match($parameters['execute']);
           CRM_Core_Session::setStatus(ts("The transaction has been analysed again."), ts("Transaction analysed"), 'info');
-          return NULL; // NO SUCCESSFULL EXECTION
+          return NULL; // NO SUCCESSFULL EXECUTION (because it's a re-run)
         } else {
           // ALL GOOD:
           // create a notification bubble for the user

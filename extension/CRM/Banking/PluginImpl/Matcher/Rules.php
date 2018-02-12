@@ -15,6 +15,11 @@
 | written permission from the original author(s).        |
 +--------------------------------------------------------*/
 
+/**
+ *
+ * CAUTION: NOT FULLY IMPLEMENTED YET
+ *
+ */
 
 require_once 'CRM/Banking/Helpers/OptionValue.php';
 

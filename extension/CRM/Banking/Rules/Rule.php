@@ -80,19 +80,19 @@ class CRM_Banking_Rules_Rule {
    * @param int $rule_id
    * @return CRM_Banking_Rules_Rule object representing the loaded rule.
    */
-  public static function getRule($rule_id) {
+  public static function get($rule_id) {
     $rule_id = (int) $rule_id;
     if ($rule_id < 1) {
       throw \InvalidArgumentException("Rule ID must be a positive integer");
     }
 
-    $dao = $this->executeQuery("SELECT * FROM civicrm_bank_rules WHERE ID = ?", [ 1 => [ $rule_id, 'integer' ] ]);
+    $dao = CRM_Core_DAO::executeQuery("SELECT * FROM civicrm_bank_rules WHERE ID = %1", [ 1 => [ $rule_id, 'Integer' ] ]);
     if ($dao->fetch()) {
-      $rule = $dao->toArray();
+      $rule_data = $dao->toArray();
       $obj = new static();
-      $obj->setFromArray($rule);
+      $obj->setFromArray($rule_data);
       $dao->free();
-      return $rule;
+      return $obj;
     }
     throw \InvalidArgumentException("Rule not found.");
   }
@@ -108,7 +108,7 @@ class CRM_Banking_Rules_Rule {
       $params['created_by'] = CRM_Core_Session::singleton()->getLoggedInContactID();
     };
     $obj = new static();
-    $obj->setFromArray($params);
+    $obj->setFromArray($params, FALSE);
     $obj->save();
     return $obj;
   }
@@ -127,7 +127,7 @@ class CRM_Banking_Rules_Rule {
         $param_id = 1;
         foreach (array_keys($this->dirty_props) as $prop) {
 
-          $to_set[] = "`$prop` = ?";
+          $to_set[] = "`$prop` = %$param_id";
           switch($prop) {
             case 'type':
             case 'is_enabled':
@@ -147,8 +147,8 @@ class CRM_Banking_Rules_Rule {
           }
         }
         // Execute SQL.
-        $sql = 'UPDATE civicrm_bank_rules SET ' . implode(', ', $to_set) . ' WHERE id = ?';
-        $params[$param_id] = $this->id;
+        $sql = 'UPDATE civicrm_bank_rules SET ' . implode(', ', $to_set) . " WHERE id = %$param_id";
+        $params[$param_id] = [$this->id, 'Integer'];
         $this->executeQuery($sql, $params);
       }
     }
@@ -183,8 +183,8 @@ class CRM_Banking_Rules_Rule {
       throw new Exception("Attempt to delete a rule that has no ID.");
     }
 
-    $sql = 'DELETE FROM civicrm_bank_rules WHERE id = ?';
-    $params = [ 1 => [ $this->id, 'Integer '] ];
+    $sql = 'DELETE FROM civicrm_bank_rules WHERE id = %1';
+    $params = [ 1 => [ $this->id, 'Integer'] ];
     $this->executeQuery($sql, $params);
 
     // Unset our ID.
@@ -196,11 +196,21 @@ class CRM_Banking_Rules_Rule {
    * Set all params from the data array.
    *
    * @param array $data.
+   * @param bool $form_database Set TRUE if the data being passed in is direct
+   * from the database. This will unserialize() the conditions and execution
+   * fields.
    * @return CRM_Banking_Rules_Rule $this.
    */
-  public function setFromArray($data) {
+  public function setFromArray($data, $from_database=TRUE) {
     foreach ($data as $prop=>$value) {
+      if ($from_database && ($prop == 'execution' || $prop == 'conditions')) {
+        $value = empty($value) ? NULL : unserialize($value);
+      }
       $this->genericSetter($prop, $value);
+      if ($from_database) {
+        // If the data's coming from the database then it's saved.
+        unset($this->dirty_props[$prop]);
+      }
     }
 
     return $this;
@@ -266,9 +276,26 @@ class CRM_Banking_Rules_Rule {
    * smarty template
    */
   public function addRenderParameters(&$variables) {
-    // TODO
+    // TODO - what is needed?
+
+    $human = [];
+    foreach ($this->execution as $k=>$v) {
+      $human[] = htmlspecialchars("$k: $v");
+    }
+    $variables['execution'] = implode(', ', $human);
   }
 
+  /**
+   * Record that this rule was matched.
+   *
+   * @return CRM_Banking_Rules_Rule $this
+   */
+  public function recordMatch() {
+    $this->setLast_match('now');
+    $this->setMatch_counter($this->match_counter + 1);
+    $this->save();
+    return $this;
+  }
   /**
    * Handles validation and casting when setting properties.
    *
@@ -301,7 +328,7 @@ class CRM_Banking_Rules_Rule {
     case 'valid_until':
     case 'last_match':
       // Dates.
-      $this->$prop = date('c', strtotime($value));
+      $this->$prop = date('Y-m-d H:i:s', strtotime($value));
       break;
 
     case 'amount_min':

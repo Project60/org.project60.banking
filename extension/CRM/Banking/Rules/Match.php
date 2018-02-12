@@ -33,12 +33,78 @@ class CRM_Banking_Rules_Match {
    * @param $context    CRM_Banking_Matcher_Context     matching context, can be used for caching
    * @param $type       int    rule type to be matched: 1=analyser, 2=matcher
    * @param $confidence float  discard any matches with a confidence below this value
+   * @param $rule_id    NULL|int If given, will test a single rule against the btx.
    *
    * @return array a list of CRM_Banking_Rules_Match objects
    */
-  public static function matchTransaction($btx, $context, $type = 1, $threshold = 0.0) {
-    // TODO: implement
-    return array();
+  public static function matchTransaction($btx, $context, $type = 1, $threshold = 0.0, $rule_id=NULL) {
+    $data_parsed = $btx->getDataParsed();
+
+    $sql = CRM_Utils_SQL_Select::from('civicrm_bank_rules');
+    $params = [
+        'btx_amount'       => $data_parsed['amount_parsed'],
+        'btx_party_ba_ref' => $data_parsed['_party_IBAN'],
+        'btx_party_name'   => $data_parsed['name'],
+        'btx_tx_reference' => $data_parsed['reference'],
+        'btx_tx_purpose'   => $data_parsed['purpose'],
+      ];
+
+    if ($rule_id === NULL) {
+      // Normally we're matching all enabled rules.
+      $sql->where('is_enabled');
+    }
+    else {
+      // But when testing we need to specify a particular rule. We don't mind
+      // if this is enabled or not since we're specifically choosing to test
+      // it.
+      $sql->where('id = #rule_id');
+      $params['rule_id'] = $rule_id;
+    }
+    $sql = $sql
+      ->where('amount_min IS NULL OR amount_min <= #btx_amount')
+      ->where('amount_max IS NULL OR amount_max >= #btx_amount')
+      ->where('party_ba_ref IS NULL OR party_ba_ref = @btx_party_ba_ref')
+      ->where('party_name IS NULL OR party_name = @btx_party_name')
+      ->where('tx_reference IS NULL OR tx_reference = @btx_tx_reference')
+      ->where('tx_purpose IS NULL OR tx_purpose = @btx_tx_purpose')
+      ->param($params)
+      ->toSQL();
+
+    $rules_data = CRM_Core_DAO::executeQuery($sql)->fetchAll();
+    $rule_matches = [];
+
+    foreach ($rules_data as $rule_data) {
+      $rule = new CRM_Banking_Rules_Rule();
+      $rule->setFromArray($rule_data);
+
+      $match = new static($rule, $btx);
+
+      if ($match->ruleConditionsMatch()) {
+        $rule_matches[] = $match;
+      }
+    }
+    return $rule_matches;
+  }
+  /**
+   * Do the rule's conditions match?
+   *
+   * @return bool
+   */
+  public function ruleConditionsMatch() {
+    $data_parsed = $this->btx->getDataParsed();
+    foreach ($this->rule->getConditions() as $field => $value) {
+      // For now we just look in data_parsed.
+      if (
+        // If we're not supposed to have a value but we do, it's a fail.
+        (empty($value) && !empty($data_parsed[$field]))
+        ||
+        // If we're supposed to have a value, and either we don't have it or it's not the same, it's a fail.
+        (!empty($value) && (empty($data_parsed[$field]) || $value != $data_parsed[$field]))
+      ) {
+        return FALSE;
+      }
+    }
+    return TRUE;
   }
 
   /**
@@ -87,7 +153,19 @@ class CRM_Banking_Rules_Match {
    * @param $suggestion CRM_Banking_Matcher_Suggestion the suggestion being executed or NULL
    */
   public function execute($suggestion = NULL) {
-    // TODO
     // this object should already contain the right btx and rule objects
+
+    // Enrich the data according to the execution instructions.
+    $data_parsed = $this->btx->getDataParsed();
+    foreach ($this->rule->getExecution() as $f=>$v) {
+      $data_parsed[$f] = $v;
+    }
+
+    // Update the rule to record that it matched.
+    // Note: if the user keeps hitting "Analyse Again" this count will keep increasing.
+    $this->rule->recordMatch();
+
+    // Save the enriched $data_parsed array.
+    $this->btx->setDataParsed($data_parsed);
   }
 }

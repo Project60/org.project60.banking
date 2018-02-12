@@ -16,6 +16,24 @@ drupal_bootstrap(DRUPAL_BOOTSTRAP_FULL);
  * @group no_db_writes
  */
 class CRM_Banking_Rules_RuleTest extends \PHPUnit_Framework_TestCase {
+  public function testDatabaseArrayCasting() {
+    civicrm_initialize();
+    $x = new CRM_Banking_Rules_Rule();
+    $x->setFromArray([
+      'conditions' => serialize(['foo' => 'bar']),
+      'execution' => serialize(['bax' => 'bim']),
+    ]);
+    $this->assertEquals(['foo' => 'bar'], $x->getConditions());
+    $this->assertEquals(['bax' => 'bim'], $x->getExecution());
+
+    $x = new CRM_Banking_Rules_Rule();
+    $x->setFromArray([
+      'conditions' => ['foo' => 'bar'],
+      'execution' => ['bax' => 'bim'],
+    ], FALSE);
+    $this->assertEquals(['foo' => 'bar'], $x->getConditions());
+    $this->assertEquals(['bax' => 'bim'], $x->getExecution());
+  }
   public function testCasting() {
     civicrm_initialize();
     $x = new CRM_Banking_Rules_Rule();

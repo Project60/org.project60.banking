@@ -74,7 +74,13 @@ class CRM_Banking_PluginImpl_Matcher_RulesAnalyser extends CRM_Banking_PluginMod
       }
     }
 
+    //
     // Custom conditions.
+    //
+    // conditions: {
+    //   <field_name>: { full_match: <full string match> },
+    //   ...
+    // }
     $max = empty($input['rules-analyser__custom-fields-count']) ? 0 : $input['rules-analyser__custom-fields-count'];
     $conditions = [];
     for ($i=1; $i<=$max; $i++) {
@@ -87,22 +93,37 @@ class CRM_Banking_PluginImpl_Matcher_RulesAnalyser extends CRM_Banking_PluginMod
           throw new InvalidArgumentException('Invalid custom field name.');
           return;
         }
-        $conditions[$input["rules-analyser__custom-name-$i"]] = $input["rules-analyser__custom-value-$i"];
+        // Store in this format conditions.fieldname = { full_match: 'value' }
+        $conditions[$input["rules-analyser__custom-name-$i"]] = ['full_match' => $input["rules-analyser__custom-value-$i"]];
       }
     }
     $row['conditions'] = $conditions;
 
-    // Instructions ("Actions").
+    //
+    // Instructions ("Actions") stored in the execution field:
+    //
+    // execution: [
+    //   { set_param_name: <field e.g. contact_id>, set_param_value: <the value> },
+    //   ...
+    // ]
+    //
+    // These will be executed in defined order.
+    //
     $execution = [];
     foreach ([
-      'campaign_id',
       'contact_id',
-      'membership_id',
+      'campaign_id',
       'financial_type_id',
       'payment_instrument_id',
+      'membership_id',
     ] as $_) {
       if (!empty($input["rules-analyser__set-$_-cb"])) {
-        $execution[$_] = $input["rules-analyser__set-$_"];
+
+        $execution[] = [
+          'set_param_name' => $_,
+          'set_param_value' => $input["rules-analyser__set-$_"],
+        ];
+
       }
     }
     $row['execution'] = $execution;

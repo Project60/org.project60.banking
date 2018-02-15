@@ -94,7 +94,7 @@ class CRM_Banking_Rules_Rule {
       $dao->free();
       return $obj;
     }
-    throw \InvalidArgumentException("Rule not found.");
+    throw new \InvalidArgumentException("Rule not found.");
   }
 
   /**

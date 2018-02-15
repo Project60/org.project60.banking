@@ -93,8 +93,14 @@ class CRM_Banking_Rules_Match {
    */
   public function ruleConditionsMatch() {
     $data_parsed = $this->btx->getDataParsed();
-    foreach ($this->rule->getConditions() as $field => $value) {
-      // For now we just look in data_parsed.
+    foreach ($this->rule->getConditions() as $field => $match_conditions) {
+
+      if (!isset($match_conditions['full_match'])) {
+        throw new Exception("Invalid match condition. Only full_match is implemented at present.");
+      }
+
+      // Full string match on data_parsed[$field].
+      $value = $match_conditions['full_match'];
       if (
         // If we're not supposed to have a value but we do, it's a fail.
         (empty($value) && !empty($data_parsed[$field]))
@@ -158,8 +164,13 @@ class CRM_Banking_Rules_Match {
 
     // Enrich the data according to the execution instructions.
     $data_parsed = $this->btx->getDataParsed();
-    foreach ($this->rule->getExecution() as $f=>$v) {
-      $data_parsed[$f] = $v;
+
+    foreach ($this->rule->getExecution() as $execution) {
+      if (!isset($execution['set_param_name'])) {
+        throw new Exception("Only set_param_name type execution rules are implemented currently. Missing from rule " . $this->rule->getId());
+      }
+      // Store the value in the param.
+      $data_parsed[$execution['set_param_name']] = $execution['set_param_value'];
     }
 
     // Update the rule to record that it matched.

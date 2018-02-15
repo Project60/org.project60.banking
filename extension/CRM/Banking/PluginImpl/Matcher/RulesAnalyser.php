@@ -42,6 +42,7 @@ class CRM_Banking_PluginImpl_Matcher_RulesAnalyser extends CRM_Banking_PluginMod
 
     $i = 1;
     $params = [];
+    // Collect data to create rule with in an array.
     $row = [];
 
     // Simple fields.
@@ -57,6 +58,11 @@ class CRM_Banking_PluginImpl_Matcher_RulesAnalyser extends CRM_Banking_PluginMod
         // This field is needed.
         $row[$o] = $input[$i];
       }
+    }
+
+    // Name
+    if (!empty($input['rules-analyser__rule-name'])) {
+      $row['name'] = $input['rules-analyser__rule-name'];
     }
 
     // Amount.

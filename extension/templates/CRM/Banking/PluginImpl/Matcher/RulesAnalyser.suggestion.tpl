@@ -52,7 +52,10 @@
   <input type="hidden" name="rules-analyser__custom-fields-count" value="0" />
 
   <div class='rules-analyser__create-ui' style="display:none;">
-    <a class="not-floated rules-analyser__hide-create-ui-btn button" href=""><span><div class="icon add-icon  ui-icon-circle-minus"></div>Cancel</span></a>
+    <a class="not-floated rules-analyser__hide-create-ui-btn button" href=""><span><div class="icon add-icon  ui-icon-circle-minus"></div>Cancel creating new rule</span></a>
+    <h4 class="rules-analyser__section-heading">{ts}New Rule Name{/ts}</h4>
+    <label for="rules-analyser__rule-name">{ts}(Optional) Name{/ts}</label>
+    <input id="rules-analyser__rule-name" name="rules-analyser__rule-name" class="rules-analyser__rule-name" />
     <h4 class="rules-analyser__section-heading">{ts}New Rule Criteria{/ts}</h4>
     <p>{ts}What information must match to trigger this rule?{/ts}</p>
     <table id="rules-analyser__conditions">
@@ -293,7 +296,6 @@ if (!rulesAnalyser) {
 
       CRM.api3('CiviBankingRule', 'match', params)
         .done(function(result) {
-          console.log("RESULT", result);
           if (result.is_error) {
             CRM.alert(result.error_message, 'Error Testing rule', 'error');
           }
@@ -333,6 +335,7 @@ CRM.$('.rules-analyser-new').not('.processed').each(function() {
 </script>
 {/literal}{* I don't know if you have a better place for a module's CSS? *}{literal}
 <style>
+  .crm-container .rules-analyser__rule-name,
   .rules-analyser__party-iban-ui input,
   .rules-analyser__party-name-ui input,
   .rules-analyser__our-iban-ui input,
@@ -347,7 +350,7 @@ CRM.$('.rules-analyser-new').not('.processed').each(function() {
     display: inline-block;
   }
   td.suggest h4.rules-analyser__section-heading {
-    margin-top: 0.5rem;
+    margin-top: 1rem;
     padding-left: 0;
   }
 </style>

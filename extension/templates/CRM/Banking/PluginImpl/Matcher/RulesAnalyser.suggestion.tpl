@@ -1,5 +1,4 @@
-{*-------------------------------------------------------+
-| Project 60 - CiviBanking                               |
+{*-------------------------------------------------------+ | Project 60 - CiviBanking                               |
 | Copyright (C) 2018 SYSTOPIA                            |
 | Author: B. Endres (endres -at- systopia.de)            |
 |         R. Lott (hello -at- artfulrobot.uk)            |
@@ -62,13 +61,13 @@
       <thead><tr><th>Include</th><th>Match</th></tr></thead>
       <tbody>
         <tr>
-          <td><input checked="" type="checkbox" id="rules-analyser__party-iban-cb" name="rules-analyser__party-iban-cb" class="rules-analyser__party-iban-cb">
+          <td><input {if $payment_data_parsed._party_IBAN}checked=""{/if} type="checkbox" id="rules-analyser__party-iban-cb" name="rules-analyser__party-iban-cb" class="rules-analyser__party-iban-cb">
  <label for="rules-analyser__party-iban-cb">{ts}Party IBAN{/ts}</label> </td>
           <td class="rules-analyser__party-iban-ui"><input name="rules-analyser__party-iban" value="{$payment_data_parsed._party_IBAN}" type="text"> </td>
         </tr>
 
         <tr>
-          <td><input checked="" type="checkbox" id="rules-analyser__our-iban-cb" name="rules-analyser__our-iban-cb" class="rules-analyser__our-iban-cb">
+          <td><input {if $payment_data_parsed._IBAN}checked=""{/if} type="checkbox" id="rules-analyser__our-iban-cb" name="rules-analyser__our-iban-cb" class="rules-analyser__our-iban-cb">
  <label for="rules-analyser__our-iban-cb">{ts}Our IBAN{/ts}</label> </td>
           <td class="rules-analyser__our-iban-ui"><input name="rules-analyser__our-iban"value="{$payment_data_parsed._IBAN}" type="text"> </td>
         </tr>
@@ -90,20 +89,20 @@
         </tr>
 
         <tr>
-          <td><input checked="" type="checkbox" id="rules-analyser__party-name-cb" name="rules-analyser__party-name-cb" class="rules-analyser__party-name-cb">
+          <td><input {if $payment_data_parsed.name}checked=""{/if} type="checkbox" id="rules-analyser__party-name-cb" name="rules-analyser__party-name-cb" class="rules-analyser__party-name-cb">
  <label for="rules-analyser__party-name-cb">{ts}Party Name{/ts}</label> </td>
           <td class="rules-analyser__party-name-ui"><input name="rules-analyser__party-name" value="{$payment_data_parsed.name}" type="text"> </td>
         </tr>
 
 
         <tr>
-          <td><input checked="" type="checkbox" id="rules-analyser__tx-reference-cb" name="rules-analyser__tx-reference-cb" class="rules-analyser__tx-reference-cb">
+          <td><input {if $payment_data_parsed.reference}checked=""{/if} type="checkbox" id="rules-analyser__tx-reference-cb" name="rules-analyser__tx-reference-cb" class="rules-analyser__tx-reference-cb">
  <label for="rules-analyser__tx-reference-cb">{ts}Transaction Reference{/ts}</label> </td>
           <td class="rules-analyser__tx-reference-ui"><input name="rules-analyser__tx-reference" value="{$payment_data_parsed.reference}" type="text"> </td>
         </tr>
 
         <tr>
-          <td><input checked="" type="checkbox" id="rules-analyser__tx-purpose-cb" name="rules-analyser__tx-purpose-cb" class="rules-analyser__tx-purpose-cb">
+          <td><input {if $payment_data_parsed.purpose}checked=""{/if} type="checkbox" id="rules-analyser__tx-purpose-cb" name="rules-analyser__tx-purpose-cb" class="rules-analyser__tx-purpose-cb">
  <label for="rules-analyser__tx-purpose-cb">{ts}Transaction Purpose{/ts}</label> </td>
           <td class="rules-analyser__tx-purpose-ui"><input name="rules-analyser__tx-purpose" value="{$payment_data_parsed.purpose}" type="text"> </td>
         </tr>

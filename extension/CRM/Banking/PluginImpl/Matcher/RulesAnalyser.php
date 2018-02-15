@@ -32,7 +32,7 @@ class CRM_Banking_PluginImpl_Matcher_RulesAnalyser extends CRM_Banking_PluginMod
   /**
    * Creates a new rule from user input from UI.
    *
-   * Called from execute() and also by the CiviBankingRule.Match API action.
+   * Called from execute() and also by the BankingRule.Match API action.
    *
    * @throw InvalidArgumentException if anything invalid.
    * @param array $input

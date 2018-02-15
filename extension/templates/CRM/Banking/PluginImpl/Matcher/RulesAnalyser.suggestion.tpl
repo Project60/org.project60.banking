@@ -35,7 +35,7 @@
               <div style="opacity:0.7" >{$rule.execution[1]}</div>
             {/if}
           </td>
-          <td><a href="javascript:alert('not coded yet');" >Edit Rule</a></td>
+          <td><a href="/civicrm/a/#/banking/rules/{$rule.id}" >Edit Rule</a></td>
           </tr>
         {/foreach}
       </tbody>
@@ -293,7 +293,7 @@ if (!rulesAnalyser) {
       // Add props for the API call.
       params.btx_id = {/literal}{$btx_id}{literal};
 
-      CRM.api3('CiviBankingRule', 'match', params)
+      CRM.api3('BankingRule', 'match', params)
         .done(function(result) {
           if (result.is_error) {
             CRM.alert(result.error_message, 'Error Testing rule', 'error');

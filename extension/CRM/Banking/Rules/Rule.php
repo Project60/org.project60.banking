@@ -88,9 +88,12 @@ class CRM_Banking_Rules_Rule {
 
     $dao = CRM_Core_DAO::executeQuery("SELECT * FROM civicrm_bank_rules WHERE ID = %1", [ 1 => [ $rule_id, 'Integer' ] ]);
     if ($dao->fetch()) {
-      $rule_data = $dao->toArray();
+
+      // Nb. we cannot use $rule_data = $dao->toArray()
+      // because this imposes a string type on the values.
       $obj = new static();
-      $obj->setFromArray($rule_data);
+      $obj->setFromDao($dao);
+
       $dao->free();
       return $obj;
     }
@@ -127,23 +130,28 @@ class CRM_Banking_Rules_Rule {
         $param_id = 1;
         foreach (array_keys($this->dirty_props) as $prop) {
 
-          $to_set[] = "`$prop` = %$param_id";
-          switch($prop) {
-            case 'type':
-            case 'is_enabled':
-            case 'created_by':
-            case 'match_counter':
-              $params[$param_id++] = [$this->$prop, 'Integer'];
-              break;
+          if ($this->$prop === NULL) {
+            $to_set[] = "`$prop` = NULL";
+          }
+          else {
+            $to_set[] = "`$prop` = %$param_id";
+            switch($prop) {
+              case 'type':
+              case 'is_enabled':
+              case 'created_by':
+              case 'match_counter':
+                $params[$param_id++] = [$this->$prop, 'Integer'];
+                break;
 
-            case 'conditions':
-            case 'execution':
-              $params[$param_id++] = [serialize($this->$prop), 'String'];
-              break;
+              case 'conditions':
+              case 'execution':
+                $params[$param_id++] = [serialize($this->$prop), 'String'];
+                break;
 
-            default:
-              $params[$param_id++] = [$this->$prop, 'String'];
-              break;
+              default:
+                $params[$param_id++] = [$this->$prop, 'String'];
+                break;
+            }
           }
         }
         // Execute SQL.
@@ -212,6 +220,27 @@ class CRM_Banking_Rules_Rule {
         unset($this->dirty_props[$prop]);
       }
     }
+
+    return $this;
+  }
+  /**
+   * Set all params from the DAO Object.
+   *
+   * @param CRM_Core_DAO $dao.
+   * @return CRM_Banking_Rules_Rule $this.
+   */
+  public function setFromDao($dao) {
+    $this->id = (int) $dao->id;
+    foreach (array_keys($this->props) as $prop) {
+      $value = $dao->$prop;
+      if ($prop == 'execution' || $prop == 'conditions') {
+        $value = empty($value) ? NULL : unserialize($value);
+      }
+
+      $this->genericSetter($prop, $value);
+    }
+    // We're clean because we just loaded from database.
+    $this->dirty_props = [];
 
     return $this;
   }
@@ -326,17 +355,32 @@ class CRM_Banking_Rules_Rule {
     return $this;
   }
   /**
+   * Used by the editor.
+   */
+  public function getRuleData() {
+    $data = ['id' => $this->id];
+    foreach (array_keys($this->props) as $prop) {
+      $data[$prop] = $this->$prop;
+    }
+    return $data;
+  }
+  /**
    * Handles validation and casting when setting properties.
    *
    * @param string $prop
    * @param mixed $value
    */
   protected function genericSetter($prop, $value) {
+
+    $this->dirty_props[$prop] = TRUE;
+
     if ($value === NULL) {
       // NULLs are easy, do them first.
       $this->$prop = NULL;
       return;
     }
+
+    // Deal with casting types.
     switch($prop) {
     case 'type':
     case 'created_by':
@@ -370,7 +414,6 @@ class CRM_Banking_Rules_Rule {
       // Default (strings)
       $this->$prop = $value;
     }
-    $this->dirty_props[$prop] = TRUE;
   }
 
   /**

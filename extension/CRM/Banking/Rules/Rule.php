@@ -276,13 +276,42 @@ class CRM_Banking_Rules_Rule {
    * smarty template
    */
   public function addRenderParameters(&$variables) {
-    // TODO - what is needed?
 
-    $human = [];
-    foreach ($this->execution as $k=>$v) {
-      $human[] = htmlspecialchars("$k: $v");
+    // Create an array of info with 'primary' info being the first (possibly
+    // only) item, and secondary following.
+    $execution_info = [];
+
+    if (!empty($this->name)) {
+      // Names are optional.
+      $execution_info[] = htmlspecialchars($this->name);
     }
-    $variables['execution'] = implode(', ', $human);
+
+    // Create summary of fields the rule matches on.
+    $criteria = [];
+    foreach ([
+        'party_ba_ref',
+        'ba_ref',
+        'party_name',
+        'tx_reference',
+        'tx_purpose',
+      ] as $field) {
+
+      if ($this->$field !== NULL) {
+        $criteria[] = $field;
+      }
+    }
+    if (is_array($this->conditions)) {
+      $criteria = array_merge($criteria, array_keys($this->conditions));
+    }
+    // Create summary of the fields set by this rule.
+    $fields_provided = [];
+    foreach ($this->execution as $e) {
+      $fields_provided[] = $e['set_param_name'];
+    }
+    $execution_info[] = "Matches on: " . implode(', ', $criteria)
+      . " and provides: " . implode(', ', $fields_provided) . '.';
+
+    $variables['execution'] = $execution_info;
   }
 
   /**

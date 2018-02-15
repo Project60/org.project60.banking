@@ -23,16 +23,19 @@
     <table>
       <thead>
         <tr>
-          <th>Rule ID</th>
-          <th>Provided</th>
+          <th>Rule</th>
           <th>Edit</th>
         </tr>
       </thead>
       <tbody>
         {foreach from=$rules item=rule}
           <tr>
-          <td>{$rule.id}</td>
-          <td>{$rule.execution}</td>
+          <td>
+            <div>Rule {$rule.id}: {$rule.execution[0]}</div>
+            {if $rule.execution[1]}
+              <div style="opacity:0.7" >{$rule.execution[1]}</div>
+            {/if}
+          </td>
           <td><a href="javascript:alert('not coded yet');" >Edit Rule</a></td>
           </tr>
         {/foreach}
@@ -111,7 +114,7 @@
       </thead>
       <tbody>
         {foreach from=$payment_data_parsed item=v key=k}
-        {if not in_array($k, ['reference', 'name', 'amount_parsed', '_party_IBAN', '_IBAN', 'purpose'])}
+        {if (not in_array($k, ['reference', 'name', 'amount_parsed', '_party_IBAN', '_IBAN', 'purpose']))}
         <tr><td>{$k}</td><td>{$v}</td></tr>
         {/if}
         {/foreach}

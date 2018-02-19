@@ -340,7 +340,7 @@ class CRM_Banking_Rules_Rule {
       }
     }
     $execution_info[] = "Matches on: " . implode(', ', $criteria)
-      . " and provides: " . implode(', ', $fields_provided) . '.';
+      . " | provides: " . implode(', ', $fields_provided) . '.';
 
     $variables['execution'] = $execution_info;
   }

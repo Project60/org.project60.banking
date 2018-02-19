@@ -335,7 +335,9 @@ class CRM_Banking_Rules_Rule {
     // Create summary of the fields set by this rule.
     $fields_provided = [];
     foreach ($this->execution as $e) {
-      $fields_provided[] = $e['set_param_name'];
+      if (isset($e['set_param_name'])) {
+        $fields_provided[] = $e['set_param_name'];
+      }
     }
     $execution_info[] = "Matches on: " . implode(', ', $criteria)
       . " and provides: " . implode(', ', $fields_provided) . '.';

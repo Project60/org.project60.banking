@@ -33,7 +33,7 @@ function civicrm_api3_banking_rule_Getruledata($params) {
     'option_group_id' => "civicrm_banking.plugin_types",
     'name'            => "analyser_rules",
   ]);
-  $result = civicrm_api3('BankingPluginInstance', 'getsingle', ['plugin_class_id' => 827]);
+  $result = civicrm_api3('BankingPluginInstance', 'getsingle', ['plugin_class_id' => $rules_analyser_plugin_id]);
   $config = json_decode($result['config'], TRUE);
   $data['plugin_config'] = $config;
 

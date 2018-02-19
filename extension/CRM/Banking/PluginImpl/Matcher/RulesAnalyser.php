@@ -172,9 +172,10 @@ class CRM_Banking_PluginImpl_Matcher_RulesAnalyser extends CRM_Banking_PluginMod
       $rule->addRenderParameters($rule_data);
       $rules_data[$rule_id] = $rule_data;
     }
-    $smarty_vars['rules'] = $rules_data;
+    $smarty_vars['rules']         = $rules_data;
     $smarty_vars['fields_to_set'] = isset($config->fields_to_set) ? $config->fields_to_set : [];
-    $smarty_vars['btx_id'] = (int) $btx->id;
+    $smarty_vars['btx_id']        = (int) $btx->id;
+    $smarty_vars['matcher_id']    = (int) $this->_plugin_id;
 
     // render template
     $smarty = CRM_Banking_Helpers_Smarty::singleton();

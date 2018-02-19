@@ -43,12 +43,12 @@ class CRM_Banking_Rules_Match {
     $data_parsed = self::getMappedData($btx, $mapping);
 
     $params = [
-        'btx_amount'       => CRM_Utils_Array::value('amount', $data_parsed),
-        'btx_party_ba_ref' => CRM_Utils_Array::value('_party_IBAN', $data_parsed),
-        'btx_ba_ref'       => CRM_Utils_Array::value('_IBAN', $data_parsed),
-        'btx_party_name'   => CRM_Utils_Array::value('name', $data_parsed),
-        'btx_tx_reference' => CRM_Utils_Array::value('reference', $data_parsed),
-        'btx_tx_purpose'   => CRM_Utils_Array::value('purpose', $data_parsed),
+        'btx_amount'       => CRM_Utils_Array::value('amount',      $data_parsed, 0.00),
+        'btx_party_ba_ref' => CRM_Utils_Array::value('_party_IBAN', $data_parsed, ''),
+        'btx_ba_ref'       => CRM_Utils_Array::value('_IBAN',       $data_parsed, ''),
+        'btx_party_name'   => CRM_Utils_Array::value('name',        $data_parsed, ''),
+        'btx_tx_reference' => CRM_Utils_Array::value('reference',   $data_parsed, ''),
+        'btx_tx_purpose'   => CRM_Utils_Array::value('purpose',     $data_parsed, ''),
       ];
 
     $sql = CRM_Utils_SQL_Select::from('civicrm_bank_rules');
@@ -66,25 +66,13 @@ class CRM_Banking_Rules_Match {
     }
 
     // build query based on parameters
-    if (isset($params['amount'])) {
-      $sql->where('amount_min IS NULL OR amount_min <= #btx_amount');
-      $sql->where('amount_max IS NULL OR amount_max >= #btx_amount');
-    }
-    if (isset($params['btx_party_ba_ref'])) {
-      $sql->where('party_ba_ref IS NULL OR party_ba_ref = @btx_party_ba_ref');
-    }
-    if (isset($params['btx_ba_ref'])) {
-      $sql->where('ba_ref IS NULL OR ba_ref = @btx_ba_ref');
-    }
-    if (isset($params['btx_party_name'])) {
-      $sql->where('party_name IS NULL OR party_name = @btx_party_name');
-    }
-    if (isset($params['btx_tx_reference'])) {
-      $sql->where('tx_reference IS NULL OR tx_reference = @btx_tx_reference');
-    }
-    if (isset($params['btx_tx_purpose'])) {
-      $sql->where('tx_purpose IS NULL OR tx_purpose = @btx_tx_purpose');
-    }
+    $sql->where('amount_min IS NULL OR amount_min <= #btx_amount');
+    $sql->where('amount_max IS NULL OR amount_max >= #btx_amount');
+    $sql->where('party_ba_ref IS NULL OR party_ba_ref = @btx_party_ba_ref');
+    $sql->where('ba_ref IS NULL OR ba_ref = @btx_ba_ref');
+    $sql->where('party_name IS NULL OR party_name = @btx_party_name');
+    $sql->where('tx_reference IS NULL OR tx_reference = @btx_tx_reference');
+    $sql->where('tx_purpose IS NULL OR tx_purpose = @btx_tx_purpose');
 
     // generate SQL
     $sql = $sql->param($params)->toSQL();

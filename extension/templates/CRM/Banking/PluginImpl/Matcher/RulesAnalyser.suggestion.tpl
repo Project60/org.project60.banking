@@ -295,7 +295,8 @@ if (!rulesAnalyser) {
       });
 
       // Add props for the API call.
-      params.btx_id = {/literal}{$btx_id}{literal};
+      params.btx_id     = {/literal}{$btx_id}{literal};
+      params.matcher_id = {/literal}{$matcher_id}{literal};
 
       CRM.api3('BankingRule', 'match', params)
         .done(function(result) {

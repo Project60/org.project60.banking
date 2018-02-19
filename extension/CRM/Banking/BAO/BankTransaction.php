@@ -25,6 +25,13 @@ class CRM_Banking_BAO_BankTransaction extends CRM_Banking_DAO_BankTransaction {
    */
   protected $suggestion_objects = array();
 
+
+  /**
+   * public array listing all 'native' data fields, i.e. data DB columns,
+   *  all user defined data beyond that will be stored in the data_parsed blob
+   */
+  public static $native_data_fields = array('amount', 'value_date', 'booking_date', 'currency', 'ba_id', 'party_ba_id');
+
   /**
    * caches a decoded version of the data_parsed field
    */

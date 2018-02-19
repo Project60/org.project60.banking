@@ -23,6 +23,7 @@ class CRM_Banking_Rules_Match {
 
   protected $rule;        // CRM_Banking_Rules_Rule
   protected $btx;         // CRM_Banking_BAO_BankTransaction
+  protected $mapping;     // parameter mapping
   protected $confidence;  // float 0...1
 
   /**
@@ -30,6 +31,7 @@ class CRM_Banking_Rules_Match {
    * the rule database
    *
    * @param $btx        CRM_Banking_BAO_BankTransaction to be analysed
+   * @param $mapping    a value mapping to be applied to the btx data
    * @param $context    CRM_Banking_Matcher_Context     matching context, can be used for caching
    * @param $type       int    rule type to be matched: 1=analyser, 2=matcher
    * @param $confidence float  discard any matches with a confidence below this value
@@ -37,21 +39,23 @@ class CRM_Banking_Rules_Match {
    *
    * @return array a list of CRM_Banking_Rules_Match objects
    */
-  public static function matchTransaction($btx, $context, $type = 1, $threshold = 0.0, $rule_id=NULL) {
-    $data_parsed = $btx->getDataParsed();
+  public static function matchTransaction($btx, $mapping, $context, $type = 1, $threshold = 0.0, $rule_id=NULL) {
+    $data_parsed = self::getMappedData($btx, $mapping);
 
-    $sql = CRM_Utils_SQL_Select::from('civicrm_bank_rules');
     $params = [
-        'btx_amount'       => $btx->amount,
-        'btx_party_ba_ref' => $data_parsed['_party_IBAN'],
-        'btx_party_name'   => $data_parsed['name'],
-        'btx_tx_reference' => $data_parsed['reference'],
-        'btx_tx_purpose'   => $data_parsed['purpose'],
+        'btx_amount'       => CRM_Utils_Array::value('amount',      $data_parsed, 0.00),
+        'btx_party_ba_ref' => CRM_Utils_Array::value('_party_IBAN', $data_parsed, ''),
+        'btx_ba_ref'       => CRM_Utils_Array::value('_IBAN',       $data_parsed, ''),
+        'btx_party_name'   => CRM_Utils_Array::value('name',        $data_parsed, ''),
+        'btx_tx_reference' => CRM_Utils_Array::value('reference',   $data_parsed, ''),
+        'btx_tx_purpose'   => CRM_Utils_Array::value('purpose',     $data_parsed, ''),
       ];
 
+    $sql = CRM_Utils_SQL_Select::from('civicrm_bank_rules');
     if ($rule_id === NULL) {
       // Normally we're matching all enabled rules.
       $sql->where('is_enabled');
+      $sql->where('valid_until IS NULL OR valid_until > NOW()');
     }
     else {
       // But when testing we need to specify a particular rule. We don't mind
@@ -60,16 +64,18 @@ class CRM_Banking_Rules_Match {
       $sql->where('id = #rule_id');
       $params['rule_id'] = $rule_id;
     }
-    $sql = $sql
-      ->where('amount_min IS NULL OR amount_min <= #btx_amount')
-      ->where('amount_max IS NULL OR amount_max >= #btx_amount')
-      ->where('party_ba_ref IS NULL OR party_ba_ref = @btx_party_ba_ref')
-      ->where('party_name IS NULL OR party_name = @btx_party_name')
-      ->where('tx_reference IS NULL OR tx_reference = @btx_tx_reference')
-      ->where('tx_purpose IS NULL OR tx_purpose = @btx_tx_purpose')
-      ->where('valid_until IS NULL OR valid_until > NOW()')
-      ->param($params)
-      ->toSQL();
+
+    // build query based on parameters
+    $sql->where('amount_min IS NULL OR amount_min <= #btx_amount');
+    $sql->where('amount_max IS NULL OR amount_max >= #btx_amount');
+    $sql->where('party_ba_ref IS NULL OR party_ba_ref = @btx_party_ba_ref');
+    $sql->where('ba_ref IS NULL OR ba_ref = @btx_ba_ref');
+    $sql->where('party_name IS NULL OR party_name = @btx_party_name');
+    $sql->where('tx_reference IS NULL OR tx_reference = @btx_tx_reference');
+    $sql->where('tx_purpose IS NULL OR tx_purpose = @btx_tx_purpose');
+
+    // generate SQL
+    $sql = $sql->param($params)->toSQL();
 
     $rules_data = CRM_Core_DAO::executeQuery($sql)->fetchAll();
     $rule_matches = [];
@@ -78,7 +84,7 @@ class CRM_Banking_Rules_Match {
       $rule = new CRM_Banking_Rules_Rule();
       $rule->setFromArray($rule_data);
 
-      $match = new static($rule, $btx);
+      $match = new CRM_Banking_Rules_Match($rule, $btx, $mapping);
 
       if ($match->ruleConditionsMatch()) {
         $rule_matches[] = $match;
@@ -86,13 +92,16 @@ class CRM_Banking_Rules_Match {
     }
     return $rule_matches;
   }
+
+
   /**
    * Do the rule's conditions match?
    *
    * @return bool
    */
   public function ruleConditionsMatch() {
-    $data_parsed = $this->btx->getDataParsed();
+    $data_parsed = self::getMappedData($this->btx, $this->mapping);
+
     foreach ($this->rule->getConditions() as $field => $match_conditions) {
 
       if (!isset($match_conditions['full_match'])) {
@@ -120,9 +129,10 @@ class CRM_Banking_Rules_Match {
    * @param $btx        CRM_Banking_BAO_BankTransaction to be analysed
    * @param $confidence float  discard any matches with a confidence below this value
    */
-  public function __construct($rule, $btx, $confidence = 1.0) {
+  public function __construct($rule, $btx, $mapping, $confidence = 1.0) {
     $this->rule       = $rule;
     $this->btx        = $btx;
+    $this->mapping    = $mapping;
     $this->confidence = $confidence;
   }
 
@@ -163,7 +173,7 @@ class CRM_Banking_Rules_Match {
     // this object should already contain the right btx and rule objects
 
     // Enrich the data according to the execution instructions.
-    $data_parsed = $this->btx->getDataParsed();
+    $data_parsed = self::getMappedData($this->btx, $this->mapping);
 
     foreach ($this->rule->getExecution() as $execution) {
       if (!isset($execution['set_param_name'])) {
@@ -178,6 +188,54 @@ class CRM_Banking_Rules_Match {
     $this->rule->recordMatch();
 
     // Save the enriched $data_parsed array.
-    $this->btx->setDataParsed($data_parsed);
+    self::writeMappedData($this->btx, $this->mapping, $data_parsed);
+  }
+
+  /**
+   * Will get a merged and mapped set of all data of the btx
+   */
+  protected static function getMappedData($btx, $mapping) {
+    $data_parsed = $btx->getDataParsed();
+
+    // add native fields
+    foreach (CRM_Banking_BAO_BankTransaction::$native_data_fields as $field_name) {
+      $data_parsed[$field_name] = $btx->$field_name;
+    }
+
+    // apply mapping (if any)
+    if (!empty($mapping)) {
+      foreach ($mapping as $data_field => $mapped_field) {
+        if (isset($data_parsed[$data_field])) {
+          $data_parsed[$mapped_field] = $data_parsed[$data_field];
+        }
+      }
+    }
+
+    return $data_parsed;
+  }
+
+  /**
+   * Will "un-map" the data and write it back to
+   * to the btx->data_parsed field
+   */
+  protected static function writeMappedData($btx, $mapping, $data_parsed) {
+    $current_data = $btx->getDataParsed();
+
+    // reset mapped parameters, we don't want to overwrite...
+    foreach ($mapping as $data_field => $mapped_field) {
+      if (isset($current_data[$mapped_field])) {
+        $data_parsed[$data_field] = $current_data[$mapped_field];
+      }
+    }
+
+    // strip native attributes
+    foreach (CRM_Banking_BAO_BankTransaction::$native_data_fields as $field_name) {
+      if (isset($data_parsed[$field_name])) {
+        unset($data_parsed[$field_name]);
+      }
+    }
+
+    // write to BTX
+    $btx->setDataParsed($data_parsed);
   }
 }

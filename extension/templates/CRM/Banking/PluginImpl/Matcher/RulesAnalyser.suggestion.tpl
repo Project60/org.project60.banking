@@ -1,4 +1,5 @@
-{*-------------------------------------------------------+ | Project 60 - CiviBanking                               |
+{*-------------------------------------------------------+
+| Project 60 - CiviBanking                               |
 | Copyright (C) 2018 SYSTOPIA                            |
 | Author: B. Endres (endres -at- systopia.de)            |
 |         R. Lott (hello -at- artfulrobot.uk)            |
@@ -35,7 +36,10 @@
               <div style="opacity:0.7" >{$rule.execution[1]}</div>
             {/if}
           </td>
-          <td><a href="/civicrm/a/#/banking/rules/{$rule.id}" >Edit Rule</a></td>
+          <td>
+            {capture assign=rule_id}{$rule.id}{/capture}
+            <a href="{crmURL p="civicrm/a/#/banking/rules/$rule_id}">Edit Rule</a>
+          </td>
           </tr>
         {/foreach}
       </tbody>
@@ -116,9 +120,9 @@
       </thead>
       <tbody>
         {foreach from=$payment_data_parsed item=v key=k}
-        {if (not in_array($k, ['reference', 'name', 'amount_parsed', '_party_IBAN', '_IBAN', 'purpose']))}
-        <tr><td>{$k}</td><td>{$v}</td></tr>
-        {/if}
+          {if $k != 'reference' && $k != 'name' && $k != 'amount' && $k != '_party_IBAN' && $k != '_IBAN' && $k != 'purpose'}
+          <tr><td>{$k}</td><td>{$v}</td></tr>
+          {/if}
         {/foreach}
       </tbody>
     </table>
@@ -291,7 +295,8 @@ if (!rulesAnalyser) {
       });
 
       // Add props for the API call.
-      params.btx_id = {/literal}{$btx_id}{literal};
+      params.btx_id     = {/literal}{$btx_id}{literal};
+      params.matcher_id = {/literal}{$matcher_id}{literal};
 
       CRM.api3('BankingRule', 'match', params)
         .done(function(result) {

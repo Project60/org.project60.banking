@@ -9,6 +9,10 @@
  * @see http://wiki.civicrm.org/confluence/display/CRMDOC/API+Architecture+Standards
  */
 function _civicrm_api3_banking_rule_Match_spec(&$spec) {
+  $spec['matcher_id'] = [
+    'description' => 'ID of the matcher plugin instance',
+    'api.required' => 1,
+  ];
   $spec['btx_id'] = [
     'description' => 'ID of the bank transaction to test against',
     'api.required' => 1,
@@ -30,6 +34,17 @@ function civicrm_api3_banking_rule_Match($params) {
     // Load the bank transaction.
     $btx = CRM_Banking_BAO_BankTransaction::findById($params['btx_id']);
 
+    // load the Matcher and the mapping
+    $pi_bao = new CRM_Banking_BAO_PluginInstance();
+    $pi_bao->get('id', $params['matcher_id']);
+    $pi = $pi_bao->getInstance();
+    $pi_config = $pi->getConfig();
+    if (isset($pi_config->field_mapping)) {
+      $pi_mapping = $pi_config->field_mapping;
+    } else {
+      $pi_mapping = array();
+    }
+
     // Create a disabled rule.
     $rule_data = $params;
     $rule_data['is_enabled'] = 0;
@@ -40,7 +55,7 @@ function civicrm_api3_banking_rule_Match($params) {
     $rule = CRM_Banking_PluginImpl_Matcher_RulesAnalyser::createRule($rule_data);
 
     // Got rule, now test our btx.
-    $matches = CRM_Banking_Rules_Match::matchTransaction($btx, [], 1, 0, $rule->getId());
+    $matches = CRM_Banking_Rules_Match::matchTransaction($btx, $pi_mapping, [], 1, 0, $rule->getId());
 
     // Now delete the rule we created.
     $rule->delete();

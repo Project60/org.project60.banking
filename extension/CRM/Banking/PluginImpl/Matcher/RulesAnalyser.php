@@ -30,125 +30,6 @@ define('BANKING_MATCHER_RULE_TYPE_MATCHER',  2);
 class CRM_Banking_PluginImpl_Matcher_RulesAnalyser extends CRM_Banking_PluginModel_Matcher {
 
   /**
-   * Creates a new rule from user input from UI.
-   *
-   * Called from execute() and also by the BankingRule.Match API action.
-   *
-   * @throw InvalidArgumentException if anything invalid.
-   * @param array $input
-   * @return CRM_Banking_Rules_Rule object.
-   */
-  public static function createRule($input) {
-
-    $i = 1;
-    $params = [];
-    // Collect data to create rule with in an array.
-    $row = [];
-
-    // Simple fields.
-    $map = [
-      'rules-analyser__party-iban'   => 'party_ba_ref',
-      'rules-analyser__our-iban'     => 'ba_ref',
-      'rules-analyser__party-name'   => 'party_name',
-      'rules-analyser__tx-reference' => 'tx_reference',
-      'rules-analyser__tx-purpose'   => 'tx_purpose',
-    ];
-    foreach ($map as $i => $o) {
-      if (!empty($input["$i-cb"])) {
-        // This field is needed.
-        $row[$o] = $input[$i];
-      }
-    }
-
-    // Name
-    if (!empty($input['rules-analyser__rule-name'])) {
-      $row['name'] = $input['rules-analyser__rule-name'];
-    }
-
-    // Amount.
-    if (!empty($input['rules-analyser__amount-cb'])) {
-      // Amount is needed.
-      $row['amount_min'] = $input['rules-analyser__amount'];
-
-      if ($input['rules-analyser__amount-op'] == 'equals') {
-        // Use same value for amount if 'equals'.
-        $row['amount_max'] = $input['rules-analyser__amount'];
-      }
-      else {
-        // 'between' case.
-        $row['amount_max'] = $input['rules-analyser__amount-2'];
-      }
-    }
-
-    //
-    // Custom conditions.
-    //
-    // conditions: {
-    //   <field_name>: { full_match: <full string match> },
-    //   ...
-    // }
-    $max = empty($input['rules-analyser__custom-fields-count']) ? 0 : $input['rules-analyser__custom-fields-count'];
-    $conditions = [];
-    for ($i=1; $i<=$max; $i++) {
-      // Only add fields with names(!) silently ignore others.
-      if (!empty($input["rules-analyser__custom-name-$i"])) {
-
-        // Found a custom condition.
-        if (!preg_match('/^[a-zA-Z0-9_-]+$/', $input["rules-analyser__custom-name-$i"])) {
-          // Invalid field name.
-          throw new InvalidArgumentException('Invalid custom field name.');
-          return;
-        }
-        // Store in this format conditions.fieldname = { full_match: 'value' }
-        $conditions[$input["rules-analyser__custom-name-$i"]] = ['full_match' => $input["rules-analyser__custom-value-$i"]];
-      }
-    }
-    $row['conditions'] = $conditions;
-
-    //
-    // Instructions ("Actions") stored in the execution field:
-    //
-    // execution: [
-    //   { set_param_name: <field e.g. contact_id>, set_param_value: <the value> },
-    //   ...
-    // ]
-    //
-    // These will be executed in defined order.
-    //
-    $execution = [];
-    foreach ([
-      'contact_id',
-      'campaign_id',
-      'financial_type_id',
-      'payment_instrument_id',
-      'membership_id',
-    ] as $_) {
-      if (!empty($input["rules-analyser__set-$_-cb"])) {
-
-        $execution[] = [
-          'set_param_name' => $_,
-          'set_param_value' => $input["rules-analyser__set-$_"],
-        ];
-
-      }
-    }
-    $row['execution'] = $execution;
-    if (!$execution) {
-      throw new InvalidArgumentException("Cannot create a rule with no actions.");
-      return;
-    }
-
-    // is_enabled is only set when testing.
-    if (isset($input['is_enabled'])) {
-      $row['is_enabled'] = $input['is_enabled'] ? 1 : 0;
-    }
-
-    // Create rule.
-    $rule = CRM_Banking_Rules_Rule::createRule($row);
-    return $rule;
-  }
-
-  /**
    * class constructor
    */
   function __construct($config_name) {
@@ -182,7 +63,7 @@ class CRM_Banking_PluginImpl_Matcher_RulesAnalyser extends CRM_Banking_PluginMod
     $threshold = 0; // FIXME
 
     // run the rule matcher
-    $rule_matches = CRM_Banking_Rules_Match::matchTransaction($btx, $context, BANKING_MATCHER_RULE_TYPE_ANALYSER, $threshold);
+    $rule_matches = CRM_Banking_Rules_Match::matchTransaction($btx, $config->field_mapping, $context, BANKING_MATCHER_RULE_TYPE_ANALYSER, $threshold);
     $matched_rule_ids = array();
 
     // Execute the rule matches (which will enrich the parsed data).
@@ -301,5 +182,125 @@ class CRM_Banking_PluginImpl_Matcher_RulesAnalyser extends CRM_Banking_PluginMod
     $html_snippet = $smarty->fetch('CRM/Banking/PluginImpl/Matcher/RulesAnalyser.suggestion.tpl');
     $smarty->popScope();
     return $html_snippet;
+  }
+
+
+  /**
+   * Creates a new rule from user input from UI.
+   *
+   * Called from execute() and also by the BankingRule.Match API action.
+   *
+   * @throw InvalidArgumentException if anything invalid.
+   * @param array $input
+   * @return CRM_Banking_Rules_Rule object.
+   */
+  public static function createRule($input) {
+
+    $i = 1;
+    $params = [];
+    // Collect data to create rule with in an array.
+    $row = [];
+
+    // Simple fields.
+    $map = [
+      'rules-analyser__party-iban'   => 'party_ba_ref',
+      'rules-analyser__our-iban'     => 'ba_ref',
+      'rules-analyser__party-name'   => 'party_name',
+      'rules-analyser__tx-reference' => 'tx_reference',
+      'rules-analyser__tx-purpose'   => 'tx_purpose',
+    ];
+    foreach ($map as $i => $o) {
+      if (!empty($input["$i-cb"])) {
+        // This field is needed.
+        $row[$o] = $input[$i];
+      }
+    }
+
+    // Name
+    if (!empty($input['rules-analyser__rule-name'])) {
+      $row['name'] = $input['rules-analyser__rule-name'];
+    }
+
+    // Amount.
+    if (!empty($input['rules-analyser__amount-cb'])) {
+      // Amount is needed.
+      $row['amount_min'] = $input['rules-analyser__amount'];
+
+      if ($input['rules-analyser__amount-op'] == 'equals') {
+        // Use same value for amount if 'equals'.
+        $row['amount_max'] = $input['rules-analyser__amount'];
+      }
+      else {
+        // 'between' case.
+        $row['amount_max'] = $input['rules-analyser__amount-2'];
+      }
+    }
+
+    //
+    // Custom conditions.
+    //
+    // conditions: {
+    //   <field_name>: { full_match: <full string match> },
+    //   ...
+    // }
+    $max = empty($input['rules-analyser__custom-fields-count']) ? 0 : $input['rules-analyser__custom-fields-count'];
+    $conditions = [];
+    for ($i=1; $i<=$max; $i++) {
+      // Only add fields with names(!) silently ignore others.
+      if (!empty($input["rules-analyser__custom-name-$i"])) {
+
+        // Found a custom condition.
+        if (!preg_match('/^[a-zA-Z0-9_-]+$/', $input["rules-analyser__custom-name-$i"])) {
+          // Invalid field name.
+          throw new InvalidArgumentException('Invalid custom field name.');
+          return;
+        }
+        // Store in this format conditions.fieldname = { full_match: 'value' }
+        $conditions[$input["rules-analyser__custom-name-$i"]] = ['full_match' => $input["rules-analyser__custom-value-$i"]];
+      }
+    }
+    $row['conditions'] = $conditions;
+
+    //
+    // Instructions ("Actions") stored in the execution field:
+    //
+    // execution: [
+    //   { set_param_name: <field e.g. contact_id>, set_param_value: <the value> },
+    //   ...
+    // ]
+    //
+    // These will be executed in defined order.
+    //
+    $execution = [];
+    foreach ([
+      'contact_id',
+      'campaign_id',
+      'financial_type_id',
+      'payment_instrument_id',
+      'membership_id',
+    ] as $_) {
+      if (!empty($input["rules-analyser__set-$_-cb"])) {
+
+        $execution[] = [
+          'set_param_name' => $_,
+          'set_param_value' => $input["rules-analyser__set-$_"],
+        ];
+
+      }
+    }
+    $row['execution'] = $execution;
+    if (!$execution) {
+      throw new InvalidArgumentException("Cannot create a rule with no actions.");
+      return;
+    }
+
+    // is_enabled is only set when testing.
+    if (isset($input['is_enabled'])) {
+      $row['is_enabled'] = $input['is_enabled'] ? 1 : 0;
+    }
+
+    // Create rule.
+    $rule = CRM_Banking_Rules_Rule::createRule($row);
+    return $rule;
   }
 }

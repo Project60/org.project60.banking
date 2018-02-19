@@ -91,7 +91,7 @@ class CRM_Banking_Rules_Rule {
 
       // Nb. we cannot use $rule_data = $dao->toArray()
       // because this imposes a string type on the values.
-      $obj = new static();
+      $obj = new CRM_Banking_Rules_Rule();
       $obj->setFromDao($dao);
 
       $dao->free();

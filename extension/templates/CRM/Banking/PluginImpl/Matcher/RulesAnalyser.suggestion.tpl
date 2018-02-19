@@ -36,7 +36,10 @@
               <div style="opacity:0.7" >{$rule.execution[1]}</div>
             {/if}
           </td>
-          <td><a href="/civicrm/a/#/banking/rules/{$rule.id}" >Edit Rule</a></td>
+          <td>
+            {capture assign=rule_id}{$rule.id}{/capture}
+            <a href="{crmURL p="civicrm/a/#/banking/rules/$rule_id}">Edit Rule</a>
+          </td>
           </tr>
         {/foreach}
       </tbody>

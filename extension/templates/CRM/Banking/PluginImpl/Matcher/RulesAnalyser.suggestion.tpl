@@ -120,9 +120,9 @@
       </thead>
       <tbody>
         {foreach from=$payment_data_parsed item=v key=k}
-        {if (not in_array($k, ['reference', 'name', 'amount_parsed', '_party_IBAN', '_IBAN', 'purpose']))}
-        <tr><td>{$k}</td><td>{$v}</td></tr>
-        {/if}
+          {if $k != 'reference' && $k != 'name' && $k != 'amount' && $k != '_party_IBAN' && $k != '_IBAN' && $k != 'purpose'}
+          <tr><td>{$k}</td><td>{$v}</td></tr>
+          {/if}
         {/foreach}
       </tbody>
     </table>

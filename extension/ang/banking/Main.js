@@ -26,7 +26,7 @@
   angular.module('banking').controller('BankingMain', function($scope, crmApi, crmStatus, crmUiHelp, myContact) {
     // The ts() and hs() functions help load strings for this module.
     var ts = $scope.ts = CRM.ts('banking');
-    var hs = $scope.hs = crmUiHelp({file: 'CRM/banking/Main'}); // See: templates/CRM/banking/Main.hlp
+    var hs = $scope.hs = crmUiHelp({file: 'ang/banking/Main'}); // See: templates/CRM/banking/Main.hlp
 
     // We have myContact available in JS. We also want to reference it in HTML.
     $scope.myContact = myContact;

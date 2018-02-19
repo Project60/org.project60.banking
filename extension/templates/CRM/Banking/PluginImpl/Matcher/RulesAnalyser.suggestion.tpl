@@ -1,4 +1,5 @@
-{*-------------------------------------------------------+ | Project 60 - CiviBanking                               |
+{*-------------------------------------------------------+
+| Project 60 - CiviBanking                               |
 | Copyright (C) 2018 SYSTOPIA                            |
 | Author: B. Endres (endres -at- systopia.de)            |
 |         R. Lott (hello -at- artfulrobot.uk)            |

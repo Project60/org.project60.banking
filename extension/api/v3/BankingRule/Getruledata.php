@@ -25,18 +25,18 @@ function civicrm_api3_banking_rule_Getruledata($params) {
   $rule = CRM_Banking_Rules_Rule::get($params['id']);
   $data = $rule->getRuleData();
 
-  // FIXME? There is probably a better way to do this. Björn?
   // In order that the editor can know what to set we need the config for this particular plugin.
-  // That can't be hard-coded, so we have to look it up.
   $rules_analyser_plugin_id = civicrm_api3('OptionValue', 'getvalue', [
     'return'          => "id",
     'option_group_id' => "civicrm_banking.plugin_types",
     'name'            => "analyser_rules",
   ]);
-  $result = civicrm_api3('BankingPluginInstance', 'getsingle', ['plugin_class_id' => $rules_analyser_plugin_id]);
-  $config = json_decode($result['config'], TRUE);
-  $data['plugin_config'] = $config;
-
+  // load the [first, hopefully only] Matcher of this plugin class type and get its config.
+  $pi_bao = new CRM_Banking_BAO_PluginInstance();
+  $pi_bao->get('plugin_class_id', $rules_analyser_plugin_id);
+  $pi = $pi_bao->getInstance();
+  $pi_config = $pi->getConfig();
+  $data['plugin_config'] = json_decode(json_encode($pi_config), TRUE);
 
   // Return the result.
   return civicrm_api3_create_success($data, $params, 'BankingRule', 'Getruledata');

@@ -31,7 +31,6 @@
 
     $scope.addCustomCondition = function() {
       rule_data.custom_conditions.push( {name: '', full_match: ''});
-    console.log("processed rule_data", rule_data);
     };
 
     $scope.rule_data = rule_data;
@@ -47,17 +46,13 @@
     };
     $scope.save = function save() {
       // The save action. Note that crmApi() returns a promise.
-      console.log({
-                id: rule_data.id,
-                party_ba_ref: rule_data.party_ba_ref_enabled ? rule_data.party_ba_ref : null,
-              });
 
       // Create the update API call.
       var params = { id: rule_data.id };
 
       // Main table text fields.
       CRM._.map(table_fields, function (field) {
-        params[field] = rule_data[field + '_enabled'] ? rule_data[field] : null;
+        params[field] = rule_data[field + '_enabled'] ? (rule_data[field] || '') : null;
       });
 
       // Name

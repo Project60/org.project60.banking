@@ -139,6 +139,7 @@
 	</thead>
 	<tbody>
 {foreach from=$account_conflicts item=duplicate}
+  {if not $duplicate.exception}
 		<tr class="{cycle values="odd,even"}">
 			<td>[{counter name=dup_cnt}]</td>
 			<td>
@@ -163,8 +164,16 @@
   				<span align="right"><div class="icon ui-icon-check"></div>{ts}merge{/ts}</span>
   			</a>
   			{/if}
+  			<br/>
+				{if $duplicate.exclude_link}
+				<a class="button" href="{$duplicate.exclude_link}">
+  				<span align="right"><div class="icon ui-icon-check"></div>{ts}exclude{/ts}</span>
+  			</a>
+  			<br/>
+  			{/if}
 			</td>
 		</tr>
+	{/if}
 {/foreach}
 	</tbody>
 </table>

@@ -185,10 +185,8 @@ class CRM_Banking_Page_AccountDedupe extends CRM_Core_Page {
             $contact_id2 = (int) $exclued_ids[$j];
             if (!empty($contact_id2)) {
               if ($contact_id1 < $contact_id2) {
-                error_log("INSERT IGNORE INTO civicrm_dedupe_exception (contact_id1, contact_id2) VALUES ({$contact_id1}, {$contact_id2});");
                 CRM_Core_DAO::executeQuery("INSERT IGNORE INTO civicrm_dedupe_exception (contact_id1, contact_id2) VALUES ({$contact_id1}, {$contact_id2});");
               } elseif ($contact_id1 > $contact_id2) {
-                error_log("INSERT IGNORE INTO civicrm_dedupe_exception (contact_id1, contact_id2) VALUES ({$contact_id2}, {$contact_id1});");
                 CRM_Core_DAO::executeQuery("INSERT IGNORE INTO civicrm_dedupe_exception (contact_id1, contact_id2) VALUES ({$contact_id2}, {$contact_id1});");
               }
             }

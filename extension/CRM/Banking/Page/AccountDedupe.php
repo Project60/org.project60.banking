@@ -18,12 +18,6 @@
 require_once 'CRM/Core/Page.php';
 require_once 'CRM/Banking/Helpers/OptionValue.php';
 
-/*
- * If set to true, no information should be lost when merging accounts
- */
-define('CIVIBANKING_MERGE_ACCOUNTS_CHECK_STRICT', TRUE);
-
-
 /**
  * The Dedupe page helps the user to identify and merge/delete duplicate 
  * bank accounts.
@@ -144,6 +138,7 @@ class CRM_Banking_Page_AccountDedupe extends CRM_Core_Page {
     $errors_ecountered = 0;
     $account_reflist = array();
     $reflist = array();
+    $lenient_dedupe    = CRM_Banking_Config::lenientDedupe();
 
     // =========================
     // MERGE DUPLICATE ACCOUNTS 
@@ -209,7 +204,7 @@ class CRM_Banking_Page_AccountDedupe extends CRM_Core_Page {
               } else {
                 // main_ba.$attribute set, check if identical
                 if ($main_ba->$attribute != $merge_ba->$attribute) {
-                  if (CIVIBANKING_MERGE_ACCOUNTS_CHECK_STRICT) {
+                  if (!$lenient_dedupe) {
                     $merge_failed = TRUE;
                     break;
                   }
@@ -226,7 +221,7 @@ class CRM_Banking_Page_AccountDedupe extends CRM_Core_Page {
               $main_data_parsed[$key] = $value;
             } else {
               if ($main_data_parsed[$key] != $merge_data_parsed[$key]) {
-                if (CIVIBANKING_MERGE_ACCOUNTS_CHECK_STRICT) {
+                if (!$lenient_dedupe) {
                   $merge_failed = TRUE;
                   break;
                 }

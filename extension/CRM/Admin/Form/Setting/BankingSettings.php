@@ -93,6 +93,13 @@ class CRM_Admin_Form_Setting_BankingSettings extends CRM_Core_Form {
       ts('Validate bank account references'),
       '');
 
+    // validate bank account references?
+    $this->addElement(
+      'checkbox',
+      'lenient_dedupe',
+      ts('Lenient bank account dedupe'),
+      '');
+
 
     $this->addButtons(array(
       array(
@@ -120,6 +127,7 @@ class CRM_Admin_Form_Setting_BankingSettings extends CRM_Core_Form {
     $defaults['reference_store_disabled'] = CRM_Core_BAO_Setting::getItem('CiviBanking', 'reference_store_disabled');
     $defaults['reference_normalisation']  = CRM_Core_BAO_Setting::getItem('CiviBanking', 'reference_normalisation');
     $defaults['reference_validation']     = CRM_Core_BAO_Setting::getItem('CiviBanking', 'reference_validation');
+    $defaults['lenient_dedupe']           = CRM_Core_BAO_Setting::getItem('CiviBanking', 'lenient_dedupe');
 
     return $defaults;
   }
@@ -150,6 +158,7 @@ class CRM_Admin_Form_Setting_BankingSettings extends CRM_Core_Form {
     CRM_Core_BAO_Setting::setItem(!empty($values['reference_store_disabled']),         'CiviBanking', 'reference_store_disabled');
     CRM_Core_BAO_Setting::setItem(!empty($values['reference_normalisation']), 'CiviBanking', 'reference_normalisation');
     CRM_Core_BAO_Setting::setItem(!empty($values['reference_validation']),    'CiviBanking', 'reference_validation');
+    CRM_Core_BAO_Setting::setItem(!empty($values['lenient_dedupe']),           'CiviBanking', 'lenient_dedupe');
 
     // log results
     $logger = CRM_Banking_Helpers_Logger::getLogger();

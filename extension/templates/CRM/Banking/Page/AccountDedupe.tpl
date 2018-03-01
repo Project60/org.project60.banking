@@ -167,7 +167,7 @@
   			<br/>
 				{if $duplicate.exclude_link}
 				<a class="button" href="{$duplicate.exclude_link}">
-  				<span align="right"><div class="icon ui-icon-check"></div>{ts}exclude{/ts}</span>
+  				<span align="right"><div class="icon ui-icon-close"></div>{ts}exclude{/ts}</span>
   			</a>
   			<br/>
   			{/if}

@@ -126,6 +126,9 @@ class CRM_Banking_Page_AccountDedupe extends CRM_Core_Page {
     $duplicate['contacts'] = $contacts;
     if (count($contacts) == 1) {
         $duplicate['contact'] = $contacts[0];
+    } elseif (count($contacts) == 2) {
+      // add merge link if it's exactly two
+      $duplicate['merge_link'] = CRM_Utils_System::url('civicrm/contact/merge', "reset=1&cid={$contacts[0]['id']}&oid={$contacts[1]['id']}");
     } 
   }
 

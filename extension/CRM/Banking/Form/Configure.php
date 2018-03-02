@@ -135,7 +135,7 @@ class CRM_Banking_Form_Configure extends CRM_Core_Form {
     if (empty($plugin_instance['id'])) {
       throw new Exception("Couldn't store configuration");
     } else {
-      $config = mysql_escape_string($values['configuration']);
+      $config = CRM_Core_DAO::escapeString($values['configuration']);
       CRM_Core_DAO::executeQuery("UPDATE civicrm_bank_plugin_instance SET config='{$config}' WHERE id={$plugin_instance['id']}");
     }
 

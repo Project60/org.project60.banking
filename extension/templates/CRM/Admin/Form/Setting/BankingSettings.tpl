@@ -60,6 +60,12 @@
   <div class="clear"></div>
 </div>
 
+<div class="crm-section">
+  <div class="label">{$form.lenient_dedupe.label}</div>
+  <div class="content">{$form.lenient_dedupe.html}</div>
+  <div class="clear"></div>
+</div>
+
 <br/>
 {* FOOTER *}
 <div class="crm-submit-buttons">

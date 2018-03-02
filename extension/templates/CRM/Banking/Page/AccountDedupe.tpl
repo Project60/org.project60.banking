@@ -22,6 +22,7 @@
 <table>
 	<thead>
 		<th></th>
+		<th></th>
 		<th>{ts}Bank Account Owners{/ts}</th>
 		<th>{ts}Count{/ts}</th>
 		<th>{ts}Account Reference{/ts}</th>
@@ -29,6 +30,7 @@
 	<tbody>
 {foreach from=$duplicate_references item=duplicate}
 		<tr class="{cycle values="odd,even"}">
+			<td>[{counter name=dup_ref}]</td>
 			<td>
 				{assign var=duplicate_reference value=$duplicate.reference_id}
 				<a class="button" href="{crmURL p="civicrm/banking/dedupe" q="fixref=$duplicate_reference"}">
@@ -75,6 +77,7 @@
 <table>
 	<thead>
 		<th></th>
+		<th></th>
 		<th>{ts}Bank Account Owners{/ts}</th>
 		<th>{ts}Count{/ts}</th>
 		<th>{ts}Account Reference{/ts}</th>
@@ -82,6 +85,7 @@
 	<tbody>
 {foreach from=$duplicate_accounts item=duplicate}
 		<tr class="{cycle values="odd,even"}">
+			<td>[{counter name=dup_acc}]</td>
 			<td>
 				{assign var=duplicate_reference value=$duplicate.reference_id}
 				<a class="button" href="{crmURL p="civicrm/banking/dedupe" q="fixdupe=$duplicate_reference"}">
@@ -128,14 +132,18 @@
 <div>{ts}These are duplicate bank accounts listed for <i>different</i> contacts. Those that are not intended to be "shared" need to be resolved manually - sorry.{/ts}</div>
 <table>
 	<thead>
+		<th></th>
 		<th>{ts}Bank Account Owners{/ts}</th>
 		<th>{ts}Account Reference{/ts}</th>
 		<th></th>
 	</thead>
 	<tbody>
 {foreach from=$account_conflicts item=duplicate}
+  {if not $duplicate.exception}
 		<tr class="{cycle values="odd,even"}">
-			<td><ul>
+			<td>[{counter name=dup_cnt}]</td>
+			<td>
+				<ul>
 {foreach from=$duplicate.contacts item=contact}
 				{assign var=contact_id value=$contact.id}
 				<li>
@@ -150,7 +158,22 @@
 					{$duplicate.reference_type.name}: {$duplicate.reference}
 				</a>
 			</td>
+			<td>
+				{if $duplicate.merge_link}
+				<a class="button" href="{$duplicate.merge_link}">
+  				<span align="right"><div class="icon ui-icon-check"></div>{ts}merge{/ts}</span>
+  			</a>
+  			{/if}
+  			<br/>
+				{if $duplicate.exclude_link}
+				<a class="button" href="{$duplicate.exclude_link}">
+  				<span align="right"><div class="icon ui-icon-close"></div>{ts}exclude{/ts}</span>
+  			</a>
+  			<br/>
+  			{/if}
+			</td>
 		</tr>
+	{/if}
 {/foreach}
 	</tbody>
 </table>

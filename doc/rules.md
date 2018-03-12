@@ -37,9 +37,6 @@ Example:
         "membership_id": {
           "label": "Membership ID"
         }
-      },
-      "field_mapping": {
-        "a": "b"
       }
     }
 
@@ -56,6 +53,3 @@ Example:
    - `label` (string) The untranslated name in the UI.
 
    - (others not yet implemented)
-
-- `field_mapping` a mapping to be applied to the btx parameters before
-   the rule gets executed.

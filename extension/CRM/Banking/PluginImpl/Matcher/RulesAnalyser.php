@@ -175,7 +175,7 @@ class CRM_Banking_PluginImpl_Matcher_RulesAnalyser extends CRM_Banking_PluginMod
         $rules_data[$rule_id] = $rule_data;
       } catch (Exception $e) {
         // rule probably deleted
-        $rule_data['loading_error'] = $e->getMessage();
+        $rule_data['loading_error'] = ts('Error: ') . $e->getMessage();
         $rules_data[$rule_id] = $rule_data;
       }
     }

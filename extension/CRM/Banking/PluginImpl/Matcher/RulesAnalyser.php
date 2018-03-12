@@ -165,13 +165,19 @@ class CRM_Banking_PluginImpl_Matcher_RulesAnalyser extends CRM_Banking_PluginMod
     $matched_rules = $match->getParameter('matched_rules');
     $rules_data    = array();
     foreach ($matched_rules as $rule_id => $confidence) {
-      $rule_data = [
-        'id' => $rule_id,
-        'confidence' => $confidence,
-      ];
-      $rule = CRM_Banking_Rules_Rule::get($rule_id);
-      $rule->addRenderParameters($rule_data);
-      $rules_data[$rule_id] = $rule_data;
+      try {
+        $rule_data = [
+          'id' => $rule_id,
+          'confidence' => $confidence,
+        ];
+        $rule = CRM_Banking_Rules_Rule::get($rule_id);
+        $rule->addRenderParameters($rule_data);
+        $rules_data[$rule_id] = $rule_data;
+      } catch (Exception $e) {
+        // rule probably deleted
+        $rule_data['loading_error'] = $e->getMessage();
+        $rules_data[$rule_id] = $rule_data;
+      }
     }
     $smarty_vars['rules']         = $rules_data;
     $smarty_vars['fields_to_set'] = isset($config->fields_to_set) ? $config->fields_to_set : [];

@@ -29,6 +29,14 @@
       </thead>
       <tbody>
         {foreach from=$rules item=rule}
+          {if $rule.loading_error}
+          <tr>
+            <td>
+              <div>Rule {$rule.id}: {$rule.loading_error}</div>
+            </td>
+            <td></td>
+          </tr>
+          {else}
           <tr>
           <td>
             <div>Rule {$rule.id}: {$rule.execution[0]}</div>
@@ -41,6 +49,7 @@
             <a href="{crmURL p="civicrm/a/#/banking/rules/$rule_id}">Edit Rule</a>
           </td>
           </tr>
+          {/if}
         {/foreach}
       </tbody>
     </table>

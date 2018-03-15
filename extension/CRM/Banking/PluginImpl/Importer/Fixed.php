@@ -68,6 +68,11 @@ class CRM_Banking_PluginImpl_Importer_Fixed extends CRM_Banking_PluginModel_Impo
    */
   protected $tx_raw_lines = NULL;
 
+  /**
+   * line number currently processed
+   */
+  protected $line_nr = 0;
+
 
 
   /**
@@ -148,6 +153,7 @@ class CRM_Banking_PluginImpl_Importer_Fixed extends CRM_Banking_PluginModel_Impo
     // TODO: error handling
 
     // all good -> start creating stament
+    $this->line_nr = 0;
     $this->data = array();
     foreach ($config->defaults as $key => $value) {
       $this->data[$key] = $value;
@@ -157,6 +163,8 @@ class CRM_Banking_PluginImpl_Importer_Fixed extends CRM_Banking_PluginModel_Impo
     $line = NULL;
 
     while ( ($line = fgets($this->file_handle)) !== FALSE ) {
+      $this->line_nr += 1;
+
       // check encoding if necessary
       if (isset($config->encoding)) {
         $line = mb_convert_encoding($line, mb_internal_encoding(), $config->encoding);
@@ -232,7 +240,7 @@ class CRM_Banking_PluginImpl_Importer_Fixed extends CRM_Banking_PluginModel_Impo
         break;
 
       case 'apply_rules':
-        if (preg_match($rule->regex, $line)) {
+        if (empty($rule->regex) || preg_match($rule->regex, $line)) {
           $this->apply_rules($rule->rules, $line, $params);
         }
         break;
@@ -241,6 +249,10 @@ class CRM_Banking_PluginImpl_Importer_Fixed extends CRM_Banking_PluginModel_Impo
         $value = $this->getValue($rule->from);
         $new_value = preg_replace($rule->search, $rule->replace, $value);
         $this->storeValue($rule->to, $new_value);
+        break;
+
+      case 'line_nr':
+        $this->storeValue($rule->to, $this->line_nr);
         break;
 
       case 'date':
@@ -266,7 +278,6 @@ class CRM_Banking_PluginImpl_Importer_Fixed extends CRM_Banking_PluginModel_Impo
       default:
         // TODO error handling
         break;
-
     }
   }
 
@@ -325,34 +336,13 @@ class CRM_Banking_PluginImpl_Importer_Fixed extends CRM_Banking_PluginModel_Impo
     // TODO: progress
     $progress = 0.0;
 
-    // // look up the bank accounts??? => use analyser instead!
-    // foreach ($btx as $key => $value) {
-    //   // check for NBAN_?? or IBAN endings
-    //   if (preg_match('/^_.*NBAN_..$/', $key) || preg_match('/^_.*IBAN$/', $key)) {
-    //     // this is a *BAN entry -> look it up
-    //     if (!isset($this->account_cache[$value])) {
-    //       $result = civicrm_api('BankingAccountReference', 'getsingle', array('version' => 3, 'reference' => $value));
-    //       if (!empty($result['is_error'])) {
-    //         $this->account_cache[$value] = NULL;
-    //       } else {
-    //         $this->account_cache[$value] = $result['ba_id'];
-    //       }
-    //     }
-
-    //     if ($this->account_cache[$value] != NULL) {
-    //       if (substr($key, 0, 7)=="_party_") {
-    //         $btx['party_ba_id'] = $this->account_cache[$value];
-    //       } elseif (substr($key, 0, 1)=="_") {
-    //         $btx['ba_id'] = $this->account_cache[$value];
-    //       }
-    //     }
-    //   }
-    // }
+    // look up the bank accounts
+    $this->lookupBankAccounts($btx);
 
     // do some post processing
     if (!isset($config->bank_reference)) {
       // set SHA1 hash as unique reference
-      $btx['bank_reference'] = sha1($btx['data_raw']);
+      $btx['bank_reference'] = sha1(json_encode($btx));
     } else {
       // we have a template
       $bank_reference = $config->bank_reference;

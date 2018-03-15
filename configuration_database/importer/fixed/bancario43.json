@@ -1,0 +1,83 @@
+{
+   "sentinel": "#^1121#",
+   "defaults": {
+      "tx.currency": "EUR"
+      },
+	"generic_rules": [
+      {
+         "comment": "11 is the file header",
+         "type": "apply_rules",
+         "regex": "#^11#",
+         "rules": "rules_header"
+      },
+      {
+         "comment": "22 is transaction",
+         "type": "apply_rules",
+         "regex": "#^22#",
+         "rules": "rules_transaction"
+      },
+      {
+         "comment": "33 is the footer",
+         "type": "apply_rules",
+         "regex": "#^33#",
+         "rules": "rules_footer"
+      }
+	],
+   "rules_header": [
+   ],
+   "rules_transaction": [
+      {
+         "type": "transaction:open"
+      },
+      {
+         "type": "extract",
+         "position": "11-16",
+         "to": "tx.booking_date"
+      },
+      {
+         "comment": "parse booking date",
+         "type": "date",
+         "from": "tx.booking_date",
+         "format": "ymd",
+         "to": "tx.booking_date"
+      },
+      {
+         "type": "extract",
+         "position": "17-22",
+         "to": "tx.value_date"
+      },
+      {
+         "comment": "parse value date",
+         "type": "date",
+         "from": "tx.value_date",
+         "format": "ymd",
+         "to": "tx.value_date"
+      },
+      {
+         "type": "extract",
+         "position": "29-42",
+         "to": "tx.amount"
+      },
+      {
+         "comment": "strip leading zeros",
+         "type": "replace",
+         "from": "tx.amount",
+         "search": "#^0*([1-9][0-9]*)#",
+         "replace": "${1}",
+         "to": "tx.amount"
+      },
+      {
+         "comment": "add decimal point",
+         "type": "replace",
+         "from": "tx.amount",
+         "search": "#([0-9]*)([0-9]{2})$#",
+         "replace": "${1}.${2}",
+         "to": "tx.amount"
+      }
+   ],
+   "rules_footer": [
+      {
+         "type": "transaction:close"
+      }
+   ]
+}

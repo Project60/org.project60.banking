@@ -27,10 +27,12 @@
     rule_data.execution = execution;
 
     // Custom conditions are placed in an array.
-    rule_data.custom_conditions = CRM._.map((rule_data.conditions || {}), function(v, k) { return { name: k, full_match: v.full_match }; });
+    rule_data.custom_conditions = CRM._.map((rule_data.conditions || {}), function(v, k) {
+      return { name: k, full_match: v.full_match, error: '' };
+    });
 
     $scope.addCustomCondition = function() {
-      rule_data.custom_conditions.push( {name: '', full_match: ''});
+      rule_data.custom_conditions.push( {name: '', full_match: '', error: '' });
     };
 
     $scope.rule_data = rule_data;
@@ -70,11 +72,21 @@
       // Custom conditions.
       // These are sent as a JSON string.
       params.conditions = {};
-      CRM._.map(rule_data.custom_conditions, function(cond) {
-        if (cond.full_match) {
-          params.conditions[cond.name] = { full_match: cond.full_match };
+      var errors = [];
+      CRM._.map(rule_data.custom_conditions, function(cond, i) {
+        if (cond.error) {
+          errors.push("Error on custom condition " + (i+1) + ": " + cond.error);
         }
+        else if (cond.name == '') {
+          errors.push("Custom condition " + (i+1) + ": is missing a fieldname");
+        }
+        params.conditions[cond.name] = { full_match: cond.full_match };
       });
+
+      if (errors.length > 0) {
+        CRM.alert(errors.join("; "), 'Errors are preventing saving the rule', 'error');
+        return;
+      }
 
       // Execution.
       params.execution = CRM._.map(CRM._.filter(rule_data.execution, 'enabled'), function(item) {
@@ -87,6 +99,27 @@
         {start: ts('Saving...'), success: ts('Saved')}, crmApi('BankingRule', 'update', params)
       );
     };
+    $scope.$watch(
+      function() { return rule_data.custom_conditions.map(function(i) { return i.name; }); },
+      function(newValue, oldValue, scope) {
+
+        var counts = {};
+        for (i in rule_data.custom_conditions) {
+          var n = rule_data.custom_conditions[i].name;
+          if (n in counts) {
+            counts[n]++;
+          }
+          else {
+            counts[n] = 1;
+          }
+        }
+
+        for (i in rule_data.custom_conditions) {
+          var n = rule_data.custom_conditions[i].name;
+          rule_data.custom_conditions[i].error = (counts[n] > 1) ? 'Duplicate condition name' : '';
+        }
+      },
+      true);
   });
 
 })(angular, CRM.$, CRM._);

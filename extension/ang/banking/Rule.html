@@ -31,7 +31,7 @@
             <option value="equals">Exactly</option>
             <option value="between">Between</option>
           </select>
-          <label ng-if="rule_data.amount_operator == 'between'" for="amount_min" />From</label>
+          <label ng-if="rule_data.amount_operator == 'between'" for="amount_min" ng-if="rule_data.amount_operator == 'between'" >From</label>
           <input type="text" ng-model="rule_data.amount_min" id="amount_min" size="5" />
 
           <label ng-if="rule_data.amount_operator == 'between'" for="amount_max" >to</label>
@@ -57,8 +57,11 @@
       <!-- custom conditions -->
       <tr ng-repeat="(i, cond) in rule_data.custom_conditions" >
         <td><input type="checkbox" checked="" ng-click="rule_data.custom_conditions.splice(i, 1)" />
-          <input type="text" ng-model="cond.name" placeholder="" /></td>
-        <td><input type="text" ng-model="cond.full_match" placeholder="" /></td>
+          <input type="text" ng-model="cond.name" placeholder="custom_field_name"
+            class="{{ cond.error ? 'error' : '' }}" />
+          <span class="error" ng-if="cond.error" >{{ cond.error }}</span>
+        </td>
+        <td><input type="text" ng-model="cond.full_match" placeholder="full string match" /></td>
       </tr>
 
       <tr>

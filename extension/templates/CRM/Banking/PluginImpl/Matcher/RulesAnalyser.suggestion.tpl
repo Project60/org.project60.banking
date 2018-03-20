@@ -146,9 +146,13 @@
         {foreach from=$fields_to_set item=field_ui key=rule_field}
           <tr>
             <td>
-              <input type="checkbox" id="rules-analyser__set-{$rule_field}-cb" name="rules-analyser__set-{$rule_field}-cb" class="rules-analyser__set-{$rule_field}-cb rules-analyser__action">
+              <input type="checkbox" id="rules-analyser__set-{$rule_field}-cb" name="rules-analyser__set-{$rule_field}-cb" class="rules-analyser__set-{$rule_field}-cb rules-analyser__action"
+              {if $rule_field == 'contact_id' && $contact_id_found} checked="checked" {/if}
+              >
               <label for="rules-analyser__set-{$rule_field}-cb">{ts}{$field_ui->label}{/ts}</label> </td>
-            <td class="rules-analyser__set-{$rule_field}-ui"><input name="rules-analyser__set-{$rule_field}" value="" type="text"> </td>
+            <td class="rules-analyser__set-{$rule_field}-ui"><input name="rules-analyser__set-{$rule_field}"
+              value="{$contact_id_found}"
+              type="text"> </td>
           </tr>
         {/foreach}
       </tbody>

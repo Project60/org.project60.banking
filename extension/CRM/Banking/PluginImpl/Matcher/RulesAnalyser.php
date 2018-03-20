@@ -67,6 +67,7 @@ class CRM_Banking_PluginImpl_Matcher_RulesAnalyser extends CRM_Banking_PluginMod
     $rule_matches = CRM_Banking_Rules_Match::matchTransaction($btx, $config->field_mapping, $context, BANKING_MATCHER_RULE_TYPE_ANALYSER, $threshold);
     $matched_rule_ids = array();
 
+
     // Execute the rule matches (which will enrich the parsed data).
     foreach ($rule_matches as $rule_match) {
       // apply the match
@@ -92,9 +93,17 @@ class CRM_Banking_PluginImpl_Matcher_RulesAnalyser extends CRM_Banking_PluginMod
       }
       $suggestion->setParameter('matched_rules', $rule2confidence);
 
-      if ($config->suggest_create_new) {
-        $suggestion->setParameter('matched_rules', $rule2confidence);
+      // Lookup if there's a contact with a 100% confidence, store it on the suggestion.
+      $contact_id_found = FALSE;
+      $contacts_found = $context->findContacts($threshold, $data_parsed['name'], $config->lookup_contact_by_name);
+      if ($contacts_found) {
+        $best_contact = reset($contacts_found);
+        if ($best_contact == 1.0) {
+          // 100% match.
+          $contact_id_found = key($contacts_found);
+        }
       }
+      $suggestion->setParameter('contact_id_found', $contact_id_found);
 
       $btx->addSuggestion($suggestion);
     }
@@ -183,6 +192,9 @@ class CRM_Banking_PluginImpl_Matcher_RulesAnalyser extends CRM_Banking_PluginMod
     $smarty_vars['fields_to_set'] = isset($config->fields_to_set) ? $config->fields_to_set : [];
     $smarty_vars['btx_id']        = (int) $btx->id;
     $smarty_vars['matcher_id']    = (int) $this->_plugin_id;
+
+    // Store the contacts found for use later in the visualize_match function.
+    $smarty_vars['contact_id_found'] = $match->getParameter('contact_id_found');
 
     // render template
     $smarty = CRM_Banking_Helpers_Smarty::singleton();

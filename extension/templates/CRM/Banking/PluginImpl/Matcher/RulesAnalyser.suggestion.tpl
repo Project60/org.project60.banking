@@ -46,7 +46,7 @@
           </td>
           <td>
             {capture assign=rule_id}{$rule.id}{/capture}
-            <a href="{crmURL p="civicrm/a/#/banking/rules/$rule_id}">Edit Rule</a>
+            <a href="{crmURL p="civicrm/a/#/banking/rules/$rule_id}" target="_blank">Edit Rule</a>
           </td>
           </tr>
           {/if}
@@ -325,9 +325,30 @@ if (!rulesAnalyser) {
       this.custom_count++;
       this.$el.find('input[name="rules-analyser__custom-fields-count"]').val(this.custom_count);
       var updateUi = this.updateUi.bind(this);
-      var ccName = CRM.$('<input placeholder="custom_field_name">')
+
+      var custom_options = {
+      {/literal}{foreach from=$payment_data_parsed item=v key=k}
+          {if $k != 'reference' && $k != 'name' && $k != 'amount' && $k != '_party_IBAN' && $k != '_IBAN' && $k != 'purpose'}
+          {$k|json}: {$v|json},
+          {/if}
+        {/foreach}{literal}
+      };
+
+      // Create a select element.
+      var ccName = CRM.$('<select>')
         .attr('name', 'rules-analyser__custom-name-' + this.custom_count)
-        .on('change', updateUi);
+        .on('change', function() {
+          // Set the value to the value from this btx.
+          var c = ccName.attr('name').replace('rules-analyser__custom-name-', '');
+          CRM.$('input[name="rules-analyser__custom-value-' + c + '"]').val( custom_options[ccName.val()] );
+
+          updateUi();
+        });
+      ccName.append('<option value="">--select--</option>');
+      for (i in custom_options) {
+        ccName.append(CRM.$('<option/>').text(i).attr('value', i));
+      }
+
       var ccValue = CRM.$('<input placeholder="(match string)">')
         .attr('name', 'rules-analyser__custom-value-' + this.custom_count);
 

@@ -108,3 +108,6 @@ function banking_civicrm_managed(&$entities) {
   return _banking_civix_civicrm_managed($entities);
 }
 
+function banking_civicrm_angularModules(&$angularModules) {
+  return _banking_civix_civicrm_angularModules($angularModules);
+}

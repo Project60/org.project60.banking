@@ -15,6 +15,11 @@
 | written permission from the original author(s).        |
 +--------------------------------------------------------*/
 
+/**
+ *
+ * CAUTION: NOT FULLY IMPLEMENTED YET
+ *
+ */
 
 require_once 'CRM/Banking/Helpers/OptionValue.php';
 
@@ -50,7 +55,7 @@ class CRM_Banking_PluginImpl_Matcher_Rules extends CRM_Banking_PluginModel_Match
     $penalty     = $this->getPenalty($btx);
 
     // run the rule matcher
-    $rule_matches = CRM_Banking_Rules_Match::matchTransaction($btx, $context, $threshold);
+    $rule_matches = CRM_Banking_Rules_Match::matchTransaction($btx, $config->field_mapping, $context, $threshold);
 
     // generate a suggestion for each match
     foreach ($rule_matches as $rule_match) {

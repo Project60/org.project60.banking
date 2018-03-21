@@ -68,6 +68,11 @@ class CRM_Banking_Page_Review extends CRM_Core_Page {
           if (!isset($next_pid) && ($_REQUEST['execute']==$pid)) {
             $url_redirect = banking_helper_buildURL('civicrm/banking/payments',  $this->_pageParameters());
           }
+        } else {
+          // execution failed -> go back
+          if (isset($prev_pid)) {
+            $url_redirect = banking_helper_buildURL('civicrm/banking/review',  $this->_pageParameters(array('id'=>$prev_pid)));
+          }
         }
       }
 
@@ -347,9 +352,12 @@ class CRM_Banking_Page_Review extends CRM_Core_Page {
       $btx_bao->saveSuggestions();
       $result = $suggestion->execute($btx_bao);
       if ($result) {
-        if ($result == 're-run') {
-          // just reload the page
-          return NULL; // NO SUCCESSFULL EXECTION
+        if ($result === 're-run') {
+          // re-analyse + reload the page
+          $engine = CRM_Banking_Matcher_Engine::getInstance();
+          $engine->match($parameters['execute']);
+          CRM_Core_Session::setStatus(ts("The transaction has been analysed again."), ts("Transaction analysed"), 'info');
+          return NULL; // NO SUCCESSFULL EXECUTION (because it's a re-run)
         } else {
           // ALL GOOD:
           // create a notification bubble for the user
@@ -361,16 +369,15 @@ class CRM_Banking_Page_Review extends CRM_Core_Page {
           } else {
             CRM_Core_Session::setStatus(ts("The transaction could not be closed."), ts("Error"), 'alert');
           }
-          return TRUE; // SUCCESSFULL EXECTION
+          return TRUE; // SUCCESSFULL EXECUTION
         }
       } else {
         // something went wrong
         CRM_Core_Session::setStatus(ts("The execution failed, please re-analyse the transaction."), ts("Error"), 'alert');
       }
-
     } else {
       CRM_Core_Session::setStatus(ts("Selected suggestions disappeared. Suggestion NOT executed!"), ts("Internal Error"), 'error');
     }
-    return NULL; // NO SUCCESSFULL EXECTION
+    return NULL; // NO SUCCESSFULL EXECUTION
   }
 }

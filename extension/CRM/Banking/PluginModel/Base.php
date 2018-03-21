@@ -171,7 +171,11 @@ abstract class CRM_Banking_PluginModel_Base {
   }
 
   function getPluginID() {
-      return $this->_plugin_id;
+    return $this->_plugin_id;
+  }
+
+  function getConfig() {
+    return $this->_plugin_config;
   }
 
   // -------------------------------------------------------

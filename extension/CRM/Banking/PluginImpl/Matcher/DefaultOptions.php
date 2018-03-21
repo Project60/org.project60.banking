@@ -149,6 +149,7 @@ class CRM_Banking_PluginImpl_Matcher_DefaultOptions extends CRM_Banking_PluginMo
             $result = civicrm_api('Contribution', 'create', $query);
             if (isset($result['is_error']) && $result['is_error']) {
               CRM_Core_Session::setStatus(sprintf(ts("Couldn't modify contribution #%s"), $cid), ts('Error'), 'error');
+              return NULL;
             } else {
               $contribution_count += 1;
             }
@@ -161,10 +162,12 @@ class CRM_Banking_PluginImpl_Matcher_DefaultOptions extends CRM_Banking_PluginMo
           parent::execute($suggestion, $btx);
         } else {
           CRM_Core_Session::setStatus(ts("The contribution is not valid. The transaction is NOT completed."), ts('Transaction NOT completed.'), 'alert');
+          return NULL;
         }
 
       } else {
         CRM_Core_Session::setStatus(ts("No contribution given. The transaction is NOT completed."), ts('Transaction NOT completed.'), 'alert');
+        return NULL;
       }
     } else {
       // this is the IGNORE action. Simply set the status to ignored
@@ -172,6 +175,7 @@ class CRM_Banking_PluginImpl_Matcher_DefaultOptions extends CRM_Banking_PluginMo
       $btx->setStatus($newStatus);
       parent::execute($suggestion, $btx);
     }
+    return TRUE;
   }
 
   /**

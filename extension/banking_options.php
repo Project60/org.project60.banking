@@ -42,6 +42,12 @@ function _banking_options() {
                   'description' => 'This importer should be configurable to import a variety of XML based data.',
                   'is_default' => 0,
               ),
+              'importer_fixed' => array(
+                  'label' => 'Fixed Width TXT Importer',
+                  'value' => 'CRM_Banking_PluginImpl_Importer_Fixed',
+                  'description' => 'This importer should be configurable for most fixed-width txt standards.',
+                  'is_default' => 0,
+              ),
               'matcher_generic' => array(
                   'label' => 'Generic Matcher Plugin',
                   'value' => 'CRM_Banking_PluginImpl_Matcher_Generic',
@@ -223,6 +229,12 @@ function _banking_options() {
                   'label' => ts('PayPal'),
                   'value' => 'NBAN_PP',
                   'description' => ts('PayPal account identification (email)'),
+                  'is_default' => 0,
+              ),
+              'NBAN_ES' => array(
+                  'label' => ts('Spanish Bank Account Number'),
+                  'value' => 'NBAN_ES',
+                  'description' => ts('Traditional Spanish bank account number'),
                   'is_default' => 0,
               ),
           ),

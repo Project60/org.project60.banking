@@ -55,8 +55,6 @@ class CRM_Banking_Upgrader extends CRM_Banking_Upgrader_Base {
       CRM_Core_DAO::executeQuery('ALTER TABLE `civicrm_bank_account` ADD INDEX is_primary (is_primary);');
     }
 
-    CRM_Core_DAO::executeQuery('UPDATE foo SET bar = "whiz"');
-    CRM_Core_DAO::executeQuery('DELETE FROM bang WHERE willy = wonka(2)');
     return TRUE;
   }
 }

@@ -118,6 +118,14 @@ function civicrm_api3_banking_account_getorcreate($params) {
 
     // first: gather some data
     $bank_account_data = array();
+    if (!empty($params['data_parsed'])) {
+      $bank_account_data = json_decode($params['data_parsed'], TRUE);
+      if (empty($bank_account_data)) {
+        $bank_account_data = array();
+      }
+    }
+
+    // add extra attributes
     foreach (array('description', 'name', 'country') as $attribute) {
       if (!empty($params[$attribute])) {
         $bank_account_data[$attribute] = $params[$attribute];
@@ -136,6 +144,8 @@ function civicrm_api3_banking_account_getorcreate($params) {
     $new_bank_account = civicrm_api3('BankingAccount', 'create', array(
       'contact_id'  => $params['contact_id'],
       'description' => CRM_Utils_Array::value('description', $params),
+      'is_active'   => CRM_Utils_Array::value('is_active',   $params, 1),
+      'is_primary'  => CRM_Utils_Array::value('is_primary',  $params, 1),
       'data_parsed' => json_encode($bank_account_data)));
 
     $bank_account_reference = civicrm_api3('BankingAccountReference', 'create', array(

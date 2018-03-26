@@ -112,6 +112,18 @@ class CRM_Banking_DAO_BankAccount extends CRM_Core_DAO
    */
   public $contact_id;
   /**
+   * if disabled, a BA should not be used any more
+   *
+   * @var int unsigned
+   */
+  public $is_active;
+  /**
+   * defines a BA as the default
+   *
+   * @var int unsigned
+   */
+  public $is_primary;
+  /**
    * class constructor
    *
    * @access public
@@ -191,6 +203,16 @@ class CRM_Banking_DAO_BankAccount extends CRM_Core_DAO
           'type' => CRM_Utils_Type::T_INT,
           'title' => ts('Contact ID') ,
           'FKClassName' => 'CRM_Contact_DAO_Contact',
+        ) ,
+        'is_active' => array(
+          'name' => 'is_active',
+          'type' => CRM_Utils_Type::T_INT,
+          'title' => ts('Active'),
+        ) ,
+        'is_primary' => array(
+          'name' => 'is_primary',
+          'type' => CRM_Utils_Type::T_INT,
+          'title' => ts('is primary account') ,
         ) ,
       );
     }

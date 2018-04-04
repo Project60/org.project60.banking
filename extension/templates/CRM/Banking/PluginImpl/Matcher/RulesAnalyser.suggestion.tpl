@@ -151,7 +151,7 @@
               >
               <label for="rules-analyser__set-{$rule_field}-cb">{ts}{$field_ui->label}{/ts}</label> </td>
             <td class="rules-analyser__set-{$rule_field}-ui"><input name="rules-analyser__set-{$rule_field}"
-              value="{$contact_id_found}"
+              value="{if $rule_field == 'contact_id'}{$contact_id_found}{/if}"
               type="text"> </td>
           </tr>
         {/foreach}

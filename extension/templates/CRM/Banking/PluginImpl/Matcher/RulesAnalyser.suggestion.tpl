@@ -204,6 +204,14 @@ if (!rulesAnalyser) {
   };
   CRM._.extend(rulesAnalyser.prototype, {
 
+    custom_options: {
+      {/literal}{foreach from=$payment_data_parsed item=v key=k}
+          {if $k != 'reference' && $k != 'name' && $k != 'amount' && $k != '_party_IBAN' && $k != '_IBAN' && $k != 'purpose'}
+          {$k|json}: {$v|json},
+          {/if}
+      {/foreach}{literal}
+    },
+
     toggleableFields: [
       // Fields to set, from config.
       {/literal}{foreach from=$fields_to_set item=field_ui key=rule_field}
@@ -330,28 +338,19 @@ if (!rulesAnalyser) {
       this.$el.find('input[name="rules-analyser__custom-fields-count"]').val(this.custom_count);
       var updateUi = this.updateUi.bind(this);
 
-      var custom_options = {
-      {/literal}{foreach from=$payment_data_parsed item=v key=k}
-          {if $k != 'reference' && $k != 'name' && $k != 'amount' && $k != '_party_IBAN' && $k != '_IBAN' && $k != 'purpose'}
-          {$k|json}: {$v|json},
-          {/if}
-        {/foreach}{literal}
-      };
-
       // Create a select element.
+      var fixCustomConditionSelects = this.fixCustomConditionSelects.bind(this);
       var ccName = CRM.$('<select>')
         .attr('name', 'rules-analyser__custom-name-' + this.custom_count)
+        .addClass('rules-analyser__custom-name')
         .on('change', function() {
           // Set the value to the value from this btx.
           var c = ccName.attr('name').replace('rules-analyser__custom-name-', '');
-          CRM.$('input[name="rules-analyser__custom-value-' + c + '"]').val( custom_options[ccName.val()] );
-
+          CRM.$('input[name="rules-analyser__custom-value-' + c + '"]').val( this.custom_options[ccName.val()] );
+          fixCustomConditionSelects();
           updateUi();
-        });
+        }.bind(this));
       ccName.append('<option value="">--select--</option>');
-      for (i in custom_options) {
-        ccName.append(CRM.$('<option/>').text(i).attr('value', i));
-      }
 
       var ccValue = CRM.$('<input placeholder="(match string)">')
         .attr('name', 'rules-analyser__custom-value-' + this.custom_count);
@@ -361,8 +360,37 @@ if (!rulesAnalyser) {
         .append(CRM.$('<td>').append(ccName))
         .append(CRM.$('<td>').append(ccValue))
       );
+      this.fixCustomConditionSelects();
       ccName.focus();
       this.$el.find('.rules-analyser__add-condition-hints').show();
+    },
+    fixCustomConditionSelects: function() {
+      // Build a list of options in use.
+      var selects = CRM.$('select.rules-analyser__custom-name');
+      var in_use = CRM.$.map(selects, function(s) { return CRM.$(s).val(); });
+      var custom_options = this.custom_options;
+
+      selects.map(function(i, select) {
+        var $select = CRM.$(select);
+        var selected_value = $select.val();
+
+        for (i in custom_options) {
+          // If this option is in use, and not in use here, but it is found here, remove it.
+          if ((in_use.indexOf(i) > -1)
+            && (i != selected_value)) {
+            $select.find('option').filter(function() { return this.value == i; }).remove();
+          }
+          // Ensure the option is available.
+          else if ($select.find('option').filter(function() { return this.value == i; }).length == 0) {
+            $select.append(CRM.$('<option/>').text(i).attr('value', i));
+          }
+        }
+
+        // Now sort the select's options.
+        var $opts = $select.find('option');
+        var opts = CRM._.sortBy($opts.get(), 'value');
+        CRM.$.each(opts, function() { $select.append(this); });
+      });
     }
   });
 }

@@ -150,9 +150,19 @@
               {if $rule_field == 'contact_id' && $contact_id_found} checked="checked" {/if}
               >
               <label for="rules-analyser__set-{$rule_field}-cb">{ts}{$field_ui->label}{/ts}</label> </td>
-            <td class="rules-analyser__set-{$rule_field}-ui"><input name="rules-analyser__set-{$rule_field}"
-              value="{if $rule_field == 'contact_id'}{$contact_id_found}{/if}"
-              type="text"> </td>
+            <td class="rules-analyser__set-{$rule_field}-ui">
+              {if $field_ui->options}
+                <select name="rules-analyser__set-{$rule_field}" value="{$field_ui->default}" >
+                  {foreach from=$field_ui->options item=option_label key=option_value}
+                    <option {if $option_value == $field_ui->default}selected="selected"{/if} value="{$option_value}" >{ts}{$option_label}{/ts}</option>
+                  {/foreach}
+                </select>
+              {else}
+              <input name="rules-analyser__set-{$rule_field}"
+                     value="{if $rule_field == 'contact_id'}{$contact_id_found}{/if}"
+                     type="text">
+              {/if}
+              </td>
           </tr>
         {/foreach}
       </tbody>

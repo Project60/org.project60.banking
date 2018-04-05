@@ -21,7 +21,7 @@
       execution_index[v.set_param_name] = v.set_param_value;
     });
     CRM._.map(rule_data.plugin_config.fields_to_set || {}, function (v, k) {
-      execution.push({field: k, label: v.label, enabled: (k in execution_index), value: execution_index[k]});
+      execution.push({field: k, label: v.label, enabled: (k in execution_index), value: execution_index[k] || v.default || '', options: v.options || false, default: v.default || '' });
     });
     // Replace the original structure with our new one.
     rule_data.execution = execution;

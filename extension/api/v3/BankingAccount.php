@@ -118,6 +118,14 @@ function civicrm_api3_banking_account_getorcreate($params) {
 
     // first: gather some data
     $bank_account_data = array();
+    if (!empty($params['data_parsed'])) {
+      $bank_account_data = json_decode($params['data_parsed'], TRUE);
+      if (empty($bank_account_data)) {
+        $bank_account_data = array();
+      }
+    }
+
+    // add extra attributes
     foreach (array('description', 'name', 'country') as $attribute) {
       if (!empty($params[$attribute])) {
         $bank_account_data[$attribute] = $params[$attribute];

@@ -1,6 +1,24 @@
 Version History
 ===============
 
+version 0.6
+==================================
+- Configuration UI (#102)
+- PostProcessors (#67)
+- Analysis Runner (#173)
+- PHP7 Compatibility (#187)
+- Added logging (#164, #144)
+- Improved bank account lookup (#178)
+- Improved bank account dedupe (#189)
+- Improved RegexAnalyser (#185)
+- More flexible API calls (#154)
+- Name-base search performance (#159)
+- Improved XML importer (#161, #162)
+- Improved review layout (#179)
+- BUG: bank_account_reference missing index (#158)
+- BUG: CiviBanking assigns contributions to contacts in trash (#166)
+
+
 version 0.5.3
 ==================================
 - SEPA matcher uses batch reference (#152)
@@ -167,8 +185,8 @@ version 0.3
  - FIX: warning if no statement/payment is selected for review
  - matcher:existing_contributions: added configurable payment_instrument mismatch penalty
  - FIX: matcher:existing_contributions: don't process negative amounts in default mode
- 
- 
+
+
  pre0.3
  ======
  - Developer version, no records

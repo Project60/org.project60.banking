@@ -16,7 +16,7 @@
 {$form.configuration.html}
 {$form.plugin_id.html}
 
-<h3>{ts}Basic Information{/ts}</h3>
+<h3>{ts domain='org.project60.banking'}Basic Information{/ts}</h3>
 
 <div class="crm-section">
   <div class="label">{$form.name.label}</div>
@@ -42,7 +42,7 @@
   <div class="clear"></div>
 </div>
 
-<h3>{ts}Configuration{/ts}</h3>
+<h3>{ts domain='org.project60.banking'}Configuration{/ts}</h3>
 <div class="crm-section">
   <div id="help" class="description">
     Configuring CiviBanking plugins is not easy. Maybe have a look at the examples at our <a href="https://github.com/Project60/org.project60.banking/tree/master/configuration_database">configuration database</a>.

@@ -40,19 +40,19 @@ tr.banking-plugin-disabled {
 {else}
 
 {* NORMAL PAGE *}
-<h3>{ts}Import Plugins{/ts}</h3>
+<h3>{ts domain='org.project60.banking'}Import Plugins{/ts}</h3>
 <div id="help">
-	{ts}Import plugins are used to transport transaction data obtained from banks and accounting software into CiviBanking. They source the information from files as well as from data feeds from external systems. Once imported, the payments will be processed by the matcher plugins.{/ts}
-	<a href="{crmURL p="civicrm/banking/configure" q="reset=1&type=$type_import"}">{ts}Add a new one.{/ts}</a>
+	{ts domain='org.project60.banking'}Import plugins are used to transport transaction data obtained from banks and accounting software into CiviBanking. They source the information from files as well as from data feeds from external systems. Once imported, the payments will be processed by the matcher plugins.{/ts}
+	<a href="{crmURL p="civicrm/banking/configure" q="reset=1&type=$type_import"}">{ts domain='org.project60.banking'}Add a new one.{/ts}</a>
 </div>
 <table class="display" id="option11">
 	<thead>
 		<tr>
-			<th class="sorting_disabled" rowspan="1" colspan="1">{ts}Plugin{/ts}</th>
-			<th class="sorting_disabled" rowspan="1" colspan="1">{ts}Description{/ts}</th>
-			<th class="sorting_disabled" rowspan="1" colspan="1">{ts}Type{/ts}</th>
-			<th class="sorting_disabled" rowspan="1" colspan="1">{ts}Enabled?{/ts}</th>
-			<th class="sorting_disabled" rowspan="1" colspan="1">{ts}Selection Order{/ts}</th>
+			<th class="sorting_disabled" rowspan="1" colspan="1">{ts domain='org.project60.banking'}Plugin{/ts}</th>
+			<th class="sorting_disabled" rowspan="1" colspan="1">{ts domain='org.project60.banking'}Description{/ts}</th>
+			<th class="sorting_disabled" rowspan="1" colspan="1">{ts domain='org.project60.banking'}Type{/ts}</th>
+			<th class="sorting_disabled" rowspan="1" colspan="1">{ts domain='org.project60.banking'}Enabled?{/ts}</th>
+			<th class="sorting_disabled" rowspan="1" colspan="1">{ts domain='org.project60.banking'}Selection Order{/ts}</th>
 			<th class="sorting_disabled" rowspan="1" colspan="1"></th>
 		</tr>
 	</thead>
@@ -63,7 +63,7 @@ tr.banking-plugin-disabled {
 			<td>[{$importer.id}] {$importer.name}</td>
 			<td>{$importer.description}</td>
 			<td>{$importer.class}</td>
-			<td>{if $importer.enabled}{ts}Yes{/ts}{else}{ts}No{/ts}{/if}</td>
+			<td>{if $importer.enabled}{ts domain='org.project60.banking'}Yes{/ts}{else}{ts domain='org.project60.banking'}No{/ts}{/if}</td>
 			<td>
         <a class="crm-weight-arrow" href="{crmURL p='civicrm/banking/manager' q="top=$plugin_id"}"><img src="{$config->resourceBase}i/arrow/first.gif" title="Move to top" alt="Move to top" class="order-icon"></a>&nbsp;
         <a class="crm-weight-arrow" href="{crmURL p='civicrm/banking/manager' q="up=$plugin_id"}"><img src="{$config->resourceBase}i/arrow/up.gif" title="Move up one row" alt="Move up one row" class="order-icon"></a>&nbsp;
@@ -71,16 +71,16 @@ tr.banking-plugin-disabled {
         <a class="crm-weight-arrow" href="{crmURL p='civicrm/banking/manager' q="bottom=$plugin_id"}"><img src="{$config->resourceBase}i/arrow/last.gif" title="Move to bottom" alt="Move to bottom" class="order-icon"></a>
 			</td>
 			<td>
-				<span class="btn-slide crm-hover-button">{ts}Actions{/ts}
+				<span class="btn-slide crm-hover-button">{ts domain='org.project60.banking'}Actions{/ts}
 					<ul class="panel">
 						<li>
 							{if $importer.enabled}
-								<a href="{crmURL p='civicrm/banking/manager' q="disable=$plugin_id"}" class="action-item crm-hover-button delete-contact small-popup" title="{ts}Disable{/ts}">{ts}Disable{/ts}</a>
+								<a href="{crmURL p='civicrm/banking/manager' q="disable=$plugin_id"}" class="action-item crm-hover-button delete-contact small-popup" title="{ts domain='org.project60.banking'}Disable{/ts}">{ts domain='org.project60.banking'}Disable{/ts}</a>
 							{else}
-								<a href="{crmURL p='civicrm/banking/manager' q="enable=$plugin_id"}" class="action-item crm-hover-button delete-contact small-popup" title="{ts}Enable{/ts}">{ts}Enable{/ts}</a>
+								<a href="{crmURL p='civicrm/banking/manager' q="enable=$plugin_id"}" class="action-item crm-hover-button delete-contact small-popup" title="{ts domain='org.project60.banking'}Enable{/ts}">{ts domain='org.project60.banking'}Enable{/ts}</a>
 							{/if}
-							<a href="{crmURL p='civicrm/banking/configure' q="reset=1&pid=$plugin_id"}" class="action-item crm-hover-button delete-contact small-popup" title="{ts}Configure{/ts}">{ts}Configure{/ts}</a>
-							<a href="{crmURL p='civicrm/banking/manager' q="delete=$plugin_id"}" class="action-item crm-hover-button delete-contact small-popup" title="{ts}Delete{/ts}">{ts}Delete{/ts}</a>
+							<a href="{crmURL p='civicrm/banking/configure' q="reset=1&pid=$plugin_id"}" class="action-item crm-hover-button delete-contact small-popup" title="{ts domain='org.project60.banking'}Configure{/ts}">{ts domain='org.project60.banking'}Configure{/ts}</a>
+							<a href="{crmURL p='civicrm/banking/manager' q="delete=$plugin_id"}" class="action-item crm-hover-button delete-contact small-popup" title="{ts domain='org.project60.banking'}Delete{/ts}">{ts domain='org.project60.banking'}Delete{/ts}</a>
 						</li>
 					</ul>
 				</span>
@@ -91,19 +91,19 @@ tr.banking-plugin-disabled {
 </table>
 
 <br/><br/>
-<h3>{ts}Analyser / Matcher Plugins{/ts}</h3>
+<h3>{ts domain='org.project60.banking'}Analyser / Matcher Plugins{/ts}</h3>
 <div id="help">
-	{ts}Matcher Plugins are used to match the transactions with the expected financial transactions, such as contributions, membership fees, etc. If no perfect match can be found, they will generate proposals for the user to review and confirm.{/ts}
-	<a href="{crmURL p="civicrm/banking/configure" q="reset=1&type=$type_match"}">{ts}Add a new one.{/ts}</a>
+	{ts domain='org.project60.banking'}Matcher Plugins are used to match the transactions with the expected financial transactions, such as contributions, membership fees, etc. If no perfect match can be found, they will generate proposals for the user to review and confirm.{/ts}
+	<a href="{crmURL p="civicrm/banking/configure" q="reset=1&type=$type_match"}">{ts domain='org.project60.banking'}Add a new one.{/ts}</a>
 </div>
 <table class="display" id="option11">
 	<thead>
 		<tr>
-			<th class="sorting_disabled" rowspan="1" colspan="1">{ts}Plugin{/ts}</th>
-			<th class="sorting_disabled" rowspan="1" colspan="1">{ts}Description{/ts}</th>
-			<th class="sorting_disabled" rowspan="1" colspan="1">{ts}Type{/ts}</th>
-			<th class="sorting_disabled" rowspan="1" colspan="1">{ts}Enabled?{/ts}</th>
-			<th class="sorting_disabled" rowspan="1" colspan="1">{ts}Execution Order{/ts}</th>
+			<th class="sorting_disabled" rowspan="1" colspan="1">{ts domain='org.project60.banking'}Plugin{/ts}</th>
+			<th class="sorting_disabled" rowspan="1" colspan="1">{ts domain='org.project60.banking'}Description{/ts}</th>
+			<th class="sorting_disabled" rowspan="1" colspan="1">{ts domain='org.project60.banking'}Type{/ts}</th>
+			<th class="sorting_disabled" rowspan="1" colspan="1">{ts domain='org.project60.banking'}Enabled?{/ts}</th>
+			<th class="sorting_disabled" rowspan="1" colspan="1">{ts domain='org.project60.banking'}Execution Order{/ts}</th>
 			<th class="sorting_disabled" rowspan="1" colspan="1"></th>
 		</tr>
 	</thead>
@@ -114,7 +114,7 @@ tr.banking-plugin-disabled {
 			<td>[{$matcher.id}] {$matcher.name}</td>
 			<td>{$matcher.description}</td>
 			<td>{$matcher.class}</td>
-			<td>{if $matcher.enabled}{ts}Yes{/ts}{else}{ts}No{/ts}{/if}</td>
+			<td>{if $matcher.enabled}{ts domain='org.project60.banking'}Yes{/ts}{else}{ts domain='org.project60.banking'}No{/ts}{/if}</td>
 			<td>
         <a class="crm-weight-arrow" href="{crmURL p='civicrm/banking/manager' q="top=$plugin_id"}"><img src="{$config->resourceBase}i/arrow/first.gif" title="Move to top" alt="Move to top" class="order-icon"></a>&nbsp;
         <a class="crm-weight-arrow" href="{crmURL p='civicrm/banking/manager' q="up=$plugin_id"}"><img src="{$config->resourceBase}i/arrow/up.gif" title="Move up one row" alt="Move up one row" class="order-icon"></a>&nbsp;
@@ -122,16 +122,16 @@ tr.banking-plugin-disabled {
         <a class="crm-weight-arrow" href="{crmURL p='civicrm/banking/manager' q="bottom=$plugin_id"}"><img src="{$config->resourceBase}i/arrow/last.gif" title="Move to bottom" alt="Move to bottom" class="order-icon"></a>
 			</td>
 			<td>
-				<span class="btn-slide crm-hover-button">{ts}Actions{/ts}
+				<span class="btn-slide crm-hover-button">{ts domain='org.project60.banking'}Actions{/ts}
 					<ul class="panel">
 						<li>
 							{if $matcher.enabled}
-								<a href="{crmURL p='civicrm/banking/manager' q="disable=$plugin_id"}" class="action-item crm-hover-button delete-contact small-popup" title="{ts}Disable{/ts}">{ts}Disable{/ts}</a>
+								<a href="{crmURL p='civicrm/banking/manager' q="disable=$plugin_id"}" class="action-item crm-hover-button delete-contact small-popup" title="{ts domain='org.project60.banking'}Disable{/ts}">{ts domain='org.project60.banking'}Disable{/ts}</a>
 							{else}
-								<a href="{crmURL p='civicrm/banking/manager' q="enable=$plugin_id"}" class="action-item crm-hover-button delete-contact small-popup" title="{ts}Enable{/ts}">{ts}Enable{/ts}</a>
+								<a href="{crmURL p='civicrm/banking/manager' q="enable=$plugin_id"}" class="action-item crm-hover-button delete-contact small-popup" title="{ts domain='org.project60.banking'}Enable{/ts}">{ts domain='org.project60.banking'}Enable{/ts}</a>
 							{/if}
-							<a href="{crmURL p='civicrm/banking/configure' q="reset=1&pid=$plugin_id"}" class="action-item crm-hover-button delete-contact small-popup" title="{ts}Configure{/ts}">{ts}Configure{/ts}</a>
-							<a href="{crmURL p='civicrm/banking/manager' q="delete=$plugin_id"}" class="action-item crm-hover-button delete-contact small-popup" title="{ts}Delete{/ts}">{ts}Delete{/ts}</a>
+							<a href="{crmURL p='civicrm/banking/configure' q="reset=1&pid=$plugin_id"}" class="action-item crm-hover-button delete-contact small-popup" title="{ts domain='org.project60.banking'}Configure{/ts}">{ts domain='org.project60.banking'}Configure{/ts}</a>
+							<a href="{crmURL p='civicrm/banking/manager' q="delete=$plugin_id"}" class="action-item crm-hover-button delete-contact small-popup" title="{ts domain='org.project60.banking'}Delete{/ts}">{ts domain='org.project60.banking'}Delete{/ts}</a>
 						</li>
 					</ul>
 				</span>
@@ -142,19 +142,19 @@ tr.banking-plugin-disabled {
 </table>
 
 <br/><br/>
-<h3>{ts}Postprocessors{/ts}</h3>
+<h3>{ts domain='org.project60.banking'}Postprocessors{/ts}</h3>
 <div id="help">
-	{ts}Postprocessors are plugins that perform certain extra tasks once the correct contact, contribution, or other entity has been identified.{/ts}
-	<a href="{crmURL p="civicrm/banking/configure" q="reset=1&type=$type_postprocess"}">{ts}Add a new one.{/ts}</a>
+	{ts domain='org.project60.banking'}Postprocessors are plugins that perform certain extra tasks once the correct contact, contribution, or other entity has been identified.{/ts}
+	<a href="{crmURL p="civicrm/banking/configure" q="reset=1&type=$type_postprocess"}">{ts domain='org.project60.banking'}Add a new one.{/ts}</a>
 </div>
 <table class="display" id="option11">
 	<thead>
 		<tr>
-			<th class="sorting_disabled" rowspan="1" colspan="1">{ts}Plugin{/ts}</th>
-			<th class="sorting_disabled" rowspan="1" colspan="1">{ts}Description{/ts}</th>
-			<th class="sorting_disabled" rowspan="1" colspan="1">{ts}Type{/ts}</th>
-			<th class="sorting_disabled" rowspan="1" colspan="1">{ts}Enabled?{/ts}</th>
-			<th class="sorting_disabled" rowspan="1" colspan="1">{ts}Execution Order{/ts}</th>
+			<th class="sorting_disabled" rowspan="1" colspan="1">{ts domain='org.project60.banking'}Plugin{/ts}</th>
+			<th class="sorting_disabled" rowspan="1" colspan="1">{ts domain='org.project60.banking'}Description{/ts}</th>
+			<th class="sorting_disabled" rowspan="1" colspan="1">{ts domain='org.project60.banking'}Type{/ts}</th>
+			<th class="sorting_disabled" rowspan="1" colspan="1">{ts domain='org.project60.banking'}Enabled?{/ts}</th>
+			<th class="sorting_disabled" rowspan="1" colspan="1">{ts domain='org.project60.banking'}Execution Order{/ts}</th>
 			<th class="sorting_disabled" rowspan="1" colspan="1"></th>
 		</tr>
 	</thead>
@@ -165,7 +165,7 @@ tr.banking-plugin-disabled {
 			<td>[{$postprocessor.id}] {$postprocessor.name}</td>
 			<td>{$postprocessor.description}</td>
 			<td>{$postprocessor.class}</td>
-			<td>{if $postprocessor.enabled}{ts}Yes{/ts}{else}{ts}No{/ts}{/if}</td>
+			<td>{if $postprocessor.enabled}{ts domain='org.project60.banking'}Yes{/ts}{else}{ts domain='org.project60.banking'}No{/ts}{/if}</td>
 			<td>
         <a class="crm-weight-arrow" href="{crmURL p='civicrm/banking/manager' q="top=$plugin_id"}"><img src="{$config->resourceBase}i/arrow/first.gif" title="Move to top" alt="Move to top" class="order-icon"></a>&nbsp;
         <a class="crm-weight-arrow" href="{crmURL p='civicrm/banking/manager' q="up=$plugin_id"}"><img src="{$config->resourceBase}i/arrow/up.gif" title="Move up one row" alt="Move up one row" class="order-icon"></a>&nbsp;
@@ -173,16 +173,16 @@ tr.banking-plugin-disabled {
         <a class="crm-weight-arrow" href="{crmURL p='civicrm/banking/manager' q="bottom=$plugin_id"}"><img src="{$config->resourceBase}i/arrow/last.gif" title="Move to bottom" alt="Move to bottom" class="order-icon"></a>
 			</td>
 			<td>
-				<span class="btn-slide crm-hover-button">{ts}Actions{/ts}
+				<span class="btn-slide crm-hover-button">{ts domain='org.project60.banking'}Actions{/ts}
 					<ul class="panel">
 						<li>
 							{if $postprocessor.enabled}
-								<a href="{crmURL p='civicrm/banking/manager' q="disable=$plugin_id"}" class="action-item crm-hover-button delete-contact small-popup" title="{ts}Disable{/ts}">{ts}Disable{/ts}</a>
+								<a href="{crmURL p='civicrm/banking/manager' q="disable=$plugin_id"}" class="action-item crm-hover-button delete-contact small-popup" title="{ts domain='org.project60.banking'}Disable{/ts}">{ts domain='org.project60.banking'}Disable{/ts}</a>
 							{else}
-								<a href="{crmURL p='civicrm/banking/manager' q="enable=$plugin_id"}" class="action-item crm-hover-button delete-contact small-popup" title="{ts}Enable{/ts}">{ts}Enable{/ts}</a>
+								<a href="{crmURL p='civicrm/banking/manager' q="enable=$plugin_id"}" class="action-item crm-hover-button delete-contact small-popup" title="{ts domain='org.project60.banking'}Enable{/ts}">{ts domain='org.project60.banking'}Enable{/ts}</a>
 							{/if}
-							<a href="{crmURL p='civicrm/banking/configure' q="reset=1&pid=$plugin_id"}" class="action-item crm-hover-button delete-contact small-popup" title="{ts}Configure{/ts}">{ts}Configure{/ts}</a>
-							<a href="{crmURL p='civicrm/banking/manager' q="delete=$plugin_id"}" class="action-item crm-hover-button delete-contact small-popup" title="{ts}Delete{/ts}">{ts}Delete{/ts}</a>
+							<a href="{crmURL p='civicrm/banking/configure' q="reset=1&pid=$plugin_id"}" class="action-item crm-hover-button delete-contact small-popup" title="{ts domain='org.project60.banking'}Configure{/ts}">{ts domain='org.project60.banking'}Configure{/ts}</a>
+							<a href="{crmURL p='civicrm/banking/manager' q="delete=$plugin_id"}" class="action-item crm-hover-button delete-contact small-popup" title="{ts domain='org.project60.banking'}Delete{/ts}">{ts domain='org.project60.banking'}Delete{/ts}</a>
 						</li>
 					</ul>
 				</span>
@@ -193,19 +193,19 @@ tr.banking-plugin-disabled {
 </table>
 
 <br/><br/>
-<h3>{ts}Exporter Plugins{/ts}</h3>
+<h3>{ts domain='org.project60.banking'}Exporter Plugins{/ts}</h3>
 <div id="help">
-	{ts}Export plugins are used to save the processed transaction data along with their matching financial transactions into files or accounting systems.{/ts}
-	<a href="{crmURL p="civicrm/banking/configure" q="reset=1&type=$type_export"}">{ts}Add a new one.{/ts}</a>
+	{ts domain='org.project60.banking'}Export plugins are used to save the processed transaction data along with their matching financial transactions into files or accounting systems.{/ts}
+	<a href="{crmURL p="civicrm/banking/configure" q="reset=1&type=$type_export"}">{ts domain='org.project60.banking'}Add a new one.{/ts}</a>
 </div>
 <table class="display" id="option11">
 	<thead>
 		<tr>
-			<th class="sorting_disabled" rowspan="1" colspan="1">{ts}Plugin{/ts}</th>
-			<th class="sorting_disabled" rowspan="1" colspan="1">{ts}Description{/ts}</th>
-			<th class="sorting_disabled" rowspan="1" colspan="1">{ts}Type{/ts}</th>
-			<th class="sorting_disabled" rowspan="1" colspan="1">{ts}Enabled?{/ts}</th>
-			<th class="sorting_disabled" rowspan="1" colspan="1">{ts}Selection Order{/ts}</th>
+			<th class="sorting_disabled" rowspan="1" colspan="1">{ts domain='org.project60.banking'}Plugin{/ts}</th>
+			<th class="sorting_disabled" rowspan="1" colspan="1">{ts domain='org.project60.banking'}Description{/ts}</th>
+			<th class="sorting_disabled" rowspan="1" colspan="1">{ts domain='org.project60.banking'}Type{/ts}</th>
+			<th class="sorting_disabled" rowspan="1" colspan="1">{ts domain='org.project60.banking'}Enabled?{/ts}</th>
+			<th class="sorting_disabled" rowspan="1" colspan="1">{ts domain='org.project60.banking'}Selection Order{/ts}</th>
 			<th class="sorting_disabled" rowspan="1" colspan="1"></th>
 		</tr>
 	</thead>
@@ -216,7 +216,7 @@ tr.banking-plugin-disabled {
 			<td>[{$exporter.id}] {$exporter.name}</td>
 			<td>{$exporter.description}</td>
 			<td>{$exporter.class}</td>
-			<td>{if $exporter.enabled}{ts}Yes{/ts}{else}{ts}No{/ts}{/if}</td>
+			<td>{if $exporter.enabled}{ts domain='org.project60.banking'}Yes{/ts}{else}{ts domain='org.project60.banking'}No{/ts}{/if}</td>
 			<td>
         <a class="crm-weight-arrow" href="{crmURL p='civicrm/banking/manager' q="top=$plugin_id"}"><img src="{$config->resourceBase}i/arrow/first.gif" title="Move to top" alt="Move to top" class="order-icon"></a>&nbsp;
         <a class="crm-weight-arrow" href="{crmURL p='civicrm/banking/manager' q="up=$plugin_id"}"><img src="{$config->resourceBase}i/arrow/up.gif" title="Move up one row" alt="Move up one row" class="order-icon"></a>&nbsp;
@@ -224,16 +224,16 @@ tr.banking-plugin-disabled {
         <a class="crm-weight-arrow" href="{crmURL p='civicrm/banking/manager' q="bottom=$plugin_id"}"><img src="{$config->resourceBase}i/arrow/last.gif" title="Move to bottom" alt="Move to bottom" class="order-icon"></a>
 			</td>
 			<td>
-				<span class="btn-slide crm-hover-button">{ts}Actions{/ts}
+				<span class="btn-slide crm-hover-button">{ts domain='org.project60.banking'}Actions{/ts}
 					<ul class="panel">
 						<li>
 							{if $exporter.enabled}
-								<a href="{crmURL p='civicrm/banking/manager' q="disable=$plugin_id"}" class="action-item crm-hover-button delete-contact small-popup" title="{ts}Disable{/ts}">{ts}Disable{/ts}</a>
+								<a href="{crmURL p='civicrm/banking/manager' q="disable=$plugin_id"}" class="action-item crm-hover-button delete-contact small-popup" title="{ts domain='org.project60.banking'}Disable{/ts}">{ts domain='org.project60.banking'}Disable{/ts}</a>
 							{else}
-								<a href="{crmURL p='civicrm/banking/manager' q="enable=$plugin_id"}" class="action-item crm-hover-button delete-contact small-popup" title="{ts}Enable{/ts}">{ts}Enable{/ts}</a>
+								<a href="{crmURL p='civicrm/banking/manager' q="enable=$plugin_id"}" class="action-item crm-hover-button delete-contact small-popup" title="{ts domain='org.project60.banking'}Enable{/ts}">{ts domain='org.project60.banking'}Enable{/ts}</a>
 							{/if}
-							<a href="{crmURL p='civicrm/banking/configure' q="reset=1&pid=$plugin_id"}" class="action-item crm-hover-button delete-contact small-popup" title="{ts}Configure{/ts}">{ts}Configure{/ts}</a>
-							<a href="{crmURL p='civicrm/banking/manager' q="delete=$plugin_id"}" class="action-item crm-hover-button delete-contact small-popup" title="{ts}Delete{/ts}">{ts}Delete{/ts}</a>
+							<a href="{crmURL p='civicrm/banking/configure' q="reset=1&pid=$plugin_id"}" class="action-item crm-hover-button delete-contact small-popup" title="{ts domain='org.project60.banking'}Configure{/ts}">{ts domain='org.project60.banking'}Configure{/ts}</a>
+							<a href="{crmURL p='civicrm/banking/manager' q="delete=$plugin_id"}" class="action-item crm-hover-button delete-contact small-popup" title="{ts domain='org.project60.banking'}Delete{/ts}">{ts domain='org.project60.banking'}Delete{/ts}</a>
 						</li>
 					</ul>
 				</span>

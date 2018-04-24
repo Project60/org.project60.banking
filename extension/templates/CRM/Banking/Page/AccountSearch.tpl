@@ -16,12 +16,12 @@
 <form action="{$url_action}" method="post" name="DataSource" id="DataSource" enctype="multipart/form-data" >
 
 <div class="crm-block crm-form-block crm-import-datasource-form-block" id="choose-data-source">
-    <h3>{ts}Search Criteria{/ts}</h3>
+    <h3>{ts domain='org.project60.banking'}Search Criteria{/ts}</h3>
     <table class="form-layout">
     	<tbody>
 	        <tr class="crm-import-datasource-form-block-dataSource">
 				<td class="label">
-					<label for="dataSource">{ts}Bank account number<br/>(or partials){/ts}</label>
+					<label for="dataSource">{ts domain='org.project60.banking'}Bank account number<br/>(or partials){/ts}</label>
 				</td>
 				<td>
 					<input id="reference_partial" class="form-text" type="text" name="reference_partial" value="{$smarty.post.reference_partial}"></input>
@@ -29,13 +29,13 @@
 				<td>
 					<input type="checkbox" class="form-checkbox" value="off" name="full_search" id="full_search" 
 					{if $smarty.post.full_search}checked{/if}>
-					{ts}Also search additional account information{/ts}</input>
+					{ts domain='org.project60.banking'}Also search additional account information{/ts}</input>
 				</td>
 			</tr>
 			<tr>
 				<td>
 				    <span class="crm-button">
-	      				<input type="submit" value="{ts}Search{/ts}" class="validate form-submit default">
+	      				<input type="submit" value="{ts domain='org.project60.banking'}Search{/ts}" class="validate form-submit default">
 	    			</span>
 	    		</td>
     		</tr>
@@ -50,7 +50,7 @@
 {if $smarty.post.reference_partial}
 	{* i.e. there is an ongoing query *}
 	{if $results}
-		<h3>{$results|@count} {ts}accounts match your search{/ts}</h3>
+		<h3>{$results|@count} {ts domain='org.project60.banking'}accounts match your search{/ts}</h3>
 		<div>
 		<table id="contact-activity-selector-dashlet">
 		<thead>
@@ -87,7 +87,7 @@
 		</table>
 		</div>
 	{else}
-	<h3>{ts}Sorry, no accounts match your search!{/ts}</h3>
+	<h3>{ts domain='org.project60.banking'}Sorry, no accounts match your search!{/ts}</h3>
 
 	{/if}
 {/if}

@@ -160,36 +160,36 @@ class CRM_Banking_DAO_BankAccount extends CRM_Core_DAO
         'description' => array(
           'name' => 'description',
           'type' => CRM_Utils_Type::T_STRING,
-          'title' => ts('Description') ,
+          'title' => ts('Description', array('domain' => 'org.project60.banking')),
           'maxlength' => 255,
           'size' => CRM_Utils_Type::HUGE,
         ) ,
         'created_date' => array(
           'name' => 'created_date',
           'type' => CRM_Utils_Type::T_DATE + CRM_Utils_Type::T_TIME,
-          'title' => ts('Date created') ,
+          'title' => ts('Date created', array('domain' => 'org.project60.banking')),
           'required' => true,
         ) ,
         'modified_date' => array(
           'name' => 'modified_date',
           'type' => CRM_Utils_Type::T_DATE + CRM_Utils_Type::T_TIME,
-          'title' => ts('Date modified') ,
+          'title' => ts('Date modified', array('domain' => 'org.project60.banking')),
           'required' => true,
         ) ,
         'data_raw' => array(
           'name' => 'data_raw',
           'type' => CRM_Utils_Type::T_TEXT,
-          'title' => ts('Data Raw') ,
+          'title' => ts('Data Raw', array('domain' => 'org.project60.banking')),
         ) ,
         'data_parsed' => array(
           'name' => 'data_parsed',
           'type' => CRM_Utils_Type::T_TEXT,
-          'title' => ts('Data Parsed') ,
+          'title' => ts('Data Parsed', array('domain' => 'org.project60.banking')),
         ) ,
         'contact_id' => array(
           'name' => 'contact_id',
           'type' => CRM_Utils_Type::T_INT,
-          'title' => ts('Contact ID') ,
+          'title' => ts('Contact ID', array('domain' => 'org.project60.banking')),
           'FKClassName' => 'CRM_Contact_DAO_Contact',
         ) ,
       );

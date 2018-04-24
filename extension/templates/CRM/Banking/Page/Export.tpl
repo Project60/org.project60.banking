@@ -15,15 +15,15 @@
 
 <form action="{$url_action}" method="post" name="DataSource" id="DataSource" enctype="multipart/form-data" >
   <div class="crm-block crm-form-block">
-    <h3>{ts}Export bank transactions{/ts}:</h3>
+    <h3>{ts domain='org.project60.banking'}Export bank transactions{/ts}:</h3>
     <table class="form-layout">
       <tbody>
         <tr>
-          <td style="white-space: nowrap;">{ts}Bank Statements{/ts}</td>
+          <td style="white-space: nowrap;">{ts domain='org.project60.banking'}Bank Statements{/ts}</td>
           <td style="width:100%">{$txbatch_count}</td>
         </tr>
         <tr>
-          <td style="white-space: nowrap;">{ts}Bank Transactions{/ts}</td>
+          <td style="white-space: nowrap;">{ts domain='org.project60.banking'}Bank Transactions{/ts}</td>
           <td style="width:100%">{$tx_count}</td>
         </tr>
       </tbody>
@@ -33,17 +33,17 @@
   </div>
 
   <div class="crm-block crm-form-block crm-import-datasource-form-block" id="choose-data-source">
-    <h3>{ts}Select Exporter{/ts}</h3>
+    <h3>{ts domain='org.project60.banking'}Select Exporter{/ts}</h3>
     <table class="form-layout">
       <tbody>
         <tr class="crm-import-datasource-form-block-dataSource">
           <td class="label">
-            <label for="dataSource">{ts}Choose configuration{/ts}<span title="This field is required." class="crm-marker">*</span></label>
+            <label for="dataSource">{ts domain='org.project60.banking'}Choose configuration{/ts}<span title="This field is required." class="crm-marker">*</span></label>
           </td>
           <td>
             <select class="form-select required" id="banking-exporter-plugin" name="exporter-plugin" onchange="selected_plugin_changed();" 
             {if $page_mode == 'run'}disabled{/if}>
-              <option value="-9999">-- {ts}select{/ts} --</option>
+              <option value="-9999">-- {ts domain='org.project60.banking'}select{/ts} --</option>
             {foreach from=$plugin_list item=field key=fieldName}
               <option value="{$field->id}" {if $plugin_id == $field->id} selected{/if}>{$field->name}</option>
             {/foreach}
@@ -55,17 +55,17 @@
   </div>
 
   <div class="crm-block crm-form-block crm-import-datasource-form-block" id="import options">
-    <h3>{ts}Export Options{/ts}</h3>
+    <h3>{ts domain='org.project60.banking'}Export Options{/ts}</h3>
     <table class="form-layout">
       <tbody>
         <tr class="crm-import-datasource-form-block-dataSource">
           <td class="label">
-            <label for="dataSink">{ts}Export mode{/ts}<span class="crm-marker">*</span></label>
+            <label for="dataSink">{ts domain='org.project60.banking'}Export mode{/ts}<span class="crm-marker">*</span></label>
           </td>
           <td>
             <select id="dataSink" class="form-select required" id="banking-exporter-mode" name="exporter-mode" >
-              <option value="1">{ts}File Download{/ts}</option>
-              <option value="2">{ts}Direct Upload{/ts}</option>
+              <option value="1">{ts domain='org.project60.banking'}File Download{/ts}</option>
+              <option value="2">{ts domain='org.project60.banking'}Direct Upload{/ts}</option>
             </select>
           </td>
         </tr>
@@ -75,10 +75,10 @@
 
   <div class="crm-submit-buttons">
     <span class="crm-button crm-button-type-upload">
-      <input type="submit" value="{ts}Export{/ts}" class="validate form-submit default">
+      <input type="submit" value="{ts domain='org.project60.banking'}Export{/ts}" class="validate form-submit default">
     </span>
     <span class="crm-button crm-button-type-upload">
-      <input id="banking-exporter-back" type="button" value="{ts}Back{/ts}" hidden="1" onClick="banking_exporter_goback();">
+      <input id="banking-exporter-back" type="button" value="{ts domain='org.project60.banking'}Back{/ts}" hidden="1" onClick="banking_exporter_goback();">
     </span>
   </div>
 </form>

@@ -10,6 +10,27 @@
  */
 function _civicrm_api3_banking_rule_Update_spec(&$spec) {
   $spec['id']['api.required'] = 1;
+
+  $spec['conditions']['description'] = 'JSON structure for custom conditions, e.g. { mycond: { full_match: "xxx" }, myothercond: { full_match: "yyy"} }';
+  $spec['execution']['description'] = 'JSON structure for execution, outer object is an array e.g. [{ set_param_name: "contact_id", set_param_value: "123" }, ... ]';
+  foreach ([
+      'amount_min',
+      'amount_max',
+      'party_ba_ref',
+      'ba_ref',
+      'party_name',
+      'tx_reference',
+      'tx_purpose',
+      'name',
+      'type',
+      'is_enabled',
+      'valid_until',
+      'created_by',
+      'match_counter',
+      'last_match',
+    ] as $_) {
+    $spec[$_]['title'] = $_;
+  }
 }
 
 /**
@@ -22,8 +43,6 @@ function _civicrm_api3_banking_rule_Update_spec(&$spec) {
  * @throws API_Exception
  */
 function civicrm_api3_banking_rule_Update($params) {
-  // todo
-  $x = 1;
   try {
     $rule = CRM_Banking_Rules_Rule::get($params['id']);
     $_ = array_intersect_key($params, array_flip([

@@ -91,11 +91,11 @@ function civicrm_api3_banking_rule_Getsearchresults($params) {
   }
 
   if (!empty($params['last_match_min'])) {
-    $sql_params[$c] = [$params['last_match_min'], 'Timestamp'];
+    $sql_params[$c] = [date('YmdHis', strtotime($params['last_match_min'])), 'Timestamp'];
     $sql[] = 'last_match >= %' . ($c++);
   }
   if (!empty($params['last_match_max'])) {
-    $sql_params[$c] = [$params['last_match_max'], 'Timestamp'];
+    $sql_params[$c] = [date('YmdHis', strtotime($params['last_match_max'])), 'Timestamp'];
     $sql[] = 'last_match <= %' . ($c++);
   }
   if (!empty($params['match_counter_min'])) {
@@ -178,7 +178,7 @@ function civicrm_api3_banking_rule_Getsearchresults($params) {
 
     $found++;
     if ($found > $offset && $found <= $offset+$limit) {
-      $results[$dao->id] = $obj->getRuleData();
+      $results[] = $obj->getRuleData();
     }
   }
 

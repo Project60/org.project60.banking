@@ -9,7 +9,7 @@
  * @see http://wiki.civicrm.org/confluence/display/CRMDOC/API+Architecture+Standards
  */
 function _civicrm_api3_banking_rule_Getruledata_spec(&$spec) {
-  $spec['id']['api.required'] = 1;
+  $spec['id']['description'] = 'Rule ID. If missing just returns the config.';
 }
 
 /**
@@ -22,8 +22,14 @@ function _civicrm_api3_banking_rule_Getruledata_spec(&$spec) {
  * @throws API_Exception
  */
 function civicrm_api3_banking_rule_Getruledata($params) {
-  $rule = CRM_Banking_Rules_Rule::get($params['id']);
-  $data = $rule->getRuleData();
+
+  if (!empty($params['id'])) {
+    $rule = CRM_Banking_Rules_Rule::get($params['id']);
+    $data = $rule->getRuleData();
+  }
+  else {
+    $data = [];
+  }
 
   // In order that the editor can know what to set we need the config for this particular plugin.
   $rules_analyser_plugin_id = civicrm_api3('OptionValue', 'getvalue', [

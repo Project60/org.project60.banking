@@ -143,14 +143,26 @@
               ng-disabled="!(pages.total > pages.limit && pages.offset>0)">Previous</button>
       <button ng-click="pages.offset = pages.offset + pages.limit; doSearch()"
         ng-disabled="!(pages.total > pages.limit && (pages.offset + pages.limit)<pages.total)">Next</button>
-      <a href >Disable all</a> | <a href>Enable all</a></p>
+      <a href ng-click="bulkSetEnabled(0)" >Disable all</a> | <a href ng-click="bulkSetEnabled(1)">Enable all</a></p>
     <table>
       <thead>
         <tr>
           <th>Rule</th>
           <th>Status</th>
-          <th><strong>Usage</strong> ▼</th>
-          <th>Last Used</th>
+          <th><a href
+              style="{{ 'font-weight:' + (pages.sort.subbstr(0, 1) == 'm') ? 'bold' : 'normal' }}"
+              ng-click="pages.sort = (pages.sort == 'match_counter DESC') ? 'match_counter ASC': 'match_counter DESC';doSearch()"
+              >Usage</a>
+            <span ng-if="pages.sort == 'match_counter ASC'">▲</span>
+            <span ng-if="pages.sort == 'match_counter DESC'">▼</span>
+          </th>
+          <th><a href
+              style="{{ 'font-weight:' + (pages.sort.subbstr(0, 1) == 'l') ? 'bold' : 'normal' }}"
+              ng-click="pages.sort = (pages.sort == 'last_match DESC') ? 'last_match ASC': 'last_match DESC';doSearch()"
+              >Last Used</a>
+            <span ng-if="pages.sort == 'last_match ASC'">▲</span>
+            <span ng-if="pages.sort == 'last_match DESC'">▼</span>
+          </th>
           <th>Actions</th>
         </tr>
       </thead>
@@ -191,8 +203,8 @@
           <td>{{rule.match_counter}}</td>
           <td>{{rule.last_match}}</td>
           <td>
-            <a ng-if="rule.is_enabled" href>Disable</a>
-            <a ng-if="!rule.is_enabled" href>Enable</a>
+            <a ng-if="rule.is_enabled" href ng-click="setEnabled(rule)">Disable</a>
+            <a ng-if="!rule.is_enabled" href ng-click="setEnabled(rule)">Enable</a>
             |
             <a href="{{'/civicrm/a/#/banking/rules/' + rule.id}}">Edit</a>
           </td>

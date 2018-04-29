@@ -109,8 +109,16 @@ function civicrm_api3_banking_rule_Getsearchresults($params) {
 
   $where = $sql ? 'WHERE ' . implode(' AND ', $sql) : '';
 
+  // parse sort.
+  $sort = '';
+  if (!empty($params['options']['sort'])
+    && preg_match('/^(last_match|match_counter) (DE|A)SC$/', $params['options']['sort']  )) {
+
+    $sort = 'ORDER BY ' . $params['options']['sort'];
+  }
+
   // Get results from SQL.
-  $sql = "SELECT * FROM civicrm_bank_rules $where";
+  $sql = "SELECT * FROM civicrm_bank_rules $where $sort";
   $dao = CRM_Core_DAO::executeQuery($sql, $sql_params);
 
 
@@ -139,8 +147,6 @@ function civicrm_api3_banking_rule_Getsearchresults($params) {
   }
 
   // Unpack data and run other tests on conditions, execution.
-  $sql = "SELECT * FROM civicrm_bank_rules $where";
-  $dao = CRM_Core_DAO::executeQuery($sql, $sql_params);
   $found = 0;
   // Default to returning 10 rules at a time.
   $offset = (empty($params['options']['offset']) ? 0 : (int)$params['options']['offset']);

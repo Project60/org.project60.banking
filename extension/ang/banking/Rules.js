@@ -76,7 +76,7 @@
     $scope.pages = {
       total: null,
       limit: 10,
-      order: 'match_count DESC',
+      sort: 'match_counter DESC',
       offset:0
     };
     $scope.results = [];
@@ -89,23 +89,19 @@
     };
 
     //
-    // Submit search request.
+    // Common helper to assemble search criteria params.
     //
-    $scope.doSearch = function() {
-
+    function getSearchParams() {
       // Sanitise the offset.
-      console.log($scope.pages.offset);
       $scope.pages.offset = Math.max(0, $scope.pages.offset);
-      console.log($scope.pages.offset);
       $scope.pages.offset = Math.min(parseInt($scope.pages.total / $scope.pages.limit)*$scope.pages.limit, $scope.pages.offset);
-      console.log("final", $scope.pages.offset);
 
       // Collect parameters.
       var params = {
         options: {
           offset: $scope.pages.offset,
           limit: $scope.pages.limit,
-          order: $scope.pages.order,
+          sort: $scope.pages.sort
         }
       };
 
@@ -144,15 +140,69 @@
           }
         });
 
+      return params;
+    }
+
+
+    //
+    // Shared code for dealing with incoming search results
+    //
+    var importSearchResults = function (results) {
+      $scope.pages.offset = results.offset;
+      $scope.pages.limit = results.limit;
+      $scope.pages.total = results.total_count;
+      $scope.results = results.rules;
+    };
+
+    //
+    // Submit search request.
+    //
+    $scope.doSearch = function() {
+
+      var params = getSearchParams();
       console.log("Searching with ", params);
 
       crmApi('BankingRule', 'getSearchResults', params)
-      .then(function(results) {
-        $scope.pages.offset = results.offset;
-        $scope.pages.limit = results.limit;
-        $scope.pages.total = results.total_count;
-        $scope.results = results.rules;
-      });
+      .then(importSearchResults);
+    };
+
+    //
+    // Handle enable/disable on single rule.
+    //
+    $scope.setEnabled = function(rule) {
+      if (!rule) {
+        // This should not be possible.
+        throw "No rule?!";
+      }
+      var params = {
+        id: rule.id,
+        is_enabled: rule.is_enabled ? 0 : 1,
+      };
+
+      return crmStatus(
+        { start: ts('Saving...'), success: ts('Saved')},
+        crmApi('BankingRule', 'update', params)
+          .then(function(r) { rule.is_enabled = params.is_enabled; })
+      );
+    };
+
+    //
+    // Handle bulk enable/disable.
+    //
+    $scope.bulkSetEnabled = function(is_enabled) {
+      if (!confirm(ts('Are you sure you want %s %n rules?', { 'n': $scope.pages.total, 's': is_enabled ? 'to ENABLE' : 'to DISABLE' }))) {
+        return;
+      }
+
+      // OK to proceed.
+      var params = getSearchParams();
+      params.update = { is_enabled: is_enabled };
+
+      return crmStatus(
+        { start: ts('Updating Rules...'), success: ts('Complete')},
+        crmApi('BankingRule', 'updatesearchresults', params)
+        .then(importSearchResults)
+      );
     };
 
     $scope.quicksearch = '';

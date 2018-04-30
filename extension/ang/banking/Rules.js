@@ -42,7 +42,9 @@
         { field: 'party_ba_ref', label: 'Party IBAN'},
         { field: 'party_name', label: 'Party Name'},
         { field: 'tx_reference', label: 'Reference'},
-        { field: 'tx_purpose', label: 'Purpose'}
+        { field: 'tx_purpose', label: 'Purpose'},
+        { field: 'amount_min', label: 'Amount Min'},
+        { field: 'amount_max', label: 'Amount Max'},
       ],
       plugin_config: rule_config.plugin_config
     };

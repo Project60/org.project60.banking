@@ -221,7 +221,7 @@ class CRM_Banking_Rules_Rule {
     $found = 0;
     // Default to returning 10 rules at a time.
     $offset = (empty($params['options']['offset']) ? 0 : (int)$params['options']['offset']);
-    $limit  = (empty($params['options']['limit']) ? 10 : (int)$params['options']['limit']);
+    $limit  = (!isset($params['options']['limit']) ? 10 : (int)$params['options']['limit']);
     $results = [];
     while ($dao->fetch()) {
 
@@ -254,7 +254,7 @@ class CRM_Banking_Rules_Rule {
       }
 
       $found++;
-      if ($found > $offset && $found <= $offset+$limit) {
+      if ($found > $offset && (!$limit || ($found <= $offset+$limit))) {
         $results[] = $obj;
       }
       unset($obj);

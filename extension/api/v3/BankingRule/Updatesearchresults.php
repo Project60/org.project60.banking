@@ -33,8 +33,8 @@ function civicrm_api3_banking_rule_Updatesearchresults($params) {
   // Fetch all results for this query.
   $all_results_params = $params;
   unset($all_results_params['update']);
-  $all_results_params['limit'] = 0;
-  $all_results_params['offset'] = 0;
+  $all_results_params['options']['limit'] = 0;
+  $all_results_params['options']['offset'] = 0;
   $results = CRM_Banking_Rules_Rule::search($all_results_params);
 
   // Update them.

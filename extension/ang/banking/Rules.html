@@ -24,20 +24,13 @@
           </tr>
 
           <tr>
-            <td><input ng-model="criteria.amount_enabled" type="checkbox" id="amount_enabled" /> <label for="amount_enabled" >Amount</label></td>
-            <td >
-              <div ng-if="criteria.amount_enabled">
-              <select ng-model="criteria.amount_operator">
-                <option value="equals">Exactly</option>
-                <option value="between">Between</option>
-              </select>
-              <label ng-if="criteria.amount_operator == 'between'" for="amount_min" ng-if="criteria.amount_operator == 'between'" >From</label>
-              <input type="text" ng-model="criteria.amount_min" id="amount_min" size="5" />
+            <td><input ng-model="criteria.amount_min_enabled" type="checkbox" id="amount_min_enabled" /> <label for="amount_min_enabled" >Amount Min.</label></td>
+            <td ><input ng-if="criteria.amount_min_enabled" type="text" ng-model="criteria.amount_min"  /></td>
+          </tr>
 
-              <label ng-if="criteria.amount_operator == 'between'" for="amount_max" >to</label>
-              <input type="text" ng-if="criteria.amount_operator == 'between'" ng-model="criteria.amount_max" id="amount_max" size="5" />
-              </div>
-            </td>
+          <tr>
+            <td><input ng-model="criteria.amount_max_enabled" type="checkbox" id="amount_max_enabled" /> <label for="amount_max_enabled" >Amount max.</label></td>
+            <td ><input ng-if="criteria.amount_max_enabled" type="text" ng-model="criteria.amount_max"  /></td>
           </tr>
 
           <tr>
@@ -108,13 +101,17 @@
       <input ng-model="criteria.is_enabled" id="is_enabled_0" type="radio" value="0"><label for="is_enabled_0" >Disabled only</label>
       <br />
       <br />
-      <label for="last_match_min">Last match</label>
-      From <input size="6" id="last_match_min" ng-model="criteria.last_match_min" />
-      to <input size="6" id="last_match_max" ng-model="criteria.last_match_max" />
+      <div style="margin-bottom:0.5rem">
+        <span style="display:inline-block;width:6em">Last Match</span>
+        <label for="last_match_min">From</label> <input size="6" id="last_match_min" ng-model="criteria.last_match_min" />
+        <label for="last_match_max">to</label><input size="6" id="last_match_max" ng-model="criteria.last_match_max" />
+      </div>
 
-      <label for="match_counter_min">Match count</label>
-      From <input size="6" id="match_counter_min" ng-model="criteria.match_counter_min" />
-      to <input size="6" id="match_counter_max" ng-model="criteria.match_counter_max" />
+      <div style="margin-bottom:0.5rem">
+        <span style="display:inline-block;width:6em">Match count</span>
+        <label for="match_counter_min">From</label> <input size="6" id="match_counter_min" ng-model="criteria.match_counter_min" />
+        <label for="match_counter_max">to</label> <input size="6" id="match_counter_max" ng-model="criteria.match_counter_max" />
+      </div>
       </div>
       </div>
 
@@ -136,14 +133,26 @@
   <!-- presentation of results -->
   <br/>
   <div id="cb-results" ng-if="pages.total !== null">
-    <p><span style="font-size:2rem">{{pages.total}} matching rule(s)</span> 
-      <span ng-if="pages.total <= pages.limit ">Showing all matched rules</span>
-      <span ng-if="pages.total > pages.limit ">Showing {{results.length}} rules </span>
-      <button ng-click="pages.offset = pages.offset - pages.limit; doSearch()"
-              ng-disabled="!(pages.total > pages.limit && pages.offset>0)">Previous</button>
-      <button ng-click="pages.offset = pages.offset + pages.limit; doSearch()"
-        ng-disabled="!(pages.total > pages.limit && (pages.offset + pages.limit)<pages.total)">Next</button>
-      <a href ng-click="bulkSetEnabled(0)" >Disable all</a> | <a href ng-click="bulkSetEnabled(1)">Enable all</a></p>
+    <div class="banking-rules-search-results-stats">
+      <span class="banking-rules-pager">
+        <span class="banking-rules-matches" >{{pages.total}} matching rule(s)</span>
+
+        <span ng-if="pages.total <= pages.limit ">Showing all matched rules</span>
+        <span ng-if="pages.total > pages.limit ">Showing rule matches {{pages.offset+1}} - {{pages.offset+results.length}}</span>
+
+        &nbsp;
+        <button ng-click="pages.offset = pages.offset - pages.limit; doSearch()"
+                ng-disabled="!(pages.total > pages.limit && pages.offset>0)">Previous</button>
+        &nbsp;
+        <button ng-click="pages.offset = pages.offset + pages.limit; doSearch()"
+          ng-disabled="!(pages.total > pages.limit && (pages.offset + pages.limit)<pages.total)">Next</button>
+        &nbsp;
+
+      </span>
+      <span class="banking-rules-actions"><a href ng-click="bulkSetEnabled(0)" >Disable all</a>
+        | <a href ng-click="bulkSetEnabled(1)">Enable all</a>
+      </span>
+    </div>
     <table>
       <thead>
         <tr>
@@ -171,9 +180,9 @@
           <td>
             Rule [{{rule.id}}] <strong ng-if="rule.name">{{rule.name}}<br /></strong>
             <ul>
-              <!-- First list the basic table fields -->
+              <!-- First list the basic table fields, except amount -->
               <li ng-repeat="(i, field) in ui_data.table_fields"
-                  ng-if="rule[field.field] !== null"
+                  ng-if="(rule[field.field] !== null) && (['amount_min', 'amount_max'].indexOf(field.field) == -1)"
                 >
                 {{field.label}} = '{{rule[field.field]}}'
               </li>

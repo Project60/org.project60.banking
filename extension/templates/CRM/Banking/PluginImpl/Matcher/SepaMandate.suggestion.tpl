@@ -17,8 +17,8 @@
 
 {if $error}
 <div>
-  {ts}An error has occurred:{/ts} {$error}<br/>
-  {ts}This suggestion is possibly outdated. Please try and analyse this transaction again.{/ts}
+  {ts domain='org.project60.banking'}An error has occurred:{/ts} {$error}<br/>
+  {ts domain='org.project60.banking'}This suggestion is possibly outdated. Please try and analyse this transaction again.{/ts}
 </div>
 {else}
 <div>
@@ -30,12 +30,12 @@
   {if $cancellation_mode}
   <p>
     {if $cancellation_cancel_reason}
-    <label for="cancel_reason">{ts}Cancellation Reason{/ts}:</label>
+    <label for="cancel_reason">{ts domain='org.project60.banking'}Cancellation Reason{/ts}:</label>
     <input type="text" size="40" name="cancel_reason" value="{$cancel_reason}" {if not $cancel_reason_edit}disabled{/if} />
     &nbsp;&nbsp;&nbsp;&nbsp;
     {/if}
     {if $cancellation_cancel_fee}
-    <label for="cancel_fee">{ts}Cancellation Fee{/ts}:</label>
+    <label for="cancel_fee">{ts domain='org.project60.banking'}Cancellation Fee{/ts}:</label>
     <input type="text" style="text-align:right" size="5" name="cancel_fee" value="{$cancel_fee|string_format:'%.2f'}" {if not $cancel_fee_edit}disabled{/if} />&nbsp;{$contribution.currency}
     <script type="text/javascript">
     // Add JS function to mark invalid user input (adapted from: http://jqueryexamples4u.blogspot.de/2013/09/validate-input-field-allows-only-float.html)
@@ -63,10 +63,10 @@
     {else}
       {ts 1=$contribution_link 2=$contribution_id}Contribution <a href="%1" target="_blank">[%2]</a> will be cancelled.{/ts}
       {if $cancel_mandate}
-        {ts}The mandate will also be cancelled, its status will change to INVALID.{/ts}
+        {ts domain='org.project60.banking'}The mandate will also be cancelled, its status will change to INVALID.{/ts}
       {/if}
       {if $create_activity}
-        {ts}An activity will be created to trigger a manual follow-up.{/ts}
+        {ts domain='org.project60.banking'}An activity will be created to trigger a manual follow-up.{/ts}
       {/if}
     {/if}
   </p>
@@ -76,7 +76,7 @@
 
 {if $warnings}
 <div>
-  {ts}<b>Warning! There are some problems with this contribution:</b>{/ts}
+  {ts domain='org.project60.banking'}<b>Warning! There are some problems with this contribution:</b>{/ts}
   <ul>
   {foreach from=$warnings item=warning}
     <li>{$warning}</li>

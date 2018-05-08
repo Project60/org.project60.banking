@@ -30,8 +30,8 @@ class CRM_Banking_Form_Configure extends CRM_Core_Form {
     $type_map = $this->getPluginTypeMap();
     if (empty($plugin_id)) {
       $this->plugin = array(
-        'name'            => ts("Enter name"),
-        'description'     => ts("Describe here what this plugin does."),
+        'name'            => ts("Enter name", array('domain' => 'org.project60.banking')),
+        'description'     => ts("Describe here what this plugin does.", array('domain' => 'org.project60.banking')),
         'config'          => '{}',
         'plugin_type_id'  => CRM_Utils_Request::retrieve('type', 'Integer'),
         'plugin_class_id' => '');

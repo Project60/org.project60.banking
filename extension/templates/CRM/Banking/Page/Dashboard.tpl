@@ -33,13 +33,13 @@ td.week_incomplete {
 
 
 <br/>
-<h2>{ts}Weekly overview{/ts}</h2>
+<h2>{ts domain='org.project60.banking'}Weekly overview{/ts}</h2>
 <table>
 <thead>
-	<td><b>{ts}Account{/ts}</b></td>
-	<td align="center">{ts}in the past{/ts}</td>
+	<td><b>{ts domain='org.project60.banking'}Account{/ts}</b></td>
+	<td align="center">{ts domain='org.project60.banking'}in the past{/ts}</td>
 {foreach from=$weeks item=week}
-	<td align="center">{ts}week{/ts} {$week|substr:4:2}</td>
+	<td align="center">{ts domain='org.project60.banking'}week{/ts} {$week|substr:4:2}</td>
 {/foreach}
 </thead>
 
@@ -53,7 +53,7 @@ td.week_incomplete {
 	{if not $sum}{assign var=sum value=0}{/if}
 
 	{if $sum == 0}
-	<td class="week_none" title="{ts}There are no records for this time span.{/ts}"><i>{ts}no records{/ts}</i></td>
+	<td class="week_none" title="{ts domain='org.project60.banking'}There are no records for this time span.{/ts}"><i>{ts domain='org.project60.banking'}no records{/ts}</i></td>
 	{elseif $sum == $done}
 	<td class="week_complete" title="{$done} / {$sum}">100&nbsp;%</td>
 	{else}
@@ -67,7 +67,7 @@ td.week_incomplete {
 	{if not $sum}{assign var=sum value=0}{/if}
 
 	{if $sum == 0}
-	<td class="week_none" title="{ts}There are no records for this time span.{/ts}"><i>{ts}no records{/ts}</i></td>
+	<td class="week_none" title="{ts domain='org.project60.banking'}There are no records for this time span.{/ts}"><i>{ts domain='org.project60.banking'}no records{/ts}</i></td>
 	{elseif $sum == $done}
 	<td class="week_complete" title="{$done} / {$sum}">100&nbsp;%</td>
 	{else}
@@ -81,7 +81,7 @@ td.week_incomplete {
 
 
 <br/>
-<h2>{ts}Statistics{/ts}</h2>
+<h2>{ts domain='org.project60.banking'}Statistics{/ts}</h2>
 <table>
 	<thead>
 		{foreach from=$statistics item=data}
@@ -92,20 +92,20 @@ td.week_incomplete {
 		{foreach from=$statistics item=data}
 		<td>
 		<table><tr>
-			<td><b>{ts}<domain="temporal">From</domain>{/ts}</b></td>
-			<td><b>{ts}{$data.from|substr:0:10}{/ts}</b></td>
+			<td><b>{ts domain='org.project60.banking'}<domain="temporal">From</domain>{/ts}</b></td>
+			<td><b>{ts domain='org.project60.banking'}{$data.from|substr:0:10}{/ts}</b></td>
 		</tr><tr>
-			<td><b>{ts}<domain="temporal">To</domain>{/ts}</td>
-			<td><b>{ts}{$data.to|substr:0:10}{/ts}</td>
+			<td><b>{ts domain='org.project60.banking'}<domain="temporal">To</domain>{/ts}</td>
+			<td><b>{ts domain='org.project60.banking'}{$data.to|substr:0:10}{/ts}</td>
 		</tr><tr>
 		{foreach from=$data.stats item=count key=label}
-		<td>{ts}{$label}{/ts}</td>
+		<td>{ts domain='org.project60.banking'}{$label}{/ts}</td>
 		<td>{$count}</td>
 		</tr><tr>
 		{/foreach}
 		</tr><tr>
-			<td><b>{ts}Total{/ts}</b></td>
-			<td><b>{ts}{$data.count}{/ts}</b></td>
+			<td><b>{ts domain='org.project60.banking'}Total{/ts}</b></td>
+			<td><b>{ts domain='org.project60.banking'}{$data.count}{/ts}</b></td>
 		</tr><tr>
 		</tr></table>
 		<td>

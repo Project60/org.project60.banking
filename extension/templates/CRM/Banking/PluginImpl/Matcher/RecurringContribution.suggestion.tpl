@@ -18,18 +18,18 @@
   {if $recurring_contributions|@count eq 1}
     {assign var=contact_id value=$contacts|@key}
     {assign var=contact value=$contacts.$contact_id}
-    {capture assign=address_text}{if $contact.city}{$contact.street_address}, {$contact.city}{else}{ts}Address incomplete{/ts}{/if}{/capture}
+    {capture assign=address_text}{if $contact.city}{$contact.street_address}, {$contact.city}{else}{ts domain='org.project60.banking'}Address incomplete{/ts}{/if}{/capture}
     {capture assign=contact_link}<a title="{$address_text}" href="{crmURL p="civicrm/contact/view" q="reset=1&cid=$contact_id"}">{$contact.display_name} [{$contact.id}]</a>{/capture}
 
     {ts 1=$contact_link}%1 maintains a matching recurring contribution.{/ts}
-    {ts}If you confirm this suggestion, the transaction will be recorded as a new installment for this recurring contribution.{/ts}
+    {ts domain='org.project60.banking'}If you confirm this suggestion, the transaction will be recorded as a new installment for this recurring contribution.{/ts}
 
   {else}
     {assign var=recurring_contribution_count value=$recurring_contributions|@count}
     {if $contacts|@count eq 1}
       {assign var=contact_id value=$contacts|@key}
       {assign var=contact value=$contacts.$contact_id}
-      {capture assign=address_text}{if $contact.city}{$contact.street_address}, {$contact.city}{else}{ts}Address incomplete{/ts}{/if}{/capture}
+      {capture assign=address_text}{if $contact.city}{$contact.street_address}, {$contact.city}{else}{ts domain='org.project60.banking'}Address incomplete{/ts}{/if}{/capture}
       {capture assign=contact_link}<a title="{$address_text}" href="{crmURL p="civicrm/contact/view" q="reset=1&cid=$contact_id"}">{$contact.display_name} [{$contact.id}]</a>{/capture}
 
       {ts 1=$contact_link 2=$recurring_contribution_count}%1 maintains %2 matching recurring contributions.{/ts}
@@ -38,7 +38,7 @@
       {* compile contact list *}
       {foreach from=$contacts item=contact name=cloop}
         {assign var=contact_id value=$contact.id}
-        {capture assign=address_text}{if $contact.city}{$contact.street_address}, {$contact.city}{else}{ts}Address incomplete{/ts}{/if}{/capture}
+        {capture assign=address_text}{if $contact.city}{$contact.street_address}, {$contact.city}{else}{ts domain='org.project60.banking'}Address incomplete{/ts}{/if}{/capture}
         {capture assign=contact_link}<a title="{$address_text}" href="{crmURL p="civicrm/contact/view" q="reset=1&cid=$contact_id"}">{$contact.display_name} [{$contact.id}]</a>{/capture}
 
         {if $smarty.foreach.cloop.first}
@@ -52,7 +52,7 @@
 
       {ts 1=$contact_link 2=$recurring_contribution_count}%1 maintain %2 matching recurring contributions.{/ts}
     {/if}
-    {ts}If you confirm this suggestion, the transaction will be recorded as new installments for these recurring contributions.{/ts}
+    {ts domain='org.project60.banking'}If you confirm this suggestion, the transaction will be recorded as new installments for these recurring contributions.{/ts}
   {/if}
   </p>
 </div>
@@ -62,22 +62,22 @@
     <tbody>
       <tr>
         <td>
-          <div class="suggestion-header">{ts}ID{/ts}</div>
+          <div class="suggestion-header">{ts domain='org.project60.banking'}ID{/ts}</div>
         </td>
         <td>
-          <div class="suggestion-header">{ts}Amount{/ts}</div>
+          <div class="suggestion-header">{ts domain='org.project60.banking'}Amount{/ts}</div>
         </td>
         <td>
-          <div class="suggestion-header">{ts}Active Since{/ts}</div>
+          <div class="suggestion-header">{ts domain='org.project60.banking'}Active Since{/ts}</div>
         </td>
         <td>
-          <div class="suggestion-header">{ts}Cycle{/ts}</div>
+          <div class="suggestion-header">{ts domain='org.project60.banking'}Cycle{/ts}</div>
         </td>
         <td>
-          <div class="suggestion-header">{ts}Last Installment{/ts}</div>
+          <div class="suggestion-header">{ts domain='org.project60.banking'}Last Installment{/ts}</div>
         </td>
         <td>
-          <div class="suggestion-header">{ts}Due{/ts}</div>
+          <div class="suggestion-header">{ts domain='org.project60.banking'}Due{/ts}</div>
         </td>
       </tr>
     {foreach from=$recurring_contributions item=recurring_contribution}
@@ -87,24 +87,24 @@
       {* calculate a more user friendly display of the recurring_contribution transaction interval *}
       {if $recurring_contribution.frequency_unit eq 'month'}
         {if $recurring_contribution.frequency_interval eq 1}
-          {capture assign=frequency_words}{ts}monthly{/ts}{/capture}
+          {capture assign=frequency_words}{ts domain='org.project60.banking'}monthly{/ts}{/capture}
         {elseif $recurring_contribution.frequency_interval eq 3}
-          {capture assign=frequency_words}{ts}quarterly{/ts}{/capture}
+          {capture assign=frequency_words}{ts domain='org.project60.banking'}quarterly{/ts}{/capture}
         {elseif $recurring_contribution.frequency_interval eq 6}
-          {capture assign=frequency_words}{ts}semi-annually{/ts}{/capture}
+          {capture assign=frequency_words}{ts domain='org.project60.banking'}semi-annually{/ts}{/capture}
         {elseif $recurring_contribution.frequency_interval eq 12}
-          {capture assign=frequency_words}{ts}annually{/ts}{/capture}
+          {capture assign=frequency_words}{ts domain='org.project60.banking'}annually{/ts}{/capture}
         {else}
           {capture assign=frequency_words}{ts 1=$recurring_contribution.frequency_interval}every %1 months{/ts}{/capture}
         {/if}
       {elseif $recurring_contribution.frequency_unit eq 'year'}
         {if $recurring_contribution.frequency_interval eq 1}
-          {capture assign=frequency_words}{ts}annually{/ts}{/capture}
+          {capture assign=frequency_words}{ts domain='org.project60.banking'}annually{/ts}{/capture}
         {else}
           {capture assign=frequency_words}{ts 1=$recurring_contribution.frequency_interval}every %1 years{/ts}{/capture}
         {/if}
       {else}
-        {capture assign=frequency_words}{ts}on an irregular basis{/ts}{/capture}
+        {capture assign=frequency_words}{ts domain='org.project60.banking'}on an irregular basis{/ts}{/capture}
       {/if}
       <tr>
         <td>
@@ -125,7 +125,7 @@
             {if $recurring_contribution.last_contribution}
             {$recurring_contribution.last_contribution.receive_date|crmDate:$config->dateformatFull}
             {else}
-            <strong>{ts}None{/ts}</strong>
+            <strong>{ts domain='org.project60.banking'}None{/ts}</strong>
             {/if}
           </div>
         </td>
@@ -139,7 +139,7 @@
 </div>
 {if $penalties}
 <div>
-  {ts}This suggestion has been downgraded:{/ts}
+  {ts domain='org.project60.banking'}This suggestion has been downgraded:{/ts}
   <ul>
     {foreach from=$penalties item=reason}
     <li>{$reason}</li>

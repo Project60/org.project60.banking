@@ -144,20 +144,20 @@ class CRM_Banking_DAO_BankAccountReference extends CRM_Core_DAO
         'reference' => array(
           'name' => 'reference',
           'type' => CRM_Utils_Type::T_STRING,
-          'title' => ts('Reference value') ,
+          'title' => ts('Reference value', array('domain' => 'org.project60.banking')),
           'maxlength' => 255,
           'size' => CRM_Utils_Type::HUGE,
         ) ,
         'reference_type_id' => array(
           'name' => 'reference_type_id',
           'type' => CRM_Utils_Type::T_INT,
-          'title' => ts('Reference type') ,
+          'title' => ts('Reference type', array('domain' => 'org.project60.banking')),
           'required' => true,
         ) ,
         'ba_id' => array(
           'name' => 'ba_id',
           'type' => CRM_Utils_Type::T_INT,
-          'title' => ts('Bank Account ID') ,
+          'title' => ts('Bank Account ID', array('domain' => 'org.project60.banking')),
           'FKClassName' => 'CRM_Banking_DAO_BankAccount',
         ) ,
       );

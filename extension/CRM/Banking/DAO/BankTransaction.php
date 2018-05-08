@@ -212,7 +212,7 @@ class CRM_Banking_DAO_BankTransaction extends CRM_Core_DAO
         'bank_reference' => array(
           'name' => 'bank_reference',
           'type' => CRM_Utils_Type::T_STRING,
-          'title' => ts('Unique Statement Reference') ,
+          'title' => ts('Unique Statement Reference', array('domain' => 'org.project60.banking')),
           'required' => true,
           'maxlength' => 64,
           'size' => CRM_Utils_Type::BIG,
@@ -232,13 +232,13 @@ class CRM_Banking_DAO_BankTransaction extends CRM_Core_DAO
           'name' => 'booking_date',
           'type' => CRM_Utils_Type::T_DATE + CRM_Utils_Type::T_TIME,
             //'dataPattern' => '/^\d{4}-?\d{2}-?\d{2} ?(\d{2}:?\d{2}:?(\d{2})?)?$/',
-          'title' => ts('Booking date') ,
+          'title' => ts('Booking date', array('domain' => 'org.project60.banking')),
           'required' => true,
         ) ,
         'amount' => array(
           'name' => 'amount',
           'type' => CRM_Utils_Type::T_MONEY,
-          'title' => ts('Transaction amount') ,
+          'title' => ts('Transaction amount', array('domain' => 'org.project60.banking')),
           'required' => true,
         ) ,
         'currency' => array(
@@ -251,52 +251,52 @@ class CRM_Banking_DAO_BankTransaction extends CRM_Core_DAO
         'type_id' => array(
           'name' => 'type_id',
           'type' => CRM_Utils_Type::T_INT,
-          'title' => ts('Bank Transaction Type') ,
+          'title' => ts('Bank Transaction Type', array('domain' => 'org.project60.banking')),
           'required' => true,
         ) ,
         'status_id' => array(
           'name' => 'status_id',
           'type' => CRM_Utils_Type::T_INT,
-          'title' => ts('Bank Transaction Status') ,
+          'title' => ts('Bank Transaction Status', array('domain' => 'org.project60.banking')),
           'required' => true,
         ) ,
         'data_raw' => array(
           'name' => 'data_raw',
           'type' => CRM_Utils_Type::T_TEXT,
-          'title' => ts('Data Raw') ,
+          'title' => ts('Data Raw', array('domain' => 'org.project60.banking')),
         ) ,
         'data_parsed' => array(
           'name' => 'data_parsed',
           'type' => CRM_Utils_Type::T_TEXT,
-          'title' => ts('Data Parsed') ,
+          'title' => ts('Data Parsed', array('domain' => 'org.project60.banking')),
         ) ,
         'ba_id' => array(
           'name' => 'ba_id',
           'type' => CRM_Utils_Type::T_INT,
-          'title' => ts('Bank Account ID') ,
+          'title' => ts('Bank Account ID', array('domain' => 'org.project60.banking')),
           'FKClassName' => 'CRM_Banking_DAO_BankAccount',
         ) ,
         'party_ba_id' => array(
           'name' => 'party_ba_id',
           'type' => CRM_Utils_Type::T_INT,
-          'title' => ts('Party Bank Account ID') ,
+          'title' => ts('Party Bank Account ID', array('domain' => 'org.project60.banking')),
           'FKClassName' => 'CRM_Banking_DAO_BankAccount',
         ) ,
         'tx_batch_id' => array(
           'name' => 'tx_batch_id',
           'type' => CRM_Utils_Type::T_INT,
-          'title' => ts('Bank Transaction Batch ID') ,
+          'title' => ts('Bank Transaction Batch ID', array('domain' => 'org.project60.banking')),
           'FKClassName' => 'CRM_Banking_DAO_BankTransactionBatch',
         ) ,
         'sequence' => array(
           'name' => 'sequence',
           'type' => CRM_Utils_Type::T_INT,
-          'title' => ts('Sequence in statement') ,
+          'title' => ts('Sequence in statement', array('domain' => 'org.project60.banking')),
         ) ,
         'suggestions' => array(
           'name' => 'suggestions',
           'type' => CRM_Utils_Type::T_TEXT,
-          'title' => ts('Suggestions') ,
+          'title' => ts('Suggestions', array('domain' => 'org.project60.banking')),
         ) ,
       );
     }

@@ -194,7 +194,7 @@
       <tr>
         <td>
           <div class="btxheader">
-            {ts}BASIC INFO{/ts}
+            {ts domain='org.project60.banking'}BASIC INFO{/ts}
           </div>
         </td>
       </tr>
@@ -204,11 +204,11 @@
             <div class="btxcurr">{$payment->currency}</div>
             {$payment->amount}
           </div>
-          <div class="btxlabel">{ts}Booking{/ts}</div>
+          <div class="btxlabel">{ts domain='org.project60.banking'}Booking{/ts}</div>
           <div class="btxvalue btxc">
             {$payment->booking_date|truncate:10:''}
           </div>
-          <div class="btxlabel">{ts}Value{/ts}</div>
+          <div class="btxlabel">{ts domain='org.project60.banking'}Value{/ts}</div>
           <div class="btxvalue btxc">
             {$payment->value_date|truncate:10:''}
           </div>
@@ -219,7 +219,7 @@
       <tr>
         <td>
           <div class="btxheader">
-            {ts}TRANSACTION INFO{/ts}
+            {ts domain='org.project60.banking'}TRANSACTION INFO{/ts}
           </div>
         </td>
       </tr>
@@ -228,15 +228,15 @@
           <div class="btxvalue">
             {$my_bao->description}
           </div>
-          <div class="btxlabel">{ts}Stmt. #{/ts}</div>
+          <div class="btxlabel">{ts domain='org.project60.banking'}Stmt. #{/ts}</div>
           <div class="btxvalue btxc">
             {$payment->tx_batch_id}&nbsp;
           </div>
-          <div class="btxlabel">{ts}Trans. #{/ts}</div>
+          <div class="btxlabel">{ts domain='org.project60.banking'}Trans. #{/ts}</div>
           <div class="btxvalue btxc">
             {$payment->id}&nbsp;
           </div>
-          <div class="btxlabel">{ts}Status{/ts}</div>
+          <div class="btxlabel">{ts domain='org.project60.banking'}Status{/ts}</div>
           <div class="btxvalue btxc">
             {$btxstatus.label}
           </div>
@@ -247,13 +247,13 @@
       <tr>
         <td>
           <div class="btxheader">
-            {ts}DEBTOR INFO{/ts}
+            {ts domain='org.project60.banking'}DEBTOR INFO{/ts}
           </div>
         </td>
       </tr>
       <tr >
         <td>
-          <div class="btxlabel">{ts}Account{/ts}</div>
+          <div class="btxlabel">{ts domain='org.project60.banking'}Account{/ts}</div>
           <div class="btxvalue btxl">
             {if $party_ba_references.0}
               {assign var=ba_contact_id value=$party_ba_references.0.contact_id}
@@ -266,7 +266,7 @@
             {/if}
 
           </div>
-          <div class="btxlabel">{ts}Address{/ts}</div>
+          <div class="btxlabel">{ts domain='org.project60.banking'}Address{/ts}</div>
           <div class="btxvalue btxl">
             {$payment_data_parsed.street_address}&nbsp;
           </div>
@@ -274,12 +274,12 @@
           <div class="btxvalue btxl">
             {$payment_data_parsed.postal_code} {$payment_data_parsed.city}&nbsp;
           </div>
-          <div class="btxlabel">{ts}Owner{/ts}</div>
+          <div class="btxlabel">{ts domain='org.project60.banking'}Owner{/ts}</div>
           <div class="btxvalue btxl">
             {$payment_data_parsed.name}{if $payment_data_parsed.email}&nbsp;({$payment_data_parsed.email}){/if}
           </div>
           {if $contact}
-            <div class="btxlabel">{ts}Contact{/ts}</div>
+            <div class="btxlabel">{ts domain='org.project60.banking'}Contact{/ts}</div>
             <div class="btxvalue btxl">
               <a href="{$base_url}/civicrm/contact/view?reset=1&cid={$contact.id}">{$contact.display_name}&nbsp;[{$contact.id}]</a>
             </div>
@@ -290,7 +290,7 @@
     <table id="btx-purpose">
       <tr >
         <td>
-          <div class="btxlabel">{ts}Purpose{/ts}</div>
+          <div class="btxlabel">{ts domain='org.project60.banking'}Purpose{/ts}</div>
           <div class="btxvalue btxl">
             {*{$payment_data_raw.move_msg}&nbsp;*}
             {$payment_data_parsed.purpose}
@@ -303,7 +303,7 @@
         <td>
           <div class="btxheader collapsible" onclick="cj('#extra').toggle();
               cj(this).toggleClass('collapsible-closed');">
-            {ts}DETAILS{/ts} <span style="font-weight: normal;">{ts}(click to see){/ts}</span>
+            {ts domain='org.project60.banking'}DETAILS{/ts} <span style="font-weight: normal;">{ts domain='org.project60.banking'}(click to see){/ts}</span>
           </div>
         </td>
       </tr>
@@ -311,7 +311,7 @@
         <td>
           <table class="explorer">
             {foreach from=$extra_data key=k item=v}
-              <tr><td class="xk">{ts}{$k}{/ts}</td><td class="btx-detail-entry">{$v}</td></tr>
+              <tr><td class="xk">{ts domain='org.project60.banking'}{$k}{/ts}</td><td class="btx-detail-entry">{$v}</td></tr>
             {/foreach}
           </table>
         </td>
@@ -322,35 +322,35 @@
   <br/>
 
   <div align="right" class="clearfix" style="width: 100%;">
-    <a href="{$url_skip_back}" class="button {if not $url_skip_back}disabled{/if}  ui-icon-seek-prev"><span title="{ts}Back{/ts}"><div class="icon previous-icon ui-icon-seek-prev disabled"></div>{ts}Back{/ts}</span></a>
+    <a href="{$url_skip_back}" class="button {if not $url_skip_back}disabled{/if}  ui-icon-seek-prev"><span title="{ts domain='org.project60.banking'}Back{/ts}"><div class="icon previous-icon ui-icon-seek-prev disabled"></div>{ts domain='org.project60.banking'}Back{/ts}</span></a>
 
     {if $btxstatus.label != 'Processed' AND $btxstatus.label != 'Ignored'}
-      <a id="analyseButton" onClick="analysePayment()" class="button"><span title="{ts}Analyse (again){/ts}"><div class="icon preview-icon ui-icon-refresh"></div>{ts}Analyse (again){/ts}</span></a>
+      <a id="analyseButton" onClick="analysePayment()" class="button"><span title="{ts domain='org.project60.banking'}Analyse (again){/ts}"><div class="icon preview-icon ui-icon-refresh"></div>{ts domain='org.project60.banking'}Analyse (again){/ts}</span></a>
       {if isset($url_skip_forward)}
-        <a href="#" onClick="execute_selected()" class="button"><span title="{ts}Confirm and Continue{/ts}"><div class="icon next-icon ui-icon-check"></div>{ts}Confirm and Continue{/ts}</span></a>
-        <a href="{$url_skip_forward}" class="button"><span title="{ts}Skip{/ts}"><div class="icon next-icon ui-icon-seek-next"></div>{ts}Skip{/ts}</span></a>
+        <a href="#" onClick="execute_selected()" class="button"><span title="{ts domain='org.project60.banking'}Confirm and Continue{/ts}"><div class="icon next-icon ui-icon-check"></div>{ts domain='org.project60.banking'}Confirm and Continue{/ts}</span></a>
+        <a href="{$url_skip_forward}" class="button"><span title="{ts domain='org.project60.banking'}Skip{/ts}"><div class="icon next-icon ui-icon-seek-next"></div>{ts domain='org.project60.banking'}Skip{/ts}</span></a>
         {if $url_skip_processed}
-        <a href="{$url_skip_processed}" class="button"><span title="{ts}Skip Processed{/ts}"><div class="icon next-icon ui-icon-seek-next"></div>{ts}Skip Processed{/ts}</span></a>
+        <a href="{$url_skip_processed}" class="button"><span title="{ts domain='org.project60.banking'}Skip Processed{/ts}"><div class="icon next-icon ui-icon-seek-next"></div>{ts domain='org.project60.banking'}Skip Processed{/ts}</span></a>
         {/if}
       {else}
-        <a href="#" onClick="execute_selected()" class="button"><span title="{ts}Confirm and Exit{/ts}"><div class="icon next-icon ui-icon-check"></div>{ts}Confirm and Exit{/ts}</span></a>
-        <a href="{$url_back}" class="button"><span title="{ts}Skip and Exit{/ts}"><div class="icon next-icon ui-icon-seek-next"></div>{ts}Skip and Exit{/ts}</span></a>
+        <a href="#" onClick="execute_selected()" class="button"><span title="{ts domain='org.project60.banking'}Confirm and Exit{/ts}"><div class="icon next-icon ui-icon-check"></div>{ts domain='org.project60.banking'}Confirm and Exit{/ts}</span></a>
+        <a href="{$url_back}" class="button"><span title="{ts domain='org.project60.banking'}Skip and Exit{/ts}"><div class="icon next-icon ui-icon-seek-next"></div>{ts domain='org.project60.banking'}Skip and Exit{/ts}</span></a>
       {/if}
     {else}
-      <a id="analyseButton" onClick="analysePayment()" class="button disabled"><span title="{ts}Analyse (again){/ts}"><div class="icon preview-icon ui-icon-refresh"></div>{ts}Analyse (again){/ts}</span></a>
+      <a id="analyseButton" onClick="analysePayment()" class="button disabled"><span title="{ts domain='org.project60.banking'}Analyse (again){/ts}"><div class="icon preview-icon ui-icon-refresh"></div>{ts domain='org.project60.banking'}Analyse (again){/ts}</span></a>
       {if isset($url_skip_forward)}
-        <a href="" class="button disabled"><span title="{ts}Confirm and Continue{/ts}"><div class="icon next-icon ui-icon-check"></div>{ts}Confirm and Continue{/ts}</span></a>
-        <a href="{$url_skip_forward}" class="button"><span title="{ts}Skip{/ts}"><div class="icon next-icon ui-icon-seek-next"></div>{ts}Skip{/ts}</span></a>
+        <a href="" class="button disabled"><span title="{ts domain='org.project60.banking'}Confirm and Continue{/ts}"><div class="icon next-icon ui-icon-check"></div>{ts domain='org.project60.banking'}Confirm and Continue{/ts}</span></a>
+        <a href="{$url_skip_forward}" class="button"><span title="{ts domain='org.project60.banking'}Skip{/ts}"><div class="icon next-icon ui-icon-seek-next"></div>{ts domain='org.project60.banking'}Skip{/ts}</span></a>
         {if $url_skip_processed}
-        <a href="{$url_skip_processed}" class="button"><span title="{ts}Skip Processed{/ts}"><div class="icon next-icon ui-icon-seek-next"></div>{ts}Skip Processed{/ts}</span></a>
+        <a href="{$url_skip_processed}" class="button"><span title="{ts domain='org.project60.banking'}Skip Processed{/ts}"><div class="icon next-icon ui-icon-seek-next"></div>{ts domain='org.project60.banking'}Skip Processed{/ts}</span></a>
         {/if}
       {else}
-        <a href="" class="button disabled"><span title="{ts}Confirm and Exit{/ts}"><div class="icon next-icon ui-icon-check"></div>{ts}Confirm and Exit{/ts}</span></a>
-        <a href="{$url_back}" class="button"><span title="{ts}Skip and Exit{/ts}"><div class="icon next-icon ui-icon-seek-next"></div>{ts}Skip and Exit{/ts}</span></a>
+        <a href="" class="button disabled"><span title="{ts domain='org.project60.banking'}Confirm and Exit{/ts}"><div class="icon next-icon ui-icon-check"></div>{ts domain='org.project60.banking'}Confirm and Exit{/ts}</span></a>
+        <a href="{$url_back}" class="button"><span title="{ts domain='org.project60.banking'}Skip and Exit{/ts}"><div class="icon next-icon ui-icon-seek-next"></div>{ts domain='org.project60.banking'}Skip and Exit{/ts}</span></a>
       {/if}
     {/if}
     <a href="{$url_back}" class="button" style="float:right;">
-      <span title="{ts}Back{/ts}"><div class="icon back-icon ui-icon-arrowreturnthick-1-w"></div>{ts}Back to transaction list{/ts}</span>
+      <span title="{ts domain='org.project60.banking'}Back{/ts}"><div class="icon back-icon ui-icon-arrowreturnthick-1-w"></div>{ts domain='org.project60.banking'}Back to transaction list{/ts}</span>
     </a>
   </div>
 
@@ -359,7 +359,7 @@
     <div id="generating_suggestions" align="center" hidden="1">
       <br/><br/>
       <img name="busy" src="{$config->resourceBase}i/loading.gif"/>
-      <font size="+1">{ts}Generating suggestions...{/ts}</font>
+      <font size="+1">{ts domain='org.project60.banking'}Generating suggestions...{/ts}</font>
       <br/><br/>
     </div>
     <table class="suggestions">
@@ -449,7 +449,7 @@ function analysePayment() {
             window.location = newURL;
           }
         } else {
-          cj('<div title="{/literal}{ts}Error{/ts}{literal}"><span class="ui-icon ui-icon-alert" style="float:left;"></span>' + data['error_message'] + '</div>').dialog({
+          cj('<div title="{/literal}{ts domain='org.project60.banking'}Error{/ts}{literal}"><span class="ui-icon ui-icon-alert" style="float:left;"></span>' + data['error_message'] + '</div>').dialog({
             modal: true,
             buttons: {
               Ok: function() {

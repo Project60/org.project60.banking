@@ -14,43 +14,43 @@
 +--------------------------------------------------------*}
 
 {assign var=contact_id value=$contact.id}
-{capture assign=address_text}{if $contact.city}{$contact.street_address}, {$contact.city}{else}{ts}Address incomplete{/ts}{/if}{/capture}
+{capture assign=address_text}{if $contact.city}{$contact.street_address}, {$contact.city}{else}{ts domain='org.project60.banking'}Address incomplete{/ts}{/if}{/capture}
 {capture assign=contact_link}<a title="{$address_text}" href="{crmURL p="civicrm/contact/view" q="reset=1&cid=$contact_id"}">{$contact.display_name} [{$contact.id}]</a>{/capture}
 
 {if $error}
 <div>
-  {ts}An error has occurred:{/ts} {$error}<br/>
-  {ts}This suggestion is possibly outdated. Please try and analyse this transaction again.{/ts}
+  {ts domain='org.project60.banking'}An error has occurred:{/ts} {$error}<br/>
+  {ts domain='org.project60.banking'}This suggestion is possibly outdated. Please try and analyse this transaction again.{/ts}
 </div>
 {else}
 <div>
-  {ts}The following contribution will be created:{/ts}
+  {ts domain='org.project60.banking'}The following contribution will be created:{/ts}
   <br/>
   <div>
     <table border="1" style="empty-cells : hide;">
       <tbody>
         <tr>
           <td>
-            <div class="btxlabel">{ts}Donor{/ts}:&nbsp;</div>
+            <div class="btxlabel">{ts domain='org.project60.banking'}Donor{/ts}:&nbsp;</div>
             <div class="btxvalue">{$contact_link}</div>
           </td>
           <td>
-            <div class="btxlabel">{ts}Amount{/ts}:&nbsp;</div>
+            <div class="btxlabel">{ts domain='org.project60.banking'}Amount{/ts}:&nbsp;</div>
             <div class="btxvalue">{$contribution.total_amount|crmMoney:$contribution.currency}</div>
           </td>
           <td>
-            <div class="btxlabel">{ts}Date{/ts}:&nbsp;</div>
+            <div class="btxlabel">{ts domain='org.project60.banking'}Date{/ts}:&nbsp;</div>
             <div class="btxvalue">{$contribution.receive_date|crmDate:$config->dateformatFull}</div>
           </td>
           <td>
-            <div class="btxlabel">{ts}Type{/ts}:&nbsp;</div>
+            <div class="btxlabel">{ts domain='org.project60.banking'}Type{/ts}:&nbsp;</div>
             <div class="btxvalue">{$contribution.financial_type}</div>
           </td>
         </tr>
         {if $campaign or $source}
         <tr>
           <td colspan="2">
-            <div class="btxlabel">{ts}Campaign{/ts}:&nbsp;</div>
+            <div class="btxlabel">{ts domain='org.project60.banking'}Campaign{/ts}:&nbsp;</div>
             <div class="btxvalue">{$campaign.title}</div>
           </td>
           <td colspan="2">

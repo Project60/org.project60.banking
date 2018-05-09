@@ -58,6 +58,11 @@ function _banking_options() {
                   'value' => 'CRM_Banking_PluginImpl_Matcher_CreateContribution',
                   'is_default' => 0,
               ),
+              // 'matcher_rules' => array(
+              //     'label' => 'Rule Matcher Plugin',
+              //     'value' => 'CRM_Banking_PluginImpl_Matcher_Rules',
+              //     'is_default' => 0,
+              // ),
               'matcher_recurring' => array(
                   'label' => 'Recurring Contribution Matcher Plugin',
                   'value' => 'CRM_Banking_PluginImpl_Matcher_RecurringContribution',
@@ -114,6 +119,11 @@ function _banking_options() {
                   'label' => 'Account Lookup Analyser',
                   'value' => 'CRM_Banking_PluginImpl_Matcher_AccountLookup',
                   'description' => 'Looks up a transaction\'s bank accounts (again)',
+                  'is_default' => 0,
+              ),
+              'analyser_rules' => array(
+                  'label' => 'Rule Analyser Plugin',
+                  'value' => 'CRM_Banking_PluginImpl_Matcher_RulesAnalyser',
                   'is_default' => 0,
               ),
               'postprocessor_accounts' => array(

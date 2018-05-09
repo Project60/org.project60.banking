@@ -1,0 +1,11 @@
+/* Add any CSS rules for Angular module "banking" */
+.banking-rule-editor input[name="name"] {
+  box-sizing: border-box;
+  width:100%;
+}
+.banking-rule-editor input[type="text"] {
+  border: solid 1px #ddd;
+}
+.banking-rule-editor input[type="text"].error {
+  border-color: #b00;
+}

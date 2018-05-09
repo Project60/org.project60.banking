@@ -16,18 +16,18 @@
 {assign var=contact_id value=$contact.id}
 {assign var=contribution_id value=$contribution.id}
 
-{capture assign=address_text}{if $contact.city}{$contact.street_address}, {$contact.city}{else}{ts}Address incomplete{/ts}{/if}{/capture}
+{capture assign=address_text}{if $contact.city}{$contact.street_address}, {$contact.city}{else}{ts domain='org.project60.banking'}Address incomplete{/ts}{/if}{/capture}
 {capture assign=contact_link}<a title="{$address_text}" href="{crmURL p="civicrm/contact/view" q="reset=1&cid=$contact_id"}">{$contact.display_name} [{$contact.id}]</a>{/capture}
 {capture assign=contribution_url}{crmURL p="civicrm/contact/view/contribution" q="reset=1&action=update&context=contribution&id=$contribution_id&cid=$contact_id"}{/capture}
 
 {if $error}
 <div>
-  {ts}An error has occurred:{/ts} {$error}<br/>
-  {ts}This suggestion is possibly outdated. Please try and analyse this transaction again.{/ts}
+  {ts domain='org.project60.banking'}An error has occurred:{/ts} {$error}<br/>
+  {ts domain='org.project60.banking'}This suggestion is possibly outdated. Please try and analyse this transaction again.{/ts}
 </div>
 {else}
 <div>
-  {ts}There seems to be a match:{/ts}
+  {ts domain='org.project60.banking'}There seems to be a match:{/ts}
   {if $reasons}
   <ul>
   {foreach from=$reasons item=reason}
@@ -40,23 +40,23 @@
       <tbody>
         <tr>
           <td>
-            <div class="btxlabel">{ts}Donor{/ts}:&nbsp;</div>
+            <div class="btxlabel">{ts domain='org.project60.banking'}Donor{/ts}:&nbsp;</div>
             <div class="btxvalue">{$contact_link}</div>
           </td>
           <td>
-            <div class="btxlabel">{ts}Amount{/ts}:&nbsp;</div>
+            <div class="btxlabel">{ts domain='org.project60.banking'}Amount{/ts}:&nbsp;</div>
             <div class="btxvalue">{$contribution.total_amount|crmMoney:$contribution.currency}</div>
           </td>
           <td>
-            <div class="btxlabel">{ts}Date{/ts}:&nbsp;</div>
+            <div class="btxlabel">{ts domain='org.project60.banking'}Date{/ts}:&nbsp;</div>
             <div class="btxvalue">{$contribution.receive_date|crmDate:$config->dateformatFull}</div>
           </td>
           <td>
-            <div class="btxlabel">{ts}Type{/ts}:&nbsp;</div>
+            <div class="btxlabel">{ts domain='org.project60.banking'}Type{/ts}:&nbsp;</div>
             <div class="btxvalue">{$contribution.financial_type}</div>
           </td>
           <td align='center'>
-            <a href="{$contribution_url}" target="_blank">{ts}edit contribution{/ts}</td>
+            <a href="{$contribution_url}" target="_blank">{ts domain='org.project60.banking'}edit contribution{/ts}</td>
           </td>
         </tr>
       </tbody>
@@ -65,12 +65,12 @@
   {if not $cancellation_cancel_reason or $cancellation_cancel_fee}
   <div>
     {if $cancellation_cancel_reason}
-    <label for="cancel_reason">{ts}Cancellation Reason{/ts}:</label>
+    <label for="cancel_reason">{ts domain='org.project60.banking'}Cancellation Reason{/ts}:</label>
     <input type="text" size="40" name="cancel_reason" value="{$cancel_reason}" {if not $cancel_reason_edit}disabled{/if} />
     &nbsp;&nbsp;&nbsp;&nbsp;
     {/if}
     {if $cancellation_cancel_fee}
-    <label for="cancel_fee">{ts}Cancellation Fee{/ts}:</label>
+    <label for="cancel_fee">{ts domain='org.project60.banking'}Cancellation Fee{/ts}:</label>
     <input type="text" style="text-align:right" size="5" name="cancel_fee" value="{$cancel_fee|string_format:'%.2f'}" {if not $cancel_fee_edit}disabled{/if} />&nbsp;{$contribution.currency}
     <script type="text/javascript">
     // Add JS function to mark invalid user input (adapted from: http://jqueryexamples4u.blogspot.de/2013/09/validate-input-field-allows-only-float.html)

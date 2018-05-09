@@ -22,8 +22,8 @@
   <table id="contact-activity-selector-dashlet">
   <thead>
     <tr>
-      <th><div>{ts}Bank Account{/ts}</div></th>
-      <th><div>{ts}Bank{/ts}</div></th>
+      <th><div>{ts domain='org.project60.banking'}Bank Account{/ts}</div></th>
+      <th><div>{ts domain='org.project60.banking'}Bank{/ts}</div></th>
       <th></th>
     </tr>
   </thead>
@@ -36,17 +36,17 @@
           <tr><td>
             {if $reference.reference_type eq 'NBAN_DE'}
             {assign var=german value="/"|explode:$reference.reference} 
-            BLZ:&nbsp;{$german.0}&nbsp;&nbsp;&nbsp;Kto:&nbsp;{$german.1}&nbsp;({ts}German{/ts})
+            BLZ:&nbsp;{$german.0}&nbsp;&nbsp;&nbsp;Kto:&nbsp;{$german.1}&nbsp;({ts domain='org.project60.banking'}German{/ts})
             {elseif $reference.reference_type eq 'ENTITY'}
             {* We hide entity references for the moment *}
             {else}
             <span title="{$reference.reference_type_label}">{$reference.reference}&nbsp;({$reference.reference_type})</span>
             {/if}
             {if $account.references|@count gt 1}
-            <a onClick="banking_deletereference({$account.id}, {$reference.id});" class="action-item action-item-first" title="{ts}delete{/ts}">{ts}[-]{/ts}</a>
+            <a onClick="banking_deletereference({$account.id}, {$reference.id});" class="action-item action-item-first" title="{ts domain='org.project60.banking'}delete{/ts}">{ts domain='org.project60.banking'}[-]{/ts}</a>
             {/if}
             {if $smarty.foreach.account_reference.last}
-            <a onClick="banking_addreference({$account.id});" class="action-item action-item-first" title="{ts}add{/ts}">{ts}[+]{/ts}</a>
+            <a onClick="banking_addreference({$account.id});" class="action-item action-item-first" title="{ts domain='org.project60.banking'}add{/ts}">{ts domain='org.project60.banking'}[+]{/ts}</a>
             {/if}
           </td></tr>
           {/foreach}
@@ -58,9 +58,9 @@
           <tr>
             <td style="width: 130px;"><b>
               {if $key eq 'bank' or $key eq 'name'}
-                {ts}Bank Name{/ts}
+                {ts domain='org.project60.banking'}Bank Name{/ts}
               {elseif $key eq 'country'}
-                {ts}Country{/ts}
+                {ts domain='org.project60.banking'}Country{/ts}
               {else}
                 {$key}
               {/if}
@@ -71,11 +71,11 @@
         </table>
       </td>
       <td style="vertical-align: middle;">
-        <a title="{ts}Delete{/ts}" class="delete button" onClick="banking_deleteaccount({$account.id});">
-          <span><div class="icon delete-icon ui-icon-trash"></div>{ts}Delete{/ts}</span>
+        <a title="{ts domain='org.project60.banking'}Delete{/ts}" class="delete button" onClick="banking_deleteaccount({$account.id});">
+          <span><div class="icon delete-icon ui-icon-trash"></div>{ts domain='org.project60.banking'}Delete{/ts}</span>
         </a>
-        <a title="{ts}Edit{/ts}" class="edit button" onClick="banking_editaccount({$account.id});">
-          <span><div class="icon edit-icon ui-icon-pencil"></div>{ts}Edit{/ts}</span>
+        <a title="{ts domain='org.project60.banking'}Edit{/ts}" class="edit button" onClick="banking_editaccount({$account.id});">
+          <span><div class="icon edit-icon ui-icon-pencil"></div>{ts domain='org.project60.banking'}Edit{/ts}</span>
         </a>
       </td>
     </tr>
@@ -84,15 +84,15 @@
   </table>
 </div>
 {else}
-<h3>{ts}This contact has no known accounts associated with him/her.{/ts}</h3>
+<h3>{ts domain='org.project60.banking'}This contact has no known accounts associated with him/her.{/ts}</h3>
 {/if}
 
-<a id="banking_account_addbtn" title="{ts}Add{/ts}" class="add button" onClick="banking_addaccount();">
-  <span><div class="icon add-icon ui-icon-add ui-icon-circle-plus"></div>{ts}Add{/ts}</span>
+<a id="banking_account_addbtn" title="{ts domain='org.project60.banking'}Add{/ts}" class="add button" onClick="banking_addaccount();">
+  <span><div class="icon add-icon ui-icon-add ui-icon-circle-plus"></div>{ts domain='org.project60.banking'}Add{/ts}</span>
 </a>
 
 <div id="banking_account_form" hidden="1">
-  <h3>{ts}Edit Bank Account{/ts}</h3>
+  <h3>{ts domain='org.project60.banking'}Edit Bank Account{/ts}</h3>
   <div class="crm-section">
     <div class="label">{$form.reference_type.label}</div>
     <div class="content">{$form.reference_type.html}</div>
@@ -216,23 +216,23 @@ function banking_deleteaccount(ba_id) {
     CRM.api('BankingAccount', 'delete', {'q': 'civicrm/ajax/rest', 'sequential': 1, 'id': ba_id},
     {success: function(data) {
         if (data['is_error'] == 0) {
-          CRM.alert("{/literal}{ts}The bank account has been deleted{/ts}", "{ts}Success{/ts}{literal}", "success");
+          CRM.alert("{/literal}{ts domain='org.project60.banking'}The bank account has been deleted{/ts}", "{ts domain='org.project60.banking'}Success{/ts}{literal}", "success");
           var contentId = cj('#tab_bank_accounts').attr('aria-controls');
           cj('#' + contentId).load(CRM.url('civicrm/banking/accounts_tab', {'reset': 1, 'snippet': 1, 'force': 1, 'cid':{/literal}{$contact_id}{literal}}));
         }else{
-          CRM.alert("{/literal}" + data['error_message'], "{ts}Error{/ts}{literal}", "error");
+          CRM.alert("{/literal}" + data['error_message'], "{ts domain='org.project60.banking'}Error{/ts}{literal}", "error");
         }
       }
     });
   },{
-    message: {/literal}"{ts}Are you sure you want to delete this bank account?{/ts}"{literal}
+    message: {/literal}"{ts domain='org.project60.banking'}Are you sure you want to delete this bank account?{/ts}"{literal}
   });
 }
 
 /** JS function for deleting a bank account */
 function banking_deletereference(ba_id, ref_id) {
   if (bank_accounts[ba_id].references.length < 2) {
-    CRM.alert("{/literal}{ts}A bank account has to have at least one reference.{/ts}", "{ts}Failed{/ts}{literal}", "warning");
+    CRM.alert("{/literal}{ts domain='org.project60.banking'}A bank account has to have at least one reference.{/ts}", "{ts domain='org.project60.banking'}Failed{/ts}{literal}", "warning");
     return;
   }
 
@@ -240,18 +240,18 @@ function banking_deletereference(ba_id, ref_id) {
     CRM.api('BankingAccountReference', 'delete', {'q': 'civicrm/ajax/rest', 'sequential': 1, 'id': ref_id},
     {success: function(data) {
         if (data['is_error'] == 0) {
-          CRM.alert("{/literal}{ts}The bank account reference has been deleted{/ts}", "{ts}Success{/ts}{literal}", "success");
+          CRM.alert("{/literal}{ts domain='org.project60.banking'}The bank account reference has been deleted{/ts}", "{ts domain='org.project60.banking'}Success{/ts}{literal}", "success");
           var contentId = cj('#tab_bank_accounts').attr('aria-controls');
           cj('#' + contentId).load(CRM.url('civicrm/banking/accounts_tab', {'reset': 1, 'snippet': 1, 'force': 1, 'cid':{/literal}{$contact_id}{literal}}));
         }else{
-          CRM.alert("{/literal}" + data['error_message'], "{ts}Error{/ts}{literal}", "error");
+          CRM.alert("{/literal}" + data['error_message'], "{ts domain='org.project60.banking'}Error{/ts}{literal}", "error");
         }
       }
     }
   );
   },
   {
-    message: {/literal}"{ts}Are you sure you want to delete this bank account reference?{/ts}"{literal}
+    message: {/literal}"{ts domain='org.project60.banking'}Are you sure you want to delete this bank account reference?{/ts}"{literal}
   });
 }
 

@@ -58,7 +58,7 @@ class CRM_Banking_Matcher_Engine {
       $params = array('version' => 3, 'plugin_type_id' => $matcher_type_id, 'enabled' => 1);
       $result = civicrm_api('BankingPluginInstance', 'get', $params);
       if (isset($result['is_error']) && $result['is_error']) {
-        CRM_Core_Session::setStatus(ts("Error while trying to query database for matcher plugins!"), ts('No processors'), 'alert');
+        CRM_Core_Session::setStatus(ts("Error while trying to query database for matcher plugins!", array('domain' => 'org.project60.banking')), ts('No processors', array('domain' => 'org.project60.banking')), 'alert');
       } else {
         foreach ($result['values'] as $instance) {
           $pi_bao = new CRM_Banking_BAO_PluginInstance();
@@ -90,7 +90,7 @@ class CRM_Banking_Matcher_Engine {
       $params = array('version' => 3, 'plugin_type_id' => $postprocessor_type_id, 'enabled' => 1);
       $result = civicrm_api('BankingPluginInstance', 'get', $params);
       if (isset($result['is_error']) && $result['is_error']) {
-        CRM_Core_Session::setStatus(ts("Error while trying to query database for postprocessor plugins!"), ts('No processors'), 'alert');
+        CRM_Core_Session::setStatus(ts("Error while trying to query database for postprocessor plugins!", array('domain' => 'org.project60.banking')), ts('No processors', array('domain' => 'org.project60.banking')), 'alert');
       } else {
         foreach ($result['values'] as $instance) {
           $pi_bao = new CRM_Banking_BAO_PluginInstance();
@@ -154,7 +154,7 @@ class CRM_Banking_Matcher_Engine {
     // run through the list of matchers
     $all_matchers = $this->getMatchers();
     if (empty($all_matchers)) {
-      CRM_Core_Session::setStatus(ts("No matcher plugins configured!"), ts('No processors'), 'alert');
+      CRM_Core_Session::setStatus(ts("No matcher plugins configured!", array('domain' => 'org.project60.banking')), ts('No processors', array('domain' => 'org.project60.banking')), 'alert');
     } else {
       foreach ($all_matchers as $weight => $matchers) {
         foreach ($matchers as $matcher) {

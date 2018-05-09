@@ -28,31 +28,31 @@ class CRM_Admin_Form_Setting_BankingSettings extends CRM_Core_Form {
 
     // add Menu Switch
     $menu_position_options = array(
-      0 => ts("In Main Menu"),
-      1 => ts("In Contribution Menu"),
-      2 => ts("No Menu"));
+      0 => ts("In Main Menu", array('domain' => 'org.project60.banking')),
+      1 => ts("In Contribution Menu", array('domain' => 'org.project60.banking')),
+      2 => ts("No Menu", array('domain' => 'org.project60.banking')));
 
     $menu_position = $this->add(
       'select',
       'menu_position',
-      ts('CiviBanking Menu Position'),
+      ts('CiviBanking Menu Position', array('domain' => 'org.project60.banking')),
       $menu_position_options,
       false // is not required
     );
 
     // add JSON editor mode
     $json_editor_mode = array(
-      'view' => ts("Tree View"),
-      'text' => ts("Simple Text"),
-      'code' => ts("JSON Code"),
-      'tree' => ts("Tree Editor"),
-      'form' => ts("Form Editor"),
+      'view' => ts("Tree View", array('domain' => 'org.project60.banking')),
+      'text' => ts("Simple Text", array('domain' => 'org.project60.banking')),
+      'code' => ts("JSON Code", array('domain' => 'org.project60.banking')),
+      'tree' => ts("Tree Editor", array('domain' => 'org.project60.banking')),
+      'form' => ts("Form Editor", array('domain' => 'org.project60.banking')),
     );
 
     $json_editor_mode = $this->add(
       'select',
       'json_editor_mode',
-      ts('Configuration Editor Default Mode'),
+      ts('Configuration Editor Default Mode', array('domain' => 'org.project60.banking')),
       $json_editor_mode,
       TRUE
     );
@@ -61,14 +61,14 @@ class CRM_Admin_Form_Setting_BankingSettings extends CRM_Core_Form {
     $log_level = $this->add(
       'select',
       'banking_log_level',
-      ts('Log Level'),
+      ts('Log Level', array('domain' => 'org.project60.banking')),
       CRM_Banking_Helpers_Logger::getLoglevels()
     );
 
     $log_file = $this->add(
       'text',
       'banking_log_file',
-      ts('Log File'),
+      ts('Log File', array('domain' => 'org.project60.banking')),
       "TEST"
     );
 
@@ -76,35 +76,35 @@ class CRM_Admin_Form_Setting_BankingSettings extends CRM_Core_Form {
     $this->addElement(
       'checkbox',
       'reference_store_disabled',
-      ts("Don't store bank accounts automatically"),
+      ts("Don't store bank accounts automatically", array('domain' => 'org.project60.banking')),
       '');
 
     // normalise bank account references?
     $this->addElement(
       'checkbox',
       'reference_normalisation',
-      ts('Normalise bank account references'),
+      ts('Normalise bank account references', array('domain' => 'org.project60.banking')),
       '');
 
     // validate bank account references?
     $this->addElement(
       'checkbox',
       'reference_validation',
-      ts('Validate bank account references'),
+      ts('Validate bank account references', array('domain' => 'org.project60.banking')),
       '');
 
     // validate bank account references?
     $this->addElement(
       'checkbox',
       'lenient_dedupe',
-      ts('Lenient bank account dedupe'),
+      ts('Lenient bank account dedupe', array('domain' => 'org.project60.banking')),
       '');
 
 
     $this->addButtons(array(
       array(
         'type' => 'submit',
-        'name' => ts("Save"),
+        'name' => ts("Save", array('domain' => 'org.project60.banking')),
         'isDefault' => TRUE,
       ),
     ));

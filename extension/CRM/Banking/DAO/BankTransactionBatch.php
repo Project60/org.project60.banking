@@ -161,13 +161,13 @@ class CRM_Banking_DAO_BankTransactionBatch extends CRM_Core_DAO
         'issue_date' => array(
           'name' => 'issue_date',
           'type' => CRM_Utils_Type::T_DATE + CRM_Utils_Type::T_TIME,
-          'title' => ts('Issue date') ,
+          'title' => ts('Issue date', array('domain' => 'org.project60.banking')),
           'required' => true,
         ) ,
         'reference' => array(
           'name' => 'reference',
           'type' => CRM_Utils_Type::T_STRING,
-          'title' => ts('Statement Reference') ,
+          'title' => ts('Statement Reference', array('domain' => 'org.project60.banking')),
           'required' => true,
           'maxlength' => 64,
           'size' => CRM_Utils_Type::BIG,
@@ -179,18 +179,18 @@ class CRM_Banking_DAO_BankTransactionBatch extends CRM_Core_DAO
         'sequence' => array(
           'name' => 'sequence',
           'type' => CRM_Utils_Type::T_INT,
-          'title' => ts('Bank Statement sequence') ,
+          'title' => ts('Bank Statement sequence', array('domain' => 'org.project60.banking')),
           'required' => true,
         ) ,
         'starting_balance' => array(
           'name' => 'starting_balance',
           'type' => CRM_Utils_Type::T_MONEY,
-          'title' => ts('Starting Balance') ,
+          'title' => ts('Starting Balance', array('domain' => 'org.project60.banking')),
         ) ,
         'ending_balance' => array(
           'name' => 'ending_balance',
           'type' => CRM_Utils_Type::T_MONEY,
-          'title' => ts('Ending Balance') ,
+          'title' => ts('Ending Balance', array('domain' => 'org.project60.banking')),
         ) ,
         'currency' => array(
           'name' => 'currency',
@@ -202,18 +202,18 @@ class CRM_Banking_DAO_BankTransactionBatch extends CRM_Core_DAO
         'tx_count' => array(
           'name' => 'tx_count',
           'type' => CRM_Utils_Type::T_INT,
-          'title' => ts('Transaction Count') ,
+          'title' => ts('Transaction Count', array('domain' => 'org.project60.banking')),
           'required' => true,
         ) ,
         'starting_date' => array(
           'name' => 'starting_date',
           'type' => CRM_Utils_Type::T_DATE + CRM_Utils_Type::T_TIME,
-          'title' => ts('Start date') ,
+          'title' => ts('Start date', array('domain' => 'org.project60.banking')),
         ) ,
         'ending_date' => array(
           'name' => 'ending_date',
           'type' => CRM_Utils_Type::T_DATE + CRM_Utils_Type::T_TIME,
-          'title' => ts('End date') ,
+          'title' => ts('End date', array('domain' => 'org.project60.banking')),
         ) ,
       );
     }

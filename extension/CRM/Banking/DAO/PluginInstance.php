@@ -158,50 +158,50 @@ class CRM_Banking_DAO_PluginInstance extends CRM_Core_DAO
         'plugin_type_id' => array(
           'name' => 'plugin_type_id',
           'type' => CRM_Utils_Type::T_INT,
-          'title' => ts('Plugin type') ,
+          'title' => ts('Plugin type', array('domain' => 'org.project60.banking')),
           'required' => true,
         ) ,
         'plugin_class_id' => array(
           'name' => 'plugin_class_id',
           'type' => CRM_Utils_Type::T_INT,
-          'title' => ts('Plugin class name') ,
+          'title' => ts('Plugin class name', array('domain' => 'org.project60.banking')),
           'required' => true,
         ) ,
         'name' => array(
           'name' => 'name',
           'type' => CRM_Utils_Type::T_STRING,
-          'title' => ts('Name') ,
+          'title' => ts('Name', array('domain' => 'org.project60.banking')),
           'maxlength' => 255,
           'size' => CRM_Utils_Type::HUGE,
         ) ,
         'description' => array(
           'name' => 'description',
           'type' => CRM_Utils_Type::T_TEXT,
-          'title' => ts('Description') ,
+          'title' => ts('Description', array('domain' => 'org.project60.banking')),
         ) ,
         'enabled' => array(
           'name' => 'enabled',
           'type' => CRM_Utils_Type::T_BOOLEAN,
-          'title' => ts('Enabled') ,
+          'title' => ts('Enabled', array('domain' => 'org.project60.banking')),
           'required' => true,
           'default' => '',
         ) ,
         'weight' => array(
           'name' => 'weight',
           'type' => CRM_Utils_Type::T_FLOAT,
-          'title' => ts('Weight') ,
+          'title' => ts('Weight', array('domain' => 'org.project60.banking')),
           'required' => true,
           'default' => '00.',
         ) ,
         'config' => array(
           'name' => 'config',
           'type' => CRM_Utils_Type::T_TEXT,
-          'title' => ts('Config') ,
+          'title' => ts('Config', array('domain' => 'org.project60.banking')),
         ) ,
         'state' => array(
           'name' => 'state',
           'type' => CRM_Utils_Type::T_TEXT,
-          'title' => ts('State') ,
+          'title' => ts('State', array('domain' => 'org.project60.banking')),
         ) ,
       );
     }

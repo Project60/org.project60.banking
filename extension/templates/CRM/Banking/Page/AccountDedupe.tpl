@@ -13,19 +13,19 @@
 | written permission from the original author(s).        |
 +--------------------------------------------------------*}
 
-<div>{ts}This page finds and lists duplicate or conflicting bank account information.{/ts}</div>
+<div>{ts domain='org.project60.banking'}This page finds and lists duplicate or conflicting bank account information.{/ts}</div>
 
 <br/>
-<h3>{ts}Duplicate References{/ts} ({$duplicate_references_count})</h3>
+<h3>{ts domain='org.project60.banking'}Duplicate References{/ts} ({$duplicate_references_count})</h3>
 {if $duplicate_references_count}
-<div>{ts}These are identical account references (e.g. account numbers) that point to the same bank account. The duplicates can be removed safely.{/ts}</div>
+<div>{ts domain='org.project60.banking'}These are identical account references (e.g. account numbers) that point to the same bank account. The duplicates can be removed safely.{/ts}</div>
 <table>
 	<thead>
 		<th></th>
 		<th></th>
-		<th>{ts}Bank Account Owners{/ts}</th>
-		<th>{ts}Count{/ts}</th>
-		<th>{ts}Account Reference{/ts}</th>
+		<th>{ts domain='org.project60.banking'}Bank Account Owners{/ts}</th>
+		<th>{ts domain='org.project60.banking'}Count{/ts}</th>
+		<th>{ts domain='org.project60.banking'}Account Reference{/ts}</th>
 	</thead>
 	<tbody>
 {foreach from=$duplicate_references item=duplicate}
@@ -34,7 +34,7 @@
 			<td>
 				{assign var=duplicate_reference value=$duplicate.reference_id}
 				<a class="button" href="{crmURL p="civicrm/banking/dedupe" q="fixref=$duplicate_reference"}">
-  				<span align="right"><div class="icon delete-icon ui-icon-trash"></div>{ts}fix{/ts}</span>
+  				<span align="right"><div class="icon delete-icon ui-icon-trash"></div>{ts domain='org.project60.banking'}fix{/ts}</span>
   			</a>
 			</td>
 			<td>
@@ -55,7 +55,7 @@
 		<tr>
 			<td>
 				<a class="button" href="{crmURL p="civicrm/banking/dedupe" q="fixref=all"}">
-					<span align="right"><div class="icon delete-icon ui-icon-trash"></div>{ts}fix all{/ts}</span>
+					<span align="right"><div class="icon delete-icon ui-icon-trash"></div>{ts domain='org.project60.banking'}fix all{/ts}</span>
 				</a>
 			</td>
 			<td></td>
@@ -65,22 +65,22 @@
 </table>
 
 {else}
-<div>{ts}No duplicate references found.{/ts}</div>
+<div>{ts domain='org.project60.banking'}No duplicate references found.{/ts}</div>
 {/if}
 
 
 
 <br/><br/>
-<h3>{ts}Duplicate Bank Accounts{/ts} ({$duplicate_accounts_count})</h3>
+<h3>{ts domain='org.project60.banking'}Duplicate Bank Accounts{/ts} ({$duplicate_accounts_count})</h3>
 {if $duplicate_accounts_count}
-<div>{ts}These are duplicate bank accounts listed for the <i>same</i> contact. In most cases, the bank accounts can be merged automatically.{/ts}</div>
+<div>{ts domain='org.project60.banking'}These are duplicate bank accounts listed for the <i>same</i> contact. In most cases, the bank accounts can be merged automatically.{/ts}</div>
 <table>
 	<thead>
 		<th></th>
 		<th></th>
-		<th>{ts}Bank Account Owners{/ts}</th>
-		<th>{ts}Count{/ts}</th>
-		<th>{ts}Account Reference{/ts}</th>
+		<th>{ts domain='org.project60.banking'}Bank Account Owners{/ts}</th>
+		<th>{ts domain='org.project60.banking'}Count{/ts}</th>
+		<th>{ts domain='org.project60.banking'}Account Reference{/ts}</th>
 	</thead>
 	<tbody>
 {foreach from=$duplicate_accounts item=duplicate}
@@ -89,7 +89,7 @@
 			<td>
 				{assign var=duplicate_reference value=$duplicate.reference_id}
 				<a class="button" href="{crmURL p="civicrm/banking/dedupe" q="fixdupe=$duplicate_reference"}">
-  				<span align="right"><div class="icon delete-icon ui-icon-trash"></div>{ts}fix{/ts}</span>
+  				<span align="right"><div class="icon delete-icon ui-icon-trash"></div>{ts domain='org.project60.banking'}fix{/ts}</span>
   			</a>
 			</td>
 			<td>
@@ -110,7 +110,7 @@
 		<tr>
 			<td>
 				<a class="button" href="{crmURL p="civicrm/banking/dedupe" q="fixdupe=all"}">
-					<span align="right"><div class="icon delete-icon ui-icon-trash"></div>{ts}fix all{/ts}</span>
+					<span align="right"><div class="icon delete-icon ui-icon-trash"></div>{ts domain='org.project60.banking'}fix all{/ts}</span>
 				</a>
 			</td>
 			<td></td>
@@ -120,21 +120,21 @@
 </table>
 
 {else}
-<div>{ts}No duplicate accounts found.{/ts}</div>
+<div>{ts domain='org.project60.banking'}No duplicate accounts found.{/ts}</div>
 {/if}
 
 
 
 
 <br/><br/>
-<h3>{ts}Bank Account Ownership Conflicts{/ts} ({$account_conflicts_count})</h3>
+<h3>{ts domain='org.project60.banking'}Bank Account Ownership Conflicts{/ts} ({$account_conflicts_count})</h3>
 {if $account_conflicts_count}
-<div>{ts}These are duplicate bank accounts listed for <i>different</i> contacts. Those that are not intended to be "shared" need to be resolved manually - sorry.{/ts}</div>
+<div>{ts domain='org.project60.banking'}These are duplicate bank accounts listed for <i>different</i> contacts. Those that are not intended to be "shared" need to be resolved manually - sorry.{/ts}</div>
 <table>
 	<thead>
 		<th></th>
-		<th>{ts}Bank Account Owners{/ts}</th>
-		<th>{ts}Account Reference{/ts}</th>
+		<th>{ts domain='org.project60.banking'}Bank Account Owners{/ts}</th>
+		<th>{ts domain='org.project60.banking'}Account Reference{/ts}</th>
 		<th></th>
 	</thead>
 	<tbody>
@@ -161,13 +161,13 @@
 			<td>
 				{if $duplicate.merge_link}
 				<a class="button" href="{$duplicate.merge_link}">
-  				<span align="right"><div class="icon ui-icon-check"></div>{ts}merge{/ts}</span>
+  				<span align="right"><div class="icon ui-icon-check"></div>{ts domain='org.project60.banking'}merge{/ts}</span>
   			</a>
   			{/if}
   			<br/>
 				{if $duplicate.exclude_link}
 				<a class="button" href="{$duplicate.exclude_link}">
-  				<span align="right"><div class="icon ui-icon-close"></div>{ts}exclude{/ts}</span>
+  				<span align="right"><div class="icon ui-icon-close"></div>{ts domain='org.project60.banking'}exclude{/ts}</span>
   			</a>
   			<br/>
   			{/if}
@@ -179,5 +179,5 @@
 </table>
 
 {else}
-<div>{ts}No conflicting bank accounts found.{/ts}</div>
+<div>{ts domain='org.project60.banking'}No conflicting bank accounts found.{/ts}</div>
 {/if}

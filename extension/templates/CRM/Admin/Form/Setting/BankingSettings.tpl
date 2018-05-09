@@ -13,7 +13,7 @@
 | written permission from the original author(s).        |
 +--------------------------------------------------------*}
 
-<h3>{ts}General Settings{/ts}</h3>
+<h3>{ts domain='org.project60.banking'}General Settings{/ts}</h3>
 
 <div class="crm-section">
   <div class="label">{$form.menu_position.label}</div>
@@ -40,7 +40,7 @@
 </div>
 
 <br/>
-<h3>{ts}Bank Account Settings{/ts}</h3>
+<h3>{ts domain='org.project60.banking'}Bank Account Settings{/ts}</h3>
 
 <div class="crm-section">
   <div class="label">{$form.reference_store_disabled.label}</div>

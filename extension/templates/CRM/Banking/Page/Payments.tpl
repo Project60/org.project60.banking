@@ -30,21 +30,21 @@
 
 <div>
 <a class="button" href="{$url_show_payments_new}">
-  <span style="{$button_style_new}"><div class="icon inform-icon"></div>{ts}New{/ts} ({$count_new})</span>
+  <span style="{$button_style_new}"><div class="icon inform-icon"></div>{ts domain='org.project60.banking'}New{/ts} ({$count_new})</span>
 </a>
 <a class="button" href="{$url_show_payments_analysed}">
-  <span style="{$button_style_analysed}"><div class="icon inform-icon"></div>{ts}Analysed{/ts} ({$count_analysed})</span>
+  <span style="{$button_style_analysed}"><div class="icon inform-icon"></div>{ts domain='org.project60.banking'}Analysed{/ts} ({$count_analysed})</span>
 </a>
 <a class="button" href="{$url_show_payments_completed}">
-  <span style="{$button_style_completed}"><div class="icon inform-icon"></div>{ts}Completed{/ts} ({$count_completed})</span>
+  <span style="{$button_style_completed}"><div class="icon inform-icon"></div>{ts domain='org.project60.banking'}Completed{/ts} ({$count_completed})</span>
 </a>
 {if $show == 'payments'}
   <a class="button" href="{$url_show_statements}" style="float: right;">
-    <span><div class="icon details-icon ui-icon-circle-arrow-e"></div>{ts}Show Statements{/ts}</span>
+    <span><div class="icon details-icon ui-icon-circle-arrow-e"></div>{ts domain='org.project60.banking'}Show Statements{/ts}</span>
   </a>
 {else}
   <a class="button" onClick="callWithSelected('{$url_show_payments}', true)" style="float: right;">
-    <span><div class="icon details-icon ui-icon-circle-arrow-e"></div>{ts}Show Transactions{/ts}</span>
+    <span><div class="icon details-icon ui-icon-circle-arrow-e"></div>{ts domain='org.project60.banking'}Show Transactions{/ts}</span>
   </a>
 {/if}
 </div>
@@ -52,25 +52,25 @@
 <h3>Status: {$status_message}</h3>
 
 <form action="" method="post">
-  {ts}Showing statements for{/ts}
+  {ts domain='org.project60.banking'}Showing statements for{/ts}
   <select name="target_ba_id">
-    <option value="">{ts}all accounts{/ts}</option>
+    <option value="">{ts domain='org.project60.banking'}all accounts{/ts}</option>
     {foreach from=$target_accounts item=ba_name key=ba_id}
       <option value="{$ba_id}" {if $ba_id == $target_ba_id}selected="selected"{/if}>{$ba_name}</option>
     {/foreach}
   </select>
-  <button type="submit">{ts}Filter{/ts}</button>
+  <button type="submit">{ts domain='org.project60.banking'}Filter{/ts}</button>
 </form>
 <br/>
 
 {if not $rows}    {* NO ROWS FOUND *}
   {if $show=='payments'}
     <div id="help" class="description">
-      {ts}No transactions could be found with the requested status. Try the other status filter buttons above to find your imported payments.{/ts}
+      {ts domain='org.project60.banking'}No transactions could be found with the requested status. Try the other status filter buttons above to find your imported payments.{/ts}
     </div>
   {else}
     <div id="help" class="description">
-      {ts}No statments could be found with the requested status. Try the other status filter buttons above to find your imported statements.{/ts}
+      {ts domain='org.project60.banking'}No statments could be found with the requested status. Try the other status filter buttons above to find your imported statements.{/ts}
     </div>
   {/if}
 {else}            {* ROWS FOUND -> CREATE TABLE *}
@@ -83,22 +83,22 @@
 			<div class="DataTables_sort_wrapper"><input type="checkbox" id="banking_selector"><span class="DataTables_sort_icon"></span></div>
 		</th>
 		<th colspan="1" rowspan="1" class="crm-banking-payment_date ui-state-default">
-			<div class="DataTables_sort_wrapper">{ts}Date{/ts}<!--span class="DataTables_sort_icon css_right ui-icon ui-icon-carat-2-n-s"></span--></div>
+			<div class="DataTables_sort_wrapper">{ts domain='org.project60.banking'}Date{/ts}<!--span class="DataTables_sort_icon css_right ui-icon ui-icon-carat-2-n-s"></span--></div>
 		</th>
 		<th colspan="1" rowspan="1" class="crm-banking-payment_target_owner ui-state-default">
-			<div class="DataTables_sort_wrapper">{ts}Account{/ts}<!--span class="DataTables_sort_icon css_right ui-icon ui-icon-carat-2-n-s"></span--></div>
+			<div class="DataTables_sort_wrapper">{ts domain='org.project60.banking'}Account{/ts}<!--span class="DataTables_sort_icon css_right ui-icon ui-icon-carat-2-n-s"></span--></div>
 		</th>
 		<th colspan="1" rowspan="1" class="crm-banking-payment_target_owner ui-state-default">
 			<div class="DataTables_sort_wrapper">#<!--span class="DataTables_sort_icon css_right ui-icon ui-icon-carat-2-n-s"></span--></div>
 		</th>
 		<th colspan="1" rowspan="1" class="crm-banking-payment_amount ui-state-default">
-			<div class="DataTables_sort_wrapper">{ts}Amount{/ts}<!--span class="DataTables_sort_icon css_right ui-icon ui-icon-carat-2-n-s"></span--></div>
+			<div class="DataTables_sort_wrapper">{ts domain='org.project60.banking'}Amount{/ts}<!--span class="DataTables_sort_icon css_right ui-icon ui-icon-carat-2-n-s"></span--></div>
 		</th>
 		<th colspan="1" rowspan="1" class="crm-banking-payment_source_account nosort ui-state-default">
-			<div class="DataTables_sort_wrapper">{ts}Party{/ts}<!--span class="DataTables_sort_icon css_right ui-icon ui-icon-carat-2-n-s"></span--></div>
+			<div class="DataTables_sort_wrapper">{ts domain='org.project60.banking'}Party{/ts}<!--span class="DataTables_sort_icon css_right ui-icon ui-icon-carat-2-n-s"></span--></div>
 		</th>
 		<th colspan="1" rowspan="1" class="ccrm-banking-payment_state ui-state-default">
-			<div class="DataTables_sort_wrapper">{ts}Status{/ts}<!--span class="DataTables_sort_icon css_right ui-icon ui-icon-carat-2-n-s"></span--></div>
+			<div class="DataTables_sort_wrapper">{ts domain='org.project60.banking'}Status{/ts}<!--span class="DataTables_sort_icon css_right ui-icon ui-icon-carat-2-n-s"></span--></div>
 		</th>
     <th colspan="1" rowspan="1" class="ui-state-default">
       <div class="DataTables_sort_wrapper"><span></span></div>
@@ -130,7 +130,7 @@
     <td class="status_{$field.state}">
       {$field.state}
     </td>
-    <td class=""><a href="{$field.url_link}">{ts}view{/ts}</a></td>
+    <td class=""><a href="{$field.url_link}">{ts domain='org.project60.banking'}view{/ts}</a></td>
     <td class="hiddenElement">status-overdue</td>
   </tr>
   {/foreach}
@@ -143,22 +143,22 @@
       <div class="DataTables_sort_wrapper"><input type="checkbox" id="banking_selector"><span class="DataTables_sort_icon"></span></div>
     </th>
     <th colspan="1" rowspan="1" class="crm-banking-payment_date ui-state-default">
-      <div class="DataTables_sort_wrapper">{ts}Date{/ts}<!--span class="DataTables_sort_icon css_right ui-icon ui-icon-carat-2-n-s"></span--></div>
+      <div class="DataTables_sort_wrapper">{ts domain='org.project60.banking'}Date{/ts}<!--span class="DataTables_sort_icon css_right ui-icon ui-icon-carat-2-n-s"></span--></div>
     </th>
     <th colspan="1" rowspan="1" class="ccrm-banking-payment_target_account nosort ui-state-default">
-      <div class="DataTables_sort_wrapper">{ts}Target Account{/ts}<!--span class="DataTables_sort_icon css_right ui-icon ui-icon-carat-2-n-s"></span--></div>
+      <div class="DataTables_sort_wrapper">{ts domain='org.project60.banking'}Target Account{/ts}<!--span class="DataTables_sort_icon css_right ui-icon ui-icon-carat-2-n-s"></span--></div>
     </th>
     <th colspan="1" rowspan="1" class="crm-banking-payment_date ui-state-default">
-      <div class="DataTables_sort_wrapper">{ts}Statement{/ts}<!--span class="DataTables_sort_icon css_right ui-icon ui-icon-carat-2-n-s"></span--></div>
+      <div class="DataTables_sort_wrapper">{ts domain='org.project60.banking'}Statement{/ts}<!--span class="DataTables_sort_icon css_right ui-icon ui-icon-carat-2-n-s"></span--></div>
     </th>
     <th colspan="1" rowspan="1" class="crm-banking-payment_amount ui-state-default">
-      <div class="DataTables_sort_wrapper">{ts}Transaction count{/ts}<!--span class="DataTables_sort_icon css_right ui-icon ui-icon-carat-2-n-s"></span--></div>
+      <div class="DataTables_sort_wrapper">{ts domain='org.project60.banking'}Transaction count{/ts}<!--span class="DataTables_sort_icon css_right ui-icon ui-icon-carat-2-n-s"></span--></div>
     </th>
     <th colspan="1" rowspan="1" class="crm-banking-payment_source_account nosort ui-state-default">
-      <div class="DataTables_sort_wrapper">{ts}Analysed{/ts}<!--span class="DataTables_sort_icon css_right ui-icon ui-icon-carat-2-n-s"></span--></div>
+      <div class="DataTables_sort_wrapper">{ts domain='org.project60.banking'}Analysed{/ts}<!--span class="DataTables_sort_icon css_right ui-icon ui-icon-carat-2-n-s"></span--></div>
     </th>
     <th colspan="1" rowspan="1" class="crm-banking-payment_source_account nosort ui-state-default">
-      <div class="DataTables_sort_wrapper">{ts}Completed{/ts}<!--span class="DataTables_sort_icon css_right ui-icon ui-icon-carat-2-n-s"></span--></div>
+      <div class="DataTables_sort_wrapper">{ts domain='org.project60.banking'}Completed{/ts}<!--span class="DataTables_sort_icon css_right ui-icon ui-icon-carat-2-n-s"></span--></div>
     </th>
     <th colspan="1" rowspan="1" class="hiddenElement ui-state-default">
       <div class="DataTables_sort_wrapper">&nbsp;<!--span class="DataTables_sort_icon"></span--></div>
@@ -191,14 +191,14 @@
 </table>
 {/if}            {* ENDIF: ROWS FOUND -> CREATE TABLE *}
 
-<p>{ts}With selected items perform:{/ts}<br/>
-<a id="reviewButton"  class="button" onClick="callWithSelected('{$url_review_selected_payments}', false)" ><span>{ts}Review{/ts}</span></a>
-<a id="processButton" class="button" onClick="processSelected()"><span>{ts}Process{/ts}</span></a>
+<p>{ts domain='org.project60.banking'}With selected items perform:{/ts}<br/>
+<a id="reviewButton"  class="button" onClick="callWithSelected('{$url_review_selected_payments}', false)" ><span>{ts domain='org.project60.banking'}Review{/ts}</span></a>
+<a id="processButton" class="button" onClick="processSelected()"><span>{ts domain='org.project60.banking'}Process{/ts}</span></a>
 {if $show == 'statements'}
-<a id="listButton" class="button" onClick="callWithSelected('{$url_show_payments}', true)"><span>{ts}List Lines{/ts}</span></a>
+<a id="listButton" class="button" onClick="callWithSelected('{$url_show_payments}', true)"><span>{ts domain='org.project60.banking'}List Lines{/ts}</span></a>
 {/if}
-<a id="exportButton"  class="button" onClick="callWithSelected('{$url_export_selected_payments}', false)"><span>{ts}Export{/ts}</span></a>
-<a id="deleteButton"  class="button {if not $can_delete}disabled{/if}" onClick="deleteSelected()"><span>{ts}Delete{/ts}</span></a>
+<a id="exportButton"  class="button" onClick="callWithSelected('{$url_export_selected_payments}', false)"><span>{ts domain='org.project60.banking'}Export{/ts}</span></a>
+<a id="deleteButton"  class="button {if not $can_delete}disabled{/if}" onClick="deleteSelected()"><span>{ts domain='org.project60.banking'}Delete{/ts}</span></a>
 </p>
 
 
@@ -235,7 +235,7 @@ function callWithSelected(url, forced) {
     location.href = url.replace("__selected__", selected);
   } else {
     {/literal}
-    var message = "{ts}Please select one or more items{/ts}";
+    var message = "{ts domain='org.project60.banking'}Please select one or more items{/ts}";
     {literal}
     window.alert(message);
   }
@@ -281,7 +281,7 @@ function processSelected() {
           if (!data.values.timed_out) {
             // perfectly normal result, notify user
             {/literal}
-            var message = "{ts}_1 payments have been processed successfully, _2 had already been completed. The processing took _3s.{/ts}";
+            var message = "{ts domain='org.project60.banking'}_1 payments have been processed successfully, _2 had already been completed. The processing took _3s.{/ts}";
             {literal}
             message = message.replace('_1', data.values.processed_count);
             message = message.replace('_2', data.values.skipped_count);
@@ -292,11 +292,11 @@ function processSelected() {
           } else {
             // this is a time out
             {/literal}
-            var message = "{ts}<p>_1 out of _2 payments have not been processed!</p><p>If you need to process large amounts of payments manually, please adjust PHPs <code>max_execution_time</code>.</p>{/ts}";
+            var message = "{ts domain='org.project60.banking'}<p>_1 out of _2 payments have not been processed!</p><p>If you need to process large amounts of payments manually, please adjust PHPs <code>max_execution_time</code>.</p>{/ts}";
             {literal}
             message = message.replace('_1', data.values.payment_count-data.values.processed_count);
             message = message.replace('_2', data.values.payment_count);
-            cj('<div title="{/literal}{ts}Process timed out{/ts}{literal}"><span class="ui-icon ui-icon-alert" style="float:left;"></span>' + message + '</div>').dialog({
+            cj('<div title="{/literal}{ts domain='org.project60.banking'}Process timed out{/ts}{literal}"><span class="ui-icon ui-icon-alert" style="float:left;"></span>' + message + '</div>').dialog({
               modal: true,
               buttons: {
                 Ok: function() { location.reload(); }
@@ -304,7 +304,7 @@ function processSelected() {
             });
           }
         } else {
-          cj('<div title="{/literal}{ts}Error{/ts}{literal}"><span class="ui-icon ui-icon-alert" style="float:left;"></span>' + data['error_message'] + '</div>').dialog({
+          cj('<div title="{/literal}{ts domain='org.project60.banking'}Error{/ts}{literal}"><span class="ui-icon ui-icon-alert" style="float:left;"></span>' + data['error_message'] + '</div>').dialog({
             modal: true,
             buttons: {
               Ok: function() { location.reload(); }
@@ -341,14 +341,14 @@ function deleteSelected() {
           if (!data['is_error']) {
             // perfectly normal result, notify user
             {/literal}
-            var message = "{ts}_1 payments in _2 statements have been deleted.{/ts}";
+            var message = "{ts domain='org.project60.banking'}_1 payments in _2 statements have been deleted.{/ts}";
             {literal}
             message = message.replace('_1', data.values.tx_count);
             message = message.replace('_2', data.values.tx_batch_count);
             CRM.alert(message, "info");
             window.setTimeout("location.reload()", 1500);
           } else {
-            cj('<div title="{/literal}{ts}Error{/ts}{literal}"><span class="ui-icon ui-icon-alert" style="float:left;"></span>' + data['error_message'] + '</div>').dialog({
+            cj('<div title="{/literal}{ts domain='org.project60.banking'}Error{/ts}{literal}"><span class="ui-icon ui-icon-alert" style="float:left;"></span>' + data['error_message'] + '</div>').dialog({
               modal: true,
               buttons: {
                 Ok: function() { location.reload(); }
@@ -360,8 +360,8 @@ function deleteSelected() {
     );
   },
   {
-    title: {/literal}"{ts}Are you sure?{/ts}"{literal},
-    message: {/literal}"{ts}Do you really want to permanently delete the selected items?{/ts}"{literal}
+    title: {/literal}"{ts domain='org.project60.banking'}Are you sure?{/ts}"{literal},
+    message: {/literal}"{ts domain='org.project60.banking'}Do you really want to permanently delete the selected items?{/ts}"{literal}
   });
 }
 </script>

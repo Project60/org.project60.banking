@@ -13,21 +13,21 @@
 | written permission from the original author(s).        |
 +--------------------------------------------------------*}
 
-{ts}The following address was received from a bank statment:{/ts}
+{ts domain='org.project60.banking'}The following address was received from a bank statment:{/ts}
 
-{ts}Street Address{/ts}: {$address_data.street_address}
-{if $address_data.supplemental_address_1}{ts}Supplemental Address 1{/ts}: {$address_data.supplemental_address_1}{/if}
-{if $address_data.supplemental_address_2}{ts}Supplemental Address 2{/ts}: {$address_data.supplemental_address_2}{/if}
-{ts}Postal Code{/ts}: {$address_data.postal_code}
-{ts}City{/ts}: {$address_data.city}
-{ts}Country{/ts}: {$address_data.country}
+{ts domain='org.project60.banking'}Street Address{/ts}: {$address_data.street_address}
+{if $address_data.supplemental_address_1}{ts domain='org.project60.banking'}Supplemental Address 1{/ts}: {$address_data.supplemental_address_1}{/if}
+{if $address_data.supplemental_address_2}{ts domain='org.project60.banking'}Supplemental Address 2{/ts}: {$address_data.supplemental_address_2}{/if}
+{ts domain='org.project60.banking'}Postal Code{/ts}: {$address_data.postal_code}
+{ts domain='org.project60.banking'}City{/ts}: {$address_data.city}
+{ts domain='org.project60.banking'}Country{/ts}: {$address_data.country}
 
 
-{ts}Which differs from the existing one:{/ts}
+{ts domain='org.project60.banking'}Which differs from the existing one:{/ts}
 
-{ts}Street Address{/ts}: {$existing_address.street_address}
-{if $existing_address.supplemental_address_1}{ts}Supplemental Address 1{/ts}: {$existing_address.supplemental_address_1}{/if}
-{if $existing_address.supplemental_address_2}{ts}Supplemental Address 2{/ts}: {$existing_address.supplemental_address_2}{/if}
-{ts}Postal Code{/ts}: {$existing_address.postal_code}
-{ts}City{/ts}: {$existing_address.city}
-{ts}Country{/ts}: {$existing_address.country}
+{ts domain='org.project60.banking'}Street Address{/ts}: {$existing_address.street_address}
+{if $existing_address.supplemental_address_1}{ts domain='org.project60.banking'}Supplemental Address 1{/ts}: {$existing_address.supplemental_address_1}{/if}
+{if $existing_address.supplemental_address_2}{ts domain='org.project60.banking'}Supplemental Address 2{/ts}: {$existing_address.supplemental_address_2}{/if}
+{ts domain='org.project60.banking'}Postal Code{/ts}: {$existing_address.postal_code}
+{ts domain='org.project60.banking'}City{/ts}: {$existing_address.city}
+{ts domain='org.project60.banking'}Country{/ts}: {$existing_address.country}

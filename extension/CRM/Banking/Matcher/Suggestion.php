@@ -202,7 +202,7 @@ class CRM_Banking_Matcher_Suggestion {
         if (!banking_helper_tx_status_closed($btx->status_id)) {
             // perform execute
             $result = $this->_plugin->execute($this, $btx);
-            if ($result && ($result != 're-run')) {
+            if ($result && ($result !== 're-run')) {
                 $engine = CRM_Banking_Matcher_Engine::getInstance();
                 $engine->runPostProcessors($this, $btx, $this->_plugin);
             }

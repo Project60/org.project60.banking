@@ -156,6 +156,12 @@ function _banking_options() {
                   'description' => 'Marks a contact as "deceased"',
                   'is_default' => 0,
               ),
+              'postprocessor_recurring_fails' => array(
+                  'label' => 'Recurring Contribution Fails PostProcessor',
+                  'value' => 'CRM_Banking_PluginImpl_PostProcessor_RecurringFails',
+                  'description' => 'Processes contribution fails and cancellations for recurring contributions, including CiviSEPA DDs',
+                  'is_default' => 0,
+              ),
               'exporter_csv' => array(
                   'label' => 'Configurable CSV Exporter',
                   'value' => 'CRM_Banking_PluginImpl_Exporter_CSV',

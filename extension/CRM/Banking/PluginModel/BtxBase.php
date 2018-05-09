@@ -94,6 +94,9 @@ abstract class CRM_Banking_PluginModel_BtxBase extends CRM_Banking_PluginModel_B
                 $value = (int) $current_value;
                 if ($value >= 0) { continue 2; } else { return FALSE; }
 
+              case 'negative':
+                if (floatval($current_value) < 0) { continue 2; } else { return FALSE; }
+
               case 'numeric':
                 if (is_numeric($current_value)) { continue 2; } else { return FALSE; }
 

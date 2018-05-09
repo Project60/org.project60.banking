@@ -2,7 +2,7 @@
    "log_level": "debug",
    "plugin_type": "postprocessor_recurring_fails",
    "cancel_reason_field": "cancel_reason",
-   "recurring_contribution_pi_ids": [7,8],
+   "_recurring_contribution_pi_ids": [7,8],
    "contribution_success_status_ids": [1],
    "contribution_failed_status_ids": [3,4,7],
    "required_values": {
@@ -11,7 +11,7 @@
    },
    "rules": [
      {
-       "name": "Retry for certain RDNs",
+       "name": "Allow retry for certain RDNs",
        "comment": "No actions here imply that the contract/mandate isn't stopped.",
        "mandate_validated": true,
        "cancel_reason_matches": "#(AM04|MS03)#",
@@ -28,8 +28,9 @@
        "actions": [
          {
            "type": "api",
+           "entity": "Contract",
+           "action": "cancel",
            "params": {
-              "action": "cancel",
               "medium_id": "7",
               "note": "Triggered by CiviBanking"
            },

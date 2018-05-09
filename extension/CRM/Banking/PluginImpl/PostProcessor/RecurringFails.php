@@ -128,7 +128,7 @@ class CRM_Banking_PluginImpl_PostProcessor_RecurringFails extends CRM_Banking_Pl
     }
 
     if (!empty($rule->cancel_reason_matches)) {
-      if (!preg_match($rule->cancel_reason_matches, $$cancelled_contribution['cancel_reason'])) {
+      if (!preg_match($rule->cancel_reason_matches, $cancelled_contribution['cancel_reason'])) {
         $this->logMessage("Rule '{$rule->name}' not executed: cancel reason doesn't match.", 'debug');
         return FALSE;
       }
@@ -170,6 +170,8 @@ class CRM_Banking_PluginImpl_PostProcessor_RecurringFails extends CRM_Banking_Pl
    * @throws CiviCRM_API3_Exception
    */
   protected function executeRule($rule, $contribution, $mandate_stats, $context, $match) {
+    $this->logMessage("Execute rule '{$rule->name}'...", 'debug');
+
     if (!empty($rule->actions) && is_array($rule->actions)) {
       foreach ($rule->actions as $action) {
 
@@ -178,13 +180,13 @@ class CRM_Banking_PluginImpl_PostProcessor_RecurringFails extends CRM_Banking_Pl
 
           // compile call parameters
           $params = array();
-          foreach ($rule->params as $key => $value) {
+          foreach ($action->params as $key => $value) {
             if ($value !== NULL) {
               $params[$key] = $value;
             }
           }
 
-          foreach ($rule->param_propagation as $value_source => $value_key) {
+          foreach ($action->param_propagation as $value_source => $value_key) {
             $value = $this->getPropagationValue($context->btx, $match, $value_source);
             if ($value !== NULL) {
               $params[$value_key] = $value;
@@ -193,10 +195,10 @@ class CRM_Banking_PluginImpl_PostProcessor_RecurringFails extends CRM_Banking_Pl
 
           // call API
           try {
-            $this->logMessage("CALLING {rule->entity}.{$rule->action} with " . json_encode($params), 'debug');
-            civicrm_api3($rule->entity, $rule->action, $params);
+            $this->logMessage("CALLING {$action->entity}.{$action->action} with " . json_encode($params), 'debug');
+            civicrm_api3($action->entity, $action->action, $params);
           } catch(Exception $e) {
-            $this->logMessage("CALLING {$config->entity}.{$config->action} failed: " . $e->getMessage(), 'error');
+            $this->logMessage("CALLING {$action->entity}.{$action->action} failed: " . $e->getMessage(), 'error');
           }
 
 
@@ -251,7 +253,7 @@ class CRM_Banking_PluginImpl_PostProcessor_RecurringFails extends CRM_Banking_Pl
     $contribution_query = array(
         'id'           => array('IN' => $connected_contribution_ids),
         'option.limit' => 0,
-        'return'       => 'id,contribution_recur_id,payment_instrument_id,contact_id,contribution_status_id',
+        'return'       => 'id,contribution_recur_id,payment_instrument_id,contact_id,contribution_status_id,cancel_reason',
         'sequential'   => 1);
     if (!empty($config->recurring_contribution_pi_ids) && is_array($config->recurring_contribution_pi_ids)) {
       $contribution_query['payment_instrument_id'] = array('IN' => $config->recurring_contribution_pi_ids);
@@ -277,6 +279,7 @@ class CRM_Banking_PluginImpl_PostProcessor_RecurringFails extends CRM_Banking_Pl
    * @throws Exception
    */
   protected function getRecurringContributionStats($contribution) {
+    $config = $this->_plugin_config;
     $stats = array();
 
     if (!empty($contribution['contribution_recur_id'])) {
@@ -296,17 +299,17 @@ class CRM_Banking_PluginImpl_PostProcessor_RecurringFails extends CRM_Banking_Pl
 
       // run an SQL query to get the sequence from the recurring contribution
       $successful_status_ids = implode(',', $config->contribution_success_status_ids);
-      $failed_status_ids = implode(',', $config->$failed_status_ids);
-      $sequence_query = "
-        SELECT GROUP_CONCAT(IF(c.contribution_status_id IN ({$successful_status_ids}), 'S', 'F')) AS sequence
+      $failed_status_ids = implode(',', $config->contribution_failed_status_ids);
+      $sequence_query = CRM_Core_DAO::executeQuery("
+        SELECT IF(c.contribution_status_id IN ({$successful_status_ids}), 'S', 'F') AS sequence
         FROM civicrm_contribution c
         WHERE c.contribution_recur_id = {$stats['contribution_recur_id']}
-          AND (c.contribution_status_id IN ({$failed_status_ids}) OR c.contribution_status_id IN ({$successful_status_ids})) 
-        ORDER BY c.receive_date
-        GROUP BY c.contribution_recur_id";
-      error_log($sequence_query);
-      $sequence = CRM_Core_DAO::singleValueQuery($sequence_query);
-      error_log($sequence);
+          AND (c.contribution_status_id IN ({$failed_status_ids}) OR c.contribution_status_id IN ({$successful_status_ids}))
+        ORDER BY c.receive_date ASC;");
+      $sequence = ''; // GROUP_CONTACT doesn't respect the defined order!
+      while ($sequence_query->fetch()) {
+        $sequence .= $sequence_query->sequence;
+      }
 
       // evaluate sequences
       $stats['failed_collections']     = preg_match_all("#F#", $sequence);
@@ -322,7 +325,7 @@ class CRM_Banking_PluginImpl_PostProcessor_RecurringFails extends CRM_Banking_Pl
         $stats['sequential_successful_collections'] = 0;
       }
 
-      error_log(json_encode($stats));
+      return $stats;
     }
   }
 

@@ -9,3 +9,29 @@
 .banking-rule-editor input[type="text"].error {
   border-color: #b00;
 }
+.banking-rules-search-results-stats {
+  -moz-display:flex;
+  -webkit-display:flex;
+  -ms-display:flex;
+  display:flex;
+  -moz-align-items: baseline;
+  -webkit-align-items: baseline;
+  -ms-align-items: baseline;
+  align-items: baseline;
+  margin-bottom: 1rem;
+}
+.banking-rules-pager {
+  -moz-flex:1 1 auto;
+  -webkit-flex:1 1 auto;
+  -ms-flex:1 1 auto;
+  flex:1 1 auto;
+}
+.banking-rules-actions {
+  -moz-flex:0 0 auto;
+  -webkit-flex:0 0 auto;
+  -ms-flex:0 0 auto;
+  flex:0 0 auto;
+}
+.banking-rules-matches {
+  font-size: 2rem;
+}

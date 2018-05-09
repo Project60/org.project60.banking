@@ -87,13 +87,22 @@
                    ng-model="field.enabled" />
           <label for="set-{{field.field + '-cb'}}">{{field.label}}</label>
         </td>
-        <td><input name="set-{{field.field}}"
-                   type="text"
-                   ng-if="field.enabled"
-                   id="set-{{field.field}}"
-                   ng-model="field.value"
-                   class="{{ field.value ? '' : 'error' }}"
-                   />
+        <td>
+          <input ng-if="field.enabled && !field.options"
+                 ng-model="field.value"
+                 name="set-{{field.field}}"
+                 type="text"
+                 id="set-{{field.field}}"
+                 class="{{ field.value ? '' : 'error' }}"
+                 />
+          <select ng-if="field.enabled && field.options"
+                 ng-model="field.value"
+                 ng-options="v as l for (v, l) in field.options"
+                 name="set-{{field.field}}"
+                 id="set-{{field.field}}"
+                 class="{{ field.value ? '' : 'error' }}"
+                 >
+          </select>
           <span class="error" ng-if="field.enabled && !field.value" >Provide a value</span>
         </td>
       </tr>

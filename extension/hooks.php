@@ -64,7 +64,7 @@ function banking_civicrm_navigationMenu(&$params) {
           'label' => 'Banking',
           'name' => 'CiviBanking',
           'url' => null,
-          'permission' => null,
+          'permission' => 'access CiviContribute',
           'operator' => null,
           'separator' => 0,
           'parentID' => null,

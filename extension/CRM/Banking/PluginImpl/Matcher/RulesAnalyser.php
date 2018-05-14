@@ -81,7 +81,7 @@ class CRM_Banking_PluginImpl_Matcher_RulesAnalyser extends CRM_Banking_PluginMod
 
       // add the ID
       $matched_rule_ids[]   = $rule_match->getRule()->getId();
-      $matched_rule_names[] = $rule_match->getRule()->getName();
+      $matched_rule_names[] = $rule_match->getRule()->get_Name();
     }
 
     // document the matched rules in the tx data

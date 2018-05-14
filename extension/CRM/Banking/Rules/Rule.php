@@ -444,6 +444,21 @@ class CRM_Banking_Rules_Rule {
     }
     throw new Exception("Call to undefined method $method");
   }
+
+  /**
+   * Get the rule's name, with a fallback if it's not set
+   *
+   * @fixme: couldn't overwrite getName method because of Rich's generic implementation
+   */
+  public function get_Name() {
+    $name = $this->getName();
+    if (empty($name)) {
+      return ts("Unnamed Rule [%1]", array(1 => $this->getID(), 'domain' => 'org.project60.banking'));
+    } else {
+      return $name;
+    }
+  }
+
   /**
    * Return the type of rule:
    *  'analyser rules' will only update the btx data, while

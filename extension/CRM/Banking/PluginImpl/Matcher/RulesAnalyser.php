@@ -40,6 +40,8 @@ class CRM_Banking_PluginImpl_Matcher_RulesAnalyser extends CRM_Banking_PluginMod
     if (!isset($config->show_matched_rules))    $config->show_matched_rules = TRUE;
     if (!isset($config->suggest_create_new))    $config->suggest_create_new = TRUE;
     if (!isset($config->create_new_confidence)) $config->create_new_confidence = 0.75;
+    if (!isset($config->copy_matching_rule_names_to)) $config->copy_matching_rule_names_to = '';
+    if (!isset($config->copy_matching_rule_ids_to))   $config->copy_matching_rule_ids_to = '';
     if (!isset($config->fields_to_set))         $config->fields_to_set = array(
                                                   'campaign_id'           => ts('Campaign ID'),
                                                   'contact_id'            => ts('Contact ID'),
@@ -48,6 +50,10 @@ class CRM_Banking_PluginImpl_Matcher_RulesAnalyser extends CRM_Banking_PluginMod
                                                   'payment_instrument_id' => ts('Payment Instrument ID'));
     // caution: field_mapping should not be used, doesn't work properly:
     if (!isset($config->field_mapping))         $config->field_mapping = array();
+
+    // for documentation: set all matchin rule (names/ids) to the given data field
+    if (!isset($config->copy_matching_rule_names_to)) $config->copy_matching_rule_names_to = '';
+    if (!isset($config->copy_matching_rule_ids_to))   $config->copy_matching_rule_ids_to   = '';
   }
 
   /**
@@ -66,7 +72,7 @@ class CRM_Banking_PluginImpl_Matcher_RulesAnalyser extends CRM_Banking_PluginMod
     // run the rule matcher
     $rule_matches = CRM_Banking_Rules_Match::matchTransaction($btx, $config->field_mapping, $context, BANKING_MATCHER_RULE_TYPE_ANALYSER, $threshold);
     $matched_rule_ids = array();
-
+    $matched_rule_names = array();
 
     // Execute the rule matches (which will enrich the parsed data).
     foreach ($rule_matches as $rule_match) {
@@ -74,7 +80,21 @@ class CRM_Banking_PluginImpl_Matcher_RulesAnalyser extends CRM_Banking_PluginMod
       $rule_match->execute();
 
       // add the ID
-      $matched_rule_ids[] = $rule_match->getRule()->getId();
+      $matched_rule_ids[]   = $rule_match->getRule()->getId();
+      $matched_rule_names[] = $rule_match->getRule()->getName();
+    }
+
+    // document the matched rules in the tx data
+    $data_parsed = $btx->getDataParsed();
+    if (!empty($matched_rule_ids)) {
+      if (!empty($config->copy_matching_rule_ids_to)) {
+        $data_parsed[$config->copy_matching_rule_ids_to] = implode(',', $matched_rule_ids);
+        $btx->setDataParsed($data_parsed);
+      }
+      if (!empty($config->copy_matching_rule_names_to)) {
+        $data_parsed[$config->copy_matching_rule_names_to] = implode(',', $matched_rule_names);
+        $btx->setDataParsed($data_parsed);
+      }
     }
 
     // see if we want to create a "suggestion"

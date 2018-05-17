@@ -124,20 +124,21 @@ class CRM_Banking_Rules_Rule {
     $sql_params = [];
     $c = 1;
 
-    // Numbers.
-    foreach ([ 'amount_min', 'amount_max'] as $_) {
-      if (isset($params[$_])) {
-        if ($params[$_]) {
-          // we have a value.
-          $sql_params[$c] = [$params[$_], 'Money'];
-          $sql[] = "$_ = %" . ($c++);
-        }
-        else {
-          // No value, but we have the key, so we test for NULL.
-          $sql[] = "$_ IS NULL";
-        }
-      }
+    // Amount min, max describe a range. We want to return any rules whose
+    // amount range overlaps this range at all.
+    if (!empty($params['amount_min'])) {
+      // As we have a minimum, we can say that the amount_max must be greater or equal this.
+      $sql_params[$c] = [$params['amount_min'], 'Money'];
+      $sql[] = "amount_max >= %$c";
+      $c++;
     }
+    if (!empty($params['amount_max'])) {
+      // As we have a maximum, we can say that the amount_min must be less or equal this.
+      $sql_params[$c] = [$params['amount_max'], 'Money'];
+      $sql[] = "amount_min <= %$c";
+      $c++;
+    }
+
     // Integers
     if (!empty($params['created_by'])) {
       $sql_params[$c] = [$params['created_by'], 'String'];

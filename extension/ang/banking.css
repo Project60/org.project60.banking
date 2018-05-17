@@ -9,6 +9,26 @@
 .banking-rule-editor input[type="text"].error {
   border-color: #b00;
 }
+.banking-rules-search__wrapper {
+  -moz-display:flex;
+  -webkit-display:flex;
+  -ms-display:flex;
+  display:flex;
+
+  -moz-flex-wrap:wrap;
+  -webkit-flex-wrap:wrap;
+  -ms-flex-wrap:wrap;
+  flex-wrap:wrap;
+
+  margin:0 -1rem;
+}
+.banking-rules-search__col {
+  -moz-flex:1 1 50%;
+  -webkit-flex:1 1 50%;
+  -ms-flex:1 1 50%;
+  flex:1 1 50%;
+  padding:1rem;
+}
 .banking-rules-search-results-stats {
   -moz-display:flex;
   -webkit-display:flex;
@@ -19,6 +39,7 @@
   -ms-align-items: baseline;
   align-items: baseline;
   margin-bottom: 1rem;
+  line-height: 300%;
 }
 .banking-rules-pager {
   -moz-flex:1 1 auto;

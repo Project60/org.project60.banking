@@ -51,7 +51,9 @@
       <!-- custom conditions -->
       <tr ng-repeat="(i, cond) in criteria.custom_conditions" >
         <td><input type="checkbox" checked="" ng-click="criteria.custom_conditions.splice(i, 1)" />
-          <input type="text" ng-model="cond.field" placeholder="custom_field_name" />
+          <select ng-model="cond.field"
+            ng-options="v as l for (v, l) in ui_data.plugin_config.custom_conditions"
+            />
         </td>
         <td><input type="text" ng-model="cond.value" /></td>
       </tr>
@@ -202,7 +204,7 @@
             <a ng-if="rule.is_enabled" href ng-click="setEnabled(rule)">Disable</a>
             <a ng-if="!rule.is_enabled" href ng-click="setEnabled(rule)">Enable</a>
             |
-            <a href="{{'/civicrm/a/#/banking/rules/' + rule.id}}">Edit</a>
+            <a href="{{'/civicrm/a/#/banking/rules/' + rule.id}}" target="_blank">Edit</a>
           </td>
         </tr>
       </tbody>

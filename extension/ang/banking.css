@@ -21,12 +21,14 @@
   flex-wrap:wrap;
 
   margin:0 -1rem;
+  box-sizing:border-box;
 }
 .banking-rules-search__col {
   -moz-flex:1 1 50%;
   -webkit-flex:1 1 50%;
   -ms-flex:1 1 50%;
   flex:1 1 50%;
+  box-sizing:border-box;
   padding:1rem;
 }
 .banking-rules-search-results-stats {

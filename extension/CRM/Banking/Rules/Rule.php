@@ -179,6 +179,11 @@ class CRM_Banking_Rules_Rule {
       $sql[] = 'match_counter <= %' . ($c++);
     }
 
+    if (!empty($params['conds_like'])) {
+      $sql_params[$c] = ["%" . trim($params['conds_like'], '%'). "%", 'String', CRM_Core_DAO::QUERY_FORMAT_WILDCARD];
+      $sql[] = "conditions LIKE %" . ($c++);
+    }
+
     $where = $sql ? 'WHERE ' . implode(' AND ', $sql) : '';
 
     // parse sort.

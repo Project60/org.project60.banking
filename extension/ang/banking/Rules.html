@@ -11,41 +11,41 @@
 
       <tr>
         <td><input ng-model="criteria.party_ba_ref_enabled" type="checkbox" id="party_ba_ref_enabled" /> <label for="party_ba_ref_enabled" >Party IBAN</label></td>
-        <td ><input ng-if="criteria.party_ba_ref_enabled" type="text" ng-model="criteria.party_ba_ref"  /></td>
+        <td ><input ng-if="criteria.party_ba_ref_enabled" type="text" ng-model="criteria.party_ba_ref" ng-keydown="doSearchIfEnter($event)" /></td>
       </tr>
 
       <tr>
         <td><input ng-model="criteria.ba_ref_enabled" type="checkbox" id="ba_ref_enabled" /> <label for="ba_ref_enabled" >Our IBAN</label></td>
-        <td ><input ng-if="criteria.ba_ref_enabled" type="text" ng-model="criteria.ba_ref"  /></td>
+        <td ><input ng-if="criteria.ba_ref_enabled" type="text" ng-model="criteria.ba_ref"  ng-keydown="doSearchIfEnter($event)" /></td>
       </tr>
 
       <tr>
         <td><input ng-model="criteria.amount_min_enabled" type="checkbox" id="amount_min_enabled" /> <label for="amount_min_enabled" >Amount Min.</label></td>
-        <td ><input ng-if="criteria.amount_min_enabled" type="text" ng-model="criteria.amount_min" />
+        <td ><input ng-if="criteria.amount_min_enabled" type="text"  ng-keydown="doSearchIfEnter($event)" ng-model="criteria.amount_min" />
           <span class="error" ng-if="criteria.amount_min_enabled && ( !(criteria.amount_min>0) || (criteria.amount_max_enabled && criteria.amount_min > criteria.amount_max))" >Provide a value {{ criteria.amount_max_enabled ? 'less than ' + criteria.amount_max : '' }}</span>
         </td>
       </tr>
 
       <tr>
         <td><input ng-model="criteria.amount_max_enabled" type="checkbox" id="amount_max_enabled" /> <label for="amount_max_enabled" >Amount max.</label></td>
-        <td ><input ng-if="criteria.amount_max_enabled" type="text" ng-model="criteria.amount_max"/>
+        <td ><input ng-if="criteria.amount_max_enabled" type="text" ng-keydown="doSearchIfEnter($event)" ng-model="criteria.amount_max"/>
           <span class="error" ng-if="criteria.amount_max_enabled && ( !(criteria.amount_max>0) || (criteria.amount_min_enabled && criteria.amount_min > criteria.amount_max))" >Provide a value {{ criteria.amount_min_enabled ? 'greater than ' + criteria.amount_min : '' }}</span>
           </td>
       </tr>
 
       <tr>
         <td><input ng-model="criteria.party_name_enabled" type="checkbox" id="party_name_enabled" /> <label for="party_name_enabled" >Party Name</label></td>
-        <td ><input ng-if="criteria.party_name_enabled" type="text" ng-model="criteria.party_name"  /></td>
+        <td ><input ng-if="criteria.party_name_enabled" type="text" ng-keydown="doSearchIfEnter($event)" ng-model="criteria.party_name"  /></td>
       </tr>
 
       <tr>
         <td><input ng-model="criteria.tx_reference_enabled" type="checkbox" id="tx_reference_enabled" /> <label for="tx_reference_enabled" >Transaction Reference</label></td>
-        <td ><input ng-if="criteria.tx_reference_enabled" type="text" ng-model="criteria.tx_reference"  /></td>
+        <td ><input ng-if="criteria.tx_reference_enabled" type="text" ng-keydown="doSearchIfEnter($event)" ng-model="criteria.tx_reference"  /></td>
       </tr>
 
       <tr>
         <td><input ng-model="criteria.tx_purpose_enabled" type="checkbox" id="tx_purpose_enabled" /> <label for="tx_purpose_enabled" >Transaction Purpose</label></td>
-        <td ><input ng-if="criteria.tx_purpose_enabled" type="text" ng-model="criteria.tx_purpose" /></td>
+        <td ><input ng-if="criteria.tx_purpose_enabled" type="text" ng-keydown="doSearchIfEnter($event)" ng-model="criteria.tx_purpose" /></td>
       </tr>
 
       <!-- custom conditions -->
@@ -55,11 +55,16 @@
             ng-options="v as l for (v, l) in ui_data.plugin_config.custom_conditions"
             />
         </td>
-        <td><input type="text" ng-model="cond.value" /></td>
+        <td><input type="text" ng-keydown="doSearchIfEnter($event)" ng-model="cond.value" /></td>
       </tr>
 
       <tr>
         <td colspan="2"><a href class="btn " ng-click="addCustomCondition()" >Add custom condition</a></td>
+      </tr>
+
+      <tr>
+        <td><input ng-model="criteria.conds_like_enabled" type="checkbox" id="conds_like_enabled" /> <label for="conds_like_enabled" >Conditions</label></td>
+        <td ><input ng-if="criteria.conds_like_enabled" type="text" ng-keydown="doSearchIfEnter($event)" ng-model="criteria.conds_like" /></td>
       </tr>
 
     </tbody>
@@ -87,6 +92,7 @@
                    type="text"
                    ng-if="field.enabled"
                    id="set-{{field.field}}"
+                   ng-keydown="doSearchIfEnter($event)" 
                    ng-model="field.value"
                    class="{{ field.value ? '' : 'error' }}"
                    />
@@ -105,14 +111,14 @@
   <br />
   <div style="margin-bottom:0.5rem">
     <span style="display:inline-block;width:6em">Last Match</span>
-    <label for="last_match_min">From</label> <input size="6" id="last_match_min" ng-model="criteria.last_match_min" />
-    <label for="last_match_max">to</label><input size="6" id="last_match_max" ng-model="criteria.last_match_max" />
+    <label for="last_match_min">From</label> <input size="6" id="last_match_min" ng-keydown="doSearchIfEnter($event)" ng-model="criteria.last_match_min" />
+    <label for="last_match_max">to</label><input size="6" id="last_match_max" ng-keydown="doSearchIfEnter($event)" ng-model="criteria.last_match_max" />
   </div>
 
   <div style="margin-bottom:0.5rem">
     <span style="display:inline-block;width:6em">Match count</span>
-    <label for="match_counter_min">From</label> <input size="6" id="match_counter_min" ng-model="criteria.match_counter_min" />
-    <label for="match_counter_max">to</label> <input size="6" id="match_counter_max" ng-model="criteria.match_counter_max" />
+    <label for="match_counter_min">From</label> <input size="6" id="match_counter_min" ng-keydown="doSearchIfEnter($event)" ng-model="criteria.match_counter_min" />
+    <label for="match_counter_max">to</label> <input size="6" id="match_counter_max" ng-keydown="doSearchIfEnter($event)" ng-model="criteria.match_counter_max" />
   </div>
   </div>
   </div>

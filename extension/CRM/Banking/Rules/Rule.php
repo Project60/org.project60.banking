@@ -229,6 +229,18 @@ class CRM_Banking_Rules_Rule {
     $offset = (empty($params['options']['offset']) ? 0 : (int)$params['options']['offset']);
     $limit  = (!isset($params['options']['limit']) ? 10 : (int)$params['options']['limit']);
     $results = [];
+
+    // Prepare expressions for condition and execution matches to work as LIKE does.
+    $make_regex = function($value) {
+      return '/^' . strtr(
+        preg_quote($value, '/'), [
+          '%' => '.*',
+          '_' => '.',
+        ]) . '$/i';
+    };
+    $condition_matches  = array_map($make_regex, $conditions);
+    $execution_matches = array_map($make_regex, $executions);
+
     while ($dao->fetch()) {
 
       // Load the rule object.
@@ -236,19 +248,19 @@ class CRM_Banking_Rules_Rule {
       $obj->setFromDao($dao);
 
       $rule_conditions = $obj->getConditions();
-      foreach ($conditions as $condition => $value) {
-        if (!isset($rule_conditions[$condition]['full_match']) || mb_stripos($rule_conditions[$condition]['full_match'], $value) === FALSE) {
+      foreach ($condition_matches as $field => $regex) {
+        if (!isset($rule_conditions[$field]['full_match']) || preg_match($regex, $rule_conditions[$field]['full_match']) == 0) {
           // Don't match any further criteria and skip this rule.
           continue 2;
         }
       }
       $rule_executions = $obj->getExecution();
-      foreach ($executions as $execution => $value) {
+      foreach ($execution_matches as $field => $regex) {
 
         // Is there a match for this execution in any of the executions?
         $execution_match = FALSE;
         foreach ($rule_executions as $rule_execution) {
-          if ($rule_execution['set_param_name'] == $execution && $rule_execution['set_param_value'] == $value) {
+          if ($rule_execution['set_param_name'] == $field && preg_match($regex, $rule_execution['set_param_value'])) {
             $execution_match = TRUE;
             break;
           }

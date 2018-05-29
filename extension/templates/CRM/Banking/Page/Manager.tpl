@@ -44,7 +44,7 @@ tr.banking-plugin-disabled {
 	{capture assign=upload_link}{crmURL p="civicrm/banking/pluginupload" q="reset=1"}{/capture}
 	{capture assign=example_link}https://github.com/Project60/org.project60.banking/tree/master/configuration_database{/capture}
 	{ts domain='org.project60.banking'}The plugins listed on this page define <i>your</i> bank transaction processing workflow. You will need at least one import and one matching plugin to get started.{/ts}
-	{ts domain='org.project60.banking' 1=$example_link 2=$upload_link}You can get started downloading example plugin configurations from our <a href="%1" _target="blank">configuration database</a>, and then upload them with our <a href="%2">IMPORTER</a>.{/ts}
+	{ts domain='org.project60.banking' 1=$example_link 2=$upload_link}You can get started downloading example plugin configurations from our <a href="%1" target="_blank">configuration database</a> (using the 'raw' link), and then upload them with our <a href="%2">IMPORTER</a>.{/ts}
 </div>
 <br/>
 

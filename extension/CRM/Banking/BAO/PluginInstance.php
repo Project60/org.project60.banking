@@ -14,6 +14,7 @@
 | written permission from the original author(s).        |
 +--------------------------------------------------------*/
 
+use CRM_Banking_ExtensionUtil as E;
 /**
  * Class contains functions for CiviBanking plugin instances
  */
@@ -121,5 +122,78 @@ class CRM_Banking_BAO_PluginInstance extends CRM_Banking_DAO_PluginInstance {
     return new $class( $this );
   }
 
+  /**
+   * Serialise this entire plugin for export
+   */
+  public function serialise() {
+    $data = array();
+
+    // load class id
+    $data['plugin_type_name']  = civicrm_api3('OptionValue', 'getvalue', ['return' => 'name', 'id' => $this->plugin_type_id]);
+    $data['plugin_class_name'] = civicrm_api3('OptionValue', 'getvalue', ['return' => 'name', 'id' => $this->plugin_class_id]);
+    $data['name']              = $this->name;
+    $data['description']       = $this->description;
+    $data['weight']            = $this->weight;
+    $data['config']            = json_decode($this->config);
+    $data['state']             = json_decode($this->state);
+
+    return json_encode($data);
+  }
+
+  /**
+   * Serialise this entire plugin for export
+   */
+  public function updateWithSerialisedData($serialised_data, $skip_fields = [], $verify_fields = []) {
+    try {
+      $data = json_decode($serialised_data, true);
+
+      // note: sadly, type and class are inversely used!
+      $plugin_type_id = civicrm_api3('OptionValue', 'getvalue', [
+              'return'          => 'id',
+              'option_group_id' => 'civicrm_banking.plugin_classes',
+              'name'            => $data['plugin_type_name']]);
+      if (in_array('plugin_type_name', $verify_fields)) {
+        if ($this->plugin_type_id != $plugin_type_id) {
+          throw new Exception(E::ts("Cannot update, wrong plugin type!"));
+        }
+      }
+      $this->plugin_type_id = $plugin_type_id;
+
+      $plugin_class_id = civicrm_api3('OptionValue', 'getvalue', [
+              'return'          => 'id',
+              'option_group_id' => 'civicrm_banking.plugin_types',
+              'name'            => $data['plugin_class_name']]
+      );
+      if (in_array('plugin_class_name', $verify_fields)) {
+        if ($this->plugin_class_id != $plugin_class_id) {
+          throw new Exception(E::ts("Cannot update, wrong plugin class!"));
+        }
+      }
+      $this->plugin_class_id = $plugin_class_id;
+
+      $fields = ['name', 'description', 'weight', 'config', 'state'];
+      foreach ($fields as $field) {
+        $value = $data[$field];
+        if ($field == 'config' || $field == 'state') {
+          $value = json_encode($value);
+        }
+
+        // if requested, make sure it's the same
+        if (in_array($field, $verify_fields)) {
+          if ($value != $this->$field) {
+            throw new Exception(E::ts("Cannot update, field %1 differs.", [1 => $field]));
+          }
+        }
+
+        if (!in_array($field, $skip_fields)) {
+          $this->$field = $value;
+        }
+      }
+
+      $this->save();
+    } catch (Exception $ex) {
+      throw new Exception("Import failed: " . $ex->getMessage());
+    }
+  }
 }
 

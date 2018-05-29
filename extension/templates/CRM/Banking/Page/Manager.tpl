@@ -40,7 +40,15 @@ tr.banking-plugin-disabled {
 {else}
 
 {* NORMAL PAGE *}
-<h3>{ts domain='org.project60.banking'}Import Plugins{/ts}</h3>
+<div id="help">
+	{capture assign=upload_link}{crmURL p="civicrm/banking/pluginupload" q="reset=1"}{/capture}
+	{capture assign=example_link}https://github.com/Project60/org.project60.banking/tree/master/configuration_database{/capture}
+	{ts domain='org.project60.banking'}The plugins listed on this page define <i>your</i> bank transaction processing workflow. You will need at least one import and one matching plugin to get started.{/ts}
+	{ts domain='org.project60.banking' 1=$example_link 2=$upload_link}You can get started downloading example plugin configurations from our <a href="%1" _target="blank">configuration database</a>, and then upload them with our <a href="%2">IMPORTER</a>.{/ts}
+</div>
+<br/>
+
+<h3>{ts domain='org.project60.banking'}Importer Plugins{/ts}</h3>
 <div id="help">
 	{ts domain='org.project60.banking'}Import plugins are used to transport transaction data obtained from banks and accounting software into CiviBanking. They source the information from files as well as from data feeds from external systems. Once imported, the payments will be processed by the matcher plugins.{/ts}
 	<a href="{crmURL p="civicrm/banking/configure" q="reset=1&type=$type_import"}">{ts domain='org.project60.banking'}Add a new one.{/ts}</a>
@@ -80,6 +88,8 @@ tr.banking-plugin-disabled {
 								<a href="{crmURL p='civicrm/banking/manager' q="enable=$plugin_id"}" class="action-item crm-hover-button delete-contact small-popup" title="{ts domain='org.project60.banking'}Enable{/ts}">{ts domain='org.project60.banking'}Enable{/ts}</a>
 							{/if}
 							<a href="{crmURL p='civicrm/banking/configure' q="reset=1&pid=$plugin_id"}" class="action-item crm-hover-button delete-contact small-popup" title="{ts domain='org.project60.banking'}Configure{/ts}">{ts domain='org.project60.banking'}Configure{/ts}</a>
+							<a href="{crmURL p='civicrm/banking/manager' q="export=$plugin_id"}" class="action-item crm-hover-button export-config small-popup" title="{ts domain='org.project60.banking'}Export Configuration{/ts}">{ts domain='org.project60.banking'}Export Configuration{/ts}</a>
+							<a href="{crmURL p='civicrm/banking/pluginupload' q="reset=1&pid=$plugin_id"}" class="action-item crm-hover-button update-config small-popup" title="{ts domain='org.project60.banking'}Update Configuration{/ts}">{ts domain='org.project60.banking'}Update Configuration{/ts}</a>
 							<a href="{crmURL p='civicrm/banking/manager' q="delete=$plugin_id"}" class="action-item crm-hover-button delete-contact small-popup" title="{ts domain='org.project60.banking'}Delete{/ts}">{ts domain='org.project60.banking'}Delete{/ts}</a>
 						</li>
 					</ul>
@@ -131,6 +141,8 @@ tr.banking-plugin-disabled {
 								<a href="{crmURL p='civicrm/banking/manager' q="enable=$plugin_id"}" class="action-item crm-hover-button delete-contact small-popup" title="{ts domain='org.project60.banking'}Enable{/ts}">{ts domain='org.project60.banking'}Enable{/ts}</a>
 							{/if}
 							<a href="{crmURL p='civicrm/banking/configure' q="reset=1&pid=$plugin_id"}" class="action-item crm-hover-button delete-contact small-popup" title="{ts domain='org.project60.banking'}Configure{/ts}">{ts domain='org.project60.banking'}Configure{/ts}</a>
+							<a href="{crmURL p='civicrm/banking/manager' q="export=$plugin_id"}" class="action-item crm-hover-button export-config small-popup" title="{ts domain='org.project60.banking'}Export Configuration{/ts}">{ts domain='org.project60.banking'}Export Configuration{/ts}</a>
+							<a href="{crmURL p='civicrm/banking/pluginupload' q="reset=1&pid=$plugin_id"}" class="action-item crm-hover-button update-config small-popup" title="{ts domain='org.project60.banking'}Update Configuration{/ts}">{ts domain='org.project60.banking'}Update Configuration{/ts}</a>
 							<a href="{crmURL p='civicrm/banking/manager' q="delete=$plugin_id"}" class="action-item crm-hover-button delete-contact small-popup" title="{ts domain='org.project60.banking'}Delete{/ts}">{ts domain='org.project60.banking'}Delete{/ts}</a>
 						</li>
 					</ul>
@@ -182,6 +194,8 @@ tr.banking-plugin-disabled {
 								<a href="{crmURL p='civicrm/banking/manager' q="enable=$plugin_id"}" class="action-item crm-hover-button delete-contact small-popup" title="{ts domain='org.project60.banking'}Enable{/ts}">{ts domain='org.project60.banking'}Enable{/ts}</a>
 							{/if}
 							<a href="{crmURL p='civicrm/banking/configure' q="reset=1&pid=$plugin_id"}" class="action-item crm-hover-button delete-contact small-popup" title="{ts domain='org.project60.banking'}Configure{/ts}">{ts domain='org.project60.banking'}Configure{/ts}</a>
+							<a href="{crmURL p='civicrm/banking/manager' q="export=$plugin_id"}" class="action-item crm-hover-button export-config small-popup" title="{ts domain='org.project60.banking'}Export Configuration{/ts}">{ts domain='org.project60.banking'}Export Configuration{/ts}</a>
+							<a href="{crmURL p='civicrm/banking/pluginupload' q="reset=1&pid=$plugin_id"}" class="action-item crm-hover-button update-config small-popup" title="{ts domain='org.project60.banking'}Update Configuration{/ts}">{ts domain='org.project60.banking'}Update Configuration{/ts}</a>
 							<a href="{crmURL p='civicrm/banking/manager' q="delete=$plugin_id"}" class="action-item crm-hover-button delete-contact small-popup" title="{ts domain='org.project60.banking'}Delete{/ts}">{ts domain='org.project60.banking'}Delete{/ts}</a>
 						</li>
 					</ul>
@@ -233,6 +247,8 @@ tr.banking-plugin-disabled {
 								<a href="{crmURL p='civicrm/banking/manager' q="enable=$plugin_id"}" class="action-item crm-hover-button delete-contact small-popup" title="{ts domain='org.project60.banking'}Enable{/ts}">{ts domain='org.project60.banking'}Enable{/ts}</a>
 							{/if}
 							<a href="{crmURL p='civicrm/banking/configure' q="reset=1&pid=$plugin_id"}" class="action-item crm-hover-button delete-contact small-popup" title="{ts domain='org.project60.banking'}Configure{/ts}">{ts domain='org.project60.banking'}Configure{/ts}</a>
+							<a href="{crmURL p='civicrm/banking/manager' q="export=$plugin_id"}" class="action-item crm-hover-button export-config small-popup" title="{ts domain='org.project60.banking'}Export Configuration{/ts}">{ts domain='org.project60.banking'}Export Configuration{/ts}</a>
+							<a href="{crmURL p='civicrm/banking/pluginupload' q="reset=1&pid=$plugin_id"}" class="action-item crm-hover-button update-config small-popup" title="{ts domain='org.project60.banking'}Update Configuration{/ts}">{ts domain='org.project60.banking'}Update Configuration{/ts}</a>
 							<a href="{crmURL p='civicrm/banking/manager' q="delete=$plugin_id"}" class="action-item crm-hover-button delete-contact small-popup" title="{ts domain='org.project60.banking'}Delete{/ts}">{ts domain='org.project60.banking'}Delete{/ts}</a>
 						</li>
 					</ul>

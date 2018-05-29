@@ -25,6 +25,7 @@ class CRM_Banking_Page_Manager extends CRM_Core_Page {
     $this->processDeleteCommand();
     $this->processEnableDisableCommand();
     $this->processRearrangeCommand();
+    $this->processExportCommand();
 
     // load all plugins and sort by
     $plugin_type_to_instance = array();
@@ -146,6 +147,24 @@ class CRM_Banking_Page_Manager extends CRM_Core_Page {
         $this->storePluginOrder($plugin_order);
       }
     }
+  }
+
+  /**
+   * Process export=$pid command by dumping a serialised version into the stream
+   */
+  protected function processExportCommand() {
+    $plugin_id = CRM_Utils_Request::retrieve('export', 'Integer');
+    if ($plugin_id) {
+      $plugin_bao = new CRM_Banking_BAO_PluginInstance();
+      $plugin_bao->get('id', $plugin_id);
+      $exported_data = $plugin_bao->serialise();
+      CRM_Utils_System::download(
+          $plugin_bao->name . '.civbanking',
+          'application/json',
+          $exported_data);
+    }
+
+
   }
 
   /**

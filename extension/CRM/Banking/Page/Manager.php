@@ -22,10 +22,11 @@ class CRM_Banking_Page_Manager extends CRM_Core_Page {
     CRM_Utils_System::setTitle(ts('Manage CiviBanking Configuration'));
 
     // first: process commands (if any)
+    $this->processUiSettingsCommand();
     $this->processDeleteCommand();
     $this->processEnableDisableCommand();
     $this->processRearrangeCommand();
-
+    
     // load all plugins and sort by
     $plugin_type_to_instance = array();
     $plugin_query = CRM_Core_DAO::executeQuery("
@@ -70,8 +71,19 @@ class CRM_Banking_Page_Manager extends CRM_Core_Page {
     $this->assign('postprocessors', CRM_Utils_Array::value('Post Processor', $plugin_type_to_instance, array()));
     $this->assign('exporters',      CRM_Utils_Array::value('Export plugin',  $plugin_type_to_instance, array()));
     $this->assign('baseurl', CRM_Utils_System::url('civicrm/banking/manager'));
+    $this->assign('new_ui_enabled', _banking_civicrm_new_ui_enabled());
 
     parent::run();
+  }
+
+  protected function processUiSettingsCommand() {
+    $new_ui = CRM_Utils_Request::retrieve('enable_new_ui', 'Integer');
+    if ($new_ui !== null) {
+      CRM_Core_BAO_Setting::setItem($new_ui ? true : false, 'org.project60.banking', 'new_ui');
+      CRM_Core_BAO_Navigation::buildNavigation();
+      CRM_Core_BAO_Navigation::resetNavigation();
+      CRM_Utils_System::redirect(CRM_Utils_System::url('civicrm/banking/manager'));
+    }
   }
 
 

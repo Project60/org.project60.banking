@@ -111,3 +111,11 @@ function banking_civicrm_managed(&$entities) {
 function banking_civicrm_angularModules(&$angularModules) {
   return _banking_civix_civicrm_angularModules($angularModules);
 }
+
+/**
+ * Helper function to determine whether the new UI is enabled or not.
+ */
+function _banking_civicrm_new_ui_enabled() {
+  $enabled = CRM_Core_BAO_Setting::getItem('org.project60.banking', 'new_ui', null, true);
+  return $enabled ? true : false;
+}

@@ -349,9 +349,19 @@
         <a href="{$url_back}" class="button"><span title="{ts domain='org.project60.banking'}Skip and Exit{/ts}"><div class="icon next-icon ui-icon-seek-next"></div>{ts domain='org.project60.banking'}Skip and Exit{/ts}</span></a>
       {/if}
     {/if}
-    <a href="{$url_back}" class="button" style="float:right;">
-      <span title="{ts domain='org.project60.banking'}Back{/ts}"><div class="icon back-icon ui-icon-arrowreturnthick-1-w"></div>{ts domain='org.project60.banking'}Back to transaction list{/ts}</span>
-    </a>
+    {if $new_ui_enabled && $back_to_statement_lines}
+      <a href="{$url_back}" class="button" style="float:right;">
+        <span title="{ts domain='org.project60.banking'}Back{/ts}"><div class="icon back-icon ui-icon-arrowreturnthick-1-w"></div>{ts domain='org.project60.banking'}Back to statement lines{/ts}</span>
+      </a>
+    {elseif $new_ui_enabled && !$back_to_statement_lines}
+      <a href="{$url_back}" class="button" style="float:right;">
+        <span title="{ts domain='org.project60.banking'}Back{/ts}"><div class="icon back-icon ui-icon-arrowreturnthick-1-w"></div>{ts domain='org.project60.banking'}Back to statements{/ts}</span>
+      </a>
+    {else}
+      <a href="{$url_back}" class="button" style="float:right;">
+        <span title="{ts domain='org.project60.banking'}Back{/ts}"><div class="icon back-icon ui-icon-arrowreturnthick-1-w"></div>{ts domain='org.project60.banking'}Back to transaction list{/ts}</span>
+      </a>
+    {/if}
   </div>
 
   {if $btxstatus.label != 'Processed' AND $btxstatus.label != 'Ignored'}

@@ -4,7 +4,7 @@
     <path>civicrm/banking/payments</path>
     <page_callback>CRM_Banking_Page_Payments</page_callback>
     <title>Transactions</title>
-    <access_arguments>access CiviCRM</access_arguments>
+    <access_arguments>access CiviContribute</access_arguments>
   </item>
   <item>
     <path>civicrm/banking/accounts</path>
@@ -34,7 +34,7 @@
     <path>civicrm/banking/import</path>
     <page_callback>CRM_Banking_Page_Import</page_callback>
     <title>Import</title>
-    <access_arguments>access CiviCRM</access_arguments>
+    <access_arguments>access CiviContribute</access_arguments>
   </item>
   <item>
     <path>civicrm/banking/export</path>
@@ -46,7 +46,7 @@
     <path>civicrm/banking/review</path>
     <page_callback>CRM_Banking_Page_Review</page_callback>
     <title>Review</title>
-    <access_arguments>access CiviCRM</access_arguments>
+    <access_arguments>access CiviContribute</access_arguments>
   </item>
   <item>
     <path>civicrm/banking/manager</path>
@@ -80,5 +80,17 @@
     <page_callback>CRM_Banking_Form_Configure</page_callback>
     <title>Configure</title>
     <access_arguments>administer CiviCRM</access_arguments>
+  </item>
+  <item>
+    <path>civicrm/banking/statements</path>
+    <page_callback>CRM_Banking_Page_Statements</page_callback>
+    <title>Statements</title>
+    <access_arguments>access CiviContribute</access_arguments>
+  </item>
+  <item>
+    <path>civicrm/banking/statements/lines</path>
+    <page_callback>CRM_Banking_Page_StatementLine</page_callback>
+    <title>StatementLine</title>
+    <access_arguments>access CiviContribute</access_arguments>
   </item>
 </menu>

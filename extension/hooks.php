@@ -53,6 +53,12 @@ function banking_civicrm_navigationMenu(&$params) {
     // no contributions menu => just put it in somewhere...
     $insert_at = min(4, max(array_keys($params)));  
   }
+  
+  // Determine the url for the statements/payments (new ui or old ui).
+  $statementUrl = 'civicrm/banking/statements';
+  if (!_banking_civicrm_new_ui_enabled()) {
+    $statementUrl = 'civicrm/banking/payments';
+  }
 
   // NOW: Create a new top level menu
   $max_key_in_menu = banking_civicrm_get_max_nav_id($params);
@@ -90,7 +96,7 @@ function banking_civicrm_navigationMenu(&$params) {
               'attributes' => array(
                   'label' => ts('Show Transactions'),
                   'name' => 'Transactions',
-                  'url' => 'civicrm/banking/payments',
+                  'url' => $statementUrl,
                   'permission' => 'access CiviContribute',
                   'operator' => null,
                   'separator' => 1,

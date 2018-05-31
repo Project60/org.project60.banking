@@ -220,7 +220,19 @@ class CRM_Banking_Page_Review extends CRM_Core_Page {
 
       // URLs & stats
       $unprocessed_count = 0;
+      $new_ui_enabled = _banking_civicrm_new_ui_enabled();
+      $this->assign('new_ui_enabled', $new_ui_enabled);
       $this->assign('url_back', banking_helper_buildURL('civicrm/banking/payments',  $this->_pageParameters()));
+      if ($new_ui_enabled) {
+        // Determine whether we should go back to the statements or statement lines
+        if (isset($_REQUEST['list'])) {
+          $this->assign('url_back', banking_helper_buildURL('civicrm/banking/statements/lines', array('s_id' => $btx_bao->tx_batch_id)));
+          $this->assign('back_to_statement_lines', true);
+        } elseif (isset($_REQUEST['s_list'])) {
+          $this->assign('url_back', banking_helper_buildURL('civicrm/banking/statements', array()));
+          $this->assign('back_to_statement_lines', false);
+        }  
+      }
 
       if (isset($next_pid)) {
         $this->assign('url_skip_forward', banking_helper_buildURL('civicrm/banking/review',  $this->_pageParameters(array('id'=>$next_pid))));

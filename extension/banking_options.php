@@ -290,11 +290,6 @@ function _banking_options() {
                   'value' => 0,
                   'is_default' => 1,
               ),
-              'ignored' => array(
-                  'label' => 'Ignored',
-                  'value' => 1,
-                  'is_default' => 0,
-              ),
               'suggestions' => array(
                   'label' => 'Suggestions',
                   'value' => 2,
@@ -303,6 +298,11 @@ function _banking_options() {
               'processed' => array(
                   'label' => 'Processed',
                   'value' => 3,
+                  'is_default' => 0,
+              ),
+              'ignored' => array(
+                  'label' => 'Ignored',
+                  'value' => 1,
                   'is_default' => 0,
               ),
           ),

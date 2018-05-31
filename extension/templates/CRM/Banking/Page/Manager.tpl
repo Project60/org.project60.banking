@@ -40,6 +40,20 @@ tr.banking-plugin-disabled {
 {else}
 
 {* NORMAL PAGE *}
+<h3>{ts domain='org.project60.banking'}User interface{/ts}</h3>
+<form action="" method="get">
+  <div class="crm-block crm-form-block">
+    <label for="enable_new_ui">{ts domain='org.project60.banking'}User interface{/ts}</label>
+    <select name="enable_new_ui" class="crm-select2">
+      <option value="1" {if $new_ui_enabled}selected="selected"{/if}>{ts domain='org.project60.banking'}New user interface{/ts}</option>
+      <option value="0" {if !$new_ui_enabled}selected="selected"{/if}>{ts domain='org.project60.banking'}Legacy user interface{/ts}</option> 
+    </select>
+    <div class="crm-submit-buttons">
+    <input type="submit" class="crm-form-submit" value="{ts domain='org.project60.banking'}Save{/ts}">
+    </div>
+  </div>
+</form>
+
 <h3>{ts domain='org.project60.banking'}Import Plugins{/ts}</h3>
 <div id="help">
 	{ts domain='org.project60.banking'}Import plugins are used to transport transaction data obtained from banks and accounting software into CiviBanking. They source the information from files as well as from data feeds from external systems. Once imported, the payments will be processed by the matcher plugins.{/ts}

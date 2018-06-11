@@ -75,4 +75,30 @@ class CRM_Banking_Upgrader extends CRM_Banking_Upgrader_Base {
     
     return true;
   }
+
+  /**
+   * Upgrader for new rules analyser.
+   *  Also contains 2 legacy updates migrated form the _enabled hook
+   *
+   * @return TRUE on success
+   */
+  public function upgrade_0700() {
+    $this->ctx->log->info('Applying update 0700');
+    $this->executeSqlFile('sql/upgrade_rules.sql');
+
+    // this is an old update that's been moved here
+    $this->executeSqlFile('sql/upgrade_importer_path.sql');
+
+    // this is an old update for https://github.com/Project60/org.project60.banking/issues/158
+    $index = CRM_Core_DAO::executeQuery("SHOW INDEX FROM civicrm_bank_account_reference WHERE column_name = 'reference'");
+    if (!$index->fetch()) {
+      CRM_Core_DAO::executeQuery("ALTER TABLE civicrm_bank_account_reference ADD INDEX `reference` (reference);");
+    }
+
+    // update rebuild log tables
+    $logging = new CRM_Logging_Schema();
+    $logging->fixSchemaDifferences();
+
+    return true;
+  }
 }

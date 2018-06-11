@@ -72,7 +72,10 @@ class CRM_Banking_Upgrader extends CRM_Banking_Upgrader_Base {
       1=> array($statuses['ignored']['weight'], 'Integer'),
       2=> array($statuses['suggestions']['id'], 'Integer'),
     ));
-    
+
+    // make sure the new menu is registered with the CMS
+    CRM_Core_Invoke::rebuildMenuAndCaches();
+
     return true;
   }
 

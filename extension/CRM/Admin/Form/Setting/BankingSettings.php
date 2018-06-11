@@ -163,7 +163,6 @@ class CRM_Admin_Form_Setting_BankingSettings extends CRM_Core_Form {
     if ($old_menu_position != $new_menu_position || $old_ui_style != $new_ui_style) {
       CRM_Core_BAO_Setting::setItem($new_ui_style, 'CiviBanking', 'new_ui');
       CRM_Core_BAO_Setting::setItem($new_menu_position, 'CiviBanking', 'menu_position');
-//      CRM_Core_Invoke::rebuildMenuAndCaches();
       CRM_Core_BAO_Navigation::buildNavigation();
       CRM_Core_BAO_Navigation::resetNavigation();
     }

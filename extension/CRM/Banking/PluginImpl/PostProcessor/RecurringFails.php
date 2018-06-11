@@ -342,7 +342,7 @@ class CRM_Banking_PluginImpl_PostProcessor_RecurringFails extends CRM_Banking_Pl
           'option_group_id' => 'payment_instrument',
           'name'            => array('IN' => array('RCUR', 'FRST')),
           'return'          => 'value'));
-      foreach ($query['value'] as $option_value) {
+      foreach ($query['values'] as $option_value) {
         self::$sepa_recurring_payment_instrument_ids[] = $option_value['value'];
       }
     }

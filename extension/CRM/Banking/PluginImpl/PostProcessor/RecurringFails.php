@@ -289,8 +289,8 @@ class CRM_Banking_PluginImpl_PostProcessor_RecurringFails extends CRM_Banking_Pl
       // TODO: look up mandate
       $sepa_pis = $this->getSepaRecurringPaymentInstrumentIDs();
       if (in_array($stats['contribution_recur']['payment_instrument_id'], $sepa_pis)) {
-        $mandates = civicrm('SepaMandate', 'get', array(
-            'entity_id'    => $mandate_stats['contribution_recur_id'],
+        $mandates = civicrm_api3('SepaMandate', 'get', array(
+            'entity_id'    => $stats['contribution_recur_id'],
             'entity_table' => 'civicrm_contribution_recur'));
         if ($mandates['id']) {
           $stats['mandate'] = reset($mandates['values']);

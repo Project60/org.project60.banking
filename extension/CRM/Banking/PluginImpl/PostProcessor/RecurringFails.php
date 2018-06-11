@@ -120,10 +120,39 @@ class CRM_Banking_PluginImpl_PostProcessor_RecurringFails extends CRM_Banking_Pl
    */
   protected function ruleShouldExecute($rule, $cancelled_contribution, $mandate_stats) {
     if (!empty($rule->mandate_validated)) {
+      if ($rule->mandate_validated === true) {
+        // default is 'mandate':
+        $rule->mandate_validated = 'mandate';
+      }
+
       // check if mandate has been validated
-      if (empty($mandate_stats['successful_collections'])) {
-        $this->logMessage("Rule '{$rule->name}' not executed: not validated.", 'debug');
-        return FALSE;
+      switch ($rule->mandate_validated) {
+        case 'account':
+          // has there been a successful collection for *any* mandate for the same bank account?
+          $validated = $this->isMandateValidatedBySiblingMandate($cancelled_contribution, 'iban');
+          if (!$validated) {
+            $this->logMessage("Rule '{$rule->name}' not executed: mandate is not validated (by account).", 'debug');
+            return FALSE;
+          }
+          break;
+
+        case 'contact':
+          // has there been a successful collection for *any* mandate for the same contact?
+          $validated = $this->isMandateValidatedBySiblingMandate($cancelled_contribution,'contact_id');
+          if (!$validated) {
+            $this->logMessage("Rule '{$rule->name}' not executed: mandate is not validated (by contact).", 'debug');
+            return FALSE;
+          }
+          break;
+
+        default:
+        case 'mandate':
+          // the mandate case is already covered by the basic stats:
+          if (empty($mandate_stats['successful_collections'])) {
+            $this->logMessage("Rule '{$rule->name}' not executed: mandate is not validated.", 'debug');
+            return FALSE;
+          }
+          break;
       }
     }
 
@@ -289,8 +318,8 @@ class CRM_Banking_PluginImpl_PostProcessor_RecurringFails extends CRM_Banking_Pl
       // TODO: look up mandate
       $sepa_pis = $this->getSepaRecurringPaymentInstrumentIDs();
       if (in_array($stats['contribution_recur']['payment_instrument_id'], $sepa_pis)) {
-        $mandates = civicrm('SepaMandate', 'get', array(
-            'entity_id'    => $mandate_stats['contribution_recur_id'],
+        $mandates = civicrm_api3('SepaMandate', 'get', array(
+            'entity_id'    => $stats['contribution_recur_id'],
             'entity_table' => 'civicrm_contribution_recur'));
         if ($mandates['id']) {
           $stats['mandate'] = reset($mandates['values']);
@@ -342,11 +371,38 @@ class CRM_Banking_PluginImpl_PostProcessor_RecurringFails extends CRM_Banking_Pl
           'option_group_id' => 'payment_instrument',
           'name'            => array('IN' => array('RCUR', 'FRST')),
           'return'          => 'value'));
-      foreach ($query['value'] as $option_value) {
+      foreach ($query['values'] as $option_value) {
         self::$sepa_recurring_payment_instrument_ids[] = $option_value['value'];
       }
     }
     return self::$sepa_recurring_payment_instrument_ids;
+  }
+
+  /**
+   * Check if there has been any successful RCUR collection for any mandate
+   * with the same bank account
+   *
+   * @param $contribution array the cancelled contribution (data) that triggered the post processor
+   * @param $sibling_attribute string civicrm_sdd_mandate attribute to find sibling mandates by
+   * @return integer contribution_id iff the mandate has at least one successful collection under the given bank account
+   */
+  protected function isMandateValidatedBySiblingMandate($contribution, $sibling_attribute = 'iban') {
+    if (empty($contribution['id'])) {
+      $this->logMessage("NO contribution ID given.", 'error');
+      return FALSE;
+    }
+
+    $successful_status_ids = implode(',', $this->_plugin_config->contribution_success_status_ids);
+    $validation_query = "
+    SELECT oc.id
+    FROM civicrm_contribution c
+    LEFT JOIN civicrm_sdd_mandate m   ON m.entity_id = c.contribution_recur_id AND m.entity_table = 'civicrm_contribution_recur'
+    LEFT JOIN civicrm_sdd_mandate om  ON om.{$sibling_attribute} = m.{$sibling_attribute} AND om.entity_table = 'civicrm_contribution_recur'
+    LEFT JOIN civicrm_contribution oc ON oc.contribution_recur_id = om.entity_id AND oc.contribution_status_id IN ({$successful_status_ids})
+    WHERE c.id = {$contribution['id']}
+      AND oc.id IS NOT NULL
+    LIMIT 1;";
+    return CRM_Core_DAO::singleValueQuery($validation_query);
   }
 }
 

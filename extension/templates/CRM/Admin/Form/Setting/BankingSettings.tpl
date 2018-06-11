@@ -16,6 +16,12 @@
 <h3>{ts domain='org.project60.banking'}General Settings{/ts}</h3>
 
 <div class="crm-section">
+  <div class="label">{$form.new_ui.label}</div>
+  <div class="content">{$form.new_ui.html}</div>
+  <div class="clear"></div>
+</div>
+
+<div class="crm-section">
   <div class="label">{$form.menu_position.label}</div>
   <div class="content">{$form.menu_position.html}</div>
   <div class="clear"></div>

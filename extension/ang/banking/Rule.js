@@ -77,7 +77,7 @@
         if (cond.error) {
           errors.push("Error on custom condition " + (i+1) + ": " + cond.error);
         }
-        else if (cond.name == '') {
+        else if (cond.name === '') {
           errors.push("Custom condition " + (i+1) + ": is missing a fieldname");
         }
         params.conditions[cond.name] = { full_match: cond.full_match };
@@ -104,8 +104,9 @@
       function(newValue, oldValue, scope) {
 
         var counts = {};
+        var n, i;
         for (i in rule_data.custom_conditions) {
-          var n = rule_data.custom_conditions[i].name;
+          n = rule_data.custom_conditions[i].name;
           if (n in counts) {
             counts[n]++;
           }
@@ -115,7 +116,7 @@
         }
 
         for (i in rule_data.custom_conditions) {
-          var n = rule_data.custom_conditions[i].name;
+          n = rule_data.custom_conditions[i].name;
           rule_data.custom_conditions[i].error = (counts[n] > 1) ? 'Duplicate condition name' : '';
         }
       },

@@ -54,7 +54,9 @@
       last_match_max: '',
       match_counter_min: '',
       match_counter_max: '',
-      custom_conditions: []
+      custom_conditions: [],
+      conds_like: '',
+      conds_like_enabled: false,
     };
     $scope.criteria = criteria;
     CRM._.each($scope.ui_data.table_fields, function (field) {
@@ -129,6 +131,9 @@
           params.conditions[cond.field] = cond.value;
         }
       });
+      if (criteria.conds_like_enabled) {
+        params.conds_like = criteria.conds_like;
+      }
 
       // is_enabled
       if (criteria.is_enabled != 'all') {
@@ -154,6 +159,15 @@
       $scope.pages.limit = results.limit;
       $scope.pages.total = results.total_count;
       $scope.results = results.rules;
+    };
+
+    //
+    // Enter does search.
+    //
+    $scope.doSearchIfEnter = function(e) {
+      if (e.key == 'Enter') {
+        $scope.doSearch();
+      }
     };
 
     //

@@ -93,4 +93,10 @@
     <title>StatementLine</title>
     <access_arguments>access CiviContribute</access_arguments>
   </item>
+  <item>
+    <path>civicrm/banking/pluginupload</path>
+    <page_callback>CRM_Banking_Form_PluginUpload</page_callback>
+    <title>Import CiviBanking Plugins</title>
+    <access_arguments>administer CiviCRM</access_arguments>
+  </item>
 </menu>

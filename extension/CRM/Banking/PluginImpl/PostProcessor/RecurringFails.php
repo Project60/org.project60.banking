@@ -31,6 +31,7 @@ class CRM_Banking_PluginImpl_PostProcessor_RecurringFails extends CRM_Banking_Pl
     // read config, set defaults
     $config = $this->_plugin_config;
     if (!isset($config->cancel_reason_field))             $config->cancel_reason_field = 'cancel_reason';
+    if (!isset($config->mode))                            $config->mode = 'mandate';  // also valid: contact, account, contact_account
     if (!isset($config->rules))                           $config->rules = array();
     if (!isset($config->recurring_contribution_pi_ids))   $config->recurring_contribution_pi_ids = $this->getSepaRecurringPaymentInstrumentIDs();
     if (empty($config->contribution_success_status_ids))  $config->contribution_success_status_ids = array(1);
@@ -297,19 +298,57 @@ class CRM_Banking_PluginImpl_PostProcessor_RecurringFails extends CRM_Banking_Pl
         }
       }
 
-      // run an SQL query to get the sequence from the recurring contribution
+      // run an SQL query to get the sequence from the recurring contribution(s)
       $successful_status_ids = implode(',', $config->contribution_success_status_ids);
-      $failed_status_ids = implode(',', $config->contribution_failed_status_ids);
-      $sequence_query = CRM_Core_DAO::executeQuery("
+      $failed_status_ids     = implode(',', $config->contribution_failed_status_ids);
+      $join_clauses          = array();
+      $where_clauses         = array();
+      $where_clauses[]       = "(c.contribution_status_id IN ({$failed_status_ids}) OR c.contribution_status_id IN ({$successful_status_ids}))";
+
+      switch ($config->mode) {
+        case 'mandate':
+          $where_clauses[] = "(c.contribution_recur_id = {$stats['contribution_recur_id']})";
+          break;
+
+        case 'account':
+          $join_clauses[] = "LEFT JOIN civicrm_sdd_mandate        m  ON m.entity_id = {$stats['contribution_recur_id']} AND m.entity_table = 'civicrm_contribution_recur'";
+          $join_clauses[] = "LEFT JOIN civicrm_sdd_mandate        am ON am.iban = m.iban AND am.type = m.type";
+          $where_clauses[] = "(c.contribution_recur_id = am.entity_id)";
+          break;
+
+        case 'contact_account':
+          $join_clauses[] = "LEFT JOIN civicrm_sdd_mandate        m  ON m.entity_id = {$stats['contribution_recur_id']} AND m.entity_table = 'civicrm_contribution_recur'";
+          $join_clauses[] = "LEFT JOIN civicrm_sdd_mandate        am ON am.iban = m.iban AND am.type = m.type AND am.contact_id = m.contact_id";
+          $where_clauses[] = "(c.contribution_recur_id = am.entity_id)";
+          break;
+
+        case 'contact':
+          $join_clauses[] = "LEFT JOIN civicrm_sdd_mandate        m  ON m.entity_id = {$stats['contribution_recur_id']} AND m.entity_table = 'civicrm_contribution_recur'";
+          $join_clauses[] = "LEFT JOIN civicrm_sdd_mandate        am ON am.type = m.type AND am.contact_id = m.contact_id";
+          $where_clauses[] = "(c.contribution_recur_id = am.entity_id)";
+          break;
+
+        default:
+          // TODO: error
+          throw new Exception('RecurringFails PostProcessor: undefined mode "{$config->mode}"!');
+      }
+
+      // compile query
+      $join_clauses_sql   = implode("\n ", $join_clauses);
+      $where_clauses_sql  = implode(" AND ", $where_clauses);
+      $sequence_query_sql = "
         SELECT IF(c.contribution_status_id IN ({$successful_status_ids}), 'S', 'F') AS sequence
         FROM civicrm_contribution c
-        WHERE c.contribution_recur_id = {$stats['contribution_recur_id']}
-          AND (c.contribution_status_id IN ({$failed_status_ids}) OR c.contribution_status_id IN ({$successful_status_ids}))
-        ORDER BY c.receive_date ASC;");
+        {$join_clauses_sql}
+        WHERE {$where_clauses_sql}
+        GROUP BY c.id
+        ORDER BY c.receive_date ASC;";
+      $sequence_query = CRM_Core_DAO::executeQuery($sequence_query_sql);
       $sequence = ''; // GROUP_CONTACT doesn't respect the defined order!
       while ($sequence_query->fetch()) {
         $sequence .= $sequence_query->sequence;
       }
+      $this->logMessage("Recurring sequence detected ({$config->mode}): {$sequence}", 'debug');
 
       // evaluate sequences
       $stats['failed_collections']     = preg_match_all("#F#", $sequence);

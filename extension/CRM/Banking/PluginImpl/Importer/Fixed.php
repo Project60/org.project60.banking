@@ -241,7 +241,7 @@ class CRM_Banking_PluginImpl_Importer_Fixed extends CRM_Banking_PluginModel_Impo
           // TODO: error handling
         }
 
-        $value = substr($line, $pos_from-1, $length);
+        $value = mb_substr($line, $pos_from-1, $length);
         $this->storeValue($rule->to, $value);
         break;
 

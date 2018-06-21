@@ -141,7 +141,13 @@ class CRM_Banking_PluginImpl_Importer_CSV extends CRM_Banking_PluginModel_Import
       if (isset($config->encoding)) {
         $decoded_line = array();
         foreach ($line as $item) {
-          array_push($decoded_line, mb_convert_encoding($item, mb_internal_encoding(), $config->encoding));
+          if (in_array($config->encoding, mb_list_encodings())) {
+            array_push($decoded_line, mb_convert_encoding($item, mb_internal_encoding(), $config->encoding));
+          } else if (extension_loaded('iconv')) {
+            array_push($decoded_line, iconv($config->encoding, mb_internal_encoding(), $item));
+          } else {
+            trigger_error("Unknown encoding {$config->encoding}, try enabling the iconv PHP extension", E_USER_ERROR);
+          }
         }
         $line = $decoded_line;
       }

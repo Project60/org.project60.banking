@@ -167,7 +167,13 @@ class CRM_Banking_PluginImpl_Importer_Fixed extends CRM_Banking_PluginModel_Impo
 
       // check encoding if necessary
       if (isset($config->encoding)) {
-        $line = mb_convert_encoding($line, mb_internal_encoding(), $config->encoding);
+        if (in_array($config->encoding, mb_list_encodings())) {
+          $line = mb_convert_encoding($line, mb_internal_encoding(), $config->encoding);
+        } else if (extension_loaded('iconv')) {
+          $line = iconv($config->encoding, mb_internal_encoding(), $line);
+        } else {
+          trigger_error("Unknown encoding {$config->encoding}, try enabling the iconv PHP extension", E_USER_ERROR);
+        }
       }
 
       $this->apply_rules('generic_rules', $line, $params);
@@ -235,7 +241,7 @@ class CRM_Banking_PluginImpl_Importer_Fixed extends CRM_Banking_PluginModel_Impo
           // TODO: error handling
         }
 
-        $value = substr($line, $pos_from-1, $length);
+        $value = mb_substr($line, $pos_from-1, $length);
         $this->storeValue($rule->to, $value);
         break;
 

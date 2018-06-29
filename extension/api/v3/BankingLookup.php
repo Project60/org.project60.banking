@@ -62,7 +62,7 @@ function civicrm_api3_banking_lookup_contactbyname($params) {
 
   // apply 'entire'-modifiers to string
   foreach ($modifiers as $modifier) {
-    if (!empty($modifier['search']) && !empty($modifier['replace']) && (empty($modifier['mode']) || $modifier['mode']='entire') ) {
+    if (!empty($modifier['search']) && !empty($modifier['replace']) && (empty($modifier['mode']) || $modifier['mode'] == 'entire') ) {
       $name = preg_replace($modifier['search'], $modifier['replace'], $name);
     }
   }
@@ -73,7 +73,7 @@ function civicrm_api3_banking_lookup_contactbyname($params) {
   // apply 'alternative'-modifiers to string
   foreach ($name_bits as $name_bit) {
     foreach ($modifiers as $modifier) {
-      if (!empty($modifier['search']) && !empty($modifier['replace']) && !empty($modifier['mode']) && $modifier['mode']='alternative' ) {
+      if (!empty($modifier['search']) && !empty($modifier['replace']) && !empty($modifier['mode']) && $modifier['mode'] == 'alternative' ) {
         $modified_name_bit = preg_replace($modifier['search'], $modifier['replace'], $name_bit);
         if ($modified_name_bit != $name_bit) {
           $name_bits[] = $modified_name_bit;

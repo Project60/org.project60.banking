@@ -137,7 +137,7 @@ class CRM_Banking_BAO_PluginInstance extends CRM_Banking_DAO_PluginInstance {
     $data['config']            = json_decode($this->config);
     $data['state']             = json_decode($this->state);
 
-    return json_encode($data);
+    return json_encode($data, JSON_PRETTY_PRINT);
   }
 
   /**

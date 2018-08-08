@@ -232,7 +232,7 @@ class CRM_Banking_PluginImpl_Exporter_CSV extends CRM_Banking_PluginModel_Export
           // render without currency (caution: onlyNumber TRUE doesn't work)
           $full_value = CRM_Utils_Money::format($amount, NULL, NULL, FALSE, $value_format);
           // extract bare value
-          if (preg_match("/[0-9.,']+/", $full_value, $match)) {
+          if (preg_match("/[-0-9.,']+/", $full_value, $match)) {
             $data_blob[$rule->to] = $match[0];
           }
         }

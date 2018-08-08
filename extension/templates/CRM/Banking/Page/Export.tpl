@@ -74,15 +74,13 @@
   </div>
 
   <div class="crm-submit-buttons">
-      <span class="crm-button crm-button-type-upload crm-i-button">
-          <i class="crm-i fa-download"></i>
-          <input class="crm-form-submit default validate" accesskey="E" crm-icon="fa-download" value="{ts domain='org.project60.banking'}Export{/ts}" type="submit">
-      </span>
+    <a class="button back" onclick="cj(this).closest('form').submit();" >
+      <span><i class="crm-i fa-download"></i>&nbsp;{ts domain='org.project60.banking'}Export{/ts}</span>
+    </a>
 
-      <span class="crm-button crm-button-type-cancel crm-i-button">
-            <i class="crm-i fa-backward"></i>
-            <input class="crm-form-cancel" id="banking-exporter-back" onclick="parent.history.back(); return false;" crm-icon="fa-backward"value="{ts domain='org.project60.banking'}Back{/ts}" type="button">
-      </span>
+    <a class="button back" onclick="parent.history.back();" >
+      <span><i class="crm-i fa-backward"></i>{ts domain='org.project60.banking'}&nbsp;Back{/ts}</span>
+    </a>
   </div>
 </form>
 
@@ -98,13 +96,11 @@
     };
 
   function selected_plugin_changed() {
-    var new_id = cj("#banking-exporter-plugin").val();
+    var new_id = parseInt(cj("#banking-exporter-plugin").val());
     var capability = '';
-    if (new_id>0) {
+    if (new_id > 0) {
       var capability = capabilities[new_id];
     }
-    cj("#dataSink [value=1]").attr('disabled', !capability.contains('F'));
-    cj("#dataSink [value=2]").attr('disabled', !capability.contains('S'));
     if (capability == 'F') {
       cj("#dataSink [value=1]").attr('selected', true);
     } else if (capability == 'S') {

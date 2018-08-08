@@ -84,6 +84,7 @@
   </table>
 </div>
 
+{* DISABLED: Options panel
 <div class="crm-block crm-form-block crm-import-datasource-form-block" id="import options">
   <h3>{ts domain='org.project60.banking'}Import Options{/ts}</h3>
   <table class="form-layout">
@@ -104,21 +105,22 @@
 </tbody>
 </table>
 </div>
+DISABLED: Options panel *}
 
-<div class="crm-submit-buttons">
-  {if $page_mode == 'config'}
-    <span class="crm-button crm-button-type-upload crm-button_qf_DataSource_upload">
-      <input type="submit" value="{ts domain='org.project60.banking'}Import!{/ts}" class="validate form-submit default">
-    </span>
-  {else}
-    <a class="button" href="{$url_payments}">
-      <span align="right"><div class="icon details-icon ui-icon-search"></div>{ts domain='org.project60.banking'}See Results{/ts}</span>
-    </a>
-    <a class="button" href="{$url_action}">
-      <span align="right"><div class="icon details-icon ui-icon-plus"></div>{ts domain='org.project60.banking'}Import More{/ts}</span>
-    </a>
-  {/if}
-</div>
+  <div class="crm-submit-buttons">
+    {if $page_mode == 'config'}
+      <a class="button" onclick="cj(this).closest('form').submit();" >
+        <span><i class="crm-i fa-upload"></i>&nbsp;{ts domain='org.project60.banking'}Import!{/ts}</span>
+      </a>
+    {else}
+      <a class="button" href="{$url_payments}" >
+        <span><i class="crm-i fa-list"></i>&nbsp;{ts domain='org.project60.banking'}See Results{/ts}</span>
+      </a>
+      <a class="button" href="{$url_action}" >
+        <span><i class="crm-i fa-plus-circle"></i>&nbsp;{ts domain='org.project60.banking'}Import More{/ts}</span>
+      </a>
+    {/if}
+  </div>
 
 {if $page_mode == 'run'}
   <div class="crm-block crm-container crm-import-datasource-form-block" id="run_log">
@@ -143,11 +145,11 @@
 
 <div class="crm-submit-buttons">
   {if $page_mode != 'config'}
-    <a class="button" href="{$url_payments}">
-      <span align="right"><div class="icon details-icon ui-icon-search"></div>{ts domain='org.project60.banking'}See Results{/ts}</span>
+    <a class="button" href="{$url_payments}" >
+      <span><i class="crm-i fa-list"></i>&nbsp;{ts domain='org.project60.banking'}See Results{/ts}</span>
     </a>
-    <a class="button" href="{$url_action}">
-      <span align="right"><div class="icon details-icon ui-icon-plus"></div>{ts domain='org.project60.banking'}Import More{/ts}</span>
+    <a class="button" href="{$url_action}" >
+      <span><i class="crm-i fa-plus-circle"></i>&nbsp;{ts domain='org.project60.banking'}Import More{/ts}</span>
     </a>
   {/if}
 </div>

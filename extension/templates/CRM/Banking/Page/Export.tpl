@@ -74,12 +74,15 @@
   </div>
 
   <div class="crm-submit-buttons">
-    <span class="crm-button crm-button-type-upload">
-      <input type="submit" value="{ts domain='org.project60.banking'}Export{/ts}" class="validate form-submit default">
-    </span>
-    <span class="crm-button crm-button-type-upload">
-      <input id="banking-exporter-back" type="button" value="{ts domain='org.project60.banking'}Back{/ts}" hidden="1" onClick="banking_exporter_goback();">
-    </span>
+      <span class="crm-button crm-button-type-upload crm-i-button">
+          <i class="crm-i fa-download"></i>
+          <input class="crm-form-submit default validate" accesskey="E" crm-icon="fa-download" value="{ts domain='org.project60.banking'}Export{/ts}" type="submit">
+      </span>
+
+      <span class="crm-button crm-button-type-cancel crm-i-button">
+            <i class="crm-i fa-backward"></i>
+            <input class="crm-form-cancel" id="banking-exporter-back" onclick="parent.history.back(); return false;" crm-icon="fa-backward"value="{ts domain='org.project60.banking'}Back{/ts}" type="button">
+      </span>
   </div>
 </form>
 
@@ -112,20 +115,4 @@
 
   // call once for inital selection
   selected_plugin_changed();
-</script>
-
-
-{* logic for back button *}
-<script type="text/javascript">
-{literal}
-var back_url = document.referrer;
-if (back_url) {
-  cj("#banking-exporter-back").show();
-}
-
-function banking_exporter_goback() {
-  window.location = back_url;
-  return false;
-}
-{/literal}
 </script>

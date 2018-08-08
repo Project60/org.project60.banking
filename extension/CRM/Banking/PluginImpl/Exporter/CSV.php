@@ -192,14 +192,18 @@ class CRM_Banking_PluginImpl_Exporter_CSV extends CRM_Banking_PluginModel_Export
    */
   protected function apply_rule($rule, &$data_blob) {
 
+    // read from value
     $from_value = '';
-    if (!isset($rule->from)) {
-      $this->logMessage("rule's 'from' field not set.", 'warning');
-    } else {
-      if (!isset($data_blob[$rule->from])) {
-        $this->logMessage("'from' field '{$rule->from}' doesn't exist.", 'debug');
+    if (!in_array($rule->type, array('setconstant'))) {
+      // this rule requires a from_value
+      if (!isset($rule->from)) {
+        $this->logMessage("rule's 'from' field not set.", 'warning');
       } else {
-        $from_value = $data_blob[$rule->from];
+        if (!isset($data_blob[$rule->from])) {
+          $this->logMessage("'from' field '{$rule->from}' doesn't exist.", 'debug');
+        } else {
+          $from_value = $data_blob[$rule->from];
+        }
       }
     }
 
@@ -208,6 +212,11 @@ class CRM_Banking_PluginImpl_Exporter_CSV extends CRM_Banking_PluginModel_Export
       // RULE TYPE 'set'
       if (isset($from_value) && isset($rule->to)) {
         $data_blob[$rule->to] = $from_value;
+      }
+
+    } elseif ($rule->type == 'setconstant') {
+      if (isset($rule->value) && isset($rule->to)) {
+        $data_blob[$rule->to] = $rule->value;
       }
 
     } elseif ($rule->type == 'amount') {
@@ -266,7 +275,7 @@ class CRM_Banking_PluginImpl_Exporter_CSV extends CRM_Banking_PluginModel_Export
       }
 
     } else {
-      $this->logMessage("org.project60.banking.exporter.csv: rule type '{$rule->type}' unknown, rule ignored.", 'warning');
+      $this->logMessage("rule type '{$rule->type}' unknown, rule ignored.", 'warning');
     }
   }
 
@@ -299,7 +308,11 @@ class CRM_Banking_PluginImpl_Exporter_CSV extends CRM_Banking_PluginModel_Export
    * @return TRUE if line should be kept
    */
   protected function runFilter($filter, $data_blob) {
-    if (empty($filter->type)) return TRUE;
+    if (empty($filter->type)) {
+      $this->logMessage("Incomplete filter with no 'type' detected. Ignored", 'error');
+      return TRUE;
+    }
+
     if ($filter->type == 'compare') {
       // FILTER TYPE 'lookup'
       $value1 = (isset($data_blob[$filter->value_1]))?$data_blob[$filter->value_1]:'';
@@ -317,12 +330,12 @@ class CRM_Banking_PluginImpl_Exporter_CSV extends CRM_Banking_PluginModel_Export
       } elseif ($filter->comparator == '<=') {
         return $value1 <= $value2;
       } else {
-        $this->logMessage("org.project60.banking.exporter.csv: filter type '{$filter->type}' has unknown comparator '{$filter->comparator}'. Ignored", 'error');
+        $this->logMessage("filter type '{$filter->type}' has unknown comparator '{$filter->comparator}'. Ignored", 'error');
         return TRUE;
       }
 
     } else {
-      $this->logMessage("org.project60.banking.exporter.csv: filter type '{$filter->type}' unknown, filter ignored.", 'error');
+      $this->logMessage("filter type '{$filter->type}' unknown, filter ignored.", 'error');
       return TRUE;
     }
   }

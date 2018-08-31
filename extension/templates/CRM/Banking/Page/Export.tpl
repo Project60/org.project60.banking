@@ -74,12 +74,13 @@
   </div>
 
   <div class="crm-submit-buttons">
-    <span class="crm-button crm-button-type-upload">
-      <input type="submit" value="{ts domain='org.project60.banking'}Export{/ts}" class="validate form-submit default">
-    </span>
-    <span class="crm-button crm-button-type-upload">
-      <input id="banking-exporter-back" type="button" value="{ts domain='org.project60.banking'}Back{/ts}" hidden="1" onClick="banking_exporter_goback();">
-    </span>
+    <a class="button back" onclick="cj(this).closest('form').submit();" >
+      <span><i class="crm-i fa-download"></i>&nbsp;{ts domain='org.project60.banking'}Export{/ts}</span>
+    </a>
+
+    <a class="button back" onclick="parent.history.back();" >
+      <span><i class="crm-i fa-backward"></i>{ts domain='org.project60.banking'}&nbsp;Back{/ts}</span>
+    </a>
   </div>
 </form>
 
@@ -95,13 +96,11 @@
     };
 
   function selected_plugin_changed() {
-    var new_id = cj("#banking-exporter-plugin").val();
+    var new_id = parseInt(cj("#banking-exporter-plugin").val());
     var capability = '';
-    if (new_id>0) {
+    if (new_id > 0) {
       var capability = capabilities[new_id];
     }
-    cj("#dataSink [value=1]").attr('disabled', !capability.contains('F'));
-    cj("#dataSink [value=2]").attr('disabled', !capability.contains('S'));
     if (capability == 'F') {
       cj("#dataSink [value=1]").attr('selected', true);
     } else if (capability == 'S') {
@@ -112,20 +111,4 @@
 
   // call once for inital selection
   selected_plugin_changed();
-</script>
-
-
-{* logic for back button *}
-<script type="text/javascript">
-{literal}
-var back_url = document.referrer;
-if (back_url) {
-  cj("#banking-exporter-back").show();
-}
-
-function banking_exporter_goback() {
-  window.location = back_url;
-  return false;
-}
-{/literal}
 </script>

@@ -127,7 +127,7 @@ abstract class CRM_Banking_PluginModel_Exporter extends CRM_Banking_PluginModel_
       }
     }
 
-    $txbatch = civicrm_api('BankingTransactionBatch', 'getsingle', array('version' => 3, 'id' => $tx_batch_id));
+    $txbatch = civicrm_api3('BankingTransactionBatch', 'getsingle', array('id' => $tx_batch_id));
     if (empty($txbatch['is_error'])) {
       foreach ($txbatch as $key => $value) {
         $result['txbatch_'.$key] = $value;
@@ -220,7 +220,6 @@ abstract class CRM_Banking_PluginModel_Exporter extends CRM_Banking_PluginModel_
               }              
             }
           }
-          
           $counter++;
         }
 

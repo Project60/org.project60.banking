@@ -23,6 +23,8 @@
  */
 class CRM_Banking_PluginImpl_Exporter_CSV extends CRM_Banking_PluginModel_Exporter {
 
+  private static $_lookup_cache = array();
+
   /**
    * class constructor
    */ 
@@ -75,7 +77,7 @@ class CRM_Banking_PluginImpl_Exporter_CSV extends CRM_Banking_PluginModel_Export
    * 
    * $txbatch2ids array(<tx_batch_id> => array(<tx_id>))
    *
-   * @return URL of the resulting file
+   * @return array of the resulting file
    */
   public function export_file( $txbatch2ids, $parameters ) {
     $file = $this->_export($txbatch2ids, $parameters);
@@ -126,35 +128,56 @@ class CRM_Banking_PluginImpl_Exporter_CSV extends CRM_Banking_PluginModel_Export
 
       foreach ($batch_txns as $tx_id) {
         $tx_data = $this->getTxData($tx_id);
-        $data_blob = $this->compileDataBlob($tx_batch_data, $tx_data);
+        $main_data_blob = $this->compileDataBlob($tx_batch_data, $tx_data);
 
-        // execute rules
-        foreach ($config->rules as $rule) {
-          $this->apply_rule($rule, $data_blob);
+        // if explode_split is set, repeat the line for each linked contribution
+        if (empty($config->explode_split)) {
+          // not set? then it's just one line with the contributions
+          $line_count = 1;
+        } else {
+          // set? then it's one line per contribution ID
+          $line_count = max(1, (int) CRM_Utils_Array::value('exec_contribution_count', $main_data_blob));
         }
 
-        // apply filters: [a and b...] or [c and d] or ...  TRUE accepts/passes line
-        $filter_pass = empty($config->filters);  // automatically pass for empty filters
-        foreach ($config->filters as $AND_clause) {
-          $AND_clause_result = TRUE;  // empty set passes
-          foreach ($AND_clause as $filter) {
-            $AND_clause_result &= $this->runFilter($filter, $data_blob);
+        for ($index = 1; $index <= $line_count; $index++) {
+          $data_blob = $main_data_blob; // copy blob to prevent data from one line to the next
+          $prefix = 'exec_contribution' . (($index>1)?"_{$index}_":'_');
+
+          // copy the indexed contribution data into the main contribution
+          foreach ($main_data_blob as $key => $value) {
+            if (substr($key, 0, strlen($prefix)) == $prefix) {
+              $data_blob['exec_contribution_' . substr($key, strlen($prefix))] = $value;
+            }
           }
-          $filter_pass |= $AND_clause_result;
-          if ($filter_pass) break;  // one of the OR clauses is true
-        }
-        if (!$filter_pass) continue;
 
-        // write row
-        $csv_line = array();
-        foreach ($config->columns as $column_name) {
-          if (isset($data_blob[$column_name])) {
-            $csv_line[] = $data_blob[$column_name];
-          } else {
-            $csv_line[] = '';
+          // execute rules
+          foreach ($config->rules as $rule) {
+            $this->apply_rule($rule, $data_blob);
           }
+
+          // apply filters: [a and b...] or [c and d] or ...  TRUE accepts/passes line
+          $filter_pass = empty($config->filters);  // automatically pass for empty filters
+          foreach ($config->filters as $AND_clause) {
+            $AND_clause_result = TRUE;  // empty set passes
+            foreach ($AND_clause as $filter) {
+              $AND_clause_result &= $this->runFilter($filter, $data_blob);
+            }
+            $filter_pass |= $AND_clause_result;
+            if ($filter_pass) break;  // one of the OR clauses is true
+          }
+          if (!$filter_pass) continue;
+
+          // write row
+          $csv_line = array();
+          foreach ($config->columns as $column_name) {
+            if (isset($data_blob[$column_name])) {
+              $csv_line[] = $data_blob[$column_name];
+            } else {
+              $csv_line[] = '';
+            }
+          }
+          fputcsv($file_sink, $csv_line, $config->delimiter, $config->quotes);
         }
-        fputcsv($file_sink, $csv_line, $config->delimiter, $config->quotes);
       }
     }
 
@@ -169,40 +192,114 @@ class CRM_Banking_PluginImpl_Exporter_CSV extends CRM_Banking_PluginModel_Export
    */
   protected function apply_rule($rule, &$data_blob) {
 
+    // read from value
+    $from_value = '';
+    if (!in_array($rule->type, array('setconstant'))) {
+      // this rule requires a from_value
+      if (!isset($rule->from)) {
+        $this->logMessage("rule's 'from' field not set.", 'warning');
+      } else {
+        if (!isset($data_blob[$rule->from])) {
+          $this->logMessage("'from' field '{$rule->from}' doesn't exist.", 'debug');
+        } else {
+          $from_value = $data_blob[$rule->from];
+        }
+      }
+    }
+
+    // APPLY RULE
     if ($rule->type == 'set') {
       // RULE TYPE 'set'
-      if (isset($data_blob[$rule->from]) && isset($rule->to)) {
-        $data_blob[$rule->to] = $data_blob[$rule->from];
+      if (isset($from_value) && isset($rule->to)) {
+        $data_blob[$rule->to] = $from_value;
+      }
+
+    } elseif ($rule->type == 'setconstant') {
+      if (isset($rule->value) && isset($rule->to)) {
+        $data_blob[$rule->to] = $rule->value;
       }
 
     } elseif ($rule->type == 'amount') {
       // RULE TYPE 'amount'
-      if (isset($data_blob[$rule->from])) {
-        $amount = $data_blob[$rule->from];
-        $currency = $data_blob[$rule->currency];
-        $data_blob[$rule->to] = CRM_Utils_Money::format($amount, $currency);
-      }
-
-    } elseif ($rule->type == 'lookup') {
-      // RULE TYPE 'lookup'
-      if (isset($data_blob[$rule->from])) {
-        $key_value = $data_blob[$rule->from];
-        if (!empty($key_value)) {
-          $entity = civicrm_api($rule->entity, 'getsingle', array('version' => 3, $rule->key => $key_value));
-          if (!empty($entity['is_error'])) {
-            error_log("org.project60.banking.exporter.csv: rule lookup produced error: " . $entity['error_message']);
-          } else {
-            foreach ($entity as $key => $value) {
-              $data_blob[$rule->to . $key] = $value;
-            }
+      if (isset($from_value)) {
+        $amount = $from_value;
+        $value_format = isset($rule->format) ? $rule->format : NULL;
+        if (isset($rule->currency) && isset($data_blob[$rule->currency])) {
+          // render with currency
+          $currency = $data_blob[$rule->currency];
+          $data_blob[$rule->to] = CRM_Utils_Money::format($amount, $currency, NULL, FALSE, $value_format);
+        } else {
+          // render without currency (caution: onlyNumber TRUE doesn't work)
+          $full_value = CRM_Utils_Money::format($amount, NULL, NULL, FALSE, $value_format);
+          // extract bare value
+          if (preg_match("/[-0-9.,']+/", $full_value, $match)) {
+            $data_blob[$rule->to] = $match[0];
           }
         }
       }
 
+    } elseif ($rule->type =='sprintf') {
+      // RULE TYPE 'sprintf'
+      if (empty($rule->format)) {
+        $this->logMessage("No format set for 'sprintf' rule!", 'error');
+      } else {
+        // apply sprintf
+        $data_blob[$rule->to] = sprintf($rule->format, $from_value);
+      }
+
+    } elseif ($rule->type =='date') {
+      // RULE TYPE 'date'
+      if (empty($rule->format)) {
+        // default format
+        $data_blob[$rule->to] = date('Y-m-d H:i:s', strtotime($from_value));
+      } else {
+        $data_blob[$rule->to] = date($rule->format, strtotime($from_value));
+      }
+
+    } elseif ($rule->type == 'lookup') {
+      // RULE TYPE 'lookup'
+      if (!empty($from_value)) {
+        // compile params
+        if (isset($rule->params)) {
+          $params = (array) $rule->params;
+        } else {
+          $params = array();
+        }
+        $params[$rule->key] = $data_blob[$rule->from];
+
+        // get data and apply
+        $entity = $this->cachedAPILookup($rule->entity, $params);
+        foreach ($entity as $key => $value) {
+          $data_blob[$rule->to . $key] = $value;
+        }
+      }
 
     } else {
-      error_log("org.project60.banking.exporter.csv: rule type '${$rule->type}' unknown, rule ignored.");
+      $this->logMessage("rule type '{$rule->type}' unknown, rule ignored.", 'warning');
     }
+  }
+
+  /**
+   * Provides a cached API lookup
+   *
+   * @param $entity string entity
+   * @param $params array parameters
+   * @return mixed
+   */
+  protected function cachedAPILookup($entity, $params) {
+    $key = "{$entity}:" . json_encode($params);
+    if (!isset(self::$_lookup_cache[$key])) {
+      $this->logMessage("APILookup cache MISS: {$key}", 'debug');
+      try {
+        self::$_lookup_cache[$key] = civicrm_api3($entity, 'getsingle', $params);
+      } catch (Exception $ex) {
+        $this->logMessage("Error while looking up {$key} - " . $ex->getMessage(), 'warning');
+        self::$_lookup_cache[$key] = array();
+      }
+    } else {
+      $this->logMessage("APILookup cache HIT: {$key}", 'debug');
+    }
+    return self::$_lookup_cache[$key];
   }
 
   /**
@@ -211,7 +308,11 @@ class CRM_Banking_PluginImpl_Exporter_CSV extends CRM_Banking_PluginModel_Export
    * @return TRUE if line should be kept
    */
   protected function runFilter($filter, $data_blob) {
-    if (empty($filter->type)) return TRUE;
+    if (empty($filter->type)) {
+      $this->logMessage("Incomplete filter with no 'type' detected. Ignored", 'error');
+      return TRUE;
+    }
+
     if ($filter->type == 'compare') {
       // FILTER TYPE 'lookup'
       $value1 = (isset($data_blob[$filter->value_1]))?$data_blob[$filter->value_1]:'';
@@ -229,12 +330,12 @@ class CRM_Banking_PluginImpl_Exporter_CSV extends CRM_Banking_PluginModel_Export
       } elseif ($filter->comparator == '<=') {
         return $value1 <= $value2;
       } else {
-        error_log("org.project60.banking.exporter.csv: filter type '${$filter->type}' has unknown comparator '${$filter->comparator}'. Ignored");
+        $this->logMessage("filter type '{$filter->type}' has unknown comparator '{$filter->comparator}'. Ignored", 'error');
         return TRUE;
       }
 
     } else {
-      error_log("org.project60.banking.exporter.csv: filter type '${$filter->type}' unknown, filter ignored.");
+      $this->logMessage("filter type '{$filter->type}' unknown, filter ignored.", 'error');
       return TRUE;
     }
   }

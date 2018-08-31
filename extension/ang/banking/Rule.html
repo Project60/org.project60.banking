@@ -16,12 +16,12 @@
 
       <tr>
         <td><input ng-model="rule_data.party_ba_ref_enabled" type="checkbox" id="party_ba_ref_enabled" /> <label for="party_ba_ref_enabled" >Party IBAN</label></td>
-        <td ng-if="rule_data.party_ba_ref_enabled"><input type="text" ng-model="rule_data.party_ba_ref"  /></td>
+        <td ng-if="rule_data.party_ba_ref_enabled"><input type="text"  ng-trim="false" ng-model="rule_data.party_ba_ref"  /></td>
       </tr>
 
       <tr>
         <td><input ng-model="rule_data.ba_ref_enabled" type="checkbox" id="ba_ref_enabled" /> <label for="ba_ref_enabled" >Our IBAN</label></td>
-        <td ng-if="rule_data.ba_ref_enabled"><input type="text" ng-model="rule_data.ba_ref"  /></td>
+        <td ng-if="rule_data.ba_ref_enabled"><input type="text"  ng-trim="false" ng-model="rule_data.ba_ref"  /></td>
       </tr>
 
       <tr>
@@ -41,17 +41,17 @@
 
       <tr>
         <td><input ng-model="rule_data.party_name_enabled" type="checkbox" id="party_name_enabled" /> <label for="party_name_enabled" >Party Name</label></td>
-        <td ng-if="rule_data.party_name_enabled"><input type="text" ng-model="rule_data.party_name"  /></td>
+        <td ng-if="rule_data.party_name_enabled"><input type="text"  ng-trim="false" ng-model="rule_data.party_name"  /></td>
       </tr>
 
       <tr>
         <td><input ng-model="rule_data.tx_reference_enabled" type="checkbox" id="tx_reference_enabled" /> <label for="tx_reference_enabled" >Transaction Reference</label></td>
-        <td ng-if="rule_data.tx_reference_enabled"><input type="text" ng-model="rule_data.tx_reference"  /></td>
+        <td ng-if="rule_data.tx_reference_enabled"><input type="text"  ng-trim="false" ng-model="rule_data.tx_reference"  /></td>
       </tr>
 
       <tr>
         <td><input ng-model="rule_data.tx_purpose_enabled" type="checkbox" id="tx_purpose_enabled" /> <label for="tx_purpose_enabled" >Transaction Purpose</label></td>
-        <td ng-if="rule_data.tx_purpose_enabled"><input type="text" ng-model="rule_data.tx_purpose" /></td>
+        <td ng-if="rule_data.tx_purpose_enabled"><input type="text"  ng-trim="false" ng-model="rule_data.tx_purpose" ng-trim="false" /></td>
       </tr>
 
       <!-- custom conditions -->
@@ -61,7 +61,7 @@
             class="{{ cond.error ? 'error' : '' }}" />
           <span class="error" ng-if="cond.error" >{{ cond.error }}</span>
         </td>
-        <td><input type="text" ng-model="cond.full_match" placeholder="full string match" /></td>
+        <td><input type="text"  ng-trim="false" ng-model="cond.full_match" placeholder="full string match" /></td>
       </tr>
 
       <tr>

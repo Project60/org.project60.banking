@@ -89,7 +89,7 @@ class CRM_Banking_PluginImpl_PostProcessor_MembershipPayment extends CRM_Banking
         if ($contribution_recur_id) {
           $this->logMessage("Contribution [{$contribution['id']}] should be connected to recurring contribution [{$contribution_recur_id}]", 'debug');
         } else {
-          $this->logMessage("Contribution [{$contribution['id']}] should not have recurring contribution", 'debug');
+          $this->logMessage("Contribution [{$contribution['id']}] should not get recurring contribution", 'debug');
         }
 
         // update MembershipPayment:
@@ -106,6 +106,7 @@ class CRM_Banking_PluginImpl_PostProcessor_MembershipPayment extends CRM_Banking
               'contribution_id' => $contribution['id'],
               'membership_id'   => $membership_id,
           ));
+          $this->logMessage("Contribution [{$contribution['id']}] connected to membership [{$membership_id}].", 'debug');
         }
 
         // update contribution <-> contribution_recur connection
@@ -188,16 +189,18 @@ class CRM_Banking_PluginImpl_PostProcessor_MembershipPayment extends CRM_Banking
     }
 
     // still no? see if we can get there by
-    if (!empty($config->set_membership_rcur_field) && !empty($contribution['contribution_recur_id'])) {
-      try {
-        $membership_id = (int) civicrm_api3('Membership', 'getvalue', array(
-            $config->set_membership_rcur_field => (int) $contribution['contribution_recur_id'],
-            'return'                           => 'id'));
-        if ($membership_id) {
-          $this->logMessage("Got membership_id from membership.{$config->set_membership_rcur_field}: {$membership_id}", 'debug');
+    if (!$membership_id) {
+      if (!empty($config->set_membership_rcur_field) && !empty($contribution['contribution_recur_id'])) {
+        try {
+          $membership_id = (int)civicrm_api3('Membership', 'getvalue', array(
+              $config->set_membership_rcur_field => (int)$contribution['contribution_recur_id'],
+              'return' => 'id'));
+          if ($membership_id) {
+            $this->logMessage("Got membership_id from membership.{$config->set_membership_rcur_field}: {$membership_id}", 'debug');
+          }
+        } catch (Exception $ex) {
+          $this->logMessage("Couldn't get membership_id from membership.{$config->set_membership_rcur_field}.", 'debug');
         }
-      } catch (Exception $ex) {
-        $this->logMessage("Couldn't get membership_id from membership.{$config->set_membership_rcur_field}.", 'debug');
       }
     }
 
@@ -301,12 +304,9 @@ class CRM_Banking_PluginImpl_PostProcessor_MembershipPayment extends CRM_Banking
     }
 
     // add return clause
-    if (!in_array('contribution_recur_id', $config->contribution_fields_required)) {
-      $config->contribution_fields_required[] = 'contribution_recur_id';
-    }
-    if (!empty($config->payment_instrument_ids_exclude && is_array($config->payment_instrument_ids_exclude))) {
-      $config->contribution_fields_required[] = 'payment_instrument_id';
-    }
+    $config->contribution_fields_required[] = 'id';
+    $config->contribution_fields_required[] = 'contribution_recur_id';
+    $config->contribution_fields_required[] = 'payment_instrument_id';
     $contribution_query['return'] = implode(',', $config->contribution_fields_required);
 
     // query DB

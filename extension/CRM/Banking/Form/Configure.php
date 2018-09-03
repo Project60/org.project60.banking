@@ -103,7 +103,7 @@ class CRM_Banking_Form_Configure extends CRM_Core_Form {
     if ($this->plugin) {
       return array(
         'name'            => $this->plugin['name'],
-        'description'     => $this->plugin['description'],
+        'description'     => isset($this->plugin['description']) ? $this->plugin['description'] : '',
         'plugin_type_id'  => $this->plugin['plugin_type_id'],
         'plugin_class_id' => $this->plugin['plugin_class_id'],
       );

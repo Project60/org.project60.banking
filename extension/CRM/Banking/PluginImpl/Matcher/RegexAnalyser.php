@@ -228,6 +228,7 @@ class CRM_Banking_PluginImpl_Matcher_RegexAnalyser extends CRM_Banking_PluginMod
           }
         } catch (Exception $e) {
           // TODO: this didn't work... how can we do this?
+          $this->logMessage("Exception in API {$params[0]}.{$params[1]}: " . $e->getMessage(), 'debug');
         }
 
       } else {

@@ -96,8 +96,13 @@
       cid = parseInt(list[cid_idx]);
       if (!isNaN(cid) && cid>0) {
         // load the contribution
-        CRM.api("Contribution", "get", {"sequential": 1, "id": cid},
-          { success: manual_match_add_data_to_list });
+        CRM.api3("Contribution", "get", {
+            "id": cid,
+            "sequential": 1,
+            "return": "financial_type,contact"
+            },
+            { success: manual_match_add_data_to_list }
+        );
       }
     }
   }
@@ -107,7 +112,7 @@
    * It also triggers loading the next id from the list in the hidden field 
    */
   function manual_match_load_contact_into_contact_list(contact_id, select) {
-    CRM.api("Contact", "get", {"sequential": 1, "id": contact_id},
+    CRM.api3("Contact", "get", {"sequential": 1, "id": contact_id},
         { success: function(data) {
           if (data.count > 0) {
             // generate contact select option
@@ -251,7 +256,7 @@
       return;
     }
     // ok, we have a contact -> create a new (test) contribution
-    CRM.api("Contribution", "create", { "sequential": 1, 
+    CRM.api3("Contribution", "create", { "sequential": 1,
                                         "contact_id": contact_id, 
                                         "is_test": 1, 
                                         "total_amount": parseFloat({/literal}{$btx.amount}{literal}).toFixed(2), 

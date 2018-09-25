@@ -292,13 +292,24 @@ function _civicrm_api3_banking_lookup_contactbyname_api($name_mutations, $params
 function _civicrm_api3_banking_lookup_contactbyname_penalties(&$contactID2probability, $penalty_specs) {
   // STEP 1: GATHER DATA
   $contact2relation = array();
+  $contact2info = array();
   $relation_type_ids = array();
   foreach ($penalty_specs as $penalty) {
     if ($penalty->type == 'relation') {
       if ((int) $penalty->relation_type_id) {
         $relation_type_ids[] = (int) $penalty->relation_type_id;
       } else {
-        error_log("org.project60.banking.lookup - invalid or no 'relation_type_id' given in penalty definition.");
+        CRM_Core_Error::debug_log_message("org.project60.banking.lookup - invalid or no 'relation_type_id' given in penalty definition.");
+      }
+    } elseif ($penalty->type == 'individual_single_name') {
+      if (!empty($contactID2probability)) {
+        $info_query = civicrm_api3('Contact', 'get', array(
+            'id'           => array('IN' => array_keys($contactID2probability)),
+            'return'       => 'first_name,last_name,contact_type',
+            'sequential'   => 0,
+            'option.limit' => 0));
+        $contact2info = $info_query['values'];
+
       }
     }
   }
@@ -325,8 +336,20 @@ function _civicrm_api3_banking_lookup_contactbyname_penalties(&$contactID2probab
           // penalty applies
           $probability = max(0.0, $probability - $probability_penalty);
         }
+
+      } elseif ($penalty->type == 'individual_single_name') {
+        // check if contact is an individual...
+        $info = CRM_Utils_Array::value($contact_id, $contact2info, array());
+        if (!empty($info['contact_type']) && $info['contact_type'] == 'Individual') {
+          // ...and has only one name
+          if (empty($info['first_name']) || empty($info['last_name'])) {
+            // penalty applies
+            $probability = max(0.0, $probability - $probability_penalty);
+          }
+        }
+
       } else {
-        error_log("org.project60.banking.lookup - penalty type not implemented: '{$penalty->type}'. Ignored.");
+        CRM_Core_Error::debug_log_message("org.project60.banking.lookup - penalty type not implemented: '{$penalty->type}'. Ignored.");
       }
     }
     $contactID2probability[$contact_id] = $probability;

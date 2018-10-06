@@ -1,7 +1,7 @@
 <?php
 /*-------------------------------------------------------+
 | Project 60 - CiviBanking                               |
-| Copyright (C) 2013-2015 SYSTOPIA                       |
+| Copyright (C) 2013-2018 SYSTOPIA                       |
 | Author: B. Endres (endres -at- systopia.de)            |
 | http://www.systopia.de/                                |
 +--------------------------------------------------------+
@@ -14,11 +14,13 @@
 | written permission from the original author(s).        |
 +--------------------------------------------------------*/
 
+use CRM_Banking_ExtensionUtil as E;
+
 require_once 'CRM/Core/Page.php';
 
 class CRM_Banking_Page_Export extends CRM_Core_Page {
   function run() {
-    CRM_Utils_System::setTitle(ts('Bank Transaction Exporter'));
+    CRM_Utils_System::setTitle(E::ts('Bank Transaction Exporter'));
 
     // get the plugins
     $plugin_list = CRM_Banking_BAO_PluginInstance::listInstances('export');

@@ -1,6 +1,6 @@
 {*-------------------------------------------------------+
 | Project 60 - CiviBanking                               |
-| Copyright (C) 2013-2015 SYSTOPIA                       |
+| Copyright (C) 2013-2018 SYSTOPIA                       |
 | Author: B. Endres (endres -at- systopia.de)            |
 | http://www.systopia.de/                                |
 +--------------------------------------------------------+
@@ -17,7 +17,7 @@
 {assign var=contribution_id value=$contribution.id}
 {assign var=mandate_id value=$mandate.id}
 
-<h1>{ts 1=$mandate.type}SEPA %1 Cancellation Notification{/ts}</h1>
+<h1>{ts 1=$mandate.type domain='org.project60.banking'}SEPA %1 Cancellation Notification{/ts}</h1>
 <table>
   <tr>
     <td>{ts domain='org.project60.banking'}Mandate{/ts}</td>
@@ -43,7 +43,7 @@
         {if $cancelled_contribution_count eq 1}
           ({ts domain='org.project60.banking'}first time (in a row){/ts})
         {else}
-          <b>({ts 1=$cancelled_contribution_count}%1 times in a row!{/ts})</b>
+          <b>({ts 1=$cancelled_contribution_count domain='org.project60.banking'}%1 times in a row!{/ts})</b>
         {/if}
       {/if}
       </a>

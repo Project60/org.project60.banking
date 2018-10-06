@@ -1,7 +1,7 @@
 <?php
 /*-------------------------------------------------------+
 | Project 60 - CiviBanking                               |
-| Copyright (C) 2013-2014 SYSTOPIA                       |
+| Copyright (C) 2013-2018 SYSTOPIA                       |
 | Author: B. Endres (endres -at- systopia.de)            |
 | http://www.systopia.de/                                |
 +--------------------------------------------------------+
@@ -14,13 +14,14 @@
 | written permission from the original author(s).        |
 +--------------------------------------------------------*/
 
-    
+use CRM_Banking_ExtensionUtil as E;
+
 require_once 'CRM/Core/Page.php';
 
 class CRM_Banking_Page_AccountSearch extends CRM_Core_Page {
   function run() {
     // Example: Set the page-title dynamically; alternatively, declare a static title in xml/Menu/*.xml
-    CRM_Utils_System::setTitle(ts('Find Accounts'));
+    CRM_Utils_System::setTitle(E::ts('Find Accounts'));
 
     if (isset($_REQUEST['reference_partial'])) {
         // this is a search -> do it!

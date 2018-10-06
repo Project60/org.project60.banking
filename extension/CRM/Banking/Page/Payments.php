@@ -1,7 +1,7 @@
 <?php
 /*-------------------------------------------------------+
 | Project 60 - CiviBanking                               |
-| Copyright (C) 2013-2014 SYSTOPIA                       |
+| Copyright (C) 2013-2018 SYSTOPIA                       |
 | Author: B. Endres (endres -at- systopia.de)            |
 | http://www.systopia.de/                                |
 +--------------------------------------------------------+
@@ -14,6 +14,7 @@
 | written permission from the original author(s).        |
 +--------------------------------------------------------*/
 
+use CRM_Banking_ExtensionUtil as E;
 
 require_once 'CRM/Core/Page.php';
 require_once 'CRM/Banking/Helpers/OptionValue.php';
@@ -22,7 +23,7 @@ require_once 'CRM/Banking/Helpers/URLBuilder.php';
 class CRM_Banking_Page_Payments extends CRM_Core_Page {
   function run() {
     // Example: Set the page-title dynamically; alternatively, declare a static title in xml/Menu/*.xml
-    CRM_Utils_System::setTitle(ts('Bank Transactions'));
+    CRM_Utils_System::setTitle(E::ts('Bank Transactions'));
 
     // look up the payment states
     $payment_states = banking_helper_optiongroup_id_name_mapping('civicrm_banking.bank_tx_status');
@@ -120,7 +121,7 @@ class CRM_Banking_Page_Payments extends CRM_Core_Page {
       $info = $this->investigate($stmt->id, $payment_states);
 
       // look up the target account
-      $target_name = ts("Unnamed");
+      $target_name = E::ts("Unnamed");
       $target_info = json_decode($stmt->data_parsed);
       if (isset($target_info->name)) {
         $target_name = $target_info->name;
@@ -160,17 +161,17 @@ class CRM_Banking_Page_Payments extends CRM_Core_Page {
     if ($_REQUEST['status_ids']==$payment_states['new']['id']) {
       // 'NEW' mode will show all that have not been completely analysed
       $this->assign('rows', $statements_new);
-      $this->assign('status_message', sprintf(ts("%d incomplete statments."), sizeof($statements_new)));
+      $this->assign('status_message', sprintf(E::ts("%d incomplete statments."), sizeof($statements_new)));
 
     } elseif ($_REQUEST['status_ids']==$payment_states['suggestions']['id']) {
       // 'ANALYSED' mode will show all that have been partially analysed, but not all completed
       $this->assign('rows', $statements_analysed);
-      $this->assign('status_message', sprintf(ts("%d analysed statments."), sizeof($statements_analysed)));
+      $this->assign('status_message', sprintf(E::ts("%d analysed statments."), sizeof($statements_analysed)));
 
     } else {
       // 'COMPLETE' mode will show all that have been entirely processed
       $this->assign('rows', $statements_completed);
-      $this->assign('status_message', sprintf(ts("%d completed statments."), sizeof($statements_completed)));
+      $this->assign('status_message', sprintf(E::ts("%d completed statments."), sizeof($statements_completed)));
     }
 
     $this->assign('count_new',       count($statements_new));
@@ -196,7 +197,7 @@ class CRM_Banking_Page_Payments extends CRM_Core_Page {
 
         // load the bank accounts and associated contact...
         if (empty($entry['ba_id'])) {
-          $bank_account = array('description' => ts('Unknown'));
+          $bank_account = array('description' => E::ts('Unknown'));
         } else {
           $ba_id = $entry['ba_id'];
           $params = array('version' => 3, 'id' => $ba_id);
@@ -224,7 +225,7 @@ class CRM_Banking_Page_Payments extends CRM_Core_Page {
           if (isset($data_parsed['name'])) {
             $party = "<i>".$data_parsed['name']."</i>";
           } else {
-            $party = "<i>".ts("not yet identified.")."</i>";
+            $party = "<i>".E::ts("not yet identified.")."</i>";
           }
         }
 
@@ -265,15 +266,15 @@ class CRM_Banking_Page_Payments extends CRM_Core_Page {
     $this->assign('show', 'payments');
     if ($_REQUEST['status_ids']==$payment_states['new']['id']) {
       // 'NEW' mode will show all that have not been completely analysed
-      $this->assign('status_message', sprintf(ts("%d new transactions."), count($payment_rows)));
+      $this->assign('status_message', sprintf(E::ts("%d new transactions."), count($payment_rows)));
 
     } elseif ($_REQUEST['status_ids']==$payment_states['suggestions']['id']) {
       // 'ANALYSED' mode will show all that have been partially analysed, but not all completed
-      $this->assign('status_message', sprintf(ts("%d analysed transactions."), count($payment_rows)));
+      $this->assign('status_message', sprintf(E::ts("%d analysed transactions."), count($payment_rows)));
 
     } else {
       // 'COMPLETE' mode will show all that have been entirely processed
-      $this->assign('status_message', sprintf(ts("%d completed transactions."), count($payment_rows)));
+      $this->assign('status_message', sprintf(E::ts("%d completed transactions."), count($payment_rows)));
     }
 
     // finally, create count statistics

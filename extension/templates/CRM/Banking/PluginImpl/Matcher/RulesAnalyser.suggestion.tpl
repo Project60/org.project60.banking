@@ -59,35 +59,35 @@
 </div>
 
 <div class="rules-analyser-new">
-  <a class="button rules-analyser__show-ui-btn"><span><div class="icon ui-icon-plus"></div>{ts}create new rule{/ts}</span></a>
+  <a class="button rules-analyser__show-ui-btn"><span><div class="icon ui-icon-plus"></div>{ts domain='org.project60.banking'}create new rule{/ts}</span></a>
   <input type="hidden" name="rules-analyser__create-new-rule" value="0" />
   <input type="hidden" name="rules-analyser__custom-fields-count" value="0" />
 
   <div class='rules-analyser__create-ui' style="display:none;">
     <a class="not-floated rules-analyser__hide-create-ui-btn button" href=""><span><div class="icon add-icon  ui-icon-circle-minus"></div>Cancel creating new rule</span></a>
-    <h4 class="rules-analyser__section-heading">{ts}New Rule Name{/ts}</h4>
-    <label for="rules-analyser__rule-name">{ts}(Optional) Name{/ts}</label>
+    <h4 class="rules-analyser__section-heading">{ts domain='org.project60.banking'}New Rule Name{/ts}</h4>
+    <label for="rules-analyser__rule-name">{ts domain='org.project60.banking'}(Optional) Name{/ts}</label>
     <input id="rules-analyser__rule-name" name="rules-analyser__rule-name" class="rules-analyser__rule-name" />
-    <h4 class="rules-analyser__section-heading">{ts}New Rule Criteria{/ts}</h4>
-    <p>{ts}What information must match to trigger this rule?{/ts}</p>
+    <h4 class="rules-analyser__section-heading">{ts domain='org.project60.banking'}New Rule Criteria{/ts}</h4>
+    <p>{ts domain='org.project60.banking'}What information must match to trigger this rule?{/ts}</p>
     <table id="rules-analyser__conditions">
       <thead><tr><th>Include</th><th>Match</th></tr></thead>
       <tbody>
         <tr>
           <td><input {if $payment_data_parsed._party_IBAN}checked=""{/if} type="checkbox" id="rules-analyser__party-iban-cb" name="rules-analyser__party-iban-cb" class="rules-analyser__party-iban-cb">
- <label for="rules-analyser__party-iban-cb">{ts}Party IBAN{/ts}</label> </td>
+ <label for="rules-analyser__party-iban-cb">{ts domain='org.project60.banking'}Party IBAN{/ts}</label> </td>
           <td class="rules-analyser__party-iban-ui"><input name="rules-analyser__party-iban" value="{$payment_data_parsed._party_IBAN}" type="text"> </td>
         </tr>
 
         <tr>
           <td><input {if $payment_data_parsed._IBAN}checked=""{/if} type="checkbox" id="rules-analyser__our-iban-cb" name="rules-analyser__our-iban-cb" class="rules-analyser__our-iban-cb">
- <label for="rules-analyser__our-iban-cb">{ts}Our IBAN{/ts}</label> </td>
+ <label for="rules-analyser__our-iban-cb">{ts domain='org.project60.banking'}Our IBAN{/ts}</label> </td>
           <td class="rules-analyser__our-iban-ui"><input name="rules-analyser__our-iban"value="{$payment_data_parsed._IBAN}" type="text"> </td>
         </tr>
 
         <tr>
           <td><input checked="" type="checkbox" id="rules-analyser__amount-cb" name="rules-analyser__amount-cb" class="rules-analyser__amount-cb">
- <label for="rules-analyser__amount-cb">{ts}Amount{/ts}</label> </td>
+ <label for="rules-analyser__amount-cb">{ts domain='org.project60.banking'}Amount{/ts}</label> </td>
           <td class="rules-analyser__amount-ui">
             <select class="rules-analyser__amount-op" name="rules-analyser__amount-op" >
               <option value="equals">Exactly</option>
@@ -103,26 +103,26 @@
 
         <tr>
           <td><input {if $payment_data_parsed.name}checked=""{/if} type="checkbox" id="rules-analyser__party-name-cb" name="rules-analyser__party-name-cb" class="rules-analyser__party-name-cb">
- <label for="rules-analyser__party-name-cb">{ts}Party Name{/ts}</label> </td>
+ <label for="rules-analyser__party-name-cb">{ts domain='org.project60.banking'}Party Name{/ts}</label> </td>
           <td class="rules-analyser__party-name-ui"><input name="rules-analyser__party-name" value="{$payment_data_parsed.name}" type="text"> </td>
         </tr>
 
 
         <tr>
           <td><input {if $payment_data_parsed.reference}checked=""{/if} type="checkbox" id="rules-analyser__tx-reference-cb" name="rules-analyser__tx-reference-cb" class="rules-analyser__tx-reference-cb">
- <label for="rules-analyser__tx-reference-cb">{ts}Transaction Reference{/ts}</label> </td>
+ <label for="rules-analyser__tx-reference-cb">{ts domain='org.project60.banking'}Transaction Reference{/ts}</label> </td>
           <td class="rules-analyser__tx-reference-ui"><input name="rules-analyser__tx-reference" value="{$payment_data_parsed.reference}" type="text"> </td>
         </tr>
 
         <tr>
           <td><input {if $payment_data_parsed.purpose}checked=""{/if} type="checkbox" id="rules-analyser__tx-purpose-cb" name="rules-analyser__tx-purpose-cb" class="rules-analyser__tx-purpose-cb">
- <label for="rules-analyser__tx-purpose-cb">{ts}Transaction Purpose{/ts}</label> </td>
+ <label for="rules-analyser__tx-purpose-cb">{ts domain='org.project60.banking'}Transaction Purpose{/ts}</label> </td>
           <td class="rules-analyser__tx-purpose-ui"><input name="rules-analyser__tx-purpose" value="{$payment_data_parsed.purpose}" type="text"> </td>
         </tr>
       </tbody>
     </table>
     <div class="rules-analyser__add-condition-hints" >
-    <p>{ts}The following data has been extracted for this transaction and may be helpful in adding a custom field.{/ts}</p>
+    <p>{ts domain='org.project60.banking'}The following data has been extracted for this transaction and may be helpful in adding a custom field.{/ts}</p>
     <table class="rules-analyser__add-condition-hints" style="display:none;">
       <thead>
         <tr><th>Field</th><th>Value</th></tr>
@@ -136,12 +136,12 @@
       </tbody>
     </table>
     </div>
-    <a href class="rules-analyser__add-condition" >{ts}Add custom condition{/ts}</a>
+    <a href class="rules-analyser__add-condition" >{ts domain='org.project60.banking'}Add custom condition{/ts}</a>
 
-    <h4 class="rules-analyser__section-heading">{ts}New Rule Actions{/ts}</h4>
-    <p>{ts}What information is added by this rule?{/ts}</p>
+    <h4 class="rules-analyser__section-heading">{ts domain='org.project60.banking'}New Rule Actions{/ts}</h4>
+    <p>{ts domain='org.project60.banking'}What information is added by this rule?{/ts}</p>
     <table>
-      <thead><tr><th>{ts}Field to set{/ts}</th><th>{ts}Value{/ts}</th></tr></thead>
+      <thead><tr><th>{ts domain='org.project60.banking'}Field to set{/ts}</th><th>{ts domain='org.project60.banking'}Value{/ts}</th></tr></thead>
       <tbody>
         {foreach from=$fields_to_set item=field_ui key=rule_field}
           <tr>
@@ -149,12 +149,12 @@
               <input type="checkbox" id="rules-analyser__set-{$rule_field}-cb" name="rules-analyser__set-{$rule_field}-cb" class="rules-analyser__set-{$rule_field}-cb rules-analyser__action"
               {if $rule_field == 'contact_id' && $contact_id_found} checked="checked" {/if}
               >
-              <label for="rules-analyser__set-{$rule_field}-cb">{ts}{$field_ui->label}{/ts}</label> </td>
+              <label for="rules-analyser__set-{$rule_field}-cb">{ts domain='org.project60.banking'}{$field_ui->label}{/ts}</label> </td>
             <td class="rules-analyser__set-{$rule_field}-ui">
               {if $field_ui->options}
                 <select name="rules-analyser__set-{$rule_field}" value="{$field_ui->default}" >
                   {foreach from=$field_ui->options item=option_label key=option_value}
-                    <option {if $option_value == $field_ui->default}selected="selected"{/if} value="{$option_value}" >{ts}{$option_label}{/ts}</option>
+                    <option {if $option_value == $field_ui->default}selected="selected"{/if} value="{$option_value}" >{ts domain='org.project60.banking'}{$option_label}{/ts}</option>
                   {/foreach}
                 </select>
               {else}
@@ -168,7 +168,7 @@
       </tbody>
     </table>
 
-    <a class="button not-floated rules-analyser__test-rule" href=""><span><div class="icon add-icon  ui-icon-circle-triangle-e"></div>{ts}Test Rule{/ts}</span></a>
+    <a class="button not-floated rules-analyser__test-rule" href=""><span><div class="icon add-icon  ui-icon-circle-triangle-e"></div>{ts domain='org.project60.banking'}Test Rule{/ts}</span></a>
     <span class="rules-analyser__status" ></span>
 
   </div>
@@ -304,7 +304,7 @@ if (!rulesAnalyser) {
 
       // If no actions are selected this is not going to be useful.
       if (this.$el.find('.rules-analyser__action:checked').length == 0) {
-        errors.push("{/literal}{ts}You must select at least one action.{/ts}{literal}");
+        errors.push("{/literal}{ts domain='org.project60.banking'}You must select at least one action.{/ts}{literal}");
       }
 
       if (errors.length) {
@@ -335,10 +335,10 @@ if (!rulesAnalyser) {
             CRM.alert(result.error_message, 'Error Testing rule', 'error');
           }
           else if (result.values.match) {
-            CRM.alert("{/literal}{ts}The new rule matches this bank transaction{/ts}{literal}", 'Match result', 'success');
+            CRM.alert("{/literal}{ts domain='org.project60.banking'}The new rule matches this bank transaction{/ts}{literal}", 'Match result', 'success');
           }
           else {
-            CRM.alert("{/literal}{ts}The new rule does not match this bank transaction{/ts}{literal}", 'Match result');
+            CRM.alert("{/literal}{ts domain='org.project60.banking'}The new rule does not match this bank transaction{/ts}{literal}", 'Match result');
           }
         });
     },

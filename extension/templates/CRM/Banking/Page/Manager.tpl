@@ -1,6 +1,6 @@
 {*-------------------------------------------------------+
 | Project 60 - CiviBanking                               |
-| Copyright (C) 2013-2014 SYSTOPIA                       |
+| Copyright (C) 2013-2018 SYSTOPIA                       |
 | Author: B. Endres (endres -at- systopia.de)            |
 | http://www.systopia.de/                                |
 +--------------------------------------------------------+
@@ -24,10 +24,10 @@ tr.banking-plugin-disabled {
 
 {* DELETION CONFIRMATION PAGE *}
 {if $delete}
-	<h3>{ts 1=$delete.name}Delete Plugin "%1"{/ts}</h3>
+	<h3>{ts 1=$delete.name domain='org.project60.banking'}Delete Plugin "%1"{/ts}</h3>
 	<div>
 		<p>
-			{ts 1=$delete.name 2=$delete.id}You are about to delete plugin "%1" [%2]. You should consider simply disabling it, since all banking transactions that have been processed using this plugin would have a missing link if go through with the deletion. Do you want to delete it anyway?{/ts}
+			{ts 1=$delete.name 2=$delete.id domain='org.project60.banking'}You are about to delete plugin "%1" [%2]. You should consider simply disabling it, since all banking transactions that have been processed using this plugin would have a missing link if go through with the deletion. Do you want to delete it anyway?{/ts}
 		</p>
 		{assign var=plugin_id value=$delete.id}
 		<a class="button" href="{crmURL p="civicrm/banking/manager" q="reset=1&confirmed=1&delete=$plugin_id"}">

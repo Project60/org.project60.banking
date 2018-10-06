@@ -1,7 +1,7 @@
 <?php
 /*-------------------------------------------------------+
 | Project 60 - CiviBanking                               |
-| Copyright (C) 2013-2014 P. Delbar                      |
+| Copyright (C) 2013-2018 P. Delbar                      |
 | Author: P. Delbar                                      |
 +--------------------------------------------------------+
 | This program is released as free software under the    |

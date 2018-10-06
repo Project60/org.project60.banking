@@ -3,12 +3,12 @@
 <form action="" method="get">
   <input type="hidden" name="s_id" value="{$statement_id}" />
   <div class="crm-block crm-form-block">
-    <h3>{ts}Filter lines{/ts}</h3>
+    <h3>{ts domain='org.project60.banking'}Filter lines{/ts}</h3>
     <table class="form-layout">
       <tbody>
       <tr>        
         <td>
-        <strong>{ts}Status{/ts}</strong>&nbsp;
+        <strong>{ts domain='org.project60.banking'}Status{/ts}</strong>&nbsp;
         {foreach from=$statuses item=status key=status_id}
           {assign var="status_name" value=$status.name}
           <label><input type="checkbox" value="{$status_id}" name="status[]" {if (in_array($status_id, $selectedStatuses))}checked="checked"{/if} />{$status.label} ({$status_count.$status_name})</label>&nbsp;
@@ -18,7 +18,7 @@
     </table>
     
     <div class="crm-submit-buttons">
-    <input type="submit" class="crm-form-submit" value="{ts}Filter{/ts}">
+    <input type="submit" class="crm-form-submit" value="{ts domain='org.project60.banking'}Filter{/ts}">
     </div>
   </div>
 </form>
@@ -27,11 +27,11 @@
 <thead>
   <tr>
     <th class="sorting_disabled"><input type="checkbox" id="banking_selector"></th>
-    <th class="sorting_disabled">{ts}Date{/ts}</th>
-    <th class="sorting_disabled">{ts}Amount{/ts}</th>
-    <th class="sorting_disabled">{ts}Purpose{/ts}</th>
-    <th class="sorting_disabled">{ts}Owner{/ts}</th>
-    <th class="sorting_disabled">{ts}Status{/ts}</th>
+    <th class="sorting_disabled">{ts domain='org.project60.banking'}Date{/ts}</th>
+    <th class="sorting_disabled">{ts domain='org.project60.banking'}Amount{/ts}</th>
+    <th class="sorting_disabled">{ts domain='org.project60.banking'}Purpose{/ts}</th>
+    <th class="sorting_disabled">{ts domain='org.project60.banking'}Owner{/ts}</th>
+    <th class="sorting_disabled">{ts domain='org.project60.banking'}Status{/ts}</th>
     <th class="sorting_disabled"></th>
   </tr>
 </thead>
@@ -65,20 +65,20 @@
         {/if}
       </td>
       <td><span>
-        <a class="action-item crm-hover-button" href="{crmURL p="civicrm/banking/review" q="list=`$list`&id=`$line.id`"}" title="{ts}Walk through the payments and will show the suggestions and will give you the possibility to manually process the suggestions{/ts}">{ts}Review transaction{/ts}</a>
-        {if $can_delete}<a class="action-item crm-hover-button" onClick="deleteLine({$line.id});">{ts}Delete line{/ts}</a>{/if}
+        <a class="action-item crm-hover-button" href="{crmURL p="civicrm/banking/review" q="list=`$list`&id=`$line.id`"}" title="{ts domain='org.project60.banking'}Walk through the payments and will show the suggestions and will give you the possibility to manually process the suggestions{/ts}">{ts domain='org.project60.banking'}Review transaction{/ts}</a>
+        {if $can_delete}<a class="action-item crm-hover-button" onClick="deleteLine({$line.id});">{ts domain='org.project60.banking'}Delete line{/ts}</a>{/if}
       </span></td>
     </tr>
   {/foreach}
 {else}
-  <td class="odd" colspan="7">{ts}No statement lines found.{/ts}
+  <td class="odd" colspan="7">{ts domain='org.project60.banking'}No statement lines found.{/ts}
 {/if}
 </tbody>
 </table>
 
 <div>
-  <a id="processButton" class="button" onClick="processSelected()"><span>{ts}Analyse &amp; Process{/ts}</span></a>
-  <a href="{crmURL p="civicrm/banking/statements"}"  class="button">{ts}Back to statement list{/ts}</a>
+  <a id="processButton" class="button" onClick="processSelected()"><span>{ts domain='org.project60.banking'}Analyse &amp; Process{/ts}</span></a>
+  <a href="{crmURL p="civicrm/banking/statements"}"  class="button">{ts domain='org.project60.banking'}Back to statement list{/ts}</a>
 </div>
 
 <!-- Required JavaScript functions -->

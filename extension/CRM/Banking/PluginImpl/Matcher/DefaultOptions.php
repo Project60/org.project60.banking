@@ -1,7 +1,7 @@
 <?php
 /*-------------------------------------------------------+
 | Project 60 - CiviBanking                               |
-| Copyright (C) 2013-2014 SYSTOPIA                       |
+| Copyright (C) 2013-2018 SYSTOPIA                       |
 | Author: B. Endres (endres -at- systopia.de)            |
 | http://www.systopia.de/                                |
 +--------------------------------------------------------+
@@ -13,6 +13,8 @@
 | copyright header is strictly prohibited without        |
 | written permission from the original author(s).        |
 +--------------------------------------------------------*/
+
+use CRM_Banking_ExtensionUtil as E;
 
 /**
  * The Default Options Matcher will provide the user with two default (last resort) options:
@@ -122,7 +124,7 @@ class CRM_Banking_PluginImpl_Matcher_DefaultOptions extends CRM_Banking_PluginMo
           if ($cid) {
             $contribution = civicrm_api('Contribution', 'getsingle', array('version' => 3, 'id' => $cid));
             if (!empty($contribution['is_error'])) {
-              CRM_Core_Session::setStatus(sprintf(ts("Couldn't find contribution #%s"), $cid), ts('Error'), 'error');
+              CRM_Core_Session::setStatus(sprintf(E::ts("Couldn't find contribution #%s"), $cid), E::ts('Error'), 'error');
               continue;
             }
 
@@ -148,7 +150,7 @@ class CRM_Banking_PluginImpl_Matcher_DefaultOptions extends CRM_Banking_PluginMo
 
             $result = civicrm_api('Contribution', 'create', $query);
             if (isset($result['is_error']) && $result['is_error']) {
-              CRM_Core_Session::setStatus(sprintf(ts("Couldn't modify contribution #%s"), $cid), ts('Error'), 'error');
+              CRM_Core_Session::setStatus(sprintf(E::ts("Couldn't modify contribution #%s"), $cid), E::ts('Error'), 'error');
               return NULL;
             } else {
               $contribution_count += 1;
@@ -161,12 +163,12 @@ class CRM_Banking_PluginImpl_Matcher_DefaultOptions extends CRM_Banking_PluginMo
           $btx->setStatus($newStatus);
           parent::execute($suggestion, $btx);
         } else {
-          CRM_Core_Session::setStatus(ts("The contribution is not valid. The transaction is NOT completed."), ts('Transaction NOT completed.'), 'alert');
+          CRM_Core_Session::setStatus(E::ts("The contribution is not valid. The transaction is NOT completed."), E::ts('Transaction NOT completed.'), 'alert');
           return NULL;
         }
 
       } else {
-        CRM_Core_Session::setStatus(ts("No contribution given. The transaction is NOT completed."), ts('Transaction NOT completed.'), 'alert');
+        CRM_Core_Session::setStatus(E::ts("No contribution given. The transaction is NOT completed."), E::ts('Transaction NOT completed.'), 'alert');
         return NULL;
       }
     } else {
@@ -238,11 +240,11 @@ class CRM_Banking_PluginImpl_Matcher_DefaultOptions extends CRM_Banking_PluginMo
   function visualize_execution_info( CRM_Banking_Matcher_Suggestion $match, $btx) {
     if ($match->getId()==="manual") {
       $cids = $match->getParameter('contribution_ids');
-      $text = "<p>".ts("This transaction was manually matched to the following contributions:")."<ul>";
+      $text = "<p>".E::ts("This transaction was manually matched to the following contributions:")."<ul>";
       foreach ($cids as $contribution_id) {
         if ($contribution_id) {
           $contribution_link = CRM_Utils_System::url("civicrm/contact/view/contribution", "action=view&reset=1&id=$contribution_id&cid=2&context=home");
-          $text .= "<li><a href=\"$contribution_link\">".ts("Contribution")." #$contribution_id</a>";          
+          $text .= "<li><a href=\"$contribution_link\">".E::ts("Contribution")." #$contribution_id</a>";
         }
       }
       $text .=  "</ul>";

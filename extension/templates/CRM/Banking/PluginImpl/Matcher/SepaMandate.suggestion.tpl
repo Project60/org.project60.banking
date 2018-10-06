@@ -1,6 +1,6 @@
 {*-------------------------------------------------------+
 | Project 60 - CiviBanking                               |
-| Copyright (C) 2013-2015 SYSTOPIA                       |
+| Copyright (C) 2013-2018 SYSTOPIA                       |
 | Author: B. Endres (endres -at- systopia.de)            |
 | http://www.systopia.de/                                |
 +--------------------------------------------------------+
@@ -23,8 +23,8 @@
 {else}
 <div>
   <p>
-    {ts 1=$contact_html}This transaction is a SEPA direct debit contribution by %1.{/ts}
-    {ts 1=$mandate_link 2=$mandate_reference}The mandate reference is <a href="%1" target="_blank">%2</a>{/ts}
+    {ts 1=$contact_html domain='org.project60.banking'}This transaction is a SEPA direct debit contribution by %1.{/ts}
+    {ts 1=$mandate_link 2=$mandate_reference domain='org.project60.banking'}The mandate reference is <a href="%1" target="_blank">%2</a>{/ts}
   </p>
 
   {if $cancellation_mode}
@@ -59,9 +59,9 @@
 
   <p>
     {if not $cancellation_mode}
-      {ts 1=$contribution_link 2=$contribution_id}Contribution <a href="%1" target="_blank">[%2]</a> will be closed, as will be the sepa transaction group if this is the last contribution.{/ts}
+      {ts 1=$contribution_link 2=$contribution_id domain='org.project60.banking'}Contribution <a href="%1" target="_blank">[%2]</a> will be closed, as will be the sepa transaction group if this is the last contribution.{/ts}
     {else}
-      {ts 1=$contribution_link 2=$contribution_id}Contribution <a href="%1" target="_blank">[%2]</a> will be cancelled.{/ts}
+      {ts 1=$contribution_link 2=$contribution_id domain='org.project60.banking'}Contribution <a href="%1" target="_blank">[%2]</a> will be cancelled.{/ts}
       {if $cancel_mandate}
         {ts domain='org.project60.banking'}The mandate will also be cancelled, its status will change to INVALID.{/ts}
       {/if}

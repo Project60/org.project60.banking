@@ -1,7 +1,7 @@
 <?php
 /*-------------------------------------------------------+
 | Project 60 - CiviBanking                               |
-| Copyright (C) 2013-2015 SYSTOPIA                       |
+| Copyright (C) 2013-2018 SYSTOPIA                       |
 | Author: B. Endres (endres -at- systopia.de)            |
 | http://www.systopia.de/                                |
 +--------------------------------------------------------+
@@ -14,6 +14,7 @@
 | written permission from the original author(s).        |
 +--------------------------------------------------------*/
 
+use CRM_Banking_ExtensionUtil as E;
 
 require_once 'CRM/Banking/Helpers/OptionValue.php';
 
@@ -121,7 +122,7 @@ class CRM_Banking_PluginImpl_Matcher_RecurringContribution extends CRM_Banking_P
       $probability -= $penalty;
       if ($probability >= $threshold) {
         if ($penalty) {
-          $suggestion->addEvidence($penalty, ts("A general penalty was applied."));
+          $suggestion->addEvidence($penalty, E::ts("A general penalty was applied."));
         }
         $suggestion->setProbability($probability);
         $btx->addSuggestion($suggestion);
@@ -154,7 +155,7 @@ class CRM_Banking_PluginImpl_Matcher_RecurringContribution extends CRM_Banking_P
     // verify expected amount
     $recorded_amount = $suggestion->getParameter('expected_amount');
     if ($virtual_rcur['amount'] != $recorded_amount) {
-      CRM_Core_Session::setStatus(ts('The expected amount for the recurring contribution(s) seems to have changed. Please analyse transaction again.'), ts('Recurring contribution changed'), 'alert');
+      CRM_Core_Session::setStatus(E::ts('The expected amount for the recurring contribution(s) seems to have changed. Please analyse transaction again.'), E::ts('Recurring contribution changed'), 'alert');
       return false;      
     }
 
@@ -165,11 +166,11 @@ class CRM_Banking_PluginImpl_Matcher_RecurringContribution extends CRM_Banking_P
     if ($due_date) {
       $current_due_date = date('Y-m-d', $due_date);
     } else {
-      $current_due_date = ts('None');
+      $current_due_date = E::ts('None');
     }
     if ($recorded_due_date != $current_due_date) {
       // something changed...
-      CRM_Core_Session::setStatus(ts('The situation for the recurring contribution seems to have changed. Please analyse transaction again.'), ts('Recurring contribution changed'), 'alert');
+      CRM_Core_Session::setStatus(E::ts('The situation for the recurring contribution seems to have changed. Please analyse transaction again.'), E::ts('Recurring contribution changed'), 'alert');
       return false;
     }
 
@@ -191,7 +192,7 @@ class CRM_Banking_PluginImpl_Matcher_RecurringContribution extends CRM_Banking_P
       $contribution['version'] = 3;
       $result = civicrm_api('Contribution', 'create', $contribution);
       if (isset($result['is_error']) && $result['is_error']) {
-        CRM_Core_Session::setStatus(ts("Couldn't create contribution.")."<br/>".ts("Error was: ").$result['error_message'], ts('Error'), 'error');
+        CRM_Core_Session::setStatus(E::ts("Couldn't create contribution.")."<br/>".E::ts("Error was: ").$result['error_message'], E::ts('Error'), 'error');
         return false;
       }
       $contribution_ids[] = $result['id'];
@@ -212,7 +213,7 @@ class CRM_Banking_PluginImpl_Matcher_RecurringContribution extends CRM_Banking_P
         $contribution['version'] = 3;
         $result = civicrm_api('Contribution', 'create', $contribution);
         if (isset($result['is_error']) && $result['is_error']) {
-          CRM_Core_Session::setStatus(ts("Couldn't create contribution.")."<br/>".ts("Error was: ").$result['error_message'], ts('Error'), 'error');
+          CRM_Core_Session::setStatus(E::ts("Couldn't create contribution.")."<br/>".E::ts("Error was: ").$result['error_message'], E::ts('Error'), 'error');
           return false;
         }
         $contribution_ids[] = $result['id'];
@@ -368,7 +369,7 @@ class CRM_Banking_PluginImpl_Matcher_RecurringContribution extends CRM_Banking_P
         $suggestion->setTitle($config->suggestion_title);
       } 
       if ($probability<1.0) {
-        $suggestion->addEvidence(1.0-$probability, ts("The contact could not be uniquely identified."));        
+        $suggestion->addEvidence(1.0-$probability, E::ts("The contact could not be uniquely identified."));
       }
 
       // RCUR LOOP: CHECK AMOUNT
@@ -390,7 +391,7 @@ class CRM_Banking_PluginImpl_Matcher_RecurringContribution extends CRM_Banking_P
         if ($amount_range) {
           $penalty = $config->amount_penalty * (abs($amount_delta) / $amount_range);
           if ($penalty) {
-            $suggestion->addEvidence($penalty, ts("The amount of the transaction differs from the expected amount."));
+            $suggestion->addEvidence($penalty, E::ts("The amount of the transaction differs from the expected amount."));
             $probability -= $penalty;
           }
         }
@@ -398,7 +399,7 @@ class CRM_Banking_PluginImpl_Matcher_RecurringContribution extends CRM_Banking_P
 
       // RCUR LOOP: CHECK CURRENCY
       if ($context->btx->currency != $rcur['currency']) {
-        $suggestion->addEvidence($config->currency_penalty, ts("The currency of the transaction is not as expected."));
+        $suggestion->addEvidence($config->currency_penalty, E::ts("The currency of the transaction is not as expected."));
         $probability -= $config->currency_penalty;
       }
 
@@ -428,7 +429,7 @@ class CRM_Banking_PluginImpl_Matcher_RecurringContribution extends CRM_Banking_P
           if ($date_range) {
             $penalty = $config->date_penalty * ($date_delta / $date_range);
             if ($penalty) {
-              $suggestion->addEvidence($penalty, ts("The date of the transaction deviates too much from the expected date."));
+              $suggestion->addEvidence($penalty, E::ts("The date of the transaction deviates too much from the expected date."));
               $probability -= $penalty;            
             }
           }
@@ -461,9 +462,9 @@ class CRM_Banking_PluginImpl_Matcher_RecurringContribution extends CRM_Banking_P
         if (!empty($other_contributions_id_list)) {
           $links = array();
           if (count($other_contributions_id_list) == 1) {
-            $message = ts("There is already another contribution recorded for this interval: ");
+            $message = E::ts("There is already another contribution recorded for this interval: ");
           } else {
-            $message = ts("There are already multiple contributions recorded for this interval: ");
+            $message = E::ts("There are already multiple contributions recorded for this interval: ");
           }
           foreach ($other_contributions_id_list as $other_contributions_id) {
             $links[] = "<a href='" . CRM_Utils_System::url('civicrm/contact/view/contribution', "reset=1&id=$other_contributions_id&cid={$rcur['contact_id']}&action=view") . "'>[$other_contributions_id]</a>";

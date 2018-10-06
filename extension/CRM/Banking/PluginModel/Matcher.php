@@ -1,7 +1,7 @@
 <?php
 /*-------------------------------------------------------+
 | Project 60 - CiviBanking                               |
-| Copyright (C) 2013-2014 SYSTOPIA                       |
+| Copyright (C) 2013-2018 SYSTOPIA                       |
 | Author: B. Endres (endres -at- systopia.de)            |
 | http://www.systopia.de/                                |
 +--------------------------------------------------------+
@@ -13,6 +13,8 @@
 | copyright header is strictly prohibited without        |
 | written permission from the original author(s).        |
 +--------------------------------------------------------*/
+
+use CRM_Banking_ExtensionUtil as E;
 
 /**
  *
@@ -76,7 +78,7 @@ abstract class CRM_Banking_PluginModel_Matcher extends CRM_Banking_PluginModel_B
    * @return html code snippet
    */
   function visualize_match( CRM_Banking_Matcher_Suggestion $match, $btx) {
-    $html = "<p>".ts("Because :")."<ul>";
+    $html = "<p>".E::ts("Because :")."<ul>";
     $evidence = $match->getEvidence();
     foreach ($evidence as $ev) {
         $html .= '<li>' . $ev . '</li>';
@@ -94,7 +96,7 @@ abstract class CRM_Banking_PluginModel_Matcher extends CRM_Banking_PluginModel_B
    */
   function visualize_execution_info( CRM_Banking_Matcher_Suggestion $match, $btx) {
       // TODO: implement
-      $s = '<p>'.ts('No further information available').'</p>';
+      $s = '<p>'.E::ts('No further information available').'</p>';
       return $s;
   }
 
@@ -299,7 +301,7 @@ abstract class CRM_Banking_PluginModel_Matcher extends CRM_Banking_PluginModel_B
     if (!$contact_bank_account_id) {
       $ba_bao = new CRM_Banking_BAO_BankAccount();
       $ba_bao->contact_id = $contact_id;
-      $ba_bao->description = ts("created by CiviBanking");
+      $ba_bao->description = E::ts("created by CiviBanking");
       $ba_bao->created_date = date('YmdHis');
       $ba_bao->modified_date = date('YmdHis');
       $ba_bao->data_raw = NULL;
@@ -340,7 +342,7 @@ abstract class CRM_Banking_PluginModel_Matcher extends CRM_Banking_PluginModel_B
                         'ba_id'             => $contact_bank_account_id);
         $result = civicrm_api('BankingAccountReference', 'create', $query);
         if (!empty($result['is_error'])) {
-          CRM_Core_Session::setStatus(ts("Couldn't create reference. Error was: '%1'", array(1=>$result['error_message'], 'domain' => 'net.ourpowerbase.sumfields')), ts('Error'), 'alert');
+          CRM_Core_Session::setStatus(E::ts("Couldn't create reference. Error was: '%1'", array(1=>$result['error_message'])), E::ts('Error'), 'alert');
         }
       }
     }
@@ -349,7 +351,7 @@ abstract class CRM_Banking_PluginModel_Matcher extends CRM_Banking_PluginModel_B
     if ($contact_bank_account_created) {
       if (count($bank_accounts) > 1) {
         // there are mutiple acccounts referenced by this
-        $message = ts("The account information of this contact was saved, but it is also used by the following contacts:<br/><ul>%s</ul>");
+        $message = E::ts("The account information of this contact was saved, but it is also used by the following contacts:<br/><ul>%s</ul>");
         $contacts = "";
         foreach ($bank_accounts as $ba_id => $ba_bao) {
           if ($ba_id == $contact_bank_account_id) continue;
@@ -359,51 +361,11 @@ abstract class CRM_Banking_PluginModel_Matcher extends CRM_Banking_PluginModel_B
             $contacts .= "<li><a href='$url'>".$contact['display_name']."</a></li>";
           }
         }
-        CRM_Core_Session::setStatus(sprintf($message, $contacts), ts('Warning'), 'warn');
+        CRM_Core_Session::setStatus(sprintf($message, $contacts), E::ts('Warning'), 'warn');
       } else {
-        CRM_Core_Session::setStatus(ts("The account information of this contact was saved.", array('domain' => 'org.project60.banking')), ts('Account saved', array('domain' => 'org.project60.banking')), 'info');
+        CRM_Core_Session::setStatus(E::ts("The account information of this contact was saved."), E::ts('Account saved'), 'info');
       }
     }
   }
-
-
-
-  /**************************************************************
-   *               Action-Based Execution                       *
-   *        generic execution tools based on action objects.    *
-   *            contact Paul.Delbar at delius.be                *
-   *************************************************************/
-
-  function translateAction($action,$params,$btx) {
-    $className = 'CRM_Banking_PluginModel_Action_' . $action;
-    if (class_exists($className)) {
-      $actor = new $className();
-      return $actor->describe($params,$btx);
-    }
-    return "Unknown action '{$action}'";
-  }
-
-  function executeAction($action,$params,$btx,$match) {
-    $className = 'CRM_Banking_PluginModel_Action_' . $action;
-    if (class_exists($className)) {
-      $actor = new $className();
-      return $actor->execute($params,$btx,$match);
-    }
-  }
-
-  function getActions( $btx ) {
-      $config = $this->_plugin_config;
-      $s = '';
-      if (isset($config->actions)) {
-        $s = '<ul>I suggest :';
-        foreach ($config->actions as $action => $params) {
-            $s .= '<li>' . $this->translateAction($action,$params,$btx) . '</li>';
-        }
-        $s .= '</ul>';
-      }
-      return $s;
-
-  }
-
 }
 

@@ -1,7 +1,7 @@
 <?php
 /*-------------------------------------------------------+
 | Project 60 - CiviBanking                               |
-| Copyright (C) 2013-2015 SYSTOPIA                       |
+| Copyright (C) 2013-2018 SYSTOPIA                       |
 | Author: B. Endres (endres -at- systopia.de)            |
 | http://www.systopia.de/                                |
 +--------------------------------------------------------+
@@ -15,6 +15,8 @@
 +--------------------------------------------------------*/
 
 
+use CRM_Banking_ExtensionUtil as E;
+
 require_once 'CRM/Core/Page.php';
 require_once 'CRM/Banking/Helpers/OptionValue.php';
 
@@ -25,7 +27,7 @@ require_once 'CRM/Banking/Helpers/OptionValue.php';
 class CRM_Banking_Page_AccountDedupe extends CRM_Core_Page {
 
   function run() {
-    CRM_Utils_System::setTitle(ts('Dedupe Bank Accounts'));
+    CRM_Utils_System::setTitle(E::ts('Dedupe Bank Accounts'));
 
     // execute requested pre-search actions
     $this->executeRequestsPre();
@@ -323,11 +325,11 @@ class CRM_Banking_Page_AccountDedupe extends CRM_Core_Page {
       }
 
       if ($errors_ecountered) {
-        CRM_Core_Session::setStatus(ts("%1 errors were encountered when trying to merge duplicate bank accounts, %2/%3 bank accounts were successfully merged.",
-              array(1 => $errors_ecountered, 2 => $accounts_fixed, 3 => ($errors_ecountered+$accounts_fixed))), ts('Errors encountered'), 'warn');
+        CRM_Core_Session::setStatus(E::ts("%1 errors were encountered when trying to merge duplicate bank accounts, %2/%3 bank accounts were successfully merged.",
+              array(1 => $errors_ecountered, 2 => $accounts_fixed, 3 => ($errors_ecountered+$accounts_fixed))), E::ts('Errors encountered'), 'warn');
         $errors_ecountered = 0;
       } else {
-        CRM_Core_Session::setStatus(ts("%1 duplicate bank accounts successfully merged.", array(1 => $accounts_fixed)), ts('Success'), 'info');
+        CRM_Core_Session::setStatus(E::ts("%1 duplicate bank accounts successfully merged.", array(1 => $accounts_fixed)), E::ts('Success'), 'info');
       }
     }
 
@@ -366,18 +368,18 @@ class CRM_Banking_Page_AccountDedupe extends CRM_Core_Page {
           if (empty($result['is_error'])) {
             $refs_fixed += 1;
           } else {
-            error_log("org.project60.banking.dedupe: Error while deleting dupe reference: " .$result['error_message']);
+            CRM_Core_Error::debug_log_message("org.project60.banking.dedupe: Error while deleting dupe reference: " .$result['error_message']);
             $errors_ecountered += 1;
           }
         }
       }
 
       if ($errors_ecountered) {
-        CRM_Core_Session::setStatus(ts("%1 errors were encountered when trying to delete duplicate references. %2/%3 references were successfully deleted.",
-          array(1 => $errors_ecountered, 2 => $refs_fixed, 3 => ($errors_ecountered+$refs_fixed))), ts('Errors encountered'), 'warn');
+        CRM_Core_Session::setStatus(E::ts("%1 errors were encountered when trying to delete duplicate references. %2/%3 references were successfully deleted.",
+          array(1 => $errors_ecountered, 2 => $refs_fixed, 3 => ($errors_ecountered+$refs_fixed))), E::ts('Errors encountered'), 'warn');
         $errors_ecountered = 0;
       } else {
-        CRM_Core_Session::setStatus(ts("%1 duplicate references successfully deleted.", array(1=>$refs_fixed)), ts('Success'), 'info');
+        CRM_Core_Session::setStatus(E::ts("%1 duplicate references successfully deleted.", array(1=>$refs_fixed)), E::ts('Success'), 'info');
       }
     }
 

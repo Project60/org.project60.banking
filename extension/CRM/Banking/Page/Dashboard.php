@@ -1,7 +1,7 @@
 <?php
 /*-------------------------------------------------------+
 | Project 60 - CiviBanking                               |
-| Copyright (C) 2013-2014 SYSTOPIA                       |
+| Copyright (C) 2013-2018 SYSTOPIA                       |
 | Author: B. Endres (endres -at- systopia.de)            |
 | http://www.systopia.de/                                |
 +--------------------------------------------------------+
@@ -14,12 +14,14 @@
 | written permission from the original author(s).        |
 +--------------------------------------------------------*/
 
+use CRM_Banking_ExtensionUtil as E;
+
 require_once 'CRM/Core/Page.php';
 require_once 'CRM/Banking/Helpers/OptionValue.php';
 
 class CRM_Banking_Page_Dashboard extends CRM_Core_Page {
   function run() {
-    CRM_Utils_System::setTitle(ts('CiviBanking Dashboard'));
+    CRM_Utils_System::setTitle(E::ts('CiviBanking Dashboard'));
 
 
     $now = strtotime("now");
@@ -84,7 +86,7 @@ class CRM_Banking_Page_Dashboard extends CRM_Core_Page {
 
 		// look up account name
 		if ($account_id==0) {
-			$account_names[0] = ts('Unknown');
+			$account_names[0] = E::ts('Unknown');
 		} else {
 			$btx_bao = new CRM_Banking_BAO_BankAccount();
 			$btx_bao->get('id', $account_id);
@@ -92,7 +94,7 @@ class CRM_Banking_Page_Dashboard extends CRM_Core_Page {
 			if (isset($data_parsed['name'])) {
 				$account_names[$account_id] = $data_parsed['name'];
 			} else {
-				$account_names[$account_id] = ts('account')." [$account_id]";
+				$account_names[$account_id] = E::ts('account')." [$account_id]";
 			}
 		}
     }
@@ -104,15 +106,15 @@ class CRM_Banking_Page_Dashboard extends CRM_Core_Page {
     // get statistics data
     $statistics = array();
     $statistics[] = $this->calculateStats(
-    			ts("Payments")." (".ts("current year").")", 
+    			E::ts("Payments")." (".E::ts("current year").")",
     			"YEAR(value_date) = '".date('Y')."'",
     			$payment_states);
     $statistics[] = $this->calculateStats(
-    			ts("Payments")." (".ts("last year").")", 
+    			E::ts("Payments")." (".E::ts("last year").")",
     			"YEAR(value_date) = '".date('Y', strtotime("-1 year"))."'",
     			$payment_states);
     $statistics[] = $this->calculateStats(
-    			ts("Payments")." (".ts("all times").")", 
+    			E::ts("Payments")." (".E::ts("all times").")",
     			"1",
     			$payment_states);
 	$this->assign('statistics', $statistics);

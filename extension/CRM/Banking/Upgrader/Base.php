@@ -200,7 +200,7 @@ class CRM_Banking_Upgrader_Base {
     $currentRevision = $this->getCurrentRevision();
     foreach ($this->getRevisions() as $revision) {
       if ($revision > $currentRevision) {
-        $title = ts('Upgrade %1 to revision %2', array(
+        $title = E::ts('Upgrade %1 to revision %2', array(
           1 => $this->extensionName,
           2 => $revision,
         ));

@@ -1,6 +1,6 @@
 {*-------------------------------------------------------+
 | Project 60 - CiviBanking                               |
-| Copyright (C) 2013-2014 SYSTOPIA                       |
+| Copyright (C) 2013-2018 SYSTOPIA                       |
 | Author: B. Endres (endres -at- systopia.de)            |
 | http://www.systopia.de/                                |
 +--------------------------------------------------------+
@@ -21,7 +21,7 @@
     {capture assign=address_text}{if $contact.city}{$contact.street_address}, {$contact.city}{else}{ts domain='org.project60.banking'}Address incomplete{/ts}{/if}{/capture}
     {capture assign=contact_link}<a title="{$address_text}" href="{crmURL p="civicrm/contact/view" q="reset=1&cid=$contact_id"}">{$contact.display_name} [{$contact.id}]</a>{/capture}
 
-    {ts 1=$contact_link}%1 maintains a matching recurring contribution.{/ts}
+    {ts 1=$contact_link domain='org.project60.banking'}%1 maintains a matching recurring contribution.{/ts}
     {ts domain='org.project60.banking'}If you confirm this suggestion, the transaction will be recorded as a new installment for this recurring contribution.{/ts}
 
   {else}
@@ -32,7 +32,7 @@
       {capture assign=address_text}{if $contact.city}{$contact.street_address}, {$contact.city}{else}{ts domain='org.project60.banking'}Address incomplete{/ts}{/if}{/capture}
       {capture assign=contact_link}<a title="{$address_text}" href="{crmURL p="civicrm/contact/view" q="reset=1&cid=$contact_id"}">{$contact.display_name} [{$contact.id}]</a>{/capture}
 
-      {ts 1=$contact_link 2=$recurring_contribution_count}%1 maintains %2 matching recurring contributions.{/ts}
+      {ts 1=$contact_link 2=$recurring_contribution_count domain='org.project60.banking'}%1 maintains %2 matching recurring contributions.{/ts}
 
     {else}
       {* compile contact list *}
@@ -50,7 +50,7 @@
         {/if}
       {/foreach}
 
-      {ts 1=$contact_link 2=$recurring_contribution_count}%1 maintain %2 matching recurring contributions.{/ts}
+      {ts 1=$contact_link 2=$recurring_contribution_count domain='org.project60.banking'}%1 maintain %2 matching recurring contributions.{/ts}
     {/if}
     {ts domain='org.project60.banking'}If you confirm this suggestion, the transaction will be recorded as new installments for these recurring contributions.{/ts}
   {/if}
@@ -95,13 +95,13 @@
         {elseif $recurring_contribution.frequency_interval eq 12}
           {capture assign=frequency_words}{ts domain='org.project60.banking'}annually{/ts}{/capture}
         {else}
-          {capture assign=frequency_words}{ts 1=$recurring_contribution.frequency_interval}every %1 months{/ts}{/capture}
+          {capture assign=frequency_words}{ts 1=$recurring_contribution.frequency_interval domain='org.project60.banking'}every %1 months{/ts}{/capture}
         {/if}
       {elseif $recurring_contribution.frequency_unit eq 'year'}
         {if $recurring_contribution.frequency_interval eq 1}
           {capture assign=frequency_words}{ts domain='org.project60.banking'}annually{/ts}{/capture}
         {else}
-          {capture assign=frequency_words}{ts 1=$recurring_contribution.frequency_interval}every %1 years{/ts}{/capture}
+          {capture assign=frequency_words}{ts 1=$recurring_contribution.frequency_interval domain='org.project60.banking'}every %1 years{/ts}{/capture}
         {/if}
       {else}
         {capture assign=frequency_words}{ts domain='org.project60.banking'}on an irregular basis{/ts}{/capture}

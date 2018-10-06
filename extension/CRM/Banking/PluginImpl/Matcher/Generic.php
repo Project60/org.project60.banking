@@ -1,7 +1,7 @@
 <?php
 /*-------------------------------------------------------+
 | Project 60 - CiviBanking                               |
-| Copyright (C) 2013-2014 SYSTOPIA                       |
+| Copyright (C) 2013-2018 SYSTOPIA                       |
 | Author: B. Endres (endres -at- systopia.de)            |
 | http://www.systopia.de/                                |
 +--------------------------------------------------------+
@@ -14,6 +14,7 @@
 | written permission from the original author(s).        |
 +--------------------------------------------------------*/
 
+use CRM_Banking_ExtensionUtil as E;
     
 /**
  * The generic match plugin is able to do the following :
@@ -46,7 +47,7 @@ class CRM_Banking_PluginImpl_Matcher_Generic extends CRM_Banking_PluginModel_Mat
       $amount = $btx->amount;
       if (($low == null) || ($amount >= $low))
         if (($high == null) || ($amount <= $high)) {
-          $message = ts('the transaction amount is in the range [ ');
+          $message = E::ts('the transaction amount is in the range [ ');
           if ($low)
             $message .= number_format($low, 2);
           $message .= ' - ';
@@ -66,7 +67,7 @@ class CRM_Banking_PluginImpl_Matcher_Generic extends CRM_Banking_PluginModel_Mat
       $value_date = strtotime($btx->value_date);
       if (($early != '') && ($value_date >= strtotime($early)))
         if (($late != '') && ($value_date <= strtotime($late))) {
-          $message = ts('the transaction value date is in the range [ ');
+          $message = E::ts('the transaction value date is in the range [ ');
           if ($early)
             $message .= $early;
           $message .= ' - ';
@@ -85,7 +86,7 @@ class CRM_Banking_PluginImpl_Matcher_Generic extends CRM_Banking_PluginModel_Mat
       $parsed = json_decode($btx->data_parsed, true);
       $purpose = $parsed['purpose'];
       if (($regex != '') && preg_match("/$regex/", $purpose)) {
-        $message = sprintf(ts('the transaction purpose matches the expression "%s"'), htmlentities($regex));
+        $message = sprintf(E::ts('the transaction purpose matches the expression "%s"'), htmlentities($regex));
         $suggestion->addEvidence($factor, $message);
       }
     }

@@ -128,14 +128,23 @@ function civicrm_api3_banking_lookup_contactbyname($params) {
     }
   }
 
-  if (empty($params['mode']) || $params['mode']=='getquick') {
-    $contacts_found = _civicrm_api3_banking_lookup_contactbyname_api($name_mutations, $params);
-  } elseif ($params['mode']=='sql') {
-    $contacts_found = _civicrm_api3_banking_lookup_contactbyname_sql($name_mutations, $params);
-  } else { // OFF / invalid
-    $contacts_found = array();
-  }
+  $name_mutations = array_unique($name_mutations);
 
+  usort($name_mutations, function($a, $b) {
+    return strlen($b) - strlen($a);
+  }); // search first for the longest combination
+
+  $contacts_found = _civicrm_api3_banking_lookup_contactbyname_exact($name_mutations);
+  // let's try first to get exact match(es) and skip the more advanced matching
+  if (!$contacts_found) {
+    if (empty($params['mode']) || $params['mode']=='getquick') {
+      $contacts_found = _civicrm_api3_banking_lookup_contactbyname_api($name_mutations, $params);
+    } elseif ($params['mode']=='sql') {
+      $contacts_found = _civicrm_api3_banking_lookup_contactbyname_sql($name_mutations, $params);
+    } else { // OFF / invalid
+      $contacts_found = array();
+    }
+  }
   // apply penalties
   if (!empty($params['penalties'])) {
     _civicrm_api3_banking_lookup_contactbyname_penalties($contacts_found, $params['penalties']);
@@ -193,6 +202,26 @@ function civicrm_api3_banking_lookup_contactbyname($params) {
   return civicrm_api3_create_success($contacts_found);
 }
 
+function _civicrm_api3_banking_lookup_contactbyname_exact ($name_mutations) {
+  $contacts_found = array();
+  $longest_mutation = strlen($name_mutations[0]);
+
+  // compile SQL query
+  $sql_clauses = array();
+  foreach ($name_mutations as $name_mutation) {
+    if (strlen($name_mutation) < $longest_mutation)
+      return $contacts_found;
+    $name_mutation = CRM_Utils_Type::escape($name_mutation, 'String');
+    $search_query = "SELECT id, sort_name FROM civicrm_contact WHERE is_deleted=0 AND (`sort_name` = '{$name_mutation}');";
+    // error_log($search_query);
+    $search_results = CRM_Core_DAO::executeQuery($search_query);
+    while ($search_results->fetch()) {
+      $contacts_found[$search_results->id] = 1.0;
+    }
+  }
+  return $contacts_found;
+}
+
 /**
  * find some contacts via SQL
  */
@@ -248,11 +277,9 @@ function _civicrm_api3_banking_lookup_contactbyname_sql($name_mutations, $params
  */
 function _civicrm_api3_banking_lookup_contactbyname_api($name_mutations, $params) {
   $contacts_found = array();
-
   // query quicksearch for each combination
   foreach ($name_mutations as $name_mutation) {
     $result = civicrm_api3('Contact', 'getquick', array('name' => $name_mutation));
-
     foreach ($result['values'] as $contact) {
       // get the current maximum similarity...
       if (isset($contacts_found[$contact['id']])) {

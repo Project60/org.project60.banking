@@ -367,45 +367,5 @@ abstract class CRM_Banking_PluginModel_Matcher extends CRM_Banking_PluginModel_B
       }
     }
   }
-
-
-
-  /**************************************************************
-   *               Action-Based Execution                       *
-   *        generic execution tools based on action objects.    *
-   *            contact Paul.Delbar at delius.be                *
-   *************************************************************/
-
-  function translateAction($action,$params,$btx) {
-    $className = 'CRM_Banking_PluginModel_Action_' . $action;
-    if (class_exists($className)) {
-      $actor = new $className();
-      return $actor->describe($params,$btx);
-    }
-    return "Unknown action '{$action}'";
-  }
-
-  function executeAction($action,$params,$btx,$match) {
-    $className = 'CRM_Banking_PluginModel_Action_' . $action;
-    if (class_exists($className)) {
-      $actor = new $className();
-      return $actor->execute($params,$btx,$match);
-    }
-  }
-
-  function getActions( $btx ) {
-      $config = $this->_plugin_config;
-      $s = '';
-      if (isset($config->actions)) {
-        $s = '<ul>I suggest :';
-        foreach ($config->actions as $action => $params) {
-            $s .= '<li>' . $this->translateAction($action,$params,$btx) . '</li>';
-        }
-        $s .= '</ul>';
-      }
-      return $s;
-
-  }
-
 }
 

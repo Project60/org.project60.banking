@@ -14,6 +14,8 @@
 | written permission from the original author(s).        |
 +--------------------------------------------------------*/
 
+use CRM_Banking_ExtensionUtil as E;
+
 // utility function
 function _csvimporter_helper_startswith($string, $prefix) {
   return substr($string, 0, strlen($prefix)) === $prefix;
@@ -216,7 +218,7 @@ class CRM_Banking_PluginImpl_Importer_CSV extends CRM_Banking_PluginModel_Import
       try {
         $this->apply_rule($rule, $line, $btx, $header);
       } catch (Exception $e) {
-        $this->reportProgress($progress, sprintf(ts("Rule '%s' failed. Exception was %s"), $rule, $e->getMessage()));
+        $this->reportProgress($progress, sprintf(E::ts("Rule '%s' failed. Exception was %s"), $rule, $e->getMessage()));
       }
     }
 
@@ -395,7 +397,7 @@ class CRM_Banking_PluginImpl_Importer_CSV extends CRM_Banking_PluginModel_Import
         // check, if we should warn: (not set = 'warn' for backward compatibility)
         if (!isset($rule->warn) || $rule->warn) {
           $this->reportProgress(CRM_Banking_PluginModel_Base::REPORT_PROGRESS_NONE, 
-            sprintf(ts("Pattern '%s' was not found in entry '%s'."), $pattern, $value));          
+            sprintf(E::ts("Pattern '%s' was not found in entry '%s'."), $pattern, $value));
         }
       }
 
@@ -423,7 +425,7 @@ class CRM_Banking_PluginImpl_Importer_CSV extends CRM_Banking_PluginModel_Import
    */
   function import_stream( $params )
   {
-    $this->reportDone(ts("Importing streams not supported by this plugin."));
+    $this->reportDone(E::ts("Importing streams not supported by this plugin."));
   }
 }
 

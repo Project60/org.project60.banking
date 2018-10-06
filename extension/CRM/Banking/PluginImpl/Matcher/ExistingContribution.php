@@ -14,6 +14,7 @@
 | written permission from the original author(s).        |
 +--------------------------------------------------------*/
 
+use CRM_Banking_ExtensionUtil as E;
 
 require_once 'CRM/Banking/Helpers/OptionValue.php';
 require_once 'packages/eval-math/evalmath.class.php';
@@ -65,7 +66,7 @@ class CRM_Banking_PluginImpl_Matcher_ExistingContribution extends CRM_Banking_Pl
     if (!isset($config->cancellation_cancel_reason))         $config->cancellation_cancel_reason         = 0; // set to 1 to enable
     if (!isset($config->cancellation_cancel_reason_edit))    $config->cancellation_cancel_reason_edit    = 1; // set to 0 to disable user input
     if (!isset($config->cancellation_cancel_reason_source))  $config->cancellation_cancel_reason_source  = 'cancel_reason';
-    if (!isset($config->cancellation_cancel_reason_default)) $config->cancellation_cancel_reason_default = ts('Unknown');
+    if (!isset($config->cancellation_cancel_reason_default)) $config->cancellation_cancel_reason_default = E::ts('Unknown');
 
     // extended cancellation features: fee
     if (!isset($config->cancellation_cancel_fee))            $config->cancellation_cancel_fee            = 0; // set to 1 to enable
@@ -291,25 +292,25 @@ class CRM_Banking_PluginImpl_Matcher_ExistingContribution extends CRM_Banking_Pl
       $suggestion = new CRM_Banking_Matcher_Suggestion($this, $btx);
       if (!in_array($contribution_id, $contributions_identified)) {
         if ($contacts_found[$contact_id]>=1.0) {
-          $suggestion->addEvidence(1.0, ts("Contact was positively identified."));
+          $suggestion->addEvidence(1.0, E::ts("Contact was positively identified."));
         } else {
-          $suggestion->addEvidence($contacts_found[$contact_id], ts("Contact was likely identified."));
+          $suggestion->addEvidence($contacts_found[$contact_id], E::ts("Contact was likely identified."));
         }        
       }
       
       if ($contribution_probability>=1.0) {
-        $suggestion->setTitle(ts("Matching contribution found"));
+        $suggestion->setTitle(E::ts("Matching contribution found"));
         if ($config->mode != "cancellation") {
-          $suggestion->addEvidence(1.0, ts("A pending contribution matching the transaction was found."));
+          $suggestion->addEvidence(1.0, E::ts("A pending contribution matching the transaction was found."));
         } else {
-          $suggestion->addEvidence(1.0, ts("This transaction is the <b>cancellation</b> of the below contribution."));
+          $suggestion->addEvidence(1.0, E::ts("This transaction is the <b>cancellation</b> of the below contribution."));
         }
       } else {
-        $suggestion->setTitle(ts("Possible matching contribution found"));
+        $suggestion->setTitle(E::ts("Possible matching contribution found"));
         if ($config->mode != "cancellation") {
-          $suggestion->addEvidence($contacts_found[$contact_id], ts("A pending contribution partially matching the transaction was found."));
+          $suggestion->addEvidence($contacts_found[$contact_id], E::ts("A pending contribution partially matching the transaction was found."));
         } else {
-          $suggestion->addEvidence($contacts_found[$contact_id], ts("This transaction could be the <b>cancellation</b> of the below contribution."));
+          $suggestion->addEvidence($contacts_found[$contact_id], E::ts("This transaction could be the <b>cancellation</b> of the below contribution."));
         }
       }
 
@@ -374,12 +375,12 @@ class CRM_Banking_PluginImpl_Matcher_ExistingContribution extends CRM_Banking_Pl
     // double check contribution (see https://github.com/Project60/CiviBanking/issues/61)
     $contribution = civicrm_api('Contribution', 'getsingle', array('id' => $contribution_id, 'version' => 3));
     if (!empty($contribution['is_error'])) {
-      CRM_Core_Session::setStatus(ts('Contribution has disappeared.').' '.ts('Error was:').' '.$contribution['error_message'], ts('Execution Failure'), 'alert');
+      CRM_Core_Session::setStatus(E::ts('Contribution has disappeared.').' '.E::ts('Error was:').' '.$contribution['error_message'], E::ts('Execution Failure'), 'alert');
       return false;
     }
     $accepted_status_ids = $this->getAcceptedContributionStatusIDs();
     if (!in_array($contribution['contribution_status_id'], $accepted_status_ids)) {
-      CRM_Core_Session::setStatus(ts('Contribution status has been modified.'), ts('Execution Failure'), 'alert');
+      CRM_Core_Session::setStatus(E::ts('Contribution status has been modified.'), E::ts('Execution Failure'), 'alert');
       return false;
     }
 
@@ -397,7 +398,7 @@ class CRM_Banking_PluginImpl_Matcher_ExistingContribution extends CRM_Banking_Pl
     
     $result = civicrm_api('Contribution', 'create', $query);
     if (isset($result['is_error']) && $result['is_error']) {
-      CRM_Core_Session::setStatus(ts("Couldn't modify contribution.") . "<br/>" . $result['error_message'], ts('Error'), 'error');
+      CRM_Core_Session::setStatus(E::ts("Couldn't modify contribution.") . "<br/>" . $result['error_message'], E::ts('Error'), 'error');
       return false;
     } else {
       // everything seems fine, save the account

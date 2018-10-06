@@ -14,6 +14,7 @@
 | written permission from the original author(s).        |
 +--------------------------------------------------------*/
 
+use CRM_Banking_ExtensionUtil as E;
 
 /**
  * This PostProcessor can update the contact's address with the one from the bank statement
@@ -35,7 +36,7 @@ class CRM_Banking_PluginImpl_PostProcessor_AddressUpdate extends CRM_Banking_Plu
     if (!isset($config->create_if_missing))            $config->create_if_missing            = true;
     if (!isset($config->create_diff))                  $config->create_diff                  = ['note']; // also accepts 'activity' and 'tag'
     if (!isset($config->create_diff_activity_type))    $config->create_diff_activity_type    = 1;
-    if (!isset($config->create_diff_activity_subject)) $config->create_diff_activity_subject = ts("New Address Received");
+    if (!isset($config->create_diff_activity_subject)) $config->create_diff_activity_subject = E::ts("New Address Received");
     if (!isset($config->tag_diff))                     $config->tag_diff                     = array();
     if (!isset($config->tag_create))                   $config->tag_create                   = array();
 
@@ -177,13 +178,13 @@ class CRM_Banking_PluginImpl_PostProcessor_AddressUpdate extends CRM_Banking_Plu
         // check if the same note already exists
         $existing_note = civicrm_api3('Note', 'get', array(
           'note'         => $note,
-          'subject'      => ts("New Address Received"),
+          'subject'      => E::ts("New Address Received"),
           'entity_table' => 'civicrm_contact',
           'entity_id'    => $contact_id));
         if ($existing_note['count'] == 0) {
           civicrm_api3('Note', 'create', array(
             'note'         => $note,
-            'subject'      => ts("New Address Received"),
+            'subject'      => E::ts("New Address Received"),
             'entity_table' => 'civicrm_contact',
             'entity_id'    => $contact_id));
         }

@@ -14,6 +14,9 @@
 | written permission from the original author(s).        |
 +--------------------------------------------------------*/
 
+use CRM_Banking_ExtensionUtil as E;
+
+
 /**
  *
  * @package org.project60.banking
@@ -123,7 +126,7 @@ class CRM_Banking_PluginImpl_Importer_Fixed extends CRM_Banking_PluginModel_Impo
    */
   function import_stream( $params )
   {
-    $this->reportDone(ts("Importing streams not supported by this plugin."));
+    $this->reportDone(E::ts("Importing streams not supported by this plugin."));
   }
 
   /**

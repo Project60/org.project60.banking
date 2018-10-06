@@ -14,6 +14,8 @@
 | written permission from the original author(s).        |
 +--------------------------------------------------------*/
 
+use CRM_Banking_ExtensionUtil as E;
+
 class CRM_Banking_Helpers_Logger {
 
   /** singleton */
@@ -164,11 +166,11 @@ class CRM_Banking_Helpers_Logger {
    */
   public static function getLoglevels() {
     return array(
-      'off'   => ts('No Logging'),
-      'debug' => ts('Debug'),
-      'info'  => ts('Info'),
-      'warn'  => ts('Warnings'),
-      'error' => ts('Errors'),
+      'off'   => E::ts('No Logging'),
+      'debug' => E::ts('Debug'),
+      'info'  => E::ts('Info'),
+      'warn'  => E::ts('Warnings'),
+      'error' => E::ts('Errors'),
     );
   }
 

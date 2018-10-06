@@ -15,6 +15,7 @@
 | written permission from the original author(s).        |
 +--------------------------------------------------------*/
 
+use CRM_Banking_ExtensionUtil as E;
 
 require_once 'CRM/Banking/Helpers/OptionValue.php';
 
@@ -43,11 +44,11 @@ class CRM_Banking_PluginImpl_Matcher_RulesAnalyser extends CRM_Banking_PluginMod
     if (!isset($config->copy_matching_rule_names_to)) $config->copy_matching_rule_names_to = '';
     if (!isset($config->copy_matching_rule_ids_to))   $config->copy_matching_rule_ids_to = '';
     if (!isset($config->fields_to_set))         $config->fields_to_set = array(
-                                                  'campaign_id'           => ts('Campaign ID'),
-                                                  'contact_id'            => ts('Contact ID'),
-                                                  'membership_id'         => ts('Membership ID'),
-                                                  'financial_type_id'     => ts('Financial Type ID'),
-                                                  'payment_instrument_id' => ts('Payment Instrument ID'));
+                                                  'campaign_id'           => E::ts('Campaign ID'),
+                                                  'contact_id'            => E::ts('Contact ID'),
+                                                  'membership_id'         => E::ts('Membership ID'),
+                                                  'financial_type_id'     => E::ts('Financial Type ID'),
+                                                  'payment_instrument_id' => E::ts('Payment Instrument ID'));
     // caution: field_mapping should not be used, doesn't work properly:
     if (!isset($config->field_mapping))         $config->field_mapping = array();
 
@@ -150,7 +151,7 @@ class CRM_Banking_PluginImpl_Matcher_RulesAnalyser extends CRM_Banking_PluginMod
 
     if (empty($input['rules-analyser__create-new-rule'])) {
       // User did not want to create a new rule.
-      CRM_Core_Session::setStatus(ts("No new rule was created."), ts('Nothing to do'), 'warn');
+      CRM_Core_Session::setStatus(E::ts("No new rule was created."), E::ts('Nothing to do'), 'warn');
       return 're-run';
     }
 
@@ -158,10 +159,10 @@ class CRM_Banking_PluginImpl_Matcher_RulesAnalyser extends CRM_Banking_PluginMod
     // User wants to create a rule.
     try {
       $rule = static::createRule($input);
-      CRM_Core_Session::setStatus(ts("New rule created."), ts('Success'), 'success');
+      CRM_Core_Session::setStatus(E::ts("New rule created."), E::ts('Success'), 'success');
     }
     catch (InvalidArgumentException $e) {
-      CRM_Core_Session::setStatus(ts($e->getMessage()), ts('Error'), 'error');
+      CRM_Core_Session::setStatus(E::ts($e->getMessage()), E::ts('Error'), 'error');
     }
 
     // return 're-run' to indicate that this transaction needs to
@@ -204,7 +205,7 @@ class CRM_Banking_PluginImpl_Matcher_RulesAnalyser extends CRM_Banking_PluginMod
         $rules_data[$rule_id] = $rule_data;
       } catch (Exception $e) {
         // rule probably deleted
-        $rule_data['loading_error'] = ts('Error: ') . $e->getMessage();
+        $rule_data['loading_error'] = E::ts('Error: ') . $e->getMessage();
         $rules_data[$rule_id] = $rule_data;
       }
     }

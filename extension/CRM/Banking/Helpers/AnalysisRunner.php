@@ -14,6 +14,8 @@
 | written permission from the original author(s).        |
 +--------------------------------------------------------*/
 
+use CRM_Banking_ExtensionUtil as E;
+
 define('CIVIBANKING_RUNNER_JOB_SIZE', 25);
 
 /**
@@ -30,13 +32,12 @@ class CRM_Banking_Helpers_AnalysisRunner {
     $this->btx_ids = $btx_ids;
 
     if ($btx_ids === NULL) {
-      $this->title = ts("Initialising analyser...", array('domain' => 'org.project60.banking'));
+      $this->title = E::ts("Initialising analyser...");
     } else {
       $start_index = (($batch_number-1) * CIVIBANKING_RUNNER_JOB_SIZE);
-      $this->title = ts("Analysing bank transactions %1-%2", array(
+      $this->title = E::ts("Analysing bank transactions %1-%2", array(
             1 => $start_index,
-            2 => $start_index + count($this->btx_ids),
-            'domain' => 'org.project60.banking'));
+            2 => $start_index + count($this->btx_ids)));
     }
   }
 
@@ -85,7 +86,7 @@ class CRM_Banking_Helpers_AnalysisRunner {
 
     // create a runner and launch it
     $runner = new CRM_Queue_Runner(array(
-      'title'     => ts("Analysing %1 bank transactions", array(1 => count($btx_list), 'domain' => 'org.project60.banking')),
+      'title'     => E::ts("Analysing %1 bank transactions", array(1 => count($btx_list))),
       'queue'     => $queue,
       'errorMode' => CRM_Queue_Runner::ERROR_ABORT,
       'onEndUrl'  => $back_url,

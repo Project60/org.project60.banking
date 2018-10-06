@@ -48,27 +48,18 @@ class CRM_Banking_BAO_PluginInstance extends CRM_Banking_DAO_PluginInstance {
    */
   static function listInstances($type_name, $enabled_only=TRUE) {
     // first, find the plugin type option group
-    $plugin_types = civicrm_api('OptionGroup', 'get', array('version' => 3, 'name' => 'civicrm_banking.plugin_types'));
-    if (isset($result['is_error']) && $result['is_error']) {
-      CRM_Core_Error::fatal(sprintf(ts("Couldn't find group '%s'!"), 'civicrm_banking.plugin_types'));
-      return array();
-    }
+    $plugin_types = civicrm_api3('OptionGroup', 'get', array(
+        'name' => 'civicrm_banking.plugin_types'));
 
     // then, find the correct plugin type
-    $import_plugin_type = civicrm_api('OptionValue', 'get', array('version' => 3, 'name' => $type_name, 'group_id' => $plugin_types['id']));
-    if ((isset($result['is_error']) && $result['is_error']) || (!isset($import_plugin_type['id']) || !$import_plugin_type['id'])) {
-      CRM_Core_Error::fatal(sprintf(ts("Couldn't find type '%s' in group %d!"), $type_name, $plugin_types['id']));
-      return array();
-    }
+    $import_plugin_type = civicrm_api3('OptionValue', 'get', array(
+        'name'     => $type_name,
+        'group_id' => $plugin_types['id']));
 
     // then, get the list of plugins matching this criteria
-    $params = array('version' => 3, 'plugin_type_id' => $import_plugin_type['id']);
+    $params = array('plugin_type_id' => $import_plugin_type['id']);
     if ($enabled_only) { $params['enabled'] = 1; }
-    $instance_results = civicrm_api('BankingPluginInstance', 'get', $params);
-    if (isset($result['is_error']) && $result['is_error']) {
-      CRM_Core_Error::fatal(ts("Couldn't query plugin list from API!"));
-      return array();
-    }
+    $instance_results = civicrm_api3('BankingPluginInstance', 'get', $params);
 
     // create list of plugin instance BAOs
     $plugin_list = array();
@@ -100,16 +91,11 @@ class CRM_Banking_BAO_PluginInstance extends CRM_Banking_DAO_PluginInstance {
    */
   function getClass() {
     $classNameId = $this->plugin_class_id;
-    $className = civicrm_api( 'OptionValue','getsingle', array( 
-        'version' => 3, 
-        'id' => $classNameId) );
-    if (isset($className['is_error']) && $className['is_error']) {
-      CRM_Core_Error::fatal( sprintf( ts('Could not locate the class name for civicrm_banking.plugin_classes member %d.'), $classNameId ) );
-    }
+    $className = civicrm_api3( 'OptionValue','getsingle', array('id' => $classNameId));
 
     $class = $className['value'];
     if (!class_exists($class)) {
-      CRM_Core_Error::fatal(sprintf( ts('This plugin requires class %s which does not seem to exist.'), $class));
+      throw new Exception(sprintf('This plugin requires class %s which does not seem to exist.'), $class);
     }
     return $class;
   }

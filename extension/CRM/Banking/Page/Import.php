@@ -14,12 +14,14 @@
 | written permission from the original author(s).        |
 +--------------------------------------------------------*/
 
+use CRM_Banking_ExtensionUtil as E;
+
 require_once 'CRM/Core/Page.php';
 
 class CRM_Banking_Page_Import extends CRM_Core_Page {
   function run() {
     // Example: Set the page-title dynamically; alternatively, declare a static title in xml/Menu/*.xml
-    CRM_Utils_System::setTitle(ts('Bank Transaction Importer'));
+    CRM_Utils_System::setTitle(E::ts('Bank Transaction Importer'));
 
     // get the plugins
     $plugin_list = CRM_Banking_BAO_PluginInstance::listInstances('import');
@@ -55,7 +57,7 @@ class CRM_Banking_Page_Import extends CRM_Core_Page {
         if ($plugin_instance->probe_file($file, $import_parameters)) {
           $plugin_instance->import_file($file, $import_parameters);
         } else {
-          CRM_Core_Session::setStatus(ts('File rejected by importer!'), ts('Bad input file'), 'alert');
+          CRM_Core_Session::setStatus(E::ts('File rejected by importer!'), E::ts('Bad input file'), 'alert');
         }
 
       } else if ($plugin_instance::does_import_stream()) {
@@ -63,15 +65,15 @@ class CRM_Banking_Page_Import extends CRM_Core_Page {
         if ($plugin_instance->probe_stream($import_parameters)) {
           $plugin_instance->import_stream($import_parameters);
         } else {
-          CRM_Core_Session::setStatus(ts('Import stream rejected by importer, maybe not ready!'), ts('Bad input stream'), 'alert');
+          CRM_Core_Session::setStatus(E::ts('Import stream rejected by importer, maybe not ready!'), E::ts('Bad input stream'), 'alert');
         }
       } else {
-        CRM_Core_Session::setStatus(ts('Importer needs a file to proceed.'), ts('No input file'), 'alert');
+        CRM_Core_Session::setStatus(E::ts('Importer needs a file to proceed.'), E::ts('No input file'), 'alert');
       }
       
       // TODO: RUN the processor
       if (isset($_REQUEST['process']) && $_REQUEST['process']=="on") {
-        CRM_Core_Session::setStatus(ts('Automated running not yet implemented'), ts('Not implemented'), 'alert');
+        CRM_Core_Session::setStatus(E::ts('Automated running not yet implemented'), E::ts('Not implemented'), 'alert');
       }
 
       // add the resulting log
@@ -81,9 +83,9 @@ class CRM_Banking_Page_Import extends CRM_Core_Page {
       // skim through the log and make error messages pop up, see BANKING-136
       foreach ($log as $log_entry) {
         if ($log_entry[3]==CRM_Banking_PluginModel_Base::REPORT_LEVEL_WARN) {
-          CRM_Core_Session::setStatus($log_entry[2], ts('Import Warning'), 'warn');
+          CRM_Core_Session::setStatus($log_entry[2], E::ts('Import Warning'), 'warn');
         } elseif ($log_entry[3]==CRM_Banking_PluginModel_Base::REPORT_LEVEL_WARN) {
-          CRM_Core_Session::setStatus($log_entry[2], ts('Import Error'), 'error');
+          CRM_Core_Session::setStatus($log_entry[2], E::ts('Import Error'), 'error');
         }
       }
     } else {

@@ -44,7 +44,7 @@ class CRM_Banking_Form_PluginUpload extends CRM_Core_Form {
       $this->addButtons(array(
           array(
               'type' => 'submit',
-              'name' => ts('Update'),
+              'name' => E::ts('Update'),
               'isDefault' => TRUE,
           ),
       ));
@@ -63,7 +63,7 @@ class CRM_Banking_Form_PluginUpload extends CRM_Core_Form {
       $this->addButtons(array(
           array(
               'type' => 'submit',
-              'name' => ts('Import'),
+              'name' => E::ts('Import'),
               'isDefault' => TRUE,
           ),
       ));

@@ -15,6 +15,8 @@
 | written permission from the original author(s).        |
 +--------------------------------------------------------*/
 
+use CRM_Banking_ExtensionUtil as E;
+
 /**
  * This class represents a "Matching Rule" as used
  *  by the rule-based matcher: CRM_Banking_PluginImpl_Matcher_Rules
@@ -471,7 +473,7 @@ class CRM_Banking_Rules_Rule {
   public function get_Name() {
     $name = $this->getName();
     if (empty($name)) {
-      return ts("Unnamed Rule [%1]", array(1 => $this->getID(), 'domain' => 'org.project60.banking'));
+      return E::ts("Unnamed Rule [%1]", array(1 => $this->getID()));
     } else {
       return $name;
     }

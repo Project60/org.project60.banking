@@ -14,6 +14,8 @@
 | written permission from the original author(s).        |
 +--------------------------------------------------------*/
 
+use CRM_Banking_ExtensionUtil as E;
+
 require_once 'CRM/Core/Page.php';
 require_once 'CRM/Banking/Helpers/OptionValue.php';
 require_once 'CRM/Banking/Helpers/URLBuilder.php';
@@ -164,7 +166,7 @@ class CRM_Banking_Page_Review extends CRM_Core_Page {
         if (!empty($execution_info['date'])) {
           $execution_date = CRM_Utils_Date::customFormat($execution_info['date'], CRM_Core_Config::singleton()->dateformatFull);
         } else {
-          $execution_date = ts("<i>unknown date</i>");
+          $execution_date = E::ts("<i>unknown date</i>");
         }
 
         if (!empty($execution_info['executed_by'])) {
@@ -176,26 +178,26 @@ class CRM_Banking_Page_Review extends CRM_Core_Page {
             $user_link = CRM_Utils_System::url("civicrm/contact/view", "&reset=1&cid=$user_id");
             $user_string = "<a href='$user_link'>" . $user['display_name'] . "</a>";
           } else {
-            $user_string = ts('Unknown User') . ' ['.$user_id.']';
+            $user_string = E::ts('Unknown User') . ' ['.$user_id.']';
           }
 
           if (empty($execution_info['executed_automatically'])) {
             $automated = '';
           } else {
-            $automated = ts('automatically');
+            $automated = E::ts('automatically');
           }
 
           if ($choices[$btx_bao->status_id]['name']=='processed') {
-            $message = sprintf(ts("This transaction was <b>%s processed</b> on %s by %s."), $automated, $execution_date, $user_string);
+            $message = sprintf(E::ts("This transaction was <b>%s processed</b> on %s by %s."), $automated, $execution_date, $user_string);
           } else {
-            $message = sprintf(ts("This transaction was <b>%s ignored</b> on %s by %s."), $automated, $execution_date, $user_string);
+            $message = sprintf(E::ts("This transaction was <b>%s ignored</b> on %s by %s."), $automated, $execution_date, $user_string);
           }
         } else {
           // visualize the previous, reduced information
           if ($choices[$btx_bao->status_id]['name']=='processed') {
-            $message = sprintf(ts("This transaction was <b>processed</b> on %s."), $execution_date);
+            $message = sprintf(E::ts("This transaction was <b>processed</b> on %s."), $execution_date);
           } else {
-            $message = sprintf(ts("This transaction was marked to be <b>ignored</b> on %s."), $execution_date);
+            $message = sprintf(E::ts("This transaction was marked to be <b>ignored</b> on %s."), $execution_date);
           }
         }
         $this->assign('status_message', $message);
@@ -257,10 +259,10 @@ class CRM_Banking_Page_Review extends CRM_Core_Page {
 
       // Set the page-title dynamically
       if (count($list) > 1) {
-        CRM_Utils_System::setTitle(ts("Review Bank Transaction %1 of %2 (%3 unprocessed ahead)",
+        CRM_Utils_System::setTitle(E::ts("Review Bank Transaction %1 of %2 (%3 unprocessed ahead)",
           array(1=>$index+1, 2=>count($list), 3=>$unprocessed_count)));
       } else {
-        CRM_Utils_System::setTitle(ts("Review Bank Transaction"));
+        CRM_Utils_System::setTitle(E::ts("Review Bank Transaction"));
       }
 
       // tell the page if popups are available
@@ -368,27 +370,27 @@ class CRM_Banking_Page_Review extends CRM_Core_Page {
           // re-analyse + reload the page
           $engine = CRM_Banking_Matcher_Engine::getInstance();
           $engine->match($parameters['execute']);
-          CRM_Core_Session::setStatus(ts("The transaction has been analysed again."), ts("Transaction analysed"), 'info');
+          CRM_Core_Session::setStatus(E::ts("The transaction has been analysed again."), E::ts("Transaction analysed"), 'info');
           return NULL; // NO SUCCESSFULL EXECUTION (because it's a re-run)
         } else {
           // ALL GOOD:
           // create a notification bubble for the user
           $text = $suggestion->visualize_execution($btx_bao);
           if ($btx_bao->status_id==$choices['processed']['id']) {
-            CRM_Core_Session::setStatus(ts("The transaction was booked.")."<br/>".$text, ts("Transaction closed"), 'info');
+            CRM_Core_Session::setStatus(E::ts("The transaction was booked.")."<br/>".$text, E::ts("Transaction closed"), 'info');
           } elseif ($btx_bao->status_id==$choices['ignored']['id']) {
-            CRM_Core_Session::setStatus(ts("The transaction was ignored.")."<br/>".$text, ts("Transaction closed"), 'info');
+            CRM_Core_Session::setStatus(E::ts("The transaction was ignored.")."<br/>".$text, E::ts("Transaction closed"), 'info');
           } else {
-            CRM_Core_Session::setStatus(ts("The transaction could not be closed."), ts("Error"), 'alert');
+            CRM_Core_Session::setStatus(E::ts("The transaction could not be closed."), E::ts("Error"), 'alert');
           }
           return TRUE; // SUCCESSFULL EXECUTION
         }
       } else {
         // something went wrong
-        CRM_Core_Session::setStatus(ts("The execution failed, please re-analyse the transaction."), ts("Error"), 'alert');
+        CRM_Core_Session::setStatus(E::ts("The execution failed, please re-analyse the transaction."), E::ts("Error"), 'alert');
       }
     } else {
-      CRM_Core_Session::setStatus(ts("Selected suggestions disappeared. Suggestion NOT executed!"), ts("Internal Error"), 'error');
+      CRM_Core_Session::setStatus(E::ts("Selected suggestions disappeared. Suggestion NOT executed!"), E::ts("Internal Error"), 'error');
     }
     return NULL; // NO SUCCESSFULL EXECUTION
   }

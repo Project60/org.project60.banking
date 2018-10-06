@@ -13,6 +13,9 @@
 | written permission from the original author(s).        |
 +--------------------------------------------------------*/
 
+use CRM_Banking_ExtensionUtil as E;
+
+
 class CRM_Banking_Matcher_Suggestion {
 
     private $_btx = null;
@@ -129,7 +132,7 @@ class CRM_Banking_Matcher_Suggestion {
             // see if we can use this...
             if ($this->_btx != null) {
                 if ($this->_btx->id != $btx->id) {
-                    CRM_Core_Session::setStatus(ts('Matcher tried to override BTX object with different entity', array('domain' => 'org.project60.banking')), ts('Matcher Failure', array('domain' => 'org.project60.banking')), 'alert');
+                    CRM_Core_Session::setStatus(E::ts('Matcher tried to override BTX object with different entity'), E::ts('Matcher Failure'), 'alert');
                 }
             }
             $this->_btx = $btx;
@@ -139,7 +142,7 @@ class CRM_Banking_Matcher_Suggestion {
                 $this->_btx = new CRM_Banking_BAO_BankTransaction();
                 $this->_btx->get('id', $this->_blob['btx_id']);
             } else {
-                CRM_Core_Session::setStatus(ts('Could not load BTX object, no id stored.', array('domain' => 'org.project60.banking')), ts('Matcher Failure', array('domain' => 'org.project60.banking')), 'alert');
+                CRM_Core_Session::setStatus(E::ts('Could not load BTX object, no id stored.'), E::ts('Matcher Failure'), 'alert');
             }
         }
 
@@ -148,7 +151,7 @@ class CRM_Banking_Matcher_Suggestion {
             // see if we can use this...
             if ($this->_plugin != null) {
                 if ($this->_plugin->id != $plugin->id) {
-                    CRM_Core_Session::setStatus(ts('Matcher tried to override plugin object with different entity', array('domain' => 'org.project60.banking')), ts('Matcher Failure', array('domain' => 'org.project60.banking')), 'alert');
+                    CRM_Core_Session::setStatus(E::ts('Matcher tried to override plugin object with different entity'), E::ts('Matcher Failure'), 'alert');
                 }
             }
             $this->_plugin = $plugin;
@@ -159,7 +162,7 @@ class CRM_Banking_Matcher_Suggestion {
                 $plugin_instance->get('id', $this->_blob['matcher_id']);
                 $this->_plugin = $plugin_instance->getInstance();
             } else {
-                CRM_Core_Session::setStatus(ts('Could not load plugin object, no id stored.', array('domain' => 'org.project60.banking')), ts('Matcher Failure', array('domain' => 'org.project60.banking')), 'alert');
+                CRM_Core_Session::setStatus(E::ts('Could not load plugin object, no id stored.'), E::ts('Matcher Failure'), 'alert');
             }
         }
     }
@@ -169,7 +172,7 @@ class CRM_Banking_Matcher_Suggestion {
      */
     public function addEvidence($factor, $reason = '') {
         if (($factor < 0) or ($factor > 1)) {
-            CRM_Core_Session::setStatus(ts('Cannot add evidence outside [0,1] range, assuming 1', array('domain' => 'org.project60.banking')), ts('Warning: bad matcher evidence', array('domain' => 'org.project60.banking')), 'alert');
+            CRM_Core_Session::setStatus(E::ts('Cannot add evidence outside [0,1] range, assuming 1'), E::ts('Warning: bad matcher evidence'), 'alert');
             $factor = 1;
         }
 

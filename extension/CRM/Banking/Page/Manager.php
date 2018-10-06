@@ -14,12 +14,14 @@
 | written permission from the original author(s).        |
 +--------------------------------------------------------*/
 
+use CRM_Banking_ExtensionUtil as E;
+
 require_once 'CRM/Core/Page.php';
 
 class CRM_Banking_Page_Manager extends CRM_Core_Page {
 
   function run() {
-    CRM_Utils_System::setTitle(ts('Manage CiviBanking Configuration'));
+    CRM_Utils_System::setTitle(E::ts('Manage CiviBanking Configuration'));
 
     // first: process commands (if any)
     $this->processDeleteCommand();
@@ -85,7 +87,7 @@ class CRM_Banking_Page_Manager extends CRM_Core_Page {
     if ($delete_id) {
       if ($confirmed) {
         civicrm_api3('BankingPluginInstance', 'delete', array('id' => $delete_id));
-        CRM_Core_Session::setStatus(ts("CiviBanking plugin [%1] deleted.", array(1 => $delete_id)), ts("Plugin deleted"), "info");
+        CRM_Core_Session::setStatus(E::ts("CiviBanking plugin [%1] deleted.", array(1 => $delete_id)), E::ts("Plugin deleted"), "info");
         CRM_Utils_System::redirect(CRM_Utils_System::url('civicrm/banking/manager'));
       } else {
         $plugin = civicrm_api3('BankingPluginInstance', 'getsingle', array('id' => $delete_id));

@@ -14,6 +14,8 @@
 | written permission from the original author(s).        |
 +--------------------------------------------------------*/
 
+use CRM_Banking_ExtensionUtil as E;
+
 /**
  *
  * @package org.project60.banking
@@ -118,7 +120,7 @@ class CRM_Banking_PluginImpl_Importer_XML extends CRM_Banking_PluginModel_Import
    */
   function import_stream( $params )
   {
-    $this->reportDone(ts("Importing streams not supported by this plugin."));
+    $this->reportDone(E::ts("Importing streams not supported by this plugin."));
   }
 
   /**
@@ -440,7 +442,7 @@ class CRM_Banking_PluginImpl_Importer_XML extends CRM_Banking_PluginModel_Import
       } else {
         if (!empty($rule->warn)) {
           $this->reportProgress(CRM_Banking_PluginModel_Base::REPORT_PROGRESS_NONE,
-            sprintf(ts("Pattern '%s' was not found in entry '%s'."), $pattern, $value));
+            sprintf(E::ts("Pattern '%s' was not found in entry '%s'."), $pattern, $value));
         }
       }
 

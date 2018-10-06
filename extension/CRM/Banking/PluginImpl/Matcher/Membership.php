@@ -14,6 +14,7 @@
 | written permission from the original author(s).        |
 +--------------------------------------------------------*/
 
+use CRM_Banking_ExtensionUtil as E;
 
 require_once 'CRM/Banking/Helpers/OptionValue.php';
 
@@ -61,7 +62,7 @@ class CRM_Banking_PluginImpl_Matcher_Membership extends CRM_Banking_PluginModel_
       if (isset($config->general_options->suggestion_title)) {
         $suggestion->setTitle($config->general_options->suggestion_title);
       } else {
-        $suggestion->setTitle(ts("Record as Membership Fee"));
+        $suggestion->setTitle(E::ts("Record as Membership Fee"));
       }
 
       $suggestion->setId("membership-".$membership['id']);
@@ -101,7 +102,7 @@ class CRM_Banking_PluginImpl_Matcher_Membership extends CRM_Banking_PluginModel_
     $contribution_parameters = array_merge($contribution_parameters, $this->getPropagationSet($btx, $suggestion, 'contribution'));
     $contribution = civicrm_api('Contribution', 'create',  $contribution_parameters);
     if (!empty($contribution['is_error'])) {
-      CRM_Core_Session::setStatus(ts("Couldn't create contribution.")."<br/>".ts("Error was: ").$contribution['error_message'], ts('Error'), 'error');
+      CRM_Core_Session::setStatus(E::ts("Couldn't create contribution.")."<br/>".E::ts("Error was: ").$contribution['error_message'], E::ts('Error'), 'error');
       return true;      
     }
 

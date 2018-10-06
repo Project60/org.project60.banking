@@ -14,6 +14,8 @@
 | written permission from the original author(s).        |
 +--------------------------------------------------------*/
 
+use CRM_Banking_ExtensionUtil as E;
+
 /**
  * The Ignore matcher can be configured with regular expressions to automatically ignore
  *   certain payments
@@ -145,7 +147,7 @@ class CRM_Banking_PluginImpl_Matcher_Ignore extends CRM_Banking_PluginModel_Matc
    * @return html code snippet
    */  
   function visualize_execution_info( CRM_Banking_Matcher_Suggestion $match, $btx) {
-    $html = "<p>".ts("Because :")."<ul>";
+    $html = "<p>".E::ts("Because :")."<ul>";
     $evidence = $match->getEvidence();
     foreach ($evidence as $ev) {
       $html .= '<li>' . $ev . '</li>';

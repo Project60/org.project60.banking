@@ -30,6 +30,7 @@
  *                                  'getquick' - use Contact.getquick API call
  *                                  'sql'      - use SQL query
  *                                  'off'      - turn the search off completely
+ * @param exact_match_wins        if this is set, the search is cut short if a exact match is found
  * @param name                    the name string to look for
  * @param modifiers               are used to modfiy the string: expects a JSON encoded list
  *                                  of arrays with the following entries:
@@ -130,21 +131,29 @@ function civicrm_api3_banking_lookup_contactbyname($params) {
 
   $name_mutations = array_unique($name_mutations);
 
+  // sort by length, so the longest combination is looked for first
   usort($name_mutations, function($a, $b) {
     return strlen($b) - strlen($a);
   }); // search first for the longest combination
 
-  $contacts_found = _civicrm_api3_banking_lookup_contactbyname_exact($name_mutations);
-  // let's try first to get exact match(es) and skip the more advanced matching
-  if (!$contacts_found) {
-    if (empty($params['mode']) || $params['mode']=='getquick') {
-      $contacts_found = _civicrm_api3_banking_lookup_contactbyname_api($name_mutations, $params);
-    } elseif ($params['mode']=='sql') {
-      $contacts_found = _civicrm_api3_banking_lookup_contactbyname_sql($name_mutations, $params);
-    } else { // OFF / invalid
-      $contacts_found = array();
+  // respect the exact_match_wins flag:
+  if (!empty($params['exact_match_wins'])) {
+    // let's try first to get exact match(es) and skip the more advanced matching
+    $contacts_found = _civicrm_api3_banking_lookup_contactbyname_exact($name_mutations);
+    if (!empty($contacts_found)) {
+      return $contacts_found;
     }
   }
+
+  // run the actual search
+  if (empty($params['mode']) || $params['mode']=='getquick') {
+    $contacts_found = _civicrm_api3_banking_lookup_contactbyname_api($name_mutations, $params);
+  } elseif ($params['mode']=='sql') {
+    $contacts_found = _civicrm_api3_banking_lookup_contactbyname_sql($name_mutations, $params);
+  } else { // OFF / invalid
+    $contacts_found = array();
+  }
+
   // apply penalties
   if (!empty($params['penalties'])) {
     _civicrm_api3_banking_lookup_contactbyname_penalties($contacts_found, $params['penalties']);
@@ -202,6 +211,13 @@ function civicrm_api3_banking_lookup_contactbyname($params) {
   return civicrm_api3_create_success($contacts_found);
 }
 
+/**
+ * Look for an exact match
+ *
+ * @author X+
+ * @param $name_mutations array name mutations
+ * @return array
+ */
 function _civicrm_api3_banking_lookup_contactbyname_exact ($name_mutations) {
   $contacts_found = array();
   $longest_mutation = strlen($name_mutations[0]);

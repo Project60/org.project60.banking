@@ -101,10 +101,6 @@ class CRM_Banking_Matcher_Suggestion {
         return $this->setParameter('probability', $probability);
     }
 
-    public function getActions() {
-      return $this->_plugin->getActions($this->_btx);
-    }
-
     public function getEvidence() {
         return $this->getParameter('reasons');
     }

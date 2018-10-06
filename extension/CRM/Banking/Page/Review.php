@@ -214,7 +214,6 @@ class CRM_Banking_Page_Review extends CRM_Core_Page {
                 'color' => $color,
                 'visualization' => $suggestion->visualize($btx_bao),
                 'title' => $suggestion->getTitle(),
-                'actions' => $suggestion->getActions(),
             ));
         }
         $this->assign('suggestions', $suggestions);

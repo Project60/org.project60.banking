@@ -2,18 +2,18 @@
 
 <form action="" method="get">
   <div class="crm-block crm-form-block">
-    <h3>{ts}Showing statements for{/ts}</h3>
+    <h3>{ts domain='org.project60.banking'}Showing statements for{/ts}</h3>
     <table class="form-layout">
       <tbody>
       <tr>
         <td>
-          <label><input type="checkbox" {if $include_completed}checked="checked"{/if} name="include_completed" value="1" />&nbsp;{ts}Include completed statements{/ts}</label>
+          <label><input type="checkbox" {if $include_completed}checked="checked"{/if} name="include_completed" value="1" />&nbsp;{ts domain='org.project60.banking'}Include completed statements{/ts}</label>
       </tr>
       <tr>
         <td>
-          <label for="target_ba_id">{ts}Bank account{/ts}</label>
+          <label for="target_ba_id">{ts domain='org.project60.banking'}Bank account{/ts}</label>
           <select name="target_ba_id" class="crm-select2">
-            <option value="" {if $target_ba_id == -1}selected="selected"{/if}>{ts}all accounts{/ts}</option>
+            <option value="" {if $target_ba_id == -1}selected="selected"{/if}>{ts domain='org.project60.banking'}all accounts{/ts}</option>
             {foreach from=$target_accounts item=ba_name key=ba_id}
               <option value="{$ba_id}" {if $ba_id == $target_ba_id && $target_ba_id >= 0}selected="selected"{/if}>{$ba_name}</option>
             {/foreach}
@@ -22,10 +22,10 @@
       </tr>
       <tr>
         <td>
-          <label for="date">{ts}Date{/ts}</label>
+          <label for="date">{ts domain='org.project60.banking'}Date{/ts}</label>
           <input formattype="searchDate" startoffset="{$date_attributes.startOffset}" endoffset="{$date_attributes.endOffset}" format="{$date_attributes.format}" value="{$date}" name="date" id="date" class="crm-form-text" type="text">
           <input type="text" name="date_display" id="date_display" class="dateplugin" autocomplete="off"/>
-          <a href="#" class="crm-hover-button crm-clear-link" title="{ts}Clear{/ts}"><i class="crm-i fa-times"></i></a>
+          <a href="#" class="crm-hover-button crm-clear-link" title="{ts domain='org.project60.banking'}Clear{/ts}"><i class="crm-i fa-times"></i></a>
           <script type="text/javascript">
             {literal}
             CRM.$(function($) {
@@ -82,7 +82,7 @@
     </table>
     
     <div class="crm-submit-buttons">
-    <input type="submit" class="crm-form-submit" value="{ts}Filter{/ts}">
+    <input type="submit" class="crm-form-submit" value="{ts domain='org.project60.banking'}Filter{/ts}">
     </div>
   </div>
 </form>
@@ -92,13 +92,13 @@
 <thead>
   <tr>
     <th class="sorting_disabled"><input type="checkbox" id="banking_selector"></th>
-    <th class="sorting_disabled">{ts}Starting date{/ts}</th>
-    <th class="sorting_disabled">{ts}Ending date{/ts}</th>
-    <th class="sorting_disabled">{ts}Account{/ts}</th>
-    <th class="sorting_disabled">{ts}Amount{/ts}</th>
-    <th class="sorting_disabled">{ts}Reference{/ts}</th>
-    <th class="sorting_disabled">{ts}Sequence{/ts}</th>
-    <th class="sorting_disabled" title="{ts}(new / suggestions / processed / ignored){/ts}">{ts}Transactions{/ts}</th>
+    <th class="sorting_disabled">{ts domain='org.project60.banking'}Starting date{/ts}</th>
+    <th class="sorting_disabled">{ts domain='org.project60.banking'}Ending date{/ts}</th>
+    <th class="sorting_disabled">{ts domain='org.project60.banking'}Account{/ts}</th>
+    <th class="sorting_disabled">{ts domain='org.project60.banking'}Amount{/ts}</th>
+    <th class="sorting_disabled">{ts domain='org.project60.banking'}Reference{/ts}</th>
+    <th class="sorting_disabled">{ts domain='org.project60.banking'}Sequence{/ts}</th>
+    <th class="sorting_disabled" title="{ts domain='org.project60.banking'}(new / suggestions / processed / ignored){/ts}">{ts domain='org.project60.banking'}Transactions{/ts}</th>
     <th class="sorting_disabled"></th>
   </tr>
 </thead>
@@ -117,18 +117,18 @@
       <td>{$statement.total|crmMoney:$statement.currency}</td>
       <td>{$statement.reference}</td>
       <td>{$statement.sequence}</td>
-      <td title="{ts}(new / suggestions / processed / ignored){/ts}">{$statement.count}<br>
+      <td title="{ts domain='org.project60.banking'}(new / suggestions / processed / ignored){/ts}">{$statement.count}<br>
         ({$statement.status.new} / {$statement.status.suggestions} / {$statement.status.processed} / {$statement.status.ignored})
       </td>
       <td><span>
-        <a class="action-item crm-hover-button" href="{crmURL p="civicrm/banking/review" q="s_list=`$statement.id`"}" title="{ts}Walk through the payments and will show the suggestions and will give you the possibility to manually process the suggestions{/ts}">{ts}Review statements{/ts}</a> 
-        <a class="action-item crm-hover-button" href="{crmURL p="civicrm/banking/statements/lines" q="s_id=`$statement.id`"}&reset=1">{ts}List lines{/ts}</a>
-        {if $can_delete}<a class="action-item crm-hover-button" onClick="deleteStatement({$statement.id});">{ts}Delete statement{/ts}</a>{/if}
+        <a class="action-item crm-hover-button" href="{crmURL p="civicrm/banking/review" q="s_list=`$statement.id`"}" title="{ts domain='org.project60.banking'}Walk through the payments and will show the suggestions and will give you the possibility to manually process the suggestions{/ts}">{ts domain='org.project60.banking'}Review statements{/ts}</a>
+        <a class="action-item crm-hover-button" href="{crmURL p="civicrm/banking/statements/lines" q="s_id=`$statement.id`"}&reset=1">{ts domain='org.project60.banking'}List lines{/ts}</a>
+        {if $can_delete}<a class="action-item crm-hover-button" onClick="deleteStatement({$statement.id});">{ts domain='org.project60.banking'}Delete statement{/ts}</a>{/if}
       </span></td>
     </tr>
   {/foreach}
 {else}
-  <td class="odd" colspan="9">{ts}No statements found.{/ts}
+  <td class="odd" colspan="9">{ts domain='org.project60.banking'}No statements found.{/ts}
 {/if}
 </tbody>
 </table>
@@ -136,8 +136,8 @@
 {include file="CRM/common/pager.tpl" location="bottom"}
 
 <div>
-  <a id="processButton" class="button" onClick="processSelected()"><span>{ts}Analyse &amp; Process{/ts}</span></a>
-  <a href="{crmURL p="civicrm/banking/import"}"  class="button">{ts}Import{/ts}</a>
+  <a id="processButton" class="button" onClick="processSelected()"><span>{ts domain='org.project60.banking'}Analyse &amp; Process{/ts}</span></a>
+  <a href="{crmURL p="civicrm/banking/import"}"  class="button">{ts domain='org.project60.banking'}Import{/ts}</a>
 </div>
 
 <!-- Required JavaScript functions -->

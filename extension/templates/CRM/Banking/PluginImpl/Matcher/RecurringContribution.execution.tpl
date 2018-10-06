@@ -38,5 +38,5 @@
 {/foreach}
 
 <p>
-  {ts 1=$contribution_list 2=$rcontribution_list}This transaction has created contribution %1 for recurring contribution %2{/ts}
+  {ts 1=$contribution_list 2=$rcontribution_list domain='org.project60.banking'}This transaction has created contribution %1 for recurring contribution %2{/ts}
 </p>

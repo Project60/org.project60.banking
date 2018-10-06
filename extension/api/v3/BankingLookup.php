@@ -129,9 +129,9 @@ function civicrm_api3_banking_lookup_contactbyname($params) {
     }
   }
 
-  $name_mutations = array_unique($name_mutations);
 
   // sort by length, so the longest combination is looked for first
+  $name_mutations = array_unique($name_mutations);
   usort($name_mutations, function($a, $b) {
     return strlen($b) - strlen($a);
   }); // search first for the longest combination

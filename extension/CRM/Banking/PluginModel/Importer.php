@@ -16,6 +16,8 @@
 
 require_once 'CRM/Banking/Helpers/OptionValue.php';
 
+use CRM_Banking_ExtensionUtil as E;
+
 /**
  *
  * @package org.project60.banking

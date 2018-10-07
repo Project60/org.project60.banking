@@ -14,6 +14,8 @@
 | written permission from the original author(s).        |
 +--------------------------------------------------------*/
 
+use CRM_Banking_ExtensionUtil as E;
+
 /**
  * The Analyser is a simplified matcher, that does not produce any suggestions.
  * Instead, it will analyse the data contained in the transaction.

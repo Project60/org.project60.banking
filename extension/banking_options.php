@@ -50,21 +50,11 @@ function _banking_options() {
                   'description' => 'This importer should be configurable for most fixed-width txt standards.',
                   'is_default' => 0,
               ),
-              'matcher_generic' => array(
-                  'label' => 'Generic Matcher Plugin',
-                  'value' => 'CRM_Banking_PluginImpl_Matcher_Generic',
-                  'is_default' => 0,
-              ),
               'matcher_create' => array(
                   'label' => 'Create Contribution Matcher Plugin',
                   'value' => 'CRM_Banking_PluginImpl_Matcher_CreateContribution',
                   'is_default' => 0,
               ),
-              // 'matcher_rules' => array(
-              //     'label' => 'Rule Matcher Plugin',
-              //     'value' => 'CRM_Banking_PluginImpl_Matcher_Rules',
-              //     'is_default' => 0,
-              // ),
               'matcher_recurring' => array(
                   'label' => 'Recurring Contribution Matcher Plugin',
                   'value' => 'CRM_Banking_PluginImpl_Matcher_RecurringContribution',

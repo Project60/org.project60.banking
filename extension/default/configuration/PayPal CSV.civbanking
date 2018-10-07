@@ -1,0 +1,111 @@
+{
+    "plugin_type_name": "import",
+    "plugin_class_name": "importer_csv",
+    "name": "PayPal CSV",
+    "description": "This plugin should be able to import PayPal CSVs. There are a couple of TODOs in the configuration that you should look into, and you might have to adjust the columns, depending on you PayPal configuration.",
+    "weight": "1000",
+    "config": {
+        "delimiter": ",",
+        "encoding": "UTF8",
+        "header": 1,
+        "sentinel": "#.*Date.*Name.*Type.*Status.*Currency.*Gross.*Fee.*Subject#m",
+        "title": "PayPal {starting_date}--{ending_date} [{md5}]",
+        "defaults": {
+            "_TODO_1": "Replace this with your PayPal account email",
+            "_NBAN_PP": "my-paypal@account.com",
+            "_TODO_2": "Create a PayPal payment method and set the payment_instrument_id to this ID",
+            "payment_instrument_id": "5"
+        },
+        "rules": [
+            {
+                "from": "Date",
+                "to": "date",
+                "type": "set"
+            },
+            {
+                "from": "date",
+                "to": "booking_date",
+                "type": "strtotime:d\/m\/Y"
+            },
+            {
+                "from": "date",
+                "to": "value_date",
+                "type": "strtotime:d\/m\/Y"
+            },
+            {
+                "from": "Name",
+                "to": "name",
+                "type": "set"
+            },
+            {
+                "from": "Type",
+                "to": "transaction_class",
+                "type": "set"
+            },
+            {
+                "from": "Subject",
+                "to": "purpose",
+                "type": "set"
+            },
+            {
+                "from": "Currency",
+                "to": "currency",
+                "type": "set"
+            },
+            {
+                "from": "Gross",
+                "to": "amount",
+                "type": "amount"
+            },
+            {
+                "from": "Fee",
+                "to": "fee",
+                "type": "amount"
+            },
+            {
+                "comment": "remove negative amount",
+                "from": "fee",
+                "to": "fee",
+                "type": "regex:#[-]?(?P<abs_amount>[0-9.,]+)#",
+                "warn": 0
+            },
+            {
+                "from": "From Email Address",
+                "to": "email",
+                "type": "set"
+            },
+            {
+                "from": "From Email Address",
+                "to": "_party_NBAN_PP",
+                "type": "set"
+            },
+            {
+                "from": "To Email Address",
+                "to": "_email",
+                "type": "set"
+            },
+            {
+                "comment": "parse the address?",
+                "from": "Delivery Address",
+                "to": "address",
+                "type": "set"
+            },
+            {
+                "from": "Transaction ID",
+                "to": "paypal_transaction_id",
+                "type": "set"
+            },
+            {
+                "from": "Reference Txn ID",
+                "to": "paypal_reference_transaction_id",
+                "type": "set"
+            },
+            {
+                "from": "Receipt ID",
+                "to": "paypal_receipt_id",
+                "type": "set"
+            }
+        ]
+    },
+    "state": {}
+}

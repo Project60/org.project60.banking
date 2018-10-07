@@ -112,6 +112,22 @@ class CRM_Banking_Rules_Rule {
     if (!isset($params['created_by'])) {
       $params['created_by'] = CRM_Core_Session::singleton()->getLoggedInContactID();
     };
+
+    // sanitise raw data
+    $length_restrictions = array(
+        'party_ba_ref' => 64,
+        'ba_ref'       => 64,
+        'party_name'   => 128,
+        'tx_reference' => 128,
+        'tx_purpose'   => 512);
+    foreach ($length_restrictions as $field_name => $max_length) {
+      if (isset($params[$field_name]) && (strlen($params[$field_name]) > $max_length)) {
+        $params[$field_name] = substr($params[$field_name], 0, $max_length);
+        CRM_Core_Error::debug_log_message("Field '{$field_name}' was too long and had to be truncated.");
+      }
+    }
+
+    // finally, create
     $obj = new static();
     $obj->setFromArray($params, FALSE);
     $obj->save();

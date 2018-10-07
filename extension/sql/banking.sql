@@ -111,7 +111,7 @@ CREATE TABLE IF NOT EXISTS `civicrm_bank_rules` (
      `ba_ref`         varchar(64)              COMMENT 'organisations\'s bank account reference',
      `party_name`    varchar(128)              COMMENT 'transaction party\'s name',
      `tx_reference`  varchar(128)              COMMENT 'transaction reference',
-     `tx_purpose`    varchar(128)              COMMENT 'transaction purpose',
+     `tx_purpose`    varchar(512)              COMMENT 'transaction purpose',
 
 -- matching execution
      `conditions`           text               COMMENT 'an (extra) set of conditions to check',

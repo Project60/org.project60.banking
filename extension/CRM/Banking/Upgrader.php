@@ -128,7 +128,7 @@ class CRM_Banking_Upgrader extends CRM_Banking_Upgrader_Base {
       }
     }
 
-    // old entries
+    // remove old entries
     $removed_entries_query = civicrm_api3('OptionValue', 'get', array(
         'value'           => ['IN' => ['CRM_Banking_PluginImpl_Matcher_Generic']],
         'option_group_id' => 'civicrm_banking.plugin_types',
@@ -136,6 +136,9 @@ class CRM_Banking_Upgrader extends CRM_Banking_Upgrader_Base {
     foreach ($removed_entries_query['values'] as $removed_entry) {
       civicrm_api3('OptionValue', 'delete', array('id' => $removed_entry['id']));
     }
+
+    // adjust table
+    CRM_Core_DAO::executeQuery("ALTER TABLE `civicrm_bank_rules` CHANGE `tx_purpose` `tx_purpose` VARCHAR(512);");
 
     return true;
   }

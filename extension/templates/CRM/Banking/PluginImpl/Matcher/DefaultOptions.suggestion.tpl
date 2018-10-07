@@ -65,6 +65,11 @@
   <th>{ts domain='org.project60.banking'}Status{/ts}</th>
   <th align="right">{ts domain='org.project60.banking'}Amount{/ts}</th>
   <tbody id="manual_match_contribution_table">
+  <tr class="manual-match-placeholder">
+    <td colspan="5" align="center" style="font-size: larger; padding: 1em;">
+      <span>{ts domain='org.project60.banking'}DROP ANY CONTRIBUTION LINK IN HERE TO RECONCILE{/ts}</span>
+    </td>
+  </tr>
   </tbody>
 </table>
 
@@ -88,7 +93,8 @@
    */
   function manual_match_refresh_list() {
     // clear the table
-    cj("#manual_match_contribution_table tr").remove();
+    cj("#manual_match_contribution_table tr.manual-match-placeholder").show();
+    cj("#manual_match_contribution_table tr.manual-match-contribution").remove();
 
     // then rebuild with the cids in the list
     var list = cj("#manual_match_contributions").val().split(",");
@@ -191,16 +197,17 @@
    */
   function manual_match_add_data_to_list(data) {
     if (data.count>0) {
+      cj("#manual_match_contribution_table tr.manual-match-placeholder").hide();
       var contribution = data.values[0];
       manual_match_add_contribution_to_field(contribution.id);
-      
+
       // add to table, if not already there
       if (!cj("#manual_match_row_cid_" + contribution.id).length) {
         var view_link = cj("<div/>").html("{/literal}{$view_contribution_link}{literal}").text();
         view_link = view_link.replace("__contributionid__", contribution.id);
         view_link = view_link.replace("__contactid__", contribution.contact_id);
 
-        var row = "<tr id=\"manual_match_row_cid_" + contribution.id + "\">";
+        var row = "<tr class=\"manual-match-contribution\" id=\"manual_match_row_cid_" + contribution.id + "\">";
         row += "<td><a onclick=\"manual_match_remove_contribution(" + contribution.id + ");\">[{/literal}{ts domain='org.project60.banking'}remove{/ts}{literal}]</a>";
         row += "&nbsp;<a href=\"" + view_link + "\" target=\"_blank\" class=\"crm-popup\">[{/literal}{ts domain='org.project60.banking'}view{/ts}{literal}]</a></td>";
         row += "<td>" + contribution.display_name + "</td>";
@@ -400,7 +407,19 @@
         banking_open_link("{/literal}{$view_search_link}{literal}", {}, false);
       }
   }
-  
+
+  // add drop handler
+  cj("#manual_match_contribution_table").on('dragover dragenter', function(e) {
+      // stop default handlers
+      e.preventDefault();
+      e.stopPropagation();
+    });
+  cj(document).on('drop', function(e) {
+      cj("#manual_match_add").val(e.originalEvent.dataTransfer.getData('Text'));
+      manual_match_add_contribution();
+      e.preventDefault();
+  });
+
   // call some updates once...
   manual_match_update_sum();
   manual_match_create_contact_list();

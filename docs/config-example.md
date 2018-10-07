@@ -100,7 +100,7 @@ If you want to know more about the configuration of an importer and how you can 
 {
   "comment": "CAMT.53 Import configuration (BNP Paribas Fortis)",
   "defaults": {
-    "payment_instrument_id": "4" 
+    "payment_instrument_id": "9" 
   },
   "namespaces": {
     "camt": "urn:iso:std:iso:20022:tech:xsd:camt.053.001.02" 
@@ -362,9 +362,9 @@ If you want to know more about the configuration of an importer and how you can 
 ```
 
 !!! note
-    The _payment_instrument_id_ is important and should be configured correctly. This means that the ID should exists in your database and reflect.........
+    The _payment_instrument_id_ is really important and should be configured correctly. This means that the ID should exists in your database and reflect the payment instrument you want to use for the incoming transactions, for example Bank Transfer.
 
-Once you have completed the configuration of your CAMT53 imported you should test if it actually works!
+Once you have completed the configuration of your CAMT53 importer you should test if it actually works!
 
 You can do this by importing a file with **Banking/Import Transactions**. Selecting this from the menu will bring up a form like the screenshot:
 
@@ -373,5 +373,90 @@ You can do this by importing a file with **Banking/Import Transactions**. Select
 You can see I have select **CAMT53** as the _configuration_. I have also set the _Dry run_ option to **Yes** so it does not actually import the file I am about to select, but just tells me if it _could_ import the file.
 I then click on **Browse** (or _Bladeren_ in my Dutch installation) to select the CAMT53 file I want to test with.
 
+### CSV format
+
+Each importer is a so called _plugin_ and can be installed or imported from **Banking>Configuration Manager**. The first time you access the Configuration Manager you will probably get a form like this:
+
+![Screenshot](/img/config_manager_empty.png)
+
+In this case we are interested in adding a _plugin_ to import, so the top part. As you can see there are no plugins configured just yet, so I will click the **Add a new one** link in the **Import plugins** section of the form.
+
+Alternatively, if I have a configuration (including importers, matchers and so on) for CiviBanking from another CiviCRM installation, I can use the **IMPORTER** link to select an exported configuration file and import that into my new CiviBanking installation.
+For this section we will assume you are going to create a new one, so I have clicked on the **add a new one** link.
+
+In the next form I enter a _name_ for the plugin, I select the **Import Plugin** as the _class_. The example importer I am going to show is meant to import SMS payments from a CSV file so I select **Configurable CSV importer** as _Implementation_. And I enter a few sentences describing what the imported does at _description_. The result will be in the top half of the Configuration Manager Add Plugin screen and will look something like this screenshot:
+
+![Screenshot](/img/csv_plugin_top.png)
+
+In the bottom half I have to enter the technical information required to interpret the incoming file and know which field in the incoming file to send to which field in the CiviBanking transaction.
+
+This kind of information is entered in [JSON](https://www.json.org/). For the CSV we have an example configuration (from a project where this worked for their SMS payments which they download as a CSV file which should serve as an example. 
+
+You can copy the JSON data below and paste it in the bottom half of the Configuration Manager Add Plugin form (the part marked with **Configuration**). 
+Once all the data is entered press the **Save** button to save your plugin configuration. 
+
+``` json
+{
+  "delimiter": ";",
+  "header": 1,
+  "title": "SMS {starting_date} - {ending_date}",
+  "defaults": {
+    "sms_contact_id": 2314,
+    "financial_type_id": 1,
+    "payment_instrument_id": 7
+  },
+  "line_filter": "#(Bedankt voor jouw donatie aan Stichting Voorbeeld)|(\"Status\",Direction,Processed.*)#",
+  "filter": [
+    {
+      "type": "string_positive",
+      "value1": "_constant:Delivered",
+      "value2": 0
+    }
+  ],
+  "rules": [
+    {
+      "from": "Processed",
+      "to": "booking_date",
+      "type": "set"
+    },
+    {
+      "from": "Processed",
+      "to": "value_date",
+      "type": "set"
+    },
+    {
+      "from": "Message",
+      "to": "purpose",
+      "type": "set"
+    },
+    {
+      "from": "Cost",
+      "to": "amount",
+      "type": "replace:€ :"
+    },
+    {
+      "from": "amount",
+      "to": "amount",
+      "type": "amount"
+    }
+  ]
+}
+```
+
+If you want to know more about the configuration of an importer and how you can create your specific importer please check [How to create an importer](create-importer.md).
+
 !!! note
-    If you need to use other formats you can read through the documentation which will probably give you enough information for your next step.
+    The _payment_instrument_id_ is really important and should be configured correctly. This means that the ID should exists in your database and reflect the payment instrument you want to use for the incoming transactions, for example SMS payment.
+
+Once you have completed the configuration of your CSV importer you should test if it actually works!
+
+You can do this by importing a file with **Banking/Import Transactions**. Selecting this from the menu will bring up a form like the screenshot:
+
+![Screenshot](/img/import_csv_transactions.png)
+
+You can see I have select **SMS Payments from CSV file** as the _configuration_. I have also set the _Dry run_ option to **Yes** so it does not actually import the file I am about to select, but just tells me if it _could_ import the file.
+I then click on **Browse** (or _Bladeren_ in my Dutch installation) to select the .csv file I want to test with.
+
+
+!!! note
+    If you need to use other formats you can check the [How To Guide](how-to.md) which will probably give you enough information for your next step.

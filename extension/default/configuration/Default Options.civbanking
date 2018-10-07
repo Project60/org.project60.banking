@@ -1,0 +1,36 @@
+{
+    "plugin_type_name": "match",
+    "plugin_class_name": "matcher_default",
+    "name": "Default Options",
+    "description": "This plugin always provides two \"fallback\" options for each transaction. One is to ignore the transaction altogether, the other one offers a panel for manual reconciliation with CiviCRM contributions.",
+    "weight": "1000",
+    "config": {
+        "auto_exec": false,
+        "manual_enabled": true,
+        "manual_probability": "50%",
+        "manual_show_always": true,
+        "manual_title": "Processed manually",
+        "manual_message": "Select this option to reconcile this payment with the contributions in the list below.",
+        "manual_contribution": "Enter your contribution ID here: ",
+        "manual_default_source": "",
+        "manual_default_financial_type_id": 3,
+        "ignore_enabled": true,
+        "ignore_show_always": true,
+        "ignore_probability": "0.1",
+        "ignore_title": "Does not belong to CiviCRM",
+        "ignore_message": "This payment should not be reconciled with contributions in CiviCRM.",
+        "createnew_value_propagation": {
+            "btx.source": "contribution.source",
+            "btx.financial_type_id": "contribution.financial_type_id",
+            "btx.campaign_id": "contribution.campaign_id",
+            "btx.payment_instrument_id": "contribution.payment_instrument_id"
+        },
+        "value_propagation": {},
+        "lookup_contact_by_name": {
+            "soft_cap_probability": 0.85,
+            "soft_cap_min": 4,
+            "hard_cap_probability": 0.85
+        }
+    },
+    "state": {}
+}

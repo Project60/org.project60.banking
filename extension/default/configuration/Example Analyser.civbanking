@@ -1,0 +1,47 @@
+{
+    "plugin_type_name": "match",
+    "plugin_class_name": "analyser_regex",
+    "name": "Example Analyser",
+    "description": "This analyser tries to gather some basic information about the transaction, so a contribution can be created. For example, a payment method and a financial type is mandatory.",
+    "weight": "10",
+    "config": {
+        "rules": [
+            {
+                "comment": "Default values (matches always)",
+                "fields": [
+                    "purpose"
+                ],
+                "pattern": "#.*#",
+                "actions": [
+                    {
+                        "comment": "Default payment instrument is EFT (5)",
+                        "action": "set",
+                        "value": "5",
+                        "to": "payment_instrument_id"
+                    },
+                    {
+                        "comment": "Default financial type is Donation (1)",
+                        "action": "set",
+                        "value": "1",
+                        "to": "financial_type_id"
+                    }
+                ]
+            },
+            {
+                "comment": "Adjuste financial type to Membership Dues (2) if purpose contains 'member'",
+                "fields": [
+                    "purpose"
+                ],
+                "pattern": "#member#i",
+                "actions": [
+                    {
+                        "action": "set",
+                        "value": "2",
+                        "to": "financial_type_id"
+                    }
+                ]
+            }
+        ]
+    },
+    "state": {}
+}

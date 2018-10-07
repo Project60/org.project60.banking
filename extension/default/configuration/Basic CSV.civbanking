@@ -1,0 +1,72 @@
+{
+    "plugin_type_name": "import",
+    "plugin_class_name": "importer_csv",
+    "name": "Basic CSV",
+    "description": "Imports a basic Excel-style CSV file with the following columns: \"Booking Date\", \"Amount\", \"Currency\", and \"Purpose_1\" through \"Purpose_5\".  Please note, there is also some TODOs in the file, that you have to look after, before you can start using this importer.",
+    "weight": "10",
+    "config": {
+        "delimiter": ";",
+        "encoding": "CP1252",
+        "header": 1,
+        "title": "CSV {starting_date} - {ending_date} [{md5}]",
+        "defaults": {
+            "_IBAN": "TODO",
+            "payment_instrument_id": "5"
+        },
+        "rules": [
+            {
+                "from": "Booking Date",
+                "to": "booking_date",
+                "_TODO": "ajdust date format",
+                "type": "strtotime:m/d/y"
+            },
+            {
+                "from": "Booking Date",
+                "to": "value_date",
+                "_TODO": "ajdust date format",
+                "type": "strtotime:m/d/y"
+            },
+            {
+                "from": "Amount",
+                "to": "amount",
+                "type": "amount"
+            },
+            {
+                "from": "Currency",
+                "to": "currency",
+                "type": "set"
+            },
+            {
+                "from": "Sender",
+                "to": "name",
+                "type": "set"
+            },
+            {
+                "from": "Purpose_1",
+                "to": "purpose",
+                "type": "append:"
+            },
+            {
+                "from": "Purpose_2",
+                "to": "purpose",
+                "type": "append:"
+            },
+            {
+                "from": "Purpose_3",
+                "to": "purpose",
+                "type": "append:"
+            },
+            {
+                "from": "Purpose_4",
+                "to": "purpose",
+                "type": "append:"
+            },
+            {
+                "from": "Purpose_5",
+                "to": "purpose",
+                "type": "append:"
+            }
+        ]
+    },
+    "state": []
+}

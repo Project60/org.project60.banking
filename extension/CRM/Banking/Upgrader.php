@@ -104,4 +104,35 @@ class CRM_Banking_Upgrader extends CRM_Banking_Upgrader_Base {
 
     return true;
   }
+
+  /**
+   * Upgrader for 0.7.alpha release
+   *  - inject default configuration if not there
+   *
+   * @return TRUE on success
+   */
+  public function upgrade_0701() {
+    $this->ctx->log->info('Applying update 0701');
+
+    // install default configuration
+    $config_exists = CRM_Core_DAO::singleValueQuery("SELECT COUNT(*) FROM civicrm_bank_plugin_instance;");
+    if (!$config_exists) {
+      // install all default files from the default/configuration folder
+      $base_folder = E::path('default/configuration');
+      foreach (scandir($base_folder) as $config_file) {
+        if (preg_match("#.civbanking$#", $config_file)) {
+          $data = file_get_contents($base_folder . DIRECTORY_SEPARATOR . $config_file);
+          $plugin_bao = new CRM_Banking_BAO_PluginInstance();
+          $plugin_bao->updateWithSerialisedData($data);
+        }
+      }
+    }
+
+    // todo: remove disabled items
+
+
+    // todo: rule purpose length
+
+    return true;
+  }
 }

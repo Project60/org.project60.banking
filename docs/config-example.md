@@ -1,12 +1,18 @@
 !!! note
-    This documentation section has been created with CiviCRM 5.2.1 in Drupal 7 with CiviBanking 0.6
+    This documentation section has been created with CiviCRM 5.6.0 in Drupal 7 with CiviBanking 0.7
     
 ##Introduction
 
-CiviBanking is a great extension that can read and interpret files with payments you can get from your bank. 
-It can find the related contributions in CiviCRM and mark them as completed. And for quite a few scenario's it can do this automatically too!
+CiviBanking is a great extension that can read and interpret files with payments you can get from your bank or payment provider. So this could be a file from your bank, but also a downloaded file from Mollie, PayPal or Visa.
+ 
+The extension will import the data, transform it to generic transactions that it can process and then match those with the related contributions in CiviCRM and mark them as completed (or suggest you create new contributions or even contacts). And for quite a few scenario's it can do this automatically too!
 
-Configuring CiviBanking is a bit of a job. As it is pretty powerfull and can handle different types of files, it also needs configuration for each file. And as you are importing files from specific formats it also requires quite some technical knowledge to understand all the steps required. It might well be that you have read this chapter and think this is a far too daunting step for you to take. If that is the case, please contact a CiviCRM expert to help you.
+Configuring CiviBanking is a bit of a job. As it is pretty powerful and can handle different types of files, it also needs configuration for each file. And as you are importing files from specific formats it also requires quite some technical knowledge to understand all the steps required.
+
+!!! note "What if I want to know more?"
+    Please note that this chapter does not mention all possibilities or options. CiviBanking is very powerful and flexible, trying to write a guide that mentions all possibilities would be a massive task. The amibition of this section is to give you an example configuration and explain the concepts. If you have specific needs or additional questions please contact an expert to discuss what is possible?
+    
+    It might well be that you have read this chapter and think this is a far too daunting step for you to take. If that is the case, please contact a CiviCRM expert to help you. You can find CiviCRM experts on the Find an Expert page on the [CiviCRM website](https://civicrm.org/partners-contributors).
 
 !!! note "Contribute?"
     If you would like to contribute to the documentation of CiviBanking you can certainly do so! Every  now and then sprints to update the documentation are organised. In most cases this will be announced on the CiviCRM channels. If you want to make sure you are invited for the next one please drop [betty.dolfing@civicoop.org](mailto:betty.dolfing@civicoop.org) or [erik.hommel@civicoop.org](mailto:erik.hommel@civicoop.org) a mail.
@@ -27,7 +33,7 @@ The **second step (analyzing)** reads the transaction from the payments file and
 * the payment has nothing to do with CiviCRM
 * etc. etc.
 
-In the **third step (matching)** you pick one of the suggestions from the analyzing step and process that into CiviCRM.
+In the **third step (matching)** you pick one of the suggestions from the analyzing step and process that into CiviCRM (or configure the matcher to do so automatically).
 
 We will look into each step in some more detail in the following sections from a configuration point of view.
 
@@ -44,7 +50,7 @@ If you select this option you will see the CiviBanking Settings:
 
 ![Screenshot](/img/civibanking_settings.png)
 
-For this documentation chapter we assume you have accepted all the defaults in the CiviBanking Settings!
+For this documentation section we assume you have accepted all the defaults in the CiviBanking Settings! There will be more detail about the CiviBanking settings in the [How to Guide](how-to.md).
 
 ##Importing
 As explained, **importing** is about translating the data provided by the payment processor (bank files, csv files etc.) into the CiviBanking speak.
@@ -68,11 +74,14 @@ In this section we will discuss how to configure CiviBanking for two types of fi
     If you get a CAMT053 file from your bank and you find it that you can not process (you get an error _File rejected by importer!_) the best option is to contact an expert that can help you in adapting the importer for the specific format of your bank!
     
 ### CAMT53 file
-Each importer is a so called _plugin_ and can be installed from **Banking>Configuration Manager**. The first time you access the Configuration Manager you will probably get a form like this:
+Each importer is a so called _plugin_ and can be installed or imported from **Banking>Configuration Manager**. The first time you access the Configuration Manager you will probably get a form like this:
 
 ![Screenshot](/img/config_manager_empty.png)
 
 In this case we are interested in adding a _plugin_ to import, so the top part. As you can see there are no plugins configured just yet, so I will click the **Add a new one** link in the **Import plugins** section of the form.
+
+Alternatively, if I have a configuration (including importers, matchers and so on) for CiviBanking from another CiviCRM installation, I can use the **IMPORTER** link to select an exported configuration file and import that into my new CiviBanking installation.
+For this section we will assume you are going to create a new one, so I have clicked on the **add a new one** link.
 
 In the next form I enter a _name_ for the plugin, I select the **Import Plugin** as the _class_. As CAMT53 is a type of XML file I select **Configurable XML importer** as _Implementation_. And I enter a few sentences describing what the imported does at _description_. The result will be in the top half of the Configuration Manager Add Plugin screen and will look something like this screenshot:
 
@@ -84,6 +93,8 @@ This kind of information is entered in [JSON](https://www.json.org/). For the CA
 
 You can copy the JSON data below and paste it in the bottom half of the Configuration Manager Add Plugin form (the part marked with **Configuration**). 
 Once all the data is entered press the **Save** button to save your plugin configuration. 
+
+If you want to know more about the configuration of an importer and how you can create your specific importer please check [How to create an importer](create-importer.md).
 
 ``` json
 {

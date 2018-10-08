@@ -49,7 +49,7 @@ class CRM_Banking_PluginImpl_Importer_CSV extends CRM_Banking_PluginModel_Import
 
   /**
    * the plugin's user readable name
-   * 
+   *
    * @return string
    */
   static function displayName()
@@ -57,9 +57,9 @@ class CRM_Banking_PluginImpl_Importer_CSV extends CRM_Banking_PluginModel_Import
     return 'CSV Importer';
   }
 
-  /** 
+  /**
    * Report if the plugin is capable of importing files
-   * 
+   *
    * @return bool
    */
   static function does_import_files()
@@ -67,9 +67,9 @@ class CRM_Banking_PluginImpl_Importer_CSV extends CRM_Banking_PluginModel_Import
     return true;
   }
 
-  /** 
+  /**
    * Report if the plugin is capable of importing streams, i.e. data from a non-file source, e.g. the web
-   * 
+   *
    * @return bool
    */
   static function does_import_stream()
@@ -77,11 +77,11 @@ class CRM_Banking_PluginImpl_Importer_CSV extends CRM_Banking_PluginModel_Import
     return false;
   }
 
-  /** 
+  /**
    * Test if the given file can be imported
-   * 
-   * @var 
-   * @return TODO: data format? 
+   *
+   * @var
+   * @return TODO: data format?
    */
   function probe_file( $file_path, $params )
   {
@@ -104,10 +104,10 @@ class CRM_Banking_PluginImpl_Importer_CSV extends CRM_Banking_PluginModel_Import
   }
 
 
-  /** 
+  /**
    * Import the given file
-   * 
-   * @return TODO: data format? 
+   *
+   * @return TODO: data format?
    */
   function import_file( $file_path, $params )
   {
@@ -167,17 +167,17 @@ class CRM_Banking_PluginImpl_Importer_CSV extends CRM_Banking_PluginModel_Import
       if ($line_nr == $config->header) {
         // parse header
         if (sizeof($header)==0) {
-          $header = $line;  
+          $header = $line;
         }
       } else {
         // import lime
         $this->import_line($line, $line_nr, ($bytes_read/$file_size), $header, $params);
       }
     }
-    fclose($file); 
+    fclose($file);
 
     //TODO: customize batch params
-    
+
     if ($this->getCurrentTransactionBatch()->tx_count) {
       // we have transactions in the batch -> save
       if ($config->title) {
@@ -196,7 +196,7 @@ class CRM_Banking_PluginImpl_Importer_CSV extends CRM_Banking_PluginModel_Import
 
   protected function import_line($line, $line_nr, $progress, $header, $params) {
     $config = $this->_plugin_config;
-    
+
     // generate entry data
     $raw_data = implode(";", $line);
     $btx = array(
@@ -247,7 +247,7 @@ class CRM_Banking_PluginImpl_Importer_CSV extends CRM_Banking_PluginModel_Import
     } else {
       // otherwise use the template
       $bank_reference = $config->bank_reference;
-      $tokens = array(); 
+      $tokens = array();
       preg_match('/\{([^\}]+)\}/', $bank_reference, $tokens);
       foreach ($tokens as $key => $token_name) {
         if (!$key) continue;  // match#0 is not relevant
@@ -255,7 +255,7 @@ class CRM_Banking_PluginImpl_Importer_CSV extends CRM_Banking_PluginModel_Import
         $bank_reference = str_replace("{{$token_name}}", $token_value, $bank_reference);
       }
       $btx['bank_reference'] = $bank_reference;
-    }    
+    }
 
     // prepare $btx: put all entries, that are not for the basic object, into parsed data
     $btx_parsed_data = array();
@@ -288,9 +288,9 @@ class CRM_Banking_PluginImpl_Importer_CSV extends CRM_Banking_PluginModel_Import
       $index = array_search($key, $header);
       if ($index!==FALSE) {
         if (isset($line[$index])) {
-          return $line[$index];  
+          return $line[$index];
         } else {
-          // this means, that the column does exist in the header, 
+          // this means, that the column does exist in the header,
           //  but not in this row => bad CSV
           return NULL;
         }
@@ -346,7 +346,7 @@ class CRM_Banking_PluginImpl_Importer_CSV extends CRM_Banking_PluginModel_Import
       }
 
     } elseif (_csvimporter_helper_startswith($rule->type, 'trim')) {
-      // TRIM will strip the string of 
+      // TRIM will strip the string of
       $params = explode(":", $rule->type);
       if (isset($params[1])) {
         // the user provided a the trim parameters
@@ -354,6 +354,9 @@ class CRM_Banking_PluginImpl_Importer_CSV extends CRM_Banking_PluginModel_Import
       } else {
         $btx[$rule->to] = trim($value);
       }
+    } elseif (_csvimporter_helper_startswith($rule->type, 'copy')) {
+      // COPY a value to a new btx field
+      $btx[$rule->to] = $value;
 
     } elseif (_csvimporter_helper_startswith($rule->type, 'replace')) {
       // REPLACE will replace a substring
@@ -376,7 +379,7 @@ class CRM_Banking_PluginImpl_Importer_CSV extends CRM_Banking_PluginModel_Import
         // the user provided a date format
         $datetime = DateTime::createFromFormat($params[1], $value);
         if ($datetime) {
-          $btx[$rule->to] = $datetime->format('YmdHis');  
+          $btx[$rule->to] = $datetime->format('YmdHis');
         }
       } else {
         $btx[$rule->to] = date('YmdHis', strtotime($value));
@@ -396,21 +399,21 @@ class CRM_Banking_PluginImpl_Importer_CSV extends CRM_Banking_PluginModel_Import
       } else {
         // check, if we should warn: (not set = 'warn' for backward compatibility)
         if (!isset($rule->warn) || $rule->warn) {
-          $this->reportProgress(CRM_Banking_PluginModel_Base::REPORT_PROGRESS_NONE, 
+          $this->reportProgress(CRM_Banking_PluginModel_Base::REPORT_PROGRESS_NONE,
             sprintf(E::ts("Pattern '%s' was not found in entry '%s'."), $pattern, $value));
         }
       }
 
     } else {
       print_r("RULE TYPE NOT YET IMPLEMENTED");
-    }    
+    }
   }
 
 
-  /** 
+  /**
    * Test if the configured source is available and ready
-   * 
-   * @var 
+   *
+   * @var
    * @return TODO: data format?
    */
   function probe_stream( $params )
@@ -418,10 +421,10 @@ class CRM_Banking_PluginImpl_Importer_CSV extends CRM_Banking_PluginModel_Import
     return false;
   }
 
-  /** 
+  /**
    * Import the given file
-   * 
-   * @return TODO: data format? 
+   *
+   * @return TODO: data format?
    */
   function import_stream( $params )
   {

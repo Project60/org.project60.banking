@@ -260,6 +260,43 @@ class CRM_Banking_PluginImpl_Importer_Fixed extends CRM_Banking_PluginModel_Impo
         $this->storeValue($rule->to, $new_value);
         break;
 
+      case 'trim':
+        $value = trim($this->getValue($rule->from));
+        $this->storeValue($rule->to, $value);
+        break;
+
+      case 'copy':
+        /**
+         *
+         * copy :
+         * Copies a value from one field to another
+         *
+         * Usage example:
+         *
+         * "type": "copy"
+         * "from": "tx.field1",
+         * "to": "tx.field2"
+         */
+        $value = $this->getValue($rule->from);
+        $this->storeValue($rule->to, $value);
+        break;
+
+      case 'clear_prepending':
+        /**
+         * clear_prepending :
+         * Easier way to clears zeros(0) from the start of a string
+         *
+         * Usage example:
+         *
+         * "type": "clear_prepending",
+         * "from": "tx.number",
+         * "to": "tx.cleared_number"
+         *
+         */
+        $value = ltrim($this->getValue($rule->from), '0');
+        $this->storeValue($rule->to, $value);
+        break;
+
       case 'line_nr':
         $this->storeValue($rule->to, $this->line_nr);
         break;
@@ -273,6 +310,21 @@ class CRM_Banking_PluginImpl_Importer_Fixed extends CRM_Banking_PluginModel_Impo
         } else {
           // TODO: error handling date format wrong
         }
+        break;
+
+      case 'append':
+        /**
+         * APPEND appends the string to a given field. Separator is newline \n
+         *
+         * Usage example:
+         *
+         * "type": "append",
+         * "from": "tx.comment",
+         * "to": "tx.purpose",
+         *
+         */
+        $from = $this->getValue($rule->from);
+        $this->storeValue($rule->to, $this->getValue($rule->to) . "\n" . $from);
         break;
 
       case 'transaction:open':

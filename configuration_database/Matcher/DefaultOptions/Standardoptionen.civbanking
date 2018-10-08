@@ -1,0 +1,64 @@
+{
+    "plugin_type_name": "match",
+    "plugin_class_name": "matcher_default",
+    "name": "Standardoptionen",
+    "description": "Erstellt die Standardoptionen \"manuell Verbuchen\" und \"Ignorieren\"",
+    "weight": "90",
+    "config": {
+        "auto_exec": false,
+        "manual_enabled": true,
+        "manual_probability": "50%",
+        "manual_show_always": true,
+        "manual_title": "Manuell verarbeitet",
+        "manual_message": "Die zu verkn\u00fcpfenden Zuwendungen in der Tabelle unten hinzuf\u00fcgen, bestehende oder neu angelegte, und <strong><i>dann erst<\/i><\/strong> auf 'Confirm &amp; Continue' dr\u00fccken.",
+        "manual_contribution": "Bitte tragen Sie hier die Zuwendungs-ID ein, falls eine erzeugt wurde: ",
+        "manual_default_source": "CiviBanking (manuell)",
+        "manual_default_financial_type_id": 1,
+        "ignore_enabled": true,
+        "ignore_show_always": true,
+        "ignore_probability": "0.1",
+        "ignore_title": "Geh\u00f6rt nicht in CiviCRM",
+        "ignore_message": "Diese Buchung hat nichts mit CiviCRM zu tun.",
+        "value_propagation": {
+            "btx.financial_type_id": "contribution.financial_type_id",
+            "btx.campaign_id": "contribution.campaign_id",
+            "btx.purpose": "contribution.custom_97"
+        },
+        "lookup_contact_by_name": {
+            "soft_cap_probability": 0.85,
+            "soft_cap_min": 4,
+            "hard_cap_probability": 0.85,
+            "comment": "modifiers for common German transcriptions",
+            "modifiers": [
+                {
+                    "search": ":ss:",
+                    "replace": "\u00df",
+                    "mode": "alternative"
+                },
+                {
+                    "search": ":ue:",
+                    "replace": "\u00fc",
+                    "mode": "alternative"
+                },
+                {
+                    "search": ":oe:",
+                    "replace": "\u00f6",
+                    "mode": "alternative"
+                },
+                {
+                    "search": ":ae:",
+                    "replace": "\u00e4",
+                    "mode": "alternative"
+                }
+            ],
+            "penalties": [
+                {
+                    "comment": "20% Abzug falls Individual mit nur einem Namensteil",
+                    "penalty": "0.20",
+                    "type": "individual_single_name"
+                }
+            ]
+        }
+    },
+    "state": {}
+}

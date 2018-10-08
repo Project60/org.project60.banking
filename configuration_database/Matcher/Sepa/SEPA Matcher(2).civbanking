@@ -1,0 +1,48 @@
+{
+    "plugin_type_name": "match",
+    "plugin_class_name": "matcher_sepa",
+    "name": "SEPA Matcher",
+    "description": "Verbucht CiviSEPA Lastschriften",
+    "weight": "70",
+    "config": {
+        "auto_exec": 1,
+        "received_date_minimum": "-6 days",
+        "received_date_maximum": "+10 days",
+        "deviation_penalty": 0.15,
+        "value_propagation": {
+            "btx.purpose": "contribution.custom_97"
+        },
+        "cancellation_enabled": true,
+        "cancellation_general_penalty": 0,
+        "cancellation_default_reason": "Unbekannt",
+        "cancellation_amount_relative_minimum": 1,
+        "cancellation_amount_relative_maximum": 1,
+        "cancellation_amount_absolute_minimum": -8.7,
+        "cancellation_amount_absolute_maximum": 0,
+        "cancellation_amount_penalty": 0.3,
+        "cancellation_penalty_threshold": 0.3,
+        "cancellation_date_minimum": "-15 days",
+        "cancellation_date_maximum": "+1 days",
+        "cancellation_status_penalty": {
+            "1": 0,
+            "5": 0.2
+        },
+        "cancellation_cancel_reason": 1,
+        "cancellation_cancel_reason_source": "cancel_reason",
+        "cancellation_cancel_reason_default": "Unbekannt",
+        "cancellation_cancel_fee": 1,
+        "cancellation_cancel_fee_source": null,
+        "cancellation_cancel_fee_store": "contribution.custom_98",
+        "cancellation_create_activity": false,
+        "cancellation_create_activity_type_id": 76,
+        "cancellation_create_activity_subject": "SEPA Cancellation",
+        "cancellation_create_activity_assignee_id": 4657,
+        "cancellation_update_mandate_status_OOFF": "INVALID",
+        "cancellation_update_mandate_status_RCUR": false,
+        "cancellation_value_propagation": {
+            "btx.cancel_reason": "contribution.cancel_reason",
+            "btx.purpose": "contribution.custom_97"
+        }
+    },
+    "state": {}
+}

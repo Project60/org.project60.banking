@@ -1,7 +1,7 @@
 <?php
 /*-------------------------------------------------------+
 | Project 60 - CiviBanking                               |
-| Copyright (C) 2013-2015 SYSTOPIA                       |
+| Copyright (C) 2013-2018 SYSTOPIA                       |
 | Author: B. Endres (endres -at- systopia.de)            |
 | http://www.systopia.de/                                |
 +--------------------------------------------------------+
@@ -13,6 +13,8 @@
 | copyright header is strictly prohibited without        |
 | written permission from the original author(s).        |
 +--------------------------------------------------------*/
+
+use CRM_Banking_ExtensionUtil as E;
 
 /**
  * The Analyser is a simplified matcher, that does not produce any suggestions.

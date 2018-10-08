@@ -1,7 +1,7 @@
 <?php
 /*-------------------------------------------------------+
 | Project 60 - CiviBanking                               |
-| Copyright (C) 2013-2014 SYSTOPIA                       |
+| Copyright (C) 2013-2018 SYSTOPIA                       |
 | Author: B. Endres (endres -at- systopia.de)            |
 | http://www.systopia.de/                                |
 +--------------------------------------------------------+
@@ -77,7 +77,7 @@ class CRM_Utils_BankingSafeLock {
     } else {
       // this is the BAD case: somebody's trying to acquire ANOTHER LOCK,
       //  while we still own another one
-      $lock_name = $self::$_acquired_lock->getName();
+      $lock_name = self::$_acquired_lock->getName();
       throw new Exception("This process cannot acquire more than one lock! It still owns lock '$lock_name'.");
     }
 
@@ -99,7 +99,7 @@ class CRM_Utils_BankingSafeLock {
 
     } else {
       // somebody is trying to release ANOTHER LOCK
-      $lock_name = $self::$_acquired_lock->getName();
+      $lock_name = self::$_acquired_lock->getName();
       error_log("org.project60.banking: This process cannot realease lock '$name', it still owns lock '$lock_name'.");
       throw new Exception("This process cannot realease lock '$name', it still owns lock '$lock_name'.");
     }

@@ -1,6 +1,6 @@
 {*-------------------------------------------------------+
 | Project 60 - CiviBanking                               |
-| Copyright (C) 2013-2014 SYSTOPIA                       |
+| Copyright (C) 2013-2018 SYSTOPIA                       |
 | Author: B. Endres (endres -at- systopia.de)            |
 | http://www.systopia.de/                                |
 +--------------------------------------------------------+
@@ -29,16 +29,16 @@
 
 <form action="{$url_action}" method="post" name="DataSource" id="DataSource" enctype="multipart/form-data" >
   <div class="crm-block crm-form-block crm-import-datasource-form-block" id="choose-data-source">
-    <h3>{ts}Select Importer{/ts}</h3>
+    <h3>{ts domain='org.project60.banking'}Select Importer{/ts}</h3>
     <table class="form-layout">
       <tbody>
         <tr class="crm-import-datasource-form-block-dataSource">
           <td class="label">
-            <label for="dataSource">{ts}Choose configuration{/ts}<span title="This field is required." class="crm-marker">*</span></label>
+            <label for="dataSource">{ts domain='org.project60.banking'}Choose configuration{/ts}<span title="This field is required." class="crm-marker">*</span></label>
           </td>
           <td>
             <select class="form-select required" id="banking-importer-plugin" name="importer-plugin" onchange="selected_plugin_changed(this.value);" {if $page_mode == 'run'}disabled{/if}>
-              <option value="-9999">-- {ts}select{/ts} --</option>
+              <option value="-9999">-- {ts domain='org.project60.banking'}select{/ts} --</option>
             {foreach from=$plugin_list item=field key=fieldName}
               <option value="{$field->id}" {if $plugin_id == $field->id} selected{/if}>{$field->name}</option>
             {/foreach}
@@ -84,8 +84,9 @@
   </table>
 </div>
 
+{* DISABLED: Options panel
 <div class="crm-block crm-form-block crm-import-datasource-form-block" id="import options">
-  <h3>{ts}Import Options{/ts}</h3>
+  <h3>{ts domain='org.project60.banking'}Import Options{/ts}</h3>
   <table class="form-layout">
     <tbody>
       <tr class="crm-import-datasource-form-block-dataSource">
@@ -93,32 +94,33 @@
           <input type="checkbox" class="form-checkbox" value="on" name="dry_run" id="dry_run"
           {if $page_mode == 'run'} disabled {/if}
         {if $dry_run == 'on'} checked {/if}>
-      {ts}Dry run{/ts}</input>
+      {ts domain='org.project60.banking'}Dry run{/ts}</input>
     </td>
   </tr>
   <!--tr class="crm-import-datasource-form-block-dataSource">
     <td>
-      <input type="checkbox" disabled class="form-checkbox" value="on" name="process" id="process" {if $page_mode == 'run'} disabled {/if}{if $process == 'on'} checked {/if}>{ts}Process transactions right away{/ts}</input>
+      <input type="checkbox" disabled class="form-checkbox" value="on" name="process" id="process" {if $page_mode == 'run'} disabled {/if}{if $process == 'on'} checked {/if}>{ts domain='org.project60.banking'}Process transactions right away{/ts}</input>
     </td>
   </tr-->
 </tbody>
 </table>
 </div>
+DISABLED: Options panel *}
 
-<div class="crm-submit-buttons">
-  {if $page_mode == 'config'}
-    <span class="crm-button crm-button-type-upload crm-button_qf_DataSource_upload">
-      <input type="submit" value="{ts}Import!{/ts}" class="validate form-submit default">
-    </span>
-  {else}
-    <a class="button" href="{$url_payments}">
-      <span align="right"><div class="icon details-icon ui-icon-search"></div>{ts}See Results{/ts}</span>
-    </a>
-    <a class="button" href="{$url_action}">
-      <span align="right"><div class="icon details-icon ui-icon-plus"></div>{ts}Import More{/ts}</span>
-    </a>
-  {/if}
-</div>
+  <div class="crm-submit-buttons">
+    {if $page_mode == 'config'}
+      <a class="button" onclick="cj(this).closest('form').submit();" >
+        <span><i class="crm-i fa-upload"></i>&nbsp;{ts domain='org.project60.banking'}Import!{/ts}</span>
+      </a>
+    {else}
+      <a class="button" href="{$url_payments}" >
+        <span><i class="crm-i fa-list"></i>&nbsp;{ts domain='org.project60.banking'}See Results{/ts}</span>
+      </a>
+      <a class="button" href="{$url_action}" >
+        <span><i class="crm-i fa-plus-circle"></i>&nbsp;{ts domain='org.project60.banking'}Import More{/ts}</span>
+      </a>
+    {/if}
+  </div>
 
 {if $page_mode == 'run'}
   <div class="crm-block crm-container crm-import-datasource-form-block" id="run_log">
@@ -143,11 +145,11 @@
 
 <div class="crm-submit-buttons">
   {if $page_mode != 'config'}
-    <a class="button" href="{$url_payments}">
-      <span align="right"><div class="icon details-icon ui-icon-search"></div>{ts}See Results{/ts}</span>
+    <a class="button" href="{$url_payments}" >
+      <span><i class="crm-i fa-list"></i>&nbsp;{ts domain='org.project60.banking'}See Results{/ts}</span>
     </a>
-    <a class="button" href="{$url_action}">
-      <span align="right"><div class="icon details-icon ui-icon-plus"></div>{ts}Import More{/ts}</span>
+    <a class="button" href="{$url_action}" >
+      <span><i class="crm-i fa-plus-circle"></i>&nbsp;{ts domain='org.project60.banking'}Import More{/ts}</span>
     </a>
   {/if}
 </div>

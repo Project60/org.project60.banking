@@ -1,7 +1,7 @@
 <?php
 /*-------------------------------------------------------+
 | Project 60 - CiviBanking                               |
-| Copyright (C) 2013-2014 SYSTOPIA                       |
+| Copyright (C) 2013-2018 SYSTOPIA                       |
 | Author: B. Endres (endres -at- systopia.de)            |
 | http://www.systopia.de/                                |
 +--------------------------------------------------------+
@@ -63,18 +63,6 @@ function banking_civicrm_enable() {
   //add the required option groups
   banking_civicrm_install_options(_banking_options());
 
-  // run the update script
-  $config = CRM_Core_Config::singleton();
-  $sqlfile = dirname(__FILE__) . '/sql/upgrade.sql';
-  CRM_Utils_File::sourceSQLFile($config->dsn, $sqlfile, NULL, false);
-
-  // FIXME: move to upgrade
-  // add missing index (https://github.com/Project60/org.project60.banking/issues/158)
-  $index = CRM_Core_DAO::executeQuery("SHOW INDEX FROM civicrm_bank_account_reference WHERE column_name = 'reference'");
-  if (!$index->fetch()) {
-    CRM_Core_DAO::executeQuery("ALTER TABLE civicrm_bank_account_reference ADD INDEX `reference` (reference);");
-  }
-
   return _banking_civix_civicrm_enable();
 }
 
@@ -108,3 +96,6 @@ function banking_civicrm_managed(&$entities) {
   return _banking_civix_civicrm_managed($entities);
 }
 
+function banking_civicrm_angularModules(&$angularModules) {
+  return _banking_civix_civicrm_angularModules($angularModules);
+}

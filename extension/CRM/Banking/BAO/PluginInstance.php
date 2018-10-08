@@ -1,7 +1,7 @@
 <?php
 /*-------------------------------------------------------+
 | Project 60 - CiviBanking                               |
-| Copyright (C) 2013-2014 SYSTOPIA                       |
+| Copyright (C) 2013-2018 SYSTOPIA                       |
 | Author: B. Endres (endres -at- systopia.de)            |
 | http://www.systopia.de/                                |
 +--------------------------------------------------------+
@@ -14,6 +14,7 @@
 | written permission from the original author(s).        |
 +--------------------------------------------------------*/
 
+use CRM_Banking_ExtensionUtil as E;
 /**
  * Class contains functions for CiviBanking plugin instances
  */
@@ -47,27 +48,18 @@ class CRM_Banking_BAO_PluginInstance extends CRM_Banking_DAO_PluginInstance {
    */
   static function listInstances($type_name, $enabled_only=TRUE) {
     // first, find the plugin type option group
-    $plugin_types = civicrm_api('OptionGroup', 'get', array('version' => 3, 'name' => 'civicrm_banking.plugin_types'));
-    if (isset($result['is_error']) && $result['is_error']) {
-      CRM_Core_Error::fatal(sprintf(ts("Couldn't find group '%s'!"), 'civicrm_banking.plugin_types'));
-      return array();
-    }
+    $plugin_types = civicrm_api3('OptionGroup', 'get', array(
+        'name' => 'civicrm_banking.plugin_types'));
 
     // then, find the correct plugin type
-    $import_plugin_type = civicrm_api('OptionValue', 'get', array('version' => 3, 'name' => $type_name, 'group_id' => $plugin_types['id']));
-    if ((isset($result['is_error']) && $result['is_error']) || (!isset($import_plugin_type['id']) || !$import_plugin_type['id'])) {
-      CRM_Core_Error::fatal(sprintf(ts("Couldn't find type '%s' in group %d!"), $type_name, $plugin_types['id']));
-      return array();
-    }
+    $import_plugin_type = civicrm_api3('OptionValue', 'get', array(
+        'name'     => $type_name,
+        'group_id' => $plugin_types['id']));
 
     // then, get the list of plugins matching this criteria
-    $params = array('version' => 3, 'plugin_type_id' => $import_plugin_type['id']);
+    $params = array('plugin_type_id' => $import_plugin_type['id']);
     if ($enabled_only) { $params['enabled'] = 1; }
-    $instance_results = civicrm_api('BankingPluginInstance', 'get', $params);
-    if (isset($result['is_error']) && $result['is_error']) {
-      CRM_Core_Error::fatal(ts("Couldn't query plugin list from API!"));
-      return array();
-    }
+    $instance_results = civicrm_api3('BankingPluginInstance', 'get', $params);
 
     // create list of plugin instance BAOs
     $plugin_list = array();
@@ -99,16 +91,11 @@ class CRM_Banking_BAO_PluginInstance extends CRM_Banking_DAO_PluginInstance {
    */
   function getClass() {
     $classNameId = $this->plugin_class_id;
-    $className = civicrm_api( 'OptionValue','getsingle', array( 
-        'version' => 3, 
-        'id' => $classNameId) );
-    if (isset($className['is_error']) && $className['is_error']) {
-      CRM_Core_Error::fatal( sprintf( ts('Could not locate the class name for civicrm_banking.plugin_classes member %d.'), $classNameId ) );
-    }
+    $className = civicrm_api3( 'OptionValue','getsingle', array('id' => $classNameId));
 
     $class = $className['value'];
     if (!class_exists($class)) {
-      CRM_Core_Error::fatal(sprintf( ts('This plugin requires class %s which does not seem to exist.'), $class));
+      throw new Exception(sprintf('This plugin requires class %s which does not seem to exist.'), $class);
     }
     return $class;
   }
@@ -121,5 +108,78 @@ class CRM_Banking_BAO_PluginInstance extends CRM_Banking_DAO_PluginInstance {
     return new $class( $this );
   }
 
+  /**
+   * Serialise this entire plugin for export
+   */
+  public function serialise() {
+    $data = array();
+
+    // load class id
+    $data['plugin_type_name']  = civicrm_api3('OptionValue', 'getvalue', ['return' => 'name', 'id' => $this->plugin_type_id]);
+    $data['plugin_class_name'] = civicrm_api3('OptionValue', 'getvalue', ['return' => 'name', 'id' => $this->plugin_class_id]);
+    $data['name']              = $this->name;
+    $data['description']       = $this->description;
+    $data['weight']            = $this->weight;
+    $data['config']            = json_decode($this->config);
+    $data['state']             = json_decode($this->state);
+
+    return json_encode($data, JSON_PRETTY_PRINT);
+  }
+
+  /**
+   * Serialise this entire plugin for export
+   */
+  public function updateWithSerialisedData($serialised_data, $skip_fields = [], $verify_fields = []) {
+    try {
+      $data = json_decode($serialised_data, true);
+
+      // note: sadly, type and class are inversely used!
+      $plugin_type_id = civicrm_api3('OptionValue', 'getvalue', [
+              'return'          => 'id',
+              'option_group_id' => 'civicrm_banking.plugin_classes',
+              'name'            => $data['plugin_type_name']]);
+      if (in_array('plugin_type_name', $verify_fields)) {
+        if ($this->plugin_type_id != $plugin_type_id) {
+          throw new Exception(E::ts("Cannot update, wrong plugin type!"));
+        }
+      }
+      $this->plugin_type_id = $plugin_type_id;
+
+      $plugin_class_id = civicrm_api3('OptionValue', 'getvalue', [
+              'return'          => 'id',
+              'option_group_id' => 'civicrm_banking.plugin_types',
+              'name'            => $data['plugin_class_name']]
+      );
+      if (in_array('plugin_class_name', $verify_fields)) {
+        if ($this->plugin_class_id != $plugin_class_id) {
+          throw new Exception(E::ts("Cannot update, wrong plugin class!"));
+        }
+      }
+      $this->plugin_class_id = $plugin_class_id;
+
+      $fields = ['name', 'description', 'weight', 'config', 'state'];
+      foreach ($fields as $field) {
+        $value = $data[$field];
+        if ($field == 'config' || $field == 'state') {
+          $value = json_encode($value);
+        }
+
+        // if requested, make sure it's the same
+        if (in_array($field, $verify_fields)) {
+          if ($value != $this->$field) {
+            throw new Exception(E::ts("Cannot update, field %1 differs.", [1 => $field]));
+          }
+        }
+
+        if (!in_array($field, $skip_fields)) {
+          $this->$field = $value;
+        }
+      }
+
+      $this->save();
+    } catch (Exception $ex) {
+      throw new Exception("Import failed: " . $ex->getMessage());
+    }
+  }
 }
 

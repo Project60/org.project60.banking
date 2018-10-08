@@ -1,0 +1,114 @@
+<div class="crm-container banking-rule-editor">
+  <h1 crm-page-title>{{ts('Editing Banking Rule [%1]', {1: rule_data.id})}}</h1>
+
+  <p><label for="name" >Rule name (optional)</label>
+    <input ng-model="rule_data.name" name="name" /></p>
+  <p ng-if="rule_data.is_enabled" style="color:#0a0;">Rule is enabled. <a href ng-click="setEnabled(false)" >Disable Rule</a></p>
+  <p ng-if="!rule_data.is_enabled" style="color:#a00;">Rule is disabled. <a href ng-click="setEnabled(true)" >Enable Rule</a></p>
+  <p>Rule has matched {{rule_data.match_counter}} time(s) and was last used {{rule_data.last_match || '(never)'}}.
+    <a href ng-if="rule_data.match_counter > 0 || rule_data.last_match" ng-click="resetUsage()" >Reset Counters</a>
+  </p>
+
+  <h2>{{ts('Match Criteria')}}</h2>
+  <table>
+    <thead><tr><th>Include</th><th>Match</th></tr></thead>
+    <tbody>
+
+      <tr>
+        <td><input ng-model="rule_data.party_ba_ref_enabled" type="checkbox" id="party_ba_ref_enabled" /> <label for="party_ba_ref_enabled" >Party IBAN</label></td>
+        <td ng-if="rule_data.party_ba_ref_enabled"><input type="text"  ng-trim="false" ng-model="rule_data.party_ba_ref"  /></td>
+      </tr>
+
+      <tr>
+        <td><input ng-model="rule_data.ba_ref_enabled" type="checkbox" id="ba_ref_enabled" /> <label for="ba_ref_enabled" >Our IBAN</label></td>
+        <td ng-if="rule_data.ba_ref_enabled"><input type="text"  ng-trim="false" ng-model="rule_data.ba_ref"  /></td>
+      </tr>
+
+      <tr>
+        <td><input ng-model="rule_data.amount_enabled" type="checkbox" id="amount_enabled" /> <label for="amount_enabled" >Amount</label></td>
+        <td ng-if="rule_data.amount_enabled">
+          <select ng-model="rule_data.amount_operator">
+            <option value="equals">Exactly</option>
+            <option value="between">Between</option>
+          </select>
+          <label ng-if="rule_data.amount_operator == 'between'" for="amount_min" ng-if="rule_data.amount_operator == 'between'" >From</label>
+          <input type="text" ng-model="rule_data.amount_min" id="amount_min" size="5" />
+
+          <label ng-if="rule_data.amount_operator == 'between'" for="amount_max" >to</label>
+          <input type="text" ng-if="rule_data.amount_operator == 'between'" ng-model="rule_data.amount_max" id="amount_max" size="5" />
+        </td>
+      </tr>
+
+      <tr>
+        <td><input ng-model="rule_data.party_name_enabled" type="checkbox" id="party_name_enabled" /> <label for="party_name_enabled" >Party Name</label></td>
+        <td ng-if="rule_data.party_name_enabled"><input type="text"  ng-trim="false" ng-model="rule_data.party_name"  /></td>
+      </tr>
+
+      <tr>
+        <td><input ng-model="rule_data.tx_reference_enabled" type="checkbox" id="tx_reference_enabled" /> <label for="tx_reference_enabled" >Transaction Reference</label></td>
+        <td ng-if="rule_data.tx_reference_enabled"><input type="text"  ng-trim="false" ng-model="rule_data.tx_reference"  /></td>
+      </tr>
+
+      <tr>
+        <td><input ng-model="rule_data.tx_purpose_enabled" type="checkbox" id="tx_purpose_enabled" /> <label for="tx_purpose_enabled" >Transaction Purpose</label></td>
+        <td ng-if="rule_data.tx_purpose_enabled"><input type="text"  ng-trim="false" ng-model="rule_data.tx_purpose" ng-trim="false" /></td>
+      </tr>
+
+      <!-- custom conditions -->
+      <tr ng-repeat="(i, cond) in rule_data.custom_conditions" >
+        <td><input type="checkbox" checked="" ng-click="rule_data.custom_conditions.splice(i, 1)" />
+          <input type="text" ng-model="cond.name" placeholder="custom_field_name"
+            class="{{ cond.error ? 'error' : '' }}" />
+          <span class="error" ng-if="cond.error" >{{ cond.error }}</span>
+        </td>
+        <td><input type="text"  ng-trim="false" ng-model="cond.full_match" placeholder="full string match" /></td>
+      </tr>
+
+      <tr>
+        <td colspan="2"><a href class="btn " ng-click="addCustomCondition()" >Add custom condition</a></td>
+      </tr>
+
+    </tbody>
+  </table>
+
+  <h2 >New Rule Actions</h2>
+  <!-- need to loop the configured things and create the whatnots. -->
+  <table>
+    <thead>
+      <tr>
+        <th>Set</th><th>Value</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr ng-repeat="field in rule_data.execution" >
+        <td><input type="checkbox"
+                   name="set-{{field.field + '-cb'}}"
+                   id="set-{{field.field + '-cb'}}"
+                   ng-model="field.enabled" />
+          <label for="set-{{field.field + '-cb'}}">{{field.label}}</label>
+        </td>
+        <td>
+          <input ng-if="field.enabled && !field.options"
+                 ng-model="field.value"
+                 name="set-{{field.field}}"
+                 type="text"
+                 id="set-{{field.field}}"
+                 class="{{ field.value ? '' : 'error' }}"
+                 />
+          <select ng-if="field.enabled && field.options"
+                 ng-model="field.value"
+                 ng-options="v as l for (v, l) in field.options"
+                 name="set-{{field.field}}"
+                 id="set-{{field.field}}"
+                 class="{{ field.value ? '' : 'error' }}"
+                 >
+          </select>
+          <span class="error" ng-if="field.enabled && !field.value" >Provide a value</span>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+
+  <button ng-click="save()" >Save</button>
+
+</div>

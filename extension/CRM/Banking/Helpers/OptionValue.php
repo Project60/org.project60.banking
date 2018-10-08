@@ -1,7 +1,7 @@
 <?php
 /*-------------------------------------------------------+
 | Project 60 - CiviBanking                               |
-| Copyright (C) 2013-2014 SYSTOPIA                       |
+| Copyright (C) 2013-2018 SYSTOPIA                       |
 | Author: B. Endres (endres -at- systopia.de)            |
 | http://www.systopia.de/                                |
 +--------------------------------------------------------+
@@ -14,6 +14,7 @@
 | written permission from the original author(s).        |
 +--------------------------------------------------------*/
 
+use CRM_Banking_ExtensionUtil as E;
 
 /**
  * looks up an option group ID
@@ -26,18 +27,14 @@
  *
  */
 function banking_helper_optiongroupid_by_name($group_name) {
-    $result = civicrm_api('OptionGroup', 'get', array('version' => 3, 'name' => $group_name));
-    if (isset($result['is_error']) && $result['is_error']) {
-      CRM_Core_Error::fatal(sprintf(ts("Error while looking up option group '%s'!"), $group_name));
+    $result = civicrm_api3('OptionGroup', 'get', array('name' => $group_name));
+
+    if (empty($result['id'])) {
+      CRM_Core_Error::debug_log_message("org.project60.banking: Couldn't find option group '{$group_name}'!");
       return 0;
+    } else {
+      return $result['id'];
     }
-
-    if (!isset($result['id'])) {
-        error_log("org.project60.banking: Couldn't find option group '$group_name'!");
-        return 0;    
-    }
-
-    return $result['id'];
 }
 
 
@@ -52,18 +49,16 @@ function banking_helper_optiongroupid_by_name($group_name) {
  *
  */
 function banking_helper_optionvalueid_by_name($group_id, $value_name) {
-    $result = civicrm_api('OptionValue', 'get', array('version' => 3, 'name' => $value_name, 'option_group_id' => $group_id));
-    if (isset($result['is_error']) && $result['is_error']) {
-      CRM_Core_Error::fatal(sprintf(ts("Error while looking up option value '%s'!"), $value_name));
-      return 0;
-    }
+    $result = civicrm_api3('OptionValue', 'get', array(
+        'name'            => $value_name,
+        'option_group_id' => $group_id));
 
-    if (!isset($result['id'])) {
-        error_log("org.project60.banking: Couldn't find option value '$value_name'!");
-        return 0;    
-    }
-
+  if (empty($result['id'])) {
+    CRM_Core_Error::debug_log_message("org.project60.banking: Couldn't find option value '{$value_name}'!");
+    return 0;
+  } else {
     return $result['id'];
+  }
 }
 
 /**
@@ -77,19 +72,16 @@ function banking_helper_optionvalueid_by_name($group_id, $value_name) {
  *
  */
 function banking_helper_optionvalue_by_name($group_id, $value_name) {
-    $result = civicrm_api('OptionValue', 'get', array('version' => 3, 'name' => $value_name, 'option_group_id' => $group_id));
-    if (isset($result['is_error']) && $result['is_error']) {
-      CRM_Core_Error::fatal(sprintf(ts("Error while looking up option value '%s'!"), $value_name));
+    $result = civicrm_api3('OptionValue', 'get', array(
+        'name'            => $value_name,
+        'option_group_id' => $group_id));
+
+    if (empty($result['id'])) {
+      CRM_Core_Error::debug_log_message("org.project60.banking: Couldn't find option value '{$value_name}'!");
       return 0;
+    } else {
+      return $result['values'][$result['id']]['value'];
     }
-
-    if (!isset($result['id'])) {
-        //CRM_Core_Error::error(sprintf(ts("Couldn't find value '%s'!"), $value_name));
-        error_log("org.project60.banking: Couldn't find option value '$value_name'!");
-        return 0;    
-    }
-
-    return $result['values'][$result['id']]['value'];
 }
 
 /**
@@ -144,11 +136,7 @@ function banking_helper_optiongroup_id_name_mapping($group_name) {
     $group_id = banking_helper_optiongroupid_by_name($group_name);
 
     if ($group_id) {
-        $result = civicrm_api('OptionValue', 'get', array('version' => 3, 'option_group_id' => $group_id));
-        if (isset($result['is_error']) && $result['is_error']) {
-            CRM_Core_Error::fatal(sprintf(ts("Error while looking up option values for group '%s'!"), $group_id));
-            return array();
-        }
+        $result = civicrm_api3('OptionValue', 'get', array('option_group_id' => $group_id));
         $mapping = array();
         foreach ($result['values'] as $entry) {
             $mapping[$entry['id']] = $entry;

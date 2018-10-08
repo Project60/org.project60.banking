@@ -1,7 +1,7 @@
 <?php
 /*-------------------------------------------------------+
 | Project 60 - CiviBanking                               |
-| Copyright (C) 2017 SYSTOPIA                            |
+| Copyright (C) 2017-2018 SYSTOPIA                       |
 | Author: B. Endres (endres -at- systopia.de)            |
 | http://www.systopia.de/                                |
 +--------------------------------------------------------+
@@ -14,17 +14,20 @@
 | written permission from the original author(s).        |
 +--------------------------------------------------------*/
 
+use CRM_Banking_ExtensionUtil as E;
+
 require_once 'CRM/Core/Page.php';
 
 class CRM_Banking_Page_Manager extends CRM_Core_Page {
 
   function run() {
-    CRM_Utils_System::setTitle(ts('Manage CiviBanking Configuration'));
+    CRM_Utils_System::setTitle(E::ts('Manage CiviBanking Configuration'));
 
     // first: process commands (if any)
     $this->processDeleteCommand();
     $this->processEnableDisableCommand();
     $this->processRearrangeCommand();
+    $this->processExportCommand();
 
     // load all plugins and sort by
     $plugin_type_to_instance = array();
@@ -84,7 +87,7 @@ class CRM_Banking_Page_Manager extends CRM_Core_Page {
     if ($delete_id) {
       if ($confirmed) {
         civicrm_api3('BankingPluginInstance', 'delete', array('id' => $delete_id));
-        CRM_Core_Session::setStatus(ts("CiviBanking plugin [%1] deleted.", array(1 => $delete_id)), ts("Plugin deleted"), "info");
+        CRM_Core_Session::setStatus(E::ts("CiviBanking plugin [%1] deleted.", array(1 => $delete_id)), E::ts("Plugin deleted"), "info");
         CRM_Utils_System::redirect(CRM_Utils_System::url('civicrm/banking/manager'));
       } else {
         $plugin = civicrm_api3('BankingPluginInstance', 'getsingle', array('id' => $delete_id));
@@ -146,6 +149,24 @@ class CRM_Banking_Page_Manager extends CRM_Core_Page {
         $this->storePluginOrder($plugin_order);
       }
     }
+  }
+
+  /**
+   * Process export=$pid command by dumping a serialised version into the stream
+   */
+  protected function processExportCommand() {
+    $plugin_id = CRM_Utils_Request::retrieve('export', 'Integer');
+    if ($plugin_id) {
+      $plugin_bao = new CRM_Banking_BAO_PluginInstance();
+      $plugin_bao->get('id', $plugin_id);
+      $exported_data = $plugin_bao->serialise();
+      CRM_Utils_System::download(
+          $plugin_bao->name . '.civbanking',
+          'application/json',
+          $exported_data);
+    }
+
+
   }
 
   /**

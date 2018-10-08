@@ -1,7 +1,7 @@
 <?php
 /*-------------------------------------------------------+
 | Project 60 - CiviBanking                               |
-| Copyright (C) 2017 SYSTOPIA                            |
+| Copyright (C) 2017-2018 SYSTOPIA                       |
 | Author: B. Endres (endres -at- systopia.de)            |
 | http://www.systopia.de/                                |
 +--------------------------------------------------------+
@@ -54,7 +54,7 @@ abstract class CRM_Banking_PluginModel_BtxBase extends CRM_Banking_PluginModel_B
       foreach ($required_values as $required_key => $required_value) {
         $this->logMessage("Evaluating {$required_key}: {$required_value}", 'debug');
         $current_value = $this->getPropagationValue($btx, NULL, $required_key);
-        $split = split(':', $required_value, 2);
+        $split = preg_split('#:#', $required_value, 2);
         if (count($split) < 2) {
           error_log("org.project60.banking: required_value in config option not properly formatted, plugin id [{$this->_plugin_id}]");
         } else {
@@ -68,8 +68,8 @@ abstract class CRM_Banking_PluginModel_BtxBase extends CRM_Banking_PluginModel_B
             if ($current_value != $compare_value) return FALSE;
 
           } elseif ($command == 'in_constant') {
-            $exptected_values = explode(",", $parameter);
-            if (in_array($current_value, $exptected_values)) {
+            $expected_values = explode(",", $parameter);
+            if (in_array($current_value, $expected_values)) {
               continue;
             } else {
               return FALSE;
@@ -77,8 +77,8 @@ abstract class CRM_Banking_PluginModel_BtxBase extends CRM_Banking_PluginModel_B
 
           } elseif ($command == 'in') {
             $list_value = $this->getPropagationValue($btx, NULL, $parameter);
-            $exptected_values = explode(",", $list_value);
-            if (in_array($current_value, $exptected_values)) {
+            $expected_values = explode(",", $list_value);
+            if (in_array($current_value, $expected_values)) {
               continue;
             } else {
               return FALSE;
@@ -94,6 +94,9 @@ abstract class CRM_Banking_PluginModel_BtxBase extends CRM_Banking_PluginModel_B
                 $value = (int) $current_value;
                 if ($value >= 0) { continue 2; } else { return FALSE; }
 
+              case 'negative':
+                if (floatval($current_value) < 0) { continue 2; } else { return FALSE; }
+
               case 'numeric':
                 if (is_numeric($current_value)) { continue 2; } else { return FALSE; }
 
@@ -106,8 +109,8 @@ abstract class CRM_Banking_PluginModel_BtxBase extends CRM_Banking_PluginModel_B
             }
 
           } elseif ($command == 'not_in_constant') {
-            $exptected_values = explode(",", $parameter);
-            if (!in_array($current_value, $exptected_values)) {
+            $expected_values = explode(",", $parameter);
+            if (!in_array($current_value, $expected_values)) {
               continue;
             } else {
               return FALSE;
@@ -115,8 +118,8 @@ abstract class CRM_Banking_PluginModel_BtxBase extends CRM_Banking_PluginModel_B
 
           } elseif ($command == 'not_in') {
             $list_value = $this->getPropagationValue($btx, NULL, $parameter);
-            $exptected_values = explode(",", $list_value);
-            if (!in_array($current_value, $exptected_values)) {
+            $expected_values = explode(",", $list_value);
+            if (!in_array($current_value, $expected_values)) {
               continue;
             } else {
               return FALSE;
@@ -190,7 +193,7 @@ abstract class CRM_Banking_PluginModel_BtxBase extends CRM_Banking_PluginModel_B
    * Get the value of the propagation value spec
    */
   public function getPropagationValue($btx, $suggestion, $key) {
-    $key_bits = split("[.]", $key, 2);
+    $key_bits = preg_split("#[.]#", $key, 2);
 
     // check the custom object firsts
 
@@ -206,9 +209,9 @@ abstract class CRM_Banking_PluginModel_BtxBase extends CRM_Banking_PluginModel_B
         return NULL;
       }
 
-      if (isset($bank_account->$key_bits[1])) {
+      if (isset($bank_account->{$key_bits[1]})) {
         // look in the BA directly
-        return $bank_account->$key_bits[1];
+        return $bank_account->{$key_bits[1]};
       } else {
         // look in the parsed values
         $data = $bank_account->getDataParsed();
@@ -231,9 +234,9 @@ abstract class CRM_Banking_PluginModel_BtxBase extends CRM_Banking_PluginModel_B
     // access btx custom data
     } elseif ($key_bits[0]=='btx') {
       // read BTX stuff
-      if (isset($btx->$key_bits[1])) {
+      if (isset($btx->{$key_bits[1]})) {
         // look in the BA directly
-        return $btx->$key_bits[1];
+        return $btx->{$key_bits[1]};
       } else {
         // look in the parsed values
         $data = $btx->getDataParsed();

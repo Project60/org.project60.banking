@@ -1,0 +1,120 @@
+{
+    "plugin_type_name": "match",
+    "plugin_class_name": "analyser_regex",
+    "name": "SEPA Analyser",
+    "description": "Liest die f\u00fcr SEPA relevanten Felder aus dem Verwendungszweck",
+    "weight": "30",
+    "config": {
+        "comment": "Liest die f\u00fcr SEPA relevanten Felder aus dem Verwendungszweck",
+        "rules": [
+            {
+                "comment": "Erkennt die SEPA-Mandatsreferenznummer",
+                "fields": [
+                    "purpose"
+                ],
+                "pattern": "#Mandatsreferenz (?P<mandate_reference>([A-Z])?[0-9]{2,7}(-[0-9]{2})?) #",
+                "actions": [
+                    {
+                        "action": "copy",
+                        "from": "mandate_reference",
+                        "to": "sepa_mandate"
+                    }
+                ]
+            },
+            {
+                "comment": "Extrahiert die SEPA-End-to-End",
+                "fields": [
+                    "purpose"
+                ],
+                "pattern": "#Kundenreferenz [(]End-to-End[)] (?P<sepa_end2end>[0-9]+) #",
+                "actions": [
+                    {
+                        "action": "copy",
+                        "from": "sepa_end2end",
+                        "to": "sepa_end2end"
+                    },
+                    {
+                        "comment": "Extract SEPA transaction group ID",
+                        "action": "lookup:SepaContributionGroup,txgroup_id,contribution_id",
+                        "from": "sepa_end2end",
+                        "to": "txgroup_id"
+                    },
+                    {
+                        "comment": "Extract SEPA transaction group reference",
+                        "action": "lookup:SepaTransactionGroup,reference,id",
+                        "from": "txgroup_id",
+                        "to": "sepa_batch"
+                    }
+                ]
+            },
+            {
+                "comment": "Erkennt den SEPA Statuscode",
+                "fields": [
+                    "purpose"
+                ],
+                "pattern": "#(RETURN|REJECT) (?P<sepa_code>[A-Z]{2}[0-9]{2}) #",
+                "actions": [
+                    {
+                        "action": "copy",
+                        "from": "sepa_code",
+                        "to": "sepa_code"
+                    }
+                ]
+            },
+            {
+                "fields": [
+                    "sepa_code"
+                ],
+                "comment": "Benennt den SEPA Statuscode",
+                "pattern": "\/(?P<sepa_code>AC01|AC04|AC06|AG01|AG02|AM04|AM05|BE05|FF01|MD01|MD02|MD06|MD07|MS02|MS03|PY01|RC01|RR01|RR02|RR03|SL01)\/",
+                "actions": [
+                    {
+                        "action": "map",
+                        "from": "sepa_code",
+                        "to": "cancel_reason",
+                        "mapping": {
+                            "AC01": "AC01: R\u00fccklastschrift-IBAN falsch",
+                            "AC04": "AC04: R\u00fccklastschrift-Konto gel\u00f6scht",
+                            "AC06": "AC06: R\u00fccklastschrift-Konto gesperrt",
+                            "AG01": "AG01: R\u00fccklastschrift",
+                            "AG02": "AG02: R\u00fccklastschrift",
+                            "AM04": "AM04: R\u00fccklastschrift mangels Deckung",
+                            "AM05": "AM05: R\u00fccklastschrift",
+                            "BE04": "BE04: R\u00fccklastschrift",
+                            "MD01": "MD01: R\u00fccklastschrift",
+                            "MD02": "MD02: R\u00fccklastschrift",
+                            "FF01": "FF01: R\u00fccklastschrift",
+                            "MD06": "MD06: R\u00fccklastschrift wegen Widerspruch",
+                            "MD07": "MD07: R\u00fccklastschrift Inhaber verstorben",
+                            "MS02": "MS02: R\u00fccklastschrift",
+                            "MS03": "MS03: R\u00fccklastschrift",
+                            "NARR": "NARR: R\u00fccklastschrift",
+                            "RC01": "RC01: R\u00fccklastschrift BIC falsch",
+                            "TM01": "TM01: R\u00fccklastschrift",
+                            "RR04": "RR04: R\u00fccklastschrift",
+                            "SL01": "SL01: R\u00fccklastschrift",
+                            "FOCR": "FOCR: R\u00fccklastschrift wegen Widerspruch",
+                            "RR01": "RR01: R\u00fccklastschrift-IBAN falsch",
+                            "RR02": "RR02: R\u00fccklastschrift",
+                            "PR03": "PR03: R\u00fccklastschrift",
+                            "DUPL": "DUPL: R\u00fccklastschrift",
+                            "TECH": "TECH: R\u00fccklastschrift",
+                            "FRAD": "FRAD: R\u00fccklastschrift",
+                            "AGNT": "AGNT: R\u00fccklastschrift",
+                            "CURR": "CURR: R\u00fccklastschrift",
+                            "CUST": "CUST: R\u00fccklastschrift",
+                            "CUTA": "CUTA: R\u00fccklastschrift",
+                            "UPAY": "UPAY: R\u00fccklastschrift",
+                            "BE05": "BE05: R\u00fccklastschrift",
+                            "AC13": "AC13: R\u00fccklastschrift",
+                            "FF05": "FF05: R\u00fccklastschrift",
+                            "DNOR": "DNOR: R\u00fccklastschrift",
+                            "CNOR": "CNOR: R\u00fccklastschrift"
+                        }
+                    }
+                ]
+            }
+        ]
+    },
+    "state": []
+}

@@ -1,7 +1,7 @@
 <?php
 /*-------------------------------------------------------+
 | Project 60 - CiviBanking                               |
-| Copyright (C) 2013-2014 SYSTOPIA                       |
+| Copyright (C) 2013-2018 SYSTOPIA                       |
 | Author: B. Endres (endres -at- systopia.de)            |
 | http://www.systopia.de/                                |
 +--------------------------------------------------------+
@@ -13,6 +13,8 @@
 | copyright header is strictly prohibited without        |
 | written permission from the original author(s).        |
 +--------------------------------------------------------*/
+
+use CRM_Banking_ExtensionUtil as E;
 
 /**
  *
@@ -171,7 +173,11 @@ abstract class CRM_Banking_PluginModel_Base {
   }
 
   function getPluginID() {
-      return $this->_plugin_id;
+    return $this->_plugin_id;
+  }
+
+  function getConfig() {
+    return $this->_plugin_config;
   }
 
   // -------------------------------------------------------

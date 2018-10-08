@@ -1,0 +1,60 @@
+/* Add any CSS rules for Angular module "banking" */
+.banking-rule-editor input[name="name"] {
+  box-sizing: border-box;
+  width:100%;
+}
+.banking-rule-editor input[type="text"] {
+  border: solid 1px #ddd;
+}
+.banking-rule-editor input[type="text"].error {
+  border-color: #b00;
+}
+.banking-rules-search__wrapper {
+  -moz-display:flex;
+  -webkit-display:flex;
+  -ms-display:flex;
+  display:flex;
+
+  -moz-flex-wrap:wrap;
+  -webkit-flex-wrap:wrap;
+  -ms-flex-wrap:wrap;
+  flex-wrap:wrap;
+
+  margin:0 -1rem;
+  box-sizing:border-box;
+}
+.banking-rules-search__col {
+  -moz-flex:1 1 50%;
+  -webkit-flex:1 1 50%;
+  -ms-flex:1 1 50%;
+  flex:1 1 50%;
+  box-sizing:border-box;
+  padding:1rem;
+}
+.banking-rules-search-results-stats {
+  -moz-display:flex;
+  -webkit-display:flex;
+  -ms-display:flex;
+  display:flex;
+  -moz-align-items: baseline;
+  -webkit-align-items: baseline;
+  -ms-align-items: baseline;
+  align-items: baseline;
+  margin-bottom: 1rem;
+  line-height: 300%;
+}
+.banking-rules-pager {
+  -moz-flex:1 1 auto;
+  -webkit-flex:1 1 auto;
+  -ms-flex:1 1 auto;
+  flex:1 1 auto;
+}
+.banking-rules-actions {
+  -moz-flex:0 0 auto;
+  -webkit-flex:0 0 auto;
+  -ms-flex:0 0 auto;
+  flex:0 0 auto;
+}
+.banking-rules-matches {
+  font-size: 2rem;
+}

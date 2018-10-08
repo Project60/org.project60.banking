@@ -1,0 +1,121 @@
+{
+    "plugin_type_name": "import",
+    "plugin_class_name": "importer_csv",
+    "name": "GLS CSV",
+    "description": "Importiert CSV Kontoausz\u00fcge der GLS",
+    "weight": "1000",
+    "config": {
+        "delimiter": ",",
+        "encoding": "CP1252",
+        "header": 1,
+        "title": "GLS {starting_date} - {ending_date} [{md5}]",
+        "defaults": {
+            "_IBAN": "1128961200",
+            "payment_instrument_id": "5"
+        },
+        "fields": "Kontonummer,Buchungstag,Wertstellung,Auftraggeber\/Empf\u00e4nger,Buchungstext,VWZ1,VWZ2,VWZ3,VWZ4,VWZ5,VWZ6,VWZ7,VWZ8,VWZ9,VWZ10,VWZ11,VWZ12,VWZ13,VWZ14,Betrag,Kontostand,W\u00e4hrung,,,,,",
+        "rules": [
+            {
+                "from": "Buchungstag",
+                "to": "booking_date",
+                "type": "strtotime:d.m.Y"
+            },
+            {
+                "from": "Wertstellung",
+                "to": "value_date",
+                "type": "strtotime:d.m.Y"
+            },
+            {
+                "from": "Buchungstext",
+                "to": "transaction_class",
+                "type": "set"
+            },
+            {
+                "from": "Betrag",
+                "to": "amount",
+                "type": "amount"
+            },
+            {
+                "from": "W\u00e4hrung",
+                "to": "currency",
+                "type": "set"
+            },
+            {
+                "from": "Auftraggeber\/Empf\u00e4nger",
+                "to": "name",
+                "type": "set"
+            },
+            {
+                "from": "VWZ1",
+                "to": "purpose",
+                "type": "append:"
+            },
+            {
+                "from": "VWZ2",
+                "to": "purpose",
+                "type": "append:"
+            },
+            {
+                "from": "VWZ3",
+                "to": "purpose",
+                "type": "append:"
+            },
+            {
+                "from": "VWZ4",
+                "to": "purpose",
+                "type": "append:"
+            },
+            {
+                "from": "VWZ5",
+                "to": "purpose",
+                "type": "append:"
+            },
+            {
+                "from": "VWZ6",
+                "to": "purpose",
+                "type": "append:"
+            },
+            {
+                "from": "VWZ7",
+                "to": "purpose",
+                "type": "append:"
+            },
+            {
+                "from": "VWZ8",
+                "to": "purpose",
+                "type": "append:"
+            },
+            {
+                "from": "VWZ9",
+                "to": "purpose",
+                "type": "append:"
+            },
+            {
+                "from": "VWZ10",
+                "to": "purpose",
+                "type": "append:"
+            },
+            {
+                "from": "VWZ11",
+                "to": "purpose",
+                "type": "append:"
+            },
+            {
+                "from": "VWZ12",
+                "to": "purpose",
+                "type": "append:"
+            },
+            {
+                "from": "VWZ13",
+                "to": "purpose",
+                "type": "append:"
+            },
+            {
+                "from": "VWZ14",
+                "to": "purpose",
+                "type": "append:"
+            }
+        ]
+    },
+    "state": {}
+}

@@ -1,0 +1,222 @@
+<div class="crm-container">
+
+  <h1 crm-page-title>{{ts('CiviBanking Rules')}}</h1>
+
+  <div class="banking-rules-search__wrapper" >
+  <div class="banking-rules-search__col">
+  <h2 style="margin-top:0;">Find rules by criteria</h2>
+  <table>
+    <thead><tr><th>Include</th><th>Match</th></tr></thead>
+    <tbody>
+
+      <tr>
+        <td><input ng-model="criteria.party_ba_ref_enabled" type="checkbox" id="party_ba_ref_enabled" /> <label for="party_ba_ref_enabled" >Party IBAN</label></td>
+        <td ><input ng-if="criteria.party_ba_ref_enabled" type="text" ng-model="criteria.party_ba_ref" ng-keydown="doSearchIfEnter($event)" /></td>
+      </tr>
+
+      <tr>
+        <td><input ng-model="criteria.ba_ref_enabled" type="checkbox" id="ba_ref_enabled" /> <label for="ba_ref_enabled" >Our IBAN</label></td>
+        <td ><input ng-if="criteria.ba_ref_enabled" type="text" ng-model="criteria.ba_ref"  ng-keydown="doSearchIfEnter($event)" /></td>
+      </tr>
+
+      <tr>
+        <td><input ng-model="criteria.amount_min_enabled" type="checkbox" id="amount_min_enabled" /> <label for="amount_min_enabled" >Amount Min.</label></td>
+        <td ><input ng-if="criteria.amount_min_enabled" type="text"  ng-keydown="doSearchIfEnter($event)" ng-model="criteria.amount_min" />
+          <span class="error" ng-if="criteria.amount_min_enabled && ( !(criteria.amount_min>0) || (criteria.amount_max_enabled && criteria.amount_min > criteria.amount_max))" >Provide a value {{ criteria.amount_max_enabled ? 'less than ' + criteria.amount_max : '' }}</span>
+        </td>
+      </tr>
+
+      <tr>
+        <td><input ng-model="criteria.amount_max_enabled" type="checkbox" id="amount_max_enabled" /> <label for="amount_max_enabled" >Amount max.</label></td>
+        <td ><input ng-if="criteria.amount_max_enabled" type="text" ng-keydown="doSearchIfEnter($event)" ng-model="criteria.amount_max"/>
+          <span class="error" ng-if="criteria.amount_max_enabled && ( !(criteria.amount_max>0) || (criteria.amount_min_enabled && criteria.amount_min > criteria.amount_max))" >Provide a value {{ criteria.amount_min_enabled ? 'greater than ' + criteria.amount_min : '' }}</span>
+          </td>
+      </tr>
+
+      <tr>
+        <td><input ng-model="criteria.party_name_enabled" type="checkbox" id="party_name_enabled" /> <label for="party_name_enabled" >Party Name</label></td>
+        <td ><input ng-if="criteria.party_name_enabled" type="text" ng-keydown="doSearchIfEnter($event)" ng-model="criteria.party_name"  /></td>
+      </tr>
+
+      <tr>
+        <td><input ng-model="criteria.tx_reference_enabled" type="checkbox" id="tx_reference_enabled" /> <label for="tx_reference_enabled" >Transaction Reference</label></td>
+        <td ><input ng-if="criteria.tx_reference_enabled" type="text" ng-keydown="doSearchIfEnter($event)" ng-model="criteria.tx_reference"  /></td>
+      </tr>
+
+      <tr>
+        <td><input ng-model="criteria.tx_purpose_enabled" type="checkbox" id="tx_purpose_enabled" /> <label for="tx_purpose_enabled" >Transaction Purpose</label></td>
+        <td ><input ng-if="criteria.tx_purpose_enabled" type="text" ng-keydown="doSearchIfEnter($event)" ng-model="criteria.tx_purpose" /></td>
+      </tr>
+
+      <!-- custom conditions -->
+      <tr ng-repeat="(i, cond) in criteria.custom_conditions" >
+        <td><input type="checkbox" checked="" ng-click="criteria.custom_conditions.splice(i, 1)" />
+          <select ng-model="cond.field"
+            ng-options="v as l for (v, l) in ui_data.plugin_config.custom_conditions"
+            />
+        </td>
+        <td><input type="text" ng-keydown="doSearchIfEnter($event)" ng-model="cond.value" /></td>
+      </tr>
+
+      <tr>
+        <td colspan="2"><a href class="btn " ng-click="addCustomCondition()" >Add custom condition</a></td>
+      </tr>
+
+      <tr>
+        <td><input ng-model="criteria.conds_like_enabled" type="checkbox" id="conds_like_enabled" /> <label for="conds_like_enabled" >Conditions</label></td>
+        <td ><input ng-if="criteria.conds_like_enabled" type="text" ng-keydown="doSearchIfEnter($event)" ng-model="criteria.conds_like" /></td>
+      </tr>
+
+    </tbody>
+  </table>
+  </div>
+  <div class="banking-rules-search__col">
+
+  <h2 style="margin-top:0;">Find rules by actions</h2>
+  <!-- need to loop the configured things and create the whatnots. -->
+  <table>
+    <thead>
+      <tr>
+        <th>Field</th><th>Value</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr ng-repeat="field in criteria.execution" >
+        <td><input type="checkbox"
+                   name="set-{{field.field + '-cb'}}"
+                   id="set-{{field.field + '-cb'}}"
+                   ng-model="field.enabled" />
+          <label for="set-{{field.field + '-cb'}}">{{field.label}}</label>
+        </td>
+        <td><input name="set-{{field.field}}"
+                   type="text"
+                   ng-if="field.enabled"
+                   id="set-{{field.field}}"
+                   ng-keydown="doSearchIfEnter($event)" 
+                   ng-model="field.value"
+                   class="{{ field.value ? '' : 'error' }}"
+                   />
+          <!-- not sure this is helpful
+          <span class="error" ng-if="field.enabled && !field.value" >Provide a value</span>
+          -->
+        </td>
+      </tr>
+    </tbody>
+  </table>
+  <h2>Meta</h2>
+  <input ng-model="criteria.is_enabled" id="is_enabled_all" type="radio" value="all" ><label for="is_enabled_all" >All</label>
+  <input ng-model="criteria.is_enabled" id="is_enabled_1" type="radio" value="1"><label for="is_enabled_1" >Enabled only</label>
+  <input ng-model="criteria.is_enabled" id="is_enabled_0" type="radio" value="0"><label for="is_enabled_0" >Disabled only</label>
+  <br />
+  <br />
+  <div style="margin-bottom:0.5rem">
+    <span style="display:inline-block;width:6em">Last Match</span>
+    <label for="last_match_min">From</label> <input size="6" id="last_match_min" ng-keydown="doSearchIfEnter($event)" ng-model="criteria.last_match_min" />
+    <label for="last_match_max">to</label><input size="6" id="last_match_max" ng-keydown="doSearchIfEnter($event)" ng-model="criteria.last_match_max" />
+  </div>
+
+  <div style="margin-bottom:0.5rem">
+    <span style="display:inline-block;width:6em">Match count</span>
+    <label for="match_counter_min">From</label> <input size="6" id="match_counter_min" ng-keydown="doSearchIfEnter($event)" ng-model="criteria.match_counter_min" />
+    <label for="match_counter_max">to</label> <input size="6" id="match_counter_max" ng-keydown="doSearchIfEnter($event)" ng-model="criteria.match_counter_max" />
+  </div>
+  </div>
+  </div>
+
+  <button ng-click="doSearch()" >Search Rules</button>
+
+  <!-- presentation of results -->
+  <br/>
+  <div id="cb-results" ng-if="pages.total !== null">
+    <div class="banking-rules-search-results-stats">
+      <span class="banking-rules-pager">
+        <span class="banking-rules-matches" >{{pages.total}} matching rule(s)</span>
+
+        <span ng-if="pages.total <= pages.limit ">Showing all matched rules</span>
+        <span ng-if="pages.total > pages.limit ">Showing rule matches {{pages.offset+1}} - {{pages.offset+results.length}}</span>
+
+        &nbsp;
+        <button ng-click="pages.offset = pages.offset - pages.limit; doSearch()"
+                ng-disabled="!(pages.total > pages.limit && pages.offset>0)">Previous</button>
+        &nbsp;
+        <button ng-click="pages.offset = pages.offset + pages.limit; doSearch()"
+          ng-disabled="!(pages.total > pages.limit && (pages.offset + pages.limit)<pages.total)">Next</button>
+        &nbsp;
+
+      </span>
+      <span class="banking-rules-actions"><a href ng-click="bulkSetEnabled(0)" >Disable all</a>
+        | <a href ng-click="bulkSetEnabled(1)">Enable all</a>
+      </span>
+    </div>
+    <table>
+      <thead>
+        <tr>
+          <th>Rule</th>
+          <th>Status</th>
+          <th><a href
+              style="{{ 'font-weight:' + (pages.sort.subbstr(0, 1) == 'm') ? 'bold' : 'normal' }}"
+              ng-click="pages.sort = (pages.sort == 'match_counter DESC') ? 'match_counter ASC': 'match_counter DESC';doSearch()"
+              >Usage</a>
+            <span ng-if="pages.sort == 'match_counter ASC'">▲</span>
+            <span ng-if="pages.sort == 'match_counter DESC'">▼</span>
+          </th>
+          <th><a href
+              style="{{ 'font-weight:' + (pages.sort.subbstr(0, 1) == 'l') ? 'bold' : 'normal' }}"
+              ng-click="pages.sort = (pages.sort == 'last_match DESC') ? 'last_match ASC': 'last_match DESC';doSearch()"
+              >Last Used</a>
+            <span ng-if="pages.sort == 'last_match ASC'">▲</span>
+            <span ng-if="pages.sort == 'last_match DESC'">▼</span>
+          </th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr ng-repeat="(i, rule) in results" >
+          <td>
+            Rule [{{rule.id}}] <strong ng-if="rule.name">{{rule.name}}<br /></strong>
+            <ul>
+              <!-- First list the basic table fields, except amount -->
+              <li ng-repeat="(i, field) in ui_data.table_fields"
+                  ng-if="(rule[field.field] !== null) && (['amount_min', 'amount_max'].indexOf(field.field) == -1)"
+                >
+                {{field.label}} = '{{rule[field.field]}}'
+              </li>
+              <li ng-if="rule['amount_min'] !== null || rule['amount_max'] !== null">
+                Amount
+                <span ng-if="rule['amount_min'] !== null && rule['amount_max'] !== null">
+                  between {{rule['amount_min']}} and {{rule['amount_max']}}</span>
+                <span ng-if="rule['amount_min'] !== null && rule['amount_max'] === null">
+                  {{rule['amount_min']}} or more</span>
+                <span ng-if="rule['amount_min'] === null && rule['amount_max'] !== null">
+                  {{rule['amount_min']}} or less</span>
+              </li>
+
+              <!-- list custom conditions -->
+              <li ng-repeat="(fieldname, meta) in rule.conditions">
+                {{fieldname}} = '{{meta.full_match}}'
+              </li>
+
+              <!-- list actions -->
+              <li ng-repeat="e in rule.execution">
+                → set {{ui_data.plugin_config.fields_to_set[e.set_param_name].label}} = {{e.set_param_value}}</li>
+            </ul>
+          </td>
+          <td>
+            <span ng-if="rule.is_enabled" style="color:#0a0;" >{{ts('Enabled')}}</span>
+            <span ng-if="!rule.is_enabled" style="color:#a00;" >{{ts('Disabled')}}</span>
+          <td>{{rule.match_counter}}</td>
+          <td>{{rule.last_match}}</td>
+          <td>
+            <a ng-if="rule.is_enabled" href ng-click="setEnabled(rule)">Disable</a>
+            <a ng-if="!rule.is_enabled" href ng-click="setEnabled(rule)">Enable</a>
+            |
+            <a href="{{'/civicrm/a/#/banking/rules/' + rule.id}}" target="_blank">Edit</a>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+
+  </div>
+
+
+</div>

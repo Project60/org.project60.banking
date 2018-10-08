@@ -1,7 +1,7 @@
 <?php
 /*-------------------------------------------------------+
 | Project 60 - CiviBanking                               |
-| Copyright (C) 2013-2014 SYSTOPIA                       |
+| Copyright (C) 2013-2018 SYSTOPIA                       |
 | Author: B. Endres (endres -at- systopia.de)            |
 | http://www.systopia.de/                                |
 +--------------------------------------------------------+
@@ -30,6 +30,7 @@
  *                                  'getquick' - use Contact.getquick API call
  *                                  'sql'      - use SQL query
  *                                  'off'      - turn the search off completely
+ * @param exact_match_wins        if this is set, the search is cut short if a exact match is found
  * @param name                    the name string to look for
  * @param modifiers               are used to modfiy the string: expects a JSON encoded list
  *                                  of arrays with the following entries:
@@ -62,7 +63,7 @@ function civicrm_api3_banking_lookup_contactbyname($params) {
 
   // apply 'entire'-modifiers to string
   foreach ($modifiers as $modifier) {
-    if (!empty($modifier['search']) && !empty($modifier['replace']) && (empty($modifier['mode']) || $modifier['mode']='entire') ) {
+    if ((!empty($modifier['search'])) && (!empty($modifier['replace'])) && ((empty($modifier['mode']) || $modifier['mode'] == 'entire'))) {
       $name = preg_replace($modifier['search'], $modifier['replace'], $name);
     }
   }
@@ -73,7 +74,7 @@ function civicrm_api3_banking_lookup_contactbyname($params) {
   // apply 'alternative'-modifiers to string
   foreach ($name_bits as $name_bit) {
     foreach ($modifiers as $modifier) {
-      if (!empty($modifier['search']) && !empty($modifier['replace']) && !empty($modifier['mode']) && $modifier['mode']='alternative' ) {
+      if ((!empty($modifier['search'])) && (!empty($modifier['replace'])) && (!empty($modifier['mode'])) && ($modifier['mode'] == 'alternative')) {
         $modified_name_bit = preg_replace($modifier['search'], $modifier['replace'], $name_bit);
         if ($modified_name_bit != $name_bit) {
           $name_bits[] = $modified_name_bit;
@@ -128,6 +129,23 @@ function civicrm_api3_banking_lookup_contactbyname($params) {
     }
   }
 
+
+  // sort by length, so the longest combination is looked for first
+  $name_mutations = array_unique($name_mutations);
+  usort($name_mutations, function($a, $b) {
+    return strlen($b) - strlen($a);
+  }); // search first for the longest combination
+
+  // respect the exact_match_wins flag:
+  if (!empty($params['exact_match_wins'])) {
+    // let's try first to get exact match(es) and skip the more advanced matching
+    $contacts_found = _civicrm_api3_banking_lookup_contactbyname_exact($name_mutations);
+    if (!empty($contacts_found)) {
+      return $contacts_found;
+    }
+  }
+
+  // run the actual search
   if (empty($params['mode']) || $params['mode']=='getquick') {
     $contacts_found = _civicrm_api3_banking_lookup_contactbyname_api($name_mutations, $params);
   } elseif ($params['mode']=='sql') {
@@ -194,6 +212,33 @@ function civicrm_api3_banking_lookup_contactbyname($params) {
 }
 
 /**
+ * Look for an exact match
+ *
+ * @author X+
+ * @param $name_mutations array name mutations
+ * @return array
+ */
+function _civicrm_api3_banking_lookup_contactbyname_exact ($name_mutations) {
+  $contacts_found = array();
+  $longest_mutation = strlen($name_mutations[0]);
+
+  // compile SQL query
+  $sql_clauses = array();
+  foreach ($name_mutations as $name_mutation) {
+    if (strlen($name_mutation) < $longest_mutation)
+      return $contacts_found;
+    $name_mutation = CRM_Utils_Type::escape($name_mutation, 'String');
+    $search_query = "SELECT id, sort_name FROM civicrm_contact WHERE is_deleted=0 AND (`sort_name` = '{$name_mutation}');";
+    // error_log($search_query);
+    $search_results = CRM_Core_DAO::executeQuery($search_query);
+    while ($search_results->fetch()) {
+      $contacts_found[$search_results->id] = 1.0;
+    }
+  }
+  return $contacts_found;
+}
+
+/**
  * find some contacts via SQL
  */
 function _civicrm_api3_banking_lookup_contactbyname_sql($name_mutations, $params) {
@@ -248,11 +293,9 @@ function _civicrm_api3_banking_lookup_contactbyname_sql($name_mutations, $params
  */
 function _civicrm_api3_banking_lookup_contactbyname_api($name_mutations, $params) {
   $contacts_found = array();
-
   // query quicksearch for each combination
   foreach ($name_mutations as $name_mutation) {
     $result = civicrm_api3('Contact', 'getquick', array('name' => $name_mutation));
-
     foreach ($result['values'] as $contact) {
       // get the current maximum similarity...
       if (isset($contacts_found[$contact['id']])) {
@@ -292,13 +335,24 @@ function _civicrm_api3_banking_lookup_contactbyname_api($name_mutations, $params
 function _civicrm_api3_banking_lookup_contactbyname_penalties(&$contactID2probability, $penalty_specs) {
   // STEP 1: GATHER DATA
   $contact2relation = array();
+  $contact2info = array();
   $relation_type_ids = array();
   foreach ($penalty_specs as $penalty) {
     if ($penalty->type == 'relation') {
       if ((int) $penalty->relation_type_id) {
         $relation_type_ids[] = (int) $penalty->relation_type_id;
       } else {
-        error_log("org.project60.banking.lookup - invalid or no 'relation_type_id' given in penalty definition.");
+        CRM_Core_Error::debug_log_message("org.project60.banking.lookup - invalid or no 'relation_type_id' given in penalty definition.");
+      }
+    } elseif ($penalty->type == 'individual_single_name') {
+      if (!empty($contactID2probability)) {
+        $info_query = civicrm_api3('Contact', 'get', array(
+            'id'           => array('IN' => array_keys($contactID2probability)),
+            'return'       => 'first_name,last_name,contact_type',
+            'sequential'   => 0,
+            'option.limit' => 0));
+        $contact2info = $info_query['values'];
+
       }
     }
   }
@@ -325,8 +379,20 @@ function _civicrm_api3_banking_lookup_contactbyname_penalties(&$contactID2probab
           // penalty applies
           $probability = max(0.0, $probability - $probability_penalty);
         }
+
+      } elseif ($penalty->type == 'individual_single_name') {
+        // check if contact is an individual...
+        $info = CRM_Utils_Array::value($contact_id, $contact2info, array());
+        if (!empty($info['contact_type']) && $info['contact_type'] == 'Individual') {
+          // ...and has only one name
+          if (empty($info['first_name']) || empty($info['last_name'])) {
+            // penalty applies
+            $probability = max(0.0, $probability - $probability_penalty);
+          }
+        }
+
       } else {
-        error_log("org.project60.banking.lookup - penalty type not implemented: '{$penalty->type}'. Ignored.");
+        CRM_Core_Error::debug_log_message("org.project60.banking.lookup - penalty type not implemented: '{$penalty->type}'. Ignored.");
       }
     }
     $contactID2probability[$contact_id] = $probability;

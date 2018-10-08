@@ -1,0 +1,97 @@
+{
+    "plugin_type_name": "import",
+    "plugin_class_name": "importer_csv",
+    "name": "PayPal CSV",
+    "description": "Importiert CSV Ausz\u00fcge von PayPal",
+    "weight": "1000",
+    "config": {
+        "delimiter": ",",
+        "encoding": "UTF8",
+        "header": 1,
+        "_sentinel": "#^Date, Time, Time Zone, Name, Type, Status, Subject, Currency, Gross, Fee, Net, From Email Address, To Email Address, Transaction ID, Delivery Address, Reference Txn ID, Receipt ID, Balance#m",
+        "title": "PayPal {starting_date}--{ending_date} [{md5}]",
+        "defaults": {
+            "_NBAN_PP": "spenden@myaccount.org",
+            "payment_instrument_id": "9"
+        },
+        "known_fields": "Datum, Zeit, Zeitzone, Name, Typ, Status, W\u00e4hrung, Brutto, Geb\u00fchr, Netto, Von E-Mail-Adresse, An E-Mail-Adresse, Transactionscode, Status der Gegenpartei, Adressstatus, Artikelbezeichnung, Artikelnummer, Betrag f\u00fcr Versandkosten, Versicherungsbetrag, Umsatzsteuer, Option 1 - Name, Option 1 - Wert, Option 2 - Name, Option 2 - Wert, Auktions-Site, K\u00e4ufer-ID, Artikel-URL, Angebotsende, Vorgangs-Nr., Rechnungs-Nr., Txn-Referenzkennung, Rechnungsnummer, Individuelle Nummer, Belegnummer, Guthaben, Adresszeile 1, Zus\u00e4tzliche Angaben, Ort, Staat\/Provinz\/Region\/Landkreis\/Territorium\/Pr\u00e4fektur\/Republik, PLZ, Land, Telefonnummer, ",
+        "rules": [
+            {
+                "from": "Datum",
+                "to": "date",
+                "type": "set"
+            },
+            {
+                "from": "date",
+                "to": "booking_date",
+                "type": "strtotime:d.m.Y"
+            },
+            {
+                "from": "date",
+                "to": "value_date",
+                "type": "strtotime:d.m.Y"
+            },
+            {
+                "from": " Name",
+                "to": "name",
+                "type": "set"
+            },
+            {
+                "from": " Typ",
+                "to": "purpose",
+                "type": "set"
+            },
+            {
+                "from": " Status",
+                "to": "_paypal_status",
+                "type": "set"
+            },
+            {
+                "from": " W\u00e4hrung",
+                "to": "currency",
+                "type": "set"
+            },
+            {
+                "from": " Brutto",
+                "to": "amount",
+                "type": "amount"
+            },
+            {
+                "from": " Geb\u00fchr",
+                "to": "fee",
+                "type": "amount"
+            },
+            {
+                "from": " Von E-Mail-Adresse",
+                "to": "email",
+                "type": "set"
+            },
+            {
+                "from": " Von E-Mail-Adresse",
+                "to": "_party_NBAN_PP",
+                "type": "set"
+            },
+            {
+                "from": " An E-Mail-Adresse",
+                "to": "_email",
+                "type": "set"
+            },
+            {
+                "from": " Transactionscode",
+                "to": "paypal_transaction_id",
+                "type": "set"
+            },
+            {
+                "from": " Rechnungsnummer",
+                "to": "paypal_reference_transaction_id",
+                "type": "set"
+            },
+            {
+                "from": " Belegnummer",
+                "to": "paypal_receipt_id",
+                "type": "set"
+            }
+        ]
+    },
+    "state": {}
+}

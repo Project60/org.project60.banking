@@ -1,0 +1,111 @@
+{
+    "plugin_type_name": "match",
+    "plugin_class_name": "analyser_regex",
+    "name": "Reference (3403)",
+    "description": "Analyses Erste-3403 references",
+    "weight": "80",
+    "config": {
+        "comment": "Analyses Erste-3403 references",
+        "log_level": "debug",
+        "rules": [
+            {
+                "comment": "only applies to Erste-3403",
+                "fields": [
+                    "_IBAN"
+                ],
+                "pattern": "\/^AT11111111111113403$\/",
+                "actions": [
+                    {
+                        "action": "copy",
+                        "from": "reference",
+                        "to": "reference_3403"
+                    }
+                ]
+            },
+            {
+                "comment": "FIND membership by reference",
+                "fields": [
+                    "reference_3403"
+                ],
+                "pattern": "\/^[0-9]{4}(?P<contract_reference>[0-9]{8})$\/",
+                "actions": [
+                    {
+                        "action": "lookup:Membership,id,custom_35",
+                        "from": "contract_reference",
+                        "to": "membership_id_tmp"
+                    }
+                ]
+            },
+            {
+                "comment": "IF MEMBERSHIP FOUND:",
+                "fields": [
+                    "membership_id_tmp"
+                ],
+                "pattern": "\/^[0-9]+$\/",
+                "actions": [
+                    {
+                        "comment": "store membership id",
+                        "action": "copy",
+                        "from": "membership_id_tmp",
+                        "to": "membership_id"
+                    },
+                    {
+                        "comment": "look up contact",
+                        "action": "lookup:Membership,contact_id,id",
+                        "from": "old_membership_id",
+                        "to": "contact_id"
+                    },
+                    {
+                        "comment": "Financial type is Membership Due",
+                        "action": "set",
+                        "to": "financial_type_id",
+                        "value": "2"
+                    },
+                    {
+                        "comment": "Payment instrument is EFT",
+                        "action": "set",
+                        "to": "payment_instrument_id",
+                        "value": "5"
+                    },
+                    {
+                        "action": "set",
+                        "to": "campaign_required",
+                        "value": "NO"
+                    },
+                    {
+                        "action": "set",
+                        "to": "identified_by",
+                        "value": "3403 membership reference"
+                    }
+                ]
+            },
+            {
+                "comment": "CLEANUP: remove tmp fields",
+                "fields": [
+                    "membership_id_tmp"
+                ],
+                "pattern": "\/.*\/",
+                "actions": [
+                    {
+                        "action": "unset",
+                        "to": "membership_id_tmp"
+                    }
+                ]
+            },
+            {
+                "comment": "CLEANUP: remove tmp fields",
+                "fields": [
+                    "reference_3403"
+                ],
+                "pattern": "\/.*\/",
+                "actions": [
+                    {
+                        "action": "unset",
+                        "to": "reference_3403"
+                    }
+                ]
+            }
+        ]
+    },
+    "state": {}
+}

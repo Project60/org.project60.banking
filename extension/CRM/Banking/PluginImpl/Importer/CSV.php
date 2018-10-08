@@ -1,7 +1,7 @@
 <?php
 /*-------------------------------------------------------+
 | Project 60 - CiviBanking                               |
-| Copyright (C) 2013-2014 SYSTOPIA                       |
+| Copyright (C) 2013-2018 SYSTOPIA                       |
 | Author: B. Endres (endres -at- systopia.de)            |
 | http://www.systopia.de/                                |
 +--------------------------------------------------------+
@@ -13,6 +13,8 @@
 | copyright header is strictly prohibited without        |
 | written permission from the original author(s).        |
 +--------------------------------------------------------*/
+
+use CRM_Banking_ExtensionUtil as E;
 
 // utility function
 function _csvimporter_helper_startswith($string, $prefix) {
@@ -141,7 +143,13 @@ class CRM_Banking_PluginImpl_Importer_CSV extends CRM_Banking_PluginModel_Import
       if (isset($config->encoding)) {
         $decoded_line = array();
         foreach ($line as $item) {
-          array_push($decoded_line, mb_convert_encoding($item, mb_internal_encoding(), $config->encoding));
+          if (in_array($config->encoding, mb_list_encodings())) {
+            array_push($decoded_line, mb_convert_encoding($item, mb_internal_encoding(), $config->encoding));
+          } else if (extension_loaded('iconv')) {
+            array_push($decoded_line, iconv($config->encoding, mb_internal_encoding(), $item));
+          } else {
+            trigger_error("Unknown encoding {$config->encoding}, try enabling the iconv PHP extension", E_USER_ERROR);
+          }
         }
         $line = $decoded_line;
       }
@@ -210,7 +218,7 @@ class CRM_Banking_PluginImpl_Importer_CSV extends CRM_Banking_PluginModel_Import
       try {
         $this->apply_rule($rule, $line, $btx, $header);
       } catch (Exception $e) {
-        $this->reportProgress($progress, sprintf(ts("Rule '%s' failed. Exception was %s"), $rule, $e->getMessage()));
+        $this->reportProgress($progress, sprintf(E::ts("Rule '%s' failed. Exception was %s"), $rule, $e->getMessage()));
       }
     }
 
@@ -389,7 +397,7 @@ class CRM_Banking_PluginImpl_Importer_CSV extends CRM_Banking_PluginModel_Import
         // check, if we should warn: (not set = 'warn' for backward compatibility)
         if (!isset($rule->warn) || $rule->warn) {
           $this->reportProgress(CRM_Banking_PluginModel_Base::REPORT_PROGRESS_NONE, 
-            sprintf(ts("Pattern '%s' was not found in entry '%s'."), $pattern, $value));          
+            sprintf(E::ts("Pattern '%s' was not found in entry '%s'."), $pattern, $value));
         }
       }
 
@@ -417,7 +425,7 @@ class CRM_Banking_PluginImpl_Importer_CSV extends CRM_Banking_PluginModel_Import
    */
   function import_stream( $params )
   {
-    $this->reportDone(ts("Importing streams not supported by this plugin."));
+    $this->reportDone(E::ts("Importing streams not supported by this plugin."));
   }
 }
 

@@ -1,0 +1,9 @@
+{
+    "plugin_type_name": "match",
+    "plugin_class_name": "analyser_account",
+    "name": "Identifikation per Bankkonto",
+    "description": "Identifiziert die Kontakte anhand der Kontoverbindung",
+    "weight": "20",
+    "config": {},
+    "state": {}
+}

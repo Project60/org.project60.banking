@@ -1,6 +1,6 @@
 {*-------------------------------------------------------+
 | Project 60 - CiviBanking                               |
-| Copyright (C) 2013-2014 SYSTOPIA                       |
+| Copyright (C) 2013-2018 SYSTOPIA                       |
 | Author: B. Endres (endres -at- systopia.de)            |
 | http://www.systopia.de/                                |
 +--------------------------------------------------------+
@@ -38,5 +38,5 @@
 {/foreach}
 
 <p>
-  {ts 1=$contribution_list 2=$rcontribution_list}This transaction has created contribution %1 for recurring contribution %2{/ts}
+  {ts 1=$contribution_list 2=$rcontribution_list domain='org.project60.banking'}This transaction has created contribution %1 for recurring contribution %2{/ts}
 </p>

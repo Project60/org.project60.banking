@@ -1,7 +1,7 @@
 <?php
 /*-------------------------------------------------------+
 | Project 60 - CiviBanking                               |
-| Copyright (C) 2013-2015 SYSTOPIA                       |
+| Copyright (C) 2013-2018 SYSTOPIA                       |
 | Author: B. Endres (endres -at- systopia.de)            |
 | http://www.systopia.de/                                |
 +--------------------------------------------------------+
@@ -13,6 +13,8 @@
 | copyright header is strictly prohibited without        |
 | written permission from the original author(s).        |
 +--------------------------------------------------------*/
+
+use CRM_Banking_ExtensionUtil as E;
 
 require_once 'CRM/Core/Form.php';
 
@@ -60,7 +62,7 @@ class CRM_Banking_Form_AccountsTab extends CRM_Core_Form {
     $country_id2iso  = CRM_Core_PseudoConstant::countryIsoCode();
     $country_iso2id  = array_flip($country_id2iso);
     $country_id2name = CRM_Core_PseudoConstant::country();
-    $countries = array('' => ts("Unknown"));
+    $countries = array('' => E::ts("Unknown"));
     foreach ($country_iso2id as $iso => $id) {
         if (!empty($country_id2name[$id])) {
             $countries[$iso] = $country_id2name[$id];
@@ -78,7 +80,7 @@ class CRM_Banking_Form_AccountsTab extends CRM_Core_Form {
     $reference_type = $this->add(
         'select',
         'reference_type',
-        ts("Bank Account Type"),
+        E::ts("Bank Account Type"),
         $reference_type_list,
         true // is required
     );
@@ -88,7 +90,7 @@ class CRM_Banking_Form_AccountsTab extends CRM_Core_Form {
     $reference_type = $this->add(
         'text',
         'reference',
-        ts("Bank Account Number"),
+        E::ts("Bank Account Number"),
         array('size' => 40),
         true
     );
@@ -100,7 +102,7 @@ class CRM_Banking_Form_AccountsTab extends CRM_Core_Form {
     $this->addElement(
         'text',
         'bic',
-        ts("BIC"),
+        E::ts("BIC"),
         array('size' => 40),
         false
     );
@@ -108,7 +110,7 @@ class CRM_Banking_Form_AccountsTab extends CRM_Core_Form {
     $this->addElement(
         'text',
         'bank_name',
-        ts("Bank Name"),
+        E::ts("Bank Name"),
         array('size' => 40),
         false
     );
@@ -116,7 +118,7 @@ class CRM_Banking_Form_AccountsTab extends CRM_Core_Form {
     $country = $this->add(
         'select',
         'country',
-        ts("Country"),
+        E::ts("Country"),
         $countries,
         false
     );
@@ -127,12 +129,12 @@ class CRM_Banking_Form_AccountsTab extends CRM_Core_Form {
     $this->addButtons(array(
       array(
         'type' => 'submit',
-        'name' => ts('Save'),
+        'name' => E::ts('Save'),
         'isDefault' => TRUE,
       ),
       array(
         'type' => 'cancel',
-        'name' => ts('Cancel'),
+        'name' => E::ts('Cancel'),
         'isDefault' => FALSE,
       )
     ));
@@ -157,8 +159,8 @@ class CRM_Banking_Form_AccountsTab extends CRM_Core_Form {
                 'reference'      => $values['reference']));
             $result = $query['values'];
             if ($validate && $result['checked'] && !$result['is_valid']) {
-                $this->_errors['reference'] = ts("Invalid reference.");
-                CRM_Core_Session::setStatus(ts("Invalid reference '%1'", array(1=>$values['reference'])), ts('Failure'));
+                $this->_errors['reference'] = E::ts("Invalid reference.");
+                CRM_Core_Session::setStatus(E::ts("Invalid reference '%1'", array(1=>$values['reference'])), E::ts('Failure'));
             } elseif ($normalise && $result['normalised'] ) {
                 $values['reference'] = $result['reference'];
                 $this->set('reference', $result['reference']);
@@ -228,9 +230,9 @@ class CRM_Banking_Form_AccountsTab extends CRM_Core_Form {
     civicrm_api3('BankingAccountReference', 'create', $reference_update);
 
     if ($was_created) {
-        CRM_Core_Session::setStatus(ts("Bank account '%1' was created.", array(1=>$values['reference'])), ts('Success'));
+        CRM_Core_Session::setStatus(E::ts("Bank account '%1' was created.", array(1=>$values['reference'])), E::ts('Success'));
     } else {
-        CRM_Core_Session::setStatus(ts("Bank account '%1' was updated.", array(1=>$values['reference'])), ts('Success'));
+        CRM_Core_Session::setStatus(E::ts("Bank account '%1' was updated.", array(1=>$values['reference'])), E::ts('Success'));
     }
 
     // return to accounts tab

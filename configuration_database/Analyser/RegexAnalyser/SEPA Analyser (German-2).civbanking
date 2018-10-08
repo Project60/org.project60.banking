@@ -1,0 +1,112 @@
+{
+    "plugin_type_name": "match",
+    "plugin_class_name": "analyser_regex",
+    "name": "SEPA Analyser",
+    "description": "Extrahiert SEPA Informationen aus der Transaktion",
+    "weight": "30",
+    "config": {
+        "comment": "SEPA Analyser",
+        "log_level": "debug",
+        "rules": [
+            {
+                "comment": "Clean Up",
+                "fields": [
+                    "purpose"
+                ],
+                "pattern": "\/.*\/",
+                "actions": [
+                    {
+                        "action": "unset",
+                        "to": "sepa_mandate"
+                    },
+                    {
+                        "action": "unset",
+                        "to": "sepa_batch"
+                    }
+                ]
+            },
+            {
+                "comment": "SEPA Mandatsreferenz extrahieren",
+                "fields": [
+                    "purpose"
+                ],
+                "pattern": "\/MREF[+](?P<mandate_reference>SEPA-[0-9]-(RCUR|FRST|OOFF)-20[0-9][0-9]-[0-9]+)[^0-9]\/",
+                "actions": [
+                    {
+                        "action": "copy",
+                        "from": "mandate_reference",
+                        "to": "sepa_mandate"
+                    }
+                ]
+            },
+            {
+                "comment": "SEPA Transaktionsgruppe extrahieren",
+                "fields": [
+                    "purpose"
+                ],
+                "pattern": "\/KREF[+](?P<sepagroup_reference>TXG-[0-9]-(RCUR|FRST|OOFF)-20[0-9][0-9]-[0-9][0-9]-[0-9][0-9](--[0-9]+)?)[^0-9-]\/",
+                "actions": [
+                    {
+                        "action": "copy",
+                        "from": "sepagroup_reference",
+                        "to": "sepa_batch"
+                    }
+                ]
+            },
+            {
+                "comment": "Stornogr\u00fcnde GLS",
+                "fields": [
+                    "purpose"
+                ],
+                "pattern": "\/(?P<stornocode>AC01|AC04|AC06|AG01|AG02|AM04|AM05|BE04|MD01|MD02|FF01|MD06|MD07|MS02|MS03|NARR|RC01|TM01|RR04|SL01|FOCR|RR01|RR02|PR03|DUPL|TECH|FRAD|AGNT|CURR|CUST|CUTA|UPAY|BE05|AC13|FF05|DNOR|CNOR)\/",
+                "actions": [
+                    {
+                        "action": "map",
+                        "from": "stornocode",
+                        "to": "cancel_reason",
+                        "mapping": {
+                            "AC01": "AC01: R\u00fccklastschrift-IBAN falsch",
+                            "AC04": "AC04: R\u00fccklastschrift-Konto gel\u00f6scht",
+                            "AC06": "AC06: R\u00fccklastschrift-Konto gesperrt",
+                            "AG01": "AG01: R\u00fccklastschrift",
+                            "AG02": "AG02: R\u00fccklastschrift",
+                            "AM04": "AM04: R\u00fccklastschrift mangels Deckung",
+                            "AM05": "AM05: R\u00fccklastschrift",
+                            "BE04": "BE04: R\u00fccklastschrift",
+                            "MD01": "MD01: R\u00fccklastschrift",
+                            "MD02": "MD02: R\u00fccklastschrift",
+                            "FF01": "FF01: R\u00fccklastschrift",
+                            "MD06": "MD06: R\u00fccklastschrift wegen Widerspruch",
+                            "MD07": "MD07: R\u00fccklastschrift Inhaber verstorben",
+                            "MS02": "MS02: R\u00fccklastschrift",
+                            "MS03": "MS03: R\u00fccklastschrift",
+                            "NARR": "NARR: R\u00fccklastschrift",
+                            "RC01": "RC01: R\u00fccklastschrift BIC falsch",
+                            "TM01": "TM01: R\u00fccklastschrift",
+                            "RR04": "RR04: R\u00fccklastschrift",
+                            "SL01": "SL01: R\u00fccklastschrift",
+                            "FOCR": "FOCR: R\u00fccklastschrift wegen Widerspruch",
+                            "RR01": "RR01: R\u00fccklastschrift-IBAN falsch",
+                            "RR02": "RR02: R\u00fccklastschrift",
+                            "PR03": "PR03: R\u00fccklastschrift",
+                            "DUPL": "DUPL: R\u00fccklastschrift",
+                            "TECH": "TECH: R\u00fccklastschrift",
+                            "FRAD": "FRAD: R\u00fccklastschrift",
+                            "AGNT": "AGNT: R\u00fccklastschrift",
+                            "CURR": "CURR: R\u00fccklastschrift",
+                            "CUST": "CUST: R\u00fccklastschrift",
+                            "CUTA": "CUTA: R\u00fccklastschrift",
+                            "UPAY": "UPAY: R\u00fccklastschrift",
+                            "BE05": "BE05: R\u00fccklastschrift",
+                            "AC13": "AC13: R\u00fccklastschrift",
+                            "FF05": "FF05: R\u00fccklastschrift",
+                            "DNOR": "DNOR: R\u00fccklastschrift",
+                            "CNOR": "CNOR: R\u00fccklastschrift"
+                        }
+                    }
+                ]
+            }
+        ]
+    },
+    "state": []
+}

@@ -1,7 +1,7 @@
 <?php
 /*-------------------------------------------------------+
 | Project 60 - CiviBanking                               |
-| Copyright (C) 2013-2014 SYSTOPIA                       |
+| Copyright (C) 2013-2018 SYSTOPIA                       |
 | Author: B. Endres (endres -at- systopia.de)            |
 | http://www.systopia.de/                                |
 +--------------------------------------------------------+
@@ -13,6 +13,8 @@
 | copyright header is strictly prohibited without        |
 | written permission from the original author(s).        |
 +--------------------------------------------------------*/
+
+use CRM_Banking_ExtensionUtil as E;
 
 /**
  * define CiviBanking option values
@@ -42,9 +44,10 @@ function _banking_options() {
                   'description' => 'This importer should be configurable to import a variety of XML based data.',
                   'is_default' => 0,
               ),
-              'matcher_generic' => array(
-                  'label' => 'Generic Matcher Plugin',
-                  'value' => 'CRM_Banking_PluginImpl_Matcher_Generic',
+              'importer_fixed' => array(
+                  'label' => 'Fixed Width TXT Importer',
+                  'value' => 'CRM_Banking_PluginImpl_Importer_Fixed',
+                  'description' => 'This importer should be configurable for most fixed-width txt standards.',
                   'is_default' => 0,
               ),
               'matcher_create' => array(
@@ -110,6 +113,11 @@ function _banking_options() {
                   'description' => 'Looks up a transaction\'s bank accounts (again)',
                   'is_default' => 0,
               ),
+              'analyser_rules' => array(
+                  'label' => 'Rule Analyser Plugin',
+                  'value' => 'CRM_Banking_PluginImpl_Matcher_RulesAnalyser',
+                  'is_default' => 0,
+              ),
               'postprocessor_accounts' => array(
                   'label' => 'Bank Accounts PostProcessor',
                   'value' => 'CRM_Banking_PluginImpl_PostProcessor_Accounts',
@@ -140,6 +148,12 @@ function _banking_options() {
                   'description' => 'Marks a contact as "deceased"',
                   'is_default' => 0,
               ),
+              'postprocessor_recurring_fails' => array(
+                  'label' => 'Recurring Contribution Fails PostProcessor',
+                  'value' => 'CRM_Banking_PluginImpl_PostProcessor_RecurringFails',
+                  'description' => 'Processes contribution fails and cancellations for recurring contributions, including CiviSEPA DDs',
+                  'is_default' => 0,
+              ),
               'exporter_csv' => array(
                   'label' => 'Configurable CSV Exporter',
                   'value' => 'CRM_Banking_PluginImpl_Exporter_CSV',
@@ -153,76 +167,82 @@ function _banking_options() {
           'description' => 'The set of possible CiviBanking bank account reference types',
           'values' => array(
               'IBAN' => array(
-                  'label' => ts('International Bank Account Number'),
+                  'label' => E::ts('International Bank Account Number'),
                   'value' => 'IBAN',
-                  'description' => ts('Format: see <a href="https://en.wikipedia.org/wiki/International_Bank_Account_Number">IBAN on WikiPedia<a>.'),
+                  'description' => E::ts('Format: see <a href="https://en.wikipedia.org/wiki/International_Bank_Account_Number">IBAN on WikiPedia<a>.'),
                   'is_default' => 1,
               ),
               'NBAN_DE' => array(
-                  'label' => ts('German Bank Account Number'),
+                  'label' => E::ts('German Bank Account Number'),
                   'value' => 'NBAN_DE',
-                  'description' => ts('Format is "BBBBBBBB/KKKKKKKKKK", (B="BLZ", K="Kontonummer") eg. "12345678/0000123456"'),
+                  'description' => E::ts('Format is "BBBBBBBB/KKKKKKKKKK", (B="BLZ", K="Kontonummer") eg. "12345678/0000123456"'),
                   'is_default' => 0,
               ),
               'NBAN_AT' => array(
-                  'label' => ts('Austrian Bank Account Number'),
+                  'label' => E::ts('Austrian Bank Account Number'),
                   'value' => 'NBAN_AT',
-                  'description' => ts('Format is "BBBBB/KKKKKKKKKKK", (B="BLZ", K="Kontonummer") eg. "12345/00001234567"'),
+                  'description' => E::ts('Format is "BBBBB/KKKKKKKKKKK", (B="BLZ", K="Kontonummer") eg. "12345/00001234567"'),
                   'is_default' => 0,
               ),
               'NBAN_BE' => array(
-                  'label' => ts('Belgian Bank Account Number'),
+                  'label' => E::ts('Belgian Bank Account Number'),
                   'value' => 'NBAN_BE',
                   'is_default' => 0,
               ),
               'NBAN_CH' => array(
-                  'label' => ts('Swiss Bank Account Number'),
+                  'label' => E::ts('Swiss Bank Account Number'),
                   'value' => 'NBAN_CH',
-                  'description' => ts('Format is XX-XXXXXXXXX-X.'),
+                  'description' => E::ts('Format is XX-XXXXXXXXX-X.'),
                   'is_default' => 0,
               ),
               'NBAN_CZ' => array(
-                  'label' => ts('Czech Bank Account Number'),
+                  'label' => E::ts('Czech Bank Account Number'),
                   'value' => 'NBAN_CZ',
-                  'description' => ts('Format is "PPPPPP-UUUUUUUUUU/CCCC" (P="predcisli/prefix", U="vlastni cislo/bank account", C="bank code") The first part (PPPPPP-) is optional.'),
+                  'description' => E::ts('Format is "PPPPPP-UUUUUUUUUU/CCCC" (P="predcisli/prefix", U="vlastni cislo/bank account", C="bank code") The first part (PPPPPP-) is optional.'),
                   'is_default' => 0,
               ),
               'NBAN_FP' => array(
-                  'label' => ts('Fingerprint'),
+                  'label' => E::ts('Fingerprint'),
                   'value' => 'NBAN_FP',
-                  'description' => ts('SHA1 fingerprint of some tell-tale value in the transaction information'),
+                  'description' => E::ts('SHA1 fingerprint of some tell-tale value in the transaction information'),
                   'is_reserved' => 1,
                   'is_default' => 0,
               ),
               'ENTITY' => array(
-                  'label' => ts('Internal Link'),
+                  'label' => E::ts('Internal Link'),
                   'value' => 'ENTITY',
                   'description' => 'Links a bank account to a CiviCRM entity, reference format is "<entity_table>:<entity_id>"',
                   'is_reserved' => 1,
                   'is_default' => 0,
               ),
               'NBAN_GC' => array(
-                  'label' => ts('GoCardless'),
+                  'label' => E::ts('GoCardless'),
                   'value' => 'NBAN_GC',
-                  'description' => ts('GoCardless customer ID'),
+                  'description' => E::ts('GoCardless customer ID'),
                   'is_default' => 0,
               ),
               'NBAN_WP' => array(
-                  'label' => ts('WorldPay'),
+                  'label' => E::ts('WorldPay'),
                   'value' => 'NBAN_WP',
-                  'description' => ts('WorldPay merchant ID'),
+                  'description' => E::ts('WorldPay merchant ID'),
                   'is_default' => 0,
               ),
               'NBAN_SP' => array(
-                  'label' => ts('Stewardship'),
+                  'label' => E::ts('Stewardship'),
                   'value' => 'NBAN_SP',
-                  'description' => ts('Stewardship merchant ID'),
+                  'description' => E::ts('Stewardship merchant ID'),
                   'is_default' => 0,
               ),
               'NBAN_PP' => array(
-                  'label' => ts('PayPal'),
+                  'label' => E::ts('PayPal'),
                   'value' => 'NBAN_PP',
-                  'description' => ts('PayPal account identification (email)'),
+                  'description' => E::ts('PayPal account identification (email)'),
+                  'is_default' => 0,
+              ),
+              'NBAN_ES' => array(
+                  'label' => E::ts('Spanish Bank Account Number'),
+                  'value' => 'NBAN_ES',
+                  'description' => E::ts('Traditional Spanish bank account number'),
                   'is_default' => 0,
               ),
           ),
@@ -262,11 +282,6 @@ function _banking_options() {
                   'value' => 0,
                   'is_default' => 1,
               ),
-              'ignored' => array(
-                  'label' => 'Ignored',
-                  'value' => 1,
-                  'is_default' => 0,
-              ),
               'suggestions' => array(
                   'label' => 'Suggestions',
                   'value' => 2,
@@ -275,6 +290,11 @@ function _banking_options() {
               'processed' => array(
                   'label' => 'Processed',
                   'value' => 3,
+                  'is_default' => 0,
+              ),
+              'ignored' => array(
+                  'label' => 'Ignored',
+                  'value' => 1,
                   'is_default' => 0,
               ),
           ),

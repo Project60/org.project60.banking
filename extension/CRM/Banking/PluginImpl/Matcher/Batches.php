@@ -1,7 +1,7 @@
 <?php
 /*-------------------------------------------------------+
 | Project 60 - CiviBanking                               |
-| Copyright (C) 2013-2014 SYSTOPIA                       |
+| Copyright (C) 2013-2018 SYSTOPIA                       |
 | Author: B. Endres (endres -at- systopia.de)            |
 | http://www.systopia.de/                                |
 +--------------------------------------------------------+
@@ -14,6 +14,8 @@
 | written permission from the original author(s).        |
 +--------------------------------------------------------*/
 
+
+use CRM_Banking_ExtensionUtil as E;
 
 require_once 'CRM/Banking/Helpers/OptionValue.php';
 
@@ -93,7 +95,7 @@ class CRM_Banking_PluginImpl_Matcher_Batches extends CRM_Banking_PluginModel_Mat
     // for each matched batch, create a suggestion
     foreach ($matching_batches as $batch_id => $batch_probability) {
       $suggestion = new CRM_Banking_Matcher_Suggestion($this, $btx);
-      $suggestion->setTitle(ts("Settles a contribution batch"));
+      $suggestion->setTitle(E::ts("Settles a contribution batch"));
       $suggestion->setParameter('batch_id', $batch_id);
       $suggestion->setId("batch-".$batch_id);
       $suggestion->setProbability($batch_probability);
@@ -115,7 +117,7 @@ class CRM_Banking_PluginImpl_Matcher_Batches extends CRM_Banking_PluginModel_Mat
     $batch_id = $suggestion->getParameter('batch_id');
     $result = civicrm_api('Batch', 'getsingle', array('version' => 3, 'id' => $batch_id));
     if ($result['is_error']) {
-      CRM_Core_Session::setStatus(sprintf(ts("Internal error! Cannot find batch %s"), $match->getParameter('batch_id')), ts('Error'), 'error');
+      CRM_Core_Session::setStatus(sprintf(E::ts("Internal error! Cannot find batch %s"), $match->getParameter('batch_id')), E::ts('Error'), 'error');
     }
 
     if ($suggestion->getParameter('override_status') || !count($this->getNonPendingContributionIDs($batch_id))) {
@@ -138,7 +140,7 @@ class CRM_Banking_PluginImpl_Matcher_Batches extends CRM_Banking_PluginModel_Mat
       foreach ($contributionIDs as $contribution_id) {
         $result = civicrm_api('Contribution', 'create', array('version' => 3, 'id' => $contribution_id, 'contribution_status_id' => $contribution_status_completed, 'pay_later' => 0));
         if ($result['is_error']) {
-          CRM_Core_Session::setStatus(sprintf(ts("Internal error! Cannot complete contribution %s. Error message was: '%s'"), $contribution_id, $result['error_message']), ts('Error'), 'error');
+          CRM_Core_Session::setStatus(sprintf(E::ts("Internal error! Cannot complete contribution %s. Error message was: '%s'"), $contribution_id, $result['error_message']), E::ts('Error'), 'error');
         }
       }
 
@@ -147,21 +149,21 @@ class CRM_Banking_PluginImpl_Matcher_Batches extends CRM_Banking_PluginModel_Mat
       $update_batch_query = array('version' => 3, 'id' => $batch_id, 'modified_date' => date('YmdHis'), 'status_id' => $batch_status_received);
       $result = civicrm_api('Batch', 'create', $update_batch_query);
       if ($result['is_error']) {
-        CRM_Core_Session::setStatus(sprintf(ts("Internal error! Cannot find batch %s"), $match->getParameter('batch_id')), ts('Error'), 'error');
+        CRM_Core_Session::setStatus(sprintf(E::ts("Internal error! Cannot find batch %s"), $match->getParameter('batch_id')), E::ts('Error'), 'error');
       }
 
       // notify the user
-      CRM_Core_Session::setStatus(sprintf(ts("Completed all %d contributions."), count($contributionIDs)), ts('Batch completed'), 'info');
+      CRM_Core_Session::setStatus(sprintf(E::ts("Completed all %d contributions."), count($contributionIDs)), E::ts('Batch completed'), 'info');
 
       // complete by setting the status to 'processed'
       $newStatus = banking_helper_optionvalueid_by_groupname_and_name('civicrm_banking.bank_tx_status', 'Processed');
       $btx->setStatus($newStatus);
       parent::execute($suggestion, $btx);
-      return true;
+      return TRUE;
 
     } else {
       // this means, there ARE contributions in a non-pending state, AND the override was not requested:
-      CRM_Core_Session::setStatus(sprintf(ts("Some contribtions in batch %s are not in state 'pending', and override was not enabled. The payment was NOT processed!"), $batch_id), ts('Error'), 'error'); 
+      CRM_Core_Session::setStatus(sprintf(E::ts("Some contribtions in batch %s are not in state 'pending', and override was not enabled. The payment was NOT processed!"), $batch_id), E::ts('Error'), 'error');
     }
     return false;
   }
@@ -195,30 +197,30 @@ class CRM_Banking_PluginImpl_Matcher_Batches extends CRM_Banking_PluginModel_Mat
     $batch_id = $match->getParameter('batch_id');
     $result = civicrm_api('Batch', 'getsingle', array('version' => 3, 'id' => $batch_id));
     if ($result['is_error']) {
-      return ts("Internal error! Cannot find batch #").$match->getParameter('batch_id');      
+      return E::ts("Internal error! Cannot find batch #").$match->getParameter('batch_id');
     } else {
       // prepare the information
       $batch = $result;
       $batch_link = CRM_Utils_System::url("civicrm/batchtransaction", "reset=1&bid=$batch_id");
       $created_date = $batch['created_date'];
-      $exported_date = $batch['exported_date']?$batch['exported_date']:ts("not exported");
+      $exported_date = $batch['exported_date']?$batch['exported_date']:E::ts("not exported");
       $nonPendingContributionIDs = $this->getNonPendingContributionIDs($batch_id);
 
       if (!empty($nonPendingContributionIDs)) {
-        $text .= "<div>".ts("WARNING! Not all contributions of this batch are in status 'pending'.");
+        $text .= "<div>".E::ts("WARNING! Not all contributions of this batch are in status 'pending'.");
         $text .= "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<input id=\"batches_override_$batch_id\" class=\"form-checkbox\" type=\"checkbox\" value=\"1\" name=\"batches_override_$batch_id\">";
-        $text .= ts("Override and set all contributions to 'completed' anyway.")."</input></div>";
+        $text .= E::ts("Override and set all contributions to 'completed' anyway.")."</input></div>";
       } else {
-        $text .= "<div>".ts("All contributions of this batch will be set to 'completed'.")."</div>";
+        $text .= "<div>".E::ts("All contributions of this batch will be set to 'completed'.")."</div>";
       }
 
       // add contribution summary table
       $text .= "<br/><div><table border=\"1\"><tr>";
       $text .= "<td><div class=\"btxvalue\"><a href=\"$batch_link\" target=\"_blank\">".$batch['title']."</td>";
-      $text .= "<td><div class=\"btxlabel\">".ts("Created").":&nbsp;</div><div class=\"btxvalue\">$created_date</td>";
-      $text .= "<td><div class=\"btxlabel\">".ts("Exported").":&nbsp;</div><div class=\"btxvalue\">$exported_date</td>";
-      $text .= "<td><div class=\"btxlabel\">".ts("Transactions").":&nbsp;</div><div class=\"btxvalue\">&nbsp;&nbsp;".$batch['item_count']."</td>";
-      $text .= "<td><div class=\"btxlabel\">".ts("Amount").":&nbsp;</div><div class=\"btxvalue\">".$batch['total']."&nbsp;EUR</td>";
+      $text .= "<td><div class=\"btxlabel\">".E::ts("Created").":&nbsp;</div><div class=\"btxvalue\">$created_date</td>";
+      $text .= "<td><div class=\"btxlabel\">".E::ts("Exported").":&nbsp;</div><div class=\"btxvalue\">$exported_date</td>";
+      $text .= "<td><div class=\"btxlabel\">".E::ts("Transactions").":&nbsp;</div><div class=\"btxvalue\">&nbsp;&nbsp;".$batch['item_count']."</td>";
+      $text .= "<td><div class=\"btxlabel\">".E::ts("Amount").":&nbsp;</div><div class=\"btxvalue\">".$batch['total']."&nbsp;EUR</td>";
       $text .= "</tr></table></div>";
 
       return $text;
@@ -236,7 +238,7 @@ class CRM_Banking_PluginImpl_Matcher_Batches extends CRM_Banking_PluginModel_Mat
   function visualize_execution_info( CRM_Banking_Matcher_Suggestion $match, $btx) {
     $batch_id = $match->getParameter('batch_id');
     $batch_link = CRM_Utils_System::url("civicrm/batchtransaction", "reset=1&bid=$batch_id");
-    return "<p>".sprintf(ts("This transaction was associated with <a href=\"%s\">payment batch #%s</a>."), $batch_link, $batch_id)."</p>";
+    return "<p>".sprintf(E::ts("This transaction was associated with <a href=\"%s\">payment batch #%s</a>."), $batch_link, $batch_id)."</p>";
   }
 
 

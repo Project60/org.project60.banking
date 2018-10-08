@@ -1,0 +1,40 @@
+{
+    "plugin_type_name": "match",
+    "plugin_class_name": "analyser_regex",
+    "name": "Zuwendungsart Analyser",
+    "description": "Setzt die Zuwendungsart auf \"Donation\" wenn der Begriff \"Spende\" vorkommt",
+    "weight": "50",
+    "config": {
+        "rules": [
+            {
+                "comment": "Default Zuwendungsart ist Spende",
+                "fields": [
+                    "purpose"
+                ],
+                "pattern": "\/.*\/",
+                "actions": [
+                    {
+                        "action": "set",
+                        "value": "1",
+                        "to": "financial_type_id"
+                    }
+                ]
+            },
+            {
+                "comment": "Transaktionen mit 'Spende' im Verwendungszweck d\u00fcrfen automatisch verbucht werden.",
+                "fields": [
+                    "purpose"
+                ],
+                "pattern": "\/spende\/i",
+                "actions": [
+                    {
+                        "action": "set",
+                        "value": "1",
+                        "to": "auto_book"
+                    }
+                ]
+            }
+        ]
+    },
+    "state": {}
+}

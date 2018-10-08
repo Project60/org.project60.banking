@@ -1,0 +1,25 @@
+{
+    "plugin_type_name": "match",
+    "plugin_class_name": "matcher_create",
+    "name": "Create Contribution",
+    "description": "If the neccessary data could be extracted from the payment, a contribtuion is created.",
+    "weight": "130",
+    "config": {
+        "auto_exec": 1,
+        "required_values": [
+            "btx.financial_type_id",
+            "btx.payment_instrument_id",
+            "btx.campaign_id",
+            "btx.identified_by"
+        ],
+        "value_propagation": {
+            "btx.financial_type_id": "contribution.financial_type_id",
+            "btx.campaign_id": "contribution.campaign_id",
+            "btx.payment_instrument_id": "contribution.payment_instrument_id"
+        },
+        "lookup_contact_by_name": {
+            "mode": "off"
+        }
+    },
+    "state": {}
+}

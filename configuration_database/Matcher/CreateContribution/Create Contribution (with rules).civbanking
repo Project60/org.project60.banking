@@ -1,0 +1,25 @@
+{
+    "plugin_type_name": "match",
+    "plugin_class_name": "matcher_create",
+    "name": "Create Contribution (with rules)",
+    "description": "Creates contributions based on the data of rules matched",
+    "weight": "150",
+    "config": {
+        "auto_exec": 1,
+        "name": "Create Contribution (by matched rules)",
+        "description": "Creates contributions based on the data of rules matched",
+        "required_values": {
+            "btx.financial_type_id": "type:positiveInteger",
+            "btx.rules_matched": "type:not_empty"
+        },
+        "value_propagation": {
+            "btx.financial_type_id": "contribution.financial_type_id",
+            "btx.campaign_id": "contribution.campaign_id",
+            "btx.payment_instrument_id": "contribution.payment_instrument_id"
+        },
+        "lookup_contact_by_name": {
+            "mode": "off"
+        }
+    },
+    "state": {}
+}

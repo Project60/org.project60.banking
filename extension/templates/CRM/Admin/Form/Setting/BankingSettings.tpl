@@ -1,6 +1,6 @@
 {*-------------------------------------------------------+
 | Project 60 - CiviBanking                               |
-| Copyright (C) 2013-2015 SYSTOPIA                       |
+| Copyright (C) 2013-2018 SYSTOPIA                       |
 | Author: B. Endres (endres -at- systopia.de)            |
 | http://www.systopia.de/                                |
 +--------------------------------------------------------+
@@ -13,7 +13,13 @@
 | written permission from the original author(s).        |
 +--------------------------------------------------------*}
 
-<h3>{ts}General Settings{/ts}</h3>
+<h3>{ts domain='org.project60.banking'}General Settings{/ts}</h3>
+
+<div class="crm-section">
+  <div class="label">{$form.new_ui.label}</div>
+  <div class="content">{$form.new_ui.html}</div>
+  <div class="clear"></div>
+</div>
 
 <div class="crm-section">
   <div class="label">{$form.menu_position.label}</div>
@@ -40,7 +46,7 @@
 </div>
 
 <br/>
-<h3>{ts}Bank Account Settings{/ts}</h3>
+<h3>{ts domain='org.project60.banking'}Bank Account Settings{/ts}</h3>
 
 <div class="crm-section">
   <div class="label">{$form.reference_store_disabled.label}</div>

@@ -1,7 +1,7 @@
 <?php
 /*-------------------------------------------------------+
 | Project 60 - CiviBanking                               |
-| Copyright (C) 2013-2014 SYSTOPIA                       |
+| Copyright (C) 2013-2018 SYSTOPIA                       |
 | Author: B. Endres (endres -at- systopia.de)            |
 | http://www.systopia.de/                                |
 +--------------------------------------------------------+
@@ -14,6 +14,7 @@
 | written permission from the original author(s).        |
 +--------------------------------------------------------*/
 
+use CRM_Banking_ExtensionUtil as E;
 
 require_once 'CRM/Banking/Helpers/OptionValue.php';
 
@@ -34,7 +35,7 @@ class CRM_Banking_PluginImpl_Matcher_CreateContribution extends CRM_Banking_Plug
     if (!isset($config->required_values))        $config->required_values = array("btx.financial_type_id", "btx.campaign_id");
     if (!isset($config->factor))                 $config->factor = 1.0;
     if (!isset($config->threshold))              $config->threshold = 0.0;
-    if (!isset($config->source_label))           $config->source_label = ts('Source');
+    if (!isset($config->source_label))           $config->source_label = E::ts('Source');
     if (!isset($config->lookup_contact_by_name)) $config->lookup_contact_by_name = array("hard_cap_probability" => 0.9);
   }
 
@@ -59,7 +60,7 @@ class CRM_Banking_PluginImpl_Matcher_CreateContribution extends CRM_Banking_Plug
     // finally generate suggestions
     foreach ($contacts_found as $contact_id => $contact_probability) {
       $suggestion = new CRM_Banking_Matcher_Suggestion($this, $btx);
-      $suggestion->setTitle(ts("Create a new contribution"));
+      $suggestion->setTitle(E::ts("Create a new contribution"));
       $suggestion->setId("create-$contact_id");
       $suggestion->setParameter('contact_id', $contact_id);
 
@@ -87,7 +88,7 @@ class CRM_Banking_PluginImpl_Matcher_CreateContribution extends CRM_Banking_Plug
     $query['version'] = 3;
     $result = civicrm_api('Contribution', 'create', $query);
     if (isset($result['is_error']) && $result['is_error']) {
-      CRM_Core_Session::setStatus(ts("Couldn't create contribution.")."<br/>".ts("Error was: ").$result['error_message'], ts('Error'), 'error');
+      CRM_Core_Session::setStatus(E::ts("Couldn't create contribution.")."<br/>".E::ts("Error was: ").$result['error_message'], E::ts('Error'), 'error');
       return true;
     } 
 
@@ -100,7 +101,7 @@ class CRM_Banking_PluginImpl_Matcher_CreateContribution extends CRM_Banking_Plug
     $newStatus = banking_helper_optionvalueid_by_groupname_and_name('civicrm_banking.bank_tx_status', 'Processed');
     $btx->setStatus($newStatus);
     parent::execute($suggestion, $btx);
-    return true;
+    return TRUE;
   }
 
   /**

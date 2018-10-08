@@ -1,0 +1,116 @@
+{
+    "plugin_type_name": "match",
+    "plugin_class_name": "analyser_regex",
+    "name": "Reference (OLD)",
+    "description": "Analyses references on old bank accounts (7100, 3046, 3651, 4205, 4200)",
+    "weight": "70",
+    "config": {
+        "comment": "Analyses references on old bank accounts",
+        "log_level": "debug",
+        "rules": [
+            {
+                "comment": "only applies to old bank accounts",
+                "fields": [
+                    "_IBAN"
+                ],
+                "pattern": "\/^(AT11111111111117100|AT11111111111113046|AT11111111111113651|AT11111111111114205|AT11111111111114200)$\/",
+                "actions": [
+                    {
+                        "action": "copy",
+                        "from": "reference",
+                        "to": "old_reference"
+                    }
+                ]
+            },
+            {
+                "comment": "FIND membership by reference",
+                "fields": [
+                    "old_reference"
+                ],
+                "pattern": "\/^[0-9]{3,15}$\/",
+                "actions": [
+                    {
+                        "from": "old_reference",
+                        "action": "copy_ltrim_zeros",
+                        "to": "old_reference"
+                    },
+                    {
+                        "action": "lookup:Membership,id,custom_16",
+                        "from": "old_reference",
+                        "to": "old_membership_id"
+                    }
+                ]
+            },
+            {
+                "comment": "IF MEMBERSHIP FOUND:",
+                "fields": [
+                    "old_membership_id"
+                ],
+                "pattern": "\/^[0-9]+$\/",
+                "actions": [
+                    {
+                        "comment": "store membership id",
+                        "action": "copy",
+                        "from": "old_membership_id",
+                        "to": "membership_id"
+                    },
+                    {
+                        "comment": "look up contact",
+                        "action": "lookup:Membership,contact_id,id",
+                        "from": "old_membership_id",
+                        "to": "contact_id"
+                    },
+                    {
+                        "comment": "Financial type is Membership Due",
+                        "action": "set",
+                        "to": "financial_type_id",
+                        "value": "2"
+                    },
+                    {
+                        "comment": "Payment instrument is EFT",
+                        "action": "set",
+                        "to": "payment_instrument_id",
+                        "value": "5"
+                    },
+                    {
+                        "action": "set",
+                        "to": "campaign_required",
+                        "value": "NO"
+                    },
+                    {
+                        "action": "set",
+                        "to": "identified_by",
+                        "value": "old membership reference"
+                    }
+                ]
+            },
+            {
+                "comment": "CLEANUP: remove old fields",
+                "fields": [
+                    "old_membership_id"
+                ],
+                "pattern": "\/.*\/",
+                "actions": [
+                    {
+                        "action": "unset",
+                        "to": "old_membership_id"
+                    }
+                ]
+            },
+            {
+                "comment": "CLEANUP: remove old fields",
+                "fields": [
+                    "old_reference"
+                ],
+                "pattern": "\/.*\/",
+                "actions": [
+                    {
+                        "action": "unset",
+                        "to": "old_reference"
+                    }
+                ]
+            }
+        ]
+    },
+    "state": {}
+}

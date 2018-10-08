@@ -1,7 +1,7 @@
 <?php
 /*-------------------------------------------------------+
 | Project 60 - CiviBanking                               |
-| Copyright (C) 2017 SYSTOPIA                            |
+| Copyright (C) 2017-2018 SYSTOPIA                       |
 | Author: B. Endres (endres -at- systopia.de)            |
 | http://www.systopia.de/                                |
 +--------------------------------------------------------+
@@ -13,6 +13,8 @@
 | copyright header is strictly prohibited without        |
 | written permission from the original author(s).        |
 +--------------------------------------------------------*/
+
+use CRM_Banking_ExtensionUtil as E;
 
 /**
  * Form controller class
@@ -30,8 +32,8 @@ class CRM_Banking_Form_Configure extends CRM_Core_Form {
     $type_map = $this->getPluginTypeMap();
     if (empty($plugin_id)) {
       $this->plugin = array(
-        'name'            => ts("Enter name"),
-        'description'     => ts("Describe here what this plugin does."),
+        'name'            => E::ts("Enter name"),
+        'description'     => E::ts("Describe here what this plugin does."),
         'config'          => '{}',
         'plugin_type_id'  => CRM_Utils_Request::retrieve('type', 'Integer'),
         'plugin_class_id' => '');
@@ -47,31 +49,31 @@ class CRM_Banking_Form_Configure extends CRM_Core_Form {
     $this->assign('json_editor_mode', $json_editor_mode);
 
     // set title
-    CRM_Utils_System::setTitle(ts('Configure Plugin "%1"', array(1 => $this->plugin['name'])));
+    CRM_Utils_System::setTitle(E::ts('Configure Plugin "%1"', array(1 => $this->plugin['name'])));
 
     // add form elements
     $this->addElement('text',
                       'name',
-                      ts('Plugin Name', array('domain' => 'org.project60.banking')),
+                      E::ts('Plugin Name'),
                       array('class' => 'huge'),
                       TRUE);
 
     $this->addElement('select',
                       'plugin_type_id',
-                      ts('Plugin Class', array('domain' => 'org.project60.banking')),
+                      E::ts('Plugin Class'),
                       $this->getOptionValueList('civicrm_banking.plugin_classes'), // yes, it's swapped
                       array('class' => 'crm-select2 huge'));
 
     $this->assign('type_map', json_encode($type_map));
     $this->addElement('select',
                       'plugin_class_id',
-                      ts('Implementation', array('domain' => 'org.project60.banking')),
+                      E::ts('Implementation'),
                       CRM_Utils_Array::value($this->plugin['plugin_type_id'], $type_map),
                       array('class' => 'crm-select2 huge'));
 
     $this->addElement('textarea',
                       'description',
-                      ts('Description', array('domain' => 'org.project60.banking')),
+                      E::ts('Description'),
                       array('class' => 'huge'),
                       TRUE);
 
@@ -81,7 +83,7 @@ class CRM_Banking_Form_Configure extends CRM_Core_Form {
     $this->addButtons(array(
       array(
         'type' => 'submit',
-        'name' => ts('Save'),
+        'name' => E::ts('Save'),
         'isDefault' => TRUE,
       ),
     ));
@@ -103,7 +105,7 @@ class CRM_Banking_Form_Configure extends CRM_Core_Form {
     if ($this->plugin) {
       return array(
         'name'            => $this->plugin['name'],
-        'description'     => $this->plugin['description'],
+        'description'     => isset($this->plugin['description']) ? $this->plugin['description'] : '',
         'plugin_type_id'  => $this->plugin['plugin_type_id'],
         'plugin_class_id' => $this->plugin['plugin_class_id'],
       );
@@ -135,8 +137,9 @@ class CRM_Banking_Form_Configure extends CRM_Core_Form {
     if (empty($plugin_instance['id'])) {
       throw new Exception("Couldn't store configuration");
     } else {
-      $config = mysql_escape_string($values['configuration']);
-      CRM_Core_DAO::executeQuery("UPDATE civicrm_bank_plugin_instance SET config='{$config}' WHERE id={$plugin_instance['id']}");
+      CRM_Core_DAO::executeQuery("UPDATE civicrm_bank_plugin_instance SET config=%1 WHERE id=%2;", array(
+        1 => array($values['configuration'], 'String'),
+        2 => array($plugin_instance['id'],   'Integer')));
     }
 
     // parent::postProcess();

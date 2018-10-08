@@ -1,0 +1,66 @@
+{
+    "plugin_type_name": "match",
+    "plugin_class_name": "analyser_regex",
+    "name": "Reset Values",
+    "description": "Resets contact_id, campaign_id and identified_by at the beginning of processing.",
+    "weight": "10",
+    "config": {
+        "name": "Reset Values",
+        "comment": "Resets contact_id, campaign_id, campaign_required and identified_by at the beginning of processing.",
+        "rules": [
+            {
+                "comment": "RESET contact_id",
+                "fields": [
+                    "contact_id"
+                ],
+                "pattern": "#.+#",
+                "actions": [
+                    {
+                        "action": "unset",
+                        "to": "contact_id"
+                    }
+                ]
+            },
+            {
+                "comment": "RESET campaign_id",
+                "fields": [
+                    "campaign_id"
+                ],
+                "pattern": "#.+#",
+                "actions": [
+                    {
+                        "action": "unset",
+                        "to": "campaign_id"
+                    }
+                ]
+            },
+            {
+                "comment": "RESET campaign_required",
+                "fields": [
+                    "campaign_required"
+                ],
+                "pattern": "#.+#",
+                "actions": [
+                    {
+                        "action": "unset",
+                        "to": "campaign_required"
+                    }
+                ]
+            },
+            {
+                "comment": "RESET identified_by",
+                "fields": [
+                    "identified_by"
+                ],
+                "pattern": "#.+#",
+                "actions": [
+                    {
+                        "action": "unset",
+                        "to": "identified_by"
+                    }
+                ]
+            }
+        ]
+    },
+    "state": {}
+}

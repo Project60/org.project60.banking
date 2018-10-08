@@ -1,0 +1,164 @@
+{
+    "plugin_type_name": "import",
+    "plugin_class_name": "importer_csv",
+    "name": "BfS CSV",
+    "description": "Importiert CSV Kontoausz\u00fcge der BfS",
+    "weight": "1000",
+    "config": {
+        "delimiter": ";",
+        "encoding": "CP1252",
+        "header": 0,
+        "title": "BfS {starting_date} - {ending_date} [{md5}]",
+        "defaults": {
+            "payment_instrument_id": "5",
+            "_IBAN": "DE11111111111116800"
+        },
+        "rules": [
+            {
+                "_from": "Betrag",
+                "from": 0,
+                "to": "amount",
+                "type": "amount"
+            },
+            {
+                "_from": "W\u00e4hrung",
+                "from": 1,
+                "to": "currency",
+                "type": "set"
+            },
+            {
+                "_from": "Auftraggeber\/Empf\u00e4nger",
+                "from": 2,
+                "to": "name",
+                "type": "set"
+            },
+            {
+                "_from": "Auftraggeber\/Empf\u00e4nger",
+                "from": 3,
+                "to": "name",
+                "type": "append:"
+            },
+            {
+                "_from": "Auftraggeber\/Empf\u00e4nger IBAN",
+                "from": 5,
+                "to": "_party_IBAN",
+                "type": "set"
+            },
+            {
+                "_from": "Auftraggeber\/Empf\u00e4nger BIC",
+                "from": 6,
+                "to": "_party_BIC",
+                "type": "set"
+            },
+            {
+                "_from": "Auftraggeber\/Empf\u00e4nger GVC",
+                "from": 8,
+                "to": "GVC",
+                "type": "set"
+            },
+            {
+                "_from": "Buchungstag",
+                "from": 10,
+                "to": "booking_date",
+                "type": "strtotime:d.m.y"
+            },
+            {
+                "_from": "Buchungstag",
+                "from": 10,
+                "to": "value_date",
+                "type": "strtotime:d.m.y"
+            },
+            {
+                "_from": "Reference",
+                "from": 16,
+                "to": "reference",
+                "type": "set"
+            },
+            {
+                "_from": "Verwendungszweck",
+                "from": 20,
+                "to": "purpose",
+                "type": "set"
+            },
+            {
+                "_from": "Verwendungszweck",
+                "from": 21,
+                "to": "purpose",
+                "type": "append:"
+            },
+            {
+                "_from": "Verwendungszweck",
+                "from": 22,
+                "to": "purpose",
+                "type": "append:"
+            },
+            {
+                "_from": "Verwendungszweck",
+                "from": 23,
+                "to": "purpose",
+                "type": "append:"
+            },
+            {
+                "_from": "Verwendungszweck",
+                "from": 24,
+                "to": "purpose",
+                "type": "append:"
+            },
+            {
+                "_from": "Verwendungszweck",
+                "from": 25,
+                "to": "purpose",
+                "type": "append:"
+            },
+            {
+                "_from": "Verwendungszweck",
+                "from": 26,
+                "to": "purpose",
+                "type": "append:"
+            },
+            {
+                "_from": "Verwendungszweck",
+                "from": 27,
+                "to": "purpose",
+                "type": "append:"
+            },
+            {
+                "_from": "Verwendungszweck",
+                "from": 28,
+                "to": "purpose",
+                "type": "append:"
+            },
+            {
+                "_from": "Verwendungszweck",
+                "from": 29,
+                "to": "purpose",
+                "type": "append:"
+            },
+            {
+                "_from": "Verwendungszweck",
+                "from": 30,
+                "to": "purpose",
+                "type": "append:"
+            },
+            {
+                "_from": "Verwendungszweck",
+                "from": 31,
+                "to": "purpose",
+                "type": "append:"
+            },
+            {
+                "_from": "Verwendungszweck",
+                "from": 32,
+                "to": "purpose",
+                "type": "append:"
+            },
+            {
+                "_from": "Verwendungszweck",
+                "from": 33,
+                "to": "purpose",
+                "type": "append:"
+            }
+        ]
+    },
+    "state": {}
+}

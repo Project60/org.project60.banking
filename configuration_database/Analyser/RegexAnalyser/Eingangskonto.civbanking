@@ -1,0 +1,68 @@
+{
+    "plugin_type_name": "match",
+    "plugin_class_name": "analyser_regex",
+    "name": "Eingangskonto",
+    "description": "Erkennt das Eingangskonto und ordnet es zu.",
+    "weight": "20",
+    "config": {
+        "rules": [
+            {
+                "comment": "Eingangskonto BfS Spenden 8461201",
+                "fields": [
+                    "_IBAN"
+                ],
+                "pattern": "#^DE11111111111118461201$#",
+                "actions": [
+                    {
+                        "action": "set",
+                        "to": "eingangskonto",
+                        "value": "4"
+                    }
+                ]
+            },
+            {
+                "comment": "Eingangskonto PayPal",
+                "fields": [
+                    "_NBAN_PP"
+                ],
+                "pattern": "#^paypal@myaccount.com$#",
+                "actions": [
+                    {
+                        "action": "set",
+                        "to": "eingangskonto",
+                        "value": "14"
+                    }
+                ]
+            },
+            {
+                "comment": "Eingangskonto BfS Hauptkonto",
+                "fields": [
+                    "_IBAN"
+                ],
+                "pattern": "#^DE11111111111118461200#",
+                "actions": [
+                    {
+                        "action": "set",
+                        "to": "eingangskonto",
+                        "value": "3"
+                    }
+                ]
+            },
+            {
+                "comment": "Eingangskonto BfS Veranstaltungen 8461202",
+                "fields": [
+                    "_IBAN"
+                ],
+                "pattern": "#DE11111111111118461202$#",
+                "actions": [
+                    {
+                        "action": "set",
+                        "to": "eingangskonto",
+                        "value": "5"
+                    }
+                ]
+            }
+        ]
+    },
+    "state": []
+}

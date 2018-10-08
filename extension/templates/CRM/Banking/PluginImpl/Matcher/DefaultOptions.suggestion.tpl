@@ -1,6 +1,6 @@
 {*-------------------------------------------------------+
 | Project 60 - CiviBanking                               |
-| Copyright (C) 2013-2015 SYSTOPIA                       |
+| Copyright (C) 2013-2018 SYSTOPIA                       |
 | Author: B. Endres (endres -at- systopia.de)            |
 | http://www.systopia.de/                                |
 +--------------------------------------------------------+
@@ -26,45 +26,50 @@
 
 {else}                    {* MANUAL RECONCILIATION *}
 <div>
-  {ts}Please manually process this transaction and <i>then</i> add the resulting contributions to this list, <b><i>before</i></b> confirming this option.{/ts}
+  {ts domain='org.project60.banking'}Please manually process this transaction and <i>then</i> add the resulting contributions to this list, <b><i>before</i></b> confirming this option.{/ts}
   <input type="hidden" id="manual_match_contributions" name="manual_match_contributions" value=""/>
   <input type="hidden" id="manual_match_contacts" name="manual_match_contacts" value="{$contact_ids}"/>
 </div>
 
 <br/>
-  <a class="button" onclick="manual_match_create_contribution();"><span><div class="icon add-icon ui-icon-circle-plus"></div>{ts}add new contribution for:{/ts}</span></a>
+  <a class="button" onclick="manual_match_create_contribution();"><span><div class="icon add-icon ui-icon-circle-plus"></div>{ts domain='org.project60.banking'}add new contribution for:{/ts}</span></a>
   <select style="float:left;" id="manual_match_contact_selector"></select>
   <div onclick="manual_match_show_selected_contact();" class="ui-icon ui-icon-circle-arrow-e" style="float:left;"></div>
   <div style="float:left;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</div>
-  <div style="display: inline-block;"><a class="button" onclick="manual_match_add_contact();"><span><div class="icon add-icon ui-icon-circle-plus"></div>{ts}add contact ID to list{/ts}:</span></a>
+  <div style="display: inline-block;"><a class="button" onclick="manual_match_add_contact();"><span><div class="icon add-icon ui-icon-circle-plus"></div>{ts domain='org.project60.banking'}add contact ID to list{/ts}:</span></a>
   <input id="manual_match_add_contact_input" onkeydown="if (event.keyCode == 13) return manual_match_add_contact();" type="text" style="width: 4em; height: 1.4em;"></input>
 </div>
 
 <br/><br/>
 
 <div>
-  <a class="button" onclick="manual_match_refresh_list();"><span><div class="icon refresh-icon ui-icon-refresh"></div>{ts}refresh{/ts}</span></a>
-  <a class="button" onclick="manual_match_open_create_new_contribution();"><span><div class="icon add-icon ui-icon-circle-plus"></div>{ts}create empty contribution{/ts}</span></a>
-  <a class="button" onclick="manual_match_add_contribution();"><span><div class="icon add-icon ui-icon-circle-plus"></div>{ts}add existing contribution by ID{/ts}</span></a>
+  <a class="button" onclick="manual_match_refresh_list();"><span><div class="icon refresh-icon ui-icon-refresh"></div>{ts domain='org.project60.banking'}refresh{/ts}</span></a>
+  <a class="button" onclick="manual_match_open_create_new_contribution();"><span><div class="icon add-icon ui-icon-circle-plus"></div>{ts domain='org.project60.banking'}create empty contribution{/ts}</span></a>
+  <a class="button" onclick="manual_match_add_contribution();"><span><div class="icon add-icon ui-icon-circle-plus"></div>{ts domain='org.project60.banking'}add existing contribution by ID{/ts}</span></a>
   <input id="manual_match_add" onkeydown="if (event.keyCode == 13) return manual_match_add_contribution();" type="text" style="width: 4em; height: 1.4em;"></input>
   <div style="float:right;">
-    <span id="manual_match_contribution_sum" align="right" style="color: red; font-weight: bold;"><b>{ts}sum{/ts}: 0.00 EUR</b></span>
+    <span id="manual_match_contribution_sum" align="right" style="color: red; font-weight: bold;"><b>{ts domain='org.project60.banking'}sum{/ts}: 0.00 EUR</b></span>
   </div>
 </div>
 
 {if $btx.amount lt 0}
-<br/><div>{ts}<strong>WARNING:</strong> This is a negative amount, so all contributions below will be <strong>cancelled</strong>.{/ts}</div>
+<br/><div>{ts domain='org.project60.banking'}<strong>WARNING:</strong> This is a negative amount, so all contributions below will be <strong>cancelled</strong>.{/ts}</div>
 {/if}
 
 <br/>
 <table>
   <th></th>
-  <th>{ts}Contact{/ts}</th>
-  <th>{ts}Type{/ts}</th>
-  <th>{ts}Date{/ts}</th>
-  <th>{ts}Status{/ts}</th>
-  <th align="right">{ts}Amount{/ts}</th>
+  <th>{ts domain='org.project60.banking'}Contact{/ts}</th>
+  <th>{ts domain='org.project60.banking'}Type{/ts}</th>
+  <th>{ts domain='org.project60.banking'}Date{/ts}</th>
+  <th>{ts domain='org.project60.banking'}Status{/ts}</th>
+  <th align="right">{ts domain='org.project60.banking'}Amount{/ts}</th>
   <tbody id="manual_match_contribution_table">
+  <tr class="manual-match-placeholder">
+    <td colspan="5" align="center" style="font-size: larger; padding: 1em;">
+      <span>{ts domain='org.project60.banking'}DROP ANY CONTRIBUTION LINK IN HERE TO RECONCILE{/ts}</span>
+    </td>
+  </tr>
   </tbody>
 </table>
 
@@ -88,7 +93,8 @@
    */
   function manual_match_refresh_list() {
     // clear the table
-    cj("#manual_match_contribution_table tr").remove();
+    cj("#manual_match_contribution_table tr.manual-match-placeholder").show();
+    cj("#manual_match_contribution_table tr.manual-match-contribution").remove();
 
     // then rebuild with the cids in the list
     var list = cj("#manual_match_contributions").val().split(",");
@@ -96,8 +102,13 @@
       cid = parseInt(list[cid_idx]);
       if (!isNaN(cid) && cid>0) {
         // load the contribution
-        CRM.api("Contribution", "get", {"sequential": 1, "id": cid},
-          { success: manual_match_add_data_to_list });
+        CRM.api3("Contribution", "get", {
+            "id": cid,
+            "sequential": 1,
+            "return": "financial_type,contact"
+            },
+            { success: manual_match_add_data_to_list }
+        );
       }
     }
   }
@@ -107,7 +118,7 @@
    * It also triggers loading the next id from the list in the hidden field 
    */
   function manual_match_load_contact_into_contact_list(contact_id, select) {
-    CRM.api("Contact", "get", {"sequential": 1, "id": contact_id},
+    CRM.api3("Contact", "get", {"sequential": 1, "id": contact_id},
         { success: function(data) {
           if (data.count > 0) {
             // generate contact select option
@@ -127,7 +138,7 @@
             if (contact.street_address || contact.city) {
               item_label += " (" + contact.street_address + ", " + contact.city + ")";
             } else {
-              item_label += " ({/literal}{ts}unknown address{/ts}{literal})";
+              item_label += " ({/literal}{ts domain='org.project60.banking'}unknown address{/ts}{literal})";
             }
             if (select) {
               var item = "<option selected =\"true\" value=\""+ contact.id + "\">"+item_label+"</option>";
@@ -172,7 +183,7 @@
   function manual_match_create_contact_list() {
     // clear the options
     cj("#manual_match_contact_selector").empty();
-    var dummy_item = "<option value=\"0\">{/literal}{ts}No contact found... add manually &nbsp;&nbsp;&nbsp;=>{/ts}{literal}</option>";
+    var dummy_item = "<option value=\"0\">{/literal}{ts domain='org.project60.banking'}No contact found... add manually &nbsp;&nbsp;&nbsp;=>{/ts}{literal}</option>";
     cj("#manual_match_contact_selector").append(dummy_item);
 
     var list = cj("#manual_match_contacts").val().split(",");
@@ -186,27 +197,28 @@
    */
   function manual_match_add_data_to_list(data) {
     if (data.count>0) {
+      cj("#manual_match_contribution_table tr.manual-match-placeholder").hide();
       var contribution = data.values[0];
       manual_match_add_contribution_to_field(contribution.id);
-      
+
       // add to table, if not already there
       if (!cj("#manual_match_row_cid_" + contribution.id).length) {
         var view_link = cj("<div/>").html("{/literal}{$view_contribution_link}{literal}").text();
         view_link = view_link.replace("__contributionid__", contribution.id);
         view_link = view_link.replace("__contactid__", contribution.contact_id);
 
-        var row = "<tr id=\"manual_match_row_cid_" + contribution.id + "\">";
-        row += "<td><a onclick=\"manual_match_remove_contribution(" + contribution.id + ");\">[{/literal}{ts}remove{/ts}{literal}]</a>";
-        row += "&nbsp;<a href=\"" + view_link + "\" target=\"_blank\" class=\"crm-popup\">[{/literal}{ts}view{/ts}{literal}]</a></td>";
+        var row = "<tr class=\"manual-match-contribution\" id=\"manual_match_row_cid_" + contribution.id + "\">";
+        row += "<td><a onclick=\"manual_match_remove_contribution(" + contribution.id + ");\">[{/literal}{ts domain='org.project60.banking'}remove{/ts}{literal}]</a>";
+        row += "&nbsp;<a href=\"" + view_link + "\" target=\"_blank\" class=\"crm-popup\">[{/literal}{ts domain='org.project60.banking'}view{/ts}{literal}]</a></td>";
         row += "<td>" + contribution.display_name + "</td>";
         row += "<td>" + contribution.financial_type + "</td>";
         row += "<td>" + contribution.receive_date.replace(" 00:00:00","");  + "</td>";
-        if (contribution.contribution_status != "{/literal}{ts}Completed{/ts}{literal}") {
+        if (contribution.contribution_status != "{/literal}{ts domain='org.project60.banking'}Completed{/ts}{literal}") {
           row += "<td >" + contribution.contribution_status + "</td>";
         } else {
           // if this a cancellation, mark it:
           if (parseFloat({/literal}{$btx.amount}{literal}) < 0) {
-            row += "<td>" + contribution.contribution_status + "{/literal}{ts}<br/><b>Will be cancelled.</b>{/ts}{literal}</td>";
+            row += "<td>" + contribution.contribution_status + "{/literal}{ts domain='org.project60.banking'}<br/><b>Will be cancelled.</b>{/ts}{literal}</td>";
           } else {
             row += "<td style=\"color: red;\"><b>" + contribution.contribution_status + "</b></td>";
           }
@@ -231,10 +243,10 @@
 
     // update the style...
     if (sum == Math.abs(parseFloat({/literal}{$btx.amount}{literal}))) {
-      cj("#manual_match_contribution_sum").text("{/literal}{ts}sum{/ts}: " + sum.toFixed(2) + " {$btx.currency} -- {ts}OK{/ts}{literal}");
+      cj("#manual_match_contribution_sum").text("{/literal}{ts domain='org.project60.banking'}sum{/ts}: " + sum.toFixed(2) + " {$btx.currency} -- {ts domain='org.project60.banking'}OK{/ts}{literal}");
       cj("#manual_match_contribution_sum").css("color", "green");
     } else {
-      cj("#manual_match_contribution_sum").text("{/literal}{ts}sum{/ts}: " + sum.toFixed(2) + " {$btx.currency} -- {ts}WARNING{/ts}{literal}");
+      cj("#manual_match_contribution_sum").text("{/literal}{ts domain='org.project60.banking'}sum{/ts}: " + sum.toFixed(2) + " {$btx.currency} -- {ts domain='org.project60.banking'}WARNING{/ts}{literal}");
       cj("#manual_match_contribution_sum").css("color", "red");
     }
   }
@@ -251,7 +263,7 @@
       return;
     }
     // ok, we have a contact -> create a new (test) contribution
-    CRM.api("Contribution", "create", { "sequential": 1, 
+    CRM.api3("Contribution", "create", { "sequential": 1,
                                         "contact_id": contact_id, 
                                         "is_test": 1, 
                                         "total_amount": parseFloat({/literal}{$btx.amount}{literal}).toFixed(2), 
@@ -306,7 +318,7 @@
     }
 
     if (isNaN(cid)) {
-      alert("{/literal}{ts}No valid contribution ID given.{/ts}{literal}");
+      alert("{/literal}{ts domain='org.project60.banking'}No valid contribution ID given.{/ts}{literal}");
     } else {
       // add ID to the hidden field
       manual_match_add_contribution_to_field(cid);
@@ -337,7 +349,7 @@
     }
 
     if (isNaN(contact_id)) {
-      alert("{/literal}{ts}No valid contribution ID given.{/ts}{literal}");
+      alert("{/literal}{ts domain='org.project60.banking'}No valid contribution ID given.{/ts}{literal}");
     } else {
       // add ID to the hidden field
       var list = cj("#manual_match_contacts").val().split(",");
@@ -395,7 +407,19 @@
         banking_open_link("{/literal}{$view_search_link}{literal}", {}, false);
       }
   }
-  
+
+  // add drop handler
+  cj("#manual_match_contribution_table").on('dragover dragenter', function(e) {
+      // stop default handlers
+      e.preventDefault();
+      e.stopPropagation();
+    });
+  cj(document).on('drop', function(e) {
+      cj("#manual_match_add").val(e.originalEvent.dataTransfer.getData('Text'));
+      manual_match_add_contribution();
+      e.preventDefault();
+  });
+
   // call some updates once...
   manual_match_update_sum();
   manual_match_create_contact_list();

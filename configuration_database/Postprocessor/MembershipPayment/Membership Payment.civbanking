@@ -1,0 +1,27 @@
+{
+    "plugin_type_name": "postprocess",
+    "plugin_class_name": "postprocessor_membership_payment",
+    "name": "Membership Payment",
+    "description": "Connects the created contribution with the given membership",
+    "weight": "40",
+    "config": {
+        "comment": "Will assign contribution(s) to the given membership",
+        "log_level": "debug",
+        "require_btx_status_list": [
+            "processed"
+        ],
+        "membership_rcur_field": "custom_23",
+        "financial_type_ids": [
+            "2"
+        ],
+        "membership_id": "btx.membership_id",
+        "set_membership_payment": "fill",
+        "set_contribution_recur": "fill",
+        "set_membership_rcur_field": "no",
+        "payment_instrument_ids_exclude": [
+            6,
+            7
+        ]
+    },
+    "state": {}
+}

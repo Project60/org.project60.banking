@@ -1,0 +1,21 @@
+{
+    "plugin_type_name": "postprocess",
+    "plugin_class_name": "postprocessor_contact_deceased",
+    "name": "Contact Deceased",
+    "description": "Marks a contact as 'deceased' if cancel reason is MD07",
+    "weight": "70",
+    "config": {
+        "comment": "Will mark the contact as 'deceased'",
+        "plugin_type": "postprocessor_contact_deceased",
+        "require_btx_status_list": [
+            "processed"
+        ],
+        "required_values": {
+            "contribution.financial_type_id": "equal_constant:2",
+            "contribution.contribution_status_id": "in_constant:3",
+            "contribution.cancel_reason": "equal_constant:MD07"
+        },
+        "set_deceased_date": "btx.booking_date"
+    },
+    "state": {}
+}

@@ -1,0 +1,67 @@
+{
+    "plugin_type_name": "match",
+    "plugin_class_name": "analyser_regex",
+    "name": "Lastschrift Analyser",
+    "description": "Verifiziert und verarbeitet gesetzte Zuwendungs-IDs (contribution_id), und ermittelt das Lastschrift-Mandat",
+    "weight": "20",
+    "config": {
+        "log_level": "debug",
+        "rules": [
+            {
+                "comment": "Verifies provided contribution_id, looks up sepa_mandate",
+                "fields": [
+                    "contribution_id"
+                ],
+                "pattern": "#^(?P<possible_contribution_id>[0-9]+)$#",
+                "actions": [
+                    {
+                        "comment": "unset contribution_id so it is empty if the check goes wrong",
+                        "action": "unset",
+                        "to": "contribution_id"
+                    },
+                    {
+                        "comment": "make sure contribution exists",
+                        "action": "lookup:Contribution,id,id",
+                        "sql": true,
+                        "from": "possible_contribution_id",
+                        "to": "contribution_id"
+                    },
+                    {
+                        "action": "lookup:Contribution,contact_id,id",
+                        "sql": true,
+                        "from": "contribution_id",
+                        "to": "contact_id"
+                    },
+                    {
+                        "action": "lookup:Contribution,contribution_recur_id,id",
+                        "sql": true,
+                        "from": "contribution_id",
+                        "to": "contribution_recur_id"
+                    },
+                    {
+                        "comment": "look up mandate",
+                        "action": "api:SepaMandate:get:reference",
+                        "const_entity_table": "civicrm_contribution_recur",
+                        "param_entity_id": "contribution_recur_id",
+                        "to": "sepa_mandate"
+                    }
+                ]
+            },
+            {
+                "comment": "Set name, too, if empty",
+                "fields": [
+                    "name"
+                ],
+                "pattern": "#^$#",
+                "actions": [
+                    {
+                        "action": "lookup:Contact,display_name,id",
+                        "from": "contact_id",
+                        "to": "name"
+                    }
+                ]
+            }
+        ]
+    },
+    "state": {}
+}

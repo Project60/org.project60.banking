@@ -1,0 +1,33 @@
+{
+    "plugin_type_name": "match",
+    "plugin_class_name": "analyser_regex",
+    "name": "Mitgliedschafts Analyse",
+    "description": "Sucht nach Informationen zur Mitgliedschaft in der Transaktion",
+    "weight": "30",
+    "config": {
+        "_name": "Mitgliedsnummer Scanner",
+        "comment": "Extrahiert Mitgliedsnummer und sucht die entsprechende Mitgliedschaft",
+        "log_level": "debug",
+        "rules": [
+            {
+                "fields": [
+                    "purpose"
+                ],
+                "pattern": "\/mitgl(ieds?)?[^0-9]?(nr)?[. ]*(?P<membership_nr>[0-9]{4,6})\/i",
+                "actions": [
+                    {
+                        "from": "membership_nr",
+                        "action": "copy",
+                        "to": "Mitgliedsnummer"
+                    },
+                    {
+                        "action": "lookup:Membership,id,custom_22",
+                        "from": "Mitgliedsnummer",
+                        "to": "membership_id"
+                    }
+                ]
+            }
+        ]
+    },
+    "state": []
+}

@@ -1,0 +1,33 @@
+{
+    "plugin_type_name": "postprocess",
+    "plugin_class_name": "postprocessor_api",
+    "name": "Cancel Contract",
+    "description": "Will cancel a contract for all SEPA collection failures",
+    "weight": "50",
+    "config": {
+        "log_level": "debug",
+        "comment": "Will cancel a contract for certain SEPA failures",
+        "plugin_type": "postprocessor_api",
+        "require_btx_status_list": [
+            "processed"
+        ],
+        "required_values": {
+            "btx.membership_id": "type:positiveInteger",
+            "contribution.financial_type_id": "equal_constant:2",
+            "contribution.contribution_status_id": "in_constant:3",
+            "btx.cancel_reason": "in_constant:AC01,AC04,AC06,AG01,AM04,CC97,CC98,CC99,FF05,MD01,MD02,MD06,MD07,MS02,MS03,RC01,XX01,XX02,XX03,XX04,XX05,XX06,XX07,XX08,XX09,XX10,XX11,XX12,XX13,XX14,XX15,XX16,XX17,XX18,XX19,XXXX,ED01,ED05"
+        },
+        "entity": "Contract",
+        "action": "modify",
+        "params": {
+            "action": "cancel",
+            "medium_id": "7",
+            "note": "Triggered by CiviBanking"
+        },
+        "param_propagation": {
+            "btx.membership_id": "id",
+            "btx.cancel_reason": "membership_cancellation.membership_cancel_reason"
+        }
+    },
+    "state": {}
+}

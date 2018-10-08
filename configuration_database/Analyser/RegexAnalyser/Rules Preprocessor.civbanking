@@ -1,0 +1,44 @@
+{
+    "plugin_type_name": "match",
+    "plugin_class_name": "analyser_regex",
+    "name": "Rules Preprocessor",
+    "description": "Will clean up the assignment field for the rules analyser",
+    "weight": "110",
+    "config": {
+        "comment": "Preprocess data for rules",
+        "log_level": "debug",
+        "rules": [
+            {
+                "comment": "Clean assignment field",
+                "fields": [
+                    "assignment"
+                ],
+                "pattern": "\/.+\/",
+                "actions": [
+                    {
+                        "comment": "strip multiple whitespaces",
+                        "action": "preg_replace",
+                        "search_pattern": "# +#",
+                        "from": "assignment",
+                        "replace": " ",
+                        "to": "assignment"
+                    }
+                ]
+            },
+            {
+                "comment": "Reset rules_matched",
+                "fields": [
+                    "rules_matched"
+                ],
+                "pattern": "\/.+\/",
+                "actions": [
+                    {
+                        "action": "unset",
+                        "to": "rules_matched"
+                    }
+                ]
+            }
+        ]
+    },
+    "state": {}
+}

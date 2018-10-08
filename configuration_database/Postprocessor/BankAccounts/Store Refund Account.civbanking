@@ -1,0 +1,22 @@
+{
+    "plugin_type_name": "postprocess",
+    "plugin_class_name": "postprocessor_accounts",
+    "name": "Store Refund Account",
+    "description": "Stores the refund bank account in the DEBIT case",
+    "weight": "20",
+    "config": {
+        "comment": "DEBIT set refund account",
+        "log_level": "debug",
+        "plugin_type": "postprocessor_accounts",
+        "require_btx_status_list": [
+            "processed"
+        ],
+        "required_values": {},
+        "mode": "debit",
+        "type": "reference",
+        "target": "contribution",
+        "own_account": "custom_81",
+        "own_contact_id": "1"
+    },
+    "state": {}
+}

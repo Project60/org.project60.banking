@@ -1,0 +1,62 @@
+{
+    "plugin_type_name": "match",
+    "plugin_class_name": "matcher_default",
+    "name": "Default Options",
+    "description": "Provides the user with some default processing options.",
+    "weight": "160",
+    "config": {
+        "auto_exec": false,
+        "manual_enabled": true,
+        "manual_probability": "50%",
+        "manual_show_always": true,
+        "manual_title": "Processed manually",
+        "manual_message": "Select this option to reconcile this payment with the contributions in the list below.",
+        "manual_contribution": "Enter your contribution ID here: ",
+        "manual_default_source": "",
+        "manual_default_financial_type_id": 1,
+        "ignore_enabled": true,
+        "ignore_show_always": true,
+        "ignore_probability": "0.1",
+        "ignore_title": "Does not belong to CiviCRM",
+        "ignore_message": "This transaction das not concern CiviCRM.",
+        "createnew_value_propagation": {
+            "btx.source": "contribution.source",
+            "btx.financial_type_id": "contribution.financial_type_id",
+            "btx.campaign_id": "contribution.campaign_id",
+            "btx.payment_instrument_id": "contribution.payment_instrument_id"
+        },
+        "value_propagation": {},
+        "lookup_contact_by_name": {
+            "mode": "sql",
+            "soft_cap_probability": 0.7,
+            "soft_cap_min": 10,
+            "hard_cap_probability": 0.4,
+            "modifiers": [
+                {
+                    "search": ":^herr :",
+                    "replace": " "
+                },
+                {
+                    "search": ":^frau :",
+                    "replace": " "
+                },
+                {
+                    "search": ":ue:",
+                    "replace": "\u00fc",
+                    "mode": "alternative"
+                },
+                {
+                    "search": ":oe:",
+                    "replace": "\u00f6",
+                    "mode": "alternative"
+                },
+                {
+                    "search": ":ae:",
+                    "replace": "\u00e4",
+                    "mode": "alternative"
+                }
+            ]
+        }
+    },
+    "state": {}
+}

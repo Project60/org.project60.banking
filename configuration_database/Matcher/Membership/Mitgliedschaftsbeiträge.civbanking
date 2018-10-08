@@ -1,0 +1,68 @@
+{
+    "plugin_type_name": "match",
+    "plugin_class_name": "matcher_membership",
+    "name": "Mitgliedschaftsbeitr\u00e4ge",
+    "description": null,
+    "weight": "50",
+    "config": {
+        "auto_exec": false,
+        "threshold": 0.5,
+        "based_on_start_date": false,
+        "value_propagation": {
+            "btx.source": "contribution.source",
+            "btx.campaign_id": "contribution.campaign_id",
+            "btx.fee": "contribution.fee_amount",
+            "btx.payment_instrument_id": "contribution.payment_instrument_id"
+        },
+        "general_options": {
+            "membership_type_ids": "1,2,3",
+            "amount_min": 1,
+            "amount_max": 5,
+            "amount_penalty": 0.2,
+            "amount_deviation_relative_min": 1,
+            "amount_deviation_relative_max": 1,
+            "date_penalty": 0,
+            "date_deviation_relative_min": 0.8,
+            "date_deviation_relative_max": 1.2
+        },
+        "membership_options": {
+            "1": {
+                "title": "Mitglied",
+                "minimum_fee": "36.00"
+            },
+            "comment": "these options overwrite the same entries in the general_options for each membership type"
+        },
+        "lookup_contact_by_name": {
+            "mode": "sql",
+            "soft_cap_probability": 0.7,
+            "soft_cap_min": 10,
+            "hard_cap_probability": 0.4,
+            "modifiers": [
+                {
+                    "search": ":^herr :",
+                    "replace": " "
+                },
+                {
+                    "search": ":^frau :",
+                    "replace": " "
+                },
+                {
+                    "search": ":ue:",
+                    "replace": "\u00fc",
+                    "mode": "alternative"
+                },
+                {
+                    "search": ":oe:",
+                    "replace": "\u00f6",
+                    "mode": "alternative"
+                },
+                {
+                    "search": ":ae:",
+                    "replace": "\u00e4",
+                    "mode": "alternative"
+                }
+            ]
+        }
+    },
+    "state": {}
+}

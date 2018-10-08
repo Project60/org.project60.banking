@@ -1,0 +1,42 @@
+{
+    "plugin_type_name": "match",
+    "plugin_class_name": "analyser_rules",
+    "name": "Rules Analyser",
+    "description": "Will use the CiviBanking rules to derive the necessary parameters for automatic execution",
+    "weight": "120",
+    "config": {
+        "suggest_create_new": true,
+        "show_matched_rules": true,
+        "create_new_confidence": 0.8,
+        "copy_matching_rule_ids_to": "rules_matched",
+        "fields_to_set": {
+            "contact_id": {
+                "label": "Contact (ID)"
+            },
+            "membership_id": {
+                "label": "Contract (ID)"
+            },
+            "campaign_id": {
+                "label": "Campaign (ID)"
+            },
+            "financial_type_id": {
+                "label": "Financial Type",
+                "default": "5",
+                "options": {
+                    "1": "Donation",
+                    "2": "Membership Due"
+                }
+            }
+        },
+        "custom_conditions": {
+            "_BIC": "BIC",
+            "_party_BIC": "Party BIC",
+            "address_line": "Address line",
+            "assignment": "Assignment",
+            "end_to_end_id": "End to end ID",
+            "sepa_code": "SEPA code",
+            "trxn_id": "trxn_id"
+        }
+    },
+    "state": {}
+}

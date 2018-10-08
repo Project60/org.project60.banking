@@ -1,0 +1,344 @@
+{
+    "plugin_type_name": "import",
+    "plugin_class_name": "importer_xml",
+    "name": "Bank Statement (CAMT.53 XML)",
+    "description": "Imports XML CAMT.53 files",
+    "weight": "100",
+    "config": {
+        "namespaces": {
+            "camt": "ISO:camt.053.001.02:APC:STUZZA:payments:003"
+        },
+        "probe": "camt:BkToCstmrStmt\/camt:Stmt\/camt:LglSeqNb",
+        "organisation_contact_ids": "1",
+        "log_level": "info",
+        "rules": [
+            {
+                "comment": "statement name is MsgId\/LglSeqNb",
+                "from": "xpath:camt:BkToCstmrStmt\/camt:GrpHdr\/camt:MsgId",
+                "to": "tx_batch.reference",
+                "type": "set"
+            },
+            {
+                "comment": "statement name is MsgId\/LglSeqNb",
+                "from": "xpath:camt:BkToCstmrStmt\/camt:Stmt\/camt:LglSeqNb",
+                "to": "tx_batch.reference",
+                "type": "append:\/"
+            },
+            {
+                "comment": "statement sequence number",
+                "from": "xpath:camt:BkToCstmrStmt\/camt:Stmt\/camt:LglSeqNb",
+                "to": "tx_batch.sequence",
+                "type": "set"
+            },
+            {
+                "comment": "IBAN preset for payments",
+                "from": "xpath:camt:BkToCstmrStmt\/camt:Stmt\/camt:Acct\/camt:Id\/camt:IBAN",
+                "to": "tx._IBAN",
+                "type": "set"
+            },
+            {
+                "comment": "BIC preset for payments",
+                "from": "xpath:camt:BkToCstmrStmt\/camt:Stmt\/camt:Acct\/camt:Svcr\/camt:FinInstnId\/camt:BIC",
+                "to": "tx._BIC",
+                "type": "set"
+            },
+            {
+                "comment": "statement currency",
+                "from": "xpath:camt:BkToCstmrStmt\/camt:Stmt\/camt:Bal[1]\/camt:Amt\/@Ccy",
+                "to": "tx_batch.currency",
+                "type": "set"
+            },
+            {
+                "comment": "statement starting balance. FIXME: include condition instead of position",
+                "from": "xpath:camt:BkToCstmrStmt\/camt:Stmt\/camt:Bal[2]\/camt:Amt",
+                "to": "tx_batch.starting_balance",
+                "type": "amount"
+            },
+            {
+                "comment": "statement starting balance. FIXME: include condition instead of position",
+                "from": "xpath:camt:BkToCstmrStmt\/camt:Stmt\/camt:Bal[1]\/camt:Amt",
+                "to": "tx_batch.ending_balance",
+                "type": "amount"
+            }
+        ],
+        "payment_lines": [
+            {
+                "comment": "general lines will be imported per-entry",
+                "path": "camt:BkToCstmrStmt\/camt:Stmt\/camt:Ntry",
+                "filter": "not_exists:camt:NtryDtls\/camt:Btch",
+                "rules": [
+                    {
+                        "comment": "booking date",
+                        "from": "xpath:camt:BookgDt\/camt:Dt",
+                        "to": "booking_date",
+                        "type": "strtotime"
+                    },
+                    {
+                        "comment": "value date (AI asked us to use the booking date for both)",
+                        "from": "xpath:camt:BookgDt\/camt:Dt",
+                        "to": "value_date",
+                        "type": "strtotime"
+                    },
+                    {
+                        "comment": "Amount debit\/credit",
+                        "from": "xpath:camt:CdtDbtInd",
+                        "to": "amount",
+                        "type": "set"
+                    },
+                    {
+                        "comment": "Amount",
+                        "from": "xpath:camt:Amt",
+                        "to": "amount",
+                        "type": "append:"
+                    },
+                    {
+                        "comment": "CRDT means positive (omit +)",
+                        "to": "amount",
+                        "from": "amount",
+                        "type": "replace:CRDT:"
+                    },
+                    {
+                        "comment": "DBIT means negative",
+                        "from": "amount",
+                        "to": "amount",
+                        "type": "replace:DBIT:-"
+                    },
+                    {
+                        "comment": "Currency",
+                        "from": "xpath:camt:Amt\/@Ccy",
+                        "to": "currency",
+                        "type": "set"
+                    },
+                    {
+                        "comment": "party IBAN",
+                        "from": "xpath:camt:NtryDtls\/camt:TxDtls\/camt:RltdPties\/camt:DbtrAcct\/camt:Id\/camt:IBAN",
+                        "to": "_party_IBAN",
+                        "type": "set"
+                    },
+                    {
+                        "comment": "party BIC",
+                        "from": "xpath:camt:NtryDtls\/camt:TxDtls\/camt:RltdAgts\/camt:DbtrAgt\/camt:FinInstnId\/camt:BIC",
+                        "to": "_party_BIC",
+                        "type": "set"
+                    },
+                    {
+                        "comment": "party BIC (DEBIT CASE)",
+                        "if": "_party_IBAN = _IBAN",
+                        "from": "xpath:camt:NtryDtls\/camt:TxDtls\/camt:RltdAgts\/camt:CdtrAgt\/camt:FinInstnId\/camt:BIC",
+                        "to": "_party_BIC",
+                        "type": "set"
+                    },
+                    {
+                        "comment": "party IBAN (DEBIT CASE)",
+                        "if": "_party_IBAN = _IBAN",
+                        "from": "xpath:camt:NtryDtls\/camt:TxDtls\/camt:RltdPties\/camt:CdtrAcct\/camt:Id\/camt:IBAN",
+                        "to": "_party_IBAN",
+                        "type": "set"
+                    },
+                    {
+                        "comment": "transaction id",
+                        "from": "xpath:camt:NtryDtls\/camt:TxDtls\/camt:Refs\/camt:TxId",
+                        "to": "trxn_id",
+                        "type": "set"
+                    },
+                    {
+                        "comment": "transaction message",
+                        "from": "xpath:camt:NtryDtls\/camt:TxDtls\/camt:AddtlTxInf",
+                        "to": "purpose",
+                        "type": "set"
+                    },
+                    {
+                        "comment": "transaction message (alternative 1)",
+                        "from": "xpath:camt:NtryDtls\/camt:TxDtls\/camt:RmtInf\/camt:Strd\/camt:CdtrRefInf\/camt:Ref",
+                        "to": "purpose",
+                        "type": "append: "
+                    },
+                    {
+                        "comment": "transaction message (alternative 2)",
+                        "from": "xpath:camt:NtryDtls\/camt:TxDtls\/camt:RmtInf\/camt:Ustrd",
+                        "to": "purpose",
+                        "type": "append: "
+                    },
+                    {
+                        "comment": "Reference Code",
+                        "from": "xpath:camt:NtryDtls\/camt:TxDtls\/camt:RmtInf\/camt:Strd\/camt:CdtrRefInf\/camt:Ref",
+                        "to": "reference",
+                        "type": "set"
+                    },
+                    {
+                        "comment": "assignment\/use",
+                        "from": "xpath:camt:NtryDtls\/camt:TxDtls\/camt:RmtInf\/camt:Ustrd",
+                        "to": "assignment",
+                        "type": "set"
+                    },
+                    {
+                        "comment": "End-To-End-ID",
+                        "from": "xpath:camt:NtryDtls\/camt:TxDtls\/camt:Refs\/camt:EndToEndId",
+                        "to": "end_to_end_id",
+                        "type": "set"
+                    },
+                    {
+                        "comment": "party name",
+                        "from": "xpath:camt:NtryDtls\/camt:TxDtls\/camt:RltdPties\/camt:Dbtr\/camt:Nm",
+                        "to": "name",
+                        "type": "set"
+                    },
+                    {
+                        "comment": "party address",
+                        "from": "xpath:camt:NtryDtls\/camt:TxDtls\/camt:RltdPties\/camt:Dbtr\/camt:PstlAdr\/camt:AdrLine",
+                        "to": "address_line",
+                        "type": "set"
+                    }
+                ]
+            },
+            {
+                "comment": "batch entries will be expanded",
+                "path": "camt:BkToCstmrStmt\/camt:Stmt\/camt:Ntry\/camt:NtryDtls\/camt:TxDtls",
+                "filter": "exists:..\/camt:Btch",
+                "rules": [
+                    {
+                        "comment": "booking date",
+                        "from": "xpath:..\/..\/camt:BookgDt\/camt:Dt",
+                        "to": "booking_date",
+                        "type": "strtotime"
+                    },
+                    {
+                        "comment": "value date (AI asked us to use the booking date for both)",
+                        "from": "xpath:..\/..\/camt:BookgDt\/camt:Dt",
+                        "to": "value_date",
+                        "type": "strtotime"
+                    },
+                    {
+                        "comment": "Amount debit\/credit",
+                        "from": "xpath:..\/..\/camt:CdtDbtInd",
+                        "to": "amount",
+                        "type": "set"
+                    },
+                    {
+                        "comment": "parse\/normalise amount",
+                        "from": "xpath:camt:AmtDtls\/camt:TxAmt\/camt:Amt",
+                        "to": "amount_parsed",
+                        "type": "amount"
+                    },
+                    {
+                        "comment": "append parsed amount",
+                        "from": "amount_parsed",
+                        "to": "amount",
+                        "type": "append:"
+                    },
+                    {
+                        "comment": "CRDT means positive (omit +)",
+                        "to": "amount",
+                        "from": "amount",
+                        "type": "replace:CRDT:"
+                    },
+                    {
+                        "comment": "DBIT means negative",
+                        "from": "amount",
+                        "to": "amount",
+                        "type": "replace:DBIT:-"
+                    },
+                    {
+                        "comment": "Currency",
+                        "from": "xpath:camt:AmtDtls\/camt:TxAmt\/camt:Amt\/@Ccy",
+                        "to": "currency",
+                        "type": "set"
+                    },
+                    {
+                        "comment": "party IBAN",
+                        "from": "xpath:camt:RltdPties\/camt:DbtrAcct\/camt:Id\/camt:IBAN",
+                        "to": "_party_IBAN",
+                        "type": "set"
+                    },
+                    {
+                        "comment": "party BIC",
+                        "from": "xpath:camt:RltdAgts\/camt:DbtrAgt\/camt:FinInstnId\/camt:BIC",
+                        "to": "_party_BIC",
+                        "type": "set"
+                    },
+                    {
+                        "comment": "party BIC (DEBIT CASE)",
+                        "if": "_party_IBAN = _IBAN",
+                        "from": "xpath:camt:RltdAgts\/camt:CdtrAgt\/camt:FinInstnId\/camt:BIC",
+                        "to": "_party_BIC",
+                        "type": "set"
+                    },
+                    {
+                        "comment": "party IBAN (DEBIT CASE)",
+                        "if": "_party_IBAN = _IBAN",
+                        "from": "xpath:camt:RltdPties\/camt:CdtrAcct\/camt:Id\/camt:IBAN",
+                        "to": "_party_IBAN",
+                        "type": "set"
+                    },
+                    {
+                        "comment": "transaction message",
+                        "from": "xpath:camt:AddtlTxInf",
+                        "to": "purpose",
+                        "type": "set"
+                    },
+                    {
+                        "comment": "transaction message (alternative 1)",
+                        "from": "xpath:camt:RmtInf\/camt:Strd\/camt:CdtrRefInf\/camt:Ref",
+                        "to": "purpose",
+                        "type": "append: "
+                    },
+                    {
+                        "comment": "transaction message (alternative 2)",
+                        "from": "xpath:camt:RmtInf\/camt:Ustrd",
+                        "to": "purpose",
+                        "type": "append: "
+                    },
+                    {
+                        "comment": "assignment\/use",
+                        "from": "xpath:camt:RmtInf\/camt:Ustrd",
+                        "to": "assignment",
+                        "type": "set"
+                    },
+                    {
+                        "comment": "party name",
+                        "from": "xpath:camt:RltdPties\/camt:Dbtr\/camt:Nm",
+                        "to": "name",
+                        "type": "set"
+                    },
+                    {
+                        "comment": "party address",
+                        "from": "xpath:camt:RltdPties\/camt:Dbtr\/camt:PstlAdr\/camt:AdrLine",
+                        "to": "address_line",
+                        "type": "set"
+                    },
+                    {
+                        "comment": "SEPA mandate reference",
+                        "from": "xpath:camt:Refs\/camt:MndtId",
+                        "to": "sepa_mandate",
+                        "type": "set"
+                    },
+                    {
+                        "comment": "End-To-End-ID",
+                        "from": "xpath:camt:Refs\/camt:EndToEndId",
+                        "to": "end_to_end_id",
+                        "type": "set"
+                    },
+                    {
+                        "comment": "SEPA batch reference",
+                        "from": "xpath:..\/..\/camt:AcctSvcrRef",
+                        "to": "_sepa_batch",
+                        "type": "set"
+                    },
+                    {
+                        "comment": "SEPA status code",
+                        "from": "xpath:camt:RtrInf\/camt:Rsn\/camt:Cd",
+                        "to": "sepa_code",
+                        "type": "set"
+                    },
+                    {
+                        "comment": "Reference Code",
+                        "from": "xpath:camt:RmtInf\/camt:Strd\/camt:CdtrRefInf\/camt:Ref",
+                        "to": "reference",
+                        "type": "set"
+                    }
+                ]
+            }
+        ]
+    },
+    "state": {}
+}

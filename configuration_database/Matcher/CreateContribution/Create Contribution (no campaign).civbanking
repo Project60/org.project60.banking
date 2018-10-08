@@ -1,0 +1,27 @@
+{
+    "plugin_type_name": "match",
+    "plugin_class_name": "matcher_create",
+    "name": "Create Contribution (no campaign)",
+    "description": "Creates contributions if campaign is not required (campaign_required=NO)",
+    "weight": "140",
+    "config": {
+        "auto_exec": 1,
+        "name": "Create Contribution (no campaign)",
+        "description": "Creates contributions if campaign is not required (campaign_required=NO)",
+        "required_values": {
+            "btx.financial_type_id": "type:positiveInteger",
+            "btx.payment_instrument_id": "type:positiveInteger",
+            "btx.campaign_required": "equal_constant:NO",
+            "btx.identified_by": "type:not_empty"
+        },
+        "value_propagation": {
+            "btx.financial_type_id": "contribution.financial_type_id",
+            "btx.campaign_id": "contribution.campaign_id",
+            "btx.payment_instrument_id": "contribution.payment_instrument_id"
+        },
+        "lookup_contact_by_name": {
+            "mode": "off"
+        }
+    },
+    "state": {}
+}

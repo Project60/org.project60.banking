@@ -1,0 +1,33 @@
+{
+    "plugin_type_name": "match",
+    "plugin_class_name": "matcher_ignore",
+    "name": "GVC Ignore",
+    "description": "GVC Filter",
+    "weight": "10",
+    "config": {
+        "auto_exec": 1,
+        "ignore": [
+            {
+                "field": "GVC",
+                "regex": "#^106$#",
+                "message": "Auszahlung"
+            },
+            {
+                "field": "GVC",
+                "regex": "#^116$#",
+                "message": "Eigene \u00dcberweisung"
+            },
+            {
+                "field": "GVC",
+                "regex": "#^201$#",
+                "message": "\u00dcberweisung ins Ausland"
+            },
+            {
+                "field": "GVC",
+                "regex": "#^808$#",
+                "message": "Geb\u00fchren"
+            }
+        ]
+    },
+    "state": {}
+}

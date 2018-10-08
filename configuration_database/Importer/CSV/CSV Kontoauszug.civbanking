@@ -1,0 +1,148 @@
+{
+    "plugin_type_name": "import",
+    "plugin_class_name": "importer_csv",
+    "name": "CSV Kontoauszug",
+    "description": "Importiert CSV Kontoausz\u00fcge",
+    "weight": "1000",
+    "config": {
+        "delimiter": ";",
+        "encoding": "CP1252",
+        "skip": 3,
+        "header": 4,
+        "title": "Windata {starting_date} - {ending_date} [{md5}]",
+        "defaults": [],
+        "rules": [
+            {
+                "from": "Konto-Nr.",
+                "to": "_IBAN",
+                "type": "set"
+            },
+            {
+                "from": "_IBAN",
+                "to": "_IBAN",
+                "type": "replace:8461200:DE11111111111111200"
+            },
+            {
+                "from": "_IBAN",
+                "to": "_IBAN",
+                "type": "replace:8461201:DE11111111111111201"
+            },
+            {
+                "from": "Buchungsdatum",
+                "to": "booking_date",
+                "type": "strtotime:d.m.Y"
+            },
+            {
+                "from": "Buchungsdatum",
+                "to": "value_date",
+                "type": "strtotime:d.m.Y"
+            },
+            {
+                "from": "Buchungstext",
+                "to": "transaction_class",
+                "type": "set"
+            },
+            {
+                "from": "Umsatz",
+                "to": "amount",
+                "type": "amount"
+            },
+            {
+                "from": "W\u00e4hrung",
+                "to": "currency",
+                "type": "set"
+            },
+            {
+                "from": "Auftraggeber 1",
+                "to": "name",
+                "type": "set"
+            },
+            {
+                "from": "Auftraggeber 2",
+                "to": "name",
+                "type": "append:"
+            },
+            {
+                "from": "AG BIC\/BLZ",
+                "to": "_party_BIC",
+                "type": "set"
+            },
+            {
+                "from": "AG IBAN\/Konto-Nr.",
+                "to": "_party_IBAN",
+                "type": "set"
+            },
+            {
+                "from": "Verwendung 1",
+                "to": "purpose",
+                "type": "append: "
+            },
+            {
+                "from": "Verwendung 2",
+                "to": "purpose",
+                "type": "append: "
+            },
+            {
+                "from": "Verwendung 3",
+                "to": "purpose",
+                "type": "append: "
+            },
+            {
+                "from": "Verwendung 4",
+                "to": "purpose",
+                "type": "append: "
+            },
+            {
+                "from": "Verwendung 5",
+                "to": "purpose",
+                "type": "append: "
+            },
+            {
+                "from": "Verwendung 6",
+                "to": "purpose",
+                "type": "append: "
+            },
+            {
+                "from": "Verwendung 7",
+                "to": "purpose",
+                "type": "append: "
+            },
+            {
+                "from": "Verwendung 8",
+                "to": "purpose",
+                "type": "append: "
+            },
+            {
+                "from": "Verwendung 9",
+                "to": "purpose",
+                "type": "append: "
+            },
+            {
+                "from": "Verwendung 10",
+                "to": "purpose",
+                "type": "append: "
+            },
+            {
+                "from": "Verwendung 11",
+                "to": "purpose",
+                "type": "append: "
+            },
+            {
+                "from": "Verwendung 12",
+                "to": "purpose",
+                "type": "append: "
+            },
+            {
+                "from": "Verwendung 13",
+                "to": "purpose",
+                "type": "append: "
+            },
+            {
+                "from": "Verwendung 14",
+                "to": "purpose",
+                "type": "append: "
+            }
+        ]
+    },
+    "state": []
+}

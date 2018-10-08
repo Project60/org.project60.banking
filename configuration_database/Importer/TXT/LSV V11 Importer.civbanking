@@ -1,0 +1,159 @@
+{
+    "plugin_type_name": "import",
+    "plugin_class_name": "importer_fixed",
+    "name": "LSV V11 Importer",
+    "description": "Importer f\u00fcr LSV\/V11 Dateien (AlternativeBank)",
+    "weight": "1000",
+    "config": {
+        "sentinel": "#^(202|205)#",
+        "defaults": {
+            "tx.currency": "CHF",
+            "tx._IBAN": "CH11111111111110002"
+        },
+        "generic_rules": [
+            {
+                "comment": "202 is credit",
+                "type": "apply_rules",
+                "regex": "#^202#",
+                "rules": "rules_credit"
+            },
+            {
+                "comment": "205 is debit",
+                "type": "apply_rules",
+                "regex": "#^205#",
+                "rules": "rules_debit"
+            },
+            {
+                "comment": "999|995 is summary",
+                "type": "apply_rules",
+                "regex": "#^(999|995)#",
+                "rules": "rules_summary"
+            }
+        ],
+        "rules_summary": [],
+        "rules_credit": [
+            {
+                "type": "transaction:open"
+            },
+            {
+                "type": "apply_rules",
+                "rules": "rules_parse_tx"
+            },
+            {
+                "type": "transaction:close"
+            }
+        ],
+        "rules_debit": [
+            {
+                "type": "transaction:open"
+            },
+            {
+                "type": "apply_rules",
+                "rules": "rules_parse_tx"
+            },
+            {
+                "type": "replace",
+                "from": "tx.amount",
+                "search": "#^([0-9]*.[0-9]{2})$#",
+                "replace": "-${1}.${2}",
+                "to": "tx.amount"
+            },
+            {
+                "type": "transaction:close"
+            }
+        ],
+        "rules_parse_tx": [
+            {
+                "comment": "Teilnehmernummer",
+                "type": "extract",
+                "position": "4-12",
+                "to": "tx.lsv_tn_nr"
+            },
+            {
+                "comment": "Referenznummer",
+                "type": "extract",
+                "position": "13-39",
+                "to": "tx.lsv_reference"
+            },
+            {
+                "comment": "Referenznummer",
+                "type": "extract",
+                "position": "13-39",
+                "to": "tx.purpose"
+            },
+            {
+                "comment": "Betrag",
+                "type": "extract",
+                "position": "40-49",
+                "to": "tx.amount"
+            },
+            {
+                "type": "replace",
+                "from": "tx.amount",
+                "search": "#^0*([1-9][0-9]*)([0-9]{2})$#",
+                "replace": "${1}.${2}",
+                "to": "tx.amount"
+            },
+            {
+                "comment": "Bank-interne Angaben",
+                "type": "extract",
+                "position": "50-59",
+                "to": "tx.lsv_internal_reference"
+            },
+            {
+                "comment": "Aufgabedatum",
+                "type": "extract",
+                "position": "60-65",
+                "to": "tx.initiated_date"
+            },
+            {
+                "comment": "Verarbeitungsdatum",
+                "type": "extract",
+                "position": "66-71",
+                "to": "tx.booking_date"
+            },
+            {
+                "type": "date",
+                "from": "tx.booking_date",
+                "format": "ymd",
+                "to": "tx.booking_date"
+            },
+            {
+                "comment": "Gutschriftsdatum",
+                "type": "extract",
+                "position": "72-77",
+                "to": "tx.value_date"
+            },
+            {
+                "type": "date",
+                "from": "tx.value_date",
+                "format": "ymd",
+                "to": "tx.value_date"
+            },
+            {
+                "comment": "Rejectcode 87 inkl. Pru\u0308fziffer",
+                "type": "extract",
+                "position": "87-87",
+                "to": "tx.reject_code"
+            },
+            {
+                "comment": "Valutadatum",
+                "type": "extract",
+                "position": "88-96",
+                "to": "tx.valuta_date"
+            },
+            {
+                "comment": "Einzahlungstaxen",
+                "type": "extract",
+                "position": "97-100",
+                "to": "tx.lsv_taxes"
+            },
+            {
+                "comment": "Add line nr for distinction",
+                "type": "line_nr",
+                "to": "tx.line_nr"
+            }
+        ]
+    },
+    "state": {}
+}

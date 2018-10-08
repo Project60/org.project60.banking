@@ -1,0 +1,260 @@
+{
+    "plugin_type_name": "match",
+    "plugin_class_name": "analyser_regex",
+    "name": "Reference (9800)",
+    "description": "Analyses Erste-9800 references",
+    "weight": "90",
+    "config": {
+        "comment": "Analyses Erste-9800 references",
+        "log_level": "debug",
+        "rules": [
+            {
+                "comment": "only applies to Erste-9800",
+                "fields": [
+                    "_IBAN"
+                ],
+                "pattern": "\/^AT11111111111119800$\/",
+                "actions": [
+                    {
+                        "action": "copy",
+                        "from": "reference",
+                        "to": "reference_9800"
+                    },
+                    {
+                        "action": "set",
+                        "value": "9800",
+                        "to": "reference_9800_present"
+                    },
+                    {
+                        "action": "copy_append",
+                        "from": "reference",
+                        "to": "reference_9800_present"
+                    }
+                ]
+            },
+            {
+                "comment": "if reference empty (i.e. only 9800 sentinel), extract from purpose",
+                "fields": [
+                    "reference_9800_present"
+                ],
+                "pattern": "\/^9800$\/",
+                "actions": [
+                    {
+                        "action": "copy",
+                        "from": "purpose",
+                        "to": "reference_9800"
+                    }
+                ]
+            },
+            {
+                "comment": "reduce reference (which might be purpose) to known format",
+                "fields": [
+                    "reference_9800"
+                ],
+                "pattern": "\/(^|[^0-9])(?P<known_reference>([0-9]{12}|[0-9]{4,5}[CcMm][0-9]{9}))($|[^0-9])\/",
+                "actions": [
+                    {
+                        "action": "copy",
+                        "from": "known_reference",
+                        "to": "reference_9800"
+                    }
+                ]
+            },
+            {
+                "comment": "DONT PROCESS 13-digit references at all, see GP-1274",
+                "fields": [
+                    "reference_9800"
+                ],
+                "pattern": "\/^.{13}$\/",
+                "actions": [
+                    {
+                        "action": "set",
+                        "to": "reference_9800",
+                        "value": "13digit-blocked"
+                    }
+                ]
+            },
+            {
+                "comment": "IMB-STYLE [AKTION][CONTACT-ID] CODES",
+                "fields": [
+                    "reference_9800"
+                ],
+                "pattern": "\/^(?P<campaign_reference>[0-9]{4})(?P<contact_reference>[0-9]{8})$\/",
+                "actions": [
+                    {
+                        "comment": "REFERENCE FINANCIAL TYPE IS DONATION",
+                        "action": "set",
+                        "to": "financial_type_id",
+                        "value": "1"
+                    },
+                    {
+                        "comment": "REFERENCE PAYMENT INSTRUMENT IS EFT",
+                        "action": "set",
+                        "to": "payment_instrument_id",
+                        "value": "5"
+                    },
+                    {
+                        "comment": "IDENTIFY CONTACT",
+                        "from": "contact_reference",
+                        "action": "copy_ltrim_zeros",
+                        "to": "external_identifier"
+                    },
+                    {
+                        "comment": "look up contact",
+                        "from": "external_identifier",
+                        "action": "sprint:IMB-%s",
+                        "to": "external_identifier"
+                    },
+                    {
+                        "action": "lookup:Contact,id,external_identifier",
+                        "sql": true,
+                        "parameters": {
+                            "is_deleted": "0"
+                        },
+                        "from": "external_identifier",
+                        "to": "contact_id"
+                    },
+                    {
+                        "comment": "IDENTIFY CAMPAIGN",
+                        "from": "campaign_reference",
+                        "action": "sprint:AKTION-%s",
+                        "to": "campaign_external_identifier"
+                    },
+                    {
+                        "action": "lookup:Campaign,id,external_identifier",
+                        "sql": true,
+                        "from": "campaign_external_identifier",
+                        "to": "campaign_id"
+                    },
+                    {
+                        "action": "set",
+                        "to": "identified_by",
+                        "value": "aktion\/person 9800 IMB reference"
+                    }
+                ]
+            },
+            {
+                "comment": "CIVICRM-STYLE [AKTION][CONTACT-ID] CODES",
+                "fields": [
+                    "reference_9800"
+                ],
+                "pattern": "\/^(?P<campaign_reference>[0-9]{4,5})[0CcMmOo]?(?P<contact_reference>[0-9]{9})$\/",
+                "actions": [
+                    {
+                        "comment": "REFERENCE FINANCIAL TYPE IS DONATION",
+                        "action": "set",
+                        "to": "financial_type_id",
+                        "value": "1"
+                    },
+                    {
+                        "comment": "REFERENCE PAYMENT INSTRUMENT IS EFT",
+                        "action": "set",
+                        "to": "payment_instrument_id",
+                        "value": "5"
+                    },
+                    {
+                        "comment": "EXTRACT CONTACT ID",
+                        "from": "contact_reference",
+                        "action": "copy_ltrim_zeros",
+                        "to": "contact_id"
+                    },
+                    {
+                        "comment": "RESOLVE CONTACT USING IDENTITY TRACKER",
+                        "action": "api:Contact:identify:id",
+                        "const_identifier_type": "internal",
+                        "param_identifier": "contact_id",
+                        "to": "contact_id"
+                    },
+                    {
+                        "comment": "IDENTIFY CAMPAIGN",
+                        "from": "campaign_reference",
+                        "action": "copy_ltrim_zeros",
+                        "to": "campaign_id_unverified"
+                    },
+                    {
+                        "comment": "VERIFY CAMPAIGN",
+                        "action": "lookup:Campaign,id,id",
+                        "sql": true,
+                        "from": "campaign_id_unverified",
+                        "to": "campaign_id"
+                    },
+                    {
+                        "action": "set",
+                        "to": "identified_by",
+                        "value": "aktion\/person 9800 CiviCRM reference"
+                    }
+                ]
+            },
+            {
+                "comment": "NEW (15-digit) CIVICRM-STYLE 1[AKTION][CONTACT-ID] CODES (see GP-1296)",
+                "fields": [
+                    "reference_9800"
+                ],
+                "pattern": "\/^1(?P<campaign_reference>[0-9]{5})(?P<contact_reference>[0-9]{9})$\/",
+                "actions": [
+                    {
+                        "comment": "REFERENCE FINANCIAL TYPE IS DONATION",
+                        "action": "set",
+                        "to": "financial_type_id",
+                        "value": "1"
+                    },
+                    {
+                        "comment": "REFERENCE PAYMENT INSTRUMENT IS EFT",
+                        "action": "set",
+                        "to": "payment_instrument_id",
+                        "value": "5"
+                    },
+                    {
+                        "comment": "EXTRACT CONTACT ID",
+                        "from": "contact_reference",
+                        "action": "copy_ltrim_zeros",
+                        "to": "contact_id"
+                    },
+                    {
+                        "comment": "RESOLVE CONTACT USING IDENTITY TRACKER",
+                        "action": "api:Contact:identify:id",
+                        "const_identifier_type": "internal",
+                        "param_identifier": "contact_id",
+                        "to": "contact_id"
+                    },
+                    {
+                        "comment": "IDENTIFY CAMPAIGN",
+                        "from": "campaign_reference",
+                        "action": "copy_ltrim_zeros",
+                        "to": "campaign_id_unverified"
+                    },
+                    {
+                        "comment": "VERIFY CAMPAIGN",
+                        "action": "lookup:Campaign,id,id",
+                        "sql": true,
+                        "from": "campaign_id_unverified",
+                        "to": "campaign_id"
+                    },
+                    {
+                        "action": "set",
+                        "to": "identified_by",
+                        "value": "aktion\/person 9800 CiviCRM-16 reference"
+                    }
+                ]
+            },
+            {
+                "comment": "CLEANUP: remove tmp fields",
+                "fields": [
+                    "reference_9800"
+                ],
+                "pattern": "\/.*\/",
+                "actions": [
+                    {
+                        "action": "unset",
+                        "to": "reference_9800"
+                    },
+                    {
+                        "action": "unset",
+                        "to": "reference_9800_present"
+                    }
+                ]
+            }
+        ]
+    },
+    "state": {}
+}

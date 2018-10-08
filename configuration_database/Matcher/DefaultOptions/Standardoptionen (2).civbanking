@@ -1,0 +1,65 @@
+{
+    "plugin_type_name": "match",
+    "plugin_class_name": "matcher_default",
+    "name": "Standardoptionen",
+    "description": "Stellt Standardoptionen wie Ignorieren und manuelles Verbuchen bereit",
+    "weight": "70",
+    "config": {
+        "auto_exec": false,
+        "createnew_value_propagation": {
+            "btx.financial_type_id": "contribution.financial_type_id",
+            "btx.campaign_id": "contribution.campaign_id",
+            "btx.payment_instrument_id": "contribution.payment_instrument_id",
+            "btx.fee": "contribution.fee_amount"
+        },
+        "value_propagation": {
+            "btx.purpose": "contribution.custom_17",
+            "btx.eingangskonto": "contribution.custom_18",
+            "btx.fee": "contribution.fee_amount"
+        },
+        "manual_enabled": true,
+        "manual_probability": "50%",
+        "manual_show_always": true,
+        "manual_title": "Manuell verarbeitet",
+        "manual_message": "W\u00e4hlen Sie diese Option <strong>nachdem<\/strong> Sie die Daten manuell im System verbucht haben.",
+        "manual_contribution": "Bitte tragen Sie hier die Zuwendungs-ID ein, falls eine erzeugt wurde: ",
+        "manual_default_financial_type_id": 1,
+        "ignore_enabled": true,
+        "ignore_show_always": true,
+        "ignore_probability": "0.1",
+        "ignore_title": "Geh\u00f6rt nicht in CiviCRM",
+        "ignore_message": "Diese Buchung hat nichts mit CiviCRM zu tun.",
+        "lookup_contact_by_name": {
+            "mode": "sql",
+            "soft_cap_probability": 0.7,
+            "soft_cap_min": 10,
+            "hard_cap_probability": 0.4,
+            "modifiers": [
+                {
+                    "search": ":^herr :",
+                    "replace": " "
+                },
+                {
+                    "search": ":^frau :",
+                    "replace": " "
+                },
+                {
+                    "search": ":ue:",
+                    "replace": "\u00fc",
+                    "mode": "alternative"
+                },
+                {
+                    "search": ":oe:",
+                    "replace": "\u00f6",
+                    "mode": "alternative"
+                },
+                {
+                    "search": ":ae:",
+                    "replace": "\u00e4",
+                    "mode": "alternative"
+                }
+            ]
+        }
+    },
+    "state": []
+}

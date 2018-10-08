@@ -1,0 +1,65 @@
+{
+    "plugin_type_name": "postprocess",
+    "plugin_class_name": "postprocessor_recurring_fails",
+    "name": "SEPA Fails Processor",
+    "description": "Processes RDNs",
+    "weight": "60",
+    "config": {
+        "log_level": "debug",
+        "plugin_type": "postprocessor_recurring_fails",
+        "cancel_reason_field": "cancel_reason",
+        "mode": "contact",
+        "recurring_contribution_pi_ids": [
+            6,
+            7,
+            11
+        ],
+        "contribution_success_status_ids": [
+            1
+        ],
+        "contribution_failed_status_ids": [
+            3,
+            4,
+            7
+        ],
+        "required_values": {
+            "btx.amount": "type:negative",
+            "btx.membership_id": "type:positiveInteger"
+        },
+        "rules": [
+            {
+                "name": "Allow retry for certain RDNs",
+                "comment": "No actions here imply that the contract\/mandate isn't stopped.",
+                "mandate_validated": true,
+                "cancel_reason_matches": "#(AM04|MS03)#",
+                "successful_collections_at_least": 0,
+                "sequential_successful_collections_at_least": 0,
+                "sequential_failed_collections_at_most": 2,
+                "continue": false,
+                "actions": []
+            },
+            {
+                "name": "Contract Cancellation",
+                "mandate_validated": false,
+                "continue": false,
+                "actions": [
+                    {
+                        "type": "api",
+                        "entity": "Contract",
+                        "action": "modify",
+                        "params": {
+                            "action": "cancel",
+                            "medium_id": "7",
+                            "note": "Triggered by CiviBanking"
+                        },
+                        "param_propagation": {
+                            "btx.membership_id": "id",
+                            "btx.cancel_reason": "membership_cancellation.membership_cancel_reason"
+                        }
+                    }
+                ]
+            }
+        ]
+    },
+    "state": {}
+}

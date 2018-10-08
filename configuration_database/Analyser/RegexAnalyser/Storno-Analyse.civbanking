@@ -1,0 +1,40 @@
+{
+    "plugin_type_name": "match",
+    "plugin_class_name": "analyser_regex",
+    "name": "Storno-Analyse",
+    "description": "Markiert negative Transaktionen",
+    "weight": "60",
+    "config": {
+        "rules": [
+            {
+                "comment": "Negative Transaktionen markieren",
+                "fields": [
+                    "purpose"
+                ],
+                "pattern": "\/.*\/",
+                "actions": [
+                    {
+                        "action": "set",
+                        "value": "0",
+                        "to": "amount_negative"
+                    }
+                ]
+            },
+            {
+                "comment": "Negative Transaktionen markieren",
+                "fields": [
+                    "btx.amount"
+                ],
+                "pattern": "\/^-[0-9]\/",
+                "actions": [
+                    {
+                        "action": "set",
+                        "value": "1",
+                        "to": "amount_negative"
+                    }
+                ]
+            }
+        ]
+    },
+    "state": {}
+}

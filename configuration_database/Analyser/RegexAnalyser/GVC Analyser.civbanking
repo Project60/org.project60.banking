@@ -1,0 +1,116 @@
+{
+    "plugin_type_name": "match",
+    "plugin_class_name": "analyser_regex",
+    "name": "GVC Analyser",
+    "description": "Aktionen basierend auf dem GVC",
+    "weight": "40",
+    "config": {
+        "rules": [
+            {
+                "comment": "GVC 152 - Dauerauftrag",
+                "fields": [
+                    "GVC"
+                ],
+                "pattern": "\/^152$\/",
+                "actions": [
+                    {
+                        "action": "set",
+                        "value": "Dauerauftrag",
+                        "to": "GV"
+                    },
+                    {
+                        "comment": "Zahlungsart auf Dauerauftrag setzen",
+                        "action": "set",
+                        "value": "10",
+                        "to": "payment_instrument_id"
+                    }
+                ]
+            },
+            {
+                "comment": "GVC 192 - Lastschrift",
+                "fields": [
+                    "GVC"
+                ],
+                "pattern": "\/^192$\/",
+                "actions": [
+                    {
+                        "action": "set",
+                        "value": "Lastschrift",
+                        "to": "GV"
+                    }
+                ]
+            },
+            {
+                "comment": "GVC 88 - Gutschrift nach dem TARGET2-System",
+                "fields": [
+                    "GVC"
+                ],
+                "pattern": "\/^88$\/",
+                "actions": [
+                    {
+                        "action": "set",
+                        "value": "Gutschrift nach dem TARGET2-System",
+                        "to": "GV"
+                    }
+                ]
+            },
+            {
+                "comment": "GVC 166 - \u00dcberweisung",
+                "fields": [
+                    "GVC"
+                ],
+                "pattern": "\/^166$\/",
+                "actions": [
+                    {
+                        "action": "set",
+                        "value": "\u00dcberweisung",
+                        "to": "GV"
+                    }
+                ]
+            },
+            {
+                "comment": "GVC 169 - Spende per \u00dcberweisung",
+                "fields": [
+                    "GVC"
+                ],
+                "pattern": "\/^169$\/",
+                "actions": [
+                    {
+                        "action": "set",
+                        "value": "Spende per \u00dcberweisung",
+                        "to": "GV"
+                    }
+                ]
+            },
+            {
+                "comment": "GVC 171 - Basis-Lastschrift (meist aus dem Ausland)",
+                "fields": [
+                    "GVC"
+                ],
+                "pattern": "\/^171$\/",
+                "actions": [
+                    {
+                        "action": "set",
+                        "value": "Basis-Lastschrift (meist aus dem Ausland)",
+                        "to": "GV"
+                    }
+                ]
+            },
+            {
+                "comment": "GVC 206 - Gutschrift aus dem Ausland (i.d.R. nicht ausgef\u00fchrte Auslands\u00fcberweisung)",
+                "fields": [
+                    "GVC"
+                ],
+                "pattern": "\/^206$\/",
+                "actions": [
+                    {
+                        "action": "set",
+                        "value": "Gutschrift aus dem Ausland (i.d.R. nicht ausgef\u00fchrte Auslands\u00fcberweisung)",
+                        "to": "GV"
+                    }
+                ]
+            }
+        ]
+    },
+    "state": {}
+}

@@ -1,0 +1,165 @@
+{
+    "plugin_type_name": "match",
+    "plugin_class_name": "analyser_regex",
+    "name": "SEPA Analyser",
+    "description": "Analyse and improve SEPA data",
+    "weight": "40",
+    "config": {
+        "comment": "SEPA related lookups",
+        "rules": [
+            {
+                "comment": "Make sure only CiviSEPA batches are used",
+                "fields": [
+                    "_sepa_batch"
+                ],
+                "pattern": "\/^TXG-[0-9]+-(FRST|RCUR)-\/",
+                "actions": [
+                    {
+                        "action": "copy",
+                        "from": "_sepa_batch",
+                        "to": "sepa_batch"
+                    }
+                ]
+            },
+            {
+                "comment": "Look up contract (membership) recurring contribution",
+                "fields": [
+                    "sepa_mandate"
+                ],
+                "pattern": "\/^.+$\/",
+                "actions": [
+                    {
+                        "action": "api:SepaMandate:get:entity_id",
+                        "const_type": "RCUR",
+                        "param_reference": "sepa_mandate",
+                        "to": "contract_recur_id"
+                    }
+                ]
+            },
+            {
+                "comment": "Look up contract (membership) PAST - part 1",
+                "fields": [
+                    "contract_recur_id"
+                ],
+                "pattern": "\/^[0-9]+$\/",
+                "actions": [
+                    {
+                        "comment": "load the recurring contributions trxn_id",
+                        "action": "api:ContributionRecur:get:trxn_id",
+                        "param_id": "contract_recur_id",
+                        "to": "contract_trxn_id"
+                    }
+                ]
+            },
+            {
+                "comment": "Look up contract (membership) PAST - part 2",
+                "fields": [
+                    "contract_trxn_id"
+                ],
+                "pattern": "\/^CONTRACT-MIG-(?P<imb_id>[0-9]+)$\/",
+                "actions": [
+                    {
+                        "comment": "Find membership via the old IMB id",
+                        "action": "api:Membership:get:id",
+                        "param_custom_35": "imb_id",
+                        "to": "membership_id"
+                    }
+                ]
+            },
+            {
+                "comment": "Look up contract (membership) CURRENT",
+                "fields": [
+                    "contract_recur_id"
+                ],
+                "pattern": "\/^[0-9]+$\/",
+                "actions": [
+                    {
+                        "comment": "Find membership via the old IMB id",
+                        "action": "api:Membership:get:id",
+                        "param_custom_23": "contract_recur_id",
+                        "to": "membership_id"
+                    }
+                ]
+            },
+            {
+                "comment": "CANCEL-REASON: Create default cancel reason for debits",
+                "fields": [
+                    "btx.amount"
+                ],
+                "pattern": "\/^-.+$\/",
+                "actions": [
+                    {
+                        "action": "set",
+                        "to": "default_cancel_reason",
+                        "value": "MS02"
+                    }
+                ]
+            },
+            {
+                "comment": "CANCEL-REASON: Set default cancel reason if none specified",
+                "fields": [
+                    "sepa_code"
+                ],
+                "pattern": "\/^$\/",
+                "actions": [
+                    {
+                        "action": "copy",
+                        "from": "default_cancel_reason",
+                        "to": "sepa_code"
+                    }
+                ]
+            },
+            {
+                "comment": "CANCEL-REASON: Copy cancel_reason",
+                "fields": [
+                    "sepa_code"
+                ],
+                "pattern": "\/[0-9A-Z]+$\/",
+                "actions": [
+                    {
+                        "action": "copy",
+                        "from": "sepa_code",
+                        "to": "cancel_reason"
+                    }
+                ]
+            },
+            {
+                "comment": "DECEASED: detect deceased contact",
+                "fields": [
+                    "cancel_reason"
+                ],
+                "pattern": "\/MD07$\/",
+                "actions": [
+                    {
+                        "action": "copy",
+                        "from": "membership_id",
+                        "to": "deceased_membership_id"
+                    }
+                ]
+            },
+            {
+                "comment": "DECEASED: Find all active memberships",
+                "fields": [
+                    "deceased_membership_id"
+                ],
+                "pattern": "\/[0-9]+$\/",
+                "actions": [
+                    {
+                        "comment": "Load contact_id",
+                        "action": "api:Membership:get:contact_id",
+                        "param_id": "deceased_membership_id",
+                        "to": "membership_contact_id"
+                    },
+                    {
+                        "comment": "Load all active membership IDs",
+                        "action": "api:Membership:get:id:multiple",
+                        "param_contact_id": "membership_contact_id",
+                        "jsonconst_status_id": "{\"IN\":[1,2,3,5,8]}",
+                        "to": "deceased_membership_ids"
+                    }
+                ]
+            }
+        ]
+    },
+    "state": {}
+}

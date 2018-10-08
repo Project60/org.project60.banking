@@ -1,0 +1,76 @@
+{
+    "plugin_type_name": "import",
+    "plugin_class_name": "importer_csv",
+    "name": "PayPal CSV",
+    "description": "Importiert PayPal CSV Exports",
+    "weight": "1000",
+    "config": {
+        "delimiter": ",",
+        "encoding": "UTF8",
+        "header": 1,
+        "_sentinel": "#^Date, Time, Time Zone, Name, Type, Status, Subject, Currency, Gross, Fee, Net, From Email Address, To Email Address, Transaction ID, Delivery Address, Reference Txn ID, Receipt ID, Balance#m",
+        "title": "PayPal {starting_date}--{ending_date} [{md5}]",
+        "defaults": {
+            "_NBAN_PP": "paypal@myaccount.com",
+            "payment_instrument_id": "12"
+        },
+        "rules": [
+            {
+                "from": "Datum",
+                "to": "booking_date",
+                "type": "strtotime:d.m.Y"
+            },
+            {
+                "from": "Datum",
+                "to": "value_date",
+                "type": "strtotime:d.m.Y"
+            },
+            {
+                "from": "Name",
+                "to": "name",
+                "type": "set"
+            },
+            {
+                "from": "Beschreibung",
+                "to": "purpose",
+                "type": "set"
+            },
+            {
+                "from": "Absender E-Mail-Adresse",
+                "to": "_party_NBAN_PP",
+                "type": "set"
+            },
+            {
+                "from": "Absender E-Mail-Adresse",
+                "to": "email",
+                "type": "set"
+            },
+            {
+                "from": "Transaktionscode",
+                "to": "paypal_transaction_id",
+                "type": "set"
+            },
+            {
+                "from": "W\u00e4hrung",
+                "to": "currency",
+                "type": "set"
+            },
+            {
+                "from": "Brutto",
+                "to": "amount",
+                "type": "amount"
+            },
+            {
+                "from": "Geb\u00fchr",
+                "to": "fee_raw",
+                "type": "trim:-"
+            },
+            {
+                "from": "fee_raw",
+                "to": "fee",
+                "type": "amount"
+            }
+        ]
+    },
+    "state": {}
+}

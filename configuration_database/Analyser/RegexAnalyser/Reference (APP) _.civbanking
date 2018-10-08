@@ -1,0 +1,52 @@
+{
+    "plugin_type_name": "match",
+    "plugin_class_name": "analyser_regex",
+    "name": " Reference (APP) \t",
+    "description": "Analyses SPENDENAPP codes",
+    "weight": "60",
+    "config": {
+        "comment": "Analyses SPENDENAPP codes",
+        "log_level": "debug",
+        "rules": [
+            {
+                "comment": "SPENDENAPP CODES",
+                "fields": [
+                    "reference"
+                ],
+                "pattern": "\/^SPENDENAPP(?P<campaign_reference>[0-9]{4})[A-Z]+$\/",
+                "actions": [
+                    {
+                        "comment": "IDENTIFY CAMPAIGN",
+                        "from": "campaign_reference",
+                        "action": "sprint:AKTION-%s",
+                        "to": "campaign_external_identifier"
+                    },
+                    {
+                        "action": "lookup:Campaign,id,external_identifier",
+                        "sql": true,
+                        "from": "campaign_external_identifier",
+                        "to": "campaign_id"
+                    },
+                    {
+                        "comment": "REFERENCE FINANCIAL TYPE IS DONATION",
+                        "action": "set",
+                        "to": "financial_type_id",
+                        "value": "1"
+                    },
+                    {
+                        "comment": "REFERENCE PAYMENT INSTRUMENT IS EFT",
+                        "action": "set",
+                        "to": "payment_instrument_id",
+                        "value": "5"
+                    },
+                    {
+                        "action": "set",
+                        "to": "identified_by",
+                        "value": "SPENDENAPP reference"
+                    }
+                ]
+            }
+        ]
+    },
+    "state": {}
+}

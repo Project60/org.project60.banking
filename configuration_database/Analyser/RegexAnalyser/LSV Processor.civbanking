@@ -1,0 +1,31 @@
+{
+    "plugin_type_name": "match",
+    "plugin_class_name": "analyser_regex",
+    "name": "LSV Processor",
+    "description": "Analysiert LSV+ (V11) Referenzen",
+    "weight": "10",
+    "config": {
+        "rules": [
+            {
+                "comment": "LSV+ (V11) ESR references",
+                "fields": [
+                    "lsv_reference"
+                ],
+                "pattern": "#^(?P<lsv_id>[0-9]{6})0850(?P<contribution_id>0[0-9]{9})(?P<creditor_id>0[0-9]{5})(?P<checksum>[0-9])$#",
+                "actions": [
+                    {
+                        "action": "copy_ltrim_zeros",
+                        "from": "creditor_id",
+                        "to": "creditor_id"
+                    },
+                    {
+                        "action": "copy_ltrim_zeros",
+                        "from": "contribution_id",
+                        "to": "contribution_id"
+                    }
+                ]
+            }
+        ]
+    },
+    "state": {}
+}

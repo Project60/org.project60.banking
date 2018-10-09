@@ -42,16 +42,18 @@ tr.banking-plugin-disabled {
 {* NORMAL PAGE *}
 <div id="help">
 	{capture assign=upload_link}{crmURL p="civicrm/banking/pluginupload" q="reset=1"}{/capture}
+	{capture assign=settings_link}{crmURL p="civicrm/admin/setting/banking" q="reset=1"}{/capture}
 	{capture assign=example_link}https://github.com/Project60/org.project60.banking/tree/master/configuration_database{/capture}
 	{ts domain='org.project60.banking'}The plugins listed on this page define <i>your</i> bank transaction processing workflow. You will need at least one import and one matching plugin to get started.{/ts}
-	{ts domain='org.project60.banking' 1=$example_link 2=$upload_link}You can get started downloading example plugin configurations from our <a href="%1" target="_blank">configuration database</a> (using the 'raw' link), and then upload them with our <a href="%2">IMPORTER</a>.{/ts}
+	{ts domain='org.project60.banking' 1=$example_link 2=$upload_link}You can get started downloading example plugin configurations from our <a href="%1" target="_blank">configuration <strong>DATABASE</strong></a> (using the 'raw' link), and then upload them with our <strong><a href="%2">IMPORTER</a></strong>.{/ts}
+	{ts domain='org.project60.banking' 1=$settings_link}You might also want to have a look at the <a href="%1" target="_blank">CivBanking <strong>SETTINGS</strong></a>{/ts}
 </div>
 <br/>
 
 <h3>{ts domain='org.project60.banking'}Importer Plugins{/ts}</h3>
 <div id="help">
 	{ts domain='org.project60.banking'}Import plugins are used to transport transaction data obtained from banks and accounting software into CiviBanking. They source the information from files as well as from data feeds from external systems. Once imported, the payments will be processed by the matcher plugins.{/ts}
-	<a href="{crmURL p="civicrm/banking/configure" q="reset=1&type=$type_import"}">{ts domain='org.project60.banking'}Add a new one.{/ts}</a>
+	<a href="{crmURL p="civicrm/banking/configure" q="reset=1&type=$type_import"}">{ts domain='org.project60.banking'}<strong>ADD</strong> a new one.{/ts}</a>
 </div>
 <table class="display" id="option11">
 	<thead>
@@ -104,7 +106,7 @@ tr.banking-plugin-disabled {
 <h3>{ts domain='org.project60.banking'}Analyser / Matcher Plugins{/ts}</h3>
 <div id="help">
 	{ts domain='org.project60.banking'}Matcher Plugins are used to match the transactions with the expected financial transactions, such as contributions, membership fees, etc. If no perfect match can be found, they will generate proposals for the user to review and confirm.{/ts}
-	<a href="{crmURL p="civicrm/banking/configure" q="reset=1&type=$type_match"}">{ts domain='org.project60.banking'}Add a new one.{/ts}</a>
+	<a href="{crmURL p="civicrm/banking/configure" q="reset=1&type=$type_match"}">{ts domain='org.project60.banking'}<strong>ADD</strong> a new one.{/ts}</a>
 </div>
 <table class="display" id="option11">
 	<thead>
@@ -157,7 +159,7 @@ tr.banking-plugin-disabled {
 <h3>{ts domain='org.project60.banking'}Postprocessors{/ts}</h3>
 <div id="help">
 	{ts domain='org.project60.banking'}Postprocessors are plugins that perform certain extra tasks once the correct contact, contribution, or other entity has been identified.{/ts}
-	<a href="{crmURL p="civicrm/banking/configure" q="reset=1&type=$type_postprocess"}">{ts domain='org.project60.banking'}Add a new one.{/ts}</a>
+	<a href="{crmURL p="civicrm/banking/configure" q="reset=1&type=$type_postprocess"}">{ts domain='org.project60.banking'}<strong>ADD</strong> a new one.{/ts}</a>
 </div>
 <table class="display" id="option11">
 	<thead>
@@ -210,7 +212,7 @@ tr.banking-plugin-disabled {
 <h3>{ts domain='org.project60.banking'}Exporter Plugins{/ts}</h3>
 <div id="help">
 	{ts domain='org.project60.banking'}Export plugins are used to save the processed transaction data along with their matching financial transactions into files or accounting systems.{/ts}
-	<a href="{crmURL p="civicrm/banking/configure" q="reset=1&type=$type_export"}">{ts domain='org.project60.banking'}Add a new one.{/ts}</a>
+	<a href="{crmURL p="civicrm/banking/configure" q="reset=1&type=$type_export"}">{ts domain='org.project60.banking'}<strong>ADD</strong> a new one.{/ts}</a>
 </div>
 <table class="display" id="option11">
 	<thead>

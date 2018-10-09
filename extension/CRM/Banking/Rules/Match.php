@@ -51,6 +51,10 @@ class CRM_Banking_Rules_Match {
         'btx_tx_purpose'   => CRM_Utils_Array::value('purpose',     $data_parsed, ''),
       ];
 
+    // truncate key fields to DB lengths
+    CRM_Banking_Rules_Rule::truncateKeyData($params, 'btx_');
+
+
     $sql = CRM_Utils_SQL_Select::from('civicrm_bank_rules');
     if ($rule_id === NULL) {
       // Normally we're matching all enabled rules.

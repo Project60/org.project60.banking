@@ -113,19 +113,8 @@ class CRM_Banking_Rules_Rule {
       $params['created_by'] = CRM_Core_Session::singleton()->getLoggedInContactID();
     };
 
-    // sanitise raw data
-    $length_restrictions = array(
-        'party_ba_ref' => 64,
-        'ba_ref'       => 64,
-        'party_name'   => 128,
-        'tx_reference' => 128,
-        'tx_purpose'   => 512);
-    foreach ($length_restrictions as $field_name => $max_length) {
-      if (isset($params[$field_name]) && (strlen($params[$field_name]) > $max_length)) {
-        $params[$field_name] = substr($params[$field_name], 0, $max_length);
-        CRM_Core_Error::debug_log_message("Field '{$field_name}' was too long and had to be truncated.");
-      }
-    }
+    // truncate key fields to DB lengths
+    self::truncateKeyData($params);
 
     // finally, create
     $obj = new static();
@@ -651,6 +640,27 @@ class CRM_Banking_Rules_Rule {
     }
     else {
       return CRM_Core_DAO::singleValueQuery($sql, $params);
+    }
+  }
+
+  /**
+   * Truncate those fields that are restricted in the DB:
+   * @param $params array  parameters, will be truncated inline
+   * @param $prefix string set, if there is a prefix to the
+   */
+  public static function truncateKeyData(&$params, $prefix = '') {
+    $length_restrictions = array(
+        'party_ba_ref' => 64,
+        'ba_ref'       => 64,
+        'party_name'   => 128,
+        'tx_reference' => 128,
+        'tx_purpose'   => 255);
+    foreach ($length_restrictions as $raw_field_name => $max_length) {
+      $field_name = $prefix . $raw_field_name;
+      if (isset($params[$field_name]) && (strlen($params[$field_name]) > $max_length)) {
+        $params[$field_name] = substr($params[$field_name], 0, $max_length);
+        CRM_Core_Error::debug_log_message("Field '{$field_name}' was too long and had to be truncated.");
+      }
     }
   }
 }

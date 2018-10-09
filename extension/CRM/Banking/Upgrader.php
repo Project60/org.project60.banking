@@ -138,7 +138,7 @@ class CRM_Banking_Upgrader extends CRM_Banking_Upgrader_Base {
     }
 
     // adjust table
-    CRM_Core_DAO::executeQuery("ALTER TABLE `civicrm_bank_rules` CHANGE `tx_purpose` `tx_purpose` VARCHAR(512);");
+    CRM_Core_DAO::executeQuery("ALTER TABLE `civicrm_bank_rules` CHANGE `tx_purpose` `tx_purpose` VARCHAR(255);");
 
     return true;
   }

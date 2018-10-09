@@ -1,7 +1,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: \n"
-"POT-Creation-Date: 2018-10-06 21:34+0100\n"
+"POT-Creation-Date: 2018-10-09 14:48+0100\n"
 "PO-Revision-Date: \n"
 "Last-Translator: Bjoern Endres <Bjoern.Endres@didonai.com>\n"
 "Language-Team: \n"
@@ -950,18 +950,6 @@ msgstr "Zuwendungsstatus wurde geändert."
 msgid "Couldn't modify contribution."
 msgstr "Konnte Zuwendung nicht bearbeiten"
 
-#: extension/CRM/Banking/PluginImpl/Matcher/Generic.php
-msgid "the transaction amount is in the range [ "
-msgstr "Die Summe der Transaktion liegt zwischen ["
-
-#: extension/CRM/Banking/PluginImpl/Matcher/Generic.php
-msgid "the transaction value date is in the range [ "
-msgstr "Das Transaktionsdatum ist zwischen ["
-
-#: extension/CRM/Banking/PluginImpl/Matcher/Generic.php
-msgid "the transaction purpose matches the expression \"%s\""
-msgstr "Der Verwendungszweck stimmt überein mit: \"%s\""
-
 #: extension/CRM/Banking/PluginImpl/Matcher/Ignore.php
 #: extension/CRM/Banking/PluginModel/Matcher.php
 msgid "Because :"
@@ -1795,12 +1783,22 @@ msgstr ""
 #: extension/templates/CRM/Banking/Page/Manager.tpl
 msgid ""
 "You can get started downloading example plugin configurations from our <a "
-"href=\"%1\" target=\"_blank\">configuration database</a> (using the 'raw' "
-"link), and then upload them with our <a href=\"%2\">IMPORTER</a>."
+"href=\"%1\" target=\"_blank\">configuration <strong>DATABASE</strong></a> "
+"(using the 'raw' link), and then upload them with our <strong><a href="
+"\"%2\">IMPORTER</a></strong>."
 msgstr ""
-"Es können weitere Plugins von der <a href=\"%1\" target=\"_blank"
-"\">Beispielkonfigurationen</a> (mit dem 'raw' Link) heruntergeladen werden, "
-"und dann mit dem <a href=\"%2\">IMPORTER</a> importiert werden."
+"Es können weitere Beispielkonfigurationen aus unserer <a href=\"%1\" target="
+"\"_blank\">Konfigurations-<strong>DATENBANK</strong></a> über den 'raw' Link "
+"heruntergeladen, und mit dem unserem <strong><a href=\"%2\">IMPORTER</a></"
+"strong> eingespielt werden."
+
+#: extension/templates/CRM/Banking/Page/Manager.tpl
+msgid ""
+"You might also want to have a look at the <a href=\"%1\" target=\"_blank"
+"\">CivBanking <strong>SETTINGS</strong></a>"
+msgstr ""
+"Unter Umständen lohnt sich auch ein Blick in die <a href=\"%1\" target="
+"\"_blank\">CivBanking <strong>EINSTELLUNGEN</strong></a>"
 
 #: extension/templates/CRM/Banking/Page/Manager.tpl
 msgid "Importer Plugins"
@@ -1819,8 +1817,8 @@ msgstr ""
 "Schritt im System verbucht werden."
 
 #: extension/templates/CRM/Banking/Page/Manager.tpl
-msgid "Add a new one."
-msgstr "Hinzufügen"
+msgid "<strong>ADD</strong> a new one."
+msgstr "<strong>NEUE</strong> Konfiguration hinzufügen."
 
 #: extension/templates/CRM/Banking/Page/Manager.tpl
 msgid "Plugin"
@@ -2347,6 +2345,10 @@ msgstr ""
 "aufgeführten Zuwendungen werden <strong>storniert</strong>."
 
 #: extension/templates/CRM/Banking/PluginImpl/Matcher/DefaultOptions.suggestion.tpl
+msgid "DROP ANY CONTRIBUTION LINK IN HERE TO RECONCILE"
+msgstr ""
+
+#: extension/templates/CRM/Banking/PluginImpl/Matcher/DefaultOptions.suggestion.tpl
 msgid "unknown address"
 msgstr "Adresse unbekannt"
 
@@ -2765,6 +2767,27 @@ msgid ""
 "The contact name  should be divided in two parts, the first name and last "
 "name."
 msgstr "Der Kontaktname sollte in Vor- und Nachname unterteilt sein."
+
+#~ msgid "the transaction amount is in the range [ "
+#~ msgstr "Die Summe der Transaktion liegt zwischen ["
+
+#~ msgid "the transaction value date is in the range [ "
+#~ msgstr "Das Transaktionsdatum ist zwischen ["
+
+#~ msgid "the transaction purpose matches the expression \"%s\""
+#~ msgstr "Der Verwendungszweck stimmt überein mit: \"%s\""
+
+#~ msgid ""
+#~ "You can get started downloading example plugin configurations from our <a "
+#~ "href=\"%1\" target=\"_blank\">configuration database</a> (using the 'raw' "
+#~ "link), and then upload them with our <a href=\"%2\">IMPORTER</a>."
+#~ msgstr ""
+#~ "Es können weitere Plugins von der <a href=\"%1\" target=\"_blank"
+#~ "\">Beispielkonfigurationen</a> (mit dem 'raw' Link) heruntergeladen "
+#~ "werden, und dann mit dem <a href=\"%2\">IMPORTER</a> importiert werden."
+
+#~ msgid "Add a new one."
+#~ msgstr "Hinzufügen"
 
 #~ msgid "Couldn't find group '%s'!"
 #~ msgstr "Gruppe nicht gefunden '%s'!"

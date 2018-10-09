@@ -161,7 +161,7 @@ class CRM_Banking_Page_Manager extends CRM_Core_Page {
       $plugin_bao->get('id', $plugin_id);
       $exported_data = $plugin_bao->serialise();
       CRM_Utils_System::download(
-          $plugin_bao->name . '.civbanking',
+          $plugin_bao->name . '.civibanking',
           'application/json',
           $exported_data);
     }

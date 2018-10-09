@@ -120,7 +120,7 @@ class CRM_Banking_Upgrader extends CRM_Banking_Upgrader_Base {
       // install all default files from the default/configuration folder
       $base_folder = E::path('default/configuration');
       foreach (scandir($base_folder) as $config_file) {
-        if (preg_match("#.civbanking$#", $config_file)) {
+        if (preg_match("#.civibanking$#", $config_file)) {
           $data = file_get_contents($base_folder . DIRECTORY_SEPARATOR . $config_file);
           $plugin_bao = new CRM_Banking_BAO_PluginInstance();
           $plugin_bao->updateWithSerialisedData($data);

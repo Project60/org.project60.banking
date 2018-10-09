@@ -53,6 +53,7 @@ If you select this option you will see the CiviBanking Settings:
 For this documentation section we assume you have accepted all the defaults in the CiviBanking Settings! There will be more detail about the CiviBanking settings in the [How to Guide](how-to.md).
 
 ##Importing
+
 As explained, **importing** is about translating the data provided by the payment processor (bank files, csv files etc.) into the CiviBanking speak.
 
 There can be many files containing payments that you would like to have processed like:
@@ -63,27 +64,28 @@ There can be many files containing payments that you would like to have processe
 * SMS payments that you can get from your SMS provider
 * etc. etc.
 
-In this section we will discuss how to configure CiviBanking for two types of files:
+You will need to configure so called Importer Plugins in CiviBanking for each type of file you want to import. In this section we will discuss how to do this for:
 
 * the payments transactions you get from the bank in CAMT53 format (a format used by a lot of Western European Banks)
-* a payments file in CSV format.
+* an SMS payments file in CSV format.
+
+An _importer plugin_ can be installed or imported from **Banking>Configuration Manager**. The first time you access the Configuration Manager you will probably get a form like this:
+
+Alternatively, if I have a configuration (including importers, matchers and so on) for CiviBanking from another CiviCRM installation, I can use the **IMPORTER** link to select an exported configuration file and import that into my new CiviBanking installation.
+For this section we will assume you are going to create a new one, so I have clicked on the **add a new one** link.
+
+![Screenshot](/img/config_manager_empty.png)
+
+In this case we are interested in adding a _plugin_ to import, so the top part. As you can see there are no plugins configured just yet, so I will click the **Add a new one** link in the **Import plugins** section of the form. In the specific sections for the importers you will see examples of how this is continued.
+    
+### CAMT53 file
 
 !!! warning
     Unfortunately different banks have slightly different formats which makes it complicated to give one example of a configuration that will work. In my example installation using the standard CAMT053 format works, but if I try to process a file from some specific banks it does not work.
     
     If you get a CAMT053 file from your bank and you find it that you can not process (you get an error _File rejected by importer!_) the best option is to contact an expert that can help you in adapting the importer for the specific format of your bank!
-    
-### CAMT53 file
-Each importer is a so called _plugin_ and can be installed or imported from **Banking>Configuration Manager**. The first time you access the Configuration Manager you will probably get a form like this:
 
-![Screenshot](/img/config_manager_empty.png)
-
-In this case we are interested in adding a _plugin_ to import, so the top part. As you can see there are no plugins configured just yet, so I will click the **Add a new one** link in the **Import plugins** section of the form.
-
-Alternatively, if I have a configuration (including importers, matchers and so on) for CiviBanking from another CiviCRM installation, I can use the **IMPORTER** link to select an exported configuration file and import that into my new CiviBanking installation.
-For this section we will assume you are going to create a new one, so I have clicked on the **add a new one** link.
-
-In the next form I enter a _name_ for the plugin, I select the **Import Plugin** as the _class_. As CAMT53 is a type of XML file I select **Configurable XML importer** as _Implementation_. And I enter a few sentences describing what the imported does at _description_. The result will be in the top half of the Configuration Manager Add Plugin screen and will look something like this screenshot:
+As mentioned above I have clicked the **add a new one** link in the **Banking>Configuration Manager** page. In the next form I enter a _name_ for the plugin, I select the **Import Plugin** as the _class_. As CAMT53 is a type of XML file I select **Configurable XML importer** as _Implementation_. And I enter a few sentences describing what the imported does at _description_. The result will be in the top half of the Configuration Manager Add Plugin screen and will look something like this screenshot:
 
 ![Screenshot](/img/camt53_plugin_top.png)
 
@@ -375,16 +377,7 @@ I then click on **Browse** (or _Bladeren_ in my Dutch installation) to select th
 
 ### CSV format
 
-Each importer is a so called _plugin_ and can be installed or imported from **Banking>Configuration Manager**. The first time you access the Configuration Manager you will probably get a form like this:
-
-![Screenshot](/img/config_manager_empty.png)
-
-In this case we are interested in adding a _plugin_ to import, so the top part. As you can see there are no plugins configured just yet, so I will click the **Add a new one** link in the **Import plugins** section of the form.
-
-Alternatively, if I have a configuration (including importers, matchers and so on) for CiviBanking from another CiviCRM installation, I can use the **IMPORTER** link to select an exported configuration file and import that into my new CiviBanking installation.
-For this section we will assume you are going to create a new one, so I have clicked on the **add a new one** link.
-
-In the next form I enter a _name_ for the plugin, I select the **Import Plugin** as the _class_. The example importer I am going to show is meant to import SMS payments from a CSV file so I select **Configurable CSV importer** as _Implementation_. And I enter a few sentences describing what the imported does at _description_. The result will be in the top half of the Configuration Manager Add Plugin screen and will look something like this screenshot:
+As mentioned above I have clicked the **add a new one** link in the **Banking>Configuration Manager** page. In the next form I enter a _name_ for the plugin, I select the **Import Plugin** as the _class_. The example importer I am going to show is meant to import SMS payments from a CSV file so I select **Configurable CSV importer** as _Implementation_. And I enter a few sentences describing what the imported does at _description_. The result will be in the top half of the Configuration Manager Add Plugin screen and will look something like this screenshot:
 
 ![Screenshot](/img/csv_plugin_top.png)
 
@@ -460,3 +453,44 @@ I then click on **Browse** (or _Bladeren_ in my Dutch installation) to select th
 
 !!! note
     If you need to use other formats you can check the [How To Guide](how-to.md) which will probably give you enough information for your next step.
+    
+## Analyzing (and Matching)
+
+The process of analyzing tries to interpret and enrich the imported data to be able to do suggestion what should be done in the data. 
+
+Quite an abstract description, but if I make it a little more pragmatic: analyzing could be checking if there is a IBAN (International Bank Account Number) in the data and if so, use that to match it with a contact in CiviRM that has that IBAN registered.
+
+To be able to do that you will need to configure _Analyser_ and _Matcher Plugins_. These are configurable parts that tell CiviBanking how to analyse part of the data, or how to match the transaction. It could also tell CiviBanking to ignore certain transactions etc.
+All these kind of plugins will have the **plugin class** Matcher and different **Implementations** doing things like analysing, matching or ignoring.
+
+A configuration of CiviBanking will have some of these by default, but during the implementation process you will probably need to configure a few more. 
+
+In the subsections below I will explain what the different **implementations** are and mean, and give you some examples of some of the implementations. This should give you a first idea of what is required. If you want to know more about creating your own plugins of the **Matcher** class, check the section [How to create a matcher](create-matcher.md).
+
+### Implementation Types
+
+* Default Options Matcher Plugin - this plugin will be installed by default and provide the default suggestions _process manually_ or _ignore in CiviCRM_
+* General Matcher Plugin 
+* Create Contribution Matcher Plugin - a plugin that will create a contribution based on specific matches
+* Contribution Matcher - a plugin that will try to find a pending contribution matching the payment and set it to completed
+* Recurring Contribution Matcher Plugin - a plugin that will try to find a recurring contribution for the payment and create an installment (a linked completed contribution)
+* SEPA Matcher - a plugin that will try to find a SEPA mandate and record the payment as installment (find a pending contribution and set it to completed)
+* Membership Matcher Plugin
+* Ignore Matcher
+* Batch Matcher
+* RegEx Analyser
+* Account Lookup Analyser
+* Dummy Matcher Test Plugin - is there for testing purposes, not really usable in real life
+
+### Regex Analyser Plugin example
+For example, an _Analyser Plugin_ might check in the imported data if the field **name** contains something like _MOLLIE_ or _mollie_, the financial type should be set to a certain value. 
+
+The _analyser plugin_ will have configuration details to specify the _regular expression_ to look for (more information on Regular Expressions [here](https://en.wikipedia.org/wiki/Regular_expression)) and how to enrich the transaction data with the correct financial type.
+
+### Contribution Matcher Plugin example
+
+### SEPA Matcher Plugin example
+
+### Membership Matcher Plugin
+
+### Ignore Plugin example 

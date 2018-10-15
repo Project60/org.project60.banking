@@ -469,28 +469,31 @@ In the subsections below I will explain what the different **implementations** a
 
 ### Implementation Types
 
-* Default Options Matcher Plugin - this plugin will be installed by default and provide the default suggestions _process manually_ or _ignore in CiviCRM_
-* General Matcher Plugin 
-* Create Contribution Matcher Plugin - a plugin that will create a contribution based on specific matches
-* Contribution Matcher - a plugin that will try to find a pending contribution matching the payment and set it to completed
-* Recurring Contribution Matcher Plugin - a plugin that will try to find a recurring contribution for the payment and create an installment (a linked completed contribution)
-* SEPA Matcher - a plugin that will try to find a SEPA mandate and record the payment as installment (find a pending contribution and set it to completed)
-* Membership Matcher Plugin
-* Ignore Matcher
-* Batch Matcher
-* RegEx Analyser
-* Account Lookup Analyser
-* Dummy Matcher Test Plugin - is there for testing purposes, not really usable in real life
+Here is a comprehensive list of the different implementation types of Matcher/Analyser Plugins with a short sentence on what they can do. In the subsections you will see some examples of the ones that are most commonly used.
 
-### Regex Analyser Plugin example
+* **Default Options Matcher Plugin** - this plugin will be installed by default and provide the default suggestions _process manually_ or _ignore in CiviCRM_
+* **Create Contribution Matcher Plugin** - a plugin that will create a contribution based on specific matches
+* **Contribution Matcher** - a plugin that will try to find a pending contribution matching the payment and set it to completed
+* **Recurring Contribution Matcher Plugin** - a plugin that will try to find a recurring contribution for the payment and create an installment (a linked completed contribution)
+* **SEPA Matcher** - a plugin that will try to find a SEPA mandate and record the payment as installment (find a pending contribution and set it to completed)
+* **Membership Matcher Plugin** - a plugin that will try to find a membership and record the payment as a membership payment for this membership
+* **Ignore Matcher** - a matcher that will ignore payments that match the criteria (for payments that do not have to be in CiviCRM)
+* **Batch Matcher** - a matcher that will try to find the financial batch in CiviCRM and (if it is one big payment) distribute it over the entities in the batch. At least, that is the theory, we know of no installation that uses this plugin.
+* **RegEx Analyser** - this plugin will try to find a certain pattern specified in a Regular Expression (check [here](https://en.wikipedia.org/wiki/Regular_expression)) for more about Regular Expressions) and is then able to do something or enrich the data of the transaction
+* **Account Lookup Analyser** - this plugin will be switched on by default and enables a match based on bank account
+* **Dummy Matcher Test Plugin** - is there for testing purposes, not really usable in real life
+
+#### Regex Analyser Plugin example
 For example, an _Analyser Plugin_ might check in the imported data if the field **name** contains something like _MOLLIE_ or _mollie_, the financial type should be set to a certain value. 
 
 The _analyser plugin_ will have configuration details to specify the _regular expression_ to look for (more information on Regular Expressions [here](https://en.wikipedia.org/wiki/Regular_expression)) and how to enrich the transaction data with the correct financial type.
 
-### Contribution Matcher Plugin example
+#### Contribution Matcher Plugin example
 
-### SEPA Matcher Plugin example
+#### Create Contribution Matcher Plugin example
 
-### Membership Matcher Plugin
+#### Recurring Contribution Matcher Plugin
 
-### Ignore Plugin example 
+#### SEPA Matcher Plugin example
+
+#### Ignore Plugin example 

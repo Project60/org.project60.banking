@@ -304,14 +304,14 @@ abstract class CRM_Banking_PluginModel_Importer extends CRM_Banking_PluginModel_
       // keep track of dates
       if (!isset($attribs['starting_date'])) {
         $attribs['starting_date'] = $btx['booking_date'];
-      } else if (strtotime($attribs['ending_date']) > strtotime($btx['booking_date'])) {
+      } else if (strtotime($attribs['starting_date']) > strtotime($btx['booking_date'])) {
         // the new transaction is before the current starting date:
         $attribs['starting_date'] = $btx['booking_date'];
       }
       if (!isset($attribs['ending_date'])) {
         $attribs['ending_date'] = $btx['booking_date'];
       } else if (strtotime($attribs['ending_date']) < strtotime($btx['booking_date'])) {
-        // the new transaction is fater the current ending date:
+        // the new transaction is after the current ending date:
         $attribs['ending_date'] = $btx['booking_date'];
       }
 

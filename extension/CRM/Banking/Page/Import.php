@@ -108,8 +108,13 @@ class CRM_Banking_Page_Import extends CRM_Core_Page {
     }
 
     // URLs
+    $new_ui_enabled = CRM_Core_BAO_Setting::getItem('CiviBanking', 'new_ui');
+    if ($new_ui_enabled) {
+      $this->assign('url_payments', CRM_Utils_System::url('civicrm/banking/statements'));
+    } else {
+      $this->assign('url_payments', CRM_Utils_System::url('civicrm/banking/payments', 'show=statements'));
+    }
     $this->assign('url_action', CRM_Utils_System::url('civicrm/banking/import'));
-    $this->assign('url_payments', CRM_Utils_System::url('civicrm/banking/payments', 'show=statements'));
 
     parent::run();
   }

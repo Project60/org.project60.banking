@@ -1,0 +1,26 @@
+site_name: Civi Banking
+site_description: Civi Banking extension
+repo_url: https://github.com/Project60/org.project60.banking
+theme: material
+
+pages:
+- Introduction: index.md
+- From a user perspective: user-perspective.md
+- Configuration explanation: config-explanation.md
+- Terminology: terminology.md
+- How To Guide: how-to.md
+- Techie - how to create an importer: create-importer.md
+- Techie - how to create a matcher: create-matcher.md
+- Techie - how to create a postprocessor: create-postprocessor.md
+
+markdown_extensions:
+  - attr_list
+  - admonition
+  - def_list
+  - codehilite
+  - toc(permalink=true)
+  - pymdownx.superfences
+  - pymdownx.inlinehilite
+  - pymdownx.tilde
+  - pymdownx.betterem
+  - pymdownx.mark

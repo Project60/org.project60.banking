@@ -264,7 +264,7 @@ function processSelected() {
   var query = {
     'q': 'civicrm/ajax/rest',
     'sequential': 1,
-    '{/literal}{if $show eq statements}s_list{else}list{/if}{literal}': selected_string,
+    '{/literal}{if $show eq 'statements'}s_list{else}list{/if}{literal}': selected_string,
     'use_runner': 50, // TODO: setting?
     'back_url': window.location.href
   };
@@ -335,7 +335,7 @@ function deleteSelected() {
     // call the API to delete the items
     var query = {'q': 'civicrm/ajax/rest', 'sequential': 1};
     // set the list or s_list parameter depending on the page mode
-    query['{/literal}{if $show eq statements}s_list{else}list{/if}{literal}'] = selected_string;
+    query['{/literal}{if $show eq 'statements'}s_list{else}list{/if}{literal}'] = selected_string;
     CRM.api('BankingTransaction', 'deletelist', query,
       {success: function(data) {
           if (!data['is_error']) {

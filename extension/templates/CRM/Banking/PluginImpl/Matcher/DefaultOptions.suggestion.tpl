@@ -105,7 +105,7 @@
         CRM.api3("Contribution", "get", {
             "id": cid,
             "sequential": 1,
-            "return": "financial_type,contact"
+            "return": "contact_id,financial_type,contact,display_name,receive_date,contribution_status,total_amount,currency"
             },
             { success: manual_match_add_data_to_list }
         );
@@ -203,7 +203,7 @@
 
       // add to table, if not already there
       if (!cj("#manual_match_row_cid_" + contribution.id).length) {
-        var view_link = cj("<div/>").html("{/literal}{$view_contribution_link}{literal}").text();
+        let view_link = cj("<div/>").html("{/literal}{$view_contribution_link}{literal}").text();
         view_link = view_link.replace("__contributionid__", contribution.id);
         view_link = view_link.replace("__contactid__", contribution.contact_id);
 

@@ -73,21 +73,21 @@
     <table id="rules-analyser__conditions">
       <thead><tr><th>Include</th><th>Match</th></tr></thead>
       <tbody>
-        <tr>
-          <td><input {if $payment_data_parsed._party_IBAN}checked=""{/if} type="checkbox" id="rules-analyser__party-iban-cb" name="rules-analyser__party-iban-cb" class="rules-analyser__party-iban-cb">
- <label for="rules-analyser__party-iban-cb">{ts domain='org.project60.banking'}Party IBAN{/ts}</label> </td>
+        <tr {if $param_hidden._party_IBAN}style="display: none;"{/if}>
+          <td><input {if $param_checked._party_IBAN}checked=""{/if} type="checkbox" id="rules-analyser__party-iban-cb" name="rules-analyser__party-iban-cb" class="rules-analyser__party-iban-cb">
+            <label for="rules-analyser__party-iban-cb">{ts domain='org.project60.banking'}Party IBAN{/ts}</label> </td>
           <td class="rules-analyser__party-iban-ui"><input name="rules-analyser__party-iban" value="{$payment_data_parsed._party_IBAN}" type="text"> </td>
         </tr>
 
-        <tr>
-          <td><input {if $payment_data_parsed._IBAN}checked=""{/if} type="checkbox" id="rules-analyser__our-iban-cb" name="rules-analyser__our-iban-cb" class="rules-analyser__our-iban-cb">
- <label for="rules-analyser__our-iban-cb">{ts domain='org.project60.banking'}Our IBAN{/ts}</label> </td>
+        <tr {if $param_hidden._IBAN}style="display: none;"{/if}>
+          <td><input {if $param_checked._IBAN}checked=""{/if} type="checkbox" id="rules-analyser__our-iban-cb" name="rules-analyser__our-iban-cb" class="rules-analyser__our-iban-cb">
+            <label for="rules-analyser__our-iban-cb">{ts domain='org.project60.banking'}Our IBAN{/ts}</label> </td>
           <td class="rules-analyser__our-iban-ui"><input name="rules-analyser__our-iban"value="{$payment_data_parsed._IBAN}" type="text"> </td>
         </tr>
 
-        <tr>
-          <td><input checked="" type="checkbox" id="rules-analyser__amount-cb" name="rules-analyser__amount-cb" class="rules-analyser__amount-cb">
- <label for="rules-analyser__amount-cb">{ts domain='org.project60.banking'}Amount{/ts}</label> </td>
+        <tr {if $param_hidden.amount}style="display: none;"{/if}>
+          <td><input {if $param_checked.amount}checked=""{/if} type="checkbox" id="rules-analyser__amount-cb" name="rules-analyser__amount-cb" class="rules-analyser__amount-cb">
+            <label for="rules-analyser__amount-cb">{ts domain='org.project60.banking'}Amount{/ts}</label> </td>
           <td class="rules-analyser__amount-ui">
             <select class="rules-analyser__amount-op" name="rules-analyser__amount-op" >
               <option value="equals">Exactly</option>
@@ -101,22 +101,22 @@
           </td>
         </tr>
 
-        <tr>
-          <td><input {if $payment_data_parsed.name}checked=""{/if} type="checkbox" id="rules-analyser__party-name-cb" name="rules-analyser__party-name-cb" class="rules-analyser__party-name-cb">
- <label for="rules-analyser__party-name-cb">{ts domain='org.project60.banking'}Party Name{/ts}</label> </td>
+        <tr {if $param_hidden.name}style="display: none;"{/if}>
+          <td><input {if $param_checked.name}checked=""{/if} type="checkbox" id="rules-analyser__party-name-cb" name="rules-analyser__party-name-cb" class="rules-analyser__party-name-cb">
+            <label for="rules-analyser__party-name-cb">{ts domain='org.project60.banking'}Party Name{/ts}</label> </td>
           <td class="rules-analyser__party-name-ui"><input name="rules-analyser__party-name" value="{$payment_data_parsed.name}" type="text"> </td>
         </tr>
 
 
-        <tr>
-          <td><input {if $payment_data_parsed.reference}checked=""{/if} type="checkbox" id="rules-analyser__tx-reference-cb" name="rules-analyser__tx-reference-cb" class="rules-analyser__tx-reference-cb">
- <label for="rules-analyser__tx-reference-cb">{ts domain='org.project60.banking'}Transaction Reference{/ts}</label> </td>
+        <tr {if $param_hidden.reference}style="display: none;"{/if}>
+          <td><input {if $param_checked.reference}checked=""{/if} type="checkbox" id="rules-analyser__tx-reference-cb" name="rules-analyser__tx-reference-cb" class="rules-analyser__tx-reference-cb">
+            <label for="rules-analyser__tx-reference-cb">{ts domain='org.project60.banking'}Transaction Reference{/ts}</label> </td>
           <td class="rules-analyser__tx-reference-ui"><input name="rules-analyser__tx-reference" value="{$payment_data_parsed.reference}" type="text"> </td>
         </tr>
 
-        <tr>
-          <td><input {if $payment_data_parsed.purpose}checked=""{/if} type="checkbox" id="rules-analyser__tx-purpose-cb" name="rules-analyser__tx-purpose-cb" class="rules-analyser__tx-purpose-cb">
- <label for="rules-analyser__tx-purpose-cb">{ts domain='org.project60.banking'}Transaction Purpose{/ts}</label> </td>
+        <tr {if $param_hidden.purpose}style="display: none;"{/if}>
+          <td><input {if $param_checked.purpose}checked=""{/if} type="checkbox" id="rules-analyser__tx-purpose-cb" name="rules-analyser__tx-purpose-cb" class="rules-analyser__tx-purpose-cb">
+            <label for="rules-analyser__tx-purpose-cb">{ts domain='org.project60.banking'}Transaction Purpose{/ts}</label> </td>
           <td class="rules-analyser__tx-purpose-ui"><input name="rules-analyser__tx-purpose" value="{$payment_data_parsed.purpose}" type="text"> </td>
         </tr>
       </tbody>

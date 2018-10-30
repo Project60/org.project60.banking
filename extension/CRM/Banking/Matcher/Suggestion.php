@@ -188,9 +188,23 @@ class CRM_Banking_Matcher_Suggestion {
      * the new values will be passed here BEFORE execution
      *
      * this will be passed on to the plugin that generated the suggestion
+     *
+     * @return bool TRUE if there was changes (already saved)
      */
     public function update_parameters($parameters) {
-        return $this->_plugin->update_parameters($this, $parameters);
+      // check if there's anything to update
+      if (empty($parameters)) {
+        return FALSE;
+      }
+
+      // only update if transaction still open (see BANKING-232)
+      if (!banking_helper_tx_status_closed($this->_btx->status_id)) {
+        $this->_plugin->update_parameters($this, $parameters);
+        $this->_btx->saveSuggestions();
+        return TRUE;
+      }
+
+      return FALSE;
     }
 
     /**

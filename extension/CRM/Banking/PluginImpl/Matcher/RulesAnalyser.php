@@ -214,6 +214,10 @@ class CRM_Banking_PluginImpl_Matcher_RulesAnalyser extends CRM_Banking_PluginMod
     $smarty_vars['btx_id']        = (int) $btx->id;
     $smarty_vars['matcher_id']    = (int) $this->_plugin_id;
 
+    // read configuration wrt to pre-checked and hidden fields
+    $smarty_vars['param_checked'] = $this->getParamStatus('checked', $btx->getDataParsed());
+    $smarty_vars['param_hidden']  = $this->getParamStatus('hidden',  $btx->getDataParsed());
+
     // Store the contacts found for use later in the visualize_match function.
     $smarty_vars['contact_id_found'] = $match->getParameter('contact_id_found');
 
@@ -343,5 +347,48 @@ class CRM_Banking_PluginImpl_Matcher_RulesAnalyser extends CRM_Banking_PluginMod
     // Create rule.
     $rule = CRM_Banking_Rules_Rule::createRule($row);
     return $rule;
+  }
+
+  /**
+   * Get the 'checked' status for each of the base parameters
+   *  based on the criteria_preset section of the config
+   *
+   * @see https://github.com/Project60/org.project60.banking/issues/233
+   */
+  protected function getParamStatus($mode, $data_parsed) {
+    $status = [];
+    $base_params = ['_party_IBAN', '_IBAN', 'amount', 'name', 'reference', 'purpose'];
+    $settings = isset($this->_plugin_config->criteria_preset) ? $this->_plugin_config->criteria_preset : NULL;
+
+    foreach ($base_params as $parameter) {
+      $preset = isset($settings->$parameter) ? $settings->$parameter : 'AUTO';
+      if ($mode == 'checked') {
+        switch ($preset) {
+          case 'ON':
+            $status[$parameter] = TRUE;
+            break;
+          case 'OFF':
+          case 'HIDDEN':
+            $status[$parameter] = FALSE;
+            break;
+          default:
+          case 'AUTO':
+            $status[$parameter] = !empty($data_parsed[$parameter]);
+            break;
+        }
+      } elseif ($mode == 'hidden') {
+        switch ($preset) {
+          default:
+          case 'AUTO':
+          case 'ON':
+          case 'OFF':
+            $status[$parameter] = FALSE;
+            break;
+          case 'HIDDEN':
+            $status[$parameter] = TRUE;
+        }
+      }
+    }
+    return $status;
   }
 }

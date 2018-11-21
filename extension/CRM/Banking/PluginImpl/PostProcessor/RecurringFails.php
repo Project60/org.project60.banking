@@ -150,6 +150,13 @@ class CRM_Banking_PluginImpl_PostProcessor_RecurringFails extends CRM_Banking_Pl
       }
     }
 
+    if (isset($rule->sequential_failed_collections_at_least)) {
+      if ($mandate_stats['sequential_failed_collections'] < $rule->sequential_failed_collections_at_least) {
+        $this->logMessage("Rule '{$rule->name}' not executed: not enough sequential failed collections.", 'debug');
+        return FALSE;
+      }
+    }
+
     if (isset($rule->sequential_failed_collections_at_most)) {
       if ($mandate_stats['sequential_failed_collections'] > $rule->sequential_failed_collections_at_most) {
         $this->logMessage("Rule '{$rule->name}' not executed: too many sequential failed collections.", 'debug');

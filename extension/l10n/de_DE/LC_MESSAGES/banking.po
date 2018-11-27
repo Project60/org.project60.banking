@@ -2704,7 +2704,7 @@ msgstr ""
 msgid ""
 "Contribution <a href=\"%1\" target=\"_blank\">[%2]</a> will be cancelled."
 msgstr ""
-"Die Zuwendung <a href=\"%1\" target=\"_blank\">[%2]</a> wird geschlossen."
+"Die Zuwendung <a href=\"%1\" target=\"_blank\">[%2]</a> wird storniert."
 
 #: extension/templates/CRM/Banking/PluginImpl/Matcher/SepaMandate.suggestion.tpl
 msgid "The mandate will also be cancelled, its status will change to INVALID."

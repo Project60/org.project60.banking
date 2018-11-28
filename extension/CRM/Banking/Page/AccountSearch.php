@@ -23,11 +23,11 @@ class CRM_Banking_Page_AccountSearch extends CRM_Core_Page {
     // Example: Set the page-title dynamically; alternatively, declare a static title in xml/Menu/*.xml
     CRM_Utils_System::setTitle(E::ts('Find Accounts'));
 
-    if (isset($_REQUEST['reference_partial'])) {
+    if (isset($_REQUEST['reference_partial']) && $_REQUEST['reference_partial'] != '') {
         // this is a search -> do it!
         $query_param = $_REQUEST['reference_partial'];
         if (isset($_REQUEST['full_search'])) {
-            $extended_search = "OR ba.data_parsed LIKE \"%$query_param%\"";
+            $extended_search = "OR ba.data_parsed LIKE \"%{$query_param}%\"";
         } else {
             $extended_search = "";
         }
@@ -48,7 +48,7 @@ class CRM_Banking_Page_AccountSearch extends CRM_Core_Page {
             WHERE 
                     ref.ba_id = ba.id 
                 AND ba.contact_id = contact.id
-                AND (ref.reference LIKE \"%$query_param%\" $extended_search)
+                AND (ref.reference LIKE \"%{$query_param}%\" $extended_search)
             GROUP BY
                 contact.id;
             ";      // add LIMIT 0, 50;
@@ -59,12 +59,12 @@ class CRM_Banking_Page_AccountSearch extends CRM_Core_Page {
         while ($dao->fetch()) {
             array_push($results, 
                 array(
-                    'display_name' => $dao->display_name,
-                    'contact_type' => $dao->contact_type,
-                    'contact_link' => CRM_Utils_System::url('civicrm/contact/view', 'reset=1&cid='.$dao->id),
-                    'reference' => $dao->reference,
+                    'display_name'   => $dao->display_name,
+                    'contact_type'   => $dao->contact_type,
+                    'contact_link'   => CRM_Utils_System::url('civicrm/contact/view', 'reset=1&cid=' . $dao->id),
+                    'reference'      => $dao->reference,
                     'reference_type' => $this->lookup_type($types, $dao->reference_type_id),
-                    'data_parsed' => json_decode($dao->data_parsed),
+                    'data_parsed'    => json_decode($dao->data_parsed, TRUE),
                     ));
         }
         $this->assign('results', $results);

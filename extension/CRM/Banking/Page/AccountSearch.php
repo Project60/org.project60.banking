@@ -68,6 +68,8 @@ class CRM_Banking_Page_AccountSearch extends CRM_Core_Page {
                     ));
         }
         $this->assign('results', $results);
+    } else {
+      $this->assign('results', array());
     }
     parent::run();
   }

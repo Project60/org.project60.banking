@@ -34,9 +34,9 @@
 			</tr>
 			<tr>
 				<td>
-				    <span class="crm-button">
-	      				<input type="submit" value="{ts domain='org.project60.banking'}Search{/ts}" class="validate form-submit default">
-	    			</span>
+					<a class="button" onclick="cj(this).closest('form').submit();" >
+						<span><i class="crm-i fa-search validate form-submit default"></i>&nbsp;{ts domain='org.project60.banking'}Search{/ts}</span>
+					</a>
 	    		</td>
     		</tr>
   		</tbody>

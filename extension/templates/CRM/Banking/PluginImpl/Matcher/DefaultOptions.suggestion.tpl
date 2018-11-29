@@ -105,7 +105,7 @@
         CRM.api3("Contribution", "get", {
             "id": cid,
             "sequential": 1,
-            "return": "contact_id,financial_type,contact,display_name,receive_date,contribution_status,total_amount,currency"
+            "return": "{/literal}{$manual_contribution_get_return_params}{literal}"
             },
             { success: manual_match_add_data_to_list }
         );

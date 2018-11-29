@@ -221,6 +221,13 @@ class CRM_Banking_PluginImpl_Matcher_DefaultOptions extends CRM_Banking_PluginMo
     $smarty_vars['manual_default_financial_type_id']=$this->_plugin_config->manual_default_financial_type_id;
     $smarty_vars['create_propagation'] =             $this->getPropagationSet($btx, $match, 'contribution', $this->_plugin_config->createnew_value_propagation);
 
+    // the behaviour for Contribution.get has changed in a weird way with 4.7
+    if (version_compare(CRM_Utils_System::version(), '4.7', '>=')) {
+      $smarty_vars['manual_contribution_get_return_params'] = "contact,financial_type";
+    } else {
+      $smarty_vars['manual_contribution_get_return_params'] = "contact_id,financial_type,contact,display_name,receive_date,contribution_status,total_amount,currency";
+    }
+
     // assign to smarty and compile HTML
     $smarty = CRM_Banking_Helpers_Smarty::singleton();
     $smarty->pushScope($smarty_vars);

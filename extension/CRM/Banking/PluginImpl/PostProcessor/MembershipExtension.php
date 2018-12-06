@@ -56,8 +56,9 @@ class CRM_Banking_PluginImpl_PostProcessor_MembershipExtension extends CRM_Banki
     if (!isset($config->filter_membership_types))        $config->filter_membership_types        = [];    // membership type IDs, empty means all
 
     // how to extend the membership
-    if (!isset($config->extend_by))                      $config->extend_by                      = 'period';   // could also be strtotime offset like "+1 month"
-    if (!isset($config->extend_from))                    $config->extend_from                    = 'min';      // could also be 'payment_date' or 'end_date'. 'min' means the minimum of the two
+    if (!isset($config->extend_by))                      $config->extend_by                      = 'period';    // could also be strtotime offset like "+1 month"
+    if (!isset($config->extend_from))                    $config->extend_from                    = 'min';       // could also be 'payment_date' or 'end_date'. 'min' means the minimum of the two
+    if (!isset($config->align_end_date))                 $config->align_end_date                 = NULL;   // should the new end date be adjusted to the 'next_last' of the month? Could also be 'last_last'
 
     // create of not found
     if (!isset($config->create_if_not_found))            $config->create_if_not_found            = FALSE;  // do we want to create a membership, if none is found?
@@ -124,7 +125,7 @@ class CRM_Banking_PluginImpl_PostProcessor_MembershipExtension extends CRM_Banki
             $this->logMessage("More than one membership identified for contribution [{$contribution['id']}]. Processing first!", 'debug');
           }
 
-          // extend memberships
+          // extend membership
           $membership = reset($memberships);
           $this->extendMembership($membership, $contribution);
         }
@@ -184,7 +185,64 @@ class CRM_Banking_PluginImpl_PostProcessor_MembershipExtension extends CRM_Banki
    * @param $contribution array contribution data
    */
   protected function extendMembership($membership, $contribution) {
-    
+    $config = $this->_plugin_config;
+
+    // find out from which point it should be extended
+    $end_date     = strtotime($membership['end_date']);
+    $receive_date = strtotime($contribution['receive_date']);
+    $new_end_date = NULL;
+    switch ($config->extend_from) {
+      case 'min':
+        $new_end_date = min($end_date, $receive_date);
+        break;
+
+      case 'end_date':
+        $new_end_date = $end_date;
+        break;
+
+        default:
+      case 'payment_date':
+        $new_end_date = $receive_date;
+        break;
+    }
+
+    // now extend by the date
+    if ($config->extend_by == 'period') {
+      $membership_type = self::getMembershipType($membership['membership_type_id']);
+      $this->logMessage("Extending membership [{$membership['id']}] by {$membership_type['duration_interval']} {$membership_type['duration_unit']}", 'debug');
+      $new_end_date = strtotime("+{$membership_type['duration_interval']} {$membership_type['duration_unit']}", $new_end_date);
+    } else {
+      $this->logMessage("Extending membership [{$membership['id']}] by {$config->extend_by}", 'debug');
+      $new_end_date = strtotime($config->extend_by, $new_end_date);
+    }
+
+    // finally align the result
+    if ($config->align_end_date == 'next_last') {
+      $last_first = strtotime(date('Y-m-01'), $new_end_date);
+      $next_first = strtotime("+1 month", $last_first);
+      $next_last  = strtotime("-1 day", $next_first);
+      $new_end_date = $next_last;
+      $this->logMessage("Aligned new end date to " . date('Y-m-d', $new_end_date), 'debug');
+    } elseif ($config->align_end_date == 'last_last') {
+      $last_first = strtotime(date('Y-m-01'), $new_end_date);
+      $last_last  = strtotime("-1 day", $last_first);
+      $new_end_date = $last_last;
+      $this->logMessage("Aligned new end date to " . date('Y-m-d', $new_end_date), 'debug');
+    }
+
+    // finally: extend the end date
+    try {
+      civicrm_api3('Membership', 'create', [
+          'id'       => $membership['id'],
+          'end_date' => date('Y-m-d', $new_end_date)]);
+
+      // and link
+      if ($config->link_as_payment) {
+        $this->link($contribution['id'], $membership['id']);
+      }
+    } catch (Exception $ex) {
+      $this->logMessage("Unexpected exception extending membership: " . $ex->getMessage(), 'warn');
+    }
   }
 
 
@@ -199,7 +257,7 @@ class CRM_Banking_PluginImpl_PostProcessor_MembershipExtension extends CRM_Banki
     $membership_id   = (int) $membership_id;
     if ($contribution_id && $membership_id) {
       if ($contribution_id && $membership_id)
-        $already_linked = CRM_Core_DAO::singleValueQuery("SELECT id FROM civicrm_membership_payment WHERE contact_id = %1 OR membership_id = %2;", [
+        $already_linked = CRM_Core_DAO::singleValueQuery("SELECT id FROM civicrm_membership_payment WHERE contact_id = %1 OR membership_id = %2 LIMIT 1;", [
             1 => [$contribution_id, 'Integer'],
             2 => [$membership_id,   'Integer']]);
 

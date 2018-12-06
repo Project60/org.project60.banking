@@ -21,166 +21,92 @@ use CRM_Banking_ExtensionUtil as E;
  */
 
 /**
- * Implementation of banking_civicrm_navigationMenu
+ * Implements hook_civicrm_navigationMenu().
  *
- * Insert Banking menu at top level OR submenu of "Contribtion"
+ * @link http://wiki.civicrm.org/confluence/display/CRMDOC/hook_civicrm_navigationMenu
  */
-function banking_civicrm_navigationMenu(&$params) {
+function banking_civicrm_navigationMenu(&$menu) {
+  // check if we want the menu to be built at all
   $menu_position = (int) CRM_Core_BAO_Setting::getItem('CiviBanking', 'menu_position');
-  if ($menu_position == 2) return; // menu is off, see CRM_Admin_Form_Setting_BankingSettings
+  switch ($menu_position) {
+    case 2:
+      // menu is off, see CRM_Admin_Form_Setting_BankingSettings
+      return;
 
-  // First: have a look at the menu
-  $index = 0;
-  $banking_entry_index = -1;
-  $contributions_entry = NULL;
-  $contributions_entry_index = -1;
-  foreach ($params as $key => $top_level_entry) {
-    if ($top_level_entry['attributes']['name'] == 'CiviBanking') {
-      $banking_entry_index = $index;
-    } elseif ($top_level_entry['attributes']['name'] == 'Contributions') {
-      $contributions_entry_index = $index;
-      $contributions_entry = $top_level_entry;
-    }
-    $index++;
+    default:
+    case 0:
+      // top level menu
+      $anchor = NULL;
+      break;
+
+    case 1:
+      // contribution menu
+      $anchor = 'Contributions/';
+      break;
   }
 
-  if ($banking_entry_index >= 0) {
-    // there already is a CiviBanking top level menu => do nothing
-    return;
-  } elseif ($contributions_entry_index >= 0) {
-    // splice it in right after the contributions menu
-    $insert_at = $contributions_entry_index + 1;
-  } else {
-    // no contributions menu => just put it in somewhere...
-    $insert_at = min(4, max(array_keys($params)));  
-  }
-  
   // Determine the url for the statements/payments (new ui or old ui).
   $statementUrl = 'civicrm/banking/statements';
   if (!CRM_Core_BAO_Setting::getItem('CiviBanking', 'new_ui')) {
     $statementUrl = 'civicrm/banking/payments';
   }
 
-  // NOW: Create a new top level menu
-  $max_key_in_menu = banking_civicrm_get_max_nav_id($params);
-  $max_key_in_db   = CRM_Core_DAO::singleValueQuery("SELECT max(id) FROM civicrm_navigation");
-  $nav_id          = max($max_key_in_db, $max_key_in_menu) + 1;
+  _banking_civix_insert_navigation_menu($menu, $anchor, array(
+      'label'      => E::ts('CiviBanking'),
+      'name'       => 'CiviBanking',
+      'icon'       => (version_compare(CRM_Utils_System::version(), '5.6', '>=')) ? 'fa fa-btc' : '',
+      'permission' => 'access CiviContribute',
+      'operator'   => 'OR',
+      'separator'  => 1,
+  ));
 
-  $banking_entry = array(
-      'attributes' => array(
-          'label' => 'Banking',
-          'name' => 'CiviBanking',
-          'url' => null,
-          'permission' => 'access CiviContribute',
-          'operator' => null,
-          'separator' => 0,
-          'parentID' => null,
-          'navID' => $nav_id,
-          'active' => 1
-      ),
-      'child' => array(
-          ($nav_id + 1) => array(
-              'attributes' => array(
-                  'label' => E::ts('Dashboard'),
-                  'name' => 'Dashboard',
-                  'url' => 'civicrm/banking/dashboard',
-                  'permission' => 'access CiviContribute',
-                  'operator' => null,
-                  'separator' => 0,
-                  'parentID' => $nav_id,
-                  'navID' => $nav_id + 1,
-                  'active' => 1
-              ),
-              'child' => null
-          ),
-          ($nav_id + 2) => array(
-              'attributes' => array(
-                  'label' => E::ts('Show Transactions'),
-                  'name' => 'Transactions',
-                  'url' => $statementUrl,
-                  'permission' => 'access CiviContribute',
-                  'operator' => null,
-                  'separator' => 1,
-                  'parentID' => $nav_id,
-                  'navID' => $nav_id + 2,
-                  'active' => 1
-              ),
-              'child' => null
-          ),
-          ($nav_id + 3) => array(
-              'attributes' => array(
-                  'label' => E::ts('Find Accounts'),
-                  'name' => 'Find Accounts',
-                  'url' => 'civicrm/banking/search',
-                  'permission' => 'access CiviContribute',
-                  'operator' => null,
-                  'separator' => 0,
-                  'parentID' => $nav_id,
-                  'navID' => $nav_id + 3,
-                  'active' => 1
-              ),
-              'child' => null
-          ),
-          ($nav_id + 4) => array(
-              'attributes' => array(
-                  'label' => E::ts('Dedupe Accounts'),
-                  'name' => 'Dedupe Accounts',
-                  'url' => 'civicrm/banking/dedupe',
-                  'permission' => 'access CiviContribute',
-                  'operator' => null,
-                  'separator' => 1,
-                  'parentID' => $nav_id,
-                  'navID' => $nav_id + 4,
-                  'active' => 1
-              ),
-              'child' => null
-          ),
-          ($nav_id + 5) => array(
-              'attributes' => array(
-                  'label' => E::ts('Import Transactions'),
-                  'name' => 'Import Transactions',
-                  'url' => 'civicrm/banking/import',
-                  'permission' => 'access CiviContribute',
-                  'operator' => null,
-                  'separator' => 1,
-                  'parentID' => $nav_id,
-                  'navID' => $nav_id + 5,
-                  'active' => 1
-              ),
-              'child' => null
-          ),
-          ($nav_id + 6) => array(
-              'attributes' => array(
-                  'label' => E::ts('Configuration Manager'),
-                  'name' => 'CiviBanking Configuration',
-                  'url' => 'civicrm/banking/manager',
-                  'permission' => 'administer CiviCRM',
-                  'operator' => null,
-                  'separator' => 0,
-                  'parentID' => $nav_id,
-                  'navID' => $nav_id + 6,
-                  'active' => 1
-              ),
-              'child' => null
-          ),
-      )
-  );
+  _banking_civix_insert_navigation_menu($menu, "{$anchor}CiviBanking", array(
+      'label'      => E::ts('Dashboard'),
+      'name'       => 'Dashboard',
+      'url'        => 'civicrm/banking/dashboard',
+      'permission' => 'access CiviContribute',
+  ));
 
-  // ...and insert at the previously determined position
-  if ($menu_position == 0) {
-    // in this case: top level, right after "Contribution"
-    $params = array_merge(array_slice($params, 0, $insert_at), array($banking_entry), array_slice($params, $insert_at));
-  } elseif ($menu_position == 1) {
-    // otherwise: as a submenu of "Contribution"
-    $contributions_entry_id = $contributions_entry['attributes']['navID'];
-    $banking_entry['attributes']['parentID'] = $contributions_entry_id;
-    $banking_entry['attributes']['separator'] = 2;
-    $params[$contributions_entry_id]['child'][] = $banking_entry;
-  } else {
-    // undefined menu position... ignore
-    error_log("org.project60.banking: invalid menu_position $menu_position");
-  }
+  _banking_civix_insert_navigation_menu($menu, "{$anchor}CiviBanking", array(
+      'label'      => E::ts('Show Transactions'),
+      'name'       => 'Transactions',
+      'url'        => $statementUrl,
+      'permission' => 'access CiviContribute',
+  ));
+
+  _banking_civix_insert_navigation_menu($menu, "{$anchor}CiviBanking", array(
+      'label'      => E::ts('Import Transactions'),
+      'name'       => 'Import Transactions',
+      'url'        => 'civicrm/banking/import',
+      'permission' => 'access CiviContribute',
+      'separator'  => 1,
+  ));
+
+  _banking_civix_insert_navigation_menu($menu, "{$anchor}CiviBanking", array(
+      'label'      => E::ts('Find Accounts'),
+      'name'       => 'Find Accounts',
+      'url'        => 'civicrm/banking/search',
+      'permission' => 'access CiviContribute',
+  ));
+
+  _banking_civix_insert_navigation_menu($menu, "{$anchor}CiviBanking", array(
+      'label'      => E::ts('Dedupe Accounts'),
+      'name'       => 'Dedupe Accounts',
+      'url'        => 'civicrm/banking/dedupe',
+      'permission' => 'access CiviContribute',
+      'separator'  => 1,
+  ));
+
+  _banking_civix_insert_navigation_menu($menu, "{$anchor}CiviBanking", array(
+      'label'      => E::ts('Configuration Manager'),
+      'name'       => 'CiviBanking Configuration',
+      'url'        => 'civicrm/banking/manager',
+      'permission' => 'administer CiviCRM',
+  ));
+
+  _banking_civix_navigationMenu($menu);
 }
+
 
 function banking_civicrm_entityTypes(&$entityTypes) {
   // add my DAO's

@@ -22,6 +22,13 @@ use CRM_Banking_ExtensionUtil as E;
  */
 class CRM_Banking_PluginImpl_PostProcessor_MembershipExtension extends CRM_Banking_PluginModel_PostProcessor {
 
+  /** cache for getCurrentStatusIDs */
+  protected static $_current_status_ids = NULL;
+
+  /** cache for getMembershipType */
+  protected static $_membership_types = NULL;
+
+
   /**
    * class constructor
    */
@@ -55,8 +62,11 @@ class CRM_Banking_PluginImpl_PostProcessor_MembershipExtension extends CRM_Banki
     // create of not found
     if (!isset($config->create_if_not_found))            $config->create_if_not_found            = FALSE;  // do we want to create a membership, if none is found?
     if (!isset($config->create_type_id))                 $config->create_type_id                 = 1;      // membership_type_id to create
-    if (!isset($config->create_start_date))              $config->create_start_date              = 'now';  // could also be: 'next_first' or 'last_first'
+    if (!isset($config->create_start_date))              $config->create_start_date              = 'receive_date';  // could also be: 'next_first' or 'last_first'
     if (!isset($config->create_source))                  $config->create_source                  = 'CiviBanking';
+
+    // membership_payment link
+    if (!isset($config->link_as_payment))                $config->link_as_payment                = TRUE;   // link the contribution as a membership_payment
   }
 
   /**
@@ -68,6 +78,7 @@ class CRM_Banking_PluginImpl_PostProcessor_MembershipExtension extends CRM_Banki
    * @param $context  CRM_Banking_Matcher_Context     the matcher context contains cache data and context information
    *
    * @return bool     should the this postprocessor be activated
+   * @throws CiviCRM_API3_Exception
    */
   protected function shouldExecute(CRM_Banking_Matcher_Suggestion $match, CRM_Banking_PluginModel_Matcher $matcher, CRM_Banking_Matcher_Context $context) {
     $contributions = $this->getEligibleContributions($context);
@@ -115,13 +126,93 @@ class CRM_Banking_PluginImpl_PostProcessor_MembershipExtension extends CRM_Banki
 
           // extend memberships
           $membership = reset($memberships);
-          $this->extendMembership($membership);
+          $this->extendMembership($membership, $contribution);
         }
       }
     }
   }
 
 
+  /**
+   * Create a new membership
+   *
+   * @param $contribution array contribution data
+   * @throws CiviCRM_API3_Exception
+   */
+  protected function createMembership($contribution) {
+    $config = $this->_plugin_config;
+
+    $membership_data = [
+        'contact_id'         => $contribution['contact_id'],
+        'membership_type_id' => $config->create_type_id,
+        'source'             => $config->create_source,
+    ];
+
+    // set start date
+    $time_base = strtotime($contribution['receive_date']);
+    switch ($config->create_start_date) {
+      case 'next_first':
+        if (date('j') != 1) {
+          $time_base = strtotime("+1 month", $time_base);
+        }
+        $membership_data['start_date'] = date('Y-m-01', $time_base);
+        break;
+
+      case 'last_first':
+        $membership_data['start_date'] = date('Y-m-01', $time_base);
+        break;
+
+      default:
+      case 'receive_date':
+        $membership_data['start_date'] = date('Y-m-d', $time_base);
+    }
+
+    // create the membership
+    $this->logMessage("Creating membership: " . json_encode($membership_data), 'debug');
+    $membership = civicrm_api3('Membership', 'create', $membership_data);
+
+    // and link
+    if ($config->link_as_payment) {
+      $this->link($contribution['id'], $membership['id']);
+    }
+  }
+
+  /**
+   * Extend an existing membership
+   *
+   * @param $membership   array membership data
+   * @param $contribution array contribution data
+   */
+  protected function extendMembership($membership, $contribution) {
+    
+  }
+
+
+  /**
+   * Link the contribution to the membership, if they're not already linked
+   *
+   * @param $contribution
+   * @param $membership
+   */
+  protected function link($contribution_id, $membership_id) {
+    $contribution_id = (int) $contribution_id;
+    $membership_id   = (int) $membership_id;
+    if ($contribution_id && $membership_id) {
+      if ($contribution_id && $membership_id)
+        $already_linked = CRM_Core_DAO::singleValueQuery("SELECT id FROM civicrm_membership_payment WHERE contact_id = %1 OR membership_id = %2;", [
+            1 => [$contribution_id, 'Integer'],
+            2 => [$membership_id,   'Integer']]);
+
+        if ($already_linked) {
+          $this->logMessage("Membership [{$membership_id}] and/or contribution [{$contribution_id}] already linked.", 'debug');
+        } else {
+          CRM_Core_DAO::executeQuery("INSERT INTO civicrm_membership_payment (contribution_id, membership_id) VALUES (%1, %2);", [
+                1 => [$contribution_id, 'Integer'],
+                2 => [$membership_id,   'Integer']]);
+          $this->logMessage("Contribution [{$contribution_id}] linked to membership [{$membership_id}].", 'debug');
+      }
+    }
+  }
   
   /**
    * Get all memberships eligible for extension
@@ -305,5 +396,52 @@ class CRM_Banking_PluginImpl_PostProcessor_MembershipExtension extends CRM_Banki
     // cache result
     $context->setCachedEntry($cache_key, $contributions);
     return $contributions;
+  }
+
+
+  /**
+   * Get the list of status IDs that are considered 'current members'
+   *
+   * @return array
+   */
+  protected static function getCurrentStatusIDs() {
+    if (self::$_current_status_ids === NULL) {
+      self::$_current_status_ids = [];
+      try {
+        $result = civicrm_api3('MembershipStatus', 'get', [
+            'is_current_member' => 1,
+            'option.limit'      => 0,
+            'return'            => 'id']);
+        foreach ($result['values'] as $status) {
+          self::$_current_status_ids[] = $status['id'];
+        }
+      } catch (Exception $ex) {
+        CRM_Core_Error::debug_log_message("Unexpected error: " . $ex->getMessage());
+      }
+    }
+
+    return self::$_current_status_ids;
+  }
+
+
+  /**
+   * Get the membership type object
+   *
+   * @param $membership_type_id int membership type ID
+   * @return array membership type
+   */
+  protected static function getMembershipType($membership_type_id) {
+    if (self::$_membership_types === NULL) {
+      try {
+        self::$_membership_types = civicrm_api3('MembershipType', 'get', [
+            'option.limit' => 0,
+            'sequential'   => 0
+        ])['values'];
+      } catch (Exception $ex) {
+        CRM_Core_Error::debug_log_message("Unexpected error: " . $ex->getMessage());
+      }
+    }
+
+    return CRM_Utils_Array::value($membership_type_id, self::$_membership_types, NULL);
   }
 }

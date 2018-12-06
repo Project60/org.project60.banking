@@ -154,6 +154,12 @@ function _banking_options() {
                   'description' => 'Processes contribution fails and cancellations for recurring contributions, including CiviSEPA DDs',
                   'is_default' => 0,
               ),
+              'postprocessor_membership_extension' => array(
+                  'label' => 'Membership Extension PostProcessor',
+                  'value' => 'CRM_Banking_PluginImpl_PostProcessor_MembershipExtension',
+                  'description' => 'Will automatically extend memberships if the right contribution is processed',
+                  'is_default' => 0,
+              ),
               'exporter_csv' => array(
                   'label' => 'Configurable CSV Exporter',
                   'value' => 'CRM_Banking_PluginImpl_Exporter_CSV',

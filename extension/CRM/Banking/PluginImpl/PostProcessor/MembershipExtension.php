@@ -54,6 +54,7 @@ class CRM_Banking_PluginImpl_PostProcessor_MembershipExtension extends CRM_Banki
     if (!isset($config->filter_status))                  $config->filter_status                  = FALSE; // list of status_ids
     if (!isset($config->filter_minimum_amount))          $config->filter_minimum_amount          = TRUE;  // could also be monetary amount
     if (!isset($config->filter_membership_types))        $config->filter_membership_types        = [];    // membership type IDs, empty means all
+    if (!isset($config->filter_max_end_date))            $config->filter_max_end_date            = "3 months";  // end date should not be [this time] after the contribution's receive_date
 
     // how to extend the membership
     if (!isset($config->extend_by))                      $config->extend_by                      = 'period';    // could also be strtotime offset like "+1 month"
@@ -209,8 +210,13 @@ class CRM_Banking_PluginImpl_PostProcessor_MembershipExtension extends CRM_Banki
     // now extend by the date
     if ($config->extend_by == 'period') {
       $membership_type = self::getMembershipType($membership['membership_type_id']);
-      $this->logMessage("Extending membership [{$membership['id']}] by {$membership_type['duration_interval']} {$membership_type['duration_unit']}", 'debug');
-      $new_end_date = strtotime("+{$membership_type['duration_interval']} {$membership_type['duration_unit']}", $new_end_date);
+      if ($membership_type['duration_unit'] == 'lifetime') {
+        $this->logMessage("Extending lifetime membership [{$membership['id']}] by 25 years", 'debug');
+        $new_end_date = strtotime("+25 years", $new_end_date);
+      } else {
+        $this->logMessage("Extending membership [{$membership['id']}] by {$membership_type['duration_interval']} {$membership_type['duration_unit']}", 'debug');
+        $new_end_date = strtotime("+{$membership_type['duration_interval']} {$membership_type['duration_unit']}", $new_end_date);
+      }
     } else {
       $this->logMessage("Extending membership [{$membership['id']}] by {$config->extend_by}", 'debug');
       $new_end_date = strtotime($config->extend_by, $new_end_date);
@@ -218,13 +224,13 @@ class CRM_Banking_PluginImpl_PostProcessor_MembershipExtension extends CRM_Banki
 
     // finally align the result
     if ($config->align_end_date == 'next_last') {
-      $last_first = strtotime(date('Y-m-01'), $new_end_date);
+      $last_first = strtotime(date('Y-m-01', $new_end_date));
       $next_first = strtotime("+1 month", $last_first);
       $next_last  = strtotime("-1 day", $next_first);
       $new_end_date = $next_last;
       $this->logMessage("Aligned new end date to " . date('Y-m-d', $new_end_date), 'debug');
     } elseif ($config->align_end_date == 'last_last') {
-      $last_first = strtotime(date('Y-m-01'), $new_end_date);
+      $last_first = strtotime(date('Y-m-01', $new_end_date));
       $last_last  = strtotime("-1 day", $last_first);
       $new_end_date = $last_last;
       $this->logMessage("Aligned new end date to " . date('Y-m-d', $new_end_date), 'debug');
@@ -249,29 +255,27 @@ class CRM_Banking_PluginImpl_PostProcessor_MembershipExtension extends CRM_Banki
   /**
    * Link the contribution to the membership, if they're not already linked
    *
-   * @param $contribution
-   * @param $membership
+   * @param $contribution_id int contribution ID
+   * @param $membership_id   int membership ID
    */
   protected function link($contribution_id, $membership_id) {
     $contribution_id = (int) $contribution_id;
     $membership_id   = (int) $membership_id;
-    if ($contribution_id && $membership_id) {
-      if ($contribution_id && $membership_id)
-        $already_linked = CRM_Core_DAO::singleValueQuery("SELECT id FROM civicrm_membership_payment WHERE contact_id = %1 OR membership_id = %2 LIMIT 1;", [
-            1 => [$contribution_id, 'Integer'],
-            2 => [$membership_id,   'Integer']]);
+    if ($contribution_id && $membership_id)
+      $already_linked = CRM_Core_DAO::singleValueQuery("SELECT id FROM civicrm_membership_payment WHERE contribution_id = %1 OR membership_id = %2 LIMIT 1;", [
+          1 => [$contribution_id, 'Integer'],
+          2 => [$membership_id,   'Integer']]);
 
-        if ($already_linked) {
-          $this->logMessage("Membership [{$membership_id}] and/or contribution [{$contribution_id}] already linked.", 'debug');
-        } else {
-          CRM_Core_DAO::executeQuery("INSERT INTO civicrm_membership_payment (contribution_id, membership_id) VALUES (%1, %2);", [
-                1 => [$contribution_id, 'Integer'],
-                2 => [$membership_id,   'Integer']]);
-          $this->logMessage("Contribution [{$contribution_id}] linked to membership [{$membership_id}].", 'debug');
-      }
+      if ($already_linked) {
+        $this->logMessage("Membership [{$membership_id}] and/or contribution [{$contribution_id}] already linked.", 'debug');
+      } else {
+        CRM_Core_DAO::executeQuery("INSERT INTO civicrm_membership_payment (contribution_id, membership_id) VALUES (%1, %2);", [
+              1 => [$contribution_id, 'Integer'],
+              2 => [$membership_id,   'Integer']]);
+        $this->logMessage("Contribution [{$contribution_id}] linked to membership [{$membership_id}].", 'debug');
     }
   }
-  
+
   /**
    * Get all memberships eligible for extension
    *
@@ -345,6 +349,16 @@ class CRM_Banking_PluginImpl_PostProcessor_MembershipExtension extends CRM_Banki
     if ($config->filter_current) {
       $membership_query['status_id'] = ['IN' => self::getCurrentStatusIDs()];
     }
+
+    if ($this->filter_max_end_date) {
+      if (empty($contribution['receive_date'])) {
+        $this->logMessage("Contribution [{$contribution['id']}] has no receive_date, date filtering disabled.", 'warn');
+      } else {
+        $maximum_date = strtotime($this->filter_max_end_date, strtotime($contribution['receive_date']));
+        $membership_query['end_date'] = ['<=' => date('Y-m-d', $maximum_date)];
+      }
+    }
+
 
     if (!empty($config->filter_status)) {
       if (is_array($config->filter_status)) {
@@ -428,12 +442,6 @@ class CRM_Banking_PluginImpl_PostProcessor_MembershipExtension extends CRM_Banki
     if (!empty($config->payment_instrument_ids && is_array($config->payment_instrument_ids))) {
       $contribution_query['payment_instrument_id'] = array('IN' => $config->payment_instrument_id);
     }
-
-    // add return clause
-    $config->contribution_fields_required[] = 'id';
-    $config->contribution_fields_required[] = 'contribution_recur_id';
-    $config->contribution_fields_required[] = 'payment_instrument_id';
-    $contribution_query['return'] = implode(',', $config->contribution_fields_required);
 
     // query DB
     $this->logMessage("Find eligible contributions: " . json_encode($contribution_query), 'debug');

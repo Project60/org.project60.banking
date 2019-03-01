@@ -60,7 +60,7 @@ class CRM_Banking_Page_Review extends CRM_Core_Page {
       // read the list of BTX statuses
       $choices = banking_helper_optiongroup_id_name_mapping('civicrm_banking.bank_tx_status');
 
-      // If the exercution was triggered, run that first
+      // If the execution was triggered, run that first
       if (isset($_REQUEST['execute'])) {
         $execute_bao = ($_REQUEST['execute']==$pid) ? $btx_bao : NULL;
         $execution_success = $this->execute_suggestion($_REQUEST['execute_suggestion'], $_REQUEST, $execute_bao, $choices);
@@ -89,12 +89,7 @@ class CRM_Banking_Page_Review extends CRM_Core_Page {
 
       if (empty($contact) && !empty($data_parsed['contact_id'])) {
         // convention: the contact was identified with acceptable precision
-        $contact = civicrm_api('Contact','getsingle',array('version'=>3,'id'=>$data_parsed['contact_id']));
-      }
-      if (!empty($contact)) {
-        $this->assign('contact', $contact);
-      } else {
-        $this->assign('contact', NULL);
+        $contact = $this->getContactSafe($data_parsed['contact_id']);
       }
 
       $extra_data = array();
@@ -122,9 +117,9 @@ class CRM_Banking_Page_Review extends CRM_Core_Page {
         $this->assign('party_ba_data_parsed', json_decode($ba_bao->data_parsed, true));
         $this->assign('party_ba_references', $ba_bao->getReferences());
 
-        // deprecated: contact can also be indetified via other means, see below
-        if ($ba_bao->contact_id) {
-          $contact = civicrm_api('Contact','getsingle',array('version'=>3,'id'=>$ba_bao->contact_id));
+        // deprecated: contact can also be identified via other means, see below
+        if ($ba_bao->contact_id && empty($contact)) {
+          $contact = $this->getContactSafe($ba_bao->contact_id);
         }
       } else {
         // there is no party bank account connected this (yet)
@@ -144,6 +139,11 @@ class CRM_Banking_Page_Review extends CRM_Core_Page {
         }
       }
 
+      if (!empty($contact)) {
+        $this->assign('contact', $contact);
+      } else {
+        $this->assign('contact', NULL);
+      }
 
       // check if closed ('processed' or 'ignored')
       if ($choices[$btx_bao->status_id]['name']=='processed' || $choices[$btx_bao->status_id]['name']=='ignored') {
@@ -279,7 +279,23 @@ class CRM_Banking_Page_Review extends CRM_Core_Page {
   }
 
 
-
+  /**
+   * Get the contact data, making sure that it's not deleted
+   *
+   * @param $contact_id integer
+   * @return array|null contact data
+   */
+  protected function getContactSafe($contact_id) {
+    try {
+      return civicrm_api3('Contact','getsingle', [
+          'id'          => $contact_id,
+          'return'      => 'id,display_name',
+          'is_deleted'  => 0,
+          'is_deceased' => 0]);
+    } catch (Exception $ex) {
+      return NULL;
+    }
+  }
 
 
   /**

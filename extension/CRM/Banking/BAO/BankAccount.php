@@ -96,10 +96,13 @@ class CRM_Banking_BAO_BankAccount extends CRM_Banking_DAO_BankAccount {
                 civicrm_option_value.id                  AS reference_type_id, 
                 civicrm_bank_account_reference.reference AS reference,
                 civicrm_bank_account_reference.id        AS reference_id,
-                civicrm_bank_account.contact_id          AS contact_id
+                civicrm_bank_account.contact_id          AS contact_id,
+                civicrm_contact.is_deleted               AS is_deleted,
+                civicrm_contact.is_deceased              AS is_deceased
             FROM civicrm_bank_account_reference
             LEFT JOIN civicrm_option_value ON civicrm_bank_account_reference.reference_type_id = civicrm_option_value.id
             LEFT JOIN civicrm_bank_account ON civicrm_bank_account_reference.ba_id = civicrm_bank_account.id
+            LEFT JOIN civicrm_contact      ON civicrm_contact.id = civicrm_bank_account.contact_id
             WHERE civicrm_bank_account_reference.ba_id = {$this->id}
             ORDER BY civicrm_option_value.weight ASC;";
     $orderedReferenceQuery = CRM_Core_DAO::executeQuery($sql);
@@ -110,7 +113,11 @@ class CRM_Banking_BAO_BankAccount extends CRM_Banking_DAO_BankAccount {
                                      'reference_type_id'          => $orderedReferenceQuery->reference_type_id,
                                      'reference'                  => $orderedReferenceQuery->reference,
                                      'id'                         => $orderedReferenceQuery->reference_id,
-                                     'contact_id'                 => $orderedReferenceQuery->contact_id);
+                                     'contact_id'                 => $orderedReferenceQuery->contact_id,
+                                     'contact_ok'                 => ((!empty($orderedReferenceQuery->contact_id))
+                                                                     && empty($orderedReferenceQuery->is_deleted)
+                                                                     && empty($orderedReferenceQuery->is_deceased)) ? '1' : '0'
+          );
     }
     return $orderedReferences;
   }

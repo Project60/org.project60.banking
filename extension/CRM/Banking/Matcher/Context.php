@@ -101,6 +101,9 @@ class CRM_Banking_Matcher_Context {
       }
     }
 
+    // remove contacts that are in trash
+    $selected_contacts = $this->filterDeletedContacts($selected_contacts);
+
     // now sort by probability and return
     arsort($selected_contacts);
     return $selected_contacts;
@@ -208,6 +211,35 @@ class CRM_Banking_Matcher_Context {
       $this->setCachedEntry('_account_contact_id', $contact_id);
     }
     return $contact_id;
+  }
+
+  /**
+   * Remove such contacts from the list, that are in trash (is_deleted = 1)
+   * @param $contact2probablility array contact_id => probability
+   * @return array contact_id => probability
+   */
+  public function filterDeletedContacts($contact2probablility) {
+    // if empty, there's nothing to do
+    if (empty($contact2probablility)) {
+      return $contact2probablility;
+    }
+
+    // check if this was cached
+    $cache_key = '_filtered_list_' . sha1(serialize($contact2probablility));
+    $filtered_list = $this->getCachedEntry($cache_key);
+    if ($filtered_list === NULL) {
+      $filtered_list = [];
+      $result = civicrm_api3('Contact', 'get', [
+          'id'         => ['IN' => array_keys($contact2probablility)],
+          'is_deleted' => 0,
+          'return'     => 'id',
+          'sequential' => 1]);
+      foreach ($result['values'] as $contact) {
+        $filtered_list[$contact['id']] = $contact2probablility[$contact['id']];
+      }
+      $this->setCachedEntry($cache_key, $filtered_list);
+    }
+    return $filtered_list;
   }
 
   /**

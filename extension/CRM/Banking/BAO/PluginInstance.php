@@ -44,7 +44,7 @@ class CRM_Banking_BAO_PluginInstance extends CRM_Banking_DAO_PluginInstance {
    *
    * If $enabled_only is set to true (default), only enabled plugins will be delivered.
    * 
-   * @return an array of CRM_Banking_BAO_PluginInstances
+   * @return array CRM_Banking_BAO_PluginInstances
    */
   static function listInstances($type_name, $enabled_only=TRUE) {
     // first, find the plugin type option group
@@ -95,7 +95,7 @@ class CRM_Banking_BAO_PluginInstance extends CRM_Banking_DAO_PluginInstance {
 
     $class = $className['value'];
     if (!class_exists($class)) {
-      throw new Exception(sprintf('This plugin requires class %s which does not seem to exist.'), $class);
+      throw new Exception(sprintf('This plugin requires class %s which does not seem to exist.', $class));
     }
     return $class;
   }

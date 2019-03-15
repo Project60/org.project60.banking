@@ -257,8 +257,10 @@
           <div class="btxvalue btxl">
             {if $party_ba_references.0}
               {assign var=ba_contact_id value=$party_ba_references.0.contact_id}
+              {if !$party_ba_references.0.contact_ok}<strike>{/if}
               <a title="{$party_ba_references.0.reference_type_label}">{$party_ba_references.0.reference}</a>
               <a href="{crmURL p="civicrm/contact/view" q="reset=1&cid=$ba_contact_id"}">[{$ba_contact_id}]</a>
+              {if !$party_ba_references.0.contact_ok}</strike>{/if}
             {elseif $party_account_ref}
               <span title="{$party_account_reftypename}" class="notfound">{$party_account_ref} ({$party_account_reftype2})</span>
             {else}

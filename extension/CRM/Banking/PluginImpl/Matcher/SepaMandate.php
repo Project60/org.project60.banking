@@ -319,22 +319,24 @@ class CRM_Banking_PluginImpl_Matcher_SepaMandate extends CRM_Banking_PluginModel
     $status_completed = banking_helper_optionvalue_by_groupname_and_name('contribution_status', 'Completed');
 
     // unfortunately, we might have to do some fixes first...
-
-    // FIX 1: fix contribution, if it has no financial transactions. (happens due to a status-bug in civicrm)
-    //        in this case, set the status back to 'Pending', no 'is_pay_later'
-    $fix_rotten_contribution_sql = "
-    UPDATE
-      civicrm_contribution
-    SET
-      contribution_status_id=$status_pending, is_pay_later=0
-    WHERE
-        id = $contribution_id
-    AND NOT (   SELECT count(entity_id)
-                FROM civicrm_entity_financial_trxn
-                WHERE entity_table='civicrm_contribution'
-                AND   entity_id = $contribution_id
-            );";
-    CRM_Core_DAO::executeQuery($fix_rotten_contribution_sql);
+    if (version_compare(CRM_Utils_System::version(), '4.7.0', '<')) {
+      // FIX 1: fix contribution, if it has no financial transactions. (happens due to a status-bug in civicrm)
+      //        in this case, set the status back to 'Pending', no 'is_pay_later'
+      // This, however, will cause problems later, see BANKING-243, hence the version check
+      $fix_rotten_contribution_sql = "
+      UPDATE
+        civicrm_contribution
+      SET
+        contribution_status_id=$status_pending, is_pay_later=0
+      WHERE
+          id = $contribution_id
+      AND NOT (   SELECT count(entity_id)
+                  FROM civicrm_entity_financial_trxn
+                  WHERE entity_table='civicrm_contribution'
+                  AND   entity_id = $contribution_id
+              );";
+      CRM_Core_DAO::executeQuery($fix_rotten_contribution_sql);
+    }
 
     // FIX 2: in CiviCRM pre 4.4.4, the status change 'In Progress' => 'Completed' was not allowed
     //        in this case, set the status back to 'Pending', no 'is_pay_later'

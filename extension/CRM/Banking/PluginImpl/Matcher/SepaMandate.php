@@ -177,7 +177,7 @@ class CRM_Banking_PluginImpl_Matcher_SepaMandate extends CRM_Banking_PluginModel
 
 
     } else {
-      error_log("org.project60.sepa: matcher_sepa: Bad mandate type.");
+      $this->logMessage("Bad mandate type.", 'warn');
       return null;
     }
 
@@ -287,7 +287,7 @@ class CRM_Banking_PluginImpl_Matcher_SepaMandate extends CRM_Banking_PluginModel
           }
           $suggestion->setParameter('cancel_fee', number_format($meval->evaluate($config->cancellation_cancel_fee_default),2));
         } catch (Exception $e) {
-          error_log("org.project60.banking.matcher.existing: Couldn't calculate cancellation_fee. Error was: $e");
+          $this->logMessage("Couldn't calculate cancellation_fee. Error was: {$e}", 'error');
         }
       }
     }
@@ -318,38 +318,24 @@ class CRM_Banking_PluginImpl_Matcher_SepaMandate extends CRM_Banking_PluginModel
     $status_inprogress = banking_helper_optionvalue_by_groupname_and_name('contribution_status', 'In Progress');
     $status_completed = banking_helper_optionvalue_by_groupname_and_name('contribution_status', 'Completed');
 
-    // unfortunately, we might have to do some fixes first...
-
-    // FIX 1: fix contribution, if it has no financial transactions. (happens due to a status-bug in civicrm)
-    //        in this case, set the status back to 'Pending', no 'is_pay_later'
-    $fix_rotten_contribution_sql = "
-    UPDATE
-      civicrm_contribution
-    SET
-      contribution_status_id=$status_pending, is_pay_later=0
-    WHERE
-        id = $contribution_id
-    AND NOT (   SELECT count(entity_id)
-                FROM civicrm_entity_financial_trxn
-                WHERE entity_table='civicrm_contribution'
-                AND   entity_id = $contribution_id
-            );";
-    CRM_Core_DAO::executeQuery($fix_rotten_contribution_sql);
-
-    // FIX 2: in CiviCRM pre 4.4.4, the status change 'In Progress' => 'Completed' was not allowed
-    //        in this case, set the status back to 'Pending', no 'is_pay_later'
-    if (CRM_Utils_System::version() < '4.4.4') {
-      $fix_status_query = "
+    // Compatibility with CiviCRM < 4.7.0
+    if (version_compare(CRM_Utils_System::version(), '4.7.0', '<')) {
+      // Fix contribution, if it has no financial transactions. (happens due to a status-bug in civicrm)
+      // in this case, set the status back to 'Pending', no 'is_pay_later'
+      // This, however, would cause problems in later CiviCRM versions, see BANKING-243, hence the version check
+      $fix_rotten_contribution_sql = "
       UPDATE
-          civicrm_contribution
+        civicrm_contribution
       SET
-          contribution_status_id = $status_pending,
-          is_pay_later = 0
+        contribution_status_id=$status_pending, is_pay_later=0
       WHERE
-          contribution_status_id = $status_inprogress
-      AND id = $contribution_id;
-      ";
-      CRM_Core_DAO::executeQuery($fix_status_query);
+          id = $contribution_id
+      AND NOT (   SELECT count(entity_id)
+                  FROM civicrm_entity_financial_trxn
+                  WHERE entity_table='civicrm_contribution'
+                  AND   entity_id = $contribution_id
+              );";
+      CRM_Core_DAO::executeQuery($fix_rotten_contribution_sql);
     }
 
     // look up the txgroup
@@ -368,7 +354,7 @@ class CRM_Banking_PluginImpl_Matcher_SepaMandate extends CRM_Banking_PluginModel
     $result = civicrm_api('Contribution', 'create', $query);
 
     if (isset($result['is_error']) && $result['is_error']) {
-      error_log("org.project60.sepa: matcher_sepa: Couldn't modify contribution, error was: ".$result['error_message']);
+      $this->logMessage("Couldn't modify contribution, error was: ".$result['error_message'], 'error');
       CRM_Core_Session::setStatus(E::ts("Couldn't modify contribution."), E::ts('Error'), 'error');
 
     } else {
@@ -458,14 +444,15 @@ class CRM_Banking_PluginImpl_Matcher_SepaMandate extends CRM_Banking_PluginModel
     $this->logTime('Cancel Contribution', 'sepa_mandate_cancel_contribution');
 
     if (isset($result['is_error']) && $result['is_error']) {
-      error_log("org.project60.sepa: matcher_sepa: Couldn't modify contribution, error was: ".$result['error_message']);
+      $this->logMessage("Couldn't modify contribution, error was: ".$result['error_message'], 'error');
       CRM_Core_Session::setStatus(E::ts("Couldn't modify contribution."), E::ts('Error'), 'error');
+      return FALSE;
 
     } else {
       // now for the mandate...
       $contribution = civicrm_api('Contribution', 'getsingle', array('version'=>3, 'id' => $contribution_id));
       if (!empty($contribution['is_error'])) {
-        error_log("org.project60.sepa: matcher_sepa: Couldn't load contribution, error was: ".$result['error_message']);
+        $this->logMessage("Couldn't load contribution, error was: ".$result['error_message'], 'error');
         CRM_Core_Session::setStatus(E::ts("Couldn't modify contribution."), E::ts('Error'), 'error');
 
       } else {
@@ -482,8 +469,9 @@ class CRM_Banking_PluginImpl_Matcher_SepaMandate extends CRM_Banking_PluginModel
           $query = array_merge($query, $this->getPropagationSet($btx, $match, 'mandate'));   // add propagated values
           $result = civicrm_api('SepaMandate', 'create', $query);
           if (!empty($result['is_error'])) {
-            error_log("org.project60.sepa: matcher_sepa: Couldn't modify mandate, error was: ".$result['error_message']);
+            $this->logMessage("Couldn't modify mandate, error was: ".$result['error_message'], 'error');
             CRM_Core_Session::setStatus(E::ts("Couldn't modify mandate."), E::ts('Error'), 'error');
+            return FALSE;
           }
         } elseif (   'RCUR' == $contribution['contribution_payment_instrument']
                   && !empty($config->cancellation_update_mandate_status_RCUR)) {
@@ -493,8 +481,9 @@ class CRM_Banking_PluginImpl_Matcher_SepaMandate extends CRM_Banking_PluginModel
           $query = array_merge($query, $this->getPropagationSet($btx, $match, 'mandate'));   // add propagated values
           $result = civicrm_api('SepaMandate', 'create', $query);
           if (!empty($result['is_error'])) {
-            error_log("org.project60.sepa: matcher_sepa: Couldn't modify mandate, error was: ".$result['error_message']);
+            $this->logMessage("Couldn't modify mandate, error was: ".$result['error_message'], 'error');
             CRM_Core_Session::setStatus(E::ts("Couldn't modify mandate."), E::ts('Error'), 'error');
+            return FALSE;
           }
         }
       }

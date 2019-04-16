@@ -380,6 +380,10 @@ class CRM_Banking_PluginImpl_Importer_CSV extends CRM_Banking_PluginModel_Import
         $datetime = DateTime::createFromFormat($params[1], $value);
         if ($datetime) {
           $btx[$rule->to] = $datetime->format('YmdHis');
+        } else {
+          if (!empty($value)) {
+            $this->logMessage("Couldn't parse date '{$value}'.", 'error');
+          }
         }
       } else {
         $btx[$rule->to] = date('YmdHis', strtotime($value));

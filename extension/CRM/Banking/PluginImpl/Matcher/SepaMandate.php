@@ -240,6 +240,7 @@ class CRM_Banking_PluginImpl_Matcher_SepaMandate extends CRM_Banking_PluginModel
       }
       if ($cancellation_status_penalty === NULL) {
         // the status is not in the list => don't even create a suggestion
+        $this->logMessage("Unmapped contributions status [{$contribution_status_id}] encountered. No suggestion generated!", 'warn');
         return NULL;
       }
       $probability -= $cancellation_status_penalty;
@@ -287,7 +288,7 @@ class CRM_Banking_PluginImpl_Matcher_SepaMandate extends CRM_Banking_PluginModel
           }
           $suggestion->setParameter('cancel_fee', number_format($meval->evaluate($config->cancellation_cancel_fee_default),2));
         } catch (Exception $e) {
-          $this->logMessage("Couldn't calculate cancellation_fee. Error was: {$e}", 'error');
+          $this->logMessage("Couldn't calculate cancellation_fee. Error was: {$e->getMessage()}", 'error');
         }
       }
     }

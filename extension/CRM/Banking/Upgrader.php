@@ -151,6 +151,18 @@ class CRM_Banking_Upgrader extends CRM_Banking_Upgrader_Base {
    */
   public function upgrade_0702() {
     // update option groups
+    // replaced by 0703:  banking_civicrm_install_options(_banking_options());
+    return true;
+  }
+
+  /**
+   * Upgrader for 0.7.alpha5 release
+   *  - update options/matchers/etc.
+   *
+   * @return TRUE on success
+   */
+  public function upgrade_0703() {
+    // update option groups
     banking_civicrm_install_options(_banking_options());
     return true;
   }

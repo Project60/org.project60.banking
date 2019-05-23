@@ -23,6 +23,7 @@ require_once 'CRM/Banking/Helpers/URLBuilder.php';
 class CRM_Banking_Page_Review extends CRM_Core_Page {
 
   function run() {
+      $new_ui_enabled = CRM_Core_BAO_Setting::getItem('CiviBanking', 'new_ui');
       // set this variable to request a redirect
       $url_redirect = NULL;
 
@@ -68,7 +69,16 @@ class CRM_Banking_Page_Review extends CRM_Core_Page {
         if ($execution_success) {
           // after execution -> exit if this was the last in the list
           if (!isset($next_pid) && ($_REQUEST['execute']==$pid)) {
-            $url_redirect = banking_helper_buildURL('civicrm/banking/payments',  $this->_pageParameters());
+            if ($new_ui_enabled) {
+              // Determine whether we should go back to the statements or statement lines
+              if (isset($_REQUEST['list'])) {
+                $url_redirect = banking_helper_buildURL('civicrm/banking/statements/lines', array('s_id' => $btx_bao->tx_batch_id));
+              } elseif (isset($_REQUEST['s_list'])) {
+                $url_redirect = banking_helper_buildURL('civicrm/banking/statements', array());
+              }
+            } else {
+              $url_redirect = banking_helper_buildURL('civicrm/banking/payments',  $this->_pageParameters());
+            }
           }
         } else {
           // execution failed -> go back
@@ -221,7 +231,6 @@ class CRM_Banking_Page_Review extends CRM_Core_Page {
 
       // URLs & stats
       $unprocessed_count = 0;
-      $new_ui_enabled = CRM_Core_BAO_Setting::getItem('CiviBanking', 'new_ui');
       $this->assign('new_ui_enabled', $new_ui_enabled);
       $this->assign('url_back', banking_helper_buildURL('civicrm/banking/payments',  $this->_pageParameters()));
       if ($new_ui_enabled) {

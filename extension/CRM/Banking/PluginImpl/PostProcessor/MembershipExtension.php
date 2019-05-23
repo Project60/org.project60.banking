@@ -262,7 +262,7 @@ class CRM_Banking_PluginImpl_PostProcessor_MembershipExtension extends CRM_Banki
     $contribution_id = (int) $contribution_id;
     $membership_id   = (int) $membership_id;
     if ($contribution_id && $membership_id)
-      $already_linked = CRM_Core_DAO::singleValueQuery("SELECT id FROM civicrm_membership_payment WHERE contribution_id = %1 OR membership_id = %2 LIMIT 1;", [
+      $already_linked = CRM_Core_DAO::singleValueQuery("SELECT id FROM civicrm_membership_payment WHERE contribution_id = %1 AND membership_id = %2 LIMIT 1;", [
           1 => [$contribution_id, 'Integer'],
           2 => [$membership_id,   'Integer']]);
 

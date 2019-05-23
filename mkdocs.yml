@@ -11,6 +11,7 @@ pages:
 - How To Guide: how-to.md
 - Techie - how to create an importer: create-importer.md
 - Techie - how to create a matcher: create-matcher.md
+- Techie - how to extend memberships when a payment is received: membership_extension_post_processor.md
 - Techie - how to create a postprocessor: create-postprocessor.md
 
 markdown_extensions:

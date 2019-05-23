@@ -31,17 +31,20 @@ function banking_civicrm_navigationMenu(&$menu) {
   switch ($menu_position) {
     case 2:
       // menu is off, see CRM_Admin_Form_Setting_BankingSettings
+      $separator = 0;
       return;
 
     default:
     case 0:
       // top level menu
       $anchor = NULL;
+      $separator = 0;
       break;
 
     case 1:
       // contribution menu
       $anchor = 'Contributions/';
+      $separator = 1;
       break;
   }
 
@@ -57,7 +60,7 @@ function banking_civicrm_navigationMenu(&$menu) {
       'icon'       => (version_compare(CRM_Utils_System::version(), '5.6', '>=')) ? 'fa fa-btc' : '',
       'permission' => 'access CiviContribute',
       'operator'   => 'OR',
-      'separator'  => 1,
+      'separator'  => $separator,
   ));
 
   _banking_civix_insert_navigation_menu($menu, "{$anchor}CiviBanking", array(

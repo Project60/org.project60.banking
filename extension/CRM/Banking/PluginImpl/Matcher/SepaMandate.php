@@ -526,6 +526,40 @@ class CRM_Banking_PluginImpl_Matcher_SepaMandate extends CRM_Banking_PluginModel
       }
       $smarty_vars['cancelled_contribution_count'] = $cancelled_contribution_count;
 
+      // add some additional parameters for RCUR (see #256)
+      if ($mandate['type']=='RCUR' && $mandate['entity_table'] == 'civicrm_contribution_recur') {
+        // load recurring contribution
+        $rcur = civicrm_api3('ContributionRecur', 'getsingle', array('id' => $mandate['entity_id']));
+        foreach ($rcur as $key => $value) {
+          $mandate["rcur_{$key}"] = $value;
+        }
+
+        // if CiviSEPA is present, add a nicer
+        if (method_exists('CRM_Utils_SepaOptionGroupTools', 'getFrequencyText')) {
+          $mandate["rcur_frequency"] = CRM_Utils_SepaOptionGroupTools::getFrequencyText($rcur['frequency_interval'], $rcur['frequency_unit'], TRUE);
+        } else {
+          if ($rcur['frequency_interval'] == 1) {
+            if ($rcur['frequency_unit'] == 'month') {
+              $mandate["rcur_frequency"] = E::ts("monthly");
+            } elseif ($rcur['frequency_unit'] == 'year') {
+              $mandate["rcur_frequency"] = E::ts("annually");
+            } else {
+              $mandate["rcur_frequency"] = $rcur['frequency_unit'].'ly';
+            }
+          } else {
+            if ($rcur['frequency_unit'] == 'month') {
+              $mandate["rcur_frequency"] = E::ts("every %1 months", [1 => $rcur['frequency_interval']]);
+            } elseif ($rcur['frequency_unit'] == 'year') {
+              $mandate["rcur_frequency"] = E::ts("every %1 years", [1 => $rcur['frequency_interval']]);
+            } elseif ($rcur['frequency_unit'] == 'week') {
+              $mandate["rcur_frequency"] = E::ts("every %1 weeks", [1 => $rcur['frequency_interval']]);
+            } else {
+              $mandate["rcur_frequency"] = E::ts("every %1 %2", [1 => $rcur['frequency_interval'], 2 => $rcur['frequency_unit']]);
+            }
+          }
+        }
+      }
+
       // look up contact if not set
       $user_id = CRM_Core_Session::singleton()->get('userID');
       if (empty($config->cancellation_create_activity_assignee_id)) {
@@ -540,7 +574,13 @@ class CRM_Banking_PluginImpl_Matcher_SepaMandate extends CRM_Banking_PluginModel
       if (empty($config->cancellation_create_activity_text)) {
         $details = $smarty->fetch('CRM/Banking/PluginImpl/Matcher/SepaMandate.activity.tpl');
       } else {
-        $details = $smarty->fetch("string:" . $config->cancellation_create_activity_text);
+        if (substr($config->cancellation_create_activity_text, 0, 5) == 'file:') {
+          // this is a template file path
+          $details = $smarty->fetch(substr($config->cancellation_create_activity_text, 5));
+        } else {
+          // this contains the template date itself:
+          $details = $smarty->fetch("string:" . $config->cancellation_create_activity_text);
+        }
       }
       $smarty->popScope();
 

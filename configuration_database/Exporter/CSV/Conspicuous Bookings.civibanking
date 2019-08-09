@@ -37,12 +37,10 @@
             "Statement ID",
             "Status",
             "Donor ID",
-            "Spender Name",
+            "Donor Name",
             "Booking Date",
             "Transaction Amount",
             "Reconciled Amount",
-            "Financial Type",
-            "Payment Instrument",
             "Booked By"
         ],
         "rules": [
@@ -77,7 +75,7 @@
             },
             {
                 "from": "exec_contribution_user_display_name",
-                "to": "Spender Name",
+                "to": "Donor Name",
                 "type": "set"
             },
             {
@@ -105,16 +103,6 @@
             {
                 "from": "tx_status_name",
                 "to": "Status",
-                "type": "set"
-            },
-            {
-                "from": "exec_contribution_payment_instrument",
-                "to": "Payment Instrument",
-                "type": "set"
-            },
-            {
-                "from": "exec_contribution_financial_type",
-                "to": "Financial Type",
                 "type": "set"
             }
         ]

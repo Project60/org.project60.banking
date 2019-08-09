@@ -186,11 +186,15 @@ abstract class CRM_Banking_PluginModel_Exporter extends CRM_Banking_PluginModel_
         }
         $suggestion_contribution_ids = $suggestion->getParameter('contribution_ids');
         if (!empty($suggestion_contribution_ids)) {
+          if (is_string($suggestion_contribution_ids)) {
+            $suggestion_contribution_ids = explode(',', $suggestion_contribution_ids);
+          }
           foreach ($suggestion_contribution_ids as $id) {
             $id = (int) $id;
             if ($id) $contribution_ids[] = $id;
           }
         }
+        $contribution_ids = array_unique($contribution_ids);
         $result['exec_contribution_count'] = count($contribution_ids);
         $result['exec_contribution_list']  = implode(',', $contribution_ids);
 

@@ -50,6 +50,8 @@ class CRM_Banking_PluginImpl_Matcher_RecurringContribution extends CRM_Banking_P
     if (!isset($config->amount_absolute_maximum))       $config->amount_absolute_maximum = 1;
     if (!isset($config->amount_penalty))                $config->amount_penalty = 1.0;
 
+    if (!isset($config->request_amount_confirmation))  $config->request_amount_confirmation = FALSE;   // if true, user confirmation is required to reconcile differing amounts
+
     // date check / date range
     if (!isset($config->received_date_check))           $config->received_date_check = "1";  // WARNING: DISABLING THIS COULD MAKE THE PROCESS VERY SLOW
     if (!isset($config->acceptable_date_offset_from))   $config->acceptable_date_offset_from = "-1 days";
@@ -370,6 +372,11 @@ class CRM_Banking_PluginImpl_Matcher_RecurringContribution extends CRM_Banking_P
       } 
       if ($probability<1.0) {
         $suggestion->addEvidence(1.0-$probability, E::ts("The contact could not be uniquely identified."));
+      }
+      if ($config->request_amount_confirmation) {
+        if ($btx->amount != $rcur['amount']) {
+          $suggestion->setUserConfirmation(E::ts("The reconciled amount of this suggestion would differ from the transaction amount. Do you want to continue anyway?"));
+        }
       }
 
       // RCUR LOOP: CHECK AMOUNT

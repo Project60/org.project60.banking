@@ -62,7 +62,7 @@ class CRM_Banking_PluginImpl_Matcher_ExistingContribution extends CRM_Banking_Pl
     if (!isset($config->amount_penalty))          $config->amount_penalty = 1.0;
     if (!isset($config->currency_penalty))        $config->currency_penalty = 0.5;
 
-    if (!isset($config->request_amount_confirmation))  $config->request_amount_confirmation = FALSE;   // if true, a user confirmation is required to reconcile differing amounts
+    if (!isset($config->request_amount_confirmation))  $config->request_amount_confirmation = FALSE;   // if true, user confirmation is required to reconcile differing amounts
 
     // extended cancellation features: enter cancel_reason
     if (!isset($config->cancellation_cancel_reason))         $config->cancellation_cancel_reason         = 0; // set to 1 to enable
@@ -324,7 +324,7 @@ class CRM_Banking_PluginImpl_Matcher_ExistingContribution extends CRM_Banking_Pl
       if ($config->request_amount_confirmation) {
         // add a confirmation if the amount differs between btx and contribution
         if (abs($btx->amount) != $contribution2totalamount[$contribution_id]) {
-          $suggestion->setUserConfirmation(E::ts("The amount if the transaction differs from the contribution's amount. Do you want to continue?"));
+          $suggestion->setUserConfirmation(E::ts("The reconciled amount of this suggestion would differ from the transaction amount. Do you want to continue anyway?"));
         }
       }
 

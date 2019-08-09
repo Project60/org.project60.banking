@@ -26,7 +26,7 @@
   {if $mandate.type == 'RCUR'}
   <tr>
     <td>{ts domain='org.project60.banking'}Collection{/ts}</td>
-    <td>{ts domain='org.project60.banking' 1=$rcur_frequency 2=$rcur_cycle_day}%1 on the %2.{/ts}</td>
+    <td>{ts domain='org.project60.banking' 1=$mandate.rcur_frequency 2=$mandate.rcur_cycle_day}%1 on the %2.{/ts}</td>
   </tr>
   {/if}
   <tr>

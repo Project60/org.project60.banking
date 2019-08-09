@@ -500,35 +500,8 @@ class CRM_Banking_PluginImpl_Matcher_SepaMandate extends CRM_Banking_PluginModel
 
       // load the mandate
       $mandate = civicrm_api('SepaMandate', 'getsingle', array('id' => $mandate_id, 'version' => 3));
-      $smarty_vars['mandate'] = $mandate;
-
-      // load the contact
-      $contact = civicrm_api('Contact', 'getsingle', array('id' => $contribution['contact_id'], 'version' => 3));
-      $smarty_vars['contact'] = $contact;
-
-      // count the cancelled contributions connected to this mandate
-      $cancelled_contribution_count = 0;
-      $current_contribution_date = date('Ymdhis', strtotime($contribution['receive_date']));
-      if ($mandate['type']=='RCUR') {
-        $query = "SELECT contribution_status_id
-                  FROM civicrm_contribution
-                  WHERE contribution_recur_id = {$mandate['entity_id']}
-                    AND receive_date <= '$current_contribution_date'
-                  ORDER BY receive_date DESC;";
-        $status_list = CRM_Core_DAO::executeQuery($query);
-        while ($status_list->fetch()) {
-          if ($status_list->contribution_status_id == $status_cancelled) {
-            $cancelled_contribution_count += 1;
-          } else {
-            break;
-          }
-        }
-      }
-      $smarty_vars['cancelled_contribution_count'] = $cancelled_contribution_count;
-
-      // add some additional parameters for RCUR (see #256)
       if ($mandate['type']=='RCUR' && $mandate['entity_table'] == 'civicrm_contribution_recur') {
-        // load recurring contribution
+        // add some additional parameters for RCUR (see #256)
         $rcur = civicrm_api3('ContributionRecur', 'getsingle', array('id' => $mandate['entity_id']));
         foreach ($rcur as $key => $value) {
           $mandate["rcur_{$key}"] = $value;
@@ -559,6 +532,31 @@ class CRM_Banking_PluginImpl_Matcher_SepaMandate extends CRM_Banking_PluginModel
           }
         }
       }
+      $smarty_vars['mandate'] = $mandate;
+
+      // load the contact
+      $contact = civicrm_api('Contact', 'getsingle', array('id' => $contribution['contact_id'], 'version' => 3));
+      $smarty_vars['contact'] = $contact;
+
+      // count the cancelled contributions connected to this mandate
+      $cancelled_contribution_count = 0;
+      $current_contribution_date = date('Ymdhis', strtotime($contribution['receive_date']));
+      if ($mandate['type']=='RCUR') {
+        $query = "SELECT contribution_status_id
+                  FROM civicrm_contribution
+                  WHERE contribution_recur_id = {$mandate['entity_id']}
+                    AND receive_date <= '$current_contribution_date'
+                  ORDER BY receive_date DESC;";
+        $status_list = CRM_Core_DAO::executeQuery($query);
+        while ($status_list->fetch()) {
+          if ($status_list->contribution_status_id == $status_cancelled) {
+            $cancelled_contribution_count += 1;
+          } else {
+            break;
+          }
+        }
+      }
+      $smarty_vars['cancelled_contribution_count'] = $cancelled_contribution_count;
 
       // look up contact if not set
       $user_id = CRM_Core_Session::singleton()->get('userID');

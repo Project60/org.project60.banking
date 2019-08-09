@@ -1,0 +1,30 @@
+{
+    "plugin_type_name": "match",
+    "plugin_class_name": "matcher_contribution",
+    "name": "Existing Contribution",
+    "description": "Will try to find pending existing contributions to reconcile.",
+    "weight": "20",
+    "config": {
+        "auto_exec": false,
+        "threshold": 0.1,
+        "mode": "default",
+        "accepted_contribution_states": [
+            "Pending"
+        ],
+        "received_date_minimum": "-60 days",
+        "received_date_maximum": "+1 days",
+        "date_penalty": 0.2,
+        "request_amount_confirmation": true,
+        "payment_instrument_penalty": 0.2,
+        "amount_relative_minimum": 0.8,
+        "amount_relative_maximum": 1.2,
+        "amount_absolute_minimum": 0,
+        "amount_absolute_maximum": 0,
+        "amount_penalty": 0.6,
+        "value_propagation": {
+            "btx.financial_type_id": "contribution.financial_type_id",
+            "btx.campaign_id": "contribution.campaign_id"
+        }
+    },
+    "state": {}
+}

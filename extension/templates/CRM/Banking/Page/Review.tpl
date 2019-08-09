@@ -394,6 +394,8 @@
                   {$suggestion.visualization}
                   {$suggestion.actions}
                   </form>
+
+                  <input type="hidden" class="{$suggestion.hash} banking-user-confirmation" value="{$suggestion.user_confirmation}"/>
                 </td>
               <tr>
               {/foreach}
@@ -413,9 +415,21 @@
 <!-- Required JavaScript functions -->
 {literal}
 <script language="JavaScript">
+
 function execute_selected() {
-  var selected_suggestion = cj('input[name=selected_suggestion]:checked').val();
-  document.getElementById(selected_suggestion).submit();
+  let selected_suggestion = cj('input[name=selected_suggestion]:checked').val();
+  let user_confirmation = cj("input.banking-user-confirmation." + selected_suggestion).val();
+  if (user_confirmation && user_confirmation.length > 0) {
+    // there is a user confirmation question -> ask first
+    CRM.confirm({
+      title: "{/literal}{$user_confirmation_title}{literal}",
+      message: user_confirmation
+    }).on('crmConfirm:yes', function() {
+      document.getElementById(selected_suggestion).submit();
+    });
+  } else {
+    document.getElementById(selected_suggestion).submit();
+  }
 }
 
 // add listener to all suggestions, so that changes automatically select the given item
@@ -424,9 +438,9 @@ cj(".suggestion").on('click', '*', select_suggestion);
 
 function select_suggestion(e) {
   cj(".suggestion").removeClass('suggestion-selected');
-  var suggestion = cj(e.target).closest(".suggestion");
+  let suggestion = cj(e.target).closest(".suggestion");
   suggestion.addClass('suggestion-selected');
-  var button = suggestion.find("input[name=selected_suggestion]");
+  let button = suggestion.find("input[name=selected_suggestion]");
   button.prop('checked', true);
 }
 

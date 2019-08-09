@@ -64,7 +64,7 @@ class CRM_Banking_Matcher_Suggestion {
     }
 
     public function setId($identification) {
-        return $this->setParameter('id', $identification);
+        $this->setParameter('id', $identification);
     }
 
     public function getHash() {
@@ -85,12 +85,37 @@ class CRM_Banking_Matcher_Suggestion {
         return $this->_plugin->_plugin_id;
     }
 
+    /**
+     * The user confirmation will prompt the user to
+     *  separately confirm whatever question (string) is posted
+     *  here.
+     *
+     * @return string|null a human readable yes/no question, that will be presented verbatim to the user.
+     *                     NULL or empty string are to be ignored
+     */
+    public function getUserConfirmation() {
+      return $this->getParameter('user_confirmation');
+    }
+
+    /**
+     * The user confirmation will prompt the user to
+     *  separately confirm whatever question (string) is posted
+     *  here.
+     *
+     *  CAUTION: setting this string will also prevent automatic execution
+     *
+     * @param $question string  a human readable yes/no question, that will be presented verbatim to the user
+     */
+    public function setUserConfirmation($question) {
+      $this->setParameter('user_confirmation', $question);
+    }
+
     public function getTitle() {
         return $this->getParameter('title');
     }
 
     public function setTitle($name) {
-        return $this->setParameter('title', $name);
+        $this->setParameter('title', $name);
     }
 
     public function getProbability() {
@@ -98,7 +123,7 @@ class CRM_Banking_Matcher_Suggestion {
     }
 
     public function setProbability($probability) {
-        return $this->setParameter('probability', $probability);
+        $this->setParameter('probability', $probability);
     }
 
     public function getEvidence() {
@@ -106,7 +131,7 @@ class CRM_Banking_Matcher_Suggestion {
     }
 
     public function setEvidence($reasons) {
-        return $this->setParameter('reasons', $reasons);
+        $this->setParameter('reasons', $reasons);
     }
 
     public function setExecuted() {
@@ -209,8 +234,12 @@ class CRM_Banking_Matcher_Suggestion {
 
     /**
      * Execute this suggestion on the given transaction
+     *
+     * @param $btx CRM_Banking_BAO_BankTransaction
+     *
+     * @return boolean
      */
-    public function execute(CRM_Banking_BAO_BankTransaction $btx) {
+    public function execute($btx) {
         // only execute if not completed yet
         if (!banking_helper_tx_status_closed($btx->status_id)) {
             // perform execute

@@ -234,16 +234,29 @@ class CRM_Banking_Matcher_Engine {
   /**
    * Test if the given plugin can execute a suggestion right away
    *
+   * @param $plugin CRM_Banking_PluginModel_Matcher
+   * @param $btx    CRM_Banking_BAO_BankTransaction
    * @return true iff the plugin was executed and the payment is fully processed
    */
   protected function checkAutoExecute($plugin, $btx) {
     if (!$plugin->autoExecute()) return false;
     foreach ($btx->getSuggestions() as $suggestions ) {
       foreach ($suggestions as $suggestion) {
-        if ($suggestion->getPluginID()==$plugin->getPluginID()) {
+        /* @var $suggestion CRM_Banking_Matcher_Suggestion */
+        if ($suggestion->getPluginID() == $plugin->getPluginID()) {
+
+          // check if the suggestion requires user confirmation
+          $user_confirmation_required = $suggestion->getUserConfirmation();
+          if (!empty($user_confirmation_required)) {
+            // there is some user confirmation required, NO AUTO EXEC!
+            continue;
+          }
+
+          // check if the probability is high enough
           if ($suggestion->getProbability() >= $plugin->autoExecute()) {
+            // all good, AUTO EXEC:
             $btx->saveSuggestions();
-            $result = $suggestion->execute($btx, $this);
+            $result = $suggestion->execute($btx);
             $suggestion->setParameter('executed_automatically', 1);
             $btx->saveSuggestions();
             return $result;

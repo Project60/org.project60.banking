@@ -5,7 +5,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: org.project60.banking\n"
-"POT-Creation-Date: 2018-10-09 14:46+0100\n"
+"POT-Creation-Date: 2019-08-09 13:28+0200\n"
 "Language-Team: CiviCRM Translators <civicrm-translators@lists.civicrm.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -1096,6 +1096,38 @@ msgid "Couldn't modify mandate."
 msgstr ""
 
 #: extension/CRM/Banking/PluginImpl/Matcher/SepaMandate.php
+#: extension/templates/CRM/Banking/PluginImpl/Matcher/Membership.suggestion.tpl
+#: extension/templates/CRM/Banking/PluginImpl/Matcher/RecurringContribution.suggestion.tpl
+msgid "monthly"
+msgstr ""
+
+#: extension/CRM/Banking/PluginImpl/Matcher/SepaMandate.php
+#: extension/templates/CRM/Banking/PluginImpl/Matcher/Membership.suggestion.tpl
+#: extension/templates/CRM/Banking/PluginImpl/Matcher/RecurringContribution.suggestion.tpl
+msgid "annually"
+msgstr ""
+
+#: extension/CRM/Banking/PluginImpl/Matcher/SepaMandate.php
+#: extension/templates/CRM/Banking/PluginImpl/Matcher/Membership.suggestion.tpl
+#: extension/templates/CRM/Banking/PluginImpl/Matcher/RecurringContribution.suggestion.tpl
+msgid "every %1 months"
+msgstr ""
+
+#: extension/CRM/Banking/PluginImpl/Matcher/SepaMandate.php
+#: extension/templates/CRM/Banking/PluginImpl/Matcher/Membership.suggestion.tpl
+#: extension/templates/CRM/Banking/PluginImpl/Matcher/RecurringContribution.suggestion.tpl
+msgid "every %1 years"
+msgstr ""
+
+#: extension/CRM/Banking/PluginImpl/Matcher/SepaMandate.php
+msgid "every %1 weeks"
+msgstr ""
+
+#: extension/CRM/Banking/PluginImpl/Matcher/SepaMandate.php
+msgid "every %1 %2"
+msgstr ""
+
+#: extension/CRM/Banking/PluginImpl/Matcher/SepaMandate.php
 msgid "Internal error! Cannot find contribution #"
 msgstr ""
 
@@ -1372,6 +1404,10 @@ msgid "Traditional Spanish bank account number"
 msgstr ""
 
 #: extension/hooks.php
+msgid "CiviBanking"
+msgstr ""
+
+#: extension/hooks.php
 msgid "Dashboard"
 msgstr ""
 
@@ -1380,11 +1416,11 @@ msgid "Show Transactions"
 msgstr ""
 
 #: extension/hooks.php
-msgid "Dedupe Accounts"
+msgid "Import Transactions"
 msgstr ""
 
 #: extension/hooks.php
-msgid "Import Transactions"
+msgid "Dedupe Accounts"
 msgstr ""
 
 #: extension/hooks.php
@@ -2327,32 +2363,12 @@ msgstr ""
 
 #: extension/templates/CRM/Banking/PluginImpl/Matcher/Membership.suggestion.tpl
 #: extension/templates/CRM/Banking/PluginImpl/Matcher/RecurringContribution.suggestion.tpl
-msgid "monthly"
-msgstr ""
-
-#: extension/templates/CRM/Banking/PluginImpl/Matcher/Membership.suggestion.tpl
-#: extension/templates/CRM/Banking/PluginImpl/Matcher/RecurringContribution.suggestion.tpl
 msgid "quarterly"
 msgstr ""
 
 #: extension/templates/CRM/Banking/PluginImpl/Matcher/Membership.suggestion.tpl
 #: extension/templates/CRM/Banking/PluginImpl/Matcher/RecurringContribution.suggestion.tpl
 msgid "semi-annually"
-msgstr ""
-
-#: extension/templates/CRM/Banking/PluginImpl/Matcher/Membership.suggestion.tpl
-#: extension/templates/CRM/Banking/PluginImpl/Matcher/RecurringContribution.suggestion.tpl
-msgid "annually"
-msgstr ""
-
-#: extension/templates/CRM/Banking/PluginImpl/Matcher/Membership.suggestion.tpl
-#: extension/templates/CRM/Banking/PluginImpl/Matcher/RecurringContribution.suggestion.tpl
-msgid "every %1 months"
-msgstr ""
-
-#: extension/templates/CRM/Banking/PluginImpl/Matcher/Membership.suggestion.tpl
-#: extension/templates/CRM/Banking/PluginImpl/Matcher/RecurringContribution.suggestion.tpl
-msgid "every %1 years"
 msgstr ""
 
 #: extension/templates/CRM/Banking/PluginImpl/Matcher/Membership.suggestion.tpl
@@ -2531,6 +2547,14 @@ msgstr ""
 
 #: extension/templates/CRM/Banking/PluginImpl/Matcher/SepaMandate.activity.tpl
 msgid "Mandate"
+msgstr ""
+
+#: extension/templates/CRM/Banking/PluginImpl/Matcher/SepaMandate.activity.tpl
+msgid "Collection"
+msgstr ""
+
+#: extension/templates/CRM/Banking/PluginImpl/Matcher/SepaMandate.activity.tpl
+msgid "%1 on the %2."
 msgstr ""
 
 #: extension/templates/CRM/Banking/PluginImpl/Matcher/SepaMandate.activity.tpl

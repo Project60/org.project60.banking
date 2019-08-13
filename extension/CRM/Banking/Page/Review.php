@@ -20,6 +20,11 @@ require_once 'CRM/Core/Page.php';
 require_once 'CRM/Banking/Helpers/OptionValue.php';
 require_once 'CRM/Banking/Helpers/URLBuilder.php';
 
+/**
+ * The CiviBanking review page lets the user have a look at an individual transaction,
+ *  presents him/her with the list of suggestions, and allows to process the transaction
+ *  by selecting one of the suggestions to execute.
+ */
 class CRM_Banking_Page_Review extends CRM_Core_Page {
 
   function run() {
@@ -217,16 +222,19 @@ class CRM_Banking_Page_Review extends CRM_Core_Page {
         $suggestions = array();
         $suggestion_objects = $btx_bao->getSuggestionList();
         foreach ($suggestion_objects as $suggestion) {
+          /* @var $suggestion CRM_Banking_Matcher_Suggestion */
           $color = $this->translateProbability($suggestion->getProbability() * 100);
             array_push($suggestions, array(
-                'hash' => $suggestion->getHash(),
-                'probability' => sprintf('%d&nbsp;%%', ($suggestion->getProbability() * 100)),
-                'color' => $color,
-                'visualization' => $suggestion->visualize($btx_bao),
-                'title' => $suggestion->getTitle(),
+                'hash'              => $suggestion->getHash(),
+                'user_confirmation' => $suggestion->getUserConfirmation(),
+                'probability'       => sprintf('%d&nbsp;%%', ($suggestion->getProbability() * 100)),
+                'color'             => $color,
+                'visualization'     => $suggestion->visualize($btx_bao),
+                'title'             => $suggestion->getTitle(),
             ));
         }
         $this->assign('suggestions', $suggestions);
+        $this->assign('user_confirmation_title', E::ts("Confirmation Required"));
       }
 
       // URLs & stats

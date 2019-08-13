@@ -62,6 +62,8 @@ class CRM_Banking_PluginImpl_Matcher_ExistingContribution extends CRM_Banking_Pl
     if (!isset($config->amount_penalty))          $config->amount_penalty = 1.0;
     if (!isset($config->currency_penalty))        $config->currency_penalty = 0.5;
 
+    if (!isset($config->request_amount_confirmation))  $config->request_amount_confirmation = FALSE;   // if true, user confirmation is required to reconcile differing amounts
+
     // extended cancellation features: enter cancel_reason
     if (!isset($config->cancellation_cancel_reason))         $config->cancellation_cancel_reason         = 0; // set to 1 to enable
     if (!isset($config->cancellation_cancel_reason_edit))    $config->cancellation_cancel_reason_edit    = 1; // set to 0 to disable user input
@@ -249,7 +251,7 @@ class CRM_Banking_PluginImpl_Matcher_ExistingContribution extends CRM_Banking_Pl
             $contributions[$contribution['id']] = $contribution_probability;
             $contribution2contact[$contribution['id']] = $contact_id;
             $contribution2totalamount[$contribution['id']] = $contribution['total_amount'];
-          }        
+          }
         }
       }
     }
@@ -314,10 +316,17 @@ class CRM_Banking_PluginImpl_Matcher_ExistingContribution extends CRM_Banking_Pl
         }
       }
 
+      // fill suggestion
       $suggestion->setId("existing-$contribution_id");
       $suggestion->setParameter('contribution_id', $contribution_id);
       $suggestion->setParameter('contact_id', $contact_id);
       $suggestion->setParameter('mode', $config->mode);
+      if ($config->request_amount_confirmation) {
+        // add a confirmation if the amount differs between btx and contribution
+        if (abs($btx->amount) != $contribution2totalamount[$contribution_id]) {
+          $suggestion->setUserConfirmation(E::ts("The reconciled amount of this suggestion would differ from the transaction amount. Do you want to continue anyway?"));
+        }
+      }
 
       // generate cancellation extra parameters
       if ($config->mode == 'cancellation') {

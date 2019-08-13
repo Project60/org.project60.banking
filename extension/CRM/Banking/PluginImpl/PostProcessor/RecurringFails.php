@@ -117,7 +117,7 @@ class CRM_Banking_PluginImpl_PostProcessor_RecurringFails extends CRM_Banking_Pl
    *
    * @param $rule array the rule specs
    * @param $cancelled_contribution array cancelled contribution data
-   * @param $mandate_stats array previously gathered stats on the recurring contributoin or mandate
+   * @param $mandate_stats array previously gathered stats on the recurring contribution or mandate
    * @return bool
    */
   protected function ruleShouldExecute($rule, $cancelled_contribution, $mandate_stats) {
@@ -150,10 +150,28 @@ class CRM_Banking_PluginImpl_PostProcessor_RecurringFails extends CRM_Banking_Pl
       }
     }
 
+    if (isset($rule->sequential_failed_collections_at_least)) {
+      if ($mandate_stats['sequential_failed_collections'] < $rule->sequential_failed_collections_at_least) {
+        $this->logMessage("Rule '{$rule->name}' not executed: not enough sequential failed collections.", 'debug');
+        return FALSE;
+      }
+    }
+
     if (isset($rule->sequential_failed_collections_at_most)) {
       if ($mandate_stats['sequential_failed_collections'] > $rule->sequential_failed_collections_at_most) {
         $this->logMessage("Rule '{$rule->name}' not executed: too many sequential failed collections.", 'debug');
         return FALSE;
+      }
+    }
+
+    if (isset($rule->recurring_contribution_conditions) && is_array($rule->recurring_contribution_conditions)) {
+      foreach ($rule->recurring_contribution_conditions as $condition) {
+        $condition_met = $this->evaluateCondition($mandate_stats['contribution_recur'], $condition);
+        if (!$condition_met) {
+          $condition_text = json_encode($condition);
+          $this->logMessage("Rule '{$rule->name}' not executed: condition [{$condition_text}] not met.", 'debug');
+          return FALSE;
+        }
       }
     }
 

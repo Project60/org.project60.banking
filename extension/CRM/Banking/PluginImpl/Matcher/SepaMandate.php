@@ -544,6 +544,9 @@ class CRM_Banking_PluginImpl_Matcher_SepaMandate extends CRM_Banking_PluginModel
       }
       $smarty->popScope();
 
+      // at some point, all newlines got replaced with <br/> - we don't want that:
+      $details = str_replace("\n", '', $details);
+
       $activity_parameters = array(
         'version'            => 3,
         'activity_type_id'   => $config->cancellation_create_activity_type_id,

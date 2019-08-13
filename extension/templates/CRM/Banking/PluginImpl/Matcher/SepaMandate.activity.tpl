@@ -23,6 +23,12 @@
     <td>{ts domain='org.project60.banking'}Mandate{/ts}</td>
     <td>({$mandate.type}) <a href="{crmURL p="civicrm/sepa/xmandate" q="mid=$mandate_id"}">{$mandate.reference}</a></td>
   </tr>
+  {if $mandate.type == 'RCUR'}
+  <tr>
+    <td>{ts domain='org.project60.banking'}Collection{/ts}</td>
+    <td>{ts domain='org.project60.banking' 1=$mandate.rcur_frequency 2=$mandate.rcur_cycle_day}%1 on the %2.{/ts}</td>
+  </tr>
+  {/if}
   <tr>
     <td>{ts domain='org.project60.banking'}Contribution{/ts}</td>
     <td>

@@ -161,17 +161,17 @@ class CRM_Banking_Page_Payments extends CRM_Core_Page {
     if ($_REQUEST['status_ids']==$payment_states['new']['id']) {
       // 'NEW' mode will show all that have not been completely analysed
       $this->assign('rows', $statements_new);
-      $this->assign('status_message', sprintf(E::ts("%d incomplete statments."), sizeof($statements_new)));
+      $this->assign('status_message', sprintf(E::ts("%d incomplete statments."), count($statements_new)));
 
     } elseif ($_REQUEST['status_ids']==$payment_states['suggestions']['id']) {
       // 'ANALYSED' mode will show all that have been partially analysed, but not all completed
       $this->assign('rows', $statements_analysed);
-      $this->assign('status_message', sprintf(E::ts("%d analysed statments."), sizeof($statements_analysed)));
+      $this->assign('status_message', sprintf(E::ts("%d analysed statments."), count($statements_analysed)));
 
     } else {
       // 'COMPLETE' mode will show all that have been entirely processed
       $this->assign('rows', $statements_completed);
-      $this->assign('status_message', sprintf(E::ts("%d completed statments."), sizeof($statements_completed)));
+      $this->assign('status_message', sprintf(E::ts("%d completed statments."), count($statements_completed)));
     }
 
     $this->assign('count_new',       count($statements_new));

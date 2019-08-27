@@ -166,4 +166,15 @@ class CRM_Banking_Upgrader extends CRM_Banking_Upgrader_Base {
     banking_civicrm_install_options(_banking_options());
     return true;
   }
+
+  /**
+   * Upgrader for 0.7.alpha7 release
+   *
+   * @return TRUE on success
+   */
+  public function upgrade_0704() {
+    // rebuild menu, in particular for the UI
+    CRM_Core_Invoke::rebuildMenuAndCaches();
+    return true;
+  }
 }

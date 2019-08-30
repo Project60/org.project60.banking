@@ -40,11 +40,13 @@ class CRM_Banking_PluginImpl_Importer_XML extends CRM_Banking_PluginModel_Import
 
   /**
    * parsed XML document
+   * @var DOMDocument
    */
   protected $document = NULL;
 
   /**
-   * XPath query engine
+   * XPath query engine on the current path
+   * @var DOMXPath
    */
   protected $xpath = NULL;
 
@@ -158,7 +160,18 @@ class CRM_Banking_PluginImpl_Importer_XML extends CRM_Banking_PluginModel_Import
     $config = $this->_plugin_config;
     $this->reportProgress(0.0, sprintf("Starting to read file '%s'...", $params['source']));
     $this->initDocument($file_path, $params);
+    $this->importStatement();
+    $this->reportDone();
+  }
 
+  /**
+   * Import the given statement
+   *
+   * @param $node   DOMNode  root node
+   * @param $xpath  DOMXPath index
+   */
+  protected function importStatement($context_node = NULL) {
+    $config = $this->_plugin_config;
     $batch = $this->openTransactionBatch();
 
     // execute rules for statement
@@ -190,7 +203,7 @@ class CRM_Banking_PluginImpl_Importer_XML extends CRM_Banking_PluginModel_Import
       }
 
       // iterate nodes
-      $payments = $this->xpath->query($payment_spec->path);
+      $payments = $this->xpath->query($payment_spec->path, $context_node);
       foreach ($payments as $payment_node) {
         $index += 1;
 
@@ -230,7 +243,6 @@ class CRM_Banking_PluginImpl_Importer_XML extends CRM_Banking_PluginModel_Import
     } else {
       $this->closeTransactionBatch(FALSE);
     }
-    $this->reportDone();
   }
 
   /**

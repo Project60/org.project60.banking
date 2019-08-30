@@ -284,6 +284,35 @@ class CRM_Banking_Page_Review extends CRM_Core_Page {
       if ($url_redirect) {
         CRM_Utils_System::redirect($url_redirect);
       }
+
+      $summaryTemplates = [
+        'ReviewBasic',
+        'ReviewTransaction',
+        'ReviewDebtor',
+        'ReviewPurpose',
+        'ReviewDetails',
+      ];
+      $vars = $this->get_template_vars();
+      $template = CRM_Core_Smarty::singleton();
+      $template->assignAll($vars);
+      $summary_blocks = [];
+      foreach ($summaryTemplates as $summaryTemplate) {
+        $summary_blocks[$summaryTemplate] = $template->fetch(
+          "CRM/Banking/Page/{$summaryTemplate}.tpl"
+        );
+      }
+      CRM_Utils_Hook::singleton()->invoke(
+        ['banking_transaction', 'summary_blocks'],
+        $btx_bao,
+        $summary_blocks,
+        CRM_Utils_Hook::$_nullObject,
+        CRM_Utils_Hook::$_nullObject,
+        CRM_Utils_Hook::$_nullObject,
+        CRM_Utils_Hook::$_nullObject,
+        'civicrm_banking_transaction_summary'
+      );
+      $this->assign('summary_blocks', $summary_blocks);
+
       parent::run();
   }
 

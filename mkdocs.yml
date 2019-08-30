@@ -14,6 +14,9 @@ pages:
 - Techie - How to create a matcher: create-matcher.md
 - Techie - How to extend memberships when a payment is received: membership-extension-post-processor.md
 - Techie - How to create a postprocessor: create-postprocessor.md
+- Techie - Hooks:
+  - Introduction: hooks/index.md
+  - hook_civicrm_banking_transaction_summary: hooks/hook_civicrm_banking_transaction_summary.md
 
 markdown_extensions:
   - attr_list

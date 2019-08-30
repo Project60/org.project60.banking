@@ -125,7 +125,7 @@ class CRM_Banking_PluginImpl_Importer_CSV extends CRM_Banking_PluginModel_Import
       // update stats
       $line_nr += 1;
       foreach ($line as $item) $bytes_read += strlen($item);
-      $bytes_read += strlen($line) * strlen($config->delimiter);
+      $bytes_read += count($line) * strlen($config->delimiter);
 
       // check if we want to skip line (by count)
       if ($line_nr <= $config->skip) continue;

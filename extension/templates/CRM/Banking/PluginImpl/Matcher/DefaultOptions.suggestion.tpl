@@ -140,6 +140,10 @@
             } else {
               item_label += " ({/literal}{ts domain='org.project60.banking'}unknown address{/ts}{literal})";
             }
+            hook_label = cj(document).triggerHandler('banking_contact_option_element', [item_label, contact]);
+            if (typeof hook_label != 'undefined') {
+              item_label = hook_label;
+            }
             if (select) {
               var item = "<option selected =\"true\" value=\""+ contact.id + "\">"+item_label+"</option>";
             } else {

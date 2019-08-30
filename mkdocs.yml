@@ -17,6 +17,7 @@ pages:
 - Techie - Hooks:
   - Introduction: hooks/index.md
   - hook_civicrm_banking_transaction_summary: hooks/hook_civicrm_banking_transaction_summary.md
+  - banking_contact_option_element: hooks/banking_contact_option_element.md
 
 markdown_extensions:
   - attr_list

@@ -160,27 +160,66 @@ class CRM_Banking_PluginImpl_Importer_XML extends CRM_Banking_PluginModel_Import
     $config = $this->_plugin_config;
     $this->reportProgress(0.0, sprintf("Starting to read file '%s'...", $params['source']));
     $this->initDocument($file_path, $params);
-    $this->importStatement();
+
+    if (empty($config->stmt_path)) {
+      // not stmt_path => the whole document is assumed one statement
+
+      // first: set the count
+      $params['total_tx_count'] = 0;
+      foreach ($config->payments as $payment_spec) {
+        $params['total_tx_count'] += $this->xpath->query($payment_spec->path)->length;
+      }
+      foreach ($config->payment_lines as $payment_spec) {
+        $params['total_tx_count'] += $this->xpath->query($payment_spec->path)->length;
+      }
+
+      // then: run the importer
+      $this->importStatement($params);
+
+    } else {
+      // stmt_path set => there are multiple statements in here
+      $statements = $this->xpath->query($config->stmt_path);
+
+      // first: set the count
+      $params['total_tx_count'] = 0;
+      foreach ($statements as $statement) {
+        foreach ($config->payments as $payment_spec) {
+          $params['total_tx_count'] += $this->xpath->query($payment_spec->path, $statement)->length;
+        }
+        foreach ($config->payment_lines as $payment_spec) {
+          $params['total_tx_count'] += $this->xpath->query($payment_spec->path, $statement)->length;
+        }
+      }
+
+      // then: run the importer
+      $index = 0;
+      foreach ($statements as $statement) {
+        $this->importStatement($params, $index, $statement);
+      }
+    }
+
     $this->reportDone();
   }
 
   /**
    * Import the given statement
    *
-   * @param $node   DOMNode  root node
-   * @param $xpath  DOMXPath index
+   * @param $params       array    parameters
+   * @param $index        int      index of last transaction imported
+   * @param $context_node DOMNode
    */
-  protected function importStatement($context_node = NULL) {
+  protected function importStatement($params, &$index = 0, $context_node = NULL) {
     $config = $this->_plugin_config;
+    $this->logMessage("Starting new batch.", 'debug');
     $batch = $this->openTransactionBatch();
 
     // execute rules for statement
-    $data = array();
+    $data =[];
     foreach ($config->rules as $rule) {
-      $this->apply_rule($rule, NULL, $data);
+      $this->apply_rule($rule, $context_node, $data);
     }
 
-    // collect payment indentifier specs
+    // collect payment identifier specs
     //  $config->payments is a single, deprecated spec
     $payment_specs = array();
     if (!empty($config->payments)) {
@@ -190,7 +229,6 @@ class CRM_Banking_PluginImpl_Importer_XML extends CRM_Banking_PluginModel_Import
       $payment_specs[] = $payment_line;
     }
 
-    $index = 0;
     foreach ($payment_specs as $payment_spec) {
       // compile filter list
       if (!empty($payment_spec->filters)) {
@@ -219,7 +257,7 @@ class CRM_Banking_PluginImpl_Importer_XML extends CRM_Banking_PluginModel_Import
         if (!$node_accepted) continue;
 
         // import the line
-        $this->import_payment($payment_spec, $payment_node, $data, $index, $payments->length, $params);
+        $this->import_payment($payment_spec, $payment_node, $data, $index, $params);
       }
     }
 
@@ -273,21 +311,21 @@ class CRM_Banking_PluginImpl_Importer_XML extends CRM_Banking_PluginModel_Import
   /**
    * Processes and imports one individual payment node
    */
-  protected function import_payment($payment_spec, $payment_node, $stmt_data, $index, $count, $params) {
+  protected function import_payment($payment_spec, $payment_node, $stmt_data, $index, $params) {
     $config = $this->_plugin_config;
-    $progress = ((float)$index / (float)$count);
+    $progress = ((float)$index / (float) $params['total_tx_count']);
 
     $raw_data = $payment_node->ownerDocument->saveXML($payment_node);
     $raw_data = preg_replace("/>\s+</", "><", $raw_data);      // 'flatten' raw_data
 
-    $data = array(
-      'version' => 3,
-      'currency' => 'EUR',
-      'type_id' => 0,
-      'status_id' => 0,
-      'data_raw' => $raw_data,
-      'sequence' => $index,
-    );
+    $data = [
+        'version'   => 3,
+        'currency'  => 'EUR',
+        'type_id'   => 0,
+        'status_id' => 0,
+        'data_raw'  => $raw_data,
+        'sequence'  => $index,
+    ];
 
     // set default values from config:
     foreach ($config->defaults as $key => $value) {
@@ -364,6 +402,7 @@ class CRM_Banking_PluginImpl_Importer_XML extends CRM_Banking_PluginModel_Import
    */
   protected function apply_rule($rule, $context, &$data) {
     // evaluate the condition (if present)
+    $this->logMessage("Applying rule: " . json_encode($rule), 'debug');
     if (!$this->checkCondition($rule, $context, $data)) {
       return;
     }

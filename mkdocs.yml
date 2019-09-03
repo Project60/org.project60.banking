@@ -20,7 +20,8 @@ markdown_extensions:
   - admonition
   - def_list
   - codehilite
-  - toc(permalink=true)
+  - toc:
+      permalink: true
   - pymdownx.superfences
   - pymdownx.inlinehilite
   - pymdownx.tilde

@@ -166,7 +166,7 @@ class CRM_Banking_PluginImpl_Importer_CSV extends CRM_Banking_PluginModel_Import
 
       if ($line_nr == $config->header) {
         // parse header
-        if (strlen($header)==0) {
+        if (count($header)==0) {
           $header = $line;
         }
       } else {

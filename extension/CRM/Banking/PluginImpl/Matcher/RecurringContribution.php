@@ -103,7 +103,7 @@ class CRM_Banking_PluginImpl_Matcher_RecurringContribution extends CRM_Banking_P
 
     // create suggestions
     if (!empty($config->search_terms)) {
-      $query = $this->getPropagationSet($btx, $suggestion, '', $config->search_terms);
+      $query = $this->getPropagationSet($btx, NULL, '', $config->search_terms);
     } else {
       $query = array();
     }
@@ -459,7 +459,7 @@ class CRM_Banking_PluginImpl_Matcher_RecurringContribution extends CRM_Banking_P
         FROM civicrm_contribution 
         WHERE contribution_recur_id IN ($rcur_id)
           AND contribution_status_id IN ($existing_status_list)
-          AND (receive_date BETWEEN ('$expected_date_string' - INTERVAL $date_offset_minimum)
+          AND (receive_date BETWEEN ('$expected_date_string' + INTERVAL $date_offset_minimum)
                                 AND ('$expected_date_string' + INTERVAL $date_offset_maximum) );";
         $sql_query = CRM_Core_DAO::executeQuery($sql);
         while ($sql_query->fetch()) {

@@ -350,11 +350,11 @@ class CRM_Banking_PluginImpl_PostProcessor_MembershipExtension extends CRM_Banki
       $membership_query['status_id'] = ['IN' => self::getCurrentStatusIDs()];
     }
 
-    if ($this->filter_max_end_date) {
+    if ($config->filter_max_end_date) {
       if (empty($contribution['receive_date'])) {
         $this->logMessage("Contribution [{$contribution['id']}] has no receive_date, date filtering disabled.", 'warn');
       } else {
-        $maximum_date = strtotime($this->filter_max_end_date, strtotime($contribution['receive_date']));
+        $maximum_date = strtotime($config->filter_max_end_date, strtotime($contribution['receive_date']));
         $membership_query['end_date'] = ['<=' => date('Y-m-d', $maximum_date)];
       }
     }
@@ -377,6 +377,7 @@ class CRM_Banking_PluginImpl_PostProcessor_MembershipExtension extends CRM_Banki
     }
 
     // FINALLY: LOAD THE MEMBERSHIPS AND FILTER THEM SOME MORE
+    $this->logMessage("Finding eligible memberships: " . json_encode($membership_query), 'debug');
     $memberships_found = civicrm_api3('Membership', 'get', $membership_query)['values'];
     foreach ($memberships_found as $membership_found) {
       if ($config->filter_minimum_amount === TRUE) {
@@ -444,7 +445,7 @@ class CRM_Banking_PluginImpl_PostProcessor_MembershipExtension extends CRM_Banki
     }
 
     // query DB
-    $this->logMessage("Find eligible contributions: " . json_encode($contribution_query), 'debug');
+    $this->logMessage("Finding eligible contributions: " . json_encode($contribution_query), 'debug');
     $result = civicrm_api3('Contribution', 'get', $contribution_query);
     $contributions = array();
 

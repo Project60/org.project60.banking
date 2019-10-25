@@ -236,10 +236,10 @@ class CRM_Banking_PluginImpl_Importer_Fixed extends CRM_Banking_PluginModel_Impo
     switch ($rule->type) {
       case 'extract':
         if (strpos($rule->position, '-') !== FALSE) {
-          list($pos_from, $pos_to) = split('-', $rule->position);
+          list($pos_from, $pos_to) = explode('-', $rule->position);
           $length = $pos_to - $pos_from + 1;
         } elseif (strpos($rule->position, '+') !== FALSE) {
-          list($pos_from, $length) = split('+', $rule->position);
+          list($pos_from, $length) = explode('+', $rule->position);
         } else {
           // TODO: error handling
         }

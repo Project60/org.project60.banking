@@ -412,6 +412,12 @@ class CRM_Banking_PluginImpl_Importer_XML extends CRM_Banking_PluginModel_Import
       // will just set a constant string
       $data[$rule->to] = $rule->from;
 
+    } elseif ($this->startsWith($rule->type, 'align_date')) {
+      // ALIGN a date forwards or backwards
+      $params = explode(":", $rule->type, 2);
+      $offset = ($params[1] == 'backward') ? "-1 day" : "+1 day";
+      $btx[$rule->to] = CRM_Utils_BankingToolbox::alignDateTime($value, $offset, explode(',', $rule->skip));
+
     } elseif ($this->startsWith($rule->type, 'strtotime')) {
       // STRTOTIME is a date parser
       $value = $this->getValue($rule->from, $data, $context);
@@ -515,13 +521,5 @@ class CRM_Banking_PluginImpl_Importer_XML extends CRM_Banking_PluginModel_Import
       return TRUE;
     }
   }
-
-  /**
-   * helper function for prefix testing
-   */
-  protected function startsWith($string, $prefix) {
-    return substr($string, 0, strlen($prefix)) === $prefix;
-  }
-
 }
 

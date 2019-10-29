@@ -102,6 +102,11 @@ class CRM_Banking_PluginImpl_Matcher_RegexAnalyser extends CRM_Banking_PluginMod
         // SET value regardless of the match context
         $data_parsed[$action->to] = $action->value;
 
+      } elseif ($action->action=='align_date') {
+        // ALIGN a date forwards or backwards
+        $value = $this->getValue($action->from, $match_data, $match_index, $data_parsed, $btx);
+        $data_parsed[$action->to] = CRM_Utils_BankingToolbox::alignDateTime($value, $rule->offset, $rule->skip);
+
       } elseif ($action->action=='unset') {
         // UNSET a certain value
         unset($data_parsed[$action->to]);

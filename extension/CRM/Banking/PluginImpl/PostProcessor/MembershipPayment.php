@@ -305,6 +305,9 @@ class CRM_Banking_PluginImpl_PostProcessor_MembershipPayment extends CRM_Banking
     }
 
     // add return clause
+    if (!is_array($config->contribution_fields_required)) {
+      $config->contribution_fields_required = [];
+    }
     $config->contribution_fields_required[] = 'id';
     $config->contribution_fields_required[] = 'contribution_recur_id';
     $config->contribution_fields_required[] = 'payment_instrument_id';

@@ -47,7 +47,7 @@ class CRM_Banking_PluginImpl_PostProcessor_MembershipExtension extends CRM_Banki
     // how to identify the memberships:
     if (!isset($config->find_via_contact))               $config->find_via_contact               = TRUE;            // consider all memberships with the same contact
     if (!isset($config->find_via_payment))               $config->find_via_payment               = TRUE;            // consider all memberships linked by membership_payment
-    if (!isset($config->find_via_btxfield))              $config->find_via_btxfield              = 'membership_id'; // consider all membership IDs in the content of this btx field
+    if (!isset($config->find_via_btxfield))              $config->find_via_btxfield              = 'btx.membership_id'; // consider all membership IDs in the content of this btx field
 
     // how to filter the memberships
     if (!isset($config->filter_current))                 $config->filter_current                 = TRUE;  // current memberships only
@@ -328,7 +328,7 @@ class CRM_Banking_PluginImpl_PostProcessor_MembershipExtension extends CRM_Banki
       }
     }
 
-    // OPTION 2: FIND VIA MEMBERSHIP PAYMENT LINK
+    // OPTION 2: FIND VIA TRANSACTION FIELD VALUE
     if ($config->find_via_btxfield) {
       $membership_id = (int) $this->getPropagationValue($context->btx, $match, $config->find_via_btxfield);
       if ($membership_id) {

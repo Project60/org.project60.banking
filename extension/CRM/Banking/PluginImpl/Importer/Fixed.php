@@ -407,7 +407,7 @@ class CRM_Banking_PluginImpl_Importer_Fixed extends CRM_Banking_PluginModel_Impo
     // do some post processing
     if (!isset($config->bank_reference)) {
       // set SHA1 hash as unique reference
-      $btx['bank_reference'] = sha1(json_encode($btx));
+      $btx['bank_reference'] = sha1($btx['data_raw']);
     } else {
       // we have a template
       $bank_reference = $config->bank_reference;

@@ -305,7 +305,11 @@ class CRM_Banking_PluginImpl_Importer_Fixed extends CRM_Banking_PluginModel_Impo
         $value = $this->getValue($rule->from);
         $datetime = DateTime::createFromFormat($rule->format, $value);
         if ($datetime) {
-          $date_value = $datetime->format('YmdHis');
+          if (isset($rule->store_format)) {
+            $date_value = $datetime->format($rule->store_format);
+          } else {
+            $date_value = $datetime->format('YmdHis');
+          }
           $this->storeValue($rule->to, $date_value);
         } else {
           // TODO: error handling date format wrong

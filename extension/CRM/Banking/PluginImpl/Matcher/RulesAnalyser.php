@@ -55,6 +55,9 @@ class CRM_Banking_PluginImpl_Matcher_RulesAnalyser extends CRM_Banking_PluginMod
     // for documentation: set all matchin rule (names/ids) to the given data field
     if (!isset($config->copy_matching_rule_names_to)) $config->copy_matching_rule_names_to = '';
     if (!isset($config->copy_matching_rule_ids_to))   $config->copy_matching_rule_ids_to   = '';
+    if (!isset($config->lookup_contact_by_name)) {
+      $config->lookup_contact_by_name = [];
+    }
   }
 
   /**

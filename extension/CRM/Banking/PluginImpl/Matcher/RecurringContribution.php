@@ -67,7 +67,7 @@ class CRM_Banking_PluginImpl_Matcher_RecurringContribution extends CRM_Banking_P
     // check existing payments
     if (!isset($config->existing_check))                $config->existing_check = "1";
     if (!isset($config->existing_penalty))              $config->existing_penalty = 0.3;
-    if (!isset($config->existing_status_ids))           $config->existing_status_ids = array(1,2);
+    if (!isset($config->existing_status_list))          $config->existing_status_list = [1,2];
   }
 
   /** 
@@ -636,7 +636,9 @@ class CRM_Banking_PluginImpl_Matcher_RecurringContribution extends CRM_Banking_P
       $query['contribution_status_id'] = array('IN' => $config->recurring_contribution_status);
     }
 
+    $this->logMessage("Finding recurring contributions for: " . json_encode($query), 'debug');
     $rcur_result = civicrm_api3('ContributionRecur', 'get', $query);
+    $this->logMessage("Found {$rcur_result['count']} recurring contributions.", 'debug');
     $rcontributions = array();
     foreach ($rcur_result['values'] as $key => $value) {
       $rcontributions[] = $value;
@@ -658,6 +660,7 @@ class CRM_Banking_PluginImpl_Matcher_RecurringContribution extends CRM_Banking_P
         $result[] = $this->createVirtualRecurringContribution($tuple);
         if (count($result) >= $config->multimatch_cutoff) break;
       }
+      $this->logMessage("Constructed " . count($result) . " virtual recurring contributions.", 'debug');
       return $result;
     } else {
       return $rcontributions;

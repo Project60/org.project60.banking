@@ -68,16 +68,16 @@ class CRM_Banking_Page_AccountDedupe extends CRM_Core_Page {
 
     $sql = "SELECT *
                 FROM (SELECT
-                        civicrm_bank_account_reference.id AS reference_id,
-                        COUNT(civicrm_bank_account_reference.id) AS dupe_count,
-                        COUNT(DISTINCT(ba_id)) AS ba_count,
-                        COUNT(DISTINCT(contact_id)) AS contact_count,
-                        MAX(modified_date) AS last_change,
+                        civicrm_bank_account_reference.id reference_id,
+                        COUNT(civicrm_bank_account_reference.id) dupe_count,
+                        COUNT(DISTINCT(ba_id))      ba_count,
+                        COUNT(DISTINCT(contact_id)) contact_count,
+                        MAX(modified_date)          last_change,
                         reference,
                         reference_type_id
                       FROM civicrm_bank_account_reference
                       LEFT JOIN civicrm_bank_account ON ba_id = civicrm_bank_account.id
-                      GROUP BY reference_id, reference, reference_type_id
+                      GROUP BY reference, reference_type_id
                       ORDER BY last_change DESC
                       ) AS dupequery
                 WHERE dupequery.dupe_count > 1;";

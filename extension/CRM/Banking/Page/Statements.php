@@ -18,18 +18,19 @@ class CRM_Banking_Page_Statements extends CRM_Core_Page {
       btxb.id AS id,
       ba.id AS ba_id,
       reference,
-      btxb.sequence AS sequence,
-      DATE(starting_date) AS starting_date,
-      DATE(ending_date) AS ending_date,
+      btxb.sequence as sequence,
+      DATE(starting_date) as starting_date,
+      DATE(ending_date) as ending_date,
       tx_count,
-      ba.data_parsed AS data_parsed,
-      SUM(btx.amount) AS total,
-      btx.currency AS currency";
-    $statementFrom = "FROM civicrm_bank_tx_batch AS btxb
-      LEFT JOIN civicrm_bank_tx AS btx ON btx.tx_batch_id = btxb.id
-      LEFT JOIN civicrm_bank_account AS ba ON ba.id = btx.ba_id";
+      ba_id,
+      ba.data_parsed as data_parsed,
+      sum(btx.amount) as total,
+      btx.currency as currency";
+    $statementFrom = "FROM civicrm_bank_tx_batch btxb
+      LEFT JOIN civicrm_bank_tx btx ON btx.tx_batch_id = btxb.id
+      LEFT JOIN civicrm_bank_account ba ON ba.id = btx.ba_id";
     $statementWhere = "WHERE ";
-    $statementGroupBy = "GROUP BY btxb.id, ba_id, reference, btxb.sequence, starting_date, ending_date, tx_count, ba.data_parsed, btx.currency ";
+    $statementGroupBy = "GROUP BY btxb.id";
     $statementOrderBy = "ORDER BY starting_date DESC";
     $statementLimit = "LIMIT %1, %2";
     $paramCount = 2;

@@ -132,7 +132,7 @@ class CRM_Banking_Page_Dashboard extends CRM_Core_Page {
   	  COUNT(id)    		AS count,
   	  MIN(value_date)	AS first_payment,
   	  MAX(value_date)	AS last_payment,
-  	  status_id		AS status_id
+  	  status_id			AS status_id
   	FROM
   	  civicrm_bank_tx
   	WHERE 

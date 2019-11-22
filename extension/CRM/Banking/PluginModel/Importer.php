@@ -264,10 +264,6 @@ abstract class CRM_Banking_PluginModel_Importer extends CRM_Banking_PluginModel_
         $reference = str_replace('{md5}', md5($this->_current_transaction_batch_attributes['references']), $reference);
         $reference = str_replace('{starting_date}', date($dateFormat, strtotime($this->_current_transaction_batch->starting_date)), $reference);
         $reference = str_replace('{ending_date}', date($dateFormat, strtotime($this->_current_transaction_batch->ending_date)), $reference);
-        if (($refl = strlen($reference)) > 50)
-        {
-            $reference = substr($reference, $refl-50);
-        }
 
         // make sure, this reference doesn't exist yet
         $final_reference = $reference;
@@ -281,7 +277,7 @@ abstract class CRM_Banking_PluginModel_Importer extends CRM_Banking_PluginModel_
           $final_reference = $reference . "-DUPLICATE-$counter";
           $query_params[1] = array($final_reference, 'String');
         }
-                
+
         $this->_current_transaction_batch->reference = $final_reference;
         $this->_current_transaction_batch->save();
       } else if ($this->_current_transaction_batch_attributes['isnew']) {

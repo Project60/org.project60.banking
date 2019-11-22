@@ -74,7 +74,7 @@ class CRM_Banking_Page_Dashboard extends CRM_Core_Page {
 
     // fill empty weeks
     foreach ($account_week_data as $account_id => $account_data) {
-    	for ($i=$week_count; $i>=0; $i--) { 
+    	for ($i=$week_count; $i>=0; $i--) {
     		$week = date('YW', strtotime("now -$i weeks"));
     		if (!isset($account_data[$week])) {
     			$account_week_data[$account_id][$week] = array('sum' => 0);
@@ -118,8 +118,8 @@ class CRM_Banking_Page_Dashboard extends CRM_Core_Page {
     			"1",
     			$payment_states);
 	$this->assign('statistics', $statistics);
-    
-    parent::run();	
+
+    parent::run();
   }
 
   function calculateStats($name, $where_clause, $payment_states) {
@@ -132,10 +132,10 @@ class CRM_Banking_Page_Dashboard extends CRM_Core_Page {
   	  COUNT(id)    		AS count,
   	  MIN(value_date)	AS first_payment,
   	  MAX(value_date)	AS last_payment,
-  	  status_id			AS status_id
+  	  status_id		AS status_id
   	FROM
   	  civicrm_bank_tx
-  	WHERE 
+  	WHERE
   	  $where_clause
   	GROUP BY
   	  status_id;

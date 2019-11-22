@@ -34,30 +34,33 @@ class CRM_Banking_Page_AccountSearch extends CRM_Core_Page {
 
         // build query
         $query = "
-            SELECT 
-                contact.id, 
+            SELECT
+                contact.id,
                 contact.display_name,
                 contact.contact_type,
                 ref.reference,
                 ref.reference_type_id,
                 ba.data_parsed
-            FROM 
-                civicrm_bank_account_reference ref, 
-                civicrm_bank_account ba, 
-                civicrm_contact contact
-            WHERE 
-                    ref.ba_id = ba.id 
+            FROM
+                civicrm_bank_account_reference AS ref,
+                civicrm_bank_account AS ba,
+                civicrm_contact AS contact
+            WHERE
+                    ref.ba_id = ba.id
                 AND ba.contact_id = contact.id
                 AND (ref.reference LIKE \"%{$query_param}%\" $extended_search)
             GROUP BY
-                contact.id;
+                contact.id,
+                ref.reference,
+                ref.reference_type_id,
+                ba.data_parsed;
             ";      // add LIMIT 0, 50;
         $dao = CRM_Core_DAO::executeQuery($query);
 
         $types = array();
         $results = array();
         while ($dao->fetch()) {
-            array_push($results, 
+            array_push($results,
                 array(
                     'display_name'   => $dao->display_name,
                     'contact_type'   => $dao->contact_type,

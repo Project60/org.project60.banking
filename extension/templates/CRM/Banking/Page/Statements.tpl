@@ -80,7 +80,7 @@
       </tr>
       </tbody>
     </table>
-    
+
     <div class="crm-submit-buttons">
     <input type="submit" class="crm-form-submit" value="{ts domain='org.project60.banking'}Filter{/ts}">
     </div>
@@ -137,6 +137,7 @@
 
 <div>
   <a id="processButton" class="button" onClick="processSelected()"><span>{ts domain='org.project60.banking'}Analyse &amp; Process{/ts}</span></a>
+  <a id="exportButton"  class="button" onClick="callWithSelected('{$url_export_selected_payments}', false)"><span>{ts domain='org.project60.banking'}Export{/ts}</span></a>
   <a href="{crmURL p="civicrm/banking/import"}"  class="button">{ts domain='org.project60.banking'}Import{/ts}</a>
 </div>
 
@@ -164,6 +165,18 @@ function getSelected() {
     }
   }
   return selected;
+}
+
+function callWithSelected(url, forced) {
+  var selected = getSelected();
+  if (selected || forced) {
+    location.href = url.replace("__selected__", selected);
+  } else {
+    {/literal}
+    var message = "{ts domain='org.project60.banking'}Please select one or more items{/ts}";
+    {literal}
+    window.alert(message);
+  }
 }
 
 function processSelected() {

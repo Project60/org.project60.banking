@@ -392,6 +392,10 @@ class CRM_Banking_PluginImpl_Importer_CSV extends CRM_Banking_PluginModel_Import
 
     } elseif ($this->startsWith($rule->type, 'amount')) {
       // AMOUNT will take care of currency issues, like "," instead of "."
+      $btx[$rule->to] = str_replace(",", ".", $value);
+
+    } elseif ($this->startsWith($rule->type, 'amountparse')) {
+      // AMOUNT will take care of currency issues, like "," instead of "."
       $value = preg_replace('/\.(?=[\d\.]*,\d{2}\b)/', '', $value); //remove thousand separator dots (e.g. in "10.000,00")
       $value = preg_replace('/,(?=[\d,]*\.\d{2}\b)/', '', $value); //remove thousand separator commas (e.g. in "10,000.00") 
       $btx[$rule->to] = str_replace(",", ".", $value);

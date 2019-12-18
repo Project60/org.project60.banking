@@ -20,7 +20,7 @@ require_once 'CRM/Banking/Helpers/OptionValue.php';
 require_once 'packages/eval-math/evalmath.class.php';
 
 /**
- * This matcher tries to reconcile the payments with existing contributions. 
+ * This matcher tries to reconcile the payments with existing contributions.
  * There are two modes:
  *   default      - matches e.g. to pending contributions and changes the status to completed
  *   cancellation - matches negative amounts to completed contributions and changes the status to cancelled
@@ -29,7 +29,7 @@ class CRM_Banking_PluginImpl_Matcher_ExistingContribution extends CRM_Banking_Pl
 
   /**
    * class constructor
-   */ 
+   */
   function __construct($config_name) {
     parent::__construct($config_name);
 
@@ -39,7 +39,7 @@ class CRM_Banking_PluginImpl_Matcher_ExistingContribution extends CRM_Banking_Pl
     if (!isset($config->mode)) $config->mode = "default";     // other mode is "cancellation"
     if (!isset($config->title)) $config->title = "";          // default title
     if (!isset($config->accepted_contribution_states)) $config->accepted_contribution_states = array("Completed", "Pending");
-    if (!isset($config->lookup_contact_by_name)) $config->lookup_contact_by_name = array('soft_cap_probability' => 0.8, 'soft_cap_min' => 5, 'hard_cap_probability' => 0.4);    
+    if (!isset($config->lookup_contact_by_name)) $config->lookup_contact_by_name = array('soft_cap_probability' => 0.8, 'soft_cap_min' => 5, 'hard_cap_probability' => 0.4);
 
     // search IDs and/or external ID list
     if (!isset($config->contribution_search))   $config->contribution_search = "1";
@@ -47,7 +47,7 @@ class CRM_Banking_PluginImpl_Matcher_ExistingContribution extends CRM_Banking_Pl
 
     // date check / date range
     if (!isset($config->received_date_check))        $config->received_date_check = "1";  // WARNING: DISABLING THIS COULD MAKE THE PROCESS VERY SLOW
-    if (!isset($config->received_range_days))        $config->received_range_days = 366;  // WARNING: INCREASING THIS COULD MAKE THE PROCESS VERY SLOW    
+    if (!isset($config->received_range_days))        $config->received_range_days = 366;  // WARNING: INCREASING THIS COULD MAKE THE PROCESS VERY SLOW
     if (!isset($config->received_date_minimum))      $config->received_date_minimum = "-100 days";
     if (!isset($config->received_date_maximum))      $config->received_date_maximum = "+1 days";
     if (!isset($config->date_penalty))               $config->date_penalty = 1.0;
@@ -102,13 +102,13 @@ class CRM_Banking_PluginImpl_Matcher_ExistingContribution extends CRM_Banking_Pl
     }
     $contribution_amount = $contribution['total_amount'];
     $target_date = strtotime($context->btx->value_date);
-    $contribution_date = (int) strtotime($contribution['receive_date']);
+    $contribution_date = (int) strtotime(date('Y-m-d', strtotime($contribution['receive_date'])));
 
     // check for date limits
     if ($config->received_date_check) {
       if ($contribution_date < strtotime($config->received_date_minimum, $target_date)) return -1;
       if ($contribution_date > strtotime($config->received_date_maximum, $target_date)) return -1;
-      
+
       // calculate the date penalties
       $date_delta = abs($contribution_date - $target_date);
       $date_range = max(1, strtotime($config->received_date_maximum) - strtotime($config->received_date_minimum));
@@ -123,7 +123,7 @@ class CRM_Banking_PluginImpl_Matcher_ExistingContribution extends CRM_Banking_Pl
       if (   ($contribution_amount < ($target_amount * $config->amount_relative_minimum))
           && ($amount_delta < $config->amount_absolute_minimum)) return -1;
       if (   ($contribution_amount > ($target_amount * $config->amount_relative_maximum))
-          && ($amount_delta > $config->amount_absolute_maximum)) return -1;      
+          && ($amount_delta > $config->amount_absolute_maximum)) return -1;
 
       $amount_range_rel = $contribution_amount * ($config->amount_relative_maximum - $config->amount_relative_minimum);
       $amount_range_abs = $config->amount_absolute_maximum - $config->amount_absolute_minimum;
@@ -134,7 +134,7 @@ class CRM_Banking_PluginImpl_Matcher_ExistingContribution extends CRM_Banking_Pl
 
     // payment_instrument match?
     $payment_instrument_penalty = 0.0;
-    if (    $config->payment_instrument_penalty 
+    if (    $config->payment_instrument_penalty
         &&  isset($contribution['payment_instrument_id'])
         &&  isset($parsed_data['payment_instrument']) ) {
       $contribution_payment_instrument_id = banking_helper_optionvalue_by_groupname_and_name('payment_instrument', $parsed_data['payment_instrument']);
@@ -156,7 +156,7 @@ class CRM_Banking_PluginImpl_Matcher_ExistingContribution extends CRM_Banking_Pl
 
   /**
    * Will get a the set of contributions of a given contact
-   * 
+   *
    * caution: will only the contributions of the last year
    *
    * @return an array with contributions
@@ -200,13 +200,13 @@ class CRM_Banking_PluginImpl_Matcher_ExistingContribution extends CRM_Banking_Pl
         array_push($accepted_status_ids, $status_id);
       }
     }
-    return $accepted_status_ids;    
+    return $accepted_status_ids;
   }
 
 
-  /** 
+  /**
    * Generate a set of suggestions for the given bank transaction
-   * 
+   *
    * @return array(match structures)
    */
   public function match(CRM_Banking_BAO_BankTransaction $btx, CRM_Banking_Matcher_Context $context) {
@@ -228,7 +228,7 @@ class CRM_Banking_PluginImpl_Matcher_ExistingContribution extends CRM_Banking_Pl
 
     // check if this is actually enabled
     if ($config->contribution_search) {
-      // find contacts    
+      // find contacts
       $contacts_found = $context->findContacts($threshold, $data_parsed['name'], $config->lookup_contact_by_name);
 
       // with the identified contacts, look up contributions
@@ -249,7 +249,7 @@ class CRM_Banking_PluginImpl_Matcher_ExistingContribution extends CRM_Banking_Pl
             $contributions[$contribution['id']] = $contribution_probability;
             $contribution2contact[$contribution['id']] = $contact_id;
             $contribution2totalamount[$contribution['id']] = $contribution['total_amount'];
-          }        
+          }
         }
       }
     }
@@ -295,9 +295,9 @@ class CRM_Banking_PluginImpl_Matcher_ExistingContribution extends CRM_Banking_Pl
           $suggestion->addEvidence(1.0, E::ts("Contact was positively identified."));
         } else {
           $suggestion->addEvidence($contacts_found[$contact_id], E::ts("Contact was likely identified."));
-        }        
+        }
       }
-      
+
       if ($contribution_probability>=1.0) {
         $suggestion->setTitle(E::ts("Matching contribution found"));
         if ($config->mode != "cancellation") {
@@ -362,7 +362,7 @@ class CRM_Banking_PluginImpl_Matcher_ExistingContribution extends CRM_Banking_Pl
 
   /**
    * Handle the different actions, should probably be handles at base class level ...
-   * 
+   *
    * @param type $match
    * @param type $btx
    */
@@ -395,7 +395,7 @@ class CRM_Banking_PluginImpl_Matcher_ExistingContribution extends CRM_Banking_Pl
         $query['cancel_reason'] = $suggestion->getParameter('cancel_reason');
       }
     }
-    
+
     $result = civicrm_api('Contribution', 'create', $query);
     if (isset($result['is_error']) && $result['is_error']) {
       CRM_Core_Session::setStatus(E::ts("Couldn't modify contribution.") . "<br/>" . $result['error_message'], E::ts('Error'), 'error');
@@ -435,13 +435,13 @@ class CRM_Banking_PluginImpl_Matcher_ExistingContribution extends CRM_Banking_Pl
     }
   }
 
-    /** 
+    /**
    * Generate html code to visualize the given match. The visualization may also provide interactive form elements.
-   * 
+   *
    * @val $match    match data as previously generated by this plugin instance
    * @val $btx      the bank transaction the match refers to
    * @return html code snippet
-   */  
+   */
   function visualize_match( CRM_Banking_Matcher_Suggestion $match, $btx) {
     $config = $this->_plugin_config;
     $smarty_vars = array();
@@ -452,7 +452,7 @@ class CRM_Banking_PluginImpl_Matcher_ExistingContribution extends CRM_Banking_Pl
 
     $contribution = civicrm_api('Contribution', 'getsingle', array('id' => $contribution_id, 'version' => 3));
     if (empty($contribution['is_error'])) {
-      $smarty_vars['contribution'] = $contribution;      
+      $smarty_vars['contribution'] = $contribution;
 
       $contact = civicrm_api('Contact', 'getsingle', array('id' => $contribution['contact_id'], 'version' => 3));
       if (empty($contact['is_error'])) {
@@ -488,13 +488,13 @@ class CRM_Banking_PluginImpl_Matcher_ExistingContribution extends CRM_Banking_Pl
     return $html_snippet;
   }
 
-  /** 
+  /**
    * Generate html code to visualize the executed match.
-   * 
+   *
    * @val $match    match data as previously generated by this plugin instance
    * @val $btx      the bank transaction the match refers to
    * @return html code snippet
-   */  
+   */
   function visualize_execution_info( CRM_Banking_Matcher_Suggestion $match, $btx) {
     // just assign to smarty and compile HTML
     $smarty_vars = array();

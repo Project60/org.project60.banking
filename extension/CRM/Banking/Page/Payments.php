@@ -98,8 +98,7 @@ class CRM_Banking_Page_Payments extends CRM_Core_Page {
           reference,
           btxb.sequence as sequence,
           starting_date,
-          tx_count,
-          ba_id,
+          tx_count,          
           ba.data_parsed as data_parsed,
           sum(btx.amount) as total,
           btx.currency as currency
@@ -112,7 +111,7 @@ class CRM_Banking_Page_Payments extends CRM_Core_Page {
           .
           "
         GROUP BY
-          id
+          id, ba_id, currency
         ORDER BY
           starting_date DESC;";
     $stmt = CRM_Core_DAO::executeQuery($sql_query);

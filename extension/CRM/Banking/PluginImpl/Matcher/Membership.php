@@ -294,7 +294,8 @@ class CRM_Banking_PluginImpl_Matcher_Membership extends CRM_Banking_PluginModel_
       AND civicrm_membership.membership_type_id IN (%s)
       AND (%s)
       GROUP BY
-        civicrm_membership.id;
+        civicrm_membership.id,
+        civicrm_contribution.receive_date;
       ";
 
       // LATEST CONTRIBUTION CRITERIA:

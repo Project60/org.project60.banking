@@ -136,15 +136,27 @@ class CRM_Banking_PluginImpl_Matcher_DefaultOptions extends CRM_Banking_PluginMo
             $query = array('version' => 3, 'id' => $cid);
             $query['is_test'] = 0;
             $query = array_merge($query, $this->getPropagationSet($btx, $suggestion, 'contribution'));   // add propagated values
+            $getPropagationValues = $this->getPropagationSet($btx, $suggestion, 'contribution',$this->_plugin_config->createnew_value_propagation);
 
             // set status to completed, unless it's a negative amount...
             if ($btx->amount < 0) {
-              // ...in this case, we want to cancel this
-              $query['contribution_status_id'] = $cancelled_status;
+              // ...in this case, we want to cancel this, but check first if we already have an overriding status in the values
+              if (!isset($getPropagationValues['contribution_status_id'])) {
+                $query['contribution_status_id'] = $cancelled_status;
+              } 
+              else {
+                $query['contribution_status_id'] = $getPropagationValues['contribution_status_id'];
+              }
               $query['cancel_date'] = date('YmdHis', strtotime($btx->booking_date));
-            } else {
-              // ...otherwise, we close it
-              $query['contribution_status_id'] = $completed_status;
+            } 
+            else {
+              // ...otherwise, we close it but check first if we already have an overriding status in the values
+              if (!isset($getPropagationValues['contribution_status_id'])) {
+                $query['contribution_status_id'] = $completed_status;
+              } 
+              else {
+                $query['contribution_status_id'] = $getPropagationValues['contribution_status_id'];
+              }
               $query['receive_date'] = date('YmdHis', strtotime($btx->booking_date));
             }
 

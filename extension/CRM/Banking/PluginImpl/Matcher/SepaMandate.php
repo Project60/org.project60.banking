@@ -47,6 +47,7 @@ class CRM_Banking_PluginImpl_Matcher_SepaMandate extends CRM_Banking_PluginModel
     if (!isset($config->value_propagation)) $config->value_propagation = array();
 
     if (!isset($config->cancellation_enabled)) $config->cancellation_enabled = FALSE;
+    if (!isset($config->cancelled_contribution_status_id)) $config->cancelled_contribution_status_id = NULL; // default is cancelled
     if (!isset($config->cancellation_general_penalty)) $config->cancellation_general_penalty = 0.0;
     if (!isset($config->cancellation_update_mandate_status_OOFF)) $config->cancellation_update_mandate_status_OOFF = 'INVALID';
     if (!isset($config->cancellation_update_mandate_status_RCUR)) $config->cancellation_update_mandate_status_RCUR = false;
@@ -415,7 +416,6 @@ class CRM_Banking_PluginImpl_Matcher_SepaMandate extends CRM_Banking_PluginModel
     $contribution_id = $match->getParameter('contribution_id');
     $contribution_status_id = $match->getParameter('contribution_status_id');
     $mandate_id = $match->getParameter('mandate_id');
-    $status_cancelled = banking_helper_optionvalue_by_groupname_and_name('contribution_status', 'Cancelled');
 
     // load contribution to double-check status (see BANKING-135)
     $contribution = civicrm_api3('Contribution', 'getsingle', array('id' => $contribution_id));
@@ -429,6 +429,12 @@ class CRM_Banking_PluginImpl_Matcher_SepaMandate extends CRM_Banking_PluginModel
     $this->contribution = $contribution;
 
     // set the status to 'Cancelled'
+    if (!empty($config->cancelled_contribution_status_id)) {
+      $status_cancelled = $config->cancelled_contribution_status_id;
+    } else {
+      $status_cancelled = banking_helper_optionvalue_by_groupname_and_name('contribution_status', 'Cancelled');
+    }
+
     $this->logger->setTimer('sepa_mandate_cancel_contribution');
     $query = array('version' => 3, 'id' => $contribution_id);
     $query['contribution_status_id'] = $status_cancelled;

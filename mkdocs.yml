@@ -3,7 +3,7 @@ site_description: Civi Banking extension
 repo_url: https://github.com/Project60/org.project60.banking
 theme: material
 
-pages:
+nav:
 - Introduction: index.md
 - From a user perspective: user-perspective.md
 - Configuration explanation: config-explanation.md

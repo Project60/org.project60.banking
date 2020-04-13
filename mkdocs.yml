@@ -1,7 +1,8 @@
 site_name: Civi Banking
 site_description: Civi Banking extension
 repo_url: https://github.com/Project60/org.project60.banking
-theme: material
+theme: 
+  name: material
 
 nav:
 - Introduction: index.md

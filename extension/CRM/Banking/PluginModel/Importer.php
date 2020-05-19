@@ -299,7 +299,7 @@ abstract class CRM_Banking_PluginModel_Importer extends CRM_Banking_PluginModel_
       // update simple counters
       $this->_current_transaction_batch->tx_count += 1;
       $attribs = &$this->_current_transaction_batch_attributes;
-      $attribs['sum'] += $btx['amount'];
+      $attribs['sum'] += (float) $btx['amount'];
 
       // keep track of dates
       if (!isset($attribs['starting_date'])) {

@@ -242,12 +242,12 @@ class CRM_Banking_PluginImpl_Importer_CSV extends CRM_Banking_PluginModel_Import
     } else {
       // otherwise use the template
       $bank_reference = $config->bank_reference;
-      $tokens = array();
-      preg_match('/\{([^\}]+)\}/', $bank_reference, $tokens);
-      foreach ($tokens as $key => $token_name) {
-        if (!$key) continue;  // match#0 is not relevant
-        $token_value = isset($btx[$token_name])?$btx[$token_name]:'';
-        $bank_reference = str_replace("{{$token_name}}", $token_value, $bank_reference);
+      preg_match_all('/\{([^\}]+)\}/', $bank_reference, $matches);
+      if (isset($matches[1])) {
+        foreach ($matches[1] as $token_name) {
+          $token_value = isset($btx[$token_name])?$btx[$token_name]:'';
+          $bank_reference = str_replace("{{$token_name}}", $token_value, $bank_reference);
+        }
       }
       $btx['bank_reference'] = $bank_reference;
     }

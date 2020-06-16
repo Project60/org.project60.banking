@@ -315,7 +315,7 @@ class CRM_Banking_PluginImpl_Importer_CSV extends CRM_Banking_PluginModel_Import
         $params = explode(":", $rule->if);
         if ($value != $params[1]) return;
       } elseif ($this->startsWith($rule->if, 'matches:')) {
-        $params = explode(":", $rule->if);
+        $params = explode(":", $rule->if, 2);
         if (!preg_match($params[1], $value)) return;
       } else {
         print_r("CONDITION (IF) TYPE NOT YET IMPLEMENTED");

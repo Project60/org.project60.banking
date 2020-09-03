@@ -274,11 +274,11 @@ abstract class CRM_Banking_PluginModel_Importer extends CRM_Banking_PluginModel_
         $query_sql = "SELECT COUNT(id) FROM civicrm_bank_tx_batch WHERE reference = %1 AND id != %2;";
         while (CRM_Core_DAO::singleValueQuery($query_sql, $query_params)) {
           $counter += 1;
-          $final_reference = $reference . "-DUPLICATE-$counter";
+          $final_reference = "DUPLICATE-{$counter}-{$reference}";
           $query_params[1] = array($final_reference, 'String');
         }
 
-        $this->_current_transaction_batch->reference = $final_reference;
+        $this->_current_transaction_batch->reference = substr($final_reference, 0, 64);
         $this->_current_transaction_batch->save();
       } else if ($this->_current_transaction_batch_attributes['isnew']) {
         // since the batch object had to be created in order to get the ID, we would have to

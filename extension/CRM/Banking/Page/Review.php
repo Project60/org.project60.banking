@@ -426,6 +426,7 @@ class CRM_Banking_Page_Review extends CRM_Core_Page {
       $suggestion->update_parameters($parameters);
 
       // now, execute
+      $transaction = new CRM_Core_Transaction();
       $result = $suggestion->execute($btx_bao);
       if ($result) {
         if ($result === 're-run') {
@@ -433,7 +434,8 @@ class CRM_Banking_Page_Review extends CRM_Core_Page {
           $engine = CRM_Banking_Matcher_Engine::getInstance();
           $engine->match($parameters['execute']);
           CRM_Core_Session::setStatus(E::ts("The transaction has been analysed again."), E::ts("Transaction analysed"), 'info');
-          return NULL; // NO SUCCESSFULL EXECUTION (because it's a re-run)
+          $transaction->commit();
+          return NULL; // NO SUCCESSFUL EXECUTION (because it's a re-run)
         } else {
           // ALL GOOD:
           // create a notification bubble for the user
@@ -445,15 +447,17 @@ class CRM_Banking_Page_Review extends CRM_Core_Page {
           } else {
             CRM_Core_Session::setStatus(E::ts("The transaction could not be closed."), E::ts("Error"), 'alert');
           }
-          return TRUE; // SUCCESSFULL EXECUTION
+          $transaction->commit();
+          return TRUE; // SUCCESSFUL EXECUTION
         }
       } else {
         // something went wrong
+        $transaction->rollback();
         CRM_Core_Session::setStatus(E::ts("The execution failed, please re-analyse the transaction."), E::ts("Error"), 'alert');
       }
     } else {
       CRM_Core_Session::setStatus(E::ts("Selected suggestions disappeared. Suggestion NOT executed!"), E::ts("Internal Error"), 'error');
     }
-    return NULL; // NO SUCCESSFULL EXECUTION
+    return NULL; // NO SUCCESSFUL EXECUTION
   }
 }

@@ -243,13 +243,11 @@ class CRM_Banking_Matcher_Suggestion {
         // only execute if not completed yet
         if (!banking_helper_tx_status_closed($btx->status_id)) {
             // perform execute
-            $transaction = new CRM_Core_Transaction();
             $result = $this->_plugin->execute($this, $btx);
             if ($result && ($result !== 're-run')) {
                 $engine = CRM_Banking_Matcher_Engine::getInstance();
                 $engine->runPostProcessors($this, $btx, $this->_plugin);
             }
-            $transaction->commit();
             return $result;
         } else {
             return TRUE;

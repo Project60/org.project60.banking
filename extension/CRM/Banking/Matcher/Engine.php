@@ -256,9 +256,11 @@ class CRM_Banking_Matcher_Engine {
           if ($suggestion->getProbability() >= $plugin->autoExecute()) {
             // all good, AUTO EXEC:
             $btx->saveSuggestions();
+            $transaction = new CRM_Core_Transaction();
             $result = $suggestion->execute($btx);
             $suggestion->setParameter('executed_automatically', 1);
             $btx->saveSuggestions();
+            $transaction->commit();
             return $result;
           }
         }

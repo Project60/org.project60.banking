@@ -75,27 +75,49 @@ class CRM_Banking_PluginImpl_Importer_CSV extends CRM_Banking_PluginModel_Import
   /**
    * Test if the given file can be imported
    *
-   * @var
-   * @return TODO: data format?
+   * @param string $file_path
+   *   local file path
+   *
+   * @param array $params
+   *   upload parameters, e.g. 'source' would have the file name
+   *
+   * @return boolean true if file is accepted
    */
   function probe_file( $file_path, $params )
   {
     $config = $this->_plugin_config;
-    if (empty($config->sentinel)) return true; // no sentinel specified... there's nothing we can do.
+    if (!empty($config->sentinel)) {
+      // the sentinel is used to verify, that the file is of the expected format
+      $file = fopen($file_path, 'r');
+      $probe_data = fread($file, 1024);
+      fclose($file);
 
-    // the sentinel is used to verfiy, that the file is of the expected format
-    $file = fopen($file_path, 'r');
-    $probe_data = fread($file, 1024);
-    fclose($file);
+      // check encoding if necessary...
+      if (isset($config->encoding)) {
+        $probe_data = mb_convert_encoding($probe_data, mb_internal_encoding(), $config->encoding);
+      }
 
-    // check encoding if necessary
-    if (isset($config->encoding)) {
-      $probe_data = mb_convert_encoding($probe_data, mb_internal_encoding(), $config->encoding);
+      // and verify this matches the sentinel:
+      $sentinel = mb_convert_encoding($config->sentinel, mb_internal_encoding());
+      if (!preg_match($sentinel, $probe_data)) {
+        $this->logMessage("Uploaded file's content doesn't match the sentinel.", 'warning');
+        return false;
+      }
     }
 
-    // end verify this matches the sentinel
-    $sentinel = mb_convert_encoding($config->sentinel, mb_internal_encoding());
-    return preg_match($sentinel, $probe_data);
+    // check if the file name is accepted
+    if (!empty($config->filename_sentinel)) {
+      if (empty($params['source'])) {
+        $this->logMessage("filename_sentinel provided, but no file name present!", 'warning');
+      } else {
+        if (!preg_match($config->filename_sentinel, $params['source'])) {
+          $this->logMessage("Uploaded file's name doesn't match the filename sentinel.", 'warning');
+          return false;
+        }
+      }
+    }
+
+    return true; // all good
   }
 
 

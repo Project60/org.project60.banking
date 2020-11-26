@@ -130,12 +130,15 @@ class CRM_Banking_Page_Review extends CRM_Core_Page {
 
         $this->assign('party_ba', $ba_bao);
         $this->assign('party_ba_data_parsed', json_decode($ba_bao->data_parsed, true));
-        $this->assign('party_ba_references', $ba_bao->getReferences());
-
-        // deprecated: contact can also be identified via other means, see below
-        if ($ba_bao->contact_id && empty($contact)) {
-          $contact = $this->getContactSafe($ba_bao->contact_id);
+        $party_ba_references = $ba_bao->getReferences();
+        foreach($party_ba_references as $_idx=>$_party_ba_reference) {
+          if ($_party_ba_reference['probability'] >= 1.0 && empty($contact)) {
+            $contact = $this->getContactSafe($_party_ba_reference['contact_id']);
+          }
+          $party_ba_references[$_idx]['color'] = $this->translateProbability($_party_ba_reference['probability'] * 100);
+          $party_ba_references[$_idx]['probability'] = sprintf('%d%%', ($_party_ba_reference['probability'] * 100));
         }
+        $this->assign('party_ba_references', $party_ba_references);
       } else {
         // there is no party bank account connected this (yet)
         foreach ($data_parsed as $key => $value) {
@@ -249,7 +252,7 @@ class CRM_Banking_Page_Review extends CRM_Core_Page {
         } elseif (isset($_REQUEST['s_list'])) {
           $this->assign('url_back', banking_helper_buildURL('civicrm/banking/statements', array()));
           $this->assign('back_to_statement_lines', false);
-        }  
+        }
       }
 
       if (isset($next_pid)) {

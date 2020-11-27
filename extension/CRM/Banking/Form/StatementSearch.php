@@ -20,6 +20,13 @@ class CRM_Banking_Form_StatementSearch extends CRM_Core_Form
 {
     public function buildQuickForm()
     {
+        $this->buildSearchElements();
+        $this->buildButtons();
+        parent::buildQuickForm();
+    }
+
+    private function buildSearchElements()
+    {
         $this->add(
             'datepicker',
             'value_date_start',
@@ -96,8 +103,11 @@ class CRM_Banking_Form_StatementSearch extends CRM_Core_Form
         // TODO: Which currency -> Is there a currency picker? -> Otherwise list picker
         // TODO: Which ba_id (receiver/target account) -> Look at how Banking does that!
         // TODO: Which party_ba_id (sender/party account) -> Look at how Banking does that!
+    }
 
-        parent::buildQuickForm();
+    private function buildButtons()
+    {
+        // TODO: Implement.
     }
 
     public function postProcess()

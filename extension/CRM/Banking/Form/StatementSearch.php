@@ -82,13 +82,14 @@ class CRM_Banking_Form_StatementSearch extends CRM_Core_Form
         }
 
         $this->add(
-            'select', // TODO: Replace with multi select.
+            'select',
             'status',
             E::ts('Status'),
             $statuses,
             false,
             [
                 'class' => 'crm-select2 huge',
+                'multiple' => true,
             ]
         );
 

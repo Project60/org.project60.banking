@@ -14,33 +14,41 @@
 +--------------------------------------------------------*}
 
 {crmScope extensionKey='org.project60.banking'}
+    <br>
+
     <div class="crm-section">
         <div class="label">{$form.value_date_start.label}</div>
         <div class="content">{$form.value_date_start.html}</div>
-        -
+        <div class="clear"></div>
+    </div>
+
+    <div class="crm-section">
         <div class="label">{$form.value_date_end.label}</div>
         <div class="content">{$form.value_date_end.html}</div>
-
         <div class="clear"></div>
     </div>
 
     <div class="crm-section">
         <div class="label">{$form.booking_date_start.label}</div>
         <div class="content">{$form.booking_date_start.html}</div>
-        -
+        <div class="clear"></div>
+    </div>
+
+    <div class="crm-section">
         <div class="label">{$form.booking_date_end.label}</div>
         <div class="content">{$form.booking_date_end.html}</div>
-
         <div class="clear"></div>
     </div>
 
     <div class="crm-section">
         <div class="label">{$form.minimum_amount.label}</div>
         <div class="content">{$form.minimum_amount.html}</div>
-        -
+        <div class="clear"></div>
+    </div>
+
+    <div class="crm-section">
         <div class="label">{$form.maximum_amount.label}</div>
         <div class="content">{$form.maximum_amount.html}</div>
-
         <div class="clear"></div>
     </div>
 

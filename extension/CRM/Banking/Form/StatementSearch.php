@@ -20,6 +20,57 @@ class CRM_Banking_Form_StatementSearch extends CRM_Core_Form
 {
     public function buildQuickForm()
     {
+        $this->add(
+            'datepicker',
+            'value_date_start',
+            E::ts('Value Date start'),
+            [
+                'formatType' => 'activityDateTime'
+            ]
+        );
+        $this->add(
+            'datepicker',
+            'value_date_end',
+            E::ts('Value Date end'),
+            [
+                'formatType' => 'activityDateTime'
+            ]
+        );
+
+        $this->add(
+            'datepicker',
+            'booking_date_start',
+            E::ts('Booking Date start'),
+            [
+                'formatType' => 'activityDateTime'
+            ]
+        );
+
+        $this->add(
+            'datepicker',
+            'booking_date_end',
+            E::ts('Booking Date end'),
+            [
+                'formatType' => 'activityDateTime'
+            ]
+        );
+
+        $this->add(
+            'text',
+            'minimum_amount',
+            E::ts('Minimum amount')
+        );
+
+        $this->add(
+            'text',
+            'maximum_amount',
+            E::ts('Maximum amount')
+        );
+
+        // TODO: Which currency -> Is there a currency picker? -> Otherwise list picker
+        // TODO: Which ba_id (receiver/target account) -> Look at how Banking does that!
+        // TODO: Which party_ba_id (sender/party account) -> Look at how Banking does that!
+
         parent::buildQuickForm();
     }
 

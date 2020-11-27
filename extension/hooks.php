@@ -141,16 +141,25 @@ function banking_civicrm_entityTypes(&$entityTypes) {
 }
 
 
-function banking_civicrm_tabs( &$tabs, $contactID ) {
-  $count_query = CRM_Core_DAO::executeQuery("SELECT COUNT(id) AS acCount FROM civicrm_bank_account WHERE contact_id=$contactID;");
-  $count_query->fetch();
-  array_push($tabs, array(
-    'id' =>       'bank_accounts',
-    'url' =>      CRM_Utils_System::url('civicrm/banking/accounts_tab', "snippet=1&amp;cid=$contactID"),
-    'title' =>    E::ts("Bank Accounts"),
-    'weight' =>   95,
-    'count' =>    $count_query->acCount));
+/**
+ * Implements hook_civicrm_tabset()
+ *
+ * Will inject the "Banking Accounts" tab
+ */
+function banking_civicrm_tabset($tabsetName, &$tabs, $context) {
+  if ($tabsetName == 'civicrm/contact/view' && !empty($context['contact_id'])) {
+    $contactID = (int) $context['contact_id'];
+    $count = CRM_Core_DAO::singleValueQuery("SELECT COUNT(id) FROM civicrm_bank_account WHERE contact_id={$contactID};");
+    $tabs[] = [
+        'id'     => 'bank_accounts',
+        'url'    => CRM_Utils_System::url('civicrm/banking/accounts_tab', "snippet=1&amp;cid=$contactID"),
+        'title'  => E::ts("Bank Accounts"),
+        'count'  => $count,
+        'weight' => 95
+    ];
+  }
 }
+
 
 
 /* bank accounts in merge operations

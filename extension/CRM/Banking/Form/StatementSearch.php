@@ -67,6 +67,31 @@ class CRM_Banking_Form_StatementSearch extends CRM_Core_Form
             E::ts('Maximum amount')
         );
 
+        $statusApi = civicrm_api3(
+            'OptionValue',
+            'get',
+            [
+                'option_group_id' => 'civicrm_banking.bank_tx_status',
+                'options' => ['limit' => 0]
+            ]
+        );
+
+        $statuses = [];
+        foreach ($statusApi['values'] as $status) {
+            $statuses[$status['id']] = $status['name'];
+        }
+
+        $this->add(
+            'select', // TODO: Replace with multi select.
+            'status',
+            E::ts('Status'),
+            $statuses,
+            false,
+            [
+                'class' => 'crm-select2 huge',
+            ]
+        );
+
         // TODO: Which currency -> Is there a currency picker? -> Otherwise list picker
         // TODO: Which ba_id (receiver/target account) -> Look at how Banking does that!
         // TODO: Which party_ba_id (sender/party account) -> Look at how Banking does that!

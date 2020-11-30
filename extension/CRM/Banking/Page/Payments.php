@@ -94,8 +94,13 @@ class CRM_Banking_Page_Payments extends CRM_Core_Page {
             FROM civicrm_bank_tx
             WHERE status_id IN ({$payment_states['suggestions']['id']}, {$payment_states['ignored']['id']}, {$payment_states['processed']['id']})
           );");
-    $new_statement_ids = explode(',', $new_statement_id_list);
-    $this->assign('count_new', count($new_statement_ids));
+    if (empty($new_statement_id_list)) {
+      $new_statement_id_list = '0'; // i.e. no such ID
+      $this->assign('count_new', 0);
+    } else {
+      $new_statement_ids = explode(',', $new_statement_id_list);
+      $this->assign('count_new', count($new_statement_ids));
+    }
 
     // calculate statement counts
     $open_statement_id_list = CRM_Core_DAO::singleValueQuery("

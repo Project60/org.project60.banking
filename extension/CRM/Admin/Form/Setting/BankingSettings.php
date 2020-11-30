@@ -105,6 +105,13 @@ class CRM_Admin_Form_Setting_BankingSettings extends CRM_Core_Form {
       'reference_validation',
       E::ts('Validate bank account references'),
       '');
+    // validate bank account references?
+    $this->addElement(
+      'text',
+      'reference_matching_probability',
+      E::ts('Probability of contact matching based on bank account'),
+      '');
+    $this->addRule('reference_matching_probability', E::ts('Not a valid number. A valid number is 1.0 or 0.9'), 'numeric');
 
     // validate bank account references?
     $this->addElement(
@@ -140,6 +147,10 @@ class CRM_Admin_Form_Setting_BankingSettings extends CRM_Core_Form {
     $defaults['banking_log_file']         = CRM_Core_BAO_Setting::getItem('CiviBanking', 'banking_log_file');
     $defaults['reference_store_disabled'] = CRM_Core_BAO_Setting::getItem('CiviBanking', 'reference_store_disabled');
     $defaults['reference_normalisation']  = CRM_Core_BAO_Setting::getItem('CiviBanking', 'reference_normalisation');
+    $defaults['reference_matching_probability']     = CRM_Core_BAO_Setting::getItem('CiviBanking', 'reference_matching_probability');
+    if ($defaults['reference_matching_probability'] === null) {
+      $defaults['reference_matching_probability'] = '1.0';
+    }
     $defaults['reference_validation']     = CRM_Core_BAO_Setting::getItem('CiviBanking', 'reference_validation');
     $defaults['lenient_dedupe']           = CRM_Core_BAO_Setting::getItem('CiviBanking', 'lenient_dedupe');
 
@@ -176,6 +187,7 @@ class CRM_Admin_Form_Setting_BankingSettings extends CRM_Core_Form {
     // process reference normalisation / validation
     CRM_Core_BAO_Setting::setItem(!empty($values['reference_store_disabled']),'CiviBanking', 'reference_store_disabled');
     CRM_Core_BAO_Setting::setItem(!empty($values['reference_normalisation']), 'CiviBanking', 'reference_normalisation');
+    CRM_Core_BAO_Setting::setItem($values['reference_matching_probability'], 'CiviBanking', 'reference_matching_probability');
     CRM_Core_BAO_Setting::setItem(!empty($values['reference_validation']),    'CiviBanking', 'reference_validation');
     CRM_Core_BAO_Setting::setItem(!empty($values['lenient_dedupe']),          'CiviBanking', 'lenient_dedupe');
 

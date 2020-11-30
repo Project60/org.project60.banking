@@ -55,6 +55,14 @@
 </div>
 
 <div class="crm-section">
+  <div class="label">{$form.reference_matching_probability.label}</div>
+  <div class="content">{$form.reference_matching_probability.html}
+    <p class="description">{ts domain='org.project60.banking'}E.g. 1.0 or 0.9. A number of 1 means an exact match (it means the system is 100% sure) a number lower than 1.0 means the system is sure for that percentage.{/ts}</p>
+  </div>
+  <div class="clear"></div>
+</div>
+
+<div class="crm-section">
   <div class="label">{$form.reference_validation.label}</div>
   <div class="content">{$form.reference_validation.html}</div>
   <div class="clear"></div>

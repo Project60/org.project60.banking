@@ -38,25 +38,25 @@ class CRM_Banking_Upgrader extends CRM_Banking_Upgrader_Base {
 
     return TRUE;
   }
-  
+
   /**
-   * When upgrading the extension keep the new UI disabled. 
+   * When upgrading the extension keep the new UI disabled.
    * This way the new UI is only visible upon a new installation.
-   * 
+   *
    * Also update the order of the transaction statuses as we use the order to sort the statement lines screen.
-   * 
+   *
    * @return TRUE on success
    */
   public function upgrade_0611() {
     CRM_Core_BAO_Setting::setItem(false, 'org.project60.banking', 'new_ui');
-    
+
     // Update order of the option group banking_tx_status.
     $statusApi = civicrm_api3('OptionValue', 'get', array('option_group_id' => 'civicrm_banking.bank_tx_status', 'options' => array('limit' => 0)));
     $statuses = array();
     foreach($statusApi['values'] as $status) {
       $statuses[$status['name']] = $status;
     }
-    
+
     // Set ignore status the weight from processed
     CRM_Core_DAO::executeQuery("UPDATE civicrm_option_value SET weight = %1 WHERE id = %2", array(
       1=> array($statuses['processed']['weight'], 'Integer'),
@@ -175,6 +175,18 @@ class CRM_Banking_Upgrader extends CRM_Banking_Upgrader_Base {
   public function upgrade_0704() {
     // rebuild menu, in particular for the UI
     CRM_Core_Invoke::rebuildMenuAndCaches();
+    CRM_Core_BAO_Setting::setItem($values['reference_matching_probability'], 'CiviBanking', 'reference_matching_probability');
+    return true;
+  }
+
+  /**
+   * Upgrader for 0.8 release
+   *
+   * @return TRUE on success
+   */
+  public function upgrade_0800() {
+    // Set the bank account reference probability to 100%.
+    CRM_Core_BAO_Setting::setItem('1.0', 'CiviBanking', 'reference_matching_probability');
     return true;
   }
 }

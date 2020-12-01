@@ -96,6 +96,7 @@ class CRM_Banking_Page_Payments extends CRM_Core_Page {
           );");
     if (empty($new_statement_id_list)) {
       $new_statement_id_list = '0'; // i.e. no such ID
+      $new_statement_ids = [];
       $this->assign('count_new', 0);
     } else {
       $new_statement_ids = explode(',', $new_statement_id_list);

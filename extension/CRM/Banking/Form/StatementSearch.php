@@ -18,6 +18,14 @@ use CRM_Banking_ExtensionUtil as E;
 
 class CRM_Banking_Form_StatementSearch extends CRM_Core_Form
 {
+    const VALUE_DATE_START_ELEMENT = 'value_date_start';
+    const VALUE_DATE_END_ELEMENT = 'value_date_end';
+    const BOOKING_DATE_START_ELEMENT = 'booking_date_start';
+    const BOOKING_DATE_END_ELEMENT = 'booking_date_end';
+    const MINIMUM_AMOUNT_ELEMENT = 'minimum_amount';
+    const MAXIMUM_AMOUNT_ELEMENT = 'maximum_amount';
+    const STATUS_ELEMENT = 'maximum_status';
+
     public function buildQuickForm()
     {
         $this->buildSearchElements();
@@ -29,7 +37,7 @@ class CRM_Banking_Form_StatementSearch extends CRM_Core_Form
     {
         $this->add(
             'datepicker',
-            'value_date_start',
+            self::VALUE_DATE_START_ELEMENT,
             E::ts('Value Date start'),
             [
                 'formatType' => 'activityDateTime'
@@ -37,7 +45,7 @@ class CRM_Banking_Form_StatementSearch extends CRM_Core_Form
         );
         $this->add(
             'datepicker',
-            'value_date_end',
+            self::VALUE_DATE_END_ELEMENT,
             E::ts('Value Date end'),
             [
                 'formatType' => 'activityDateTime'
@@ -46,7 +54,7 @@ class CRM_Banking_Form_StatementSearch extends CRM_Core_Form
 
         $this->add(
             'datepicker',
-            'booking_date_start',
+            self::BOOKING_DATE_START_ELEMENT,
             E::ts('Booking Date start'),
             [
                 'formatType' => 'activityDateTime'
@@ -55,7 +63,7 @@ class CRM_Banking_Form_StatementSearch extends CRM_Core_Form
 
         $this->add(
             'datepicker',
-            'booking_date_end',
+            self::BOOKING_DATE_END_ELEMENT,
             E::ts('Booking Date end'),
             [
                 'formatType' => 'activityDateTime'
@@ -64,13 +72,13 @@ class CRM_Banking_Form_StatementSearch extends CRM_Core_Form
 
         $this->add(
             'text',
-            'minimum_amount',
+            self::MINIMUM_AMOUNT_ELEMENT,
             E::ts('Minimum amount')
         );
 
         $this->add(
             'text',
-            'maximum_amount',
+            self::MAXIMUM_AMOUNT_ELEMENT,
             E::ts('Maximum amount')
         );
 
@@ -90,7 +98,7 @@ class CRM_Banking_Form_StatementSearch extends CRM_Core_Form
 
         $this->add(
             'select',
-            'status',
+            self::STATUS_ELEMENT,
             E::ts('Status'),
             $statuses,
             false,

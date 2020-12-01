@@ -149,6 +149,112 @@ class CRM_Banking_Form_StatementSearch extends CRM_Core_Form
 
     public static function getTransactionsAjax()
     {
-        CRM_Utils_JSON::output([]);
+        $ajaxParameters = CRM_Core_Page_AJAX::defaultSortAndPagerParams();
+        $ajaxParameters += CRM_Core_Page_AJAX::validateParams(
+            [], // No required parameters
+            [
+                self::VALUE_DATE_START_ELEMENT => 'String',
+                self::VALUE_DATE_END_ELEMENT => 'String',
+                self::BOOKING_DATE_START_ELEMENT => 'String',
+                self::BOOKING_DATE_END_ELEMENT => 'String',
+                self::MINIMUM_AMOUNT_ELEMENT => 'Integer',
+                self::MAXIMUM_AMOUNT_ELEMENT => 'Integer',
+                self::STATUS_ELEMENT => '', // FIXME: Array of String?
+            ]
+        );
+
+        $queryParameters = [];
+        $whereClauses = '';
+
+        if (isset($ajaxParameters[self::VALUE_DATE_START_ELEMENT])) {
+            $parameterCount = count($queryParameters) + 1;
+
+            $whereClauses += "AND DATE(tx.value_date) >= DATE(%{$parameterCount})";
+
+            $valueDateStart = $ajaxParameters[self::VALUE_DATE_START_ELEMENT];
+            $queryParameters[$parameterCount] = [$valueDateStart, 'Date'];
+        }
+        if (isset($ajaxParameters[self::VALUE_DATE_END_ELEMENT])) {
+            $parameterCount = count($queryParameters) + 1;
+
+            $whereClauses += "AND DATE(tx.value_date) <= DATE(%{$parameterCount})";
+
+            $valueDateEnd = $ajaxParameters[self::VALUE_DATE_END_ELEMENT];
+            $queryParameters[$parameterCount] = [$valueDateEnd, 'Date'];
+        }
+
+        if (isset($ajaxParameters[self::BOOKING_DATE_START_ELEMENT])) {
+            $parameterCount = count($queryParameters) + 1;
+
+            $whereClauses += "AND DATE(tx.booking_date) >= DATE(%{$parameterCount})";
+
+            $bookingDateStart = $ajaxParameters[self::BOOKING_DATE_START_ELEMENT];
+            $queryParameters[$parameterCount] = [$bookingDateStart, 'Date'];
+        }
+        if (isset($ajaxParameters[self::BOOKING_DATE_END_ELEMENT])) {
+            $parameterCount = count($queryParameters) + 1;
+
+            $whereClauses += "AND DATE(tx.booking_date) <= DATE(%{$parameterCount})";
+
+            $bookingDateEnd = $ajaxParameters[self::BOOKING_DATE_END_ELEMENT];
+            $queryParameters[$parameterCount] = [$bookingDateEnd, 'Date'];
+        }
+
+        if (isset($ajaxParameters[self::MINIMUM_AMOUNT_ELEMENT])) {
+            $parameterCount = count($queryParameters) + 1;
+
+            $whereClauses += "AND tx.amount >= %{$parameterCount}";
+
+            $minimumAmount = $ajaxParameters[self::MINIMUM_AMOUNT_ELEMENT];
+            $queryParameters[$parameterCount] = [(int)$minimumAmount, 'Integer'];
+        }
+        if (isset($ajaxParameters[self::MAXIMUM_AMOUNT_ELEMENT])) {
+            $parameterCount = count($queryParameters) + 1;
+
+            $whereClauses += "AND tx.amount <= %{$parameterCount}";
+
+            $maximumAmount = $ajaxParameters[self::MAXIMUM_AMOUNT_ELEMENT];
+            $queryParameters[$parameterCount] = [(int)$maximumAmount, 'Integer'];
+        }
+
+        if (isset($ajaxParameters[self::STATUS_ELEMENT])) {
+            // TODO: Implement
+
+            //$parameterCount = count($queryParameters) + 1;
+
+            //$whereClauses += "AND tx.status_id IN (%{$parameterCount})";
+
+            //$status = $ajaxParameters[self::STATUS_ELEMENT]; // TODO: How to get the list of values/IDs?
+            //$queryParameters[$parameterCount] = [$status, 'Integer'];
+        }
+
+        // FIXME: "tx.*" is not safe! We must explicitely name the things we want to get here!
+        $sql =
+        "SELECT
+            tx.*,
+            DATE(tx.value_date) AS `date`,
+            tx_status.name AS status_name,
+            tx_status.label AS status_label
+        FROM
+            civicrm_bank_tx AS tx
+        LEFT JOIN
+            civicrm_option_value AS tx_status
+                ON
+                    tx_status.id = tx.status_id
+        WHERE
+            TRUE
+            {$whereClauses}
+        ORDER BY
+            tx_status.weight,
+            tx.value_date
+        LIMIT 10";
+
+        $transactionDao = CRM_Core_DAO::executeQuery($sql, $queryParameters);
+
+        $fetchAllResult = $transactionDao->fetchAll();
+
+        CRM_Utils_JSON::output(
+            $fetchAllResult
+        );
     }
 }

@@ -69,13 +69,15 @@
         <thead>
         <tr>
             <th data-data="date">{ts}Date{/ts}</th>
+            <th data-data="our_account">{ts}Organisation Account{/ts}</th>
+            <th data-data="other_account">{ts}Donor Account{/ts}</th>
             <th data-data="amount">{ts}Amount{/ts}</th>
-            <th data-data="contact">{ts}Contact{/ts}</th>
-            <th data-data="status">{ts}Status{/ts}</th>
+            <th data-data="todo">{ts}Status{/ts}</th>
+            <th data-data="todo">{ts}Contact (later){/ts}</th>
+            <th data-data="todo">{ts}Link{/ts}</th>
             {*
                 // TODO: Weitere sinnvolle Felder.
                 // TODO: Link "Transaktion prüfen" (es genügt nur die id, Liste überflüssig)
-                // TODO: Link "Transaktion löschen"
             *}
         </tr>
         </thead>

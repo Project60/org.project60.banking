@@ -253,8 +253,12 @@ class CRM_Banking_Form_StatementSearch extends CRM_Core_Form
 
         $fetchAllResult = $transactionDao->fetchAll();
 
-        CRM_Utils_JSON::output(
-            $fetchAllResult
-        );
+      CRM_Utils_JSON::output(
+        [
+          'data'            => $fetchAllResult,
+          'recordsTotal'    => count($fetchAllResult),
+          'recordsFiltered' => count($fetchAllResult), // todo: correct value
+        ]
+      );
     }
 }

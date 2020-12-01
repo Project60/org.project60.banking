@@ -30,6 +30,15 @@ class CRM_Banking_Form_StatementSearch extends CRM_Core_Form
     {
         $this->buildSearchElements();
         $this->buildButtons();
+
+        // Pass the AJAX URL to the Javascript frontend:
+        CRM_Core_Resources::singleton()->addVars(
+            'banking_transaction_search',
+            [
+                'data_url' => CRM_Utils_System::url('civicrm/banking/statements/search/data/'),
+            ]
+        );
+
         parent::buildQuickForm();
     }
 
@@ -121,5 +130,10 @@ class CRM_Banking_Form_StatementSearch extends CRM_Core_Form
     public function postProcess()
     {
         parent::postProcess();
+    }
+
+    public static function getTransactionsAjax()
+    {
+        CRM_Utils_JSON::output([]);
     }
 }

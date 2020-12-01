@@ -37,7 +37,7 @@ class CRM_Banking_Form_StatementSearch extends CRM_Core_Form
       $this->addButtons(
         [
           [
-            'type' => 'find',
+            'type' => 'submit',
             'name' => E::ts('Find'),
             'icon' => 'fa-search',
             'isDefault' => true,

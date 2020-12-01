@@ -34,16 +34,18 @@ class CRM_Banking_Form_StatementSearch extends CRM_Core_Form
 
         $this->buildSearchElements();
 
-        $this->addButtons(
-            [
-                'type' => 'find',
-                'name' => E::ts('Find'),
-                'icon' => 'fa-search',
-                'isDefault' => true,
-            ]
-        );
+      $this->addButtons(
+        [
+          [
+            'type' => 'find',
+            'name' => E::ts('Find'),
+            'icon' => 'fa-search',
+            'isDefault' => true,
+          ]
+        ]
+      );
 
-        // Pass the AJAX URL to the Javascript frontend:
+      // Pass the AJAX URL to the Javascript frontend:
         CRM_Core_Resources::singleton()->addVars(
             'banking_transaction_search',
             [

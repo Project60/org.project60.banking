@@ -1,4 +1,5 @@
 <?php
+
 /*-------------------------------------------------------+
 | Project 60 - CiviBanking                               |
 | Copyright (C) 2020 SYSTOPIA                            |
@@ -28,6 +29,9 @@ class CRM_Banking_Form_StatementSearch extends CRM_Core_Form
 
     public function buildQuickForm()
     {
+        // TODO: Aus data_parsed (JSON) suchen: Was denn?
+        // -> Fünf Felder zur freien Eingabe von Parametername und Wert.
+
         $this->buildSearchElements();
 
         $this->addButtons(
@@ -52,6 +56,7 @@ class CRM_Banking_Form_StatementSearch extends CRM_Core_Form
 
     private function buildSearchElements()
     {
+        // TODO: These two dates should be horizontally aligned with a '-' between them:
         $this->add(
             'datepicker',
             self::VALUE_DATE_START_ELEMENT,
@@ -69,6 +74,7 @@ class CRM_Banking_Form_StatementSearch extends CRM_Core_Form
             ]
         );
 
+        // TODO: These two dates should be horizontally aligned with a '-' between them:
         $this->add(
             'datepicker',
             self::BOOKING_DATE_START_ELEMENT,
@@ -87,6 +93,7 @@ class CRM_Banking_Form_StatementSearch extends CRM_Core_Form
             ]
         );
 
+        // TODO: These two text fields should be horizontally aligned with a '-' between them:
         $this->add(
             'text',
             self::MINIMUM_AMOUNT_ELEMENT,

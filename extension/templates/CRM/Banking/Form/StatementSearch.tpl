@@ -72,6 +72,11 @@
             <th data-data="amount">{ts}Amount{/ts}</th>
             <th data-data="contact">{ts}Contact{/ts}</th>
             <th data-data="status">{ts}Status{/ts}</th>
+            {*
+                // TODO: Weitere sinnvolle Felder.
+                // TODO: Link "Transaktion prüfen" (es genügt nur die id, Liste überflüssig)
+                // TODO: Link "Transaktion löschen"
+            *}
         </tr>
         </thead>
     </table>

@@ -58,7 +58,7 @@
         <div class="clear"></div>
     </div>
 
-    {* FOOTER *}
+    {* Buttons *}
     <br>
     <div class="crm-submit-buttons">
         {include file="CRM/common/formButtons.tpl" location="bottom"}

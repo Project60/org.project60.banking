@@ -34,18 +34,18 @@ class CRM_Banking_Form_StatementSearch extends CRM_Core_Form
 
         $this->buildSearchElements();
 
-      $this->addButtons(
-        [
-          [
-            'type' => 'submit',
-            'name' => E::ts('Find'),
-            'icon' => 'fa-search',
-            'isDefault' => true,
-          ]
-        ]
-      );
+        $this->addButtons(
+            [
+                [
+                    'type' => 'submit',
+                    'name' => E::ts('Find'),
+                    'icon' => 'fa-search',
+                    'isDefault' => true,
+                ]
+            ]
+        );
 
-      // Pass the AJAX URL to the Javascript frontend:
+        // Pass the AJAX URL to the Javascript frontend:
         CRM_Core_Resources::singleton()->addVars(
             'banking_transaction_search',
             [
@@ -267,24 +267,24 @@ class CRM_Banking_Form_StatementSearch extends CRM_Core_Form
 
         $results = [];
         while ($transactionDao->fetch()) {
-          $results[] = [
-            'date' => date('Y-m-d', strtotime($transactionDao->date)),
-            'amount' => CRM_Utils_Money::format($transactionDao->amount, $transactionDao->currency),
-            'status' => $transactionDao->status_label,
-            'our_account'   => CRM_Utils_Array::value('name', json_decode($transactionDao->our_account, 1)), // todo cache?
-            'other_account' => $transactionDao->other_account,
+            $results[] = [
+                'date' => date('Y-m-d', strtotime($transactionDao->date)),
+                'amount' => CRM_Utils_Money::format($transactionDao->amount, $transactionDao->currency),
+                'status' => $transactionDao->status_label,
+                'our_account'   => CRM_Utils_Array::value('name', json_decode($transactionDao->our_account, 1)), // todo cache?
+                'other_account' => $transactionDao->other_account,
             'todo' => 'TODO',
-          ];
+            ];
         }
 
 //        $fetchAllResult = $transactionDao->fetchAll();
 
-      CRM_Utils_JSON::output(
-        [
-          'data'            => $results,
-          'recordsTotal'    => count($results),
-          'recordsFiltered' => count($results), // todo: correct value
-        ]
-      );
+        CRM_Utils_JSON::output(
+            [
+                'data'            => $results,
+                'recordsTotal'    => count($results),
+                'recordsFiltered' => count($results), // todo: correct value
+            ]
+        );
     }
 }

@@ -230,7 +230,6 @@ class CRM_Banking_Form_StatementSearch extends CRM_Core_Form
             //$queryParameters[$parameterCount] = [$status, 'Integer'];
         }
 
-        // FIXME: "tx.*" is not safe! We must explicitely name the things we want to get here!
         $sql =
         "SELECT
             tx.*,
@@ -261,7 +260,7 @@ class CRM_Banking_Form_StatementSearch extends CRM_Core_Form
         ORDER BY
             tx_status.weight,
             tx.value_date
-        LIMIT 11";
+        LIMIT 11"; // TODO: Remove the limit or handle it, e.g. with paging if really necessary.
 
         $transactionDao = CRM_Core_DAO::executeQuery($sql, $queryParameters);
 
@@ -273,11 +272,11 @@ class CRM_Banking_Form_StatementSearch extends CRM_Core_Form
                 'status' => $transactionDao->status_label,
                 'our_account'   => CRM_Utils_Array::value('name', json_decode($transactionDao->our_account, 1)), // todo cache?
                 'other_account' => $transactionDao->other_account,
-            'todo' => 'TODO',
+                // TODO: Contact
+                // TODO: link?
+                // TODO: Add more fields.
             ];
         }
-
-//        $fetchAllResult = $transactionDao->fetchAll();
 
         CRM_Utils_JSON::output(
             [

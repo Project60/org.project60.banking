@@ -173,19 +173,24 @@ class CRM_Banking_Form_StatementSearch extends CRM_Core_Form
 
     public static function getTransactionsAjax()
     {
+        $optionalAjaxParameters = [
+            self::VALUE_DATE_START_ELEMENT => 'String',
+            self::VALUE_DATE_END_ELEMENT => 'String',
+            self::BOOKING_DATE_START_ELEMENT => 'String',
+            self::BOOKING_DATE_END_ELEMENT => 'String',
+            self::MINIMUM_AMOUNT_ELEMENT => 'Integer',
+            self::MAXIMUM_AMOUNT_ELEMENT => 'Integer',
+            self::STATUS_ELEMENT => 'CommaSeparatedIntegers', // FIXME: Array of String?
+        ];
+
+        // Custom search data elements:
+        for ($i = 1; $i <= self::CUSTOM_DATA_ELEMENTS_COUNT; $i++) {
+            $optionalAjaxParameters[self::CUSTOM_DATA_KEY_ELEMENT_PREFIX . $i] = 'String';
+            $optionalAjaxParameters[self::CUSTOM_DATA_VALUE_ELEMENT_PREFIX . $i] = 'String';
+        }
+
         $ajaxParameters = CRM_Core_Page_AJAX::defaultSortAndPagerParams();
-        $ajaxParameters += CRM_Core_Page_AJAX::validateParams(
-            [], // No required parameters
-            [
-                self::VALUE_DATE_START_ELEMENT => 'String',
-                self::VALUE_DATE_END_ELEMENT => 'String',
-                self::BOOKING_DATE_START_ELEMENT => 'String',
-                self::BOOKING_DATE_END_ELEMENT => 'String',
-                self::MINIMUM_AMOUNT_ELEMENT => 'Integer',
-                self::MAXIMUM_AMOUNT_ELEMENT => 'Integer',
-                self::STATUS_ELEMENT => '', // FIXME: Array of String?
-            ]
-        );
+        $ajaxParameters += CRM_Core_Page_AJAX::validateParams([], $optionalAjaxParameters);
 
         $queryParameters = [];
         $whereClauses = '';

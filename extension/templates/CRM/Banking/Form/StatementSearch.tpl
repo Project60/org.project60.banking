@@ -111,20 +111,23 @@
          */
         function banking_transaction_search_update_table_link()
         {
-            let picker_count = cj("[name^=date_]").length;
-            let pickers = [];
+            const pickers = [];
 
-            for (let i = 1; i <= picker_count; i++)
-            {
-                let selector = "[name^=date_" + i + "]";
-
-                if (cj(selector).val().length > 0)
+            CRM.$('input, select').each(
+                function (i, element)
                 {
-                    pickers.push(cj(selector).val());
-                }
-            }
+                    let value = CRM.$(this).val();
 
-            let url = CRM.vars['banking_transaction_search'].data_url + '&pickers=' + pickers.join(',');
+                    if (Array.isArray(value))
+                    {
+                        value = value.join(',');
+                    }
+
+                    pickers.push(element.id + '=' + value);
+                }
+            );
+
+            let url = CRM.vars['banking_transaction_search'].data_url + '?' + pickers.join('&');
 
             CRM.$('table.banking-transaction-search-result').data(
                 {

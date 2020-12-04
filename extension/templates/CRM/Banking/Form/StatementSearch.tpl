@@ -129,6 +129,10 @@
                     {
                         value = value.join(',');
                     }
+                    else if (value == null)
+                    {
+                        value = '';
+                    }
 
                     pickers.push(element.id + '=' + value);
                 }

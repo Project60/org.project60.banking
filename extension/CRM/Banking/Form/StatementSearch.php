@@ -181,7 +181,7 @@ class CRM_Banking_Form_StatementSearch extends CRM_Core_Form
         $queryParameters = [];
         $whereClauses = [];
 
-        if (isset($ajaxParameters[self::VALUE_DATE_START_ELEMENT])) {
+        if (!empty($ajaxParameters[self::VALUE_DATE_START_ELEMENT])) {
             $parameterCount = count($queryParameters) + 1;
 
             $whereClauses[] = "AND DATE(tx.value_date) >= DATE(%{$parameterCount})";
@@ -190,7 +190,7 @@ class CRM_Banking_Form_StatementSearch extends CRM_Core_Form
             $valueDateStart = $dateTime->format('Ymd');
             $queryParameters[$parameterCount] = [$valueDateStart, 'Date'];
         }
-        if (isset($ajaxParameters[self::VALUE_DATE_END_ELEMENT])) {
+        if (!empty($ajaxParameters[self::VALUE_DATE_END_ELEMENT])) {
             $parameterCount = count($queryParameters) + 1;
 
             $whereClauses[] = "AND DATE(tx.value_date) <= DATE(%{$parameterCount})";
@@ -200,7 +200,7 @@ class CRM_Banking_Form_StatementSearch extends CRM_Core_Form
             $queryParameters[$parameterCount] = [$valueDateEnd, 'Date'];
         }
 
-        if (isset($ajaxParameters[self::BOOKING_DATE_START_ELEMENT])) {
+        if (!empty($ajaxParameters[self::BOOKING_DATE_START_ELEMENT])) {
             $parameterCount = count($queryParameters) + 1;
 
             $whereClauses[] = "AND DATE(tx.booking_date) >= DATE(%{$parameterCount})";
@@ -209,7 +209,7 @@ class CRM_Banking_Form_StatementSearch extends CRM_Core_Form
             $bookingDateStart = $dateTime->format('Ymd');
             $queryParameters[$parameterCount] = [$bookingDateStart, 'Date'];
         }
-        if (isset($ajaxParameters[self::BOOKING_DATE_END_ELEMENT])) {
+        if (!empty($ajaxParameters[self::BOOKING_DATE_END_ELEMENT])) {
             $parameterCount = count($queryParameters) + 1;
 
             $whereClauses[] = "AND DATE(tx.booking_date) <= DATE(%{$parameterCount})";
@@ -236,7 +236,7 @@ class CRM_Banking_Form_StatementSearch extends CRM_Core_Form
             $queryParameters[$parameterCount] = [(int)$maximumAmount, 'Integer'];
         }
 
-        if (isset($ajaxParameters[self::STATUS_ELEMENT])) {
+        if (!empty($ajaxParameters[self::STATUS_ELEMENT])) {
             $statuses = explode(',', $ajaxParameters[self::STATUS_ELEMENT]);
 
             $parameters = [];
@@ -262,7 +262,7 @@ class CRM_Banking_Form_StatementSearch extends CRM_Core_Form
             $keyParameterName = self::CUSTOM_DATA_KEY_ELEMENT_PREFIX . $i;
             $valueParameterName = self::CUSTOM_DATA_VALUE_ELEMENT_PREFIX . $i;
 
-            if (isset($ajaxParameters[$keyParameterName]) && isset($ajaxParameters[$valueParameterName])) {
+            if (!empty($ajaxParameters[$keyParameterName]) && isset($ajaxParameters[$valueParameterName])) {
                 $parameterCount = count($queryParameters) + 2;
                 $firstParameterNumber = $parameterCount - 1;
                 $secondParameterNumber = $parameterCount;

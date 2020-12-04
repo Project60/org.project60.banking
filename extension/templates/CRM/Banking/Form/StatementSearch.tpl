@@ -53,8 +53,8 @@
     </div>
 
     <div class="crm-section">
-        <div class="label">{$form.status.label}</div>
-        <div class="content">{$form.status.html}</div>
+        <div class="label">{$form.status_select.label}</div>
+        <div class="content">{$form.status_select.html}</div>
         <div class="clear"></div>
     </div>
 

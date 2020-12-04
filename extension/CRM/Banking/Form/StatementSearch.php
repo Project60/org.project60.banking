@@ -200,7 +200,8 @@ class CRM_Banking_Form_StatementSearch extends CRM_Core_Form
 
             $whereClauses += "AND DATE(tx.value_date) >= DATE(%{$parameterCount})";
 
-            $valueDateStart = $ajaxParameters[self::VALUE_DATE_START_ELEMENT];
+            $dateTime = new DateTime($ajaxParameters[self::VALUE_DATE_START_ELEMENT]);
+            $valueDateStart = $dateTime->format('Ymd');
             $queryParameters[$parameterCount] = [$valueDateStart, 'Date'];
         }
         if (isset($ajaxParameters[self::VALUE_DATE_END_ELEMENT])) {
@@ -208,7 +209,8 @@ class CRM_Banking_Form_StatementSearch extends CRM_Core_Form
 
             $whereClauses += "AND DATE(tx.value_date) <= DATE(%{$parameterCount})";
 
-            $valueDateEnd = $ajaxParameters[self::VALUE_DATE_END_ELEMENT];
+            $dateTime = new DateTime($ajaxParameters[self::VALUE_DATE_END_ELEMENT]);
+            $valueDateEnd = $dateTime->format('Ymd');
             $queryParameters[$parameterCount] = [$valueDateEnd, 'Date'];
         }
 
@@ -217,7 +219,8 @@ class CRM_Banking_Form_StatementSearch extends CRM_Core_Form
 
             $whereClauses += "AND DATE(tx.booking_date) >= DATE(%{$parameterCount})";
 
-            $bookingDateStart = $ajaxParameters[self::BOOKING_DATE_START_ELEMENT];
+            $dateTime = new DateTime($ajaxParameters[self::BOOKING_DATE_START_ELEMENT]);
+            $bookingDateStart = $dateTime->format('Ymd');
             $queryParameters[$parameterCount] = [$bookingDateStart, 'Date'];
         }
         if (isset($ajaxParameters[self::BOOKING_DATE_END_ELEMENT])) {
@@ -225,7 +228,8 @@ class CRM_Banking_Form_StatementSearch extends CRM_Core_Form
 
             $whereClauses += "AND DATE(tx.booking_date) <= DATE(%{$parameterCount})";
 
-            $bookingDateEnd = $ajaxParameters[self::BOOKING_DATE_END_ELEMENT];
+            $dateTime = new DateTime($ajaxParameters[self::BOOKING_DATE_END_ELEMENT]);
+            $bookingDateEnd = $dateTime->format('Ymd');
             $queryParameters[$parameterCount] = [$bookingDateEnd, 'Date'];
         }
 

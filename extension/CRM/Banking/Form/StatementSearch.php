@@ -193,12 +193,12 @@ class CRM_Banking_Form_StatementSearch extends CRM_Core_Form
         $ajaxParameters += CRM_Core_Page_AJAX::validateParams([], $optionalAjaxParameters);
 
         $queryParameters = [];
-        $whereClauses = '';
+        $whereClauses = [];
 
         if (isset($ajaxParameters[self::VALUE_DATE_START_ELEMENT])) {
             $parameterCount = count($queryParameters) + 1;
 
-            $whereClauses += "AND DATE(tx.value_date) >= DATE(%{$parameterCount})";
+            $whereClauses[] = "AND DATE(tx.value_date) >= DATE(%{$parameterCount})";
 
             $dateTime = new DateTime($ajaxParameters[self::VALUE_DATE_START_ELEMENT]);
             $valueDateStart = $dateTime->format('Ymd');
@@ -207,7 +207,7 @@ class CRM_Banking_Form_StatementSearch extends CRM_Core_Form
         if (isset($ajaxParameters[self::VALUE_DATE_END_ELEMENT])) {
             $parameterCount = count($queryParameters) + 1;
 
-            $whereClauses += "AND DATE(tx.value_date) <= DATE(%{$parameterCount})";
+            $whereClauses[] = "AND DATE(tx.value_date) <= DATE(%{$parameterCount})";
 
             $dateTime = new DateTime($ajaxParameters[self::VALUE_DATE_END_ELEMENT]);
             $valueDateEnd = $dateTime->format('Ymd');
@@ -217,7 +217,7 @@ class CRM_Banking_Form_StatementSearch extends CRM_Core_Form
         if (isset($ajaxParameters[self::BOOKING_DATE_START_ELEMENT])) {
             $parameterCount = count($queryParameters) + 1;
 
-            $whereClauses += "AND DATE(tx.booking_date) >= DATE(%{$parameterCount})";
+            $whereClauses[] = "AND DATE(tx.booking_date) >= DATE(%{$parameterCount})";
 
             $dateTime = new DateTime($ajaxParameters[self::BOOKING_DATE_START_ELEMENT]);
             $bookingDateStart = $dateTime->format('Ymd');
@@ -226,7 +226,7 @@ class CRM_Banking_Form_StatementSearch extends CRM_Core_Form
         if (isset($ajaxParameters[self::BOOKING_DATE_END_ELEMENT])) {
             $parameterCount = count($queryParameters) + 1;
 
-            $whereClauses += "AND DATE(tx.booking_date) <= DATE(%{$parameterCount})";
+            $whereClauses[] = "AND DATE(tx.booking_date) <= DATE(%{$parameterCount})";
 
             $dateTime = new DateTime($ajaxParameters[self::BOOKING_DATE_END_ELEMENT]);
             $bookingDateEnd = $dateTime->format('Ymd');
@@ -236,7 +236,7 @@ class CRM_Banking_Form_StatementSearch extends CRM_Core_Form
         if (isset($ajaxParameters[self::MINIMUM_AMOUNT_ELEMENT])) {
             $parameterCount = count($queryParameters) + 1;
 
-            $whereClauses += "AND tx.amount >= %{$parameterCount}";
+            $whereClauses[] = "AND tx.amount >= %{$parameterCount}";
 
             $minimumAmount = $ajaxParameters[self::MINIMUM_AMOUNT_ELEMENT];
             $queryParameters[$parameterCount] = [(int)$minimumAmount, 'Integer'];
@@ -244,7 +244,7 @@ class CRM_Banking_Form_StatementSearch extends CRM_Core_Form
         if (isset($ajaxParameters[self::MAXIMUM_AMOUNT_ELEMENT])) {
             $parameterCount = count($queryParameters) + 1;
 
-            $whereClauses += "AND tx.amount <= %{$parameterCount}";
+            $whereClauses[] = "AND tx.amount <= %{$parameterCount}";
 
             $maximumAmount = $ajaxParameters[self::MAXIMUM_AMOUNT_ELEMENT];
             $queryParameters[$parameterCount] = [(int)$maximumAmount, 'Integer'];
@@ -260,6 +260,8 @@ class CRM_Banking_Form_StatementSearch extends CRM_Core_Form
             //$status = $ajaxParameters[self::STATUS_ELEMENT]; // TODO: How to get the list of values/IDs?
             //$queryParameters[$parameterCount] = [$status, 'Integer'];
         }
+
+        $whereClausesAsString = implode("\n", $whereClauses);
 
         $sql =
         "SELECT
@@ -285,7 +287,7 @@ class CRM_Banking_Form_StatementSearch extends CRM_Core_Form
                     other_account.id = tx.party_ba_id
         WHERE
             TRUE
-            {$whereClauses}
+            {$whereClausesAsString}
         GROUP BY
             tx.id
         ORDER BY

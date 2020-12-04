@@ -284,6 +284,7 @@ class CRM_Banking_Form_StatementSearch extends CRM_Core_Form
             tx_status.label AS status_label,
             JSON_UNQUOTE(JSON_EXTRACT(our_account.data_parsed, '$.name')) AS our_account,
             other_account.reference AS other_account,
+            JSON_UNQUOTE(JSON_EXTRACT(tx.data_parsed, '$.contact_id')) AS contact_id
         FROM
             civicrm_bank_tx AS tx
         LEFT JOIN
@@ -319,7 +320,7 @@ class CRM_Banking_Form_StatementSearch extends CRM_Core_Form
                 'status' => $transactionDao->status_label,
                 'our_account' => $transactionDao->our_account,
                 'other_account' => $transactionDao->other_account,
-                // TODO: Contact
+                'contact' => $transactionDao->contact_id,
                 // TODO: link?
                 // TODO: The contact ID is not very useful here. What is the normal way to present a contact reference?
                 // TODO: Add more fields?

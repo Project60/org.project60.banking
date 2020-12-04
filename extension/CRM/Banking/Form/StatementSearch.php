@@ -271,12 +271,21 @@ class CRM_Banking_Form_StatementSearch extends CRM_Core_Form
             $parameterCount = count($queryParameters) + $statusesCount;
         }
 
-            //$parameterCount = count($queryParameters) + 1;
+        // Custom search data elements:
+        for ($i = 1; $i <= self::CUSTOM_DATA_ELEMENTS_COUNT; $i++) {
+            $keyParameterName = self::CUSTOM_DATA_KEY_ELEMENT_PREFIX . $i;
+            $valueParameterName = self::CUSTOM_DATA_VALUE_ELEMENT_PREFIX . $i;
 
-            //$whereClauses += "AND tx.status_id IN (%{$parameterCount})";
+            if (isset($ajaxParameters[$keyParameterName]) && isset($ajaxParameters[$valueParameterName])) {
+                $parameterCount = count($queryParameters) + 2;
+                $firstParameterNumber = $parameterCount - 1;
+                $secondParameterNumber = $parameterCount;
 
-            //$status = $ajaxParameters[self::STATUS_ELEMENT]; // TODO: How to get the list of values/IDs?
-            //$queryParameters[$parameterCount] = [$status, 'Integer'];
+                $whereClauses[] = "AND JSON_UNQUOTE(JSON_EXTRACT(tx.data_parsed, %{$firstParameterNumber})) = %{$secondParameterNumber}";
+
+                $queryParameters[$firstParameterNumber] = ['$.' . $ajaxParameters[$keyParameterName], 'String'];
+                $queryParameters[$secondParameterNumber] = [$ajaxParameters[$valueParameterName], 'String'];
+            }
         }
 
         $whereClausesAsString = implode("\n", $whereClauses);

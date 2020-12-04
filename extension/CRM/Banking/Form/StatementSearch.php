@@ -251,7 +251,25 @@ class CRM_Banking_Form_StatementSearch extends CRM_Core_Form
         }
 
         if (isset($ajaxParameters[self::STATUS_ELEMENT])) {
-            // TODO: Implement
+            $statuses = explode(',', $ajaxParameters[self::STATUS_ELEMENT]);
+
+            $parameters = [];
+
+            $statusesCount = count($statuses);
+            for ($i = 0; $i < $statusesCount; $i++) {
+                $position = $parameterCount + 1 + $i;
+
+                $queryParameters[$position] = [$statuses[$i], 'Integer'];
+
+                $parameters[] = "%{$position}";
+            }
+
+            $parametersAsString = implode(',', $parameters);
+
+            $whereClauses[] = "AND tx.status_id IN ({$parametersAsString})";
+
+            $parameterCount = count($queryParameters) + $statusesCount;
+        }
 
             //$parameterCount = count($queryParameters) + 1;
 

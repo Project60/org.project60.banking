@@ -25,7 +25,7 @@ class CRM_Banking_Form_StatementSearch extends CRM_Core_Form
     const BOOKING_DATE_END_ELEMENT = 'booking_date_end';
     const MINIMUM_AMOUNT_ELEMENT = 'minimum_amount';
     const MAXIMUM_AMOUNT_ELEMENT = 'maximum_amount';
-    const STATUS_ELEMENT = 'maximum_status';
+    const STATUS_ELEMENT = 'status_select';
 
     public function buildQuickForm()
     {

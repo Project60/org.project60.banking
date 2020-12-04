@@ -98,10 +98,8 @@
             <th data-data="amount">{ts}Amount{/ts}</th>
             <th data-data="status">{ts}Status{/ts}</th>
             <th data-data="contact">{ts}Contact (later){/ts}</th>
-            <th data-data="link">{ts}Link{/ts}</th>
-            {*
-                // TODO: Link "Transaktion prüfen" (es genügt nur die id, Liste überflüssig)
-            *}
+            <th data-data="review_link">{ts}Review{/ts}</th>
+            {*TODO: "review_link" contains the pure link. How can we give it a proper link message like "review transaction? *}
         </tr>
         </thead>
     </table>

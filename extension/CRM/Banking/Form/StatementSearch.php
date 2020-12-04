@@ -321,7 +321,7 @@ class CRM_Banking_Form_StatementSearch extends CRM_Core_Form
                 'our_account' => $transactionDao->our_account,
                 'other_account' => $transactionDao->other_account,
                 'contact' => $transactionDao->contact_id,
-                // TODO: link?
+                'review_link' => CRM_Utils_System::url('civicrm/banking/review/', ['id' => $transactionDao->id]),
                 // TODO: The contact ID is not very useful here. What is the normal way to present a contact reference?
                 // TODO: Add more fields?
             ];

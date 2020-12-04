@@ -28,6 +28,8 @@
         <div class="clear"></div>
     </div>
 
+    <br>
+
     <div class="crm-section">
         <div class="label">{$form.booking_date_start.label}</div>
         <div class="content">{$form.booking_date_start.html}</div>
@@ -40,6 +42,8 @@
         <div class="clear"></div>
     </div>
 
+    <br>
+
     <div class="crm-section">
         <div class="label">{$form.minimum_amount.label}</div>
         <div class="content">{$form.minimum_amount.html}</div>
@@ -51,6 +55,8 @@
         <div class="content">{$form.maximum_amount.html}</div>
         <div class="clear"></div>
     </div>
+
+    <br>
 
     <div class="crm-section">
         <div class="label">{$form.status_select.label}</div>
@@ -94,7 +100,6 @@
             <th data-data="contact">{ts}Contact (later){/ts}</th>
             <th data-data="link">{ts}Link{/ts}</th>
             {*
-                // TODO: Weitere sinnvolle Felder.
                 // TODO: Link "Transaktion prüfen" (es genügt nur die id, Liste überflüssig)
             *}
         </tr>

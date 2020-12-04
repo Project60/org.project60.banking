@@ -138,15 +138,6 @@ class CRM_Banking_Form_StatementSearch extends CRM_Core_Form
             ]
         );
 
-        // TODO: Which currency -> Is there a currency picker? -> Otherwise list picker
-        // TODO: Which ba_id (receiver/target account) -> Look at how Banking does that!
-        // TODO: Which party_ba_id (sender/party account) -> Look at how Banking does that!
-    }
-
-    private function buildButtons()
-    {
-        // TODO: Implement.
-    }
         // Custom search data elements:
         for ($i = 1; $i <= self::CUSTOM_DATA_ELEMENTS_COUNT; $i++) {
             $this->add(
@@ -164,11 +155,6 @@ class CRM_Banking_Form_StatementSearch extends CRM_Core_Form
 
         $this->assign('customDataElementsCount', self::CUSTOM_DATA_ELEMENTS_COUNT);
 
-    }
-
-    public function postProcess()
-    {
-        parent::postProcess();
     }
 
     public static function getTransactionsAjax()
@@ -293,11 +279,11 @@ class CRM_Banking_Form_StatementSearch extends CRM_Core_Form
         $sql =
         "SELECT
             tx.*,
-            DATE(tx.value_date)      AS `date`,
-            tx_status.name           AS status_name,
-            tx_status.label          AS status_label,
+            DATE(tx.value_date) AS `date`,
+            tx_status.name AS status_name,
+            tx_status.label AS status_label,
             our_account.data_parsed  AS our_account_data,
-            other_account.reference  AS other_account
+            other_account.reference AS other_account,
         FROM
             civicrm_bank_tx AS tx
         LEFT JOIN
@@ -320,7 +306,8 @@ class CRM_Banking_Form_StatementSearch extends CRM_Core_Form
         ORDER BY
             tx_status.weight,
             tx.value_date
-        LIMIT 11"; // TODO: Remove the limit or handle it, e.g. with paging if really necessary.
+        LIMIT 11";
+        // TODO: Remove the limit or handle it, e.g. with paging if really necessary.
 
         $transactionDao = CRM_Core_DAO::executeQuery($sql, $queryParameters);
 
@@ -334,7 +321,8 @@ class CRM_Banking_Form_StatementSearch extends CRM_Core_Form
                 'other_account' => $transactionDao->other_account,
                 // TODO: Contact
                 // TODO: link?
-                // TODO: Add more fields.
+                // TODO: The contact ID is not very useful here. What is the normal way to present a contact reference?
+                // TODO: Add more fields?
             ];
         }
 
@@ -342,7 +330,7 @@ class CRM_Banking_Form_StatementSearch extends CRM_Core_Form
             [
                 'data'            => $results,
                 'recordsTotal'    => count($results),
-                'recordsFiltered' => count($results), // todo: correct value
+                'recordsFiltered' => count($results), // TODO: Correct value: But which one is correct?
             ]
         );
     }

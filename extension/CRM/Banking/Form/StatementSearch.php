@@ -282,7 +282,7 @@ class CRM_Banking_Form_StatementSearch extends CRM_Core_Form
             DATE(tx.value_date) AS `date`,
             tx_status.name AS status_name,
             tx_status.label AS status_label,
-            our_account.data_parsed  AS our_account_data,
+            JSON_UNQUOTE(JSON_EXTRACT(our_account.data_parsed, '$.name')) AS our_account,
             other_account.reference AS other_account,
         FROM
             civicrm_bank_tx AS tx
@@ -317,7 +317,7 @@ class CRM_Banking_Form_StatementSearch extends CRM_Core_Form
                 'date' => date('Y-m-d', strtotime($transactionDao->date)),
                 'amount' => CRM_Utils_Money::format($transactionDao->amount, $transactionDao->currency),
                 'status' => $transactionDao->status_label,
-                'our_account'   => CRM_Utils_Array::value('name', json_decode($transactionDao->our_account, 1)), // todo cache?
+                'our_account' => $transactionDao->our_account,
                 'other_account' => $transactionDao->other_account,
                 // TODO: Contact
                 // TODO: link?

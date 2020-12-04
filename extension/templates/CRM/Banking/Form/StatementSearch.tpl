@@ -16,6 +16,7 @@
 {crmScope extensionKey='org.project60.banking'}
     <br>
 
+    {* TODO: These two dates could be horizontally aligned with a '-' between them: *}
     <div class="crm-section">
         <div class="label">{$form.value_date_start.label}</div>
         <div class="content">{$form.value_date_start.html}</div>
@@ -30,6 +31,7 @@
 
     <br>
 
+    {* TODO: These two dates could be horizontally aligned with a '-' between them: *}
     <div class="crm-section">
         <div class="label">{$form.booking_date_start.label}</div>
         <div class="content">{$form.booking_date_start.html}</div>
@@ -44,6 +46,7 @@
 
     <br>
 
+    {* TODO: These two values could be horizontally aligned with a '-' between them: *}
     <div class="crm-section">
         <div class="label">{$form.minimum_amount.label}</div>
         <div class="content">{$form.minimum_amount.html}</div>
@@ -67,6 +70,7 @@
     {foreach item=i from=1|@range:$customDataElementsCount}
         <br>
 
+        {* TODO: This key-value pair could be horizontally aligned with a '-' between them: *}
         {assign var="keyElementName" value="custom_data_key_$i"}
         <div class="crm-section">
             <div class="label">{$form.$keyElementName.label}</div>

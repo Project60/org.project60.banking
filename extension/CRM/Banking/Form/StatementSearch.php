@@ -62,7 +62,6 @@ class CRM_Banking_Form_StatementSearch extends CRM_Core_Form
 
     private function buildSearchElements()
     {
-        // TODO: These two dates should be horizontally aligned with a '-' between them:
         $this->add(
             'datepicker',
             self::VALUE_DATE_START_ELEMENT,
@@ -80,7 +79,6 @@ class CRM_Banking_Form_StatementSearch extends CRM_Core_Form
             ]
         );
 
-        // TODO: These two dates should be horizontally aligned with a '-' between them:
         $this->add(
             'datepicker',
             self::BOOKING_DATE_START_ELEMENT,
@@ -99,7 +97,6 @@ class CRM_Banking_Form_StatementSearch extends CRM_Core_Form
             ]
         );
 
-        // TODO: These two text fields should be horizontally aligned with a '-' between them:
         $this->add(
             'text',
             self::MINIMUM_AMOUNT_ELEMENT,
@@ -138,6 +135,10 @@ class CRM_Banking_Form_StatementSearch extends CRM_Core_Form
             ]
         );
 
+        // TODO: ba_id (receiver/target account) and party_ba_id (sender/party account)
+        // How should the input look like? A select? Where to get the data from? civicrm_bank_account has way too
+        // many entries. A text input? What to write into it?
+
         // Custom search data elements:
         for ($i = 1; $i <= self::CUSTOM_DATA_ELEMENTS_COUNT; $i++) {
             $this->add(
@@ -154,7 +155,6 @@ class CRM_Banking_Form_StatementSearch extends CRM_Core_Form
         }
 
         $this->assign('customDataElementsCount', self::CUSTOM_DATA_ELEMENTS_COUNT);
-
     }
 
     public static function getTransactionsAjax()
@@ -166,7 +166,7 @@ class CRM_Banking_Form_StatementSearch extends CRM_Core_Form
             self::BOOKING_DATE_END_ELEMENT => 'String',
             self::MINIMUM_AMOUNT_ELEMENT => 'Integer',
             self::MAXIMUM_AMOUNT_ELEMENT => 'Integer',
-            self::STATUS_ELEMENT => 'CommaSeparatedIntegers', // FIXME: Array of String?
+            self::STATUS_ELEMENT => 'CommaSeparatedIntegers',
         ];
 
         // Custom search data elements:
@@ -330,8 +330,8 @@ class CRM_Banking_Form_StatementSearch extends CRM_Core_Form
         CRM_Utils_JSON::output(
             [
                 'data'            => $results,
-                'recordsTotal'    => count($results),
-                'recordsFiltered' => count($results), // TODO: Correct value: But which one is correct?
+                'recordsTotal'    => count($results), // TODO: Which is the correct value?
+                'recordsFiltered' => count($results), // TODO: Which is the correct value?
             ]
         );
     }

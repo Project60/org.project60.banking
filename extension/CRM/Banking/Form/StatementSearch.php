@@ -27,11 +27,15 @@ class CRM_Banking_Form_StatementSearch extends CRM_Core_Form
     const MAXIMUM_AMOUNT_ELEMENT = 'maximum_amount';
     const STATUS_ELEMENT = 'status_select';
 
+    /** Prefix for the key of the custom key-value-pair elements for searching in the data_parsed JSON field. */
+    const CUSTOM_DATA_KEY_ELEMENT_PREFIX = 'custom_data_key_';
+    /** Prefix for the value of the custom key-value-pair elements for searching in the data_parsed JSON field. */
+    const CUSTOM_DATA_VALUE_ELEMENT_PREFIX = 'custom_data_value_';
+
+    const CUSTOM_DATA_ELEMENTS_COUNT = 3;
+
     public function buildQuickForm()
     {
-        // TODO: Aus data_parsed (JSON) suchen: Was denn?
-        // -> Fünf Felder zur freien Eingabe von Parametername und Wert.
-
         $this->buildSearchElements();
 
         $this->addButtons(
@@ -142,6 +146,24 @@ class CRM_Banking_Form_StatementSearch extends CRM_Core_Form
     private function buildButtons()
     {
         // TODO: Implement.
+    }
+        // Custom search data elements:
+        for ($i = 1; $i <= self::CUSTOM_DATA_ELEMENTS_COUNT; $i++) {
+            $this->add(
+                'text',
+                self::CUSTOM_DATA_KEY_ELEMENT_PREFIX . $i,
+                E::ts('Custom data key')
+            );
+
+            $this->add(
+                'text',
+                self::CUSTOM_DATA_VALUE_ELEMENT_PREFIX . $i,
+                E::ts('Custom data value')
+            );
+        }
+
+        $this->assign('customDataElementsCount', self::CUSTOM_DATA_ELEMENTS_COUNT);
+
     }
 
     public function postProcess()

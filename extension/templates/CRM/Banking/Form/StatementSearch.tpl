@@ -58,6 +58,24 @@
         <div class="clear"></div>
     </div>
 
+    {foreach item=i from=1|@range:$customDataElementsCount}
+        <br>
+
+        {assign var="keyElementName" value="custom_data_key_$i"}
+        <div class="crm-section">
+            <div class="label">{$form.$keyElementName.label}</div>
+            <div class="content">{$form.$keyElementName.html}</div>
+            <div class="clear"></div>
+        </div>
+
+        {assign var="valueElementName" value="custom_data_value_$i"}
+        <div class="crm-section">
+            <div class="label">{$form.$valueElementName.label}</div>
+            <div class="content">{$form.$valueElementName.html}</div>
+            <div class="clear"></div>
+        </div>
+    {/foreach}
+
     {* Buttons *}
     <br>
     <div class="crm-submit-buttons">

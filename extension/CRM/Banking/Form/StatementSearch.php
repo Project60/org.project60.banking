@@ -17,6 +17,9 @@
 
 use CRM_Banking_ExtensionUtil as E;
 
+/**
+ * Search for statements (transactions) in civicrm_banking_tx by a lot of possible parameters.
+ */
 class CRM_Banking_Form_StatementSearch extends CRM_Core_Form
 {
     const VALUE_DATE_START_ELEMENT = 'value_date_start';

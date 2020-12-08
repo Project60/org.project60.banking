@@ -178,6 +178,42 @@ class CRM_Banking_Form_StatementSearch extends CRM_Core_Form
         $ajaxParameters = CRM_Core_Page_AJAX::defaultSortAndPagerParams();
         $ajaxParameters += CRM_Core_Page_AJAX::validateParams([], $optionalAjaxParameters);
 
+        $sortByComponents = explode(' ', $ajaxParameters['sortBy'], 3);
+
+        $sortBy = '';
+        switch ($sortByComponents[0]) {
+            case 'date':
+                $sortBy = 'date';
+                break;
+            case 'our_account':
+                $sortBy = 'our_account';
+                break;
+            case 'other_account':
+                $sortBy = 'other_account';
+                break;
+            case 'amount':
+                $sortBy = 'tx.amount';
+                break;
+            case 'status':
+                $sortBy = 'status_label';
+                break;
+            case 'contact':
+                $sortBy = 'contact_id';
+                break;
+            case 'review_link':
+                $sortBy = 'tx.id';
+                break;
+            default:
+                $sortBy = 'tx_status.weight, tx.value_date';
+        }
+        // TODO: Maybe this could be simplified by something like a
+        //       "in_array($sortByComponents[0], ['date', 'our_account'])
+        //       if the names in the parameter were equal to the ones in the SQL statement.
+
+        if (strtoupper($sortByComponents[1]) == 'DESC') {
+            $sortBy .= ' DESC';
+        }
+
         $queryParameters = [
             1 => [$ajaxParameters['rp'], 'Integer'],
             2 => [$ajaxParameters['offset'], 'Integer'],
@@ -308,8 +344,7 @@ class CRM_Banking_Form_StatementSearch extends CRM_Core_Form
         GROUP BY
             tx.id
         ORDER BY
-            tx_status.weight,
-            tx.value_date
+            {$sortBy}
         LIMIT
             %1
         OFFSET

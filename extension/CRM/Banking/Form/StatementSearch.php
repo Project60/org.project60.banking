@@ -178,7 +178,10 @@ class CRM_Banking_Form_StatementSearch extends CRM_Core_Form
         $ajaxParameters = CRM_Core_Page_AJAX::defaultSortAndPagerParams();
         $ajaxParameters += CRM_Core_Page_AJAX::validateParams([], $optionalAjaxParameters);
 
-        $queryParameters = [];
+        $queryParameters = [
+            1 => [$ajaxParameters['rp'], 'Integer'],
+            2 => [$ajaxParameters['offset'], 'Integer'],
+        ];
         $whereClauses = [];
 
         if (!empty($ajaxParameters[self::VALUE_DATE_START_ELEMENT])) {
@@ -307,8 +310,10 @@ class CRM_Banking_Form_StatementSearch extends CRM_Core_Form
         ORDER BY
             tx_status.weight,
             tx.value_date
-        LIMIT 11";
-        // TODO: Remove the limit or handle it, e.g. with paging if really necessary.
+        LIMIT
+            %1
+        OFFSET
+            %2";
 
         $transactionDao = CRM_Core_DAO::executeQuery($sql, $queryParameters);
 

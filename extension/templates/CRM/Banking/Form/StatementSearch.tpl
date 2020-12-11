@@ -14,52 +14,27 @@
 +--------------------------------------------------------*}
 
 {crmScope extensionKey='org.project60.banking'}
-    <br>
 
-    {* TODO: These two dates could be horizontally aligned with a '-' between them: *}
-    <div class="crm-section">
-        <div class="label">{$form.value_date_start.label}</div>
-        <div class="content">{$form.value_date_start.html}</div>
-        <div class="clear"></div>
+<div class="crm-accordion-wrapper crm-accordion_title-accordion crm-accordion-processed" id="banking-transaction-search">
+    <div class="crm-accordion-header">
+        {ts}Search Criteria{/ts}
     </div>
-
-    <div class="crm-section">
-        <div class="label">{$form.value_date_end.label}</div>
-        <div class="content">{$form.value_date_end.html}</div>
-        <div class="clear"></div>
-    </div>
-
-    <br>
-
-    {* TODO: These two dates could be horizontally aligned with a '-' between them: *}
-    <div class="crm-section">
-        <div class="label">{$form.booking_date_start.label}</div>
-        <div class="content">{$form.booking_date_start.html}</div>
-        <div class="clear"></div>
-    </div>
-
-    <div class="crm-section">
-        <div class="label">{$form.booking_date_end.label}</div>
-        <div class="content">{$form.booking_date_end.html}</div>
-        <div class="clear"></div>
-    </div>
-
-    <br>
-
-    {* TODO: These two values could be horizontally aligned with a '-' between them: *}
-    <div class="crm-section">
-        <div class="label">{$form.minimum_amount.label}</div>
-        <div class="content">{$form.minimum_amount.html}</div>
-        <div class="clear"></div>
-    </div>
-
-    <div class="crm-section">
-        <div class="label">{$form.maximum_amount.label}</div>
-        <div class="content">{$form.maximum_amount.html}</div>
-        <div class="clear"></div>
-    </div>
-
-    <br>
+    <div class="crm-accordion-body">
+        <div class="crm-section">
+            <div class="label">{ts}Booking Date{/ts}</div>
+            <div class="content">{$form.booking_date_start.html}&nbsp;&hellip;&nbsp;&nbsp;{$form.booking_date_end.html}</div>
+            <div class="clear"></div>
+        </div>
+        <div class="crm-section">
+            <div class="label">{ts}Value Date{/ts}</div>
+            <div class="content">{$form.value_date_start.html}&nbsp;&hellip;&nbsp;&nbsp;{$form.value_date_end.html}</div>
+            <div class="clear"></div>
+        </div>
+        <div class="crm-section">
+            <div class="label">{ts}Amount{/ts}</div>
+            <div class="content">{$form.minimum_amount.html}&nbsp;&hellip;&nbsp;&nbsp;{$form.maximum_amount.html}</div>
+            <div class="clear"></div>
+        </div>
 
     <div class="crm-section">
         <div class="label">{$form.status_select.label}</div>
@@ -85,6 +60,7 @@
             <div class="clear"></div>
         </div>
     {/foreach}
+    </div>
 
     {* Buttons *}
     <br>

@@ -84,7 +84,7 @@
   <item>
     <path>civicrm/banking/statements/search</path>
     <page_callback>CRM_Banking_Form_StatementSearch</page_callback>
-    <title>StatementSearch</title>
+    <title>Transaction Search</title>
     <access_arguments>access CiviContribute</access_arguments>
   </item>
   <item>

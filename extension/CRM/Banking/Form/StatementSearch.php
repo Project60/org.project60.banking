@@ -1,5 +1,4 @@
 <?php
-
 /*-------------------------------------------------------+
 | Project 60 - CiviBanking                               |
 | Copyright (C) 2020 SYSTOPIA                            |
@@ -18,7 +17,8 @@
 use CRM_Banking_ExtensionUtil as E;
 
 /**
- * Search for statements (transactions) in civicrm_banking_tx by a lot of possible parameters.
+ * Search for transactions in civicrm_banking_tx by a lot of possible parameters.
+ *  ("StatementSearch" is a misnomer)
  */
 class CRM_Banking_Form_StatementSearch extends CRM_Core_Form
 {
@@ -35,10 +35,12 @@ class CRM_Banking_Form_StatementSearch extends CRM_Core_Form
     /** Prefix for the value of the custom key-value-pair elements for searching in the data_parsed JSON field. */
     const CUSTOM_DATA_VALUE_ELEMENT_PREFIX = 'custom_data_value_';
 
-    const CUSTOM_DATA_ELEMENTS_COUNT = 3;
+    const CUSTOM_DATA_ELEMENTS_COUNT = 5;
 
     public function buildQuickForm()
     {
+        $this->setTitle(E::ts("Find CiviBanking Transactions"));
+
         $this->buildSearchElements();
 
         $this->addButtons(
@@ -68,7 +70,7 @@ class CRM_Banking_Form_StatementSearch extends CRM_Core_Form
         $this->add(
             'datepicker',
             self::VALUE_DATE_START_ELEMENT,
-            E::ts('Value Date start'),
+            E::ts('Value Date from'),
             [
                 'formatType' => 'activityDateTime'
             ]
@@ -85,7 +87,7 @@ class CRM_Banking_Form_StatementSearch extends CRM_Core_Form
         $this->add(
             'datepicker',
             self::BOOKING_DATE_START_ELEMENT,
-            E::ts('Booking Date start'),
+            E::ts('Booking Date from'),
             [
                 'formatType' => 'activityDateTime'
             ]
@@ -105,12 +107,14 @@ class CRM_Banking_Form_StatementSearch extends CRM_Core_Form
             self::MINIMUM_AMOUNT_ELEMENT,
             E::ts('Minimum amount')
         );
+        $this->addRule(self::MINIMUM_AMOUNT_ELEMENT, E::ts("Please enter a valid amount."), 'money');
 
         $this->add(
             'text',
             self::MAXIMUM_AMOUNT_ELEMENT,
             E::ts('Maximum amount')
         );
+        $this->addRule(self::MAXIMUM_AMOUNT_ELEMENT, E::ts("Please enter a valid amount."), 'money');
 
         $statusApi = civicrm_api3(
             'OptionValue',
@@ -129,7 +133,7 @@ class CRM_Banking_Form_StatementSearch extends CRM_Core_Form
         $this->add(
             'select',
             self::STATUS_ELEMENT,
-            E::ts('Status'),
+            E::ts('Transaction Status'),
             $statuses,
             false,
             [

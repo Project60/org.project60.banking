@@ -212,3 +212,18 @@ function banking_civicrm_get_max_nav_id($menu) {
   }
   return $max_id;
 }
+
+
+/**
+ * Replace (some of) the summary blocks on the banking review page
+ *
+ * @param CRM_Banking_BAO_BankTransaction $banking_transaction
+ * @param array $summary_blocks
+ */
+function banking_civicrm_banking_transaction_summary($banking_transaction, &$summary_blocks)
+{
+  // Add rule match indicators:
+  $ruleMatchIndicators = new CRM_Banking_RuleMatchIndicators($banking_transaction, $summary_blocks);
+  $ruleMatchIndicators->addContactMatchIndicator();
+  $ruleMatchIndicators->addIbanMatchIndicator();
+}

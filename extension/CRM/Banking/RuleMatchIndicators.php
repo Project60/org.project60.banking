@@ -42,4 +42,12 @@ class CRM_Banking_RuleMatchIndicators
         $this->transaction = $transaction;
         $this->blocks = &$blocks;
     }
+
+    public function addContactMatchIndicator()
+    {
+    }
+
+    public function addIbanMatchIndicator()
+    {
+    }
 }

@@ -21,6 +21,11 @@
     </div>
     <div class="crm-accordion-body">
         <div class="crm-section">
+            <div class="label">{$form.status_select.label}</div>
+            <div class="content">{$form.status_select.html}</div>
+            <div class="clear"></div>
+        </div>
+        <div class="crm-section">
             <div class="label">{ts}Booking Date{/ts}</div>
             <div class="content">{$form.booking_date_start.html}&nbsp;&hellip;&nbsp;&nbsp;{$form.booking_date_end.html}</div>
             <div class="clear"></div>
@@ -36,28 +41,22 @@
             <div class="clear"></div>
         </div>
 
-    <div class="crm-section">
-        <div class="label">{$form.status_select.label}</div>
-        <div class="content">{$form.status_select.html}</div>
-        <div class="clear"></div>
-    </div>
-
     {foreach item=i from=1|@range:$customDataElementsCount}
-        <br>
+        <div class="custom_value_search custom_value_search-{$i}">
+            {assign var="keyElementName" value="custom_data_key_name_$i"}
+            {assign var="listElementName" value="custom_data_key_list_$i"}
+            {assign var="valueElementName" value="custom_data_value_$i"}
+            <div class="crm-section">
+                <div class="label">{ts 1=$i}Additional Criteria %1{/ts}</div>
+                <div class="content">{$form.$listElementName.html}&nbsp;{$form.$keyElementName.html}</div>
+                <div class="clear"></div>
+            </div>
 
-        {* TODO: This key-value pair could be horizontally aligned with a '-' between them: *}
-        {assign var="keyElementName" value="custom_data_key_$i"}
-        <div class="crm-section">
-            <div class="label">{$form.$keyElementName.label}</div>
-            <div class="content">{$form.$keyElementName.html}</div>
-            <div class="clear"></div>
-        </div>
-
-        {assign var="valueElementName" value="custom_data_value_$i"}
-        <div class="crm-section">
-            <div class="label">{$form.$valueElementName.label}</div>
-            <div class="content">{$form.$valueElementName.html}</div>
-            <div class="clear"></div>
+            <div class="crm-section">
+                <div class="label">{$form.$valueElementName.label}</div>
+                <div class="content">{$form.$valueElementName.html}</div>
+                <div class="clear"></div>
+            </div>
         </div>
     {/foreach}
     </div>
@@ -77,68 +76,9 @@
             <th data-data="other_account">{ts}Donor Account{/ts}</th>
             <th data-data="amount">{ts}Amount{/ts}</th>
             <th data-data="status">{ts}Status{/ts}</th>
-            <th data-data="contact">{ts}Contact (later){/ts}</th>
-            <th data-data="review_link">{ts}Review{/ts}</th>
+            <th data-data="review_link">{ts}Transaction{/ts}</th>
             {*TODO: "review_link" contains the pure link. How can we give it a proper link message like "review transaction? *}
         </tr>
         </thead>
     </table>
 {/crmScope}
-
-<script>
-    {literal}
-        /**
-         * Refresh the AJAX table link to reflect the current settings.
-         *
-         * @returns {string}
-         */
-        function banking_transaction_search_update_table_link()
-        {
-            const pickers = [];
-
-            CRM.$('input, select').each(
-                function (i, element)
-                {
-                    let value = CRM.$(this).val();
-
-                    if (Array.isArray(value))
-                    {
-                        value = value.join(',');
-                    }
-                    else if (value == null)
-                    {
-                        value = '';
-                    }
-
-                    pickers.push(element.id + '=' + value);
-                }
-            );
-
-            let url = CRM.vars['banking_transaction_search'].data_url + '?' + pickers.join('&');
-
-            CRM.$('table.banking-transaction-search-result').data(
-                {
-                    "ajax": {
-                        "url": url,
-                    }
-                }
-            );
-
-            return url;
-        }
-
-        /**
-         * Trigger a refresh of the AJAX table
-         */
-        function banking_transaction_search_refresh_table()
-        {
-            CRM.$('table.banking_transaction_search').DataTable().ajax.url(banking_transaction_search_update_table_link()).draw();
-        }
-
-        // trigger this function
-        (function ($) {
-            banking_transaction_search_update_table_link();
-        })(CRM.$);
-        cj("#date").change(banking_transaction_search_update_table_link);
-    {/literal}
-</script>

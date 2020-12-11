@@ -30,12 +30,11 @@ class CRM_Banking_Form_StatementSearch extends CRM_Core_Form
     const MAXIMUM_AMOUNT_ELEMENT = 'maximum_amount';
     const STATUS_ELEMENT = 'status_select';
 
-    /** Prefix for the key of the custom key-value-pair elements for searching in the data_parsed JSON field. */
-    const CUSTOM_DATA_KEY_ELEMENT_PREFIX = 'custom_data_key_';
-    /** Prefix for the value of the custom key-value-pair elements for searching in the data_parsed JSON field. */
-    const CUSTOM_DATA_VALUE_ELEMENT_PREFIX = 'custom_data_value_';
-
+    /** Prefixes for the key of the custom key-value-pair elements for searching in the data_parsed JSON field. */
     const CUSTOM_DATA_ELEMENTS_COUNT = 5;
+    const CUSTOM_DATA_KEY_ELEMENT_PREFIX = 'custom_data_key_name_';
+    const CUSTOM_DATA_KEY_LIST_ELEMENT_PREFIX = 'custom_data_key_list_';
+    const CUSTOM_DATA_VALUE_ELEMENT_PREFIX = 'custom_data_value_';
 
     public function buildQuickForm()
     {
@@ -62,6 +61,16 @@ class CRM_Banking_Form_StatementSearch extends CRM_Core_Form
             ]
         );
 
+        Civi::resources()->addScriptUrl(E::url('js/statement_search.js'));
+        Civi::resources()->addVars('banking_txsearch_basic_fields', [
+          self::VALUE_DATE_START_ELEMENT,
+          self::VALUE_DATE_END_ELEMENT,
+          self::BOOKING_DATE_START_ELEMENT,
+          self::BOOKING_DATE_END_ELEMENT,
+          self::MINIMUM_AMOUNT_ELEMENT,
+          self::MAXIMUM_AMOUNT_ELEMENT,
+          self::STATUS_ELEMENT,
+        ]);
         parent::buildQuickForm();
     }
 
@@ -143,27 +152,74 @@ class CRM_Banking_Form_StatementSearch extends CRM_Core_Form
         );
 
         // TODO: ba_id (receiver/target account) and party_ba_id (sender/party account)
+
         // How should the input look like? A select? Where to get the data from? civicrm_bank_account has way too
         // many entries. A text input? What to write into it?
 
-        // Custom search data elements:
-        for ($i = 1; $i <= self::CUSTOM_DATA_ELEMENTS_COUNT; $i++) {
-            $this->add(
-                'text',
-                self::CUSTOM_DATA_KEY_ELEMENT_PREFIX . $i,
-                E::ts('Custom data key')
-            );
 
-            $this->add(
+
+        // CUSTOM SEARCH DATA
+        $suggested_values = $this->getCustomDataFieldSuggestions();
+        for ($i = 1; $i <= self::CUSTOM_DATA_ELEMENTS_COUNT; $i++) {
+          $this->add(
+              'text',
+              self::CUSTOM_DATA_KEY_ELEMENT_PREFIX . $i,
+              E::ts('Custom data key'),
+              ['placeholder' => E::ts("enter key here")]
+          );
+          $this->addRule(self::CUSTOM_DATA_KEY_ELEMENT_PREFIX . $i,
+                          E::ts("Parameter names cannot contain spaces or special characters"),
+                          'regex',
+                    '/^[a-zA-Z_]+$/');
+
+          $this->add(
+              'select',
+              self::CUSTOM_DATA_KEY_LIST_ELEMENT_PREFIX . $i,
+              E::ts('Suggested field names'),
+              $suggested_values
+          );
+
+          $this->add(
                 'text',
                 self::CUSTOM_DATA_VALUE_ELEMENT_PREFIX . $i,
-                E::ts('Custom data value')
+                E::ts('Value'),
+                ['class' => 'huge']
             );
         }
 
         $this->assign('customDataElementsCount', self::CUSTOM_DATA_ELEMENTS_COUNT);
     }
 
+    /**
+     * Get a list of suggestions for the custom fields
+     *
+     * @return array
+     *   key => label
+     */
+    protected function getCustomDataFieldSuggestions() {
+        return [
+            ''                => E::ts('-select-'),
+            'purpose'         => E::ts('Purpose (<code>purpose</code>)'),
+            'contact_id'      => E::ts('Contact ID (<code>contact_id</code>)'),
+            'name'            => E::ts('Name (<code>name</code>)'),
+            'street_address'  => E::ts('Address (<code>street_address</code>)'),
+            'city'            => E::ts('City (<code>city</code>)'),
+            'postal_code'     => E::ts('Postal Code (<code>postal_code</code>)'),
+            '_IBAN'           => E::ts('Your IBAN (<code>_IBAN</code>)'),
+            '_BIC'            => E::ts('Your BIC (<code>_BIC</code>)'),
+            '_party_IBAN'     => E::ts('Other\'s IBAN (<code>_party_IBAN</code>)'),
+            '_party_BIC'      => E::ts('Other\'s BIC (<code>_party_BIC</code>)'),
+            'cancel_reason'   => E::ts('Other\'s IBAN (<code>cancel_reason</code>)'),
+            '__other__'       => E::ts('other'),
+        ];
+    }
+
+
+
+
+    /**
+     * Will be called by the the page's jquery data table
+     */
     public static function getTransactionsAjax()
     {
         $optionalAjaxParameters = [
@@ -171,15 +227,16 @@ class CRM_Banking_Form_StatementSearch extends CRM_Core_Form
             self::VALUE_DATE_END_ELEMENT => 'String',
             self::BOOKING_DATE_START_ELEMENT => 'String',
             self::BOOKING_DATE_END_ELEMENT => 'String',
-            self::MINIMUM_AMOUNT_ELEMENT => 'Integer',
-            self::MAXIMUM_AMOUNT_ELEMENT => 'Integer',
+            self::MINIMUM_AMOUNT_ELEMENT => 'Float',
+            self::MAXIMUM_AMOUNT_ELEMENT => 'Float',
             self::STATUS_ELEMENT => 'CommaSeparatedIntegers',
         ];
 
         // Custom search data elements:
-        for ($i = 1; $i <= self::CUSTOM_DATA_ELEMENTS_COUNT; $i++) {
-            $optionalAjaxParameters[self::CUSTOM_DATA_KEY_ELEMENT_PREFIX . $i] = 'String';
-            $optionalAjaxParameters[self::CUSTOM_DATA_VALUE_ELEMENT_PREFIX . $i] = 'String';
+        $custom_parameter_list = CRM_Utils_Array::value('custom_parameters', $_REQUEST, '');
+        $custom_parameter_list = explode(',', $custom_parameter_list);
+        foreach ($custom_parameter_list as $custom_parameter) {
+            $optionalAjaxParameters[$custom_parameter] = 'String';
         }
 
         $ajaxParameters = CRM_Core_Page_AJAX::defaultSortAndPagerParams();
@@ -193,7 +250,7 @@ class CRM_Banking_Form_StatementSearch extends CRM_Core_Form
                 $sortBy = 'date';
                 break;
             case 'our_account':
-                $sortBy = 'our_account';
+                $sortBy = 'tx.ba_id';
                 break;
             case 'other_account':
                 $sortBy = 'other_account';
@@ -203,9 +260,6 @@ class CRM_Banking_Form_StatementSearch extends CRM_Core_Form
                 break;
             case 'status':
                 $sortBy = 'status_label';
-                break;
-            case 'contact':
-                $sortBy = 'contact_id';
                 break;
             case 'review_link':
                 $sortBy = 'tx.id';
@@ -271,7 +325,7 @@ class CRM_Banking_Form_StatementSearch extends CRM_Core_Form
             $whereClauses[] = "AND tx.amount >= %{$parameterCount}";
 
             $minimumAmount = $ajaxParameters[self::MINIMUM_AMOUNT_ELEMENT];
-            $queryParameters[$parameterCount] = [(int)$minimumAmount, 'Integer'];
+            $queryParameters[$parameterCount] = [$minimumAmount, 'Float'];
         }
         if (isset($ajaxParameters[self::MAXIMUM_AMOUNT_ELEMENT])) {
             $parameterCount = count($queryParameters) + 1;
@@ -279,7 +333,7 @@ class CRM_Banking_Form_StatementSearch extends CRM_Core_Form
             $whereClauses[] = "AND tx.amount <= %{$parameterCount}";
 
             $maximumAmount = $ajaxParameters[self::MAXIMUM_AMOUNT_ELEMENT];
-            $queryParameters[$parameterCount] = [(int)$maximumAmount, 'Integer'];
+            $queryParameters[$parameterCount] = [$maximumAmount, 'Float'];
         }
 
         if (!empty($ajaxParameters[self::STATUS_ELEMENT])) {
@@ -288,49 +342,47 @@ class CRM_Banking_Form_StatementSearch extends CRM_Core_Form
             $parameters = [];
 
             $statusesCount = count($statuses);
-            for ($i = 0; $i < $statusesCount; $i++) {
-                $position = $parameterCount + 1 + $i;
-
-                $queryParameters[$position] = [$statuses[$i], 'Integer'];
-
-                $parameters[] = "%{$position}";
+            foreach ($statuses as $status) {
+                $parameterCount = count($queryParameters) + 1;
+                $queryParameters[$parameterCount] = [(int) $status, 'Integer'];
+                $parameters[] = "%{$parameterCount}";
             }
 
             $parametersAsString = implode(',', $parameters);
-
             $whereClauses[] = "AND tx.status_id IN ({$parametersAsString})";
-
-            $parameterCount = count($queryParameters) + $statusesCount;
         }
 
         // Custom search data elements:
-        for ($i = 1; $i <= self::CUSTOM_DATA_ELEMENTS_COUNT; $i++) {
-            $keyParameterName = self::CUSTOM_DATA_KEY_ELEMENT_PREFIX . $i;
-            $valueParameterName = self::CUSTOM_DATA_VALUE_ELEMENT_PREFIX . $i;
+        foreach ($custom_parameter_list as $custom_parameter_name) {
+            if (!empty($custom_parameter_name) && !empty($ajaxParameters[$custom_parameter_name])) {
+                if (self::database_supports_json()) {
+                  $parameterCount = count($queryParameters) + 2;
+                  $firstParameterNumber = $parameterCount - 1;
+                  $secondParameterNumber = $parameterCount;
 
-            if (!empty($ajaxParameters[$keyParameterName]) && isset($ajaxParameters[$valueParameterName])) {
-                $parameterCount = count($queryParameters) + 2;
-                $firstParameterNumber = $parameterCount - 1;
-                $secondParameterNumber = $parameterCount;
+                  $whereClauses[] = "AND JSON_UNQUOTE(JSON_EXTRACT(tx.data_parsed, %{$firstParameterNumber})) = %{$secondParameterNumber}";
+                  $queryParameters[$firstParameterNumber] = ["$.{$custom_parameter_name}", 'String'];
+                  $queryParameters[$secondParameterNumber] = [$ajaxParameters[$custom_parameter_name], 'String'];
 
-                $whereClauses[] = "AND JSON_UNQUOTE(JSON_EXTRACT(tx.data_parsed, %{$firstParameterNumber})) = %{$secondParameterNumber}";
+                } else {
+                  $parameter_number = count($queryParameters) + 1;
 
-                $queryParameters[$firstParameterNumber] = ['$.' . $ajaxParameters[$keyParameterName], 'String'];
-                $queryParameters[$secondParameterNumber] = [$ajaxParameters[$valueParameterName], 'String'];
+                  $whereClauses[] = "AND tx.data_parsed LIKE %{$parameter_number}";
+                  $queryParameters[$parameter_number] = ["%\"{$custom_parameter_name}\"=\"{$ajaxParameters[$custom_parameter_name]}\"%", 'String'];
+                }
             }
         }
 
         $whereClausesAsString = implode("\n", $whereClauses);
 
-        $sql =
+        $data_sql_query =
         "SELECT
             tx.*,
-            DATE(tx.value_date) AS `date`,
-            tx_status.name AS status_name,
-            tx_status.label AS status_label,
-            JSON_UNQUOTE(JSON_EXTRACT(our_account.data_parsed, '$.name')) AS our_account,
-            other_account.reference AS other_account,
-            JSON_UNQUOTE(JSON_EXTRACT(tx.data_parsed, '$.contact_id')) AS contact_id
+            DATE(tx.value_date)     AS `date`,
+            tx_status.name          AS status_name,
+            tx_status.label         AS status_label,
+            our_account.data_parsed AS our_account_data,
+            other_account.reference AS other_account
         FROM
             civicrm_bank_tx AS tx
         LEFT JOIN
@@ -341,6 +393,10 @@ class CRM_Banking_Form_StatementSearch extends CRM_Core_Form
             civicrm_bank_account AS our_account
                 ON
                     our_account.id = tx.ba_id
+        LEFT JOIN
+            civicrm_bank_account_reference AS our_account_reference
+                ON
+                    our_account_reference.id = tx.ba_id
         LEFT JOIN
             civicrm_bank_account_reference AS other_account
                 ON
@@ -357,29 +413,75 @@ class CRM_Banking_Form_StatementSearch extends CRM_Core_Form
         OFFSET
             %2";
 
-        $transactionDao = CRM_Core_DAO::executeQuery($sql, $queryParameters);
+      $count_sql_query = "
+        SELECT COUNT(DISTINCT(tx.id)) 
+        FROM
+            civicrm_bank_tx AS tx
+        LEFT JOIN
+            civicrm_option_value AS tx_status
+                ON
+                    tx_status.id = tx.status_id
+        LEFT JOIN
+            civicrm_bank_account AS our_account
+                ON
+                    our_account.id = tx.ba_id
+        LEFT JOIN
+            civicrm_bank_account_reference AS our_account_reference
+                ON
+                    our_account_reference.id = tx.ba_id
+        LEFT JOIN
+            civicrm_bank_account_reference AS other_account
+                ON
+                    other_account.id = tx.party_ba_id
+        WHERE
+            TRUE
+            {$whereClausesAsString}";
+
+      CRM_Core_DAO::disableFullGroupByMode();
+        $transaction_count = CRM_Core_DAO::singleValueQuery($count_sql_query, $queryParameters);
+        $transactionDao = CRM_Core_DAO::executeQuery($data_sql_query, $queryParameters);
+        CRM_Core_DAO::reenableFullGroupByMode();
 
         $results = [];
         while ($transactionDao->fetch()) {
+            // preprocessing:
+            $our_account_data = json_decode($transactionDao->our_account_data, true);
+            $our_account = empty($our_account_data['name']) ? $transactionDao->our_account_reference : $our_account_data['name'];
+            $review_link = CRM_Utils_System::url('civicrm/banking/review', "id={$transactionDao->id}");
+
             $results[] = [
-                'date' => date('Y-m-d', strtotime($transactionDao->date)),
-                'amount' => CRM_Utils_Money::format($transactionDao->amount, $transactionDao->currency),
-                'status' => $transactionDao->status_label,
-                'our_account' => $transactionDao->our_account,
+                'date'          => date('Y-m-d', strtotime($transactionDao->date)),
+                'amount'        => CRM_Utils_Money::format($transactionDao->amount, $transactionDao->currency),
+                'status'        => $transactionDao->status_label,
+                'our_account'   => $our_account,
                 'other_account' => $transactionDao->other_account,
-                'contact' => $transactionDao->contact_id,
-                'review_link' => CRM_Utils_System::url('civicrm/banking/review/', ['id' => $transactionDao->id]),
-                // TODO: The contact ID is not very useful here. What is the normal way to present a contact reference?
-                // TODO: Add more fields?
+                'review_link'   => E::ts('<a href="%1" class="crm-popup">[#%2]</a>', [1 => $review_link, 2 => $transactionDao->id]),
             ];
         }
 
         CRM_Utils_JSON::output(
             [
                 'data'            => $results,
-                'recordsTotal'    => count($results), // TODO: Which is the correct value?
-                'recordsFiltered' => count($results), // TODO: Which is the correct value?
+                'recordsTotal'    => $transaction_count,
+                'recordsFiltered' => $transaction_count,
             ]
         );
+    }
+
+    /**
+     * Check if the DB supports the JSON commands
+     * @return boolean
+     */
+    public static function database_supports_json() {
+        static $supported = null;
+        if ($supported === null) {
+            $version = CRM_Core_DAO::getGlobalSetting('version');
+            if (strstr($version, 'MariaDB')) {
+                $supported = version_compare($version,"10.2.3", '>=');
+            } else {
+                $supported = version_compare($version,"5.7", '>=');
+            }
+        }
+        return $supported;
     }
 }

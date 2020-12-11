@@ -49,5 +49,53 @@ class CRM_Banking_RuleMatchIndicators
 
     public function addIbanMatchIndicator()
     {
+        $iban = $this->transaction->getDataParsed()['_IBAN']; // TODO: How will this work with other reference like for PayPal?
+
+        if ($iban === null) {
+            return;
+        }
+
+        $sql =
+        "SELECT
+            id
+        FROM
+            civicrm_bank_rules
+        WHERE
+            party_ba_ref = %1
+        ";
+
+        $parameters = [
+            1 => [$iban, 'String'],
+        ];
+
+        $ruleDao = CRM_Core_DAO::executeQuery($sql, $parameters);
+
+        $result = $ruleDao->fetchAll();
+
+        if (!empty($result)) {
+            // Find the position after the IBAN to safely insert the indicator:
+            $position = strpos($this->blocks['ReviewDebtor'], $iban);
+            $position = strpos($this->blocks['ReviewDebtor'], '</div>', $position) - 1;
+
+            $ibanMatchIndicator = ' <a href="' .
+                CRM_Utils_System::url('civicrm/a/#/banking/rules/' . $result[0]['id']) .
+                '">' .
+                E::ts('Banking Rule exists') .
+                '</a>';
+
+            if (count($result) > 1) {
+                $ibanMatchIndicator .=
+                    ' <a href="' .
+                    CRM_Utils_System::url('civicrm/a/#/banking/rules') .
+                    '">' .
+                    E::ts('(and %1 more)', [1 => count($result)]) .
+                    '</a>';
+            }
+
+            $this->blocks['ReviewDebtor'] =
+                substr($this->blocks['ReviewDebtor'], 0, $position) .
+                $ibanMatchIndicator .
+                substr($this->blocks['ReviewDebtor'], $position);
+        }
     }
 }

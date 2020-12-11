@@ -45,6 +45,47 @@ class CRM_Banking_RuleMatchIndicators
 
     public function addContactMatchIndicator()
     {
+        $contactName = $this->transaction->getDataParsed()['name'];
+
+        $sql =
+        "SELECT
+            id
+        FROM
+            civicrm_bank_rules
+        WHERE
+            party_name = %1
+        ";
+
+        $parameters = [
+            1 => [$contactName, 'String'],
+        ];
+
+        $ruleDao = CRM_Core_DAO::executeQuery($sql, $parameters);
+
+        $result = $ruleDao->fetchAll();
+
+        if (!empty($result)) {
+            $contactMatchIndicator = ' <a href="' .
+            CRM_Utils_System::url('civicrm/a/#/banking/rules/' . $result[0]['id']) .
+                '">' .
+                E::ts('Banking Rule exists') .
+                '</a>';
+
+            if (count($result) > 1) {
+                $contactMatchIndicator .=
+                    ' <a href="' .
+                    CRM_Utils_System::url('civicrm/a/#/banking/rules') .
+                    '">' .
+                    E::ts('(and %1 more)', [1 => count($result)]) .
+                    '</a>';
+            }
+
+            $this->blocks['ReviewDebtor'] = str_replace(
+                $contactName,
+                $contactName . $contactMatchIndicator,
+                $this->blocks['ReviewDebtor']
+            );
+        }
     }
 
     public function addIbanMatchIndicator()

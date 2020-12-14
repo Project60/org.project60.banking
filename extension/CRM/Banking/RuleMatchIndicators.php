@@ -70,22 +70,16 @@ class CRM_Banking_RuleMatchIndicators
         $result = $ruleDao->fetchAll();
 
         if (!empty($result)) {
-            $contactMatchIndicator = ' <a href="' .
-            CRM_Utils_System::url('civicrm/a/#/banking/rules/' . $result[0]['id']) .
-                '">' .
-                E::ts('Banking Rule exists') .
-                '</a>';
 
-            if (count($result) > 1) {
-                $contactMatchIndicator .=
-                    ' <a href="' .
-                    CRM_Utils_System::url('civicrm/a/#/banking/rules') .
-                    '">' .
-                    E::ts('(and %1 more)', [1 => count($result)]) .
-                    '</a>';
-            }
+          if (count($result) == 1) {
+            $title = E::ts('Matching Rule');
+          } else {
+            $title = E::ts('%1 Matching Rules', [1 => count($result)]);
+          }
+          $url = CRM_Utils_System::url('civicrm/a/#/banking/rules/' . $result[0]['id']);
+          $contactMatchIndicator = "&nbsp;<a target=\"_blank\" href=\"{$url}\"><i title=\"{$title}\" class=\"crm-i fa-info-circle\" aria-hidden=\"true\"></i></a>";
 
-            $this->blocks['ReviewDebtor'] = str_replace(
+          $this->blocks['ReviewDebtor'] = str_replace(
                 $contactName,
                 $contactName . $contactMatchIndicator,
                 $this->blocks['ReviewDebtor']
@@ -124,23 +118,16 @@ class CRM_Banking_RuleMatchIndicators
 
         if (!empty($result)) {
             // Find the position after the IBAN to safely insert the indicator:
-            $position = strpos($this->blocks['ReviewDebtor'], $iban);
+            $position = strpos($this->blocks['ReviewDebtor'], $party_ba_reference);
             $position = strpos($this->blocks['ReviewDebtor'], '</div>', $position) - 1;
 
-            $ibanMatchIndicator = ' <a href="' .
-                CRM_Utils_System::url('civicrm/a/#/banking/rules/' . $result[0]['id']) .
-                '">' .
-                E::ts('Banking Rule exists') .
-                '</a>';
-
-            if (count($result) > 1) {
-                $ibanMatchIndicator .=
-                    ' <a href="' .
-                    CRM_Utils_System::url('civicrm/a/#/banking/rules') .
-                    '">' .
-                    E::ts('(and %1 more)', [1 => count($result)]) .
-                    '</a>';
+            if (count($result) == 1) {
+              $title = E::ts('Matching Rule');
+            } else {
+              $title = E::ts('%1 Matching Rules', [1 => count($result)]);
             }
+            $url = CRM_Utils_System::url('civicrm/a/#/banking/rules/' . $result[0]['id']);
+            $ibanMatchIndicator = "&nbsp;<a target=\"_blank\" href=\"{$url}\"><i title=\"{$title}\" class=\"crm-i fa-info-circle\" aria-hidden=\"true\"></i></a>";
 
             $this->blocks['ReviewDebtor'] =
                 substr($this->blocks['ReviewDebtor'], 0, $position) .

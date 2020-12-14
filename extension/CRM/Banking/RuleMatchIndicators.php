@@ -43,6 +43,9 @@ class CRM_Banking_RuleMatchIndicators
         $this->blocks = &$blocks;
     }
 
+    /**
+     *  add a matching indicator for the name
+     */
     public function addContactMatchIndicator()
     {
         $contactName = $this->transaction->getDataParsed()['name'];
@@ -54,6 +57,8 @@ class CRM_Banking_RuleMatchIndicators
             civicrm_bank_rules
         WHERE
             party_name = %1
+        AND
+            is_enabled = 1
         ";
 
         $parameters = [
@@ -88,6 +93,9 @@ class CRM_Banking_RuleMatchIndicators
         }
     }
 
+    /**
+     * Inject the bank reference matching indicator
+     */
     public function addIbanMatchIndicator()
     {
         $iban = $this->transaction->getDataParsed()['_IBAN']; // TODO: How will this work with other reference like for PayPal?
@@ -103,6 +111,8 @@ class CRM_Banking_RuleMatchIndicators
             civicrm_bank_rules
         WHERE
             party_ba_ref = %1
+        AND
+            is_enabled = 1
         ";
 
         $parameters = [

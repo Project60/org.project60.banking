@@ -124,6 +124,13 @@ cj(document).ready(function() {
     // add trigger to change events
     cj("select[name^=custom_data_key_list_]").change(banking_transaction_search_update_custom_criteria);
     cj("[name^=custom_data_value_]").change(banking_transaction_search_hide_empty_criteria);
+    cj("[name^=custom_data_value_]").click(function(event) {
+        // show next field if you click on it
+        cj(event.target)
+            .closest("div.custom_value_search")
+            .next()
+            .show();
+    });
 
     // run query (with delay)
     setTimeout(banking_transaction_search_update_table_link, 100);

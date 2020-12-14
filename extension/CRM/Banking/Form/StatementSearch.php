@@ -360,15 +360,15 @@ class CRM_Banking_Form_StatementSearch extends CRM_Core_Form
                   $firstParameterNumber = $parameterCount - 1;
                   $secondParameterNumber = $parameterCount;
 
-                  $whereClauses[] = "AND JSON_UNQUOTE(JSON_EXTRACT(tx.data_parsed, %{$firstParameterNumber})) = %{$secondParameterNumber}";
+                  $whereClauses[] = "AND JSON_UNQUOTE(JSON_EXTRACT(tx.data_parsed, %{$firstParameterNumber})) LIKE %{$secondParameterNumber}";
                   $queryParameters[$firstParameterNumber] = ["$.{$custom_parameter_name}", 'String'];
-                  $queryParameters[$secondParameterNumber] = [$ajaxParameters[$custom_parameter_name], 'String'];
+                  $queryParameters[$secondParameterNumber] = ["%{$ajaxParameters[$custom_parameter_name]}%", 'String'];
 
                 } else {
                   $parameter_number = count($queryParameters) + 1;
 
                   $whereClauses[] = "AND tx.data_parsed LIKE %{$parameter_number}";
-                  $queryParameters[$parameter_number] = ["%\"{$custom_parameter_name}\"=\"{$ajaxParameters[$custom_parameter_name]}\"%", 'String'];
+                  $queryParameters[$parameter_number] = ["%\"{$custom_parameter_name}\":\"%{$ajaxParameters[$custom_parameter_name]}%\"%", 'String'];
                 }
             }
         }

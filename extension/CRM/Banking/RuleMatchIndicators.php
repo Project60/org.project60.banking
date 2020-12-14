@@ -98,13 +98,12 @@ class CRM_Banking_RuleMatchIndicators
      */
     public function addIbanMatchIndicator()
     {
-        $iban = $this->transaction->getDataParsed()['_IBAN']; // TODO: How will this work with other reference like for PayPal?
-
-        if ($iban === null) {
+        $party_ba_reference = $this->getPartyBankAccountReference($this->transaction->getDataParsed());
+        if (empty($party_ba_reference)) {
             return;
         }
 
-        $sql =
+        $rules_search =
         "SELECT
             id
         FROM
@@ -116,10 +115,10 @@ class CRM_Banking_RuleMatchIndicators
         ";
 
         $parameters = [
-            1 => [$iban, 'String'],
+            1 => [$party_ba_reference, 'String'],
         ];
 
-        $ruleDao = CRM_Core_DAO::executeQuery($sql, $parameters);
+        $ruleDao = CRM_Core_DAO::executeQuery($rules_search, $parameters);
 
         $result = $ruleDao->fetchAll();
 
@@ -148,5 +147,31 @@ class CRM_Banking_RuleMatchIndicators
                 $ibanMatchIndicator .
                 substr($this->blocks['ReviewDebtor'], $position);
         }
+    }
+
+    /**
+     * Return the bank reference from the party,
+     *   preferring IBAN
+     *
+     * @param array $data_parsed
+     *   the transactions data
+     *
+     * @return string
+     *   the reference
+     */
+    protected function getPartyBankAccountReference($data_parsed)
+    {
+        if (!empty($data_parsed['_party_IBAN'])) {
+            return $data_parsed['_party_IBAN'];
+        }
+
+        foreach ($data_parsed as $parameter => $value) {
+            if (!empty($value) && preg_match('/^party_NBAN_[A-Z]{2}^/', $parameter)) {
+                return $value;
+            }
+        }
+
+        // no reference found
+        return null;
     }
 }

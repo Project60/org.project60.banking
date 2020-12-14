@@ -447,6 +447,8 @@ class CRM_Banking_Form_StatementSearch extends CRM_Core_Form
             // preprocessing:
             $our_account_data = json_decode($transactionDao->our_account_data, true);
             $our_account = empty($our_account_data['name']) ? $transactionDao->our_account_reference : $our_account_data['name'];
+            $data_parsed = json_decode($transactionDao->data_parsed, true);
+            $purpose = trim(CRM_Utils_Array::value('purpose', $data_parsed, ''));
             $review_link = CRM_Utils_System::url('civicrm/banking/review', "id={$transactionDao->id}");
 
             $results[] = [
@@ -455,6 +457,7 @@ class CRM_Banking_Form_StatementSearch extends CRM_Core_Form
                 'status'        => $transactionDao->status_label,
                 'our_account'   => $our_account,
                 'other_account' => $transactionDao->other_account,
+                'purpose'       => $purpose,
                 'review_link'   => E::ts('<a href="%1" class="crm-popup">[#%2]</a>', [1 => $review_link, 2 => $transactionDao->id]),
             ];
         }

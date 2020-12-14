@@ -76,8 +76,8 @@
             <th data-data="other_account">{ts}Donor Account{/ts}</th>
             <th data-data="amount">{ts}Amount{/ts}</th>
             <th data-data="status">{ts}Status{/ts}</th>
+            <th data-data="purpose" data-orderable="false">{ts}Purpose{/ts}</th>
             <th data-data="review_link">{ts}Transaction{/ts}</th>
-            {*TODO: "review_link" contains the pure link. How can we give it a proper link message like "review transaction? *}
         </tr>
         </thead>
     </table>

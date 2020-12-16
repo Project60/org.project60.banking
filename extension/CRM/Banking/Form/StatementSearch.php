@@ -264,8 +264,13 @@ class CRM_Banking_Form_StatementSearch extends CRM_Core_Form
             case 'review_link':
                 $sortBy = 'tx.id';
                 break;
+            case '': // default
+              $sortBy = 'tx.booking_date';
+              $sortByComponents[1] = 'DESC';
+              break;
+
             default:
-                $sortBy = 'tx_status.weight, tx.value_date';
+                $sortBy = 'tx.booking_date';
         }
         // TODO: Maybe this could be simplified by something like a
         //       "in_array($sortByComponents[0], ['date', 'our_account'])

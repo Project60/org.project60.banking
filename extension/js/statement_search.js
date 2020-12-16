@@ -54,7 +54,6 @@ function banking_transaction_search_update_table_link()
     search_criteria.push("custom_parameters=" + custom_search_params.join(','));
 
     let url = CRM.vars['banking_transaction_search'].data_url + '?' + search_criteria.join('&');
-    console.log(url);
     CRM.$('table.banking-transaction-search-result').data(
         {
             "ajax": {
@@ -85,14 +84,16 @@ function banking_transaction_search_update_custom_criteria(event) {
         section = cj("div.custom_value_search");
     }
 
-    let key_name = section.find('[name^=custom_data_key_name_]');
-    let selection = section.find('[name^=custom_data_key_list_]');
-    if (selection.val() === '__other__') {
-        key_name.show();
-    } else {
-        key_name.val(selection.val());
-        key_name.hide();
-    }
+    section.each(function() {
+        let key_name = cj(this).find('[name^=custom_data_key_name_]');
+        let selection = cj(this).find('[name^=custom_data_key_list_]');
+        if (selection.val() === '__other__') {
+            key_name.show();
+        } else {
+            key_name.val(selection.val());
+            key_name.hide();
+        }
+    });
     banking_transaction_search_hide_empty_criteria();
 }
 

@@ -89,7 +89,7 @@ class CRM_Banking_Page_Payments extends CRM_Core_Page {
         SELECT GROUP_CONCAT(DISTINCT(tx_batch_id))
         FROM civicrm_bank_tx
         WHERE status_id IN ({$payment_states['new']['id']})
-          AND id NOT IN (          
+          AND tx_batch_id NOT IN (          
             SELECT tx_batch_id
             FROM civicrm_bank_tx
             WHERE status_id IN ({$payment_states['suggestions']['id']}, {$payment_states['ignored']['id']}, {$payment_states['processed']['id']})
@@ -108,7 +108,7 @@ class CRM_Banking_Page_Payments extends CRM_Core_Page {
         SELECT GROUP_CONCAT(DISTINCT(tx_batch_id))
         FROM civicrm_bank_tx
         WHERE status_id IN ({$payment_states['suggestions']['id']})
-          AND id NOT IN ({$new_statement_id_list});");
+          AND tx_batch_id NOT IN ({$new_statement_id_list});");
     $open_statement_ids = explode(',', $open_statement_id_list);
     $this->assign('count_analysed', count($open_statement_ids));
 
@@ -177,8 +177,8 @@ class CRM_Banking_Page_Payments extends CRM_Core_Page {
             ($target_ba_id ? ' AND ba_id = ' . $target_ba_id : '')
           .
           "
-        GROUP BY
-          id, ba_id, currency
+        GROUP BY 
+          btxb.id
         ORDER BY
           starting_date DESC;";
     $stmt = CRM_Core_DAO::executeQuery($sql_query);

@@ -169,6 +169,48 @@ class CRM_Banking_TestBase extends \PHPUnit_Framework_TestCase implements
         return $matcher['id'];
     }
 
+    protected function createRegexAnalyser(array $rules = [], array $configuration = []): int
+    {
+        $defaultConfiguration = [];
+
+        $this->createMatcher('TODO: Fill in type!', 'TODO: Fill in class!', $defaultConfiguration);
+    }
+
+    protected function createIgnoreMatcher(array $rules = [], array $configuration = []): int
+    {
+        $defaultConfiguration = [];
+
+        $this->createMatcher('TODO: Fill in type!', 'TODO: Fill in class!', $defaultConfiguration);
+    }
+
+    protected function createSepaMatcher(array $configuration = []): int
+    {
+        $defaultConfiguration = [];
+
+        $this->createMatcher('TODO: Fill in type!', 'TODO: Fill in class!', $defaultConfiguration);
+    }
+
+    protected function createDefaultOptionsMatcher(array $configuration = []): int
+    {
+        $defaultConfiguration = [];
+
+        $this->createMatcher('TODO: Fill in type!', 'TODO: Fill in class!', $defaultConfiguration);
+    }
+
+    protected function createCreateContributionMatcher(array $configuration = []): int
+    {
+        $defaultConfiguration = [];
+
+        $this->createMatcher('TODO: Fill in type!', 'TODO: Fill in class!', $defaultConfiguration);
+    }
+
+    protected function createExistingContributionMatcher(array $configuration = []): int
+    {
+        $defaultConfiguration = [];
+
+        $this->createMatcher('TODO: Fill in type!', 'TODO: Fill in class!', $defaultConfiguration);
+    }
+
     protected function matcherClassNameToId(string $className): int
     {
         $result = civicrm_api3(

@@ -98,4 +98,20 @@ class CRM_Banking_TestBase extends \PHPUnit_Framework_TestCase implements
 
         return $result['id'];
     }
+
+    protected function getTransaction(int $id): array
+    {
+        $result = civicrm_api3(
+            'BankingTransaction',
+            'getsingle',
+            [
+                'id' => $id
+            ]
+        );
+
+        // TODO: We do not need to throw an error here; that's already done by the API call, right?
+        unset($result['is_error']);
+
+        return $result;
+    }
 }

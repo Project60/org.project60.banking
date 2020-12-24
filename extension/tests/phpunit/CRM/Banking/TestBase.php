@@ -39,6 +39,13 @@ class CRM_Banking_TestBase extends \PHPUnit_Framework_TestCase implements
     HookInterface,
     TransactionalInterface
 {
+    const PRIMARY_TRANSACTION_FIELDS = [
+        'version', 'debug', 'amount', 'bank_reference', 'value_date', 'booking_date', 'currency', 'type_id',
+        'status_id', 'data_raw', 'data_parsed', 'ba_id', 'party_ba_id', 'tx_batch_id', 'sequence'
+    ];
+
+    protected $transactionReferenceCounter = 0;
+
     public function setUpHeadless(): Civi\Test\CiviEnvBuilder
     {
         // Civi\Test has many helpers, like install(), uninstall(), sql(), and sqlFile().
@@ -51,10 +58,44 @@ class CRM_Banking_TestBase extends \PHPUnit_Framework_TestCase implements
     public function setUp(): void
     {
         parent::setUp();
+
+        $this->transactionReferenceCounter = 0;
     }
 
     public function tearDown(): void
     {
         parent::tearDown();
+    }
+
+    protected function createTransaction(array $parameters = []): int
+    {
+        $today = date('Y-m-d');
+
+        $defaults = [
+            'version' => 3,
+            'bank_reference' => 'TestBankReference-' . $this->transactionReferenceCounter,
+            'booking_date' => $today,
+            'value_date' => $today,
+            'currency' => 'EUR',
+            'sequence' => $this->transactionReferenceCounter,
+        ];
+
+        $this->transactionReferenceCounter++;
+
+        $transaction = array_merge($defaults, $parameters);
+
+        // Fill parsed data:
+        $parsedData = [];
+        foreach ($transaction as $key => $value) {
+            if (!in_array($key, self::PRIMARY_TRANSACTION_FIELDS)) {
+                $parsedData[$key] = $value;
+                unset($transaction[$key]);
+            }
+        }
+        $transaction['data_parsed'] = json_encode($parsedData);
+
+        $result = civicrm_api3('BankingTransaction', 'create', $transaction);
+
+        return $result['id'];
     }
 }

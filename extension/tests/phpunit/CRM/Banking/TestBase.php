@@ -44,7 +44,11 @@ class CRM_Banking_TestBase extends \PHPUnit_Framework_TestCase implements
         'status_id', 'data_raw', 'data_parsed', 'ba_id', 'party_ba_id', 'tx_batch_id', 'sequence'
     ];
 
+    const MATCHER_WEIGHT_STEP = 10;
+
     protected $transactionReferenceCounter = 0;
+
+    protected $matcherWeight = 10;
 
     public function setUpHeadless(): Civi\Test\CiviEnvBuilder
     {
@@ -60,6 +64,7 @@ class CRM_Banking_TestBase extends \PHPUnit_Framework_TestCase implements
         parent::setUp();
 
         $this->transactionReferenceCounter = 0;
+        $this->matcherWeight = 10;
     }
 
     public function tearDown(): void
@@ -113,5 +118,82 @@ class CRM_Banking_TestBase extends \PHPUnit_Framework_TestCase implements
         unset($result['is_error']);
 
         return $result;
+    }
+
+    protected function createMatcher(
+        string $type,
+        string $class,
+        array $configuration = [],
+        array $parameters = []
+    ): int {
+        $typeId = $this->matcherClassNameToId($type);
+        $classId = $this->matcherClassNameToId($class);
+
+        $parameterDefaults = [
+            'plugin_class_id' => $classId,
+            'plugin_type_id' => $typeId,
+            'name' => 'Test Matcher ' . $type,
+            'description' => 'Test Matcher "' . $type . '" with class "' . $class . '"',
+            'enabled' => 1,
+            'weight' => $this->matcherWeight,
+            'state' => '{}',
+        ];
+
+        $this->matcherWeight += self::MATCHER_WEIGHT_STEP;
+
+        $mergedParameters = array_merge($parameterDefaults, $parameters);
+
+        $matcher = civicrm_api3('BankingPluginInstance', 'create', $mergedParameters);
+
+        $configurationDefaults = [
+            'auto_exec' => 1
+        ];
+
+        $mergedConfiguration = array_merge($configurationDefaults, $configuration);
+
+        // Set the config via SQL (API causes issues):
+        if (empty($matcher['id'])) {
+            throw new Exception("Matcher could not be created.");
+        } else {
+            $configurationAsJson = json_encode($mergedConfiguration);
+
+            CRM_Core_DAO::executeQuery(
+                "UPDATE civicrm_bank_plugin_instance SET config=%1 WHERE id=%2;",
+                [
+                    1 => [$configurationAsJson, 'String'],
+                    2 => [$matcher['id'], 'Integer']
+                ]
+            );
+        }
+
+        return $matcher['id'];
+    }
+
+    protected function matcherClassNameToId(string $className): int
+    {
+        $result = civicrm_api3(
+            'OptionValue',
+            'getsingle',
+            [
+                'option_group_id' => 'civicrm_banking.plugin_classes',
+                'name' => $className,
+            ]
+        );
+
+        return $result['id'];
+    }
+
+    protected function matcherTypeNameToId(string $typeName): int
+    {
+        $result = civicrm_api3(
+            'OptionValue',
+            'getsingle',
+            [
+                'option_group_id' => 'civicrm_banking.plugin_types',
+                'name' => $typeName,
+            ]
+        );
+
+        return $result['id'];
     }
 }

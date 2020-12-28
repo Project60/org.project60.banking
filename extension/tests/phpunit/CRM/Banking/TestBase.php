@@ -99,6 +99,26 @@ class CRM_Banking_TestBase extends \PHPUnit_Framework_TestCase implements
         return $result;
     }
 
+    /**
+     * Create a contact and return its ID.
+     * @return int The ID of the created contact.
+     */
+    protected function createContact(): int
+    {
+        $contact = $this->callAPISuccess(
+            'Contact',
+            'create',
+            [
+                'contact_type' => 'Individual',
+                'email' => 'unittests@sepa.project60.org',
+            ]
+        );
+
+        $contactId = $contact['id'];
+
+        return $contactId;
+    }
+
     protected function createTransaction(array $parameters = []): int
     {
         $today = date('Y-m-d');

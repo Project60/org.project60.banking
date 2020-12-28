@@ -215,13 +215,68 @@ class CRM_Banking_TestBase extends \PHPUnit_Framework_TestCase implements
         return $matcher['id'];
     }
 
-    protected function createRegexAnalyser(array $rules = [], array $configuration = []): int
+    protected function createRegexAnalyser(array $rules = null, array $configuration = []): int
     {
-        $defaultConfiguration = [];
+        $defaultRules = [
+            [
+                'comment' => 'Austrian address type 1',
+                'fields' => [
+                    'address_line'
+                ],
+                'pattern' => '#^(?P<postal_code>[0-9]{4}) (?P<city>[\\w\/]+)[ ,]*(?P<street_address>.*)$#',
+                'actions' => [
+                    [
+                        'from' => 'street_address',
+                        'action' => 'copy',
+                        'to' => 'street_address'
+                    ],
+                    [
+                        'from' => 'postal_code',
+                        'action' => 'copy',
+                        'to' => 'postal_code'
+                    ],
+                    [
+                        'from' => 'city',
+                        'action' => 'copy',
+                        'to' => 'city'
+                    ]
+                ]
+            ],
+            [
+                'comment' => 'Austrian address type 2',
+                'fields' => [
+                    'address_line'
+                ],
+                'pattern' => '#^(?P<street_address>[^,]+).*(?P<postal_code>[0-9]{4}) +(?P<city>[\\w ]+)$#',
+                'actions' => [
+                    [
+                        'from' => 'street_address',
+                        'action' => 'copy',
+                        'to' => 'street_address'
+                    ],
+                    [
+                        'from' => 'postal_code',
+                        'action' => 'copy',
+                        'to' => 'postal_code'
+                    ],
+                    [
+                        'from' => 'city',
+                        'action' => 'copy',
+                        'to' => 'city'
+                    ]
+                ]
+            ]
+        ];
+
+        $finalRules = is_null($rules) ? $defaultRules : $rules;
+
+        $defaultConfiguration = [
+            'rules' => $finalRules
+        ];
 
         $mergedConfiguration = array_merge($defaultConfiguration, $configuration);
 
-        $matcherId = $this->createMatcher('TODO: Fill in type!', 'TODO: Fill in class!', $mergedConfiguration);
+        $matcherId = $this->createMatcher('match', 'analyser_regex', $mergedConfiguration);
 
         return $matcherId;
     }

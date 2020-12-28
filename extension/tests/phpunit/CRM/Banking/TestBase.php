@@ -39,6 +39,10 @@ class CRM_Banking_TestBase extends \PHPUnit_Framework_TestCase implements
     HookInterface,
     TransactionalInterface
 {
+    use Api3TestTrait {
+        callAPISuccess as protected traitCallAPISuccess;
+    }
+
     const PRIMARY_TRANSACTION_FIELDS = [
         'version', 'debug', 'amount', 'bank_reference', 'value_date', 'booking_date', 'currency', 'type_id',
         'status_id', 'data_raw', 'data_parsed', 'ba_id', 'party_ba_id', 'tx_batch_id', 'sequence'
@@ -72,6 +76,29 @@ class CRM_Banking_TestBase extends \PHPUnit_Framework_TestCase implements
         parent::tearDown();
     }
 
+    /**
+     * Remove 'xdebug' result key set by Civi\API\Subscriber\XDebugSubscriber
+     *
+     * This breaks some tests when xdebug is present, and we don't need it.
+     *
+     * @param $entity
+     * @param $action
+     * @param $params
+     * @param null $checkAgainst
+     *
+     * @return array|int
+     */
+    protected function callAPISuccess(string $entity, string $action, array $params, $checkAgainst = null)
+    {
+        $result = $this->traitCallAPISuccess($entity, $action, $params, $checkAgainst);
+
+        if (is_array($result)) {
+            unset($result['xdebug']);
+        }
+
+        return $result;
+    }
+
     protected function createTransaction(array $parameters = []): int
     {
         $today = date('Y-m-d');
@@ -99,14 +126,14 @@ class CRM_Banking_TestBase extends \PHPUnit_Framework_TestCase implements
         }
         $transaction['data_parsed'] = json_encode($parsedData);
 
-        $result = civicrm_api3('BankingTransaction', 'create', $transaction);
+        $result = $this->callAPISuccess('BankingTransaction', 'create', $transaction);
 
         return $result['id'];
     }
 
     protected function getTransaction(int $id): array
     {
-        $result = civicrm_api3(
+        $result = $this->callAPISuccess(
             'BankingTransaction',
             'getsingle',
             [
@@ -114,7 +141,6 @@ class CRM_Banking_TestBase extends \PHPUnit_Framework_TestCase implements
             ]
         );
 
-        // TODO: We do not need to throw an error here; that's already done by the API call, right?
         unset($result['is_error']);
 
         return $result;
@@ -143,7 +169,7 @@ class CRM_Banking_TestBase extends \PHPUnit_Framework_TestCase implements
 
         $mergedParameters = array_merge($parameterDefaults, $parameters);
 
-        $matcher = civicrm_api3('BankingPluginInstance', 'create', $mergedParameters);
+        $matcher = $this->callAPISuccess('BankingPluginInstance', 'create', $mergedParameters);
 
         $configurationDefaults = [
             'auto_exec' => 1
@@ -213,7 +239,7 @@ class CRM_Banking_TestBase extends \PHPUnit_Framework_TestCase implements
 
     protected function matcherClassNameToId(string $className): int
     {
-        $result = civicrm_api3(
+        $result = $this->callAPISuccess(
             'OptionValue',
             'getsingle',
             [
@@ -227,7 +253,7 @@ class CRM_Banking_TestBase extends \PHPUnit_Framework_TestCase implements
 
     protected function matcherTypeNameToId(string $typeName): int
     {
-        $result = civicrm_api3(
+        $result = $this->callAPISuccess(
             'OptionValue',
             'getsingle',
             [

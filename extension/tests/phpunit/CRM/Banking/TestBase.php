@@ -219,42 +219,66 @@ class CRM_Banking_TestBase extends \PHPUnit_Framework_TestCase implements
     {
         $defaultConfiguration = [];
 
-        $this->createMatcher('TODO: Fill in type!', 'TODO: Fill in class!', $defaultConfiguration);
+        $mergedConfiguration = array_merge($defaultConfiguration, $configuration);
+
+        $matcherId = $this->createMatcher('TODO: Fill in type!', 'TODO: Fill in class!', $mergedConfiguration);
+
+        return $matcherId;
     }
 
     protected function createIgnoreMatcher(array $rules = [], array $configuration = []): int
     {
         $defaultConfiguration = [];
 
-        $this->createMatcher('TODO: Fill in type!', 'TODO: Fill in class!', $defaultConfiguration);
+        $mergedConfiguration = array_merge($defaultConfiguration, $configuration);
+
+        $matcherId = $this->createMatcher('TODO: Fill in type!', 'TODO: Fill in class!', $mergedConfiguration);
+
+        return $matcherId;
     }
 
     protected function createSepaMatcher(array $configuration = []): int
     {
         $defaultConfiguration = [];
 
-        $this->createMatcher('TODO: Fill in type!', 'TODO: Fill in class!', $defaultConfiguration);
+        $mergedConfiguration = array_merge($defaultConfiguration, $configuration);
+
+        $matcherId = $this->createMatcher('TODO: Fill in type!', 'TODO: Fill in class!', $mergedConfiguration);
+
+        return $matcherId;
     }
 
     protected function createDefaultOptionsMatcher(array $configuration = []): int
     {
         $defaultConfiguration = [];
 
-        $this->createMatcher('TODO: Fill in type!', 'TODO: Fill in class!', $defaultConfiguration);
+        $mergedConfiguration = array_merge($defaultConfiguration, $configuration);
+
+        $matcherId = $this->createMatcher('TODO: Fill in type!', 'TODO: Fill in class!', $mergedConfiguration);
+
+        return $matcherId;
     }
 
     protected function createCreateContributionMatcher(array $configuration = []): int
     {
         $defaultConfiguration = [];
 
-        $this->createMatcher('TODO: Fill in type!', 'TODO: Fill in class!', $defaultConfiguration);
+        $mergedConfiguration = array_merge($defaultConfiguration, $configuration);
+
+        $matcherId = $this->createMatcher('TODO: Fill in type!', 'TODO: Fill in class!', $mergedConfiguration);
+
+        return $matcherId;
     }
 
     protected function createExistingContributionMatcher(array $configuration = []): int
     {
         $defaultConfiguration = [];
 
-        $this->createMatcher('TODO: Fill in type!', 'TODO: Fill in class!', $defaultConfiguration);
+        $mergedConfiguration = array_merge($defaultConfiguration, $configuration);
+
+        $matcherId = $this->createMatcher('TODO: Fill in type!', 'TODO: Fill in class!', $mergedConfiguration);
+
+        return $matcherId;
     }
 
     protected function matcherClassNameToId(string $className): int

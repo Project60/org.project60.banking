@@ -92,6 +92,8 @@ class CRM_Banking_MatchersIntegrationTest extends CRM_Banking_TestBase
 
         $transactionAfterRun = $this->getTransaction($transactionId);
 
+        $contribution = $this->getLatestContribution();
+
         // TODO: Assert that a contribution was created.
         // TODO: Assert if the changes to the contribution have been applied.
     }

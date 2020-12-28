@@ -378,4 +378,9 @@ class CRM_Banking_TestBase extends \PHPUnit_Framework_TestCase implements
 
         return $result['id'];
     }
+
+    protected function runMatchers(): void
+    {
+        // TODO: Implement.
+    }
 }

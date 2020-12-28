@@ -316,11 +316,26 @@ class CRM_Banking_TestBase extends \PHPUnit_Framework_TestCase implements
 
     protected function createCreateContributionMatcher(array $configuration = []): int
     {
-        $defaultConfiguration = [];
+        $defaultConfiguration = [
+            'required_values' => [
+                'btx.financial_type_id',
+                'btx.payment_instrument_id',
+                'btx.campaign_id',
+                'btx.identified_by'
+            ],
+            'value_propagation' => [
+                'btx.financial_type_id' => 'contribution.financial_type_id',
+                'btx.campaign_id' => 'contribution.campaign_id',
+                'btx.payment_instrument_id' => 'contribution.payment_instrument_id'
+            ],
+            'lookup_contact_by_name' => [
+                'mode' => 'off'
+            ]
+        ];
 
         $mergedConfiguration = array_merge($defaultConfiguration, $configuration);
 
-        $matcherId = $this->createMatcher('TODO: Fill in type!', 'TODO: Fill in class!', $mergedConfiguration);
+        $matcherId = $this->createMatcher('match', 'matcher_create', $mergedConfiguration);
 
         return $matcherId;
     }

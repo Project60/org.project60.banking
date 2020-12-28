@@ -166,6 +166,24 @@ class CRM_Banking_TestBase extends \PHPUnit_Framework_TestCase implements
         return $result;
     }
 
+    /**
+     * Get the latest contribution.
+     */
+    protected function getLatestContribution()
+    {
+        $contribution = $this->callAPISuccessGetSingle(
+            'Contribution',
+            [
+                'options' => [
+                    'sort' => 'id DESC',
+                    'limit' => 1,
+                ],
+            ]
+        );
+
+        return $contribution;
+    }
+
     protected function createMatcher(
         string $type,
         string $class,

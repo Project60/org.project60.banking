@@ -32,5 +32,8 @@ use CRM_Banking_ExtensionUtil as E;
  */
 class CRM_Banking_SepaMatcherTest extends CRM_Banking_TestBase
 {
-
+    public function testDummy()
+    {
+        $this->markTestSkipped(E::ts('This is a test dummy.'));
+    }
 }

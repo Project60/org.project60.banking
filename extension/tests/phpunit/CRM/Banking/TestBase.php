@@ -420,3 +420,4 @@ class CRM_Banking_TestBase extends \PHPUnit_Framework_TestCase implements
             $engine->match($transactionId);
         }
     }
+}

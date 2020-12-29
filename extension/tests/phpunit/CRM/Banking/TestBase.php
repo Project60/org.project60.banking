@@ -54,6 +54,8 @@ class CRM_Banking_TestBase extends \PHPUnit_Framework_TestCase implements
 
     protected $matcherWeight = 10;
 
+    protected $transactionIds = [];
+
     public function setUpHeadless(): Civi\Test\CiviEnvBuilder
     {
         // Civi\Test has many helpers, like install(), uninstall(), sql(), and sqlFile().
@@ -69,6 +71,7 @@ class CRM_Banking_TestBase extends \PHPUnit_Framework_TestCase implements
 
         $this->transactionReferenceCounter = 0;
         $this->matcherWeight = 10;
+        $this->transactionIds = [];
     }
 
     public function tearDown(): void
@@ -147,6 +150,9 @@ class CRM_Banking_TestBase extends \PHPUnit_Framework_TestCase implements
         $transaction['data_parsed'] = json_encode($parsedData);
 
         $result = $this->callAPISuccess('BankingTransaction', 'create', $transaction);
+
+        // Add the transaction to the transaction list which is used to run the matcher for all transactions:
+        $this->transactionIds[] = $result['id'];
 
         return $result['id'];
     }
@@ -397,8 +403,13 @@ class CRM_Banking_TestBase extends \PHPUnit_Framework_TestCase implements
         return $result['id'];
     }
 
-    protected function runMatchers(): void
+    protected function runMatchers(array $transactionIds = null): void
     {
-        // TODO: Implement.
+        $transactionIdsForMatching = $transactionIds === null ? $this->transactionIds : $transactionIds;
+
+        $engine = CRM_Banking_Matcher_Engine::getInstance();
+
+        foreach ($transactionIdsForMatching as $transactionId) {
+            $engine->match($transactionId);
+        }
     }
-}

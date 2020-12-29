@@ -70,7 +70,7 @@ class CRM_Banking_TestBase extends \PHPUnit_Framework_TestCase implements
         parent::setUp();
 
         $this->transactionReferenceCounter = 0;
-        $this->matcherWeight = 10;
+        $this->matcherWeight = self::MATCHER_WEIGHT_STEP;
         $this->transactionIds = [];
     }
 
@@ -187,6 +187,8 @@ class CRM_Banking_TestBase extends \PHPUnit_Framework_TestCase implements
             ]
         );
 
+        // TODO: A special error message for an empty result would be very handy.
+
         return $contribution;
     }
 
@@ -292,7 +294,7 @@ class CRM_Banking_TestBase extends \PHPUnit_Framework_TestCase implements
             ]
         ];
 
-        $finalRules = is_null($rules) ? $defaultRules : $rules;
+        $finalRules = $rules === null ? $defaultRules : $rules;
 
         $defaultConfiguration = [
             'rules' => $finalRules
@@ -305,7 +307,7 @@ class CRM_Banking_TestBase extends \PHPUnit_Framework_TestCase implements
         return $matcherId;
     }
 
-    protected function createIgnoreMatcher(array $rules = [], array $configuration = []): int
+    protected function createIgnoreMatcher(array $rules = null, array $configuration = []): int
     {
         $defaultConfiguration = [];
 

@@ -192,6 +192,11 @@ class CRM_Banking_TestBase extends \PHPUnit_Framework_TestCase implements
         return $contribution;
     }
 
+    protected function getSuggestions($transactionId, $matcherId = null): array
+    {
+        // TODO: Implement!
+    }
+
     protected function createMatcher(
         string $class,
         string $type,

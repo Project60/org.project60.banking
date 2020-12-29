@@ -197,7 +197,7 @@ class CRM_Banking_Matcher_Engine {
 
     $lock->release();
     $context->destroy();
-    $logger->logTime("Matching of btx [{$btx_id}]", 'matcher');
+    $logger->logTime("Matching of btx [{$btx_id}]", 'matching');
     return false;
   }
 

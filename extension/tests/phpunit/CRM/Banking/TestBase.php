@@ -185,12 +185,12 @@ class CRM_Banking_TestBase extends \PHPUnit_Framework_TestCase implements
     }
 
     protected function createMatcher(
-        string $type,
         string $class,
+        string $type,
         array $configuration = [],
         array $parameters = []
     ): int {
-        $typeId = $this->matcherClassNameToId($type);
+        $typeId = $this->matcherTypeNameToId($type);
         $classId = $this->matcherClassNameToId($class);
 
         $parameterDefaults = [

@@ -38,19 +38,42 @@ class CRM_Banking_RegexAnalyserTest extends CRM_Banking_TestBase
      */
     public function testSimpleRegexMatcher()
     {
-        $this->markTestSkipped(E::ts('This test is not fully implemented.'));
-
-        $transactionId = $this->createTransaction();
+        $transactionId = $this->createTransaction(
+            [
+                'financial_type' => 'CreditCard'
+            ]
+        );
 
         $transactionBeforeRun = $this->getTransaction($transactionId);
 
-        // TODO: Configure regex matcher.
-        $matcherId = $this->createRegexAnalyser();
+        $matcherId = $this->createRegexAnalyser(
+            [
+                [
+                    'fields' => ['financial_type'],
+                    'pattern' => '/(?P<pi>CreditCard|DebitCard)/',
+                    'actions' => [
+                        [
+                            'from' => 'pi',
+                            'to' => 'payment_instrument_id',
+                            'actions' => 'map',
+                            'mapping' => [
+                                'CreditCard' => 1,
+                                'DebitCard' => 2,
+                            ]
+                        ]
+                    ]
+                ]
+            ]
+        );
 
         $this->runMatchers();
 
         $transactionAfterRun = $this->getTransaction($transactionId);
 
-        // TODO: Assert what should be.
+        $parsedDataBefore = json_decode($transactionBeforeRun['data_parsed']);
+        $parsedDataAfter = json_decode($transactionAfterRun['data_parsed']);
+
+        $this->assertSame('CreditCard', $parsedDataBefore->financial_type);
+        $this->assertSame('1', $parsedDataAfter->payment_instrument_id);
     }
 }

@@ -34,7 +34,7 @@ use CRM_Banking_ExtensionUtil as E;
  *
  * @group headless
  */
-class CRM_Banking_TestBase extends \PHPUnit_Framework_TestCase implements
+class CRM_Banking_TestBase extends \PHPUnit\Framework\TestCase implements
     HeadlessInterface,
     HookInterface,
     TransactionalInterface

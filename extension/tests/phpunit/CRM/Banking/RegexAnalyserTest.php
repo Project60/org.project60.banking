@@ -70,10 +70,11 @@ class CRM_Banking_RegexAnalyserTest extends CRM_Banking_TestBase
 
         $transactionAfterRun = $this->getTransaction($transactionId);
 
-        $parsedDataBefore = json_decode($transactionBeforeRun['data_parsed']);
-        $parsedDataAfter = json_decode($transactionAfterRun['data_parsed']);
+        $parsedDataBefore = json_decode($transactionBeforeRun['data_parsed'], true);
+        $parsedDataAfter = json_decode($transactionAfterRun['data_parsed'], true);
 
-        $this->assertSame('CreditCard', $parsedDataBefore->financial_type);
-        $this->assertSame('1', $parsedDataAfter->payment_instrument_id);
+        $this->assertSame('CreditCard', $parsedDataBefore['financial_type']);
+        $this->assertArrayHasKey('payment_instrument_id', $parsedDataAfter, "PI not set");
+        $this->assertSame('1', $parsedDataAfter['payment_instrument_id'], "PI not 1");
     }
 }

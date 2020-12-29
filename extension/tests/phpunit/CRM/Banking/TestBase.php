@@ -198,8 +198,8 @@ class CRM_Banking_TestBase extends \PHPUnit\Framework\TestCase implements
     }
 
     protected function createMatcher(
-        string $class,
         string $type,
+        string $class,
         array $configuration = [],
         array $parameters = []
     ): int {
@@ -388,7 +388,7 @@ class CRM_Banking_TestBase extends \PHPUnit\Framework\TestCase implements
             'OptionValue',
             'getsingle',
             [
-                'option_group_id' => 'civicrm_banking.plugin_classes',
+                'option_group_id' => 'civicrm_banking.plugin_types', // class/type seem to be flipped in the extension code
                 'name' => $className,
             ]
         );
@@ -402,7 +402,7 @@ class CRM_Banking_TestBase extends \PHPUnit\Framework\TestCase implements
             'OptionValue',
             'getsingle',
             [
-                'option_group_id' => 'civicrm_banking.plugin_types',
+                'option_group_id' => 'civicrm_banking.plugin_classes', // class/type seem to be flipped in the extension code
                 'name' => $typeName,
             ]
         );

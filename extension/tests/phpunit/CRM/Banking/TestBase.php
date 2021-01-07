@@ -316,7 +316,15 @@ class CRM_Banking_TestBase extends \PHPUnit\Framework\TestCase implements
 
     protected function createIgnoreMatcher(array $rules = null, array $configuration = []): int
     {
-        $defaultConfiguration = [];
+        throw new NotImplementedException('TODO: Implement!');
+
+        $defaultRules = [];
+
+        $finalRules = $rules === null ? $defaultRules : $rules;
+
+        $defaultConfiguration = [
+            'rules' => $finalRules
+        ];
 
         $mergedConfiguration = array_merge($defaultConfiguration, $configuration);
 

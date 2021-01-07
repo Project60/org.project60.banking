@@ -44,17 +44,33 @@ class CRM_Banking_TestBase extends \PHPUnit\Framework\TestCase implements
         callAPISuccess as protected traitCallAPISuccess;
     }
 
+    /** The primary fields of the transaction are the fields of its database table. All other fields will be
+     *  written as JSON to "data_parsed".
+     */
     const PRIMARY_TRANSACTION_FIELDS = [
         'version', 'debug', 'amount', 'bank_reference', 'value_date', 'booking_date', 'currency', 'type_id',
         'status_id', 'data_raw', 'data_parsed', 'ba_id', 'party_ba_id', 'tx_batch_id', 'sequence'
     ];
 
+    /**
+     * The gap between the weight of two matchers.
+     */
     const MATCHER_WEIGHT_STEP = 10;
 
+    /**
+     * Used to generate unique transaction references.
+     */
     protected $transactionReferenceCounter = 0;
 
+    /**
+     * The weight for the next matcher.
+     */
     protected $matcherWeight = 10;
 
+    /**
+     * The list of created transactions.
+     * This is filled in "createTransaction" and used in "runMatchers" as it needs a list of transactions.
+     */
     protected $transactionIds = [];
 
     public function setUpHeadless(): Civi\Test\CiviEnvBuilder
@@ -66,6 +82,9 @@ class CRM_Banking_TestBase extends \PHPUnit\Framework\TestCase implements
             ->apply();
     }
 
+    /**
+     * This is called before each test.
+     */
     public function setUp(): void
     {
         parent::setUp();
@@ -75,15 +94,17 @@ class CRM_Banking_TestBase extends \PHPUnit\Framework\TestCase implements
         $this->transactionIds = [];
     }
 
+    /**
+     * This is called after each test.
+     */
     public function tearDown(): void
     {
         parent::tearDown();
     }
 
     /**
-     * Remove 'xdebug' result key set by Civi\API\Subscriber\XDebugSubscriber
-     *
-     * This breaks some tests when xdebug is present, and we don't need it.
+     * Remove 'xdebug' result key set by Civi\API\Subscriber\XDebugSubscriber because it breaks some tests
+     * when xdebug is present, and we do not need it.
      *
      * @param $entity
      * @param $action
@@ -124,6 +145,13 @@ class CRM_Banking_TestBase extends \PHPUnit\Framework\TestCase implements
         return $contactId;
     }
 
+    /**
+     * Create a transaction and return its ID.
+     *
+     * @param array $parameters The parameters for the transaction. Only set values will overwrite defaults.
+     *
+     * @return int The ID of the created transaction.
+     */
     protected function createTransaction(array $parameters = []): int
     {
         $today = date('Y-m-d');
@@ -159,6 +187,13 @@ class CRM_Banking_TestBase extends \PHPUnit\Framework\TestCase implements
         return $result['id'];
     }
 
+    /**
+     * Get a transaction by its ID.
+     *
+     * @param int $id
+     *
+     * @return array The transaction.
+     */
     protected function getTransaction(int $id): array
     {
         $result = $this->callAPISuccess(
@@ -176,6 +211,8 @@ class CRM_Banking_TestBase extends \PHPUnit\Framework\TestCase implements
 
     /**
      * Get the latest contribution.
+     *
+     * @return array The contribution.
      */
     protected function getLatestContribution()
     {
@@ -199,6 +236,16 @@ class CRM_Banking_TestBase extends \PHPUnit\Framework\TestCase implements
         // TODO: Implement!
     }
 
+    /**
+     * Create a matcher and return its ID.
+     *
+     * @param string $type The matcher/analyser type, e.g. "match".
+     * @param string $class The matcher/analyser class, e.g. "analyser_regex".
+     * @param string $configuration The configuration for the matcher. Only set values will overwrite defaults.
+     * @param string $parameters The parameters for the matcher. Only set values will overwrite defaults.
+     *
+     * @return int The matcher ID.
+     */
     protected function createMatcher(
         string $type,
         string $class,
@@ -248,6 +295,15 @@ class CRM_Banking_TestBase extends \PHPUnit\Framework\TestCase implements
         return $matcher['id'];
     }
 
+    /**
+     * Create a regex analyser with simple defaults.
+     *
+     * @param array|null $rules The rules to apply for the matcher. If null, default rules are used,
+     *                          otherwise the given ones.
+     * @param array $configuration The configuration for the matcher. Only set values will overwrite defaults.
+     *
+     * @return int The matcher ID.
+     */
     protected function createRegexAnalyser(array $rules = null, array $configuration = []): int
     {
         $defaultRules = [
@@ -314,6 +370,15 @@ class CRM_Banking_TestBase extends \PHPUnit\Framework\TestCase implements
         return $matcherId;
     }
 
+    /**
+     * Create an ignore matcher with simple defaults.
+     *
+     * @param array|null $rules The rules to apply for the matcher. If null, default rules are used,
+     *                          otherwise the given ones.
+     * @param array $configuration The configuration for the matcher. Only set values will overwrite defaults.
+     *
+     * @return int The matcher ID.
+     */
     protected function createIgnoreMatcher(array $rules = null, array $configuration = []): int
     {
         throw new NotImplementedException('TODO: Implement!');
@@ -333,6 +398,13 @@ class CRM_Banking_TestBase extends \PHPUnit\Framework\TestCase implements
         return $matcherId;
     }
 
+    /**
+     * Create a sepa matcher with simple defaults.
+     *
+     * @param array $configuration The configuration for the matcher. Only set values will overwrite defaults.
+     *
+     * @return int The matcher ID.
+     */
     protected function createSepaMatcher(array $configuration = []): int
     {
         $defaultConfiguration = [];
@@ -344,6 +416,13 @@ class CRM_Banking_TestBase extends \PHPUnit\Framework\TestCase implements
         return $matcherId;
     }
 
+    /**
+     * Create a "default options matcher" with simple defaults.
+     *
+     * @param array $configuration The configuration for the matcher. Only set values will overwrite defaults.
+     *
+     * @return int The matcher ID.
+     */
     protected function createDefaultOptionsMatcher(array $configuration = []): int
     {
         $defaultConfiguration = [];
@@ -355,6 +434,13 @@ class CRM_Banking_TestBase extends \PHPUnit\Framework\TestCase implements
         return $matcherId;
     }
 
+    /**
+     * Create a "create contribution" matcher with simple defaults.
+     *
+     * @param array $configuration The configuration for the matcher. Only set values will overwrite defaults.
+     *
+     * @return int The matcher ID.
+     */
     protected function createCreateContributionMatcher(array $configuration = []): int
     {
         $defaultConfiguration = [
@@ -379,6 +465,13 @@ class CRM_Banking_TestBase extends \PHPUnit\Framework\TestCase implements
         return $matcherId;
     }
 
+    /**
+     * Create an "existing contribution matcher" with simple defaults.
+     *
+     * @param array $configuration The configuration for the matcher. Only set values will overwrite defaults.
+     *
+     * @return int The matcher ID.
+     */
     protected function createExistingContributionMatcher(array $configuration = []): int
     {
         $defaultConfiguration = [];
@@ -390,6 +483,13 @@ class CRM_Banking_TestBase extends \PHPUnit\Framework\TestCase implements
         return $matcherId;
     }
 
+    /**
+     * Return the ID for a class by its name.
+     *
+     * @param string $className The name of the class.
+     *
+     * @return int The ID of the class.
+     */
     protected function matcherClassNameToId(string $className): int
     {
         $result = $this->callAPISuccess(
@@ -404,6 +504,13 @@ class CRM_Banking_TestBase extends \PHPUnit\Framework\TestCase implements
         return $result['id'];
     }
 
+    /**
+     * Return the ID for a type by its name.
+     *
+     * @param string $typeName The name of the type.
+     *
+     * @return int The ID of the type.
+     */
     protected function matcherTypeNameToId(string $typeName): int
     {
         $result = $this->callAPISuccess(
@@ -418,6 +525,11 @@ class CRM_Banking_TestBase extends \PHPUnit\Framework\TestCase implements
         return $result['id'];
     }
 
+    /**
+     * Run matchers. By default, over all transactions created with "createTransaction" will be run.
+     *
+     * @param array|null $transactionIds Will be used instead of all created transactions if not null.
+     */
     protected function runMatchers(array $transactionIds = null): void
     {
         $transactionIdsForMatching = $transactionIds === null ? $this->transactionIds : $transactionIds;

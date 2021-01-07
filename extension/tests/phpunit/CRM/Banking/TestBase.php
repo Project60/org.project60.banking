@@ -328,7 +328,7 @@ class CRM_Banking_TestBase extends \PHPUnit\Framework\TestCase implements
 
         $mergedConfiguration = array_merge($defaultConfiguration, $configuration);
 
-        $matcherId = $this->createMatcher('TODO: Fill in type!', 'TODO: Fill in class!', $mergedConfiguration);
+        $matcherId = $this->createMatcher('match', 'matcher_ignore', $mergedConfiguration);
 
         return $matcherId;
     }
@@ -339,7 +339,7 @@ class CRM_Banking_TestBase extends \PHPUnit\Framework\TestCase implements
 
         $mergedConfiguration = array_merge($defaultConfiguration, $configuration);
 
-        $matcherId = $this->createMatcher('TODO: Fill in type!', 'TODO: Fill in class!', $mergedConfiguration);
+        $matcherId = $this->createMatcher('match', 'matcher_sepa', $mergedConfiguration);
 
         return $matcherId;
     }
@@ -350,7 +350,7 @@ class CRM_Banking_TestBase extends \PHPUnit\Framework\TestCase implements
 
         $mergedConfiguration = array_merge($defaultConfiguration, $configuration);
 
-        $matcherId = $this->createMatcher('TODO: Fill in type!', 'TODO: Fill in class!', $mergedConfiguration);
+        $matcherId = $this->createMatcher('match', 'matcher_default', $mergedConfiguration);
 
         return $matcherId;
     }
@@ -387,7 +387,7 @@ class CRM_Banking_TestBase extends \PHPUnit\Framework\TestCase implements
 
         $mergedConfiguration = array_merge($defaultConfiguration, $configuration);
 
-        $matcherId = $this->createMatcher('TODO: Fill in type!', 'TODO: Fill in class!', $mergedConfiguration);
+        $matcherId = $this->createMatcher('match', 'matcher_contribution', $mergedConfiguration);
 
         return $matcherId;
     }

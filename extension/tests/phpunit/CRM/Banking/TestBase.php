@@ -137,7 +137,7 @@ class CRM_Banking_TestBase extends \PHPUnit\Framework\TestCase implements
             'create',
             [
                 'contact_type' => 'Individual',
-                'email' => 'unittests@sepa.project60.org',
+                'email' => 'unittests@banking.project60.org',
             ]
         );
 

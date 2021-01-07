@@ -36,7 +36,7 @@ class CRM_Banking_RegexAnalyserTest extends CRM_Banking_TestBase
     /**
      * Test the most simple regex matcher.
      */
-    public function testSimpleRegexMatcher()
+    public function testMapAction()
     {
         $transactionId = $this->createTransaction(
             [
@@ -70,11 +70,13 @@ class CRM_Banking_RegexAnalyserTest extends CRM_Banking_TestBase
 
         $transactionAfterRun = $this->getTransaction($transactionId);
 
-        $parsedDataBefore = json_decode($transactionBeforeRun['data_parsed'], true);
-        $parsedDataAfter = json_decode($transactionAfterRun['data_parsed'], true);
+        $parsedDataAfter = json_decode($transactionAfterRun['data_parsed']);
 
-        $this->assertSame('CreditCard', $parsedDataBefore['financial_type']);
-        $this->assertArrayHasKey('payment_instrument_id', $parsedDataAfter, "PI not set");
-        $this->assertSame('1', $parsedDataAfter['payment_instrument_id'], "PI not 1");
+        $this->assertAttributeEquals(
+            '1',
+            'payment_instrument_id',
+            $parsedDataAfter,
+            E::ts('The payment instrument ID is not correctly set.')
+        );
     }
 }

@@ -46,6 +46,8 @@ class CRM_Banking_MatchersIntegrationTest extends CRM_Banking_TestBase
             [
                 'purpose' => 'This is a donation',
                 'financial_type' => 'CreditCard',
+                'contact_id' => $contactId,
+                'name' => '', // NOTE: Must be set, otherwise there occurs an error while matching CreateContribution.
             ]
         );
 
@@ -74,11 +76,6 @@ class CRM_Banking_MatchersIntegrationTest extends CRM_Banking_TestBase
                             'action' => 'set',
                             'value' => 1,
                             'to' => 'financial_type_id',
-                        ],
-                        [
-                            'action' => 'set',
-                            'value' => $contactId,
-                            'to' => 'contact_id',
                         ]
                     ]
                 ]

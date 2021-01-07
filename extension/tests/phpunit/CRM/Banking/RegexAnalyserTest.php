@@ -1,4 +1,5 @@
 <?php
+
 /*-------------------------------------------------------+
 | Project 60 - CiviBanking - PHPUnit tests               |
 | Copyright (C) 2020 SYSTOPIA                            |
@@ -14,7 +15,6 @@
 | written permission from the original author(s).        |
 +--------------------------------------------------------*/
 
-use Civi\API\Exception\NotImplementedException;
 use CRM_Banking_ExtensionUtil as E;
 
 /**

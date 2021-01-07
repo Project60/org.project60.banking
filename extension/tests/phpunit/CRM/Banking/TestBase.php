@@ -1,4 +1,5 @@
 <?php
+
 /*-------------------------------------------------------+
 | Project 60 - CiviBanking - PHPUnit tests               |
 | Copyright (C) 2020 SYSTOPIA                            |
@@ -104,6 +105,7 @@ class CRM_Banking_TestBase extends \PHPUnit\Framework\TestCase implements
 
     /**
      * Create a contact and return its ID.
+     *
      * @return int The ID of the created contact.
      */
     protected function createContact(): int

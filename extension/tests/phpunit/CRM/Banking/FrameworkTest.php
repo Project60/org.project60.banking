@@ -1,4 +1,5 @@
 <?php
+
 /*-------------------------------------------------------+
 | Project 60 - CiviBanking - PHPUnit tests               |
 | Copyright (C) 2020 SYSTOPIA                            |

@@ -38,8 +38,6 @@ class CRM_Banking_MatchersIntegrationTest extends CRM_Banking_TestBase
      */
     public function testRegexAndCreateContributionMatcher()
     {
-        $this->markTestSkipped(E::ts('This test is not fully implemented.'));
-
         $contactId = $this->createContact();
 
         $transactionId = $this->createTransaction(
@@ -90,9 +88,38 @@ class CRM_Banking_MatchersIntegrationTest extends CRM_Banking_TestBase
 
         $transactionAfterRun = $this->getTransaction($transactionId);
 
+        $parsedDataBefore = json_decode($transactionBeforeRun['data_parsed']);
+        $parsedDataAfter = json_decode($transactionAfterRun['data_parsed']);
+
+        $this->assertAttributeEquals(
+            'CreditCard',
+            'financial_type',
+            $parsedDataBefore,
+            E::ts("The transaction's financial type ID is not correct.")
+        );
+        $this->assertAttributeEquals(
+            '1',
+            'payment_instrument_id',
+            $parsedDataAfter,
+            E::ts("The transaction's payment instrument ID is not correct.")
+        );
+
         $contribution = $this->getLatestContribution();
 
-        // TODO: Assert that a contribution was created.
-        // TODO: Assert if the changes to the contribution have been applied.
+        $this->assertEquals(
+            $contactId,
+            $contribution['contact_id'],
+            E::ts("The contribution's contact ID is not correct.")
+        );
+        $this->assertEquals(
+            1,
+            $contribution['payment_instrument_id'],
+            E::ts("The contributions' payment instrument ID is not correct.")
+        );
+        $this->assertEquals(
+            1,
+            $contribution['financial_type_id'],
+            E::ts("The contributions' financial type ID is not correct.")
+        );
     }
 }

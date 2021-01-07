@@ -503,7 +503,8 @@ class CRM_Banking_TestBase extends \PHPUnit\Framework\TestCase implements
             'OptionValue',
             'getsingle',
             [
-                'option_group_id' => 'civicrm_banking.plugin_types', // class/type seem to be flipped in the extension code
+                // NOTE: Class and type seem to be flipped in the extension code:
+                'option_group_id' => 'civicrm_banking.plugin_types',
                 'name' => $className,
             ]
         );
@@ -524,7 +525,8 @@ class CRM_Banking_TestBase extends \PHPUnit\Framework\TestCase implements
             'OptionValue',
             'getsingle',
             [
-                'option_group_id' => 'civicrm_banking.plugin_classes', // class/type seem to be flipped in the extension code
+                // NOTE: Class and type seem to be flipped in the extension code:
+                'option_group_id' => 'civicrm_banking.plugin_classes',
                 'name' => $typeName,
             ]
         );

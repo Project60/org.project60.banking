@@ -422,7 +422,7 @@ class CRM_Banking_TestBase extends \PHPUnit\Framework\TestCase implements
     {
         $transactionIdsForMatching = $transactionIds === null ? $this->transactionIds : $transactionIds;
 
-        $engine = CRM_Banking_Matcher_Engine::getInstance();
+        $engine = CRM_Banking_Mocking_CRMBankingMatcherEngine::getInstance();
 
         foreach ($transactionIdsForMatching as $transactionId) {
             $engine->match($transactionId);

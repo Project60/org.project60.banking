@@ -361,13 +361,11 @@ class CRM_Banking_TestBase extends \PHPUnit\Framework\TestCase implements
             'required_values' => [
                 'btx.financial_type_id',
                 'btx.payment_instrument_id',
-                'btx.campaign_id',
-                'btx.identified_by'
+                'btx.contact_id',
             ],
             'value_propagation' => [
                 'btx.financial_type_id' => 'contribution.financial_type_id',
-                'btx.campaign_id' => 'contribution.campaign_id',
-                'btx.payment_instrument_id' => 'contribution.payment_instrument_id'
+                'btx.payment_instrument_id' => 'contribution.payment_instrument_id',
             ],
             'lookup_contact_by_name' => [
                 'mode' => 'off'

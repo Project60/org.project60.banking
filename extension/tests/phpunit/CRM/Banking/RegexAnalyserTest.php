@@ -55,7 +55,7 @@ class CRM_Banking_RegexAnalyserTest extends CRM_Banking_TestBase
                         [
                             'from' => 'pi',
                             'to' => 'payment_instrument_id',
-                            'actions' => 'map',
+                            'action' => 'map',
                             'mapping' => [
                                 'CreditCard' => 1,
                                 'DebitCard' => 2,

@@ -51,7 +51,7 @@ class CRM_Banking_MatchersIntegrationTest extends CRM_Banking_TestBase
             ]
         );
 
-        $matcherId = $this->createRegexAnalyser(
+        $eegexAnalyserMatcherId = $this->createRegexAnalyser(
             [
                 [
                     'fields' => ['financial_type'],
@@ -70,7 +70,7 @@ class CRM_Banking_MatchersIntegrationTest extends CRM_Banking_TestBase
                 ],
                 [
                     'fields' => ['purpose'],
-                    'pattern' => '/Donation/i',
+                    'pattern' => '/donation/i',
                     'actions' => [
                         [
                             'action' => 'set',
@@ -82,7 +82,7 @@ class CRM_Banking_MatchersIntegrationTest extends CRM_Banking_TestBase
             ]
         );
 
-        $matcherId = $this->createCreateContributionMatcher([]);
+        $createContributionMatcherId = $this->createCreateContributionMatcher();
 
         $transactionBeforeRun = $this->getTransaction($transactionId);
 

@@ -34,7 +34,88 @@ use CRM_Banking_ExtensionUtil as E;
 class CRM_Banking_RegexAnalyserTest extends CRM_Banking_TestBase
 {
     /**
-     * Test the most simple regex matcher.
+     * Test a set action.
+     */
+    public function testSetAction()
+    {
+        $transactionId = $this->createTransaction(
+            [
+                'purpose' => 'This is a donation',
+            ]
+        );
+
+        $matcherId = $this->createRegexAnalyser(
+            [
+                [
+                    'fields' => ['purpose'],
+                    'pattern' => '/donation/i',
+                    'actions' => [
+                        [
+                            'action' => 'set',
+                            'value' => 1,
+                            'to' => 'financial_type_id',
+                        ]
+                    ]
+                ]
+            ]
+        );
+
+        $this->runMatchers();
+
+        $transactionAfterRun = $this->getTransaction($transactionId);
+
+        $parsedDataAfter = json_decode($transactionAfterRun['data_parsed']);
+
+        $this->assertAttributeEquals(
+            '1',
+            'financial_type_id',
+            $parsedDataAfter,
+            E::ts("The financial type ID is not correctly set.")
+        );
+    }
+
+    /**
+     * Test that a test action does not set if not matched.
+     */
+    public function testSetActionDoesNotMatch()
+    {
+        $transactionId = $this->createTransaction(
+            [
+                'purpose' => 'This is a nothing',
+            ]
+        );
+
+        $matcherId = $this->createRegexAnalyser(
+            [
+                [
+                    'fields' => ['purpose'],
+                    'pattern' => '/donation/i',
+                    'actions' => [
+                        [
+                            'action' => 'set',
+                            'value' => 1,
+                            'to' => 'financial_type_id',
+                        ]
+                    ]
+                ]
+            ]
+        );
+
+        $this->runMatchers();
+
+        $transactionAfterRun = $this->getTransaction($transactionId);
+
+        $parsedDataAfter = json_decode($transactionAfterRun['data_parsed']);
+
+        $this->assertObjectNotHasAttribute(
+            'financial_type_id',
+            $parsedDataAfter,
+            E::ts("The financial type ID is set but should not.")
+        );
+    }
+
+    /**
+     * Test a map action.
      */
     public function testMapAction()
     {

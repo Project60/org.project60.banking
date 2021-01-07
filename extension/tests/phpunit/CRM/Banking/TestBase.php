@@ -15,6 +15,7 @@
 | written permission from the original author(s).        |
 +--------------------------------------------------------*/
 
+use Civi\API\Exception\NotImplementedException;
 use Civi\Test\Api3TestTrait;
 use Civi\Test\HeadlessInterface;
 use Civi\Test\HookInterface;
@@ -233,7 +234,7 @@ class CRM_Banking_TestBase extends \PHPUnit\Framework\TestCase implements
 
     protected function getSuggestions($transactionId, $matcherId = null): array
     {
-        // TODO: Implement!
+        throw new NotImplementedException('TODO: Implement!');
     }
 
     /**
@@ -407,6 +408,8 @@ class CRM_Banking_TestBase extends \PHPUnit\Framework\TestCase implements
      */
     protected function createSepaMatcher(array $configuration = []): int
     {
+        throw new NotImplementedException('TODO: Implement!');
+
         $defaultConfiguration = [];
 
         $mergedConfiguration = array_merge($defaultConfiguration, $configuration);
@@ -425,6 +428,8 @@ class CRM_Banking_TestBase extends \PHPUnit\Framework\TestCase implements
      */
     protected function createDefaultOptionsMatcher(array $configuration = []): int
     {
+        throw new NotImplementedException('TODO: Implement!');
+
         $defaultConfiguration = [];
 
         $mergedConfiguration = array_merge($defaultConfiguration, $configuration);
@@ -474,6 +479,8 @@ class CRM_Banking_TestBase extends \PHPUnit\Framework\TestCase implements
      */
     protected function createExistingContributionMatcher(array $configuration = []): int
     {
+        throw new NotImplementedException('TODO: Implement!');
+
         $defaultConfiguration = [];
 
         $mergedConfiguration = array_merge($defaultConfiguration, $configuration);

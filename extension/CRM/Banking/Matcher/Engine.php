@@ -32,11 +32,25 @@ class CRM_Banking_Matcher_Engine {
 
   static private $singleton = null;
 
+  /**
+   * Get the (singleton) Banking Matcher instance
+   *
+   * @return CRM_Banking_Matcher_Engine
+   */
   public static function getInstance() {
     if (self::$singleton === null) {
       self::$singleton = new CRM_Banking_Matcher_Engine();
     }
     return self::$singleton;
+  }
+
+  /**
+   * Clear the current singleton
+   *
+   * Remark: this should only be necessary for testing
+   */
+  public static function clearInstance() {
+    self::$singleton = null;
   }
 
   //----------------------------------------------------------------------------

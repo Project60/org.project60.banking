@@ -383,11 +383,17 @@ class CRM_Banking_Form_StatementSearch extends CRM_Core_Form
         $data_sql_query =
         "SELECT
             tx.*,
-            DATE(tx.value_date)     AS `date`,
-            tx_status.name          AS status_name,
-            tx_status.label         AS status_label,
-            our_account.data_parsed AS our_account_data,
-            other_account.reference AS other_account
+            DATE(tx.value_date)       AS `date`,
+            tx_status.name            AS status_name,
+            tx_status.label           AS status_label,
+            our_account.id            AS our_account_id,
+            our_account.data_parsed   AS our_account_data,
+            GROUP_CONCAT(CONCAT(our_account_reference.reference, ',', our_account_reference.reference_type_id))
+                                      AS our_account_references,
+            other_account.id          AS other_account_id,
+            other_account.data_parsed AS other_account_data,
+            GROUP_CONCAT(CONCAT(other_account_reference.reference, ',', other_account_reference.reference_type_id))
+                                      AS other_account_references
         FROM
             civicrm_bank_tx AS tx
         LEFT JOIN
@@ -401,11 +407,15 @@ class CRM_Banking_Form_StatementSearch extends CRM_Core_Form
         LEFT JOIN
             civicrm_bank_account_reference AS our_account_reference
                 ON
-                    our_account_reference.id = tx.ba_id
+                    our_account_reference.ba_id = tx.ba_id
         LEFT JOIN
-            civicrm_bank_account_reference AS other_account
+            civicrm_bank_account AS other_account
                 ON
                     other_account.id = tx.party_ba_id
+        LEFT JOIN
+            civicrm_bank_account_reference AS other_account_reference
+                ON
+                    other_account_reference.ba_id = tx.party_ba_id
         WHERE
             TRUE
             {$whereClausesAsString}
@@ -450,8 +460,8 @@ class CRM_Banking_Form_StatementSearch extends CRM_Core_Form
         $results = [];
         while ($transactionDao->fetch()) {
             // preprocessing:
-            $our_account_data = json_decode($transactionDao->our_account_data, true);
-            $our_account = empty($our_account_data['name']) ? $transactionDao->our_account_reference : $our_account_data['name'];
+//            $our_account_data = json_decode($transactionDao->our_account_data, true);
+//            $our_account = empty($our_account_data['name']) ? $transactionDao->our_account_reference : $our_account_data['name'];
             $data_parsed = json_decode($transactionDao->data_parsed, true);
             $purpose = trim(CRM_Utils_Array::value('purpose', $data_parsed, ''));
             $review_link = CRM_Utils_System::url('civicrm/banking/review', "id={$transactionDao->id}");
@@ -460,8 +470,10 @@ class CRM_Banking_Form_StatementSearch extends CRM_Core_Form
                 'date'          => date('Y-m-d', strtotime($transactionDao->date)),
                 'amount'        => CRM_Utils_Money::format($transactionDao->amount, $transactionDao->currency),
                 'status'        => $transactionDao->status_label,
-                'our_account'   => $our_account,
-                'other_account' => $transactionDao->other_account,
+                'our_account'   => self::renderAccounts($transactionDao->our_account_id, $transactionDao->our_account_data,
+                                                        $transactionDao->our_account_references, $data_parsed, true),
+                'other_account' => self::renderAccounts($transactionDao->other_account_id, $transactionDao->other_account_data,
+                                                        $transactionDao->other_account_references, $data_parsed, false),
                 'purpose'       => $purpose,
                 'review_link'   => E::ts('<a href="%1" class="crm-popup">[#%2]</a>', [1 => $review_link, 2 => $transactionDao->id]),
             ];
@@ -474,6 +486,104 @@ class CRM_Banking_Form_StatementSearch extends CRM_Core_Form
                 'recordsFiltered' => $transaction_count,
             ]
         );
+    }
+
+  /**
+   * Render the bank account information for the given resource data
+   *
+   * @param integer $account_id
+   *   ID of the banking account
+   * @param string $account_data
+   *   data_parsed section of the account
+   * @param string $account_references
+   *   reference/ref_id list
+   * @param array $tx_data
+   *   the transactions data parsed array
+   * @param boolean $is_own
+   *   are we rendering our own account, or a party one?
+   *
+   * @return string HTML representation
+   */
+    public static function renderAccounts($account_id, $account_data, $account_references, $tx_data, $is_own)
+    {
+      // collect a list of linked accounts. keys: reference, type, remark
+      $linked_accounts = [];
+
+      // first though, load the bank account reference type list
+      static $reference_types = null;
+      if ($reference_types === null) {
+        $reference_types = [];
+        $ref_type_query = civicrm_api3('OptionValue', 'get', [
+            'option_group_id' => 'civicrm_banking.reference_types',
+            'option.limit'    => 0,
+            'return'          => 'id,label,name'
+        ]);
+        foreach ($ref_type_query['values'] as $type) {
+          // index by name and id
+          $reference_types[$type['name']] = $type['label'];
+          $reference_types[$type['id']] = $type['label'];
+        }
+      }
+
+
+      // step1: render the linked accounts
+      if ($account_id) {
+        static $render_cache = []; // cache this by account id
+        if (isset($render_cache[$account_id])) {
+          $linked_accounts = $render_cache[$account_id];
+        } else {
+          // prepare the account names
+          $account_data = json_decode($account_data, true);
+
+          // parse the references
+          $linked_accounts = [];
+          $account_reference_list = explode(',', $account_references);
+          for ($i = 1; $i < count($account_reference_list); $i+=2) {
+            $reference = $account_reference_list[$i-1];
+            if (empty($account_data['name'])) {
+              $linked_accounts[$reference] = [
+                  'reference' => $reference,
+                  'type'      => $reference_types[$account_reference_list[$i]],
+                  'remark'    => '',
+              ];
+            } else {
+              $linked_accounts[$reference] = [
+                  'reference' => $account_data['name'],
+                  'type'      => $reference,
+                  'remark'    => '',
+              ];
+              break; // one is enough, it's a known account
+            }
+          }
+          $render_cache[$account_id] = $linked_accounts;
+        }
+      }
+
+      // step2: add the soft accounts from the tx_data
+      $prefix = ($is_own ? '_' : '_party_');
+      foreach ($reference_types as $name => $type) {
+        if (!is_int($name)) {
+          $key = $prefix . $name;
+          if (!empty($tx_data[$key])) {
+            $reference = $tx_data[$key];
+            if (!isset($linked_accounts[$reference])) {
+              $linked_accounts[$reference] = [
+                  'reference' => $reference,
+                  'type'      => $type,
+                  'remark'    => '<i title="' . E::ts("not linked") . '" class="crm-i fa-chain-broken"></i>',
+              ];
+            }
+          }
+        }
+      }
+
+      // step 3: render the accounts
+      $rendered_string = '';
+      foreach ($linked_accounts as $linked_account) {
+        $rendered_string .= "<span title='{$linked_account['type']}'><code>{$linked_account['reference']}</code> {$linked_account['remark']}</span>";
+      }
+
+      return $rendered_string;
     }
 
     /**

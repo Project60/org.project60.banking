@@ -72,8 +72,8 @@
         <thead>
         <tr>
             <th data-data="date">{ts}Date{/ts}</th>
-            <th data-data="our_account">{ts}Organisation Account{/ts}</th>
-            <th data-data="other_account">{ts}Donor Account{/ts}</th>
+            <th data-data="our_account" data-orderable="false">{ts}Organisation Account{/ts}</th>
+            <th data-data="other_account" data-orderable="false">{ts}Donor Account{/ts}</th>
             <th data-data="amount">{ts}Amount{/ts}</th>
             <th data-data="status">{ts}Status{/ts}</th>
             <th data-data="purpose" data-orderable="false">{ts}Purpose{/ts}</th>

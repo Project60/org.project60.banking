@@ -580,7 +580,7 @@ class CRM_Banking_Form_StatementSearch extends CRM_Core_Form
       // step 3: render the accounts
       $rendered_string = '';
       foreach ($linked_accounts as $linked_account) {
-        $rendered_string .= "<span title='{$linked_account['type']}'><code>{$linked_account['reference']}</code> {$linked_account['remark']}</span>";
+        $rendered_string .= "<span title='{$linked_account['type']}'><code>{$linked_account['reference']}</code> {$linked_account['remark']}</span><br/>";
       }
 
       return $rendered_string;

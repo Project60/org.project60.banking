@@ -58,7 +58,7 @@
           <tr>
             <td style="width: 130px;"><b>
               {if $key eq 'bank' or $key eq 'name'}
-                {ts domain='org.project60.banking'}Bank Name{/ts}
+                {ts domain='org.project60.banking'}Account Name{/ts}
               {elseif $key eq 'country'}
                 {ts domain='org.project60.banking'}Country{/ts}
               {else}

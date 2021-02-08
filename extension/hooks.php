@@ -71,16 +71,24 @@ function banking_civicrm_navigationMenu(&$menu) {
   ));
 
   _banking_civix_insert_navigation_menu($menu, "{$anchor}CiviBanking", array(
-      'label'      => E::ts('Show Transactions'),
-      'name'       => 'Transactions',
-      'url'        => $statementUrl,
-      'permission' => 'access CiviContribute',
-  ));
-
-  _banking_civix_insert_navigation_menu($menu, "{$anchor}CiviBanking", array(
       'label'      => E::ts('Import Transactions'),
       'name'       => 'Import Transactions',
       'url'        => 'civicrm/banking/import',
+      'permission' => 'access CiviContribute',
+      'separator'  => 1,
+  ));
+
+  _banking_civix_insert_navigation_menu($menu, "{$anchor}CiviBanking", array(
+    'label'      => E::ts('Show Transactions'),
+    'name'       => 'Transactions',
+    'url'        => $statementUrl,
+    'permission' => 'access CiviContribute',
+  ));
+
+  _banking_civix_insert_navigation_menu($menu, "{$anchor}CiviBanking", array(
+      'label'      => E::ts('Find Transactions'),
+      'name'       => 'Find Transactions',
+      'url'        => 'civicrm/banking/statements/search',
       'permission' => 'access CiviContribute',
       'separator'  => 1,
   ));

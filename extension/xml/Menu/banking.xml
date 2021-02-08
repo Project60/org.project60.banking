@@ -82,6 +82,17 @@
     <access_arguments>access CiviContribute</access_arguments>
   </item>
   <item>
+    <path>civicrm/banking/statements/search</path>
+    <page_callback>CRM_Banking_Form_StatementSearch</page_callback>
+    <title>Transaction Search</title>
+    <access_arguments>access CiviContribute</access_arguments>
+  </item>
+  <item>
+    <path>civicrm/banking/statements/search/data</path>
+    <page_callback>CRM_Banking_Form_StatementSearch::getTransactionsAjax</page_callback>
+    <access_arguments>access CiviContribute</access_arguments>
+  </item>
+  <item>
     <path>civicrm/banking/pluginupload</path>
     <page_callback>CRM_Banking_Form_PluginUpload</page_callback>
     <title>Import CiviBanking Plugins</title>

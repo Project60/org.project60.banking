@@ -183,6 +183,24 @@ class CRM_Banking_PluginImpl_Matcher_RulesAnalyser extends CRM_Banking_PluginMod
     // TODO: implement 'create new' based on $parameters
   }
 
+  /**
+   * Get fields_to_set as an array
+   *
+   * @return array
+   */
+  protected function getFieldsToSet() {
+    if (!isset($this->_plugin_config->fields_to_set)) {
+      return [];
+    }
+    $fields = (array) $this->_plugin_config->fields_to_set;
+    foreach ($fields as &$value) {
+      if (!empty($value->options)) {
+        $value->options = (array) $value->options;
+      }
+    }
+    return $fields;
+  }
+
  /**
    * Generate html code to visualize the given match. The visualization may also provide interactive form elements.
    *
@@ -213,7 +231,7 @@ class CRM_Banking_PluginImpl_Matcher_RulesAnalyser extends CRM_Banking_PluginMod
       }
     }
     $smarty_vars['rules']         = $rules_data;
-    $smarty_vars['fields_to_set'] = isset($config->fields_to_set) ? $config->fields_to_set : [];
+    $smarty_vars['fields_to_set'] = $this->getFieldsToSet();
     $smarty_vars['btx_id']        = (int) $btx->id;
     $smarty_vars['matcher_id']    = (int) $this->_plugin_id;
 

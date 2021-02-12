@@ -73,6 +73,9 @@
       width: 100%;
       margin: 0;
     }
+    .significant-whitespace {
+      white-space: pre-wrap;
+    }
     #btx-details {
       float: left;
       width: 100%;

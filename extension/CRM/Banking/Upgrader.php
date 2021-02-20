@@ -189,4 +189,20 @@ class CRM_Banking_Upgrader extends CRM_Banking_Upgrader_Base {
     CRM_Core_BAO_Setting::setItem('1.0', 'CiviBanking', 'reference_matching_probability');
     return true;
   }
+
+  /**
+   * Upgrader for 0.8 / BANKING-313:
+   *
+   * Adding an index to civicrm_bank_tx.status_id
+   *
+   * @return TRUE on success
+   */
+  public function upgrade_0801() {
+    // adding an index
+    if (!CRM_Core_DAO::singleValueQuery("SHOW INDEX FROM civicrm_bank_tx WHERE key_name = 'FK_civicrm_bank_tx_status_id'")) {
+      $this->ctx->log->info('Adding status_id index to transaction table.');
+      $this->executeSql("ALTER TABLE civicrm_bank_tx ADD KEY `FK_civicrm_bank_tx_status_id`(`status_id`);");
+    }
+    return true;
+  }
 }

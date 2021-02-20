@@ -44,13 +44,18 @@ We will look into each step in some more detail in the following sections from a
 
 In the **Administration Console** you get a **CiviBanking Settings** option in the **CiviContribute** tab as you see in the screenshot below:
 
-![Screenshot](/img/admin_console.png)
+![Screenshot](img/admin_console.png)
 
 If you select this option you will see the CiviBanking Settings:
 
-![Screenshot](/img/civibanking_settings.png)
+![Screenshot](img/civibanking_settings.png)
 
 For this documentation section we assume you have accepted all the defaults in the CiviBanking Settings! There will be more detail about the CiviBanking settings in the [How to Guide](how-to.md).
+
+##Examples?
+
+After you read this document, it's probably a good ida to have a look at the example configurations
+in our [Configuration Example Database](https://github.com/Project60/org.project60.banking/tree/master/configuration_database).
 
 ##Importing
 
@@ -74,7 +79,7 @@ An _importer plugin_ can be installed or imported from **Banking>Configuration M
 Alternatively, if I have a configuration (including importers, matchers and so on) for CiviBanking from another CiviCRM installation, I can use the **IMPORTER** link to select an exported configuration file and import that into my new CiviBanking installation.
 For this section we will assume you are going to create a new one, so I have clicked on the **add a new one** link.
 
-![Screenshot](/img/config_manager_empty.png)
+![Screenshot](img/config_manager_empty.png)
 
 In this case we are interested in adding a _plugin_ to import, so the top part. As you can see there are no plugins configured just yet, so I will click the **Add a new one** link in the **Import plugins** section of the form. In the specific sections for the importers you will see examples of how this is continued.
     
@@ -87,7 +92,7 @@ In this case we are interested in adding a _plugin_ to import, so the top part. 
 
 As mentioned above I have clicked the **add a new one** link in the **Banking>Configuration Manager** page. In the next form I enter a _name_ for the plugin, I select the **Import Plugin** as the _class_. As CAMT53 is a type of XML file I select **Configurable XML importer** as _Implementation_. And I enter a few sentences describing what the imported does at _description_. The result will be in the top half of the Configuration Manager Add Plugin screen and will look something like this screenshot:
 
-![Screenshot](/img/camt53_plugin_top.png)
+![Screenshot](img/camt53_plugin_top.png)
 
 In the bottom half I have to enter the technical information required to interpret the incoming file and know which field in the incoming file to send to which field in the CiviBanking transaction.
 
@@ -370,7 +375,7 @@ Once you have completed the configuration of your CAMT53 importer you should tes
 
 You can do this by importing a file with **Banking/Import Transactions**. Selecting this from the menu will bring up a form like the screenshot:
 
-![Screenshot](/img/import_camt53_transactions.png)
+![Screenshot](img/import_camt53_transactions.png)
 
 You can see I have select **CAMT53** as the _configuration_. I have also set the _Dry run_ option to **Yes** so it does not actually import the file I am about to select, but just tells me if it _could_ import the file.
 I then click on **Browse** (or _Bladeren_ in my Dutch installation) to select the CAMT53 file I want to test with.
@@ -379,7 +384,7 @@ I then click on **Browse** (or _Bladeren_ in my Dutch installation) to select th
 
 As mentioned above I have clicked the **add a new one** link in the **Banking>Configuration Manager** page. In the next form I enter a _name_ for the plugin, I select the **Import Plugin** as the _class_. The example importer I am going to show is meant to import SMS payments from a CSV file so I select **Configurable CSV importer** as _Implementation_. And I enter a few sentences describing what the imported does at _description_. The result will be in the top half of the Configuration Manager Add Plugin screen and will look something like this screenshot:
 
-![Screenshot](/img/csv_plugin_top.png)
+![Screenshot](img/csv_plugin_top.png)
 
 In the bottom half I have to enter the technical information required to interpret the incoming file and know which field in the incoming file to send to which field in the CiviBanking transaction.
 
@@ -445,7 +450,7 @@ Once you have completed the configuration of your CSV importer you should test i
 
 You can do this by importing a file with **Banking/Import Transactions**. Selecting this from the menu will bring up a form like the screenshot:
 
-![Screenshot](/img/import_csv_transactions.png)
+![Screenshot](img/import_csv_transactions.png)
 
 You can see I have select **SMS Payments from CSV file** as the _configuration_. I have also set the _Dry run_ option to **Yes** so it does not actually import the file I am about to select, but just tells me if it _could_ import the file.
 I then click on **Browse** (or _Bladeren_ in my Dutch installation) to select the .csv file I want to test with.

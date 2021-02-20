@@ -1,1 +1,2 @@
-This is still an empty section
+!!! note "Contribute?"
+If you would like to contribute to the documentation of CiviBanking you can certainly do so! Every  now and then sprints to update the documentation are organised. In most cases this will be announced on the CiviCRM channels. If you want to make sure you are invited for the next one please drop [betty.dolfing@civicoop.org](mailto:betty.dolfing@civicoop.org) or [erik.hommel@civicoop.org](mailto:erik.hommel@civicoop.org) a mail.

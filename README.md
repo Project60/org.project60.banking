@@ -9,7 +9,7 @@ Implements handling of bank accounts for contacts, as well as handling of bank f
 Documentation
 =============
 
-You can find some outdated documentation in the [Project Wiki](https://github.com/Project60/CiviBanking/wiki), but some people have started writing a new one [HERE](https://github.com/ErikHommel/org.project60.banking/tree/master/docs). If you just want to get an idea of what this is about, we recommend watching the [**session on CiviBanking at CiviCon Amsterdam**](https://vimeo.com/143368850).
+You can find the most recent (yet restricted) documentation as part of the [Official CiviCRM Documentation](https://docs.civicrm.org/banking/en/latest/). If you just want to get an idea of what this is about, we recommend watching the [**session on CiviBanking at CiviCon Amsterdam**](https://vimeo.com/143368850).
 
 
 Installation

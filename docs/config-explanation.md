@@ -3,10 +3,6 @@
     
 ##Introduction
 
-CiviBanking is a great extension that can read and interpret files with payments you can get from your bank or payment provider. So this could be a file from your bank, but also a downloaded file from Mollie, PayPal or Visa.
- 
-The extension will import the data, transform it to generic transactions that it can process and then match those with the related contributions in CiviCRM and mark them as completed (or suggest you create new contributions or even contacts). And for quite a few scenario's it can do this automatically too!
-
 Configuring CiviBanking is a bit of a job. As it is pretty powerful and can handle different types of files, it also needs configuration for each file. And as you are importing files from specific formats it also requires quite some technical knowledge to understand all the steps required.
 
 !!! note "What if I want to know more?"

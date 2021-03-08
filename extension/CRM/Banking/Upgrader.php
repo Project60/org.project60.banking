@@ -205,4 +205,18 @@ class CRM_Banking_Upgrader extends CRM_Banking_Upgrader_Base {
     }
     return true;
   }
+
+  /**
+   * Upgrader for 0.8 / BANKING-323:
+   *
+   * Update options/matchers/etc.
+   *
+   * @return TRUE on success
+   */
+  public function upgrade_0802() {
+    // update option groups
+    banking_civicrm_install_options(_banking_options());
+    return true;
+  }
+
 }

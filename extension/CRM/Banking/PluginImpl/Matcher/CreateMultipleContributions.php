@@ -17,20 +17,26 @@
 use CRM_Banking_ExtensionUtil as E;
 
 /**
- * This matcher will offer to create multiple new contribution if all the
- * required information is present.
+ * This matcher creates suggestions for creating multiple new contribution if
+ * all the required information is present and the entire transaction amount can
+ * be captured by contributions.
  *
  * Example configuration:
  * {
+ *     // Default parameters can be defined for all contributions.
+ *     "defaults": {
+ *         "source": "Bank transaction processed by CiviBanking"
+ *     },
  *     // For each contribution to be created, define its properties.
  *     "contributions": [
  *         {
  *             "contribution": {
  *                 "total_amount": 50,
  *                 "financial_type_id": 2,
- *                 "custom_211": "foobar"
+ *                 "custom_123": "foobar"
  *             },
- *             "missing_amount_penalty": 1.0
+ *             "missing_amount_penalty": 1.0,
+ *             "missing_parameters_penalty": 0.1,
  *         },
  *         {
  *             "contribution": {
@@ -38,7 +44,8 @@ use CRM_Banking_ExtensionUtil as E;
  *                 "financial_type_id": 1,
  *                 "campaign_id": 123
  *             },
- *             "missing_amount_penalty": 0.1
+ *             "missing_amount_penalty": 0.1,
+ *             "missing_parameters_penalty": 0.1,
  *         }
  *     ],
  *     // For the contribution to create for the remainder amount, define its
@@ -59,7 +66,7 @@ class CRM_Banking_PluginImpl_Matcher_CreateMultipleContributions extends CRM_Ban
   /**
    * class constructor
    */
-  function __construct($config_name) {
+  public function __construct($config_name) {
     parent::__construct($config_name);
 
     // Read configuration, set default values.
@@ -72,7 +79,7 @@ class CRM_Banking_PluginImpl_Matcher_CreateMultipleContributions extends CRM_Ban
       $config->auto_exec = FALSE;
     }
     if (!isset($config->required_values)) {
-      $config->required_values = ["btx.financial_type_id"];
+      $config->required_values = [];
     }
     if (!isset($config->factor)) {
       $config->factor = 1.0;
@@ -98,6 +105,10 @@ class CRM_Banking_PluginImpl_Matcher_CreateMultipleContributions extends CRM_Ban
         if (!isset($tier->missing_amount_penalty)) {
           // First tier gets penalty of 1 for not creating a suggestion at all.
           $tier->missing_amount_penalty = ($index == 0 ? 1.0 : 0.1);
+        }
+        if (!isset($tier->missing_parameters_penalty)) {
+          // First tier gets penalty of 1 for not creating a suggestion at all.
+          $tier->missing_parameters_penalty = ($index == 0 ? 1.0 : 0.1);
         }
       }
     }
@@ -146,19 +157,36 @@ class CRM_Banking_PluginImpl_Matcher_CreateMultipleContributions extends CRM_Ban
       foreach ($contacts_found as $contact_id => $contact_probability) {
         $remainder = $data_parsed['amount_parsed'];
         $contributions = [];
+        $skipped_contributions = [];
+        $indexs = 0;
         foreach ($config->contributions as $index => $tier) {
           if ($remainder >= $tier->contribution->total_amount) {
-            $contributions[] = $contribution = array_merge(
+            $contribution = array_merge(
               (array) $config->defaults,
               (array) $tier->contribution,
-              $this->get_contribution_data($btx, NULL, $contact_id)
+              $this->get_contribution_data($btx, $contact_id)
             );
-            $remainder -= $tier->contribution->total_amount;
+            if (self::validate_contribution_data($contribution)) {
+              $contributions[$index] = $contribution;
+              $remainder -= $tier->contribution->total_amount;
+            }
+            else {
+              $skipped_contributions[$index] = TRUE;
+              $penalty += $tier->missing_parameters_penalty;
+              $notes[$index][] = E::ts(
+                'There are missing parameters for contribution %1 and the suggestion is thus being downgraded by %2 percent.',
+                [
+                  1 => $index + 1,
+                  2 => $tier->missing_amount_penalty * 100,
+                ]
+              );
+            }
           }
           else {
+            $skipped_contributions[$index] = TRUE;
             if (isset($tier->missing_amount_penalty)) {
               $penalty += $tier->missing_amount_penalty;
-              $notes[] = E::ts(
+              $notes[$index][] = E::ts(
                 'The transaction amount undercuts the amount of %1 required for contribution %2 and the suggestion is thus being downgraded by %3 percent.',
                 [
                   1 => CRM_Utils_Money::format(
@@ -170,26 +198,35 @@ class CRM_Banking_PluginImpl_Matcher_CreateMultipleContributions extends CRM_Ban
                 ]
               );
             }
-            break;
+            continue;
           }
         }
 
         if ($remainder > 0) {
           if (!empty($config->remainder)) {
-            $contributions[] = $contribution = array_merge(
+            $index++;
+            $contribution = array_merge(
               (array) $config->defaults,
               (array) $config->remainder->contribution + [
                 'total_amount' => $remainder,
               ],
-              $this->get_contribution_data($btx, NULL, $contact_id)
+              $this->get_contribution_data($btx, $contact_id)
             );
+            if (self::validate_contribution_data($contribution)) {
+              $contributions[$index] = $contribution;
+              $remainder -= $tier->contribution->total_amount;
+            }
+            else {
+              // Not enough information on how to enter the remainder amount.
+              continue;
+            }
             // Process min/max amount penalties.
             if (
               !empty($config->remainder->min_amount)
               && $remainder < $config->remainder->min_amount
             ) {
               $penalty += $config->remainder->min_amount_penalty;
-              $notes[] = E::ts(
+              $notes[$index][] = E::ts(
                 'The remainder amount undercuts the minimum amount of %1 and the suggestion is thus being downgraded by %2 percent.',
                 [
                   1 => CRM_Utils_Money::format(
@@ -205,7 +242,7 @@ class CRM_Banking_PluginImpl_Matcher_CreateMultipleContributions extends CRM_Ban
               && $remainder > $config->remainder->max_amount
             ) {
               $penalty += $config->remainder->max_amount_penalty;
-              $notes[] = E::ts(
+              $notes[$index][] = E::ts(
                 'The remainder amount exceeds the maximum amount of %1 and the suggestion is thus being downgraded by %2 percent.',
                 [
                   1 => CRM_Utils_Money::format(
@@ -231,6 +268,7 @@ class CRM_Banking_PluginImpl_Matcher_CreateMultipleContributions extends CRM_Ban
         $suggestion->setId("create-$contact_id");
         $suggestion->setParameter('contact_id', $contact_id);
         $suggestion->setParameter('contributions', $contributions);
+        $suggestion->setParameter('skipped_contributions', $skipped_contributions);
         $suggestion->setParameter('notes', $notes);
 
         // Set probability manually, the automatic calculation provided by
@@ -373,6 +411,9 @@ class CRM_Banking_PluginImpl_Matcher_CreateMultipleContributions extends CRM_Ban
         }
       }
     }
+    $skipped_contributions = $match->getParameter('skipped_contributions');
+    $contributions = $contributions + $skipped_contributions;
+    ksort($contributions);
     $smarty_vars['contributions'] = $contributions;
     $smarty_vars['source_label'] = $this->_plugin_config->source_label;
 
@@ -435,6 +476,25 @@ class CRM_Banking_PluginImpl_Matcher_CreateMultipleContributions extends CRM_Ban
       )
     );
     return $contribution;
+  }
+
+  /**
+   * Validates contribution data.
+   *
+   * @param array $contribution
+   *   An array of paramters to use for creating a contribution.
+   *
+   * @return bool
+   *   Whether the contribution data is valid.
+   */
+  public static function validate_contribution_data($contribution) {
+    $mandatory = [
+      'contact_id',
+      'financial_type_id',
+    ];
+    return
+      !empty($contribution['id'])
+      || empty(array_diff_key(array_flip($mandatory), $contribution));
   }
 
 }

@@ -24,56 +24,60 @@
 </div>
 {else}
 <div>
-  {if !empty($notes)}
-    {capture assign=infoType}no-popup{/capture}
-    {capture assign=infoTitle}{ts domain='org.project60.banking'}Deviations detected{/ts}{/capture}
-    {capture assign=infoMessage}
-      <ul>
-        {foreach from=$notes item=note}
-          <li>{$note}</li>
-        {/foreach}
-      </ul>
-    {/capture}
-    {include file="CRM/common/info.tpl"}
-  {/if}
   <p>{ts domain='org.project60.banking'}The following contributions will be created:{/ts}</p>
   <ol>
-    {foreach from=$contributions item=contribution}
+    {foreach from=$contributions key=index item=contribution}
       <li>
-        <table border="1" style="empty-cells : hide;">
-          <tbody>
-            <tr>
-              <td>
-                <div class="btxlabel">{ts domain='org.project60.banking'}Donor{/ts}:&nbsp;</div>
-                <div class="btxvalue">{$contact_link}</div>
-              </td>
-              <td>
-                <div class="btxlabel">{ts domain='org.project60.banking'}Amount{/ts}:&nbsp;</div>
-                <div class="btxvalue">{$contribution.total_amount|crmMoney:$contribution.currency}</div>
-              </td>
-              <td>
-                <div class="btxlabel">{ts domain='org.project60.banking'}Date{/ts}:&nbsp;</div>
-                <div class="btxvalue">{$contribution.receive_date|crmDate:$config->dateformatFull}</div>
-              </td>
-              <td>
-                <div class="btxlabel">{ts domain='org.project60.banking'}Type{/ts}:&nbsp;</div>
-                <div class="btxvalue">{$contribution.financial_type}</div>
-              </td>
-            </tr>
-            {if $contribution.campaign or $contribution.source}
-            <tr>
-              <td colspan="2">
-                <div class="btxlabel">{ts domain='org.project60.banking'}Campaign{/ts}:&nbsp;</div>
-                <div class="btxvalue">{$contribution.campaign.title}</div>
-              </td>
-              <td colspan="2">
-                <div class="btxlabel">{$source_label}:&nbsp;</div>
-                <div class="btxvalue">{$contribution.source}</div>
-              </td>
-            </tr>
-            {/if}
-          </tbody>
-        </table>
+        {if $contribution.total_amount}
+          <table border="1" style="empty-cells : hide;">
+            <tbody>
+              <tr>
+                <td>
+                  <div class="btxlabel">{ts domain='org.project60.banking'}Donor{/ts}:&nbsp;</div>
+                  <div class="btxvalue">{$contact_link}</div>
+                </td>
+                <td>
+                  <div class="btxlabel">{ts domain='org.project60.banking'}Amount{/ts}:&nbsp;</div>
+                  <div class="btxvalue">{$contribution.total_amount|crmMoney:$contribution.currency}</div>
+                </td>
+                <td>
+                  <div class="btxlabel">{ts domain='org.project60.banking'}Date{/ts}:&nbsp;</div>
+                  <div class="btxvalue">{$contribution.receive_date|crmDate:$config->dateformatFull}</div>
+                </td>
+                <td>
+                  <div class="btxlabel">{ts domain='org.project60.banking'}Type{/ts}:&nbsp;</div>
+                  <div class="btxvalue">{$contribution.financial_type}</div>
+                </td>
+              </tr>
+              {if $contribution.campaign or $contribution.source}
+              <tr>
+                <td colspan="2">
+                  <div class="btxlabel">{ts domain='org.project60.banking'}Campaign{/ts}:&nbsp;</div>
+                  <div class="btxvalue">{$contribution.campaign.title}</div>
+                </td>
+                <td colspan="2">
+                  <div class="btxlabel">{$source_label}:&nbsp;</div>
+                  <div class="btxvalue">{$contribution.source}</div>
+                </td>
+              </tr>
+              {/if}
+            </tbody>
+          </table>
+        {else}
+          {ts domain='org.project60.banking'}The contribution is being skipped.{/ts}
+        {/if}
+        {if $notes.$index}
+          <ul>
+            {foreach from=$notes.$index item=note}
+              {capture assign=infoType}no-popup{/capture}
+              {capture assign=infoTitle}{ts domain='org.project60.banking'}Deviations detected{/ts}{/capture}
+              {capture assign=infoMessage}
+                  <li>{$note}</li>
+                {/capture}
+              {include file="CRM/common/info.tpl"}
+            {/foreach}
+          </ul>
+        {/if}
       </li>
     {/foreach}
   </ol>

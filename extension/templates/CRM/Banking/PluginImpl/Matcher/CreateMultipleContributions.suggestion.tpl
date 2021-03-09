@@ -25,12 +25,16 @@
 {else}
 <div>
   {if !empty($notes)}
-    <p>{ts domain='org.project60.banking'}The following notes have been generated:{/ts}</p>
-    <ul>
-      {foreach from=$notes item=note}
-        <li>{$note}</li>
-      {/foreach}
-    </ul>
+    {capture assign=infoType}no-popup{/capture}
+    {capture assign=infoTitle}{ts domain='org.project60.banking'}Deviations detected{/ts}{/capture}
+    {capture assign=infoMessage}
+      <ul>
+        {foreach from=$notes item=note}
+          <li>{$note}</li>
+        {/foreach}
+      </ul>
+    {/capture}
+    {include file="CRM/common/info.tpl"}
   {/if}
   <p>{ts domain='org.project60.banking'}The following contributions will be created:{/ts}</p>
   <ol>
@@ -56,15 +60,15 @@
                 <div class="btxvalue">{$contribution.financial_type}</div>
               </td>
             </tr>
-            {if $campaign or $source}
+            {if $contribution.campaign or $contribution.source}
             <tr>
               <td colspan="2">
                 <div class="btxlabel">{ts domain='org.project60.banking'}Campaign{/ts}:&nbsp;</div>
-                <div class="btxvalue">{$campaign.title}</div>
+                <div class="btxvalue">{$contribution.campaign.title}</div>
               </td>
               <td colspan="2">
                 <div class="btxlabel">{$source_label}:&nbsp;</div>
-                <div class="btxvalue">{$source}</div>
+                <div class="btxvalue">{$contribution.source}</div>
               </td>
             </tr>
             {/if}

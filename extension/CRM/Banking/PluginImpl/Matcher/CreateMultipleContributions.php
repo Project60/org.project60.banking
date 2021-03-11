@@ -440,14 +440,14 @@ class CRM_Banking_PluginImpl_Matcher_CreateMultipleContributions extends CRM_Ban
   function visualize_execution_info($match, $btx) {
     // just assign to smarty and compile HTML
     $smarty_vars = [];
-    $smarty_vars['contribution_id'] = $match->getParameter('contribution_id');
+    $smarty_vars['contribution_ids'] = $match->getParameter('contribution_ids');
     $smarty_vars['contact_id'] = $match->getParameter('contact_id');
 
     // assign to smarty and compile HTML
     $smarty = CRM_Banking_Helpers_Smarty::singleton();
     $smarty->pushScope($smarty_vars);
     $html_snippet = $smarty->fetch(
-      'CRM/Banking/PluginImpl/Matcher/CreateContribution.execution.tpl'
+      'CRM/Banking/PluginImpl/Matcher/CreateMultipleContributions.execution.tpl'
     );
     $smarty->popScope();
     return $html_snippet;

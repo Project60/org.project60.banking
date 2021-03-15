@@ -48,23 +48,71 @@ abstract class CRM_Banking_PluginModel_PostProcessor extends CRM_Banking_PluginM
   public abstract function processExecutedMatch(CRM_Banking_Matcher_Suggestion $match, CRM_Banking_PluginModel_Matcher $matcher, CRM_Banking_Matcher_Context $context);
 
   /**
-   * Should this postprocessor spring into action?
-   * Evaluates the common 'required' fields in the configuration
+   * Preview the postprocessing of the (not yet executed) match
    *
-   * @param $match    the executed match
-   * @param $btx      the related transaction
-   * @param $context  the matcher context contains cache data and context information
+   * @param CRM_Banking_Matcher_Suggestion $match
+   *   The executed match.
+   * @param CRM_Banking_BAO_BankTransaction $btx
+   *   The related transaction.
+   * @param CRM_Banking_PluginModel_Matcher $matcher
+   *   The matcher plugin executed.
+   * @param CRM_Banking_Matcher_Context $context
+   *    The matcher context contains cache data and context information.
    *
-   * @return bool     should the this postprocessor be activated
    */
-  protected function shouldExecute(CRM_Banking_Matcher_Suggestion $match, CRM_Banking_PluginModel_Matcher $matcher, CRM_Banking_Matcher_Context $context) {
+  public function previewMatch(CRM_Banking_Matcher_Suggestion $match,  CRM_Banking_PluginModel_Matcher $matcher, CRM_Banking_Matcher_Context $context) {
+    return $this->shouldExecute(
+      $match,
+      $matcher,
+      $context,
+      TRUE
+    ) ? $this->getName() : NULL;
+  }
+
+  /**
+   * Determines whether this post processor is to be executed.
+   *
+   * Evaluates the common 'required' fields in the configuration.
+   *
+   * @param CRM_Banking_Matcher_Suggestion $match
+   *   The executed match.
+   * @param CRM_Banking_BAO_BankTransaction $btx
+   *   The related transaction.
+   * @param CRM_Banking_Matcher_Context $context
+   *   The matcher context contains cache data and context information.
+   * @param bool $preview
+   *   Whether to preview the execution (i.e. not check btx status).
+   *
+   * @return bool
+   *   Whether this postprocessor is to be executed.
+   *
+   * @throws Exception
+   */
+  protected function shouldExecute(
+    CRM_Banking_Matcher_Suggestion $match,
+    CRM_Banking_PluginModel_Matcher $matcher,
+    CRM_Banking_Matcher_Context $context,
+    $preview = FALSE
+  ) {
     // check if the btx status is accepted
-    $config = $this->_plugin_config;
-    $btx_status_name = CRM_Core_OptionGroup::getValue('civicrm_banking.bank_tx_status', $context->btx->status_id, 'id', 'String', 'name');
-    if (!in_array($btx_status_name, $config->require_btx_status_list)) {
-      // TODO: log: NOT IN STATUS
-      $this->logMessage("Not executing, not in status " . json_encode($config->require_btx_status_list), 'debug');
-      return FALSE;
+    if (!$preview) {
+      $config = $this->_plugin_config;
+      $btx_status_name = CRM_Core_OptionGroup::getValue(
+        'civicrm_banking.bank_tx_status',
+        $context->btx->status_id,
+        'id',
+        'String',
+        'name'
+      );
+      if (!in_array($btx_status_name, $config->require_btx_status_list)) {
+        // TODO: log: NOT IN STATUS
+        $this->logMessage(
+          "Not executing, not in status "
+          . json_encode($config->require_btx_status_list),
+          'debug'
+        );
+        return FALSE;
+      }
     }
 
     // check required values

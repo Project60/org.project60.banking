@@ -44,16 +44,14 @@ class CRM_Banking_PluginImpl_PostProcessor_AddressUpdate extends CRM_Banking_Plu
   }
 
   /**
-   * Should this postprocessor spring into action?
-   * Evaluates the common 'required' fields in the configuration
-   *
-   * @param $match    the executed match
-   * @param $btx      the related transaction
-   * @param $context  the matcher context contains cache data and context information
-   *
-   * @return bool     should the this postprocessor be activated
+   * @inheritDoc
    */
-  protected function shouldExecute(CRM_Banking_Matcher_Suggestion $match, CRM_Banking_PluginModel_Matcher $matcher, CRM_Banking_Matcher_Context $context) {
+  protected function shouldExecute(
+    CRM_Banking_Matcher_Suggestion $match,
+    CRM_Banking_PluginModel_Matcher $matcher,
+    CRM_Banking_Matcher_Context $context,
+    $preview = FALSE
+  ) {
     $config = $this->_plugin_config;
 
     // check if there is a single contact

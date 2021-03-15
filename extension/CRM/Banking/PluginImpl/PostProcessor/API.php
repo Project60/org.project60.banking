@@ -38,16 +38,14 @@ class CRM_Banking_PluginImpl_PostProcessor_API extends CRM_Banking_PluginModel_P
   }
 
   /**
-   * Should this postprocessor spring into action?
-   * Evaluates the common 'required' fields in the configuration
-   *
-   * @param $match    the executed match
-   * @param $btx      the related transaction
-   * @param $context  the matcher context contains cache data and context information
-   *
-   * @return bool     should the this postprocessor be activated
+   * @inheritDoc
    */
-  protected function shouldExecute(CRM_Banking_Matcher_Suggestion $match, CRM_Banking_PluginModel_Matcher $matcher, CRM_Banking_Matcher_Context $context) {
+  protected function shouldExecute(
+    CRM_Banking_Matcher_Suggestion $match,
+    CRM_Banking_PluginModel_Matcher $matcher,
+    CRM_Banking_Matcher_Context $context,
+    $preview = FALSE
+  ) {
     $config = $this->_plugin_config;
 
     // check if an entity is set
@@ -61,7 +59,7 @@ class CRM_Banking_PluginImpl_PostProcessor_API extends CRM_Banking_PluginModel_P
     }
 
     // pass on to parent to check generic reasons
-    return parent::shouldExecute($match, $matcher, $context);
+    return parent::shouldExecute($match, $matcher, $context, $preview);
   }
 
 

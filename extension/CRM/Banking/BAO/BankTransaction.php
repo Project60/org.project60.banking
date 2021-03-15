@@ -176,7 +176,21 @@ class CRM_Banking_BAO_BankTransaction extends CRM_Banking_DAO_BankTransaction {
     $this->suggestion_objects = array();
   }
 
+  /**
+   * @param CRM_Banking_Matcher_Suggestion $suggestion
+   */
   public function addSuggestion($suggestion) {
+    // Add notification about post processors to be run on the suggestion.
+    $engine = CRM_Banking_Matcher_Engine::getInstance();
+    $suggestion->setParameter(
+      'post_processor_previews',
+      $engine->previewPostProcessors(
+        $suggestion,
+        $this,
+        $suggestion->getPlugin()
+      )
+    );
+
     $this->suggestion_objects[floor(100 * $suggestion->getProbability())][] = $suggestion;
   }
 

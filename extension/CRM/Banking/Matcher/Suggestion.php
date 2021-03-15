@@ -260,7 +260,21 @@ class CRM_Banking_Matcher_Suggestion {
     public function visualize(CRM_Banking_BAO_BankTransaction $btx = null, CRM_Banking_PluginModel_Matcher $plugin = null) {
         // if btx/plugin is not supplied (by the matcher engine), recreate it
         $this->_updateObjects($btx, $plugin);
-        return $this->_plugin->visualize_match($this, $btx);
+        $visualisation = $this->_plugin->visualize_match($this, $btx);
+
+        // Visualize post processors.
+        if (!empty($post_processor_previews = $this->getParameter(
+            'post_processor_previews'
+        ))) {
+            $visualisation .= '<p>' . E::ts('The following post processors may be executed after processing this suggestion:') . '</p>';
+            $visualisation .= '<ol>';
+            foreach ($post_processor_previews as $post_processor_preview) {
+                $visualisation .= '<li>' . $post_processor_preview . '</li>';
+            }
+            $visualisation .= '</ol>';
+        }
+
+        return $visualisation;
     }
 
     /**

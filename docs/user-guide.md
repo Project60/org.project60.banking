@@ -14,6 +14,10 @@ The extension provides the following general settings:
 
 ### Bank Account Settings
 
+!!! note "Bank Accounts"
+    When you install CiviBanking you will automatically get an additional tab on
+    your **Contact Summary** for **Bank Account**.
+
 - *Don't store bank accounts automatically*
 - *Normalise bank account references*
 - *Validate bank account references*

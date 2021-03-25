@@ -1,5 +1,3 @@
-## Terminology
-
 ## Hooks
 
 Some parts of CiviBanking can be customized using hooks. This would typically be

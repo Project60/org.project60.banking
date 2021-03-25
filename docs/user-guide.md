@@ -1,29 +1,10 @@
-## Extension Settings
+## Managing Bank Accounts
 
-The extension provides the following general settings:
+When you install CiviBanking you will automatically get an additional tab on
+your **Contact Summary** for **Bank Account**.
 
-### General Settings
-
-- *Statement User Interface*    
-  CiviBanking underwent a major user interface renovation. The traditional user
-  interface is being kept for legacy users and not being documented.
-- *CiviBanking Menu Position*
-- *Configuration Editor Default Mode*
-- *Log Level*
-- *Log File*
-
-### Bank Account Settings
-
-!!! note "Bank Accounts"
-    When you install CiviBanking you will automatically get an additional tab on
-    your **Contact Summary** for **Bank Account**.
-
-- *Don't store bank accounts automatically*
-- *Normalise bank account references*
-- *Validate bank account references*
-- *Probability of contact matching based on bank account*
-- *Lenient bank account dedupe*
-
+!!! note
+    This section is yet to be completed. 
 
 ## Importing Statements
 

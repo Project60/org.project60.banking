@@ -8,6 +8,7 @@ nav:
 - Introduction: index.md
 - User Guide: user-guide.md
 - Configuration:
+  - Extension Settings: configuration/settings.md
   - Concept: configuration/concept.md
   - Techie - How to create an importer: configuration/create-importer.md
   - Techie - Importer XML actions: configuration/importer-xml-actions.md

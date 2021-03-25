@@ -1,6 +1,3 @@
-!!! note This documentation section has been created with CiviCRM 5.6.0 in
-Drupal 7 with CiviBanking 0.7
-
 ## Introduction
 
 Configuring CiviBanking is a bit of a job. As it is pretty powerful and can
@@ -10,22 +7,15 @@ technical knowledge to understand all the steps required.
 
 !!! note "What if I want to know more?"
     Please note that this chapter does not mention all possibilities or options.
-    CiviBanking is very powerful and flexible, trying to write a guide that mentions
-    all possibilities would be a massive task. The amibition of this section is to
-    give you an example configuration and explain the concepts. If you have specific
-    needs or additional questions please contact an expert to discuss what is
-    possible? It might well be that you have read this chapter and think this is a
-    far too daunting step for you to take. If that is the case, please contact a
-    CiviCRM expert to help you. You can find CiviCRM experts on the Find an Expert
-    page on the [CiviCRM website](https://civicrm.org/partners-contributors).
-
-!!! note "Contribute?"
-    If you would like to contribute to the documentation of CiviBanking you can
-    certainly do so! Every now and then sprints to update the documentation are
-    organised. In most cases this will be announced on the CiviCRM channels. If you
-    want to make sure you are invited for the next one please
-    drop [betty.dolfing@civicoop.org](mailto:betty.dolfing@civicoop.org)
-    or [erik.hommel@civicoop.org](mailto:erik.hommel@civicoop.org) a mail.
+    CiviBanking is very powerful and flexible, trying to write a guide that
+    mentions all possibilities would be a massive task. The amibition of this
+    section is to give you an example configuration and explain the concepts. If
+    you have specific needs or additional questions please contact an expert to
+    discuss what is possible? It might well be that you have read this chapter
+    and think this is a far too daunting step for you to take. If that is the
+    case, please contact a CiviCRM expert to help you. You can find CiviCRM
+    experts on the Find an Expert page on the
+    [CiviCRM website](https://civicrm.org/partners-contributors).
 
 Technically speaking there are 3 steps in the CiviBanking process when reading
 and processing payments:
@@ -60,26 +50,15 @@ automatically).
 We will look into each step in some more detail in the following sections from a
 configuration point of view.
 
-## Settings
-
-In the **Administration Console** you get a **CiviBanking Settings** option in
-the **CiviContribute** tab as you see in the screenshot below:
-
-![Screenshot](../img/admin_console.png)
-
-If you select this option you will see the CiviBanking Settings:
-
-![Screenshot](../img/civibanking_settings.png)
-
 For this documentation section we assume you have accepted all the defaults in
 the CiviBanking Settings! There will be more detail about the CiviBanking
 settings in the [User Guide](../user-guide.md).
 
-## Examples?
+## Examples
 
 After you read this document, it's probably a good ida to have a look at the
-example configurations in
-our [Configuration Example Database](https://github.com/Project60/org.project60.banking/tree/master/configuration_database)
+example configurations in our
+[Configuration Example Database](https://github.com/Project60/org.project60.banking/tree/master/configuration_database)
 .
 
 ## Importing
@@ -429,9 +408,9 @@ check [How to create an importer](create-importer.md).
 
 !!! note
     The _payment_instrument_id_ is really important and should be
-    configured correctly. This means that the ID should exists in your database and
-    reflect the payment instrument you want to use for the incoming transactions,
-    for example Bank Transfer.
+    configured correctly. This means that the ID should exists in your database
+    and reflect the payment instrument you want to use for the incoming
+    transactions, for example Bank Transfer.
 
 Once you have completed the configuration of your CAMT53 importer you should
 test if it actually works!
@@ -444,8 +423,7 @@ Selecting this from the menu will bring up a form like the screenshot:
 You can see I have select **CAMT53** as the _configuration_. I have also set
 the _Dry run_ option to **Yes** so it does not actually import the file I am
 about to select, but just tells me if it _could_ import the file. I then click
-on **Browse** (or _Bladeren_ in my Dutch installation) to select the CAMT53 file
-I want to test with.
+on **Browse** to select the CAMT53 file I want to test with.
 
 ### CSV format
 

@@ -6,7 +6,7 @@ theme:
 
 nav:
 - Introduction: index.md
-- From a user perspective: user-perspective.md
+- User Guide: user-guide.md
 - Configuration explanation: config-explanation.md
 - Terminology: terminology.md
 - How To Guide: how-to.md

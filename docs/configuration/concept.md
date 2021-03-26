@@ -17,49 +17,19 @@ technical knowledge to understand all the steps required.
     experts on the Find an Expert page on the
     [CiviCRM website](https://civicrm.org/partners-contributors).
 
-Technically speaking there are 3 steps in the CiviBanking process when reading
-and processing payments:
+As denoted in the [User Guide](../user-guide.md), processing bank statements is
+divided into 4 steps:
 
 1. Importing
-1. Analyzing
-1. Matching
-
-The **first step (importing)** is translating the data from the original format
-to the basic generic format that CiviBanking understands. It is a bit as if
-CiviBanking can understand Esperanto, and can do all the following steps as long
-as the data is in Esperanto. The **importing** step will translate the dialect
-of your bank or other payment service into the CiviBanking Esperanto.
-
-The **second step (analyzing)** reads the transaction from the payments file and
-checks what it could find and do related to your CiviCRM installation. For
-example:
-
-* the payment could be linked to a certain contribution (will be the most common
-  case)
-* no contribution but there is a contact with the same name and bank account,
-  and a new contribution could be created
-* no contribution but there is a contact with the same name but no bank account,
-  and a new contribution could be created
-* the payment has nothing to do with CiviCRM
-* etc. etc.
-
-In the **third step (matching)** you pick one of the suggestions from the
-analyzing step and process that into CiviCRM (or configure the matcher to do so
-automatically).
+2. Analysing
+3. Matching
+4. Postprocessing
 
 We will look into each step in some more detail in the following sections from a
 configuration point of view.
 
 For this documentation section we assume you have accepted all the defaults in
-the CiviBanking Settings! There will be more detail about the CiviBanking
-settings in the [User Guide](../user-guide.md).
-
-## Examples
-
-After you read this document, it's probably a good ida to have a look at the
-example configurations in our
-[Configuration Example Database](https://github.com/Project60/org.project60.banking/tree/master/configuration_database)
-.
+the CiviBanking [Extension Settings](settings.md).
 
 ## Importing
 
@@ -139,7 +109,7 @@ configuration.
 
 If you want to know more about the configuration of an importer and how you can
 create your specific importer please
-check [How to create an importer](create-importer.md).
+check [How to create an importer](importer.md).
 
 ``` json
 {
@@ -501,7 +471,7 @@ configuration.
 
 If you want to know more about the configuration of an importer and how you can
 create your specific importer please
-check [How to create an importer](create-importer.md).
+check [How to create an importer](importer.md).
 
 !!! note
     The _payment_instrument_id_ is really important and should be configured
@@ -547,27 +517,55 @@ In the subsections below I will explain what the different **implementations**
 are and mean, and give you some examples of some of the implementations. This
 should give you a first idea of what is required. If you want to know more about
 creating your own plugins of the **Matcher** class, check the
-section [How to create a matcher](create-matcher.md).
-
-### Implementation Types
+section [How to create a matcher](analyser-matcher.md).
 
 Here is a comprehensive list of the different implementation types of
-Matcher/Analyser Plugins with a short sentence on what they can do. In the
-subsections you will see some examples of the ones that are most commonly used.
+Analyser Plugins with a short sentence on what they can do. In the subsections
+you will see some examples of the ones that are most commonly used.
 
-* **Default Options Matcher Plugin** - this plugin will be installed by default
+* **RegEx Analyser** - this plugin will try to find a certain pattern specified
+  in a Regular Expression (check
+  [here](https://en.wikipedia.org/wiki/Regular_expression)) for more about
+  Regular Expressions) and is then able to do something or enrich the data of
+  the transaction
+* **Account Lookup Analyser** - this plugin will be switched on by default and
+  enables a match based on bank account
+
+### Regex Analyser Plugin
+
+For example, an _Analyser Plugin_ might check in the imported data if the
+field **name** contains something like _PAYPAL_ or _paypal_, the financial type
+should be set to a certain value.
+
+The _analyser plugin_ will have configuration details to specify the _regular
+expression_ to look for (more information on Regular Expressions
+[here](https://en.wikipedia.org/wiki/Regular_expression)) and how to enrich the
+transaction data with the correct financial type.
+
+### Account Lookup Analyser
+
+!!! note
+    This section is yet to be completed.
+
+## Matching
+
+Here is a comprehensive list of the different implementation types of
+Matcher Plugins with a short sentence on what they can do. In the subsections
+you will see some examples of the ones that are most commonly used.
+
+* **Default Options Matcher** - this plugin will be installed by default
   and provide the default suggestions _process manually_ or _ignore in CiviCRM_
-* **Create Contribution Matcher Plugin** - a plugin that will create a
+* **Create Contribution Matcher** - a plugin that will create a
   contribution based on specific matches
 * **Contribution Matcher** - a plugin that will try to find a pending
   contribution matching the payment and set it to completed
-* **Recurring Contribution Matcher Plugin** - a plugin that will try to find a
+* **Recurring Contribution Matcher** - a plugin that will try to find a
   recurring contribution for the payment and create an installment (a linked
   completed contribution)
 * **SEPA Matcher** - a plugin that will try to find a SEPA mandate and record
   the payment as installment (find a pending contribution and set it to
   completed)
-* **Membership Matcher Plugin** - a plugin that will try to find a membership
+* **Membership Matcher** - a plugin that will try to find a membership
   and record the payment as a membership payment for this membership
 * **Ignore Matcher** - a matcher that will ignore payments that match the
   criteria (for payments that do not have to be in CiviCRM)
@@ -575,33 +573,52 @@ subsections you will see some examples of the ones that are most commonly used.
   CiviCRM and (if it is one big payment) distribute it over the entities in the
   batch. At least, that is the theory, we know of no installation that uses this
   plugin.
-* **RegEx Analyser** - this plugin will try to find a certain pattern specified
-  in a Regular Expression (
-  check [here](https://en.wikipedia.org/wiki/Regular_expression)) for more about
-  Regular Expressions) and is then able to do something or enrich the data of
-  the transaction
-* **Account Lookup Analyser** - this plugin will be switched on by default and
-  enables a match based on bank account
 * **Dummy Matcher Test Plugin** - is there for testing purposes, not really
   usable in real life
 
-#### Regex Analyser Plugin example
+#### Default Options Matcher
 
-For example, an _Analyser Plugin_ might check in the imported data if the
-field **name** contains something like _MOLLIE_ or _mollie_, the financial type
-should be set to a certain value.
+!!! note
+    This section is yet to be completed.
 
-The _analyser plugin_ will have configuration details to specify the _regular
-expression_ to look for (more information on Regular
-Expressions [here](https://en.wikipedia.org/wiki/Regular_expression)) and how to
-enrich the transaction data with the correct financial type.
+#### Create Contribution Matcher
 
-#### Contribution Matcher Plugin example
+!!! note
+    This section is yet to be completed.
 
-#### Create Contribution Matcher Plugin example
+#### Contribution Matcher
 
-#### Recurring Contribution Matcher Plugin
+!!! note
+    This section is yet to be completed.
 
-#### SEPA Matcher Plugin example
+#### Recurring Contribution Matcher
 
-#### Ignore Plugin example 
+!!! note
+    This section is yet to be completed.
+
+#### SEPA Matcher Plugin
+
+!!! note
+    This section is yet to be completed.
+
+#### Membership Matcher
+
+!!! note
+    This section is yet to be completed.
+
+#### Ignore Matcher
+
+!!! note
+    This section is yet to be completed.
+
+#### Batch Matcher
+
+!!! note
+    This section is yet to be completed.
+
+## Examples
+
+After you read this document, it's probably a good ida to have a look at the
+example configurations in our
+[Configuration Example Database](https://github.com/Project60/org.project60.banking/tree/master/configuration_database)
+.

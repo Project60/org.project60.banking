@@ -4,9 +4,70 @@ When you install CiviBanking you will automatically get an additional tab on
 your **Contact Summary** for **Bank Account**.
 
 !!! note
-    This section is yet to be completed. 
+    This section is yet to be completed.
 
-## Importing Statements
+## Processing Bank Satements
+
+Technically speaking there are 3 (4) steps in the CiviBanking process when reading
+and processing payments:
+
+1. Importing
+2. Analysing
+3. Matching
+4. Postprocessing (not always present)
+
+The **first step (Importing)** is translating the data from the original format
+to the basic generic format that CiviBanking understands. Since there are many
+standards for such bank statement file formats, each bank adds their own
+flavours, especially when outside the Single European Payment Area (SEPA), and
+CiviBanking can process payment reports from other payment services, there has
+to be an import plugin for each distinct file format configured to be processed
+by CiviBanking.
+
+See the [Importing Statements](#importing-statements) section for detailed
+information on how to import bank statements and the
+[Viewing Statements](#viewing-statements) section for detailed information on
+how to list and view imported bank transaction statements.
+
+The **second step (Analysing)** reads the transactions from the statement file
+and checks what it can find and do related to your CiviCRM installation. For
+example:
+
+* the payment could be linked to a certain contribution (will be the most common
+  case)
+* no contribution but a contact with the same name and bank account exists,
+  and a new contribution should be created
+* no contribution but a contact already exists with the same name, but without a
+  bank account, and a new contribution should be created
+* the payment has nothing to do with CiviCRM
+* etc.
+
+For each scenario, there will be analyser plugins for preparing data, and match
+plugins for creating suggestions on how to process the transaction. Each
+suggestion will be rated based on how confident CiviBanking is about each
+scenario, e.g. a donation should be assigned to a campaign and will be downrated
+if no matching campaign can be found.
+
+See the [Reviewing Statements](#reviewing-statements) section for detailed
+information on how to analyse and review bank statement transactions.
+
+In the **third step (Matching)** you pick one of the suggestions from the
+analyzing step and process the transaction. Each match plugin can be configured
+to do that automatically, when certain preconditions are met, e.g. SEPA Direct
+Debit transactions that already exist in CiviCRM can be automatically set to
+"Completed" when they can be unambiguously identified.
+
+See the [Processing Statements](#processing-statements) section for detailed
+information on how to match and process bank statement transactions.
+
+There may be a **fourth step (Postprocessing)** when post processing plugins
+have been configured in CiviBanking. This would involve additional tasks to do
+after transactions have already been processed as CiviCRM contributions, e.g.
+extending a corresponding membership or creating an activity for an address
+mismatch. This step does not involve any user interaction and will be performed
+automatically during processing the selected suggestion.
+
+### Importing Statements
 
 Once an importer plugin is being set up, bank statements can be imported using
 the *Import statements* which is accessible in the CiviBanking menu.
@@ -21,7 +82,7 @@ each processed transaction will be logged with its result, either success or
 error. At the bottom of the import result page, buttons are placed for importing
 again, and for reviewing the imported statement.
 
-## Viewing Statements
+### Viewing Statements
 
 From the CiviBanking menu, the *Show Statements* menu entry will lead to an
 overview of all imported statements, showing the following information:
@@ -59,7 +120,7 @@ For each transaction, the following operations can be selected:
 - *Review Transaction*
 - *Delete Transaction*
 
-## Reviewing Statements
+### Reviewing Statements
 
 When selecting to either review the complete statement or a single transaction,
 the CiviBanking review screen will be loaded for analysing and processing the
@@ -118,7 +179,7 @@ configurable within each match plugin and should be based on empiricial values,
 enabling the end user to trust these thresholds and be able to just select the
 most reliable suggestion for processing the transaction.
 
-### Examples
+#### Examples
 
 Given a transaction being a donation for a specific campaign, CiviBanking could
 be configured to suggest entering it as a contribution of the type "Donation",
@@ -139,7 +200,7 @@ could be configured to suggest to be process it by setting the contribution
 status to "Cancelled" and adding a cancel reason given in the transaction
 purpose.
 
-## Processing Statements
+### Processing Statements
 
 Once a suggestion has been selected, hitting *Confirm* will process it  with the
 plugin configuration that provided the suggestion. This is dependent on the

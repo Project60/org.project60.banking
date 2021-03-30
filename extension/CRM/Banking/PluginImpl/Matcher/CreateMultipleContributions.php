@@ -177,8 +177,13 @@ class CRM_Banking_PluginImpl_Matcher_CreateMultipleContributions extends CRM_Ban
                 'There are missing parameters for contribution %1 and the suggestion is thus being downgraded by %2 percent.',
                 [
                   1 => $index + 1,
-                  2 => $tier->missing_amount_penalty * 100,
+                  2 => $tier->missing_parameters_penalty * 100,
                 ]
+              );
+              $this->logMessage(
+                'Missing parameters for contribution ' . ($index + 1)
+                . ', applying penalty of ' . $tier->missing_parameters_penalty,
+                'warn'
               );
             }
           }
@@ -196,6 +201,13 @@ class CRM_Banking_PluginImpl_Matcher_CreateMultipleContributions extends CRM_Ban
                   2 => $index + 1,
                   3 => $tier->missing_amount_penalty * 100,
                 ]
+              );
+              $this->logMessage(
+                'Amount undercuts required amount of '
+                . $tier->contribution->total_amount
+                . ' for contribution ' . ($index + 1)
+                . ', applying penalty of ' . $tier->missing_amount_penalty,
+                'warn'
               );
             }
             continue;
@@ -218,6 +230,10 @@ class CRM_Banking_PluginImpl_Matcher_CreateMultipleContributions extends CRM_Ban
             }
             else {
               // Not enough information on how to enter the remainder amount.
+              $this->logMessage(
+                'Validation failed for remainder contribution',
+                'warn'
+              );
               continue;
             }
             // Process min/max amount penalties.
@@ -236,6 +252,12 @@ class CRM_Banking_PluginImpl_Matcher_CreateMultipleContributions extends CRM_Ban
                   2 => $config->remainder->min_amount_penalty * 100,
                 ]
               );
+              $this->logMessage(
+                'Amount undercuts minimum amount of '
+                . $config->remainder->min_amount . ' for remainder contribution'
+                . ', applying penalty of ' . $tier->$config->remainder->min_amount_penalty,
+                'warn'
+              );
             }
             if (
               !empty($config->remainder->max_amount)
@@ -252,10 +274,20 @@ class CRM_Banking_PluginImpl_Matcher_CreateMultipleContributions extends CRM_Ban
                   2 => $config->remainder->max_amount_penalty * 100,
                 ]
               );
+              $this->logMessage(
+                'Amount exceeds maximum amount of '
+                . $config->remainder->max_amount . ' for remainder contribution'
+                . ', applying penalty of ' . $tier->$config->remainder->max_amount_penalty,
+                'warn'
+              );
             }
           }
           else {
             // No information on how to enter the remainder amount.
+            $this->logMessage(
+              'Configuration missing for remainder contribution',
+              'warn'
+            );
             continue;
           }
         }

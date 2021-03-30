@@ -67,16 +67,19 @@
           {ts domain='org.project60.banking'}The contribution is being skipped.{/ts}
         {/if}
         {if $notes.$index}
-          <ul>
-            {foreach from=$notes.$index item=note}
-              {capture assign=infoType}no-popup{/capture}
-              {capture assign=infoTitle}{ts domain='org.project60.banking'}Deviations detected{/ts}{/capture}
-              {capture assign=infoMessage}
-                  <li>{$note}</li>
-                {/capture}
-              {include file="CRM/common/info.tpl"}
-            {/foreach}
-          </ul>
+          {capture assign=infoType}no-popup{/capture}
+          {capture assign=infoMessage}
+          {if $notes.$index|@count > 1}
+            <ul>
+              {foreach from=$notes.$index item=note}
+                <li>{$note}</li>
+              {/foreach}
+            </ul>
+          {else}
+            {$notes.$index.0}
+          {/if}
+          {/capture}
+          {include file="CRM/common/info.tpl"}
         {/if}
       </li>
     {/foreach}

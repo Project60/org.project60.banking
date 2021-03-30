@@ -158,7 +158,7 @@ class CRM_Banking_PluginImpl_Matcher_CreateMultipleContributions extends CRM_Ban
         $remainder = $data_parsed['amount_parsed'];
         $contributions = [];
         $skipped_contributions = [];
-        $indexs = 0;
+        $index = 0;
         foreach ($config->contributions as $index => $tier) {
           if ($remainder >= $tier->contribution->total_amount) {
             $contribution = array_merge(

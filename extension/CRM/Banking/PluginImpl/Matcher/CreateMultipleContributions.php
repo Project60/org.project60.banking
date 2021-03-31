@@ -221,81 +221,83 @@ class CRM_Banking_PluginImpl_Matcher_CreateMultipleContributions extends CRM_Ban
           }
         }
 
-        if ($remainder > 0) {
-          if (!empty($config->remainder)) {
-            $index++;
-            $contribution = array_merge(
-              (array) $config->defaults,
-              (array) $config->remainder->contribution + [
-                'total_amount' => $remainder,
-              ],
-              $this->get_contribution_data($btx, $contact_id)
+        if (!empty($config->remainder)) {
+          // Increase contribution count.
+          $index++;
+
+          // Process min/max amount penalties.
+          if (
+            !empty($config->remainder->min_amount)
+            && $remainder < $config->remainder->min_amount
+          ) {
+            $penalty += $config->remainder->min_amount_penalty;
+            $notes[$index][] = E::ts(
+              'The remainder amount undercuts the minimum amount of %1 and the suggestion is thus being downgraded by %2 percent.',
+              [
+                1 => CRM_Utils_Money::format(
+                  $config->remainder->min_amount,
+                  $btx->currency
+                ),
+                2 => $config->remainder->min_amount_penalty * 100,
+              ]
             );
-            if (self::validate_contribution_data($contribution)) {
-              $contributions[$index] = $contribution;
-            }
-            else {
-              // Not enough information on how to enter the remainder amount.
-              $this->logMessage(
-                'Validation failed for remainder contribution',
-                'warn'
-              );
-              continue;
-            }
-            // Process min/max amount penalties.
-            if (
-              !empty($config->remainder->min_amount)
-              && $remainder < $config->remainder->min_amount
-            ) {
-              $penalty += $config->remainder->min_amount_penalty;
-              $notes[$index][] = E::ts(
-                'The remainder amount undercuts the minimum amount of %1 and the suggestion is thus being downgraded by %2 percent.',
-                [
-                  1 => CRM_Utils_Money::format(
-                    $config->remainder->min_amount,
-                    $btx->currency
-                  ),
-                  2 => $config->remainder->min_amount_penalty * 100,
-                ]
-              );
-              $this->logMessage(
-                'Remainder amount undercuts minimum amount of '
-                . $config->remainder->min_amount . ' for remainder contribution'
-                . ', applying penalty of ' . $config->remainder->min_amount_penalty,
-                'warn'
-              );
-            }
-            if (
-              !empty($config->remainder->max_amount)
-              && $remainder > $config->remainder->max_amount
-            ) {
-              $penalty += $config->remainder->max_amount_penalty;
-              $notes[$index][] = E::ts(
-                'The remainder amount exceeds the maximum amount of %1 and the suggestion is thus being downgraded by %2 percent.',
-                [
-                  1 => CRM_Utils_Money::format(
-                    $config->remainder->max_amount,
-                    $btx->currency
-                  ),
-                  2 => $config->remainder->max_amount_penalty * 100,
-                ]
-              );
-              $this->logMessage(
-                'Remainder amount exceeds maximum amount of '
-                . $config->remainder->max_amount . ' for remainder contribution'
-                . ', applying penalty of ' . $config->remainder->max_amount_penalty,
-                'warn'
-              );
-            }
+            $this->logMessage(
+              'Remainder amount undercuts minimum amount of '
+              . $config->remainder->min_amount . ' for remainder contribution'
+              . ', applying penalty of ' . $config->remainder->min_amount_penalty,
+              'warn'
+            );
+          }
+          if (
+            !empty($config->remainder->max_amount)
+            && $remainder > $config->remainder->max_amount
+          ) {
+            $penalty += $config->remainder->max_amount_penalty;
+            $notes[$index][] = E::ts(
+              'The remainder amount exceeds the maximum amount of %1 and the suggestion is thus being downgraded by %2 percent.',
+              [
+                1 => CRM_Utils_Money::format(
+                  $config->remainder->max_amount,
+                  $btx->currency
+                ),
+                2 => $config->remainder->max_amount_penalty * 100,
+              ]
+            );
+            $this->logMessage(
+              'Remainder amount exceeds maximum amount of '
+              . $config->remainder->max_amount . ' for remainder contribution'
+              . ', applying penalty of ' . $config->remainder->max_amount_penalty,
+              'warn'
+            );
+          }
+
+          $contribution = array_merge(
+            (array) $config->defaults,
+            (array) $config->remainder->contribution + [
+              'total_amount' => $remainder,
+            ],
+            $this->get_contribution_data($btx, $contact_id)
+          );
+
+          if (self::validate_contribution_data($contribution)) {
+            $contributions[$index] = $contribution;
           }
           else {
-            // No information on how to enter the remainder amount.
+            // Not enough information on how to enter the remainder amount.
             $this->logMessage(
-              'Configuration missing for remainder contribution',
+              'Validation failed for remainder contribution',
               'warn'
             );
             continue;
           }
+        }
+        else {
+          // No information on how to enter the remainder amount.
+          $this->logMessage(
+            'Configuration missing for remainder contribution',
+            'warn'
+          );
+          continue;
         }
 
         $suggestion = new CRM_Banking_Matcher_Suggestion($this, $btx);
@@ -542,8 +544,11 @@ class CRM_Banking_PluginImpl_Matcher_CreateMultipleContributions extends CRM_Ban
       'financial_type_id',
     ];
     return
-      !empty($contribution['id'])
-      || empty(array_diff_key(array_flip($mandatory), $contribution));
+      (
+        !empty($contribution['id'])
+        || empty(array_diff_key(array_flip($mandatory), $contribution))
+      )
+      && $contribution['total_amount'] > 0;
   }
 
 }

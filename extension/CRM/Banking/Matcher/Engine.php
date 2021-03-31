@@ -214,8 +214,13 @@ class CRM_Banking_Matcher_Engine {
     $previews = [];
     foreach ($all_postprocessors as $weight => $postprocessors) {
       foreach ($postprocessors as $postprocessor) {
+        /* @var CRM_Banking_PluginModel_PostProcessor $postprocessor */
         try {
-          if (!empty($preview = $postprocessor->previewMatch($suggestion, $matcher, $context))) {
+          if (!empty($preview = $postprocessor->previewMatch(
+            $suggestion,
+            $matcher,
+            $context
+          ))) {
             $previews[] = $preview;
           }
         } catch (Exception $e) {

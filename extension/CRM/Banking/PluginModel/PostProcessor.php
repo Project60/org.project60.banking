@@ -59,8 +59,19 @@ abstract class CRM_Banking_PluginModel_PostProcessor extends CRM_Banking_PluginM
    * @param CRM_Banking_Matcher_Context $context
    *    The matcher context contains cache data and context information.
    *
+   * @return string | NULL
+   *   HTML markup describing what this post processor might/will be doing after
+   *   executing the selected match, or NULL when the post processor will
+   *   certainly not be process the executed match. If unsure whether the post
+   *   processor will process the exectued match, return something describing
+   *   that uncertainty and only return NULL if it really will not spring into
+   *   action.
    */
-  public function previewMatch(CRM_Banking_Matcher_Suggestion $match,  CRM_Banking_PluginModel_Matcher $matcher, CRM_Banking_Matcher_Context $context) {
+  public function previewMatch(
+    CRM_Banking_Matcher_Suggestion $match,
+    CRM_Banking_PluginModel_Matcher $matcher,
+    CRM_Banking_Matcher_Context $context
+  ) {
     return $this->shouldExecute(
       $match,
       $matcher,

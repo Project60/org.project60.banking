@@ -80,10 +80,12 @@ class CRM_Banking_PluginImpl_PostProcessor_MembershipExtension extends CRM_Banki
     CRM_Banking_Matcher_Context $context,
     $preview = FALSE
   ) {
-    $contributions = $this->getEligibleContributions($context);
-    if (empty($contributions)) {
-      $this->logMessage("No eligible contributions found.", "debug");
-      return FALSE;
+    if (!$preview) {
+      $contributions = $this->getEligibleContributions($context);
+      if (empty($contributions)) {
+        $this->logMessage("No eligible contributions found.", "debug");
+        return FALSE;
+      }
     }
 
     // pass on to parent to check generic reasons

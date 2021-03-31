@@ -54,8 +54,13 @@ class CRM_Banking_PluginImpl_PostProcessor_MembershipPayment extends CRM_Banking
     CRM_Banking_Matcher_Context $context,
     $preview = FALSE
   ) {
-    $contributions = $this->getEligibleContributions($context);
-    if (empty($contributions)) return FALSE;
+    if (!$preview) {
+      $contributions = $this->getEligibleContributions($context);
+      if (empty($contributions)) {
+        $this->logMessage("No eligible contributions found.", "debug");
+        return FALSE;
+      }
+    }
 
     // pass on to parent to check generic reasons
     return parent::shouldExecute($match, $matcher, $context);

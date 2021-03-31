@@ -170,8 +170,8 @@ class CRM_Banking_PluginImpl_Matcher_CreateMultipleContributions extends CRM_Ban
           if ($remainder >= $tier->contribution->total_amount) {
             $contribution = array_merge(
               (array) $config->defaults,
-              (array) $tier->contribution,
-              $this->get_contribution_data($btx, $contact_id)
+              $this->get_contribution_data($btx, $contact_id),
+              (array) $tier->contribution
             );
             if (self::validate_contribution_data($contribution)) {
               $contributions[$index] = $contribution;
@@ -273,10 +273,10 @@ class CRM_Banking_PluginImpl_Matcher_CreateMultipleContributions extends CRM_Ban
 
           $contribution = array_merge(
             (array) $config->defaults,
+            $this->get_contribution_data($btx, $contact_id),
             (array) $config->remainder->contribution + [
               'total_amount' => $remainder,
-            ],
-            $this->get_contribution_data($btx, $contact_id)
+            ]
           );
 
           if (self::validate_contribution_data($contribution)) {

@@ -1,0 +1,7 @@
+.crm-container table.suggestions .messages {
+  padding: 0.5em;
+}
+table.suggestions .messages .msg-text ul,
+table.suggestions .messages .msg-text ol {
+  margin-bottom: 0;
+}

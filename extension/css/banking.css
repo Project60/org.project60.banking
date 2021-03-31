@@ -140,6 +140,7 @@ td.suggest {
   font-size: 14px;
   color: #666;
   padding:  8px;
+  position: relative;
 }
 td.suggest h4 {
   font-family: Arial,sans-serif;
@@ -155,6 +156,20 @@ td.suggest ul {
 }
 td.suggest ul li{
   margin: 0 0 0 15px;
+}
+td.suggest .banking--postprocessor-preview {
+  top: 0;
+  right: 0;
+}
+td.suggest .banking--postprocessor-preview .crm-accordion-header {
+  padding: 0.5em;
+}
+td.suggest .banking--postprocessor-preview.collapsed {
+  position: absolute;
+}
+td.suggest .banking--postprocessor-preview.collapsed .crm-accordion-header {
+  border: none;
+  background: none !important;
 }
 table.explorer td.xk {
   background-color: #FAFAFA;

@@ -266,12 +266,19 @@ class CRM_Banking_Matcher_Suggestion {
         if (!empty($post_processor_previews = $this->getParameter(
             'post_processor_previews'
         ))) {
+          $visualisation .= '<div class="banking--postprocessor-preview crm-accordion-wrapper collapsed">'
+            . '<div class="crm-accordion-header">'
+            . E::ts('Post processors')
+            . '</div>'
+            . '<div class="crm-accordion-body">';
+
             $visualisation .= '<p>' . E::ts('The following post processors may be executed after processing this suggestion:') . '</p>';
             $visualisation .= '<ol>';
-            foreach ($post_processor_previews as $post_processor_preview) {
-                $visualisation .= '<li>' . $post_processor_preview . '</li>';
+            foreach ($post_processor_previews as $post_processor_title => $post_processor_preview) {
+                $visualisation .= '<li>' . $post_processor_title . $post_processor_preview . '</li>';
             }
             $visualisation .= '</ol>';
+            $visualisation .= '</div></div>';
         }
 
         return $visualisation;

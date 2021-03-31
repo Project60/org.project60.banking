@@ -216,12 +216,13 @@ class CRM_Banking_Matcher_Engine {
       foreach ($postprocessors as $postprocessor) {
         /* @var CRM_Banking_PluginModel_PostProcessor $postprocessor */
         try {
-          if (!empty($preview = $postprocessor->previewMatch(
+          // Check for NULL. An empty string is considered a valid preview.
+          if (!is_null($preview = $postprocessor->previewMatch(
             $suggestion,
             $matcher,
             $context
           ))) {
-            $previews[] = $preview;
+            $previews[$postprocessor->getName()] = $preview;
           }
         } catch (Exception $e) {
           $matcher_id = $matcher->getPluginID();

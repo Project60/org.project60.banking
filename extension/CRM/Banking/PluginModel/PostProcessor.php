@@ -77,7 +77,7 @@ abstract class CRM_Banking_PluginModel_PostProcessor extends CRM_Banking_PluginM
       $matcher,
       $context,
       TRUE
-    ) ? $this->getName() : NULL;
+    ) ? '' : NULL;
   }
 
   /**

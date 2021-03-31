@@ -255,7 +255,7 @@ class CRM_Banking_PluginImpl_Matcher_CreateMultipleContributions extends CRM_Ban
               $this->logMessage(
                 'Amount undercuts minimum amount of '
                 . $config->remainder->min_amount . ' for remainder contribution'
-                . ', applying penalty of ' . $tier->$config->remainder->min_amount_penalty,
+                . ', applying penalty of ' . $config->remainder->min_amount_penalty,
                 'warn'
               );
             }
@@ -277,7 +277,7 @@ class CRM_Banking_PluginImpl_Matcher_CreateMultipleContributions extends CRM_Ban
               $this->logMessage(
                 'Amount exceeds maximum amount of '
                 . $config->remainder->max_amount . ' for remainder contribution'
-                . ', applying penalty of ' . $tier->$config->remainder->max_amount_penalty,
+                . ', applying penalty of ' . $config->remainder->max_amount_penalty,
                 'warn'
               );
             }

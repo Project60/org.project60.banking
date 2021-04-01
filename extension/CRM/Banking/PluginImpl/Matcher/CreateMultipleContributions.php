@@ -271,27 +271,29 @@ class CRM_Banking_PluginImpl_Matcher_CreateMultipleContributions extends CRM_Ban
             );
           }
 
-          $contribution = array_merge(
-            (array) $config->defaults,
-            $this->get_contribution_data($btx, $contact_id),
-            (array) $config->remainder->contribution + [
-              'total_amount' => $remainder,
-            ]
-          );
-
-          if (self::validate_contribution_data($contribution)) {
-            $contributions[$index] = $contribution;
-          }
-          else {
-            // Not enough information on how to enter the remainder amount.
-            $this->logMessage(
-              'Validation failed for remainder contribution',
-              'warn'
+          if ($remainder > 0) {
+            $contribution = array_merge(
+              (array) $config->defaults,
+              $this->get_contribution_data($btx, $contact_id),
+              (array) $config->remainder->contribution + [
+                'total_amount' => $remainder,
+              ]
             );
-            continue;
+
+            if (self::validate_contribution_data($contribution)) {
+              $contributions[$index] = $contribution;
+            }
+            else {
+              // Not enough information on how to enter the remainder amount.
+              $this->logMessage(
+                'Validation failed for remainder contribution',
+                'warn'
+              );
+              continue;
+            }
           }
         }
-        else {
+        elseif ($remainder > 0) {
           // No information on how to enter the remainder amount.
           $this->logMessage(
             'Configuration missing for remainder contribution',

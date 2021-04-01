@@ -148,7 +148,15 @@ class CRM_Banking_Page_Review extends CRM_Core_Page {
             $reftype = substr($key, 7);
             $this->assign('party_account_ref',     $value);
             $this->assign('party_account_reftype', $reftype);
-            $reftype_name = CRM_Core_OptionGroup::getValue('civicrm_banking.reference_types', $reftype, 'name', 'String', 'label');
+            $reftype_name = civicrm_api3(
+              'OptionValue',
+              'getvalue',
+              [
+                'return' => 'label',
+                'option_group_id' => 'civicrm_banking.reference_types',
+                'name' => $reftype,
+              ]
+            );
             $this->assign('party_account_reftypename', $reftype_name);
             if ($reftype=='IBAN') {
               $this->assign('party_account_reftype2', $reftype);

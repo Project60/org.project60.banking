@@ -60,7 +60,15 @@ abstract class CRM_Banking_PluginModel_PostProcessor extends CRM_Banking_PluginM
   protected function shouldExecute(CRM_Banking_Matcher_Suggestion $match, CRM_Banking_PluginModel_Matcher $matcher, CRM_Banking_Matcher_Context $context) {
     // check if the btx status is accepted
     $config = $this->_plugin_config;
-    $btx_status_name = CRM_Core_OptionGroup::getValue('civicrm_banking.bank_tx_status', $context->btx->status_id, 'id', 'String', 'name');
+    $btx_status_name = civicrm_api3(
+      'OptionValue',
+      'getvalue',
+      [
+        'return' => 'name',
+        'option_group_id' => 'civicrm_banking.bank_tx_status',
+        'id' => $context->btx->status_id,
+      ]
+    );
     if (!in_array($btx_status_name, $config->require_btx_status_list)) {
       // TODO: log: NOT IN STATUS
       $this->logMessage("Not executing, not in status " . json_encode($config->require_btx_status_list), 'debug');

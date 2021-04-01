@@ -157,8 +157,24 @@ abstract class CRM_Banking_PluginModel_Exporter extends CRM_Banking_PluginModel_
     }
 
     // resolve status IDs
-    $result['tx_status']      = CRM_Core_OptionGroup::getValue('civicrm_banking.bank_tx_status', $result['tx_status_id'], 'id', 'String', 'name');
-    $result['tx_status_name'] = CRM_Core_OptionGroup::getValue('civicrm_banking.bank_tx_status', $result['tx_status_id'], 'id', 'String', 'label');
+    $result['tx_status'] = civicrm_api3(
+      'OptionValue',
+      'getvalue',
+      [
+        'return' => 'name',
+        'option_group_id' => 'civicrm_banking.bank_tx_status',
+        'id' => $result['tx_status_id'],
+      ]
+    );
+    $result['tx_status_name'] = civicrm_api3(
+      'OptionValue',
+      'getvalue',
+      [
+        'return' => 'label',
+        'option_group_id' => 'civicrm_banking.bank_tx_status',
+        'id' => $result['tx_status_id'],
+      ]
+    );
 
     // add all data_parsed
     $data_parsed = $tx_bao->getDataParsed();

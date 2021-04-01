@@ -169,7 +169,15 @@ abstract class CRM_Banking_PluginModel_Base {
    */
   function getTypeName() {
     $type_id = $this->_plugin_dao->plugin_class_id;
-    return CRM_Core_OptionGroup::getValue('civicrm_banking.plugin_types', $type_id, 'id', 'String', 'name');
+    return civicrm_api3(
+      'OptionValue',
+      'getvalue',
+      [
+        'return' => 'name',
+        'option_group_id' => 'civicrm_banking.plugin_types',
+        'id' => $type_id,
+      ]
+    );
   }
 
   function getPluginID() {

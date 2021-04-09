@@ -52,6 +52,7 @@ class CRM_Banking_PluginImpl_Matcher_ExistingContribution extends CRM_Banking_Pl
     if (!isset($config->received_date_maximum))      $config->received_date_maximum = "+1 days";
     if (!isset($config->date_penalty))               $config->date_penalty = 1.0;
     if (!isset($config->payment_instrument_penalty)) $config->payment_instrument_penalty = 0.0;
+    if (!isset($config->financial_type_penalty))     $config->financial_type_penalty = 0.0;
 
     // amount check / amount penalty
     if (!isset($config->amount_check))            $config->amount_check = "1";
@@ -145,6 +146,17 @@ class CRM_Banking_PluginImpl_Matcher_ExistingContribution extends CRM_Banking_Pl
       }
     }
 
+    // Apply financial type mismatch penalty.
+    $financial_type_penalty = 0.0;
+    if (
+      $config->financial_type_penalty
+      && isset($contribution['financial_type_id'])
+      && isset($parsed_data['financial_type_id'])
+      && $contribution['financial_type_id'] != $parsed_data['financial_type_id']
+    ) {
+      $financial_type_penalty = $config->financial_type_penalty;
+    }
+
     $penalty = 0.0;
     if ($date_range)   $penalty += $config->date_penalty * ($date_delta / $date_range);
     if ($amount_range) $penalty += $config->amount_penalty * (abs($amount_delta) / $amount_range);
@@ -152,6 +164,7 @@ class CRM_Banking_PluginImpl_Matcher_ExistingContribution extends CRM_Banking_Pl
       $penalty += $config->currency_penalty;
     }
     $penalty += (float) $payment_instrument_penalty;
+    $penalty += (float) $financial_type_penalty;
 
     return max(0, 1.0 - $penalty);
   }

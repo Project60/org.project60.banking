@@ -89,7 +89,7 @@ class CRM_Banking_PluginImpl_PostProcessor_MembershipExtension extends CRM_Banki
     }
 
     // pass on to parent to check generic reasons
-    return parent::shouldExecute($match, $matcher, $context);
+    return parent::shouldExecute($match, $matcher, $context, $preview);
   }
 
   /**

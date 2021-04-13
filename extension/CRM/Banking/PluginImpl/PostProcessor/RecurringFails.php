@@ -66,7 +66,7 @@ class CRM_Banking_PluginImpl_PostProcessor_RecurringFails extends CRM_Banking_Pl
     }
 
     // pass on to parent to check generic filters
-    return parent::shouldExecute($match, $matcher, $context);
+    return parent::shouldExecute($match, $matcher, $context, $preview);
   }
 
 

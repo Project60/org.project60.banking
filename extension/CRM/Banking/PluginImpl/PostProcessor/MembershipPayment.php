@@ -63,7 +63,7 @@ class CRM_Banking_PluginImpl_PostProcessor_MembershipPayment extends CRM_Banking
     }
 
     // pass on to parent to check generic reasons
-    return parent::shouldExecute($match, $matcher, $context);
+    return parent::shouldExecute($match, $matcher, $context, $preview);
   }
 
   /**

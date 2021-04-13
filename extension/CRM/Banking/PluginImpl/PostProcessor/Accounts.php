@@ -79,7 +79,7 @@ class CRM_Banking_PluginImpl_PostProcessor_Accounts extends CRM_Banking_PluginMo
     }
 
     // pass on to parent to check generic reasons
-    return parent::shouldExecute($match, $matcher, $context);
+    return parent::shouldExecute($match, $matcher, $context, $preview);
   }
 
 

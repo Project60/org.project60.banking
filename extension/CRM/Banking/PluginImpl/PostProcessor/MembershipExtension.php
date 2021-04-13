@@ -92,6 +92,76 @@ class CRM_Banking_PluginImpl_PostProcessor_MembershipExtension extends CRM_Banki
     return parent::shouldExecute($match, $matcher, $context, $preview);
   }
 
+  public function previewMatch(
+    CRM_Banking_Matcher_Suggestion $match,
+    CRM_Banking_PluginModel_Matcher $matcher,
+    CRM_Banking_Matcher_Context $context
+  ) {
+    $preview = NULL;
+    $config = $this->_plugin_config;
+    if ($this->shouldExecute($match, $matcher, $context, TRUE)) {
+      // TODO: Filter estimated contribution properties?
+      $config->financial_type_ids;
+      $config->contribution_status_ids;
+      $config->payment_instrument_ids;
+      $config->payment_instrument_ids_exclude;
+
+      $contribution_dummy = [
+        'contact_id' => $match->getParameter('contact_id'),
+        'receive_date' => $context->btx->value_date,
+        'total_amount' => $context->btx->amount,
+      ];
+      $memberships = $this->getEligibleMemberships(
+        $contribution_dummy,
+        $match,
+        $context
+      );
+      if (!empty($memberships)) {
+        $membership = reset($memberships);
+        $preview = ' &ndash; '
+          . E::ts(
+            'A <a href="%1">membership</a> was found and will be extended from <em>%2</em> by <em>%3</em>.',
+          [
+            1 => CRM_Utils_System::url("civicrm/contact/view/membership?action=view&reset=1&cid={$membership['contact_id']}&id={$membership['id']}"),
+            2 => $config->extend_from,
+            3 => $config->extend_by
+          ]);
+        if ($config->align_end_date) {
+          $preview .= ' '
+            . E::ts(
+              'The end date will be aligned to the <em>%1</em>',
+              [1 => $config->align_end_date]
+            );
+        }
+        if (count($memberships) > 1) {
+          $preview .= '<div class="messages status no-popup">'
+            . '<div class="icon inform-icon"></div>'
+            . '<span class="msg-text">'
+            . E::ts('More than one membership was found, only the first will be processed.')
+            . '</span>'
+            . '</div>';
+        }
+      }
+      elseif (!$config->create_if_not_found) {
+        $preview = ' &ndash; '
+          . E::ts(
+            'A new membership of the type <em>%1</em> will be created for the contact, starting from <em>%2</em>.',
+            [
+              1 => self::getMembershipType($config->create_type_id)['name'],
+              2 => self::getMembershipStartDate(
+                $config->create_start_date,
+                $contribution_dummy['receive_date']
+              ),
+            ]
+          );
+      }
+      else {
+        $preview = E::ts('No membership is likely to be extended.');
+      }
+    }
+    return $preview;
+  }
+
   /**
    * Postprocess the (already executed) match
    *
@@ -150,23 +220,10 @@ class CRM_Banking_PluginImpl_PostProcessor_MembershipExtension extends CRM_Banki
     ];
 
     // set start date
-    $time_base = strtotime($contribution['receive_date']);
-    switch ($config->create_start_date) {
-      case 'next_first':
-        if (date('j') != 1) {
-          $time_base = strtotime("+1 month", $time_base);
-        }
-        $membership_data['start_date'] = date('Y-m-01', $time_base);
-        break;
-
-      case 'last_first':
-        $membership_data['start_date'] = date('Y-m-01', $time_base);
-        break;
-
-      default:
-      case 'receive_date':
-        $membership_data['start_date'] = date('Y-m-d', $time_base);
-    }
+    $membership_data['start_date'] = self::getMembershipStartDate(
+      $config->create_start_date,
+      $contribution['receive_date']
+    );
 
     // create the membership
     $this->logMessage("Creating membership: " . json_encode($membership_data), 'debug');
@@ -311,11 +368,10 @@ class CRM_Banking_PluginImpl_PostProcessor_MembershipExtension extends CRM_Banki
 
     // OPTION 2: FIND VIA MEMBERSHIP PAYMENT LINK
     if ($config->find_via_payment) {
-      $contribution_id = (int) $contribution['id'];
-      if ($contribution_id) {
+      if (!empty($contribution['id'])) {
         try {
           $contribution_memberships = civicrm_api3('MembershipPayment', 'get', [
-              'contribution_id'   => $contribution_id,
+              'contribution_id'   => (int) $contribution['id'],
               'return'            => 'membership_id',
               'option.limit'      => 0]);
           foreach ($contribution_memberships['values'] as $contacts_membership) {
@@ -509,5 +565,26 @@ class CRM_Banking_PluginImpl_PostProcessor_MembershipExtension extends CRM_Banki
     }
 
     return CRM_Utils_Array::value($membership_type_id, self::$_membership_types, NULL);
+  }
+
+  protected static function getMembershipStartDate($start_date_param, $receive_date) {
+    $time_base = strtotime($receive_date);
+    switch ($start_date_param) {
+      case 'next_first':
+        if (date('j') != 1) {
+          $time_base = strtotime("+1 month", $time_base);
+        }
+        $membership_start_date = date('Y-m-01', $time_base);
+        break;
+
+      case 'last_first':
+        $membership_start_date = date('Y-m-01', $time_base);
+        break;
+
+      default:
+      case 'receive_date':
+      $membership_start_date = date('Y-m-d', $time_base);
+    }
+    return $membership_start_date;
   }
 }

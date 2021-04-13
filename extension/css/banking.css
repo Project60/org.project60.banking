@@ -123,11 +123,10 @@ table.suggestions table tr.suggestion:hover {
 }
 table.suggestions table tr.suggestion-selected {
   background-color: #e6e6bb;
-  border: 2px solid gray;
+  outline: 2px solid gray;
 }
 table.suggestions table tr.suggestion-selected:hover {
   background-color: #dedeb6;
-  border: 2px solid gray;
 }
 td.prob {
   font-size: 18px;
@@ -158,18 +157,28 @@ td.suggest ul li{
   margin: 0 0 0 15px;
 }
 td.suggest .banking--postprocessor-preview {
+  top: 2px; /* Due to 2px outline */
+  right: 8px;
+}
+.suggestion:first-child td.suggest .banking--postprocessor-preview {
   top: 0;
-  right: 0;
+}
+.suggestion-selected td.suggest .banking--postprocessor-preview {
+  top: 0;
 }
 td.suggest .banking--postprocessor-preview .crm-accordion-header {
-  padding: 0.5em;
+  padding: 0.125em 0.5em;
+}
+td.suggest .banking--postprocessor-preview .crm-accordion-body {
+  padding: 8px;
+  background: white;
 }
 td.suggest .banking--postprocessor-preview.collapsed {
   position: absolute;
 }
 td.suggest .banking--postprocessor-preview.collapsed .crm-accordion-header {
-  border: none;
-  background: none !important;
+  border-top-left-radius: 0;
+  border-top-right-radius: 0;
 }
 table.explorer td.xk {
   background-color: #FAFAFA;

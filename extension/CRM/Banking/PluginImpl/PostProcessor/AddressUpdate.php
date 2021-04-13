@@ -109,6 +109,7 @@ class CRM_Banking_PluginImpl_PostProcessor_AddressUpdate extends CRM_Banking_Plu
       if ($config->create_if_missing) {
         $preview .= '<li>If the contact does not have an address, a new address will be created.</li>';
       }
+      $preview .= '</ul>';
     }
     return $preview;
   }

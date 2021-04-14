@@ -87,6 +87,12 @@ class CRM_Banking_PluginImpl_PostProcessor_MembershipExtension extends CRM_Banki
         return FALSE;
       }
     }
+    elseif (
+      empty($match->getParameter('contact_id'))
+      && empty($match->getParameter('contact_ids'))
+    ) {
+      return FALSE;
+    }
 
     // pass on to parent to check generic reasons
     return parent::shouldExecute($match, $matcher, $context, $preview);
@@ -111,52 +117,99 @@ class CRM_Banking_PluginImpl_PostProcessor_MembershipExtension extends CRM_Banki
         'receive_date' => $context->btx->value_date,
         'total_amount' => $context->btx->amount,
       ];
-      $memberships = $this->getEligibleMemberships(
-        $contribution_dummy,
-        $match,
-        $context
-      );
-      if (!empty($memberships)) {
-        $membership = reset($memberships);
-        $preview = ' &ndash; '
-          . E::ts(
-            'A <a href="%1">membership</a> was found and will be extended from <em>%2</em> by <em>%3</em>.',
-          [
-            1 => CRM_Utils_System::url("civicrm/contact/view/membership?action=view&reset=1&cid={$membership['contact_id']}&id={$membership['id']}"),
-            2 => $config->extend_from,
-            3 => $config->extend_by
-          ]);
-        if ($config->align_end_date) {
-          $preview .= ' '
-            . E::ts(
-              'The end date will be aligned to the <em>%1</em>',
-              [1 => $config->align_end_date]
-            );
-        }
-        if (count($memberships) > 1) {
-          $preview .= '<div class="messages status no-popup">'
-            . '<div class="icon inform-icon"></div>'
-            . '<span class="msg-text">'
-            . E::ts('More than one membership was found, only the first will be processed.')
-            . '</span>'
-            . '</div>';
-        }
-      }
-      elseif (!$config->create_if_not_found) {
-        $preview = ' &ndash; '
-          . E::ts(
-            'A new membership of the type <em>%1</em> will be created for the contact, starting from <em>%2</em>.',
+      if ($contribution_dummy['contact_id']) {
+        $memberships = $this->getEligibleMemberships(
+          $contribution_dummy,
+          $match,
+          $context
+        );
+        if (!empty($memberships)) {
+          $membership = reset($memberships);
+          $extend_from = self::getMembershipExtensionAttribute(
+            'extend_from',
             [
-              1 => self::getMembershipType($config->create_type_id)['name'],
-              2 => self::getMembershipStartDate(
-                $config->create_start_date,
-                $contribution_dummy['receive_date']
-              ),
+              'extend_from' => $config->extend_from,
+              'end_date' => strtotime($membership['end_date']),
+              'receive_date' => strtotime($contribution_dummy['receive_date']),
             ]
           );
+          $extend_by = self::getMembershipExtensionAttribute(
+            'extend_by',
+            [
+              'extend_by' => $config->extend_by,
+              'membership_type_id' => $membership['membership_type_id'],
+            ]
+          );
+          $extend_to = strtotime($extend_by, $extend_from);
+          $preview = ' &ndash; '
+            . E::ts(
+              'A <a href="%1">membership</a> was found and will be extended from <em>%2</em> by <em>%3</em> until <em>%4</em>.',
+              [
+                1 => CRM_Utils_System::url("civicrm/contact/view/membership?action=view&reset=1&cid={$membership['contact_id']}&id={$membership['id']}"),
+                2 => CRM_Utils_Date::customFormat(
+                  date_create()->setTimestamp($extend_from)->format('Ymd'),
+                  CRM_Core_Config::singleton()->dateformatFull
+                ),
+                3 => trim($extend_by, '+-'),
+                4 => CRM_Utils_Date::customFormat(
+                  date_create()->setTimestamp($extend_to)->format('Ymd'),
+                  CRM_Core_Config::singleton()->dateformatFull
+                ),
+              ]);
+          if ($config->align_end_date) {
+            $preview .= ' '
+              . E::ts(
+                'The end date will be aligned to the <em>%1</em>',
+                [1 => $config->align_end_date]
+              );
+          }
+          if (count($memberships) > 1) {
+            $preview .= '<div class="messages status no-popup">'
+              . '<div class="icon inform-icon"></div>'
+              . '<span class="msg-text">'
+              . E::ts('More than one membership was found, only the first will be processed.')
+              . '</span>'
+              . '</div>';
+          }
+        }
+        elseif ($config->create_if_not_found) {
+          $preview = ' &ndash; '
+            . E::ts(
+              'A new membership of the type <em>%1</em> will be created for the contact, starting from <em>%2</em>.',
+              [
+                1 => self::getMembershipType($config->create_type_id)['name'],
+                2 => self::getMembershipExtensionAttribute(
+                  'create_start_date',
+                  [
+                    'create_start_date' => $config->create_start_date,
+                    'receive_date' => $contribution_dummy['receive_date'],
+                  ]
+                )
+              ]
+            );
+        }
       }
-      else {
-        $preview = E::ts('No membership is likely to be extended.');
+      elseif (!empty($match->getParameter('contact_ids'))) {
+        $preview = ' &ndash; '
+          . E::ts(
+            'A membership for the selected contact might be extended'
+          );
+        if ($config->create_if_not_found) {
+          $preview .= E::ts(
+            ' or a new membership of the type <em>%1</em> might be created for the contact, starting from <em>%2</em>',
+            [
+              1 => self::getMembershipType($config->create_type_id)['name'],
+              2 => self::getMembershipExtensionAttribute(
+                'create_start_date',
+                [
+                  'create_start_date' => $config->create_start_date,
+                  'receive_date' => $contribution_dummy['receive_date'],
+                ]
+              )
+            ]
+          );
+        }
+        $preview .= '.';
       }
     }
     return $preview;
@@ -220,9 +273,12 @@ class CRM_Banking_PluginImpl_PostProcessor_MembershipExtension extends CRM_Banki
     ];
 
     // set start date
-    $membership_data['start_date'] = self::getMembershipStartDate(
-      $config->create_start_date,
-      $contribution['receive_date']
+    $membership_data['start_date'] = self::getMembershipExtensionAttribute(
+      'create_start_date',
+      [
+        'create_start_date' => $config->create_start_date,
+        'receive_date' => $contribution['receive_date'],
+      ]
     );
 
     // create the membership
@@ -245,38 +301,25 @@ class CRM_Banking_PluginImpl_PostProcessor_MembershipExtension extends CRM_Banki
     $config = $this->_plugin_config;
 
     // find out from which point it should be extended
-    $end_date     = strtotime($membership['end_date']);
-    $receive_date = strtotime($contribution['receive_date']);
-    $new_end_date = NULL;
-    switch ($config->extend_from) {
-      case 'min':
-        $new_end_date = min($end_date, $receive_date);
-        break;
-
-      case 'end_date':
-        $new_end_date = $end_date;
-        break;
-
-        default:
-      case 'payment_date':
-        $new_end_date = $receive_date;
-        break;
-    }
+    $new_end_date = self::getMembershipExtensionAttribute(
+      'extend_from',
+      [
+        'extend_from' => $config->extend_from,
+        'end_date' => strtotime($membership['end_date']),
+        'receive_date' => strtotime($contribution['receive_date'])
+      ]
+    );
 
     // now extend by the date
-    if ($config->extend_by == 'period') {
-      $membership_type = self::getMembershipType($membership['membership_type_id']);
-      if ($membership_type['duration_unit'] == 'lifetime') {
-        $this->logMessage("Extending lifetime membership [{$membership['id']}] by 25 years", 'debug');
-        $new_end_date = strtotime("+25 years", $new_end_date);
-      } else {
-        $this->logMessage("Extending membership [{$membership['id']}] by {$membership_type['duration_interval']} {$membership_type['duration_unit']}", 'debug');
-        $new_end_date = strtotime("+{$membership_type['duration_interval']} {$membership_type['duration_unit']}", $new_end_date);
-      }
-    } else {
-      $this->logMessage("Extending membership [{$membership['id']}] by {$config->extend_by}", 'debug');
-      $new_end_date = strtotime($config->extend_by, $new_end_date);
-    }
+    $extend_by = self::getMembershipExtensionAttribute(
+      'extend_by',
+      [
+        'extend_by' => $config->extend_by,
+        'membership_type_id' => $membership['membership_type_id'],
+      ]
+    );
+    $this->logMessage("Extending membership [{$membership['id']}] by {$extend_by}", 'debug');
+    $new_end_date = strtotime($extend_by, $new_end_date);
 
     // finally align the result
     if ($config->align_end_date == 'next_last') {
@@ -567,24 +610,63 @@ class CRM_Banking_PluginImpl_PostProcessor_MembershipExtension extends CRM_Banki
     return CRM_Utils_Array::value($membership_type_id, self::$_membership_types, NULL);
   }
 
-  protected static function getMembershipStartDate($start_date_param, $receive_date) {
-    $time_base = strtotime($receive_date);
-    switch ($start_date_param) {
-      case 'next_first':
-        if (date('j') != 1) {
-          $time_base = strtotime("+1 month", $time_base);
+  protected static function getMembershipExtensionAttribute($attribute, $params) {
+    $value = NULL;
+    switch ($attribute) {
+      case 'create_start_date':
+        $time_base = strtotime($params['receive_date']);
+        switch ($params['create_start_date']) {
+          case 'next_first':
+            if (date('j') != 1) {
+              $time_base = strtotime("+1 month", $time_base);
+            }
+            $value = date('Y-m-01', $time_base);
+            break;
+
+          case 'last_first':
+            $value = date('Y-m-01', $time_base);
+            break;
+
+          default:
+          case 'receive_date':
+          $value = date('Y-m-d', $time_base);
         }
-        $membership_start_date = date('Y-m-01', $time_base);
         break;
+      case 'extend_from':
+        switch ($params['extend_from']) {
+          case 'min':
+            $value = min($params['end_date'], $params['receive_date']);
+            break;
 
-      case 'last_first':
-        $membership_start_date = date('Y-m-01', $time_base);
+          case 'end_date':
+            $value = $params['end_date'];
+            break;
+
+          default:
+          case 'payment_date':
+          $value = $params['receive_date'];
+            break;
+        }
         break;
-
+      case 'extend_by':
+        if ($params['extend_by'] == 'period') {
+          $membership_type = self::getMembershipType($params['membership_type_id']);
+          if ($membership_type['duration_unit'] == 'lifetime') {
+            $value = '+25 years';
+          }
+          else {
+            $value = "+{$membership_type['duration_interval']} {$membership_type['duration_unit']}";
+          }
+        }
+        else {
+          $value = $params['extend_by'];
+        }
+        break;
       default:
-      case 'receive_date':
-      $membership_start_date = date('Y-m-d', $time_base);
+        throw new Exception('Unknown attribute name.');
     }
-    return $membership_start_date;
+
+    return $value;
   }
+
 }

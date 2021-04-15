@@ -615,22 +615,40 @@ class CRM_Banking_PluginImpl_PostProcessor_MembershipExtension extends CRM_Banki
     $value = NULL;
     switch ($attribute) {
       case 'create_start_date':
-        $time_base = strtotime($params['receive_date']);
+        switch ($params['create_start_date_reference'])  {
+          case 'receive_date':
+            $start_date_reference = strtotime($params['receive_date']);
+            break;
+          default:
+            $start_date_reference = strtotime($params['create_start_date_reference']);
+            break;
+        }
         switch ($params['create_start_date']) {
           case 'next_first':
+            // Set the start_date to the first day of the next month.
             if (date('j') != 1) {
-              $time_base = strtotime("+1 month", $time_base);
+              $start_date_reference = strtotime("+1 month", $start_date_reference);
             }
-            $value = date('Y-m-01', $time_base);
+            $value = date('Y-m-01', $start_date_reference);
             break;
-
           case 'last_first':
-            $value = date('Y-m-01', $time_base);
+            // Set the start_date to the first day of the current month.
+            $value = date('Y-m-01', $start_date_reference);
             break;
-
-          default:
           case 'receive_date':
-          $value = date('Y-m-d', $time_base);
+            // Set the start_date to receive_date.
+            $value = date(
+              'Y-m-d',
+              strtotime($params['receive_date'])
+            );
+            break;
+          default:
+            // Use DateTime parser for creating the start_date.
+            $value = date(
+              'Y-m-d',
+              strtotime($params['create_start_date'], $start_date_reference)
+            );
+            break;
         }
         break;
       case 'extend_from':

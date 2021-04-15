@@ -64,7 +64,8 @@ class CRM_Banking_PluginImpl_PostProcessor_MembershipExtension extends CRM_Banki
     // create of not found
     if (!isset($config->create_if_not_found))            $config->create_if_not_found            = FALSE;  // do we want to create a membership, if none is found?
     if (!isset($config->create_type_id))                 $config->create_type_id                 = 1;      // membership_type_id to create
-    if (!isset($config->create_start_date))              $config->create_start_date              = 'receive_date';  // could also be: 'next_first' or 'last_first'
+    if (!isset($config->create_start_date))              $config->create_start_date              = 'receive_date';  // could also be 'next_first', 'last_first', or anything the DateTime parser understands.
+    if (!isset($config->create_start_date_reference))    $config->create_start_date_reference    = 'receive_date';  // could also be anything the DateTime parser understands.
     if (!isset($config->create_source))                  $config->create_source                  = 'CiviBanking';
 
     // membership_payment link

@@ -266,9 +266,12 @@ class CRM_Banking_Matcher_Suggestion {
         if (!empty($post_processor_previews = $this->getParameter(
             'post_processor_previews'
         ))) {
+          $count = count($post_processor_previews);
           $visualisation .= '<div class="banking--postprocessor-preview crm-accordion-wrapper collapsed">'
             . '<div class="crm-accordion-header">'
-            . E::ts('Post processors')
+            . ($count == 1
+              ? E::ts('1 Post Processor')
+              : E::ts('%1 Post Processors', [1 => $count]))
             . '</div>'
             . '<div class="crm-accordion-body">';
 

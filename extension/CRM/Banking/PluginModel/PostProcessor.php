@@ -63,7 +63,7 @@ abstract class CRM_Banking_PluginModel_PostProcessor extends CRM_Banking_PluginM
    *   HTML markup describing what this post processor might/will be doing after
    *   executing the selected match, or NULL when the post processor will
    *   certainly not be process the executed match. If unsure whether the post
-   *   processor will process the exectued match, return something describing
+   *   processor will process the executed match, return something describing
    *   that uncertainty and only return NULL if it really will not spring into
    *   action.
    */

@@ -173,17 +173,22 @@ class CRM_Banking_PluginImpl_PostProcessor_MembershipExtension extends CRM_Banki
           }
         }
         elseif ($config->create_if_not_found) {
+          $create_start_date = self::getMembershipExtensionAttribute(
+            'create_start_date',
+            [
+              'create_start_date' => $config->create_start_date,
+              'create_start_date_reference' => $config->create_start_date_reference,
+              'receive_date' => $contribution_dummy['receive_date'],
+            ]
+          );
           $preview = ' &ndash; '
             . E::ts(
               'A new membership of the type <em>%1</em> will be created for the contact, starting from <em>%2</em>.',
               [
                 1 => self::getMembershipType($config->create_type_id)['name'],
-                2 => self::getMembershipExtensionAttribute(
-                  'create_start_date',
-                  [
-                    'create_start_date' => $config->create_start_date,
-                    'receive_date' => $contribution_dummy['receive_date'],
-                  ]
+                2 => CRM_Utils_Date::customFormat(
+                  date_create_from_format('Y-m-d', $create_start_date)->format('Ymd'),
+                  CRM_Core_Config::singleton()->dateformatFull
                 )
               ]
             );
@@ -195,16 +200,21 @@ class CRM_Banking_PluginImpl_PostProcessor_MembershipExtension extends CRM_Banki
             'A membership for the selected contact might be extended'
           );
         if ($config->create_if_not_found) {
+          $create_start_date = self::getMembershipExtensionAttribute(
+            'create_start_date',
+            [
+              'create_start_date' => $config->create_start_date,
+              'create_start_date_reference' => $config->create_start_date_reference,
+              'receive_date' => $contribution_dummy['receive_date'],
+            ]
+          );
           $preview .= E::ts(
             ' or a new membership of the type <em>%1</em> might be created for the contact, starting from <em>%2</em>',
             [
               1 => self::getMembershipType($config->create_type_id)['name'],
-              2 => self::getMembershipExtensionAttribute(
-                'create_start_date',
-                [
-                  'create_start_date' => $config->create_start_date,
-                  'receive_date' => $contribution_dummy['receive_date'],
-                ]
+              2 => CRM_Utils_Date::customFormat(
+                date_create_from_format('Y-m-d', $create_start_date)->format('Ymd'),
+                CRM_Core_Config::singleton()->dateformatFull
               )
             ]
           );

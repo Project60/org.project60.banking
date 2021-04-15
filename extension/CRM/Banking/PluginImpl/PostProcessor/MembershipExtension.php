@@ -183,6 +183,7 @@ class CRM_Banking_PluginImpl_PostProcessor_MembershipExtension extends CRM_Banki
                   'create_start_date',
                   [
                     'create_start_date' => $config->create_start_date,
+                    'create_start_date_reference' => $config->create_start_date_reference,
                     'receive_date' => $contribution_dummy['receive_date'],
                   ]
                 )
@@ -204,6 +205,7 @@ class CRM_Banking_PluginImpl_PostProcessor_MembershipExtension extends CRM_Banki
                 'create_start_date',
                 [
                   'create_start_date' => $config->create_start_date,
+                  'create_start_date_reference' => $config->create_start_date_reference,
                   'receive_date' => $contribution_dummy['receive_date'],
                 ]
               )
@@ -278,6 +280,7 @@ class CRM_Banking_PluginImpl_PostProcessor_MembershipExtension extends CRM_Banki
       'create_start_date',
       [
         'create_start_date' => $config->create_start_date,
+        'create_start_date_reference' => $config->create_start_date_reference,
         'receive_date' => $contribution['receive_date'],
       ]
     );

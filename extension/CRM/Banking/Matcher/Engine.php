@@ -202,6 +202,38 @@ class CRM_Banking_Matcher_Engine {
   }
 
   /**
+   * Previews the execution of post processors on a given suggestion.
+   *
+   * @param CRM_Banking_Matcher_Suggestion $suggestion
+   * @param CRM_Banking_BAO_BankTransaction $btx
+   * @param CRM_Banking_PluginModel_Matcher $matcher
+   */
+  public function previewPostProcessors($suggestion, $btx, $matcher) {
+    $context = new CRM_Banking_Matcher_Context($btx);
+    $all_postprocessors = $this->getPostprocessors();
+    $previews = [];
+    foreach ($all_postprocessors as $weight => $postprocessors) {
+      foreach ($postprocessors as $postprocessor) {
+        /* @var CRM_Banking_PluginModel_PostProcessor $postprocessor */
+        try {
+          // Check for NULL. An empty string is considered a valid preview.
+          if (!is_null($preview = $postprocessor->previewMatch(
+            $suggestion,
+            $matcher,
+            $context
+          ))) {
+            $previews[$postprocessor->getName()] = $preview;
+          }
+        } catch (Exception $e) {
+          $matcher_id = $matcher->getPluginID();
+          error_log("org.project60.banking - Exception during the preview of postprocessor [$matcher_id], error was: ".$e->getMessage());
+        }
+      }
+    }
+    return $previews;
+  }
+
+  /**
    * will run the postprocessors on the recently executed match
    */
   public function runPostProcessors($suggestion, $btx, $matcher) {

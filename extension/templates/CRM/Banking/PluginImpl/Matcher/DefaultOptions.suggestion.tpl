@@ -82,14 +82,14 @@
   var contact_ids2probablility = {$contact_ids2probablility};
 
   {literal}
-  
+
   // add 'refresh list' action after all AJAX calls
   cj(document).on('crmPopupClose', manual_match_refresh_list);
   cj(document).on('crmPopupFormSuccess', manual_match_refresh_list);
   cj(document).on('crmFormSuccess', manual_match_refresh_list);
 
-  /** 
-   * refresh the table showing the related contributions 
+  /**
+   * refresh the table showing the related contributions
    */
   function manual_match_refresh_list() {
     // clear the table
@@ -113,9 +113,9 @@
     }
   }
 
-  /** 
-   * Loads a contact into to the option list. 
-   * It also triggers loading the next id from the list in the hidden field 
+  /**
+   * Loads a contact into to the option list.
+   * It also triggers loading the next id from the list in the hidden field
    */
   function manual_match_load_contact_into_contact_list(contact_id, select) {
     CRM.api3("Contact", "get", {"sequential": 1, "id": contact_id},
@@ -155,7 +155,7 @@
 
             // ...add to selector list
             cj("#manual_match_contact_selector").append(item);
-          
+
           } else {
             alert("Contact [" + contact_id + "] not found!");
 
@@ -181,8 +181,8 @@
       });
   }
 
-  /** 
-   * create/refresh the table showing the related contacts 
+  /**
+   * create/refresh the table showing the related contacts
    */
   function manual_match_create_contact_list() {
     // clear the options
@@ -196,8 +196,8 @@
     }
   }
 
-  /** 
-   * append the given contribution data set to the contribution list 
+  /**
+   * append the given contribution data set to the contribution list
    */
   function manual_match_add_data_to_list(data) {
     if (data.count>0) {
@@ -235,7 +235,7 @@
     }
   }
 
-  /** 
+  /**
    * update the sum field, showing the total of all related contribtions
    */
   function manual_match_update_sum() {
@@ -255,7 +255,7 @@
     }
   }
 
-  /** 
+  /**
    * create a new contribution with the selected contact
    */
   function manual_match_create_contribution() {
@@ -268,9 +268,9 @@
     }
     // ok, we have a contact -> create a new (test) contribution
     CRM.api3("Contribution", "create", { "sequential": 1,
-                                        "contact_id": contact_id, 
-                                        "is_test": 1, 
-                                        "total_amount": parseFloat({/literal}{$btx.amount}{literal}).toFixed(2), 
+                                        "contact_id": contact_id,
+                                        "is_test": 1,
+                                        "total_amount": parseFloat({/literal}{$btx.amount}{literal}).toFixed(2),
                                         "is_pay_later": 1,
                                         "receive_date": "{/literal}{$booking_date}{literal}",
                                         "currency": "{/literal}{$btx.currency}{literal}",
@@ -291,10 +291,10 @@
         // ...also open editor
         banking_open_link("{/literal}{$edit_contribution_link}{literal}", {"__contributionid__":contribution.id, "__contactid__":contribution.contact_id}, true);
       }
-    });                    
+    });
   }
 
-  /** 
+  /**
    * open a create contribution dialogue. Unfortunately it is not possible
    * to automatically add this contribution to the list.
    */
@@ -302,7 +302,7 @@
     banking_open_link("{/literal}{$new_contribution_link}{literal}", {}, false);
   }
 
-  /** 
+  /**
    * triggered when the user wants to manually add a contribution as related
    */
   function manual_match_add_contribution() {
@@ -367,12 +367,12 @@
         manual_match_load_contact_into_contact_list(contact_id, true);
       }
     }
-    
-    cj("#manual_match_add_contact_input").val("");            
+
+    cj("#manual_match_add_contact_input").val("");
     return false;
   }
 
-  /** 
+  /**
    * will add the given contribution_id to the (hidden) input field
    */
   function manual_match_add_contribution_to_field(contribution_id) {
@@ -385,7 +385,7 @@
     }
   }
 
-  /** 
+  /**
    * will remove the given contribution from the list of related contributions
    */
   function manual_match_remove_contribution(contribution_id) {
@@ -399,7 +399,7 @@
       manual_match_refresh_list();
   }
 
-  /** 
+  /**
    * will open a contact view with the selected panel
    */
   function manual_match_show_selected_contact() {

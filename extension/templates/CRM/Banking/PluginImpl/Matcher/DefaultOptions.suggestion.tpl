@@ -278,7 +278,7 @@
                                         "source": "{/literal}{$manual_default_source}{literal}",
                                         "financial_type_id": "{/literal}{$manual_default_financial_type_id}{literal}",
                                         {/literal}{foreach from=$create_propagation item=value key=key}
-                                        "{$key}": "{$value}",
+                                        {if $key !=note}"{$key}": "{$value}",{/if}
                                         {/foreach}{literal}
                                       },
       { success: function(data) {

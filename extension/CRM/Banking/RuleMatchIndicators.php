@@ -49,6 +49,9 @@ class CRM_Banking_RuleMatchIndicators
     public function addContactMatchIndicator()
     {
         $contactName = $this->transaction->getDataParsed()['name'];
+        if (empty($contactName)) {
+          return;
+        }
 
         $sql =
         "SELECT

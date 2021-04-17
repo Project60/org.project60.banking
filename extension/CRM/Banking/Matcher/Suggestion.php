@@ -260,7 +260,31 @@ class CRM_Banking_Matcher_Suggestion {
     public function visualize(CRM_Banking_BAO_BankTransaction $btx = null, CRM_Banking_PluginModel_Matcher $plugin = null) {
         // if btx/plugin is not supplied (by the matcher engine), recreate it
         $this->_updateObjects($btx, $plugin);
-        return $this->_plugin->visualize_match($this, $btx);
+        $visualisation = $this->_plugin->visualize_match($this, $btx);
+
+        // Visualize post processors.
+        if (!empty($post_processor_previews = $this->getParameter(
+            'post_processor_previews'
+        ))) {
+          $count = count($post_processor_previews);
+          $visualisation .= '<div class="banking--postprocessor-preview crm-accordion-wrapper collapsed">'
+            . '<div class="crm-accordion-header">'
+            . ($count == 1
+              ? E::ts('1 Post Processor')
+              : E::ts('%1 Post Processors', [1 => $count]))
+            . '</div>'
+            . '<div class="crm-accordion-body">';
+
+            $visualisation .= '<p>' . E::ts('The following post processors may be executed after processing this suggestion:') . '</p>';
+            $visualisation .= '<ol>';
+            foreach ($post_processor_previews as $post_processor_title => $post_processor_preview) {
+                $visualisation .= '<li>' . $post_processor_title . $post_processor_preview . '</li>';
+            }
+            $visualisation .= '</ol>';
+            $visualisation .= '</div></div>';
+        }
+
+        return $visualisation;
     }
 
     /**

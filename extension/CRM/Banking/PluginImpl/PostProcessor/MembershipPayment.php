@@ -46,21 +46,24 @@ class CRM_Banking_PluginImpl_PostProcessor_MembershipPayment extends CRM_Banking
   }
 
   /**
-   * Should this postprocessor spring into action?
-   * Evaluates the common 'required' fields in the configuration
-   *
-   * @param $match    CRM_Banking_Matcher_Suggestion  the executed match
-   * @param $matcher  CRM_Banking_PluginModel_Matcher the related transaction
-   * @param $context  CRM_Banking_Matcher_Context     the matcher context contains cache data and context information
-   *
-   * @return bool     should the this postprocessor be activated
+   * @inheritDoc
    */
-  protected function shouldExecute(CRM_Banking_Matcher_Suggestion $match, CRM_Banking_PluginModel_Matcher $matcher, CRM_Banking_Matcher_Context $context) {
-    $contributions = $this->getEligibleContributions($context);
-    if (empty($contributions)) return FALSE;
+  protected function shouldExecute(
+    CRM_Banking_Matcher_Suggestion $match,
+    CRM_Banking_PluginModel_Matcher $matcher,
+    CRM_Banking_Matcher_Context $context,
+    $preview = FALSE
+  ) {
+    if (!$preview) {
+      $contributions = $this->getEligibleContributions($context);
+      if (empty($contributions)) {
+        $this->logMessage("No eligible contributions found.", "debug");
+        return FALSE;
+      }
+    }
 
     // pass on to parent to check generic reasons
-    return parent::shouldExecute($match, $matcher, $context);
+    return parent::shouldExecute($match, $matcher, $context, $preview);
   }
 
   /**

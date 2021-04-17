@@ -139,6 +139,7 @@ td.suggest {
   font-size: 14px;
   color: #666;
   padding:  8px;
+  position: relative;
 }
 td.suggest h4 {
   font-family: Arial,sans-serif;
@@ -154,6 +155,30 @@ td.suggest ul {
 }
 td.suggest ul li{
   margin: 0 0 0 15px;
+}
+td.suggest .banking--postprocessor-preview {
+  top: 2px; /* Due to 2px outline */
+  right: 8px;
+}
+.suggestion:first-child td.suggest .banking--postprocessor-preview {
+  top: 0;
+}
+.suggestion-selected td.suggest .banking--postprocessor-preview {
+  top: 0;
+}
+td.suggest .banking--postprocessor-preview .crm-accordion-header {
+  padding: 0.125em 0.5em;
+}
+td.suggest .banking--postprocessor-preview .crm-accordion-body {
+  padding: 8px;
+  background: white;
+}
+td.suggest .banking--postprocessor-preview.collapsed {
+  position: absolute;
+}
+td.suggest .banking--postprocessor-preview.collapsed .crm-accordion-header {
+  border-top-left-radius: 0;
+  border-top-right-radius: 0;
 }
 table.explorer td.xk {
   background-color: #FAFAFA;

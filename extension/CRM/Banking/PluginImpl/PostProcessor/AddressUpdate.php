@@ -44,20 +44,22 @@ class CRM_Banking_PluginImpl_PostProcessor_AddressUpdate extends CRM_Banking_Plu
   }
 
   /**
-   * Should this postprocessor spring into action?
-   * Evaluates the common 'required' fields in the configuration
-   *
-   * @param $match    the executed match
-   * @param $btx      the related transaction
-   * @param $context  the matcher context contains cache data and context information
-   *
-   * @return bool     should the this postprocessor be activated
+   * @inheritDoc
    */
-  protected function shouldExecute(CRM_Banking_Matcher_Suggestion $match, CRM_Banking_PluginModel_Matcher $matcher, CRM_Banking_Matcher_Context $context) {
+  protected function shouldExecute(
+    CRM_Banking_Matcher_Suggestion $match,
+    CRM_Banking_PluginModel_Matcher $matcher,
+    CRM_Banking_Matcher_Context $context,
+    $preview = FALSE
+  ) {
     $config = $this->_plugin_config;
 
     // check if there is a single contact
-    $contact_id = $this->getSoleContactID($context);
+    $contact_id = (
+      $preview ?
+        $match->getParameter('contact_id')
+          ?: $match->getParameter('contact_ids')
+        : $this->getSoleContactID($context));
     if (empty($contact_id)) {
       return FALSE;
     }
@@ -72,7 +74,44 @@ class CRM_Banking_PluginImpl_PostProcessor_AddressUpdate extends CRM_Banking_Plu
     }
 
     // pass on to parent to check generic reasons
-    return parent::shouldExecute($match, $matcher, $context);
+    return parent::shouldExecute($match, $matcher, $context, $preview);
+  }
+
+  public function previewMatch(
+    CRM_Banking_Matcher_Suggestion $match,
+    CRM_Banking_PluginModel_Matcher $matcher,
+    CRM_Banking_Matcher_Context $context
+  ) {
+    $preview = NULL;
+    $config = $this->_plugin_config;
+    if (
+      $this->shouldExecute(
+      $match,
+      $matcher,
+      $context,
+      TRUE
+    )
+      && (
+        !empty($config->create_diff)
+        || !empty($config->create_if_missing)
+      )
+    ) {
+      $preview = '<ul>';
+      if (in_array('note', $config->create_diff)) {
+        $preview .= '<li>A note will be created on the contact denoting differing address data.</li>';
+      }
+      if (in_array('activity', $config->create_diff)) {
+        $preview .= '<li>An activity will be created denoting differing address data.</li>';
+      }
+      if (in_array('tag', $config->create_diff)) {
+        $preview .= '<li>A tag will be created on the contact denoting differing address data.</li>';
+      }
+      if ($config->create_if_missing) {
+        $preview .= '<li>If the contact does not have an address, a new address will be created.</li>';
+      }
+      $preview .= '</ul>';
+    }
+    return $preview;
   }
 
 

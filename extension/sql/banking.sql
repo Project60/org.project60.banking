@@ -98,8 +98,14 @@ CREATE TABLE IF NOT EXISTS `civicrm_bank_plugin_instance` (
 )  ENGINE=INNODB DEFAULT CHARACTER SET utf8 COLLATE utf8_unicode_ci  ;
 
 
--- These structures will provide the data for the
---  CRM_Banking_PluginImpl_Matcher_Rules matcher
+-- /*******************************************************
+-- *
+-- * civicrm_bank_rules
+-- *
+-- * These structures will provide the data for the
+-- *  CRM_Banking_PluginImpl_Matcher_Rules matcher
+-- *
+-- *******************************************************/
 CREATE TABLE IF NOT EXISTS `civicrm_bank_rules` (
 -- matching rule id
      `id`            int unsigned  NOT NULL AUTO_INCREMENT,
@@ -137,3 +143,21 @@ CREATE TABLE IF NOT EXISTS `civicrm_bank_rules` (
      INDEX `type`         (`type`),
      CONSTRAINT FK_civicrm_bank_rules_created_by FOREIGN KEY (`created_by`) REFERENCES `civicrm_contact`(`id`) ON DELETE SET NULL
 ) ENGINE=InnoDB DEFAULT CHARACTER SET utf8 COLLATE utf8_unicode_ci;
+
+-- /*******************************************************
+-- *
+-- * civicrm_bank_tx_contribution
+-- *
+-- * this structure will link bank transactions to contributions
+-- *
+-- *******************************************************/
+CREATE TABLE IF NOT EXISTS `civicrm_bank_tx_contribution` (
+      `id`              INT UNSIGNED NOT NULL AUTO_INCREMENT  COMMENT 'ID',
+      `bank_tx_id`      INT UNSIGNED NOT NULL                 COMMENT 'Link to a bank transaction',
+      `contribution_id` INT UNSIGNED NOT NULL                 COMMENT 'Link to a contribution',
+      PRIMARY KEY ( `id` ),
+      INDEX `contribution_id` (contribution_id),
+      INDEX `bank_tx_id` (bank_tx_id),
+      CONSTRAINT FK_civicrm_bank_tx_contribution_tx           FOREIGN KEY (`id`) REFERENCES `civicrm_bank_tx`(`id`) ON DELETE CASCADE,
+      CONSTRAINT FK_civicrm_bank_tx_contribution_contribution FOREIGN KEY (`id`) REFERENCES `civicrm_contribution`(`id`) ON DELETE CASCADE
+)  ENGINE=INNODB DEFAULT CHARACTER SET utf8 COLLATE utf8_unicode_ci;

@@ -235,13 +235,13 @@ class CRM_Banking_Upgrader extends CRM_Banking_Upgrader_Base {
     $this->executeSqlFile('sql/banking.sql');
 
     // schedule migrating existing transactions ($batch_size at a time)
-    $batch_size = 1;
+    $batch_size = 250;
     $min_bank_tx_id = CRM_Core_DAO::singleValueQuery("SELECT MIN(id) FROM civicrm_bank_tx;");
     $max_bank_tx_id = CRM_Core_DAO::singleValueQuery("SELECT MAX(id) FROM civicrm_bank_tx;");
     $current_bank_tx_id = $min_bank_tx_id;
     while ($current_bank_tx_id <= $max_bank_tx_id) {
       $this->ctx->queue->createItem(
-        CRM_Banking_BAO_BankTransactionContribution::migrationTask($current_bank_tx_id, $batch_size));
+        new CRM_Banking_Helpers_ContributionLinkMigration($current_bank_tx_id, $batch_size));
       $current_bank_tx_id += $batch_size;
     }
     return true;

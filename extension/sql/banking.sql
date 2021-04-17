@@ -158,6 +158,6 @@ CREATE TABLE IF NOT EXISTS `civicrm_bank_tx_contribution` (
       PRIMARY KEY ( `id` ),
       INDEX `contribution_id` (contribution_id),
       INDEX `bank_tx_id` (bank_tx_id),
-      CONSTRAINT FK_civicrm_bank_tx_contribution_tx           FOREIGN KEY (`id`) REFERENCES `civicrm_bank_tx`(`id`) ON DELETE CASCADE,
-      CONSTRAINT FK_civicrm_bank_tx_contribution_contribution FOREIGN KEY (`id`) REFERENCES `civicrm_contribution`(`id`) ON DELETE CASCADE
+      CONSTRAINT FK_civicrm_bank_tx_contribution_tx           FOREIGN KEY (`bank_tx_id`)      REFERENCES `civicrm_bank_tx`(`id`) ON DELETE CASCADE,
+      CONSTRAINT FK_civicrm_bank_tx_contribution_contribution FOREIGN KEY (`contribution_id`) REFERENCES `civicrm_contribution`(`id`) ON DELETE CASCADE
 )  ENGINE=INNODB DEFAULT CHARACTER SET utf8 COLLATE utf8_unicode_ci;

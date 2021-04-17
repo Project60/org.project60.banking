@@ -1,7 +1,7 @@
 <?php
 /*-------------------------------------------------------+
 | Project 60 - CiviBanking                               |
-| Copyright (C) 2013-2018 SYSTOPIA                       |
+| Copyright (C) 2013-2021 SYSTOPIA                       |
 | Author: B. Endres (endres -at- systopia.de)            |
 | http://www.systopia.de/                                |
 +--------------------------------------------------------+
@@ -13,6 +13,7 @@
 | copyright header is strictly prohibited without        |
 | written permission from the original author(s).        |
 +--------------------------------------------------------*/
+
 
 /**
  * Class contains functions for CiviBanking bank transactions
@@ -132,16 +133,16 @@ class CRM_Banking_BAO_BankTransaction extends CRM_Banking_DAO_BankTransaction {
   public function setDataParsed($data) {
     $this->data_parsed = json_encode($data);
     $sql = "
-      UPDATE 
-        civicrm_bank_tx 
-      SET 
+      UPDATE
+        civicrm_bank_tx
+      SET
         data_parsed = '" . $this->escape($this->data_parsed) . "'
-      WHERE 
+      WHERE
       id = {$this->id};";
-    $dao = CRM_Core_DAO::executeQuery($sql);    
+    $dao = CRM_Core_DAO::executeQuery($sql);
     $this->getDataParsed(true);
   }
-  
+
   /**
    * get a suggestion by its hash key
    */
@@ -196,7 +197,7 @@ class CRM_Banking_BAO_BankTransaction extends CRM_Banking_DAO_BankTransaction {
 
   /**
    * Persist suggestiosn for this BTX by converting them into a specific JSON string
-   * 
+   *
    * TODO: fix problem by which a $bao->save() operation screws up the date values
    */
   public function saveSuggestions() {
@@ -209,22 +210,22 @@ class CRM_Banking_BAO_BankTransaction extends CRM_Banking_DAO_BankTransaction {
     }
     $this->suggestions = json_encode($sugs);
     $sql = "
-      UPDATE civicrm_bank_tx SET 
+      UPDATE civicrm_bank_tx SET
       suggestions = '" . $this->escape($this->suggestions) . "'
       WHERE id = {$this->id}
       ";
     $dao = CRM_Core_DAO::executeQuery($sql);
   }
 
-  /** 
-   * Update this BTX's status. Does not use the $bao>save() technique because of the 
+  /**
+   * Update this BTX's status. Does not use the $bao>save() technique because of the
    * issue described above.
-   * 
+   *
    * @param type $status_id
    */
   public function setStatus($status_id) {
     $sql = "
-      UPDATE civicrm_bank_tx SET 
+      UPDATE civicrm_bank_tx SET
       status_id = $status_id
       WHERE id = {$this->id}
       ";
@@ -234,8 +235,8 @@ class CRM_Banking_BAO_BankTransaction extends CRM_Banking_DAO_BankTransaction {
 
   /**
    * Upon loading a BTX from database, restore suggestions as they were
-   * stored in JSON format 
-   * 
+   * stored in JSON format
+   *
    * TODO: move the restore to an instance method of Suggestion, thus no longer
    * expising the structure of the Suggestion here
    */

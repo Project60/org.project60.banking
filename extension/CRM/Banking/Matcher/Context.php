@@ -178,11 +178,11 @@ class CRM_Banking_Matcher_Context {
       $data_parsed = $this->btx->getDataParsed();
       if (!empty($data_parsed['party_ba_reference'])) {
         // find all accounts references matching the parsed data
-        $account_references = civicrm_api('BankAccountReference', 'get', array('reference' => $data_parsed['party_ba_reference'], 'version' => 3));
+        $account_references = civicrm_api('BankingAccountReference', 'get', array('reference' => $data_parsed['party_ba_reference'], 'version' => 3));
         if (empty($account_references['is_error'])) {
           foreach ($account_references['values'] as $account_reference) {
             // then load the respective accounts
-            $account = civicrm_api('BankAccount', 'getsingle', array('id' => $account_reference['ba_id'], 'version' => 3));
+            $account = civicrm_api('BankingAccount', 'getsingle', array('id' => $account_reference['ba_id'], 'version' => 3));
             if (empty($account['is_error'])) {
               // and add the owner
               array_push($contact_ids, $account['contact_id']);

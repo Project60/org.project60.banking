@@ -2,7 +2,7 @@
 <extension key="org.project60.banking" type="module">
   <file>banking</file>
   <name>CiviBanking</name>
-  <description>Implements handling of bank accounts for contacts, as well as handling of bank files (and individual bank payments extracted from the files). Bank files can be imported, transactions matched to CiviCRM entities, and the resulting data exported. Specific handlers for all of these actions are provided through plugins, some of which are shipped with the core banking extension, while some more complex ones are provided in separate extensions.</description>
+  <description>Automatic and semi-automatic processing of bank statements and other payment files.</description>
   <license>GNU AGPL v3 or later</license>
   <maintainer>
     <author>Björn Endres</author>
@@ -20,7 +20,7 @@
   <compatibility>
     <ver>5.19</ver>
   </compatibility>
-  <comments>More information here: http://wiki.civicrm.org/confluence/display/CRM/CiviBanking</comments>
+  <comments>Implements handling of bank accounts for contacts, as well as handling of bank files (and individual bank payments extracted from the files). Bank files can be imported, transactions matched to CiviCRM entities, and the resulting data exported. Specific handlers for all of these actions are provided through plugins, some of which are shipped with the core banking extension, while some more complex ones are provided in separate extensions. More information here: https://docs.civicrm.org/banking/en/latest</comments>
   <civix>
     <namespace>CRM/Banking</namespace>
   </civix>

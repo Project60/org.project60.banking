@@ -235,7 +235,7 @@ class CRM_Banking_Upgrader extends CRM_Banking_Upgrader_Base {
     $this->executeSqlFile('sql/banking.sql');
 
     // schedule migrating existing transactions ($batch_size at a time)
-    $batch_size = 250;
+    $batch_size = 1000;
     $min_bank_tx_id = CRM_Core_DAO::singleValueQuery("SELECT MIN(id) FROM civicrm_bank_tx;");
     $max_bank_tx_id = CRM_Core_DAO::singleValueQuery("SELECT MAX(id) FROM civicrm_bank_tx;");
     $current_bank_tx_id = $min_bank_tx_id;

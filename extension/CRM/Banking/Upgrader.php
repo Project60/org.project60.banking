@@ -215,8 +215,37 @@ class CRM_Banking_Upgrader extends CRM_Banking_Upgrader_Base {
    */
   public function upgrade_0802() {
     // update option groups
+    $this->ctx->log->info('Updated options.');
     banking_civicrm_install_options(_banking_options());
     return true;
   }
+
+
+  /**
+   * Upgrader for 0.8 / BANKING-312:
+   *
+   * Add new civicrm_bank_tx_contribution table
+   *  and migrate existing transactions (from json_blob)
+   *
+   * @return TRUE on success
+   */
+  public function upgrade_0804() {
+    // to add the table, simply run sql schema script again
+    $this->ctx->log->info('Added transaction-contribution link table.');
+    $this->executeSqlFile('sql/banking.sql');
+
+    // schedule migrating existing transactions ($batch_size at a time)
+    $batch_size = 1;
+    $min_bank_tx_id = CRM_Core_DAO::singleValueQuery("SELECT MIN(id) FROM civicrm_bank_tx;");
+    $max_bank_tx_id = CRM_Core_DAO::singleValueQuery("SELECT MAX(id) FROM civicrm_bank_tx;");
+    $current_bank_tx_id = $min_bank_tx_id;
+    while ($current_bank_tx_id <= $max_bank_tx_id) {
+      $this->ctx->queue->createItem(
+        CRM_Banking_BAO_BankTransactionContribution::migrationTask($current_bank_tx_id, $batch_size));
+      $current_bank_tx_id += $batch_size;
+    }
+    return true;
+  }
+
 
 }

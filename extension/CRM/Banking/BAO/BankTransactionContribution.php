@@ -59,5 +59,54 @@ class CRM_Banking_BAO_BankTransactionContribution extends CRM_Banking_DAO_BankTr
     );
   }
 
+  /**
+   * Get the list of transactions linked to the given contribution
+   *
+   * @param integer $contribution_id
+   *   the contribution ID we're looking up
+   *
+   * @return array
+   *   list of bank transaction IDs
+   */
+  public static function getLinkedTransactions($contribution_id)
+  {
+    $tx_ids = [];
+    $contribution_id = (int) $contribution_id;
+    $linked_btx = CRM_Core_DAO::executeQuery(
+        "SELECT bank_tx_id FROM civicrm_bank_tx_contribution WHERE contribution_id = %1;",
+        [1 => [$contribution_id, 'Integer']]
+    );
+    while ($linked_btx->fetch()) {
+      $tx_ids[] = (int) $linked_btx->bank_tx_id;
+    }
+    return $tx_ids;
+  }
+
+  /**
+   * Inject banking transactions linked to this contribution
+   *
+   * @param CRM_Contribute_Page_Tab $page
+   */
+  public static function injectLinkedTransactions($page)
+  {
+    if (!empty($page->_id) && ($page instanceof CRM_Contribute_Page_Tab)) {
+      try {
+        $contribution_id = (int) $page->_id;
+        $tx_ids = self::getLinkedTransactions($contribution_id);
+        if (!empty($tx_ids)) {
+          // inject tx_ids:
+          Civi::resources()->addVars('remoteevent_participant_sessions', [
+            'tx_ids'        => $tx_ids,
+            'tx_count'      => count($tx_ids),
+            'label'         => E::ts("Bank Transactions"),
+            'link'          => CRM_Utils_System::url('civicrm/banking/review',  "id=[TXID]"),
+          ]);
+          Civi::resources()->addScriptUrl(E::url('js/contribution_transaction_snippet.js'));
+        }
+      } catch (Exception $ex) {
+        Civi::log()->debug("Error while checking for linked bank transactions: " . $ex->getMessage());
+      }
+    }
+  }
 }
 

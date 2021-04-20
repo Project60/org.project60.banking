@@ -235,3 +235,13 @@ function banking_civicrm_banking_transaction_summary($banking_transaction, &$sum
   $ruleMatchIndicators->addContactMatchIndicator();
   $ruleMatchIndicators->addIbanMatchIndicator();
 }
+
+/**
+ * Inject contribution - transaction link
+ */
+function banking_civicrm_pageRun(&$page) {
+  $pageName = $page->getVar('_name');
+  if ($pageName == 'CRM_Contribute_Page_Tab') {
+    CRM_Banking_BAO_BankTransactionContribution::injectLinkedTransactions($page);
+  }
+}

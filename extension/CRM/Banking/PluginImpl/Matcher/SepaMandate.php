@@ -302,10 +302,14 @@ class CRM_Banking_PluginImpl_Matcher_SepaMandate extends CRM_Banking_PluginModel
   }
 
   /**
-   * Handle the different actions, should probably be handles at base class level ...
+   * Execute the previously generated suggestion,
+   *   and close the transaction
    *
-   * @param type $match
-   * @param type $btx
+   * @param CRM_Banking_Matcher_Suggestion $suggestion
+   *   the suggestion to be executed
+   *
+   * @param CRM_Banking_BAO_BankTransaction $btx
+   *   the bank transaction this is related to
    */
   public function execute($match, $btx) {
     $this->contribution = NULL;
@@ -367,6 +371,9 @@ class CRM_Banking_PluginImpl_Matcher_SepaMandate extends CRM_Banking_PluginModel
         $this->storeAccountWithContact($btx, $result['values'][0]['contact_id']);
       }
 
+      // link the contribution
+      CRM_Banking_BAO_BankTransactionContribution::linkContribution($btx->id, $contribution_id);
+
       // close transaction group if this was the last transaction
       $open_contributions_in_group_sql = "
       SELECT
@@ -406,10 +413,14 @@ class CRM_Banking_PluginImpl_Matcher_SepaMandate extends CRM_Banking_PluginModel
   }
 
   /**
-   * Handle the different actions, should probably be handles at base class level ...
+   * Execute the previously generated cancellation suggestion,
+   *   and close the transaction
    *
-   * @param type $match
-   * @param type $btx
+   * @param CRM_Banking_Matcher_Suggestion $match
+   *   the suggestion to be executed
+   *
+   * @param CRM_Banking_BAO_BankTransaction $btx
+   *   the bank transaction this is related to
    */
   public function executeCancellation($match, $btx) {
     $config = $this->_plugin_config;
@@ -610,6 +621,9 @@ class CRM_Banking_PluginImpl_Matcher_SepaMandate extends CRM_Banking_PluginModel
       );
       $assignment = CRM_Activity_BAO_ActivityContact::create($assignment_parameters);
     }
+
+    // link contribution
+    CRM_Banking_BAO_BankTransactionContribution::linkContribution($btx->id, $contribution_id);
 
     $newStatus = banking_helper_optionvalueid_by_groupname_and_name('civicrm_banking.bank_tx_status', 'Processed');
     $btx->setStatus($newStatus);

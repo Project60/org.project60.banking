@@ -15,20 +15,17 @@
 
 cj(document).ready(function() {
   // inject stuff
-  cj("tr.crm-event-participantview-form-block-event")
-    .first()
-    .after(`
-      <tr class="crm-event-participantview-form-block-sessions">
-        <td class="label">` + CRM.vars.remoteevent_participant_sessions.label + `</td>
-        <td><a class="crm-popup" href="` + CRM.vars.remoteevent_participant_sessions.link + `" title="` + CRM.vars.remoteevent_participant_sessions.value_title + `">` + CRM.vars.remoteevent_participant_sessions.value_text + `</a></td>
-      </tr>`);
-
-  // apparently not needed: make sure we reload after a popup closes
-  // cj(document).on('crmPopupFormSuccess', function () {
-  //   // gray out existing form
-  //   cj("div.remote-session-main-container").addClass("disabled");
-  //
-  //   // trigger reload (how to only reload the tab?)
-  //   location.replace(CRM.vars.remoteevent.session_reload);
-  // });
+  // todo: find better selector for the row in the contribution view we want to be injected after
+  let previous_row = cj("div.crm-contribution-view-form-block")
+      .find("table.crm-info-panel")
+      .first()
+      .find("tr")
+      .get(8);
+  cj(previous_row)
+      .after(`
+        <tr>
+          <td class="label crm-popup">` + CRM.vars.contribution_transactions.label + `</td>
+          <td>` + CRM.vars.contribution_transactions.links + `</td>
+        </tr>      
+      `);
 });

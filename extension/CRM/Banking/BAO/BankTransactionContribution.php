@@ -92,14 +92,20 @@ class CRM_Banking_BAO_BankTransactionContribution extends CRM_Banking_DAO_BankTr
     if (!empty($page->_id) && ($page instanceof CRM_Contribute_Page_Tab)) {
       try {
         $contribution_id = (int) $page->_id;
+        $link_title = E::ts("CiviBanking Transaction");
         $tx_ids = self::getLinkedTransactions($contribution_id);
         if (!empty($tx_ids)) {
+          // generate links
+          $tx_links = [];
+          foreach ($tx_ids as $tx_id) {
+            $tx_url = CRM_Utils_System::url('civicrm/banking/review',  "id={$tx_id}");
+            $tx_links[] = "<a href=\"{$tx_url}\" title=\"{$link_title}\" class=\"crm-popup\">[{$tx_id}]</a>";
+          }
+
           // inject tx_ids:
-          Civi::resources()->addVars('remoteevent_participant_sessions', [
-            'tx_ids'        => $tx_ids,
-            'tx_count'      => count($tx_ids),
-            'label'         => E::ts("Bank Transactions"),
-            'link'          => CRM_Utils_System::url('civicrm/banking/review',  "id=[TXID]"),
+          Civi::resources()->addVars('contribution_transactions', [
+            'label'         => E::ts("%1 Bank Transaction(s)", [1 => count($tx_ids)]),
+            'links'         => implode(' ', $tx_links),
           ]);
           Civi::resources()->addScriptUrl(E::url('js/contribution_transaction_snippet.js'));
         }

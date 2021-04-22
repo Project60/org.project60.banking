@@ -244,6 +244,11 @@ class CRM_Banking_Upgrader extends CRM_Banking_Upgrader_Base {
         new CRM_Banking_Helpers_ContributionLinkMigration($current_bank_tx_id, $batch_size));
       $current_bank_tx_id += $batch_size;
     }
+
+    // update logging schema
+    $logging = new CRM_Logging_Schema();
+    $logging->fixSchemaDifferences();
+
     return true;
   }
 

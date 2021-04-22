@@ -337,18 +337,20 @@ abstract class CRM_Banking_PluginModel_PostProcessor extends CRM_Banking_PluginM
     $match = $context->getExecutedSuggestion();
     $contribution_ids = array();
 
-    // get the single-style ('contribution_id')
-    $single_id = $match->getParameter('contribution_id');
-    if (is_numeric($single_id)) {
-      $contribution_ids[$single_id] = 1;
-    }
+    if ($match) {
+      // get the single-style ('contribution_id')
+      $single_id = $match->getParameter('contribution_id');
+      if (is_numeric($single_id)) {
+        $contribution_ids[$single_id] = 1;
+      }
 
-    // get the multi-style ('contribution_ids')
-    $multi_ids = $match->getParameter('contribution_ids');
-    if (is_array($multi_ids)) {
-      foreach ($multi_ids as $contribution_id) {
-        if (is_numeric($contribution_id)) {
-          $contribution_ids[$contribution_id] = 1;
+      // get the multi-style ('contribution_ids')
+      $multi_ids = $match->getParameter('contribution_ids');
+      if (is_array($multi_ids)) {
+        foreach ($multi_ids as $contribution_id) {
+          if (is_numeric($contribution_id)) {
+            $contribution_ids[$contribution_id] = 1;
+          }
         }
       }
     }

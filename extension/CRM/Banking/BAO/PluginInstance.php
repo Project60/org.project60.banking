@@ -1,7 +1,7 @@
 <?php
 /*-------------------------------------------------------+
 | Project 60 - CiviBanking                               |
-| Copyright (C) 2013-2018 SYSTOPIA                       |
+| Copyright (C) 2013-2021 SYSTOPIA                       |
 | Author: B. Endres (endres -at- systopia.de)            |
 | http://www.systopia.de/                                |
 +--------------------------------------------------------+
@@ -43,7 +43,7 @@ class CRM_Banking_BAO_PluginInstance extends CRM_Banking_DAO_PluginInstance {
    * get a list of all plugin instances of the given type ('import', 'export', 'matcher').
    *
    * If $enabled_only is set to true (default), only enabled plugins will be delivered.
-   * 
+   *
    * @return array CRM_Banking_BAO_PluginInstances
    */
   static function listInstances($type_name, $enabled_only=TRUE) {

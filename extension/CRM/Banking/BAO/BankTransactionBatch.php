@@ -1,7 +1,7 @@
 <?php
 /*-------------------------------------------------------+
 | Project 60 - CiviBanking                               |
-| Copyright (C) 2013-2018 SYSTOPIA                       |
+| Copyright (C) 2013-2021 SYSTOPIA                       |
 | Author: B. Endres (endres -at- systopia.de)            |
 | http://www.systopia.de/                                |
 +--------------------------------------------------------+
@@ -48,5 +48,5 @@ class CRM_Banking_BAO_BankTransactionBatch extends CRM_Banking_DAO_BankTransacti
     CRM_Utils_Hook::post($hook, 'BankTransactionBatch', $dao->id, $dao);
     return $dao;
   }
-  
+
 }

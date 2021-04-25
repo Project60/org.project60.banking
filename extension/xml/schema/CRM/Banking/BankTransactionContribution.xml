@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="iso-8859-1" ?>
+
+<table>
+    <base>CRM/Banking</base>
+    <class>BankTransactionContribution</class>
+    <name>civicrm_bank_tx_contribution</name>
+    <add>4.3</add>
+    <log>true</log>
+    <field>
+        <name>id</name>
+        <type>int unsigned</type>
+        <required>true</required>
+        <comment>ID</comment>
+        <add>4.3</add>
+        <export>true</export>
+    </field>
+    <primaryKey>
+        <name>id</name>
+        <autoincrement>true</autoincrement>
+    </primaryKey>
+
+    <field>
+        <name>bank_tx_id</name>
+        <title>Bank Transaction ID</title>
+        <type>int unsigned</type>
+        <comment>FK to bank transaction</comment>
+        <add>4.3</add>
+    </field>
+    <foreignKey>
+        <name>bank_tx_id</name>
+        <table>civicrm_bank_tx</table>
+        <key>id</key>
+        <add>4.3</add>
+        <onDelete>CASCADE</onDelete>
+    </foreignKey>
+
+    <field>
+        <name>contribution_id</name>
+        <title>Contribution ID</title>
+        <type>int unsigned</type>
+        <comment>FK to contribution</comment>
+        <add>4.3</add>
+    </field>
+    <foreignKey>
+        <name>contribution_id</name>
+        <table>civicrm_contribution</table>
+        <key>id</key>
+        <add>4.3</add>
+        <onDelete>CASCADE</onDelete>
+    </foreignKey>
+</table>

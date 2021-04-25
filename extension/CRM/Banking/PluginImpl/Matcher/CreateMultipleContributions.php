@@ -372,6 +372,10 @@ class CRM_Banking_PluginImpl_Matcher_CreateMultipleContributions extends CRM_Ban
         'civicrm_banking.bank_tx_status',
         'Processed'
       );
+      foreach ($contribution_ids as $contribution_id) {
+        CRM_Banking_BAO_BankTransactionContribution::linkContribution($btx->id, $contribution_id);
+      }
+
       $btx->setStatus($newStatus);
       $result = parent::execute($suggestion, $btx);
     }

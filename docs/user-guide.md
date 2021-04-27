@@ -1,15 +1,33 @@
 ## Managing Bank Accounts
 
-When you install CiviBanking you will automatically get an additional tab on
-your **Contact Summary** for **Bank Account**.
+After installing CiviBanking you will get an additional tab on your **Contact
+Summary** for **Bank Accounts**, which holds a table of bank accounts that
+correspond to logical bank accounts for a contact.
 
-!!! note
-    This section is yet to be completed.
+### Bank Accounts and Bank Account References
 
-## Processing Bank Satements
+A _Bank Account_ is a CiviBanking entity representing a real bank account (or
+similar account, e.g. a PayPal account), which is accessible with a number of
+_Bank Account References_. This separation allows different bank account
+identifiers be used for the same real bank account, such as IBAN/BIC and
+national account number/bank code, which may still be used in the SEPA area.
 
-Technically speaking there are 3 (4) steps in the CiviBanking process when reading
-and processing payments:
+The table in the **Bank Accounts** tab shows a bank account in each row, divided
+into a column with bank account references, another column with bank information
+and buttons for editing and deleting the bank account.
+
+Adding/Removing bank account references can be done using the `[+]`/`[-]` signs
+in the bank account reference column of each row. There are several pre-defined
+bank account reference formats shipped with CiviBanking. Adding more formats
+requires adding code to the extension, so open an
+[issue](https://github.com/project60/org.project60.banking/issues) or provide a
+[Pull Request](https://github.com/project60/org.project60.banking/pulls) when
+the format you require is not there.
+
+## Processing Bank Statements
+
+Technically speaking, there are 3 (4) steps in the CiviBanking process when
+reading and processing payments:
 
 1. Importing
 2. Analysing
@@ -51,7 +69,7 @@ if no matching campaign can be found.
 See the [Reviewing Statements](#reviewing-statements) section for detailed
 information on how to analyse and review bank statement transactions.
 
-In the **third step (Matching)** you pick one of the suggestions from the
+In the **third step (Matching)**, you pick one of the suggestions from the
 analyzing step and process the transaction. Each match plugin can be configured
 to do that automatically, when certain preconditions are met, e.g. SEPA Direct
 Debit transactions that already exist in CiviCRM can be automatically set to
@@ -75,6 +93,8 @@ the *Import statements* which is accessible in the CiviBanking menu.
 First, select an importer plugin (e.g. an *CAMT.053 XML* or a *CSV* importer)
 appropriate for your statement file, then select the file to upload and hit
 *Import*.
+
+![Screenshot](img/import_camt53_transactions.png)
 
 The importer will process the file as configured in the importer plugin. The
 results being shown are dependent on the importer plugin configuration. Usually,
@@ -181,24 +201,24 @@ most reliable suggestion for processing the transaction.
 
 #### Examples
 
-Given a transaction being a donation for a specific campaign, CiviBanking could
-be configured to suggest entering it as a contribution of the type "Donation",
-associated with the CiviCRM campaign and adding some information in the *Source*
-field for the contribution.
+1. Given a transaction being a donation for a specific campaign, CiviBanking
+   could be configured to suggest entering it as a contribution of the type "
+   Donation", associated with the CiviCRM campaign and adding some information
+   in the *Source* field for the contribution.
 
-Given a transaction being a membership fee payment, CiviBanking could be
-configured to suggest entering it as a contribution of the type
-"Membership Fee (Reduced)" or "Membership Fee (Regular)", depending on the
-amount, and extending the membership afterwards.
+2. Given a transaction being a membership fee payment, CiviBanking could be
+   configured to suggest entering it as a contribution of the type
+   "Membership Fee (Reduced)" or "Membership Fee (Regular)", depending on the
+   amount, and extending the membership afterwards.
 
-Given a transaction being a SEPA Direct Debit payment, CiviBanking could be
-configured to identify an existing contribution with the status "Pending",
-created for the SEPA mandate reference in the transaction purpose, and
-suggesting to set this contribution to "Completed" to mark the SEPA payment as
-successful. Alternatively, for return debits for failed SEPA debits, CiviBanking
-could be configured to suggest to be process it by setting the contribution
-status to "Cancelled" and adding a cancel reason given in the transaction
-purpose.
+3. Given a transaction being a SEPA Direct Debit payment, CiviBanking could be
+   configured to identify an existing contribution with the status "Pending",
+   created for the SEPA mandate reference which can be found in the transaction
+   purpose, and suggesting setting this contribution to "Completed" to mark the
+   SEPA payment as successful. Alternatively, for return debits for failed SEPA
+   debits, CiviBanking could be configured to suggest processing it by setting
+   the contribution status to "Cancelled" and adding a cancel reason given in
+   the transaction purpose.
 
 ### Processing Statements
 
@@ -228,3 +248,14 @@ is being processed without showing the analysis screen to the end user, i.e.
 when selecting *Review Statement* or *Review Transaction* on the overview pages,
 only transactions that can not be processed automatically will be shown for
 manual reconciliation.
+
+## CiviBanking Dashboard
+
+CiviBanking provides a dashboard view accessible in the CiviBanking navigation
+menu, showing an overview of imported/processed bank statements per account and
+statistics for the current and previous calendar year, and in total, grouped by
+transaction status (New, Suggestions, Processed, Ignored).
+
+This overview is useful for checking with transactions pending to be reviewed or
+processed, reminding you to complete these tasks, so that your CiviCRM database
+is up-to-date with your bank account statements.

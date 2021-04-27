@@ -16,7 +16,3 @@ CiviBanking configuration is highly individual, quite a lot of scenarios can be
 modeled with CiviBanking, and also be set up to process automatically. However,
 configuring CiviBanking for a specific scenario is not an easy task and involves
 writing JSON code.
-
-!!! note
-    This documentation has been created with CiviCRM 5.6.0 in Drupal 7 with
-    CiviBanking 0.7.

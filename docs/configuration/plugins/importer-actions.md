@@ -1,4 +1,4 @@
-# XML Importer - List of supported actions
+# Importers - List of supported actions
 
 ## set
 

@@ -9,12 +9,12 @@ nav:
 - User Guide: user-guide.md
 - Configuration:
   - Extension Settings: configuration/settings.md
-  - Concept: configuration/concept.md
-  - Importers: configuration/importer.md
-  - Techie - Importer XML actions: configuration/importer-xml-actions.md
-  - Analysers and Matchers: configuration/analyser-matcher.md
-  - Techie - How to extend memberships when a payment is received: configuration/membership-extension-post-processor.md
-  - Postprocessors: configuration/postprocessor.md
+  - Plugins:
+    - Concept: configuration/plugins/concept.md
+    - Importers: configuration/plugins/importer.md
+    - Importer actions: configuration/plugins/importer-actions.md
+    - Analysers and Matchers: configuration/plugins/analyser-matcher.md
+    - Postprocessors: configuration/plugins/postprocessor.md
 - Developer Guide: developer-guide.md
 
 markdown_extensions:

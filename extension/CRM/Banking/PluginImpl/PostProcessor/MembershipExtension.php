@@ -106,84 +106,123 @@ class CRM_Banking_PluginImpl_PostProcessor_MembershipExtension extends CRM_Banki
     $preview = NULL;
     $config = $this->_plugin_config;
     if ($this->shouldExecute($match, $matcher, $context, TRUE)) {
-      // TODO: Filter estimated contribution properties?
-      $config->financial_type_ids;
-      $config->contribution_status_ids;
-      $config->payment_instrument_ids;
-      $config->payment_instrument_ids_exclude;
-
-      $contribution_dummy = [
-        'contact_id' => $match->getParameter('contact_id'),
-        'receive_date' => $context->btx->value_date,
-        'total_amount' => $context->btx->amount,
-      ];
-      if ($contribution_dummy['contact_id']) {
-        $memberships = $this->getEligibleMemberships(
-          $contribution_dummy,
-          $match,
-          $context
-        );
-        if (!empty($memberships)) {
-          $membership = reset($memberships);
-          $extend_from = self::getMembershipExtensionAttribute(
-            'extend_from',
-            [
-              'extend_from' => $config->extend_from,
-              'end_date' => strtotime($membership['end_date']),
-              'receive_date' => strtotime($contribution_dummy['receive_date']),
-            ]
+      // Filter estimated contribution properties.
+      $propagated_values = $match->getPlugin()->getPropagationSet(
+        $context->btx,
+        $match,
+        'contribution'
+      );
+      if (
+        (
+          !array_key_exists('financial_type_id', $propagated_values)
+          || in_array($propagated_values['financial_type_id'], $config->financial_type_ids)
+        )
+        && (
+          !array_key_exists('payment_instrument_id', $propagated_values)
+          || (
+            in_array($propagated_values['payment_instrument_id'],$config->payment_instrument_ids)
+            && !in_array($propagated_values['payment_instrument_id'],$config->payment_instrument_ids_exclude)
+          )
+        )
+      ) {
+        $contribution_dummy = [
+          'contact_id' => $match->getParameter('contact_id'),
+          'receive_date' => $context->btx->value_date,
+          'total_amount' => $context->btx->amount,
+        ];
+        if ($contribution_dummy['contact_id']) {
+          $memberships = $this->getEligibleMemberships(
+            $contribution_dummy,
+            $match,
+            $context
           );
-          $extend_by = self::getMembershipExtensionAttribute(
-            'extend_by',
-            [
-              'extend_by' => $config->extend_by,
-              'membership_type_id' => $membership['membership_type_id'],
-            ]
-          );
-          $extend_to = strtotime($extend_by, $extend_from);
-          $preview = ' &ndash; '
-            . E::ts(
-              'A <a href="%1">membership</a> was found and will be extended from <em>%2</em> by <em>%3</em> until <em>%4</em>.',
+          if (!empty($memberships)) {
+            $membership = reset($memberships);
+            $extend_from = self::getMembershipExtensionAttribute(
+              'extend_from',
               [
-                1 => CRM_Utils_System::url("civicrm/contact/view/membership?action=view&reset=1&cid={$membership['contact_id']}&id={$membership['id']}"),
-                2 => CRM_Utils_Date::customFormat(
-                  date_create()->setTimestamp($extend_from)->format('Ymd'),
-                  CRM_Core_Config::singleton()->dateformatFull
-                ),
-                3 => trim($extend_by, '+-'),
-                4 => CRM_Utils_Date::customFormat(
-                  date_create()->setTimestamp($extend_to)->format('Ymd'),
-                  CRM_Core_Config::singleton()->dateformatFull
-                ),
-              ]);
-          if ($config->align_end_date) {
-            $preview .= ' '
+                'extend_from' => $config->extend_from,
+                'end_date' => strtotime($membership['end_date']),
+                'receive_date' => strtotime($contribution_dummy['receive_date']),
+              ]
+            );
+            $extend_by = self::getMembershipExtensionAttribute(
+              'extend_by',
+              [
+                'extend_by' => $config->extend_by,
+                'membership_type_id' => $membership['membership_type_id'],
+              ]
+            );
+            $extend_to = strtotime($extend_by, $extend_from);
+            $preview = ' &ndash; '
               . E::ts(
-                'The end date will be aligned to the <em>%1</em>',
-                [1 => $config->align_end_date]
+                'A <a href="%1">membership</a> was found and will be extended from <em>%2</em> by <em>%3</em> until <em>%4</em>.',
+                [
+                  1 => CRM_Utils_System::url("civicrm/contact/view/membership?action=view&reset=1&cid={$membership['contact_id']}&id={$membership['id']}"),
+                  2 => CRM_Utils_Date::customFormat(
+                    date_create()->setTimestamp($extend_from)->format('Ymd'),
+                    CRM_Core_Config::singleton()->dateformatFull
+                  ),
+                  3 => trim($extend_by, '+-'),
+                  4 => CRM_Utils_Date::customFormat(
+                    date_create()->setTimestamp($extend_to)->format('Ymd'),
+                    CRM_Core_Config::singleton()->dateformatFull
+                  ),
+                ]);
+            if ($config->align_end_date) {
+              $preview .= ' '
+                . E::ts(
+                  'The end date will be aligned to the <em>%1</em>',
+                  [1 => $config->align_end_date]
+                );
+            }
+            if (count($memberships) > 1) {
+              $preview .= '<div class="messages status no-popup">'
+                . '<div class="icon inform-icon"></div>'
+                . '<span class="msg-text">'
+                . E::ts('More than one membership was found, only the first will be processed.')
+                . '</span>'
+                . '</div>';
+            }
+          }
+          elseif ($config->create_if_not_found) {
+            $create_start_date = self::getMembershipExtensionAttribute(
+              'create_start_date',
+              [
+                'create_start_date' => $config->create_start_date,
+                'create_start_date_reference' => $config->create_start_date_reference,
+                'receive_date' => $contribution_dummy['receive_date'],
+              ]
+            );
+            $preview = ' &ndash; '
+              . E::ts(
+                'A new membership of the type <em>%1</em> will be created for the contact, starting from <em>%2</em>.',
+                [
+                  1 => self::getMembershipType($config->create_type_id)['name'],
+                  2 => CRM_Utils_Date::customFormat(
+                    date_create_from_format('Y-m-d', $create_start_date)->format('Ymd'),
+                    CRM_Core_Config::singleton()->dateformatFull
+                  )
+                ]
               );
           }
-          if (count($memberships) > 1) {
-            $preview .= '<div class="messages status no-popup">'
-              . '<div class="icon inform-icon"></div>'
-              . '<span class="msg-text">'
-              . E::ts('More than one membership was found, only the first will be processed.')
-              . '</span>'
-              . '</div>';
-          }
         }
-        elseif ($config->create_if_not_found) {
-          $create_start_date = self::getMembershipExtensionAttribute(
-            'create_start_date',
-            [
-              'create_start_date' => $config->create_start_date,
-              'create_start_date_reference' => $config->create_start_date_reference,
-              'receive_date' => $contribution_dummy['receive_date'],
-            ]
-          );
+        elseif (!empty($match->getParameter('contact_ids'))) {
           $preview = ' &ndash; '
             . E::ts(
-              'A new membership of the type <em>%1</em> will be created for the contact, starting from <em>%2</em>.',
+              'A membership for the selected contact might be extended'
+            );
+          if ($config->create_if_not_found) {
+            $create_start_date = self::getMembershipExtensionAttribute(
+              'create_start_date',
+              [
+                'create_start_date' => $config->create_start_date,
+                'create_start_date_reference' => $config->create_start_date_reference,
+                'receive_date' => $contribution_dummy['receive_date'],
+              ]
+            );
+            $preview .= E::ts(
+              ' or a new membership of the type <em>%1</em> might be created for the contact, starting from <em>%2</em>',
               [
                 1 => self::getMembershipType($config->create_type_id)['name'],
                 2 => CRM_Utils_Date::customFormat(
@@ -192,34 +231,9 @@ class CRM_Banking_PluginImpl_PostProcessor_MembershipExtension extends CRM_Banki
                 )
               ]
             );
+          }
+          $preview .= '.';
         }
-      }
-      elseif (!empty($match->getParameter('contact_ids'))) {
-        $preview = ' &ndash; '
-          . E::ts(
-            'A membership for the selected contact might be extended'
-          );
-        if ($config->create_if_not_found) {
-          $create_start_date = self::getMembershipExtensionAttribute(
-            'create_start_date',
-            [
-              'create_start_date' => $config->create_start_date,
-              'create_start_date_reference' => $config->create_start_date_reference,
-              'receive_date' => $contribution_dummy['receive_date'],
-            ]
-          );
-          $preview .= E::ts(
-            ' or a new membership of the type <em>%1</em> might be created for the contact, starting from <em>%2</em>',
-            [
-              1 => self::getMembershipType($config->create_type_id)['name'],
-              2 => CRM_Utils_Date::customFormat(
-                date_create_from_format('Y-m-d', $create_start_date)->format('Ymd'),
-                CRM_Core_Config::singleton()->dateformatFull
-              )
-            ]
-          );
-        }
-        $preview .= '.';
       }
     }
     return $preview;

@@ -139,7 +139,7 @@ class CRM_Banking_PluginImpl_PostProcessor_MembershipExtension extends CRM_Banki
           );
           if (!empty($memberships)) {
             $membership = reset($memberships);
-            $extend_from = self::getMembershipExtensionAttribute(
+            $extend_from = $this->getMembershipExtensionAttribute(
               'extend_from',
               [
                 'extend_from' => $config->extend_from,
@@ -147,7 +147,7 @@ class CRM_Banking_PluginImpl_PostProcessor_MembershipExtension extends CRM_Banki
                 'receive_date' => strtotime($contribution_dummy['receive_date']),
               ]
             );
-            $extend_by = self::getMembershipExtensionAttribute(
+            $extend_by = $this->getMembershipExtensionAttribute(
               'extend_by',
               [
                 'extend_by' => $config->extend_by,
@@ -187,7 +187,7 @@ class CRM_Banking_PluginImpl_PostProcessor_MembershipExtension extends CRM_Banki
             }
           }
           elseif ($config->create_if_not_found) {
-            $create_start_date = self::getMembershipExtensionAttribute(
+            $create_start_date = $this->getMembershipExtensionAttribute(
               'create_start_date',
               [
                 'create_start_date' => $config->create_start_date,
@@ -195,11 +195,19 @@ class CRM_Banking_PluginImpl_PostProcessor_MembershipExtension extends CRM_Banki
                 'receive_date' => $contribution_dummy['receive_date'],
               ]
             );
+            $create_type_id = $this->getMembershipExtensionAttribute(
+              'create_type_id',
+              [
+                'create_type_id' => $config->create_type_id,
+                'btx' => $context->btx,
+                'match' => $match,
+              ]
+            );
             $preview = ' &ndash; '
               . E::ts(
                 'A new membership of the type <em>%1</em> will be created for the contact, starting from <em>%2</em>.',
                 [
-                  1 => self::getMembershipType($config->create_type_id)['name'],
+                  1 => self::getMembershipType($create_type_id)['name'],
                   2 => CRM_Utils_Date::customFormat(
                     date_create_from_format('Y-m-d', $create_start_date)->format('Ymd'),
                     CRM_Core_Config::singleton()->dateformatFull
@@ -213,8 +221,18 @@ class CRM_Banking_PluginImpl_PostProcessor_MembershipExtension extends CRM_Banki
             . E::ts(
               'A membership for the selected contact might be extended'
             );
-          if ($config->create_if_not_found) {
-            $create_start_date = self::getMembershipExtensionAttribute(
+          if (
+            $config->create_if_not_found
+            && !empty($create_type_id = $this->getMembershipExtensionAttribute(
+              'create_type_id',
+              [
+                'create_type_id' => $config->create_type_id,
+                'btx' => $context->btx,
+                'match' => $match,
+              ]
+            ))
+          ) {
+            $create_start_date = $this->getMembershipExtensionAttribute(
               'create_start_date',
               [
                 'create_start_date' => $config->create_start_date,
@@ -225,7 +243,7 @@ class CRM_Banking_PluginImpl_PostProcessor_MembershipExtension extends CRM_Banki
             $preview .= E::ts(
               ' or a new membership of the type <em>%1</em> might be created for the contact, starting from <em>%2</em>',
               [
-                1 => self::getMembershipType($config->create_type_id)['name'],
+                1 => self::getMembershipType($create_type_id)['name'],
                 2 => CRM_Utils_Date::customFormat(
                   date_create_from_format('Y-m-d', $create_start_date)->format('Ymd'),
                   CRM_Core_Config::singleton()->dateformatFull
@@ -260,9 +278,19 @@ class CRM_Banking_PluginImpl_PostProcessor_MembershipExtension extends CRM_Banki
         $memberships = $this->getEligibleMemberships($contribution, $match, $context);
         if (empty($memberships)) {
           // no membership found
-          if ($config->create_if_not_found) {
+          if (
+            $config->create_if_not_found
+            && !empty($create_type_id = $this->getMembershipExtensionAttribute(
+              'create_type_id',
+              [
+                'create_type_id' => $config->create_type_id,
+                'btx' => $context->btx,
+                'match' => $match,
+              ]
+            ))
+          ) {
             $this->logMessage("No membership identified for contribution [{$contribution['id']}]. Creating one...", 'debug');
-            $this->createMembership($contribution);
+            $this->createMembership($contribution, $create_type_id);
           } else {
             $this->logMessage("No membership identified for contribution [{$contribution['id']}].", 'debug');
           }
@@ -288,17 +316,19 @@ class CRM_Banking_PluginImpl_PostProcessor_MembershipExtension extends CRM_Banki
    * @param $contribution array contribution data
    * @throws CiviCRM_API3_Exception
    */
-  protected function createMembership($contribution) {
+  protected function createMembership($contribution, $membership_type_id = NULL) {
     $config = $this->_plugin_config;
+    // Keep backwards compatibility without the $membership_type_id parameter.
+    $create_type_id = $membership_type_id ?: $config->create_type_id;
 
     $membership_data = [
         'contact_id'         => $contribution['contact_id'],
-        'membership_type_id' => $config->create_type_id,
+        'membership_type_id' => $create_type_id,
         'source'             => $config->create_source,
     ];
 
     // set start date
-    $membership_data['start_date'] = self::getMembershipExtensionAttribute(
+    $membership_data['start_date'] = $this->getMembershipExtensionAttribute(
       'create_start_date',
       [
         'create_start_date' => $config->create_start_date,
@@ -327,7 +357,7 @@ class CRM_Banking_PluginImpl_PostProcessor_MembershipExtension extends CRM_Banki
     $config = $this->_plugin_config;
 
     // find out from which point it should be extended
-    $new_end_date = self::getMembershipExtensionAttribute(
+    $new_end_date = $this->getMembershipExtensionAttribute(
       'extend_from',
       [
         'extend_from' => $config->extend_from,
@@ -337,7 +367,7 @@ class CRM_Banking_PluginImpl_PostProcessor_MembershipExtension extends CRM_Banki
     );
 
     // now extend by the date
-    $extend_by = self::getMembershipExtensionAttribute(
+    $extend_by = $this->getMembershipExtensionAttribute(
       'extend_by',
       [
         'extend_by' => $config->extend_by,
@@ -636,7 +666,7 @@ class CRM_Banking_PluginImpl_PostProcessor_MembershipExtension extends CRM_Banki
     return CRM_Utils_Array::value($membership_type_id, self::$_membership_types, NULL);
   }
 
-  protected static function getMembershipExtensionAttribute($attribute, $params) {
+  protected function getMembershipExtensionAttribute($attribute, $params) {
     $value = NULL;
     switch ($attribute) {
       case 'create_start_date':
@@ -704,6 +734,18 @@ class CRM_Banking_PluginImpl_PostProcessor_MembershipExtension extends CRM_Banki
         }
         else {
           $value = $params['extend_by'];
+        }
+        break;
+      case 'create_type_id':
+        if (is_numeric($params['create_type_id'])) {
+          $value = $params['create_type_id'];
+        }
+        else {
+          $value = (int) $this->getPropagationValue(
+            $params['btx'],
+            $params['match'],
+            $params['create_type_id']
+          );
         }
         break;
       default:

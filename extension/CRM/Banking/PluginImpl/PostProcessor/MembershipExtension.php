@@ -120,8 +120,14 @@ class CRM_Banking_PluginImpl_PostProcessor_MembershipExtension extends CRM_Banki
         && (
           !array_key_exists('payment_instrument_id', $propagated_values)
           || (
-            in_array($propagated_values['payment_instrument_id'],$config->payment_instrument_ids)
-            && !in_array($propagated_values['payment_instrument_id'],$config->payment_instrument_ids_exclude)
+            (
+              !is_array($config->payment_instrument_ids)
+              || in_array($propagated_values['payment_instrument_id'], $config->payment_instrument_ids)
+            )
+            && (
+              !is_array($config->payment_instrument_ids_exclude)
+              || !in_array($propagated_values['payment_instrument_id'], $config->payment_instrument_ids_exclude)
+            )
           )
         )
       ) {

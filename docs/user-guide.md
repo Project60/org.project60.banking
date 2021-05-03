@@ -24,6 +24,14 @@ requires adding code to the extension, so open an
 [Pull Request](https://github.com/project60/org.project60.banking/pulls) when
 the format you require is not there.
 
+It is advisable to record your organization's own bank accounts as CiviBanking
+Bank Account entities in order for imported/processed CiviBanking statements to
+be linked to your bank account, which greatly improves keeping track of bank
+statements in the long turn, especially when you are using CiviBanking for
+processing statements of multiple bank accounts. In order to do so, create the
+bank accounts for your default Organization (usually contact ID 1) via the
+*CiviBanking* tab, preferably prior to starting to use CiviBanking.
+
 ## Processing Bank Statements
 
 Technically speaking, there are 3 (4) steps in the CiviBanking process when

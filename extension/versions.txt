@@ -1,6 +1,22 @@
 Version History
 ===============
 
+version 0.8
+==================================
+- TODO
+- Developers note the signature change of
+  `CRM_Banking_PluginModel_PostProcessor::shouldExecute` (and thus overriding
+   methods in Postprocessor implementations) to include a new boolean parameter
+   `$preview` denoting whether the method is being called during Postprocessor
+   preview or not. The method might have to be respond differently, since e.g.
+   no contributions have been processed at the preview stage.
+
+
+version 0.7
+==================================
+- TODO
+
+
 version 0.6
 ==================================
 - Configuration UI (#102)

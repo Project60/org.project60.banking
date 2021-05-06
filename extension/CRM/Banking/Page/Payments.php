@@ -89,7 +89,7 @@ class CRM_Banking_Page_Payments extends CRM_Core_Page {
         SELECT GROUP_CONCAT(DISTINCT(tx_batch_id))
         FROM civicrm_bank_tx
         WHERE status_id IN ({$payment_states['new']['id']})
-          AND id NOT IN (          
+          AND id NOT IN (
             SELECT tx_batch_id
             FROM civicrm_bank_tx
             WHERE status_id IN ({$payment_states['suggestions']['id']}, {$payment_states['ignored']['id']}, {$payment_states['processed']['id']})
@@ -109,7 +109,7 @@ class CRM_Banking_Page_Payments extends CRM_Core_Page {
         FROM civicrm_bank_tx
         WHERE status_id IN ({$payment_states['suggestions']['id']})
           AND id NOT IN ({$new_statement_id_list});");
-    $open_statement_ids = explode(',', $open_statement_id_list);
+    $open_statement_ids = empty($open_statement_id_list) ? [] : explode(',', $open_statement_id_list);
     $this->assign('count_analysed', count($open_statement_ids));
 
     // closed count is merely the total count without the former two
@@ -163,15 +163,15 @@ class CRM_Banking_Page_Payments extends CRM_Core_Page {
           reference       AS reference,
           btxb.sequence   AS sequence,
           starting_date   AS starting_date,
-          tx_count        AS tx_count,          
+          tx_count        AS tx_count,
           ba.data_parsed  AS data_parsed,
           sum(btx.amount) AS total,
           btx.currency    AS currency
         FROM civicrm_bank_tx_batch btxb
-        LEFT JOIN civicrm_bank_tx btx 
+        LEFT JOIN civicrm_bank_tx btx
                ON btx.tx_batch_id = btxb.id
-        LEFT JOIN civicrm_bank_account ba 
-               ON ba.id = btx.ba_id 
+        LEFT JOIN civicrm_bank_account ba
+               ON ba.id = btx.ba_id
         WHERE {$where_clause}"
           .
             ($target_ba_id ? ' AND ba_id = ' . $target_ba_id : '')

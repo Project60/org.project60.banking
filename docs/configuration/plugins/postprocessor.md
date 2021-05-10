@@ -21,16 +21,9 @@ if they don't have a specific implementation for previewing.
 
 ## Membership Extension Postprocessor
 
-You can extend a membership when a payment is recorded with CiviBanking or when a payment is set to completed.
-
-You can do this by creating a _Membership Extension post processor_.
-
-!!! Note
-    A post processor is is something which is executed after processing a
-    transaction. With the membership extension post processor we can extend
-    membership as soon as a new payment is recoded or an existing payment is set
-    to completed. You can add multiple post processors to the CiviBanking
-    configuration.
+You can extend a membership when a payment is recorded with CiviBanking or when
+a payment is set to completed by creating a _Membership Extension post
+processor_.
 
 ### Configuration options
 

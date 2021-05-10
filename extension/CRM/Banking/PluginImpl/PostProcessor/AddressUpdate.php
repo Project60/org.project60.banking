@@ -30,7 +30,7 @@ class CRM_Banking_PluginImpl_PostProcessor_AddressUpdate extends CRM_Banking_Plu
     // read config, set defaults
     $config = $this->_plugin_config;
     if (!isset($config->default_location_type))        $config->default_location_type        = CRM_Core_BAO_LocationType::getDefault();
-    if (!isset($config->default_country))              $config->default_country              = CRM_Core_Config::singleton()->defaultContactCountry();
+    if (!isset($config->default_country))              $config->default_country              = CRM_Core_BAO_Country::defaultContactCountry();
     if (!isset($config->required_fields))              $config->required_fields              = array("city", "postal_code", "street_address");
     if (!isset($config->btx_field_prefix))             $config->btx_field_prefix             = '';
     if (!isset($config->create_if_missing))            $config->create_if_missing            = true;

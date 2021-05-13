@@ -128,17 +128,29 @@ class CRM_Banking_TestBase extends \PHPUnit\Framework\TestCase implements
     /**
      * Create a contact and return its ID.
      *
+     * @params array $attributes
+     *   additional contact attributes, optional
+     *
      * @return int The ID of the created contact.
      */
-    protected function createContact(): int
+    protected function createContact(array $attributes = []): int
     {
+        // template
+        $contact_data = [
+            'contact_type' => 'Individual',
+            'email' => 'unittests@banking.project60.org',
+        ];
+
+        // add custom/additinal data
+        foreach ($attributes as $attribute_key => $attribute_value) {
+            $contact_data[$attribute_key] = $attribute_value;
+        }
+
+        // create contact
         $contact = $this->callAPISuccess(
             'Contact',
             'create',
-            [
-                'contact_type' => 'Individual',
-                'email' => 'unittests@banking.project60.org',
-            ]
+            $contact_data
         );
 
         $contactId = $contact['id'];

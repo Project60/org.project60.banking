@@ -4,6 +4,7 @@
 | Project 60 - CiviBanking - PHPUnit tests               |
 | Copyright (C) 2020 SYSTOPIA                            |
 | Author: B. Zschiedrich (zschiedrich@systopia.de)       |
+|         B. Endres (endres@systopia.de)                 |
 | http://www.systopia.de/                                |
 +--------------------------------------------------------+
 | This program is released as free software under the    |
@@ -30,11 +31,14 @@ use CRM_Banking_ExtensionUtil as E;
  *     b. Disable TransactionalInterface, and handle all setup/teardown yourself.
  *
  * @group headless
+ *
+ * Mainly tests the regex extraction
+ *  and the actions: copy, copy_append, copy_ltrim_zeros, set(ok), align_date, unset, strtolower, sha1, preg_replace, calculate, map(ok)
  */
 class CRM_Banking_RegexAnalyserTest extends CRM_Banking_TestBase
 {
     /**
-     * Test a set action.
+     * Test the 'set' action.
      */
     public function testSetAction()
     {
@@ -75,7 +79,7 @@ class CRM_Banking_RegexAnalyserTest extends CRM_Banking_TestBase
     }
 
     /**
-     * Test that a test action does not set if not matched.
+     * Test that the 'test' action does not set if not matched.
      */
     public function testSetActionDoesNotMatch()
     {
@@ -115,7 +119,7 @@ class CRM_Banking_RegexAnalyserTest extends CRM_Banking_TestBase
     }
 
     /**
-     * Test a map action.
+     * Test the 'map' action.
      */
     public function testMapAction()
     {
@@ -160,4 +164,88 @@ class CRM_Banking_RegexAnalyserTest extends CRM_Banking_TestBase
             E::ts('The payment instrument ID is not correctly set.')
         );
     }
+
+    /**
+     * Test the 'copy' action.
+     */
+    public function testCopyAction()
+    {
+        // setup
+        $transaction1_id = $this->createTransaction(['purpose' => "here's your code X92873X2323X, alright!?"]);
+        $transaction2_id = $this->createTransaction(['purpose' => "here's an invalid code X92873Y2323X, alright!?"]);
+        $this->createRegexAnalyser(
+            [
+                [
+                    'fields' => ['purpose'],
+                    'pattern' => '/X(?P<part1>[0-9]+)X(?P<part2>[0-9]+)X/i',
+                    'actions' => [
+                        [
+                            'action' => 'copy',
+                            'from' => 'part1',
+                            'to' => 'part1_extracted',
+                        ],
+                        [
+                            'action' => 'copy',
+                            'from' => 'part2',
+                            'to' => 'part2_extracted',
+                        ],
+                    ],
+                ],
+            ]
+        );
+
+        // run matcher
+        $this->runMatchers([$transaction1_id, $transaction2_id]);
+
+        // check transaction 1
+        $data_parsed = $this->getTransactionDataParsed($transaction1_id);
+        $this->assertArrayHasKey('part1_extracted', $data_parsed, 'Parsed data not copied');
+        $this->assertEquals('92873', $data_parsed['part1_extracted'], 'Parsed data is wrong');
+        $this->assertArrayHasKey('part2_extracted', $data_parsed, 'Parsed data not copied');
+        $this->assertEquals('2323', $data_parsed['part2_extracted'], 'Parsed data is wrong');
+
+        // check transaction 2
+        $data_parsed = $this->getTransactionDataParsed($transaction2_id);
+        $this->assertArrayNotHasKey('part1_extracted', $data_parsed, 'This should not have been matched and extracted');
+        $this->assertArrayNotHasKey('part2_extracted', $data_parsed, 'This should not have been matched and extracted');
+    }
+
+    /**
+     * Test the 'copy_append' action.
+     */
+    public function testCopyAppendAction()
+    {
+        // setup
+        $transaction_id = $this->createTransaction([
+            'purpose'      => "here's your code X92873X2323X, alright!?",
+            'target_field' => 'stuff'
+        ]);
+        $this->createRegexAnalyser(
+            [
+                [
+                    'fields' => ['purpose'],
+                    'pattern' => '/X(?P<part1>[0-9]+)X(?P<part2>[0-9]+)X/i',
+                    'actions' => [
+                        [
+                            'action' => 'copy_append',
+                            'from' => 'part1',
+                            'to' => 'target_field',
+                        ],
+                        [
+                            'action' => 'copy_append',
+                            'from' => 'part2',
+                            'to' => 'target_field',
+                        ],
+                    ],
+                ],
+            ]
+        );
+
+        // check result
+        $this->runMatchers([$transaction_id]);
+        $data_parsed = $this->getTransactionDataParsed($transaction_id);
+        $this->assertArrayHasKey('target_field', $data_parsed, 'Parsed data not copied');
+        $this->assertEquals('stuff928732323', $data_parsed['target_field'], 'Parsed data is wrong');
+    }
+
 }

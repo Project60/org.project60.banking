@@ -211,6 +211,24 @@ class CRM_Banking_TestBase extends \PHPUnit\Framework\TestCase implements
     }
 
     /**
+     * Get the data_parsed array from a transaction
+     *
+     * @param int $id
+     *   transaction ID
+     *
+     * @return array
+     *   (extracted) contents of data_parsed
+     */
+    protected function getTransactionDataParsed(int $id): array
+    {
+        $transaction = $this->getTransaction($id);
+        $this->assertArrayHasKey('data_parsed', $transaction, 'No data_parsed set');
+        $parsed_data = json_decode($transaction['data_parsed'], true);
+        $this->assertNotNull($parsed_data, 'Invalid data_parsed blob');
+        return $parsed_data;
+    }
+
+    /**
      * Get the latest contribution.
      *
      * @return array The contribution.

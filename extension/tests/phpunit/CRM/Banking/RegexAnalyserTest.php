@@ -382,4 +382,75 @@ class CRM_Banking_RegexAnalyserTest extends CRM_Banking_TestBase
         $this->assertArrayHasKey('formatted', $data_parsed, "Set rule didn't fire");
         $this->assertEquals('HA-0001.23', $data_parsed['formatted'], "sprint didn't work");
     }
+
+
+    /**
+     * Test the 'lookup' action.
+     */
+    public function testLookupAction()
+    {
+        // setup
+        $contact_id = $this->createContact(['external_identifier' => 'testLookupAction']);
+        $transaction_id = $this->createTransaction([
+            'ex_id' => "testLookupAction",
+        ]);
+        $this->createRegexAnalyser(
+            [
+                [
+                    'fields' => ['ex_id'],
+                    'pattern' => '/^(?P<match>.*)$/',
+                    'actions' => [
+                        [
+                            'action' => 'lookup:Contact,id,external_identifier',
+                            'from' =>  'match',
+                            'to' => 'contact_id',
+                        ],
+                    ],
+                ],
+            ]
+        );
+
+        // check result
+        $this->runMatchers([$transaction_id]);
+        $data_parsed = $this->getTransactionDataParsed($transaction_id);
+        $this->assertArrayHasKey('contact_id', $data_parsed, "Set rule didn't fire");
+        $this->assertEquals($contact_id, $data_parsed['contact_id'], "lookup didn't work");
+    }
+
+    /**
+     * Test the 'api' action.
+     */
+    public function testApiAction()
+    {
+        // setup
+        $contact_id = $this->createContact(['external_identifier' => 'ApiAction', 'first_name' => 'Jenny']);
+        $transaction_id = $this->createTransaction([
+           'ex_id' => "ApiAction",
+           'first_name' => 'Jenny'
+        ]);
+        $this->createRegexAnalyser(
+            [
+                [
+                    'fields' => ['ex_id'],
+                    'pattern' => '/^(?P<match>.*)$/',
+                    'actions' => [
+                        [
+                            'action' => 'api:Contact:get:contact_id',
+                            'const_contact_type' => 'Individual',
+                            'param_first_name' => 'first_name',
+                            'param_external_identifier' => 'match',
+                            'to' => 'contact_id',
+                        ],
+                    ],
+                ],
+            ]
+        );
+
+        // check result
+        $this->runMatchers([$transaction_id]);
+        $data_parsed = $this->getTransactionDataParsed($transaction_id);
+        $this->assertArrayHasKey('contact_id', $data_parsed, "Set rule didn't fire");
+        $this->assertEquals($contact_id, $data_parsed['contact_id'], "lookup didn't work");
+    }
+
 }

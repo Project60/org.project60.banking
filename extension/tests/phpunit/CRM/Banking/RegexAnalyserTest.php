@@ -453,4 +453,41 @@ class CRM_Banking_RegexAnalyserTest extends CRM_Banking_TestBase
         $this->assertEquals($contact_id, $data_parsed['contact_id'], "lookup didn't work");
     }
 
+    /**
+     * Test the 'api' action via sql
+     */
+    public function testApiActionSql()
+    {
+        // setup
+        $contact_id = $this->createContact(['external_identifier' => 'ApiAction', 'first_name' => 'Jenny']);
+        $transaction_id = $this->createTransaction([
+           'ex_id' => "ApiAction",
+           'first_name' => 'Jenny'
+        ]);
+        $this->createRegexAnalyser(
+            [
+                [
+                    'fields' => ['ex_id'],
+                    'pattern' => '/^(?P<match>.*)$/',
+                    'actions' => [
+                        [
+                            'action' => 'api:Contact:get:id',
+                            'const_contact_type' => 'Individual',
+                            'param_first_name' => 'first_name',
+                            'param_external_identifier' => 'match',
+                            'to' => 'contact_id',
+                            'sql' => true
+                        ],
+                    ],
+                ],
+            ]
+        );
+
+        // check result
+        $this->runMatchers([$transaction_id]);
+        $data_parsed = $this->getTransactionDataParsed($transaction_id);
+        $this->assertArrayHasKey('contact_id', $data_parsed, "Set rule didn't fire");
+        $this->assertEquals($contact_id, $data_parsed['contact_id'], "lookup didn't work");
+    }
+
 }

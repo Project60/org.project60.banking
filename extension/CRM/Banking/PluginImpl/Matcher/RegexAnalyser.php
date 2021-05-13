@@ -327,8 +327,9 @@ class CRM_Banking_PluginImpl_Matcher_RegexAnalyser extends CRM_Banking_PluginMod
       // should there be a limit
       if ($command == 'getsingle') {
         $limit = 'LIMIT 1';
-      } elseif ($query['limit']) {
-        $limit = "LIMIT {$query['limit']}";
+      } elseif (!empty($query['limit'])) {
+        $limit_value = (int) $query['limit'];
+        $limit = "LIMIT {$limit_value}";
       } else {
         $limit = '';
       }

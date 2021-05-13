@@ -248,4 +248,73 @@ class CRM_Banking_RegexAnalyserTest extends CRM_Banking_TestBase
         $this->assertEquals('stuff928732323', $data_parsed['target_field'], 'Parsed data is wrong');
     }
 
+    /**
+     * Test the 'copy_ltrim_zeros' action.
+     */
+    public function testSetUnsetAction()
+    {
+        // setup
+        $transaction_id = $this->createTransaction([
+           'field_1' => "YO",
+       ]);
+        $this->createRegexAnalyser(
+            [
+                [
+                    'fields' => ['field_1'],
+                    'pattern' => '/YO/i',
+                    'actions' => [
+                        [
+                            'action' => 'set',
+                            'to' => 'field2',
+                            'value' => 'YO',
+                        ],
+                        [
+                            'action' => 'unset',
+                            'to' => 'field_1',
+                        ],
+                    ],
+                ],
+            ]
+        );
+
+        // check result
+        $this->runMatchers([$transaction_id]);
+        $data_parsed = $this->getTransactionDataParsed($transaction_id);
+        $this->assertArrayHasKey('field2', $data_parsed, "Set rule didn't fire");
+        $this->assertEquals('YO', $data_parsed['field2'], "Set rule didn't fire");
+        $this->assertArrayNotHasKey('field1', $data_parsed, "Unset rule didn't fire");
+    }
+
+    /**
+     * Test the 'copy_ltrim_zeros' action.
+     */
+    public function testStrtolowerAction()
+    {
+        // setup
+        $transaction_id = $this->createTransaction([
+           'field_1' => "YO",
+        ]);
+        $this->createRegexAnalyser(
+            [
+                [
+                    'fields' => ['field_1'],
+                    'pattern' => '/(?P<match>YO)/',
+                    'actions' => [
+                        [
+                            'action' => 'strtolower',
+                            'from' =>  'match',
+                            'to' => 'field2',
+                        ],
+                    ],
+                ],
+            ]
+        );
+
+        // check result
+        $this->runMatchers([$transaction_id]);
+        $data_parsed = $this->getTransactionDataParsed($transaction_id);
+        $this->assertArrayHasKey('field2', $data_parsed, "Set rule didn't fire");
+        $this->assertEquals('yo', $data_parsed['field2'], "strtolower didn't work");
+    }
+
 }

@@ -317,4 +317,69 @@ class CRM_Banking_RegexAnalyserTest extends CRM_Banking_TestBase
         $this->assertEquals('yo', $data_parsed['field2'], "strtolower didn't work");
     }
 
+    /**
+     * Test the 'sha1' action.
+     */
+    public function testSHA1Action()
+    {
+        // setup
+        $transaction_id = $this->createTransaction([
+           'data' => "Neque porro quisquam est qui dolorem ipsum quia dolor sit amet, consectetur, adipisci velit...",
+        ]);
+        $this->createRegexAnalyser(
+            [
+                [
+                    'fields' => ['data'],
+                    'pattern' => '/^(?P<match>.*)$/',
+                    'actions' => [
+                        [
+                            'action' => 'sha1',
+                            'from' =>  'match',
+                            'to' => 'sha1',
+                        ],
+                    ],
+                ],
+            ]
+        );
+
+        // check result
+        $this->runMatchers([$transaction_id]);
+        $data_parsed = $this->getTransactionDataParsed($transaction_id);
+        $this->assertArrayHasKey('sha1', $data_parsed, "Set rule didn't fire");
+        $this->assertEquals('54e965b871ef62db46596a9d127d00d58dee6d3a', $data_parsed['sha1'], "sha1 didn't work");
+    }
+
+    /**
+     * Test the 'sprint' action.
+     */
+    public function testSprintfAction()
+    {
+        // setup
+        $transaction_id = $this->createTransaction([
+           'data' => "1.234",
+        ]);
+        $this->createRegexAnalyser(
+            [
+                [
+                    'fields' => ['data'],
+                    'pattern' => '/^(?P<match>.*)$/',
+                    'actions' => [
+                        [
+                            // note that the %07 prefix marks the total number of characters in the string,
+                            //  not just leading zeroes, see https://stackoverflow.com/questions/28739818
+                            'action' => 'sprint:HA-%07.2f',
+                            'from' =>  'match',
+                            'to' => 'formatted',
+                        ],
+                    ],
+                ],
+            ]
+        );
+
+        // check result
+        $this->runMatchers([$transaction_id]);
+        $data_parsed = $this->getTransactionDataParsed($transaction_id);
+        $this->assertArrayHasKey('formatted', $data_parsed, "Set rule didn't fire");
+        $this->assertEquals('HA-0001.23', $data_parsed['formatted'], "sprint didn't work");
+    }
 }

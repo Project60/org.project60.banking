@@ -59,7 +59,10 @@ class CRM_Banking_PluginImpl_PostProcessor_MembershipExtension extends CRM_Banki
     // how to extend the membership
     if (!isset($config->extend_by))                      $config->extend_by                      = 'period';    // could also be strtotime offset like "+1 month"
     if (!isset($config->extend_from))                    $config->extend_from                    = 'min';       // could also be 'payment_date' or 'end_date'. 'min' means the minimum of the two
-    if (!isset($config->align_end_date))                 $config->align_end_date                 = NULL;   // should the new end date be adjusted to the 'next_last' of the month? Could also be 'last_last'
+    if (!isset($config->align_end_date))                 $config->align_end_date                 = NULL;        // should the new end date be adjusted to the 'next_last' of the month? Could also be 'last_last'
+    if (!isset($config->status_override))                $config->status_override                = NULL;        // Whether the membership status is to be overridden or explicitly set to not be overridden anymore.
+    if (!isset($config->set_status))                     $config->set_status                     = NULL;        // A membership status ID the membership is to be explicitly set to - might only be useful when setting status_override to "1".
+    if (!isset($config->skip_extend_status))             $config->skip_extend_status             = [];          // A list of membership status IDs for which no extension, but status updates should be done.
 
     // create of not found
     if (!isset($config->create_if_not_found))            $config->create_if_not_found            = FALSE;  // do we want to create a membership, if none is found?
@@ -361,49 +364,63 @@ class CRM_Banking_PluginImpl_PostProcessor_MembershipExtension extends CRM_Banki
    */
   protected function extendMembership($membership, $contribution) {
     $config = $this->_plugin_config;
+    $params = [];
 
-    // find out from which point it should be extended
-    $new_end_date = $this->getMembershipExtensionAttribute(
-      'extend_from',
-      [
-        'extend_from' => $config->extend_from,
-        'end_date' => strtotime($membership['end_date']),
-        'receive_date' => strtotime($contribution['receive_date'])
-      ]
-    );
+    if (!in_array($membership['status_id'], $config->skip_extend_status)) {
+      // find out from which point it should be extended
+      $new_end_date = $this->getMembershipExtensionAttribute(
+        'extend_from',
+        [
+          'extend_from' => $config->extend_from,
+          'end_date' => strtotime($membership['end_date']),
+          'receive_date' => strtotime($contribution['receive_date'])
+        ]
+      );
 
-    // now extend by the date
-    $extend_by = $this->getMembershipExtensionAttribute(
-      'extend_by',
-      [
-        'extend_by' => $config->extend_by,
-        'membership_type_id' => $membership['membership_type_id'],
-      ]
-    );
-    $this->logMessage("Extending membership [{$membership['id']}] by {$extend_by}", 'debug');
-    $new_end_date = strtotime($extend_by, $new_end_date);
+      // now extend by the date
+      $extend_by = $this->getMembershipExtensionAttribute(
+        'extend_by',
+        [
+          'extend_by' => $config->extend_by,
+          'membership_type_id' => $membership['membership_type_id'],
+        ]
+      );
+      $this->logMessage("Extending membership [{$membership['id']}] by {$extend_by}", 'debug');
+      $new_end_date = strtotime($extend_by, $new_end_date);
 
-    // finally align the result
-    if ($config->align_end_date == 'next_last') {
-      $last_first = strtotime(date('Y-m-01', $new_end_date));
-      $next_first = strtotime("+1 month", $last_first);
-      $next_last  = strtotime("-1 day", $next_first);
-      $new_end_date = $next_last;
-      $this->logMessage("Aligned new end date to " . date('Y-m-d', $new_end_date), 'debug');
-    } elseif ($config->align_end_date == 'last_last') {
-      $last_first = strtotime(date('Y-m-01', $new_end_date));
-      $last_last  = strtotime("-1 day", $last_first);
-      $new_end_date = $last_last;
-      $this->logMessage("Aligned new end date to " . date('Y-m-d', $new_end_date), 'debug');
+      // finally align the result
+      if ($config->align_end_date == 'next_last') {
+        $last_first = strtotime(date('Y-m-01', $new_end_date));
+        $next_first = strtotime("+1 month", $last_first);
+        $next_last  = strtotime("-1 day", $next_first);
+        $new_end_date = $next_last;
+        $this->logMessage("Aligned new end date to " . date('Y-m-d', $new_end_date), 'debug');
+      } elseif ($config->align_end_date == 'last_last') {
+        $last_first = strtotime(date('Y-m-01', $new_end_date));
+        $last_last  = strtotime("-1 day", $last_first);
+        $new_end_date = $last_last;
+        $this->logMessage("Aligned new end date to " . date('Y-m-d', $new_end_date), 'debug');
+      }
+
+      $params['end_date'] = date('Y-m-d', $new_end_date);
     }
 
-    // finally: extend the end date
     try {
-      civicrm_api3('Membership', 'create', [
-          'id'       => $membership['id'],
-          'end_date' => date('Y-m-d', $new_end_date)]);
+      // Adjust membership status parameters.
+      $this->adjustStatus($params);
 
-      // and link
+      // Finally, update the membership.
+      if (!empty($params)) {
+        civicrm_api3(
+          'Membership',
+          'create',
+          $params + [
+            'id' => $membership['id'],
+          ]
+        );
+      }
+
+      // Link payment with memebership.
       if ($config->link_as_payment) {
         $this->link($contribution['id'], $membership['id']);
       }
@@ -434,6 +451,22 @@ class CRM_Banking_PluginImpl_PostProcessor_MembershipExtension extends CRM_Banki
               1 => [$contribution_id, 'Integer'],
               2 => [$membership_id,   'Integer']]);
         $this->logMessage("Contribution [{$contribution_id}] linked to membership [{$membership_id}].", 'debug');
+    }
+  }
+
+  /**
+   * Adjust the status and the override behavior of the membership.
+   *
+   * @param array $params
+   *   The parameters to extend with status params.
+   */
+  protected function adjustStatus(&$params) {
+    $config = $this->_plugin_config;
+    if (isset($config->status_override)) {
+      $params['is_override'] = (int) $config->status_override;
+    }
+    if ($config->set_status) {
+      $params['status_id'] = $config->set_status;
     }
   }
 

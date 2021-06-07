@@ -88,7 +88,9 @@
         cj("input[name=configuration]").val(JSON.stringify(editor.get()));
       }
     };
-    var configuration = cj("input[name=configuration]").val();
+    // decode base64 injected configuration
+    let configuration = atob(cj("input[name=configuration]").val());
+    cj("input[name=configuration]").val(configuration);
     var editor = new JSONEditor(container, options, JSON.parse(configuration));
   })
 </script>

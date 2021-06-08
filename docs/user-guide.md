@@ -1,5 +1,10 @@
 ## Managing Bank Accounts
 
+!!! note
+    This section is yet to be completed.
+
+    TODO: Add screenshots for each user interface aspect.
+
 After installing CiviBanking you will get an additional tab on your **Contact
 Summary** for **Bank Accounts**, which holds a table of bank accounts that
 correspond to logical bank accounts for a contact.
@@ -86,6 +91,13 @@ Debit transactions that already exist in CiviCRM can be automatically set to
 See the [Processing Statements](#processing-statements) section for detailed
 information on how to match and process bank statement transactions.
 
+!!!note
+    Analyser and matcher plugins can actually be mixed in this step. This is
+    useful for when a transaction can already be reconciled after some basic
+    analysis, so that a matcher can be configured to chime when there should be
+    enough information for it to create a suggestion, without further analysing
+    the transaction (which might be expensive performance-wise).
+
 There may be a **fourth step (Postprocessing)** when post processing plugins
 have been configured in CiviBanking. This would involve additional tasks to do
 after transactions have already been processed as CiviCRM contributions, e.g.
@@ -169,13 +181,14 @@ sections:
   with the transaction. Usually, this section is not relevant to the end user,
   and is thus being collapsed by default.
 
-Below the transaction information, buttons are placed for navigating between
-transactions in the current statement, and for analysing and processing them.
+Below the transaction information, buttons are being placed for navigating
+between transactions in the current statement, and for analysing and processing
+them.
 
 The review process is divided into the following status:
 
 1. *New* - This is the initial status for each transaction, after it has been
-   imported. The status indicated, that no analysis has been done yet and that
+   imported. The status indicates, that no analysis has been done yet and that
    it can be processed according to the plugin configuration.
 2. *Analysed* - This is the status for transactions that have (at least once)
    been analysed, but not yet processed. Transactions within this state can be
@@ -197,9 +210,10 @@ contact for the account holder. This will be the case when either a contact has
 the bank account set as a Bank Account entity, or when a plugin is configured to
 try to identify a contact by the account holder name. This may yield either a
 distinct result, or mutliple contacts (when there are similar names or
-duplicated), or no contact at all (when the contact exists with a differing or
-without a name, or does not exist). Changes to contacts or newly created ones
-will be considered when re- analysing the transaction.
+duplicates), or no contact at all (when the contact exists with a differing or
+without a name, or does not exist at all). Changes to contacts made after
+analysing the transaction or newly created ones will be considered when
+re-analysing the transaction.
 
 Each suggestion is assigned a precentage threshold for indicating how confident
 CiviBanking was in suggesting what to do with the transaction. This is
@@ -227,6 +241,17 @@ most reliable suggestion for processing the transaction.
    debits, CiviBanking could be configured to suggest processing it by setting
    the contribution status to "Cancelled" and adding a cancel reason given in
    the transaction purpose.
+
+#### Manual reconciliation
+
+A special suggestion provided by the _Default Matcher_ is for manual
+reconciliation, allowing the user to manually select a contact and one or more
+contributions, or create new contributions, and add them to the suggestion. This
+is useful for scenarios that are not implemented as "automatic" suggestions or
+for edge cases.
+
+!!! note
+    This section is yet to be completed.
 
 ### Processing Statements
 

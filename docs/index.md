@@ -3,9 +3,10 @@ or transaction reports exported from payment providers, such as PayPal, Mollie,
 or Visa.
 
 The extension can import transactions from these statements into a
-CiviBanking-internal data structure which, in turn, can then be entered as
-CiviCRM Contribution entities. Also, connecting those to e.g. memberships or
-campaigns is possible.
+CiviBanking-internal data structure and uses a series of plugins to transform
+the raw data into CiviCRM actions. Actions can be many things including changing
+the status of an existing contribution (reconciling), matching a membership or
+creating a contribution record.
 
 Since a bank account is crucial information for reconciling bank statement
 transactions, CiviBanking provides a new entity for storing bank account

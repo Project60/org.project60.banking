@@ -9,6 +9,12 @@ processors"). Expanding the accordion will place it below the suggestion markup
 and display whatever markup post processors are providing, or only their name,
 if they don't have a specific implementation for previewing.
 
+!!! note
+    This section is yet to be completed.
+
+    TODO: Describe generic configuration properties for required values, value
+    propagation, automatic execution, etc.
+
 ## Bank Accounts PostProcessor
 
 !!! note

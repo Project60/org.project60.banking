@@ -11,8 +11,11 @@ nav:
   - Extension Settings: configuration/settings.md
   - Plugins:
     - Concept: configuration/plugins/concept.md
-    - Importers: configuration/plugins/importer.md
-    - Importer actions: configuration/plugins/importer-actions.md
+    - Importers:
+        - XML Importer: configuration/plugins/importers/xml.md
+        - CSV Importer: configuration/plugins/importers/csv.md
+        - Fixed Width Text Importer: configuration/plugins/importers/fixed_width_text.md
+        - Dummy Data Importer: configuration/plugins/importers/dummy_data.md
     - Analysers and Matchers: configuration/plugins/analyser-matcher.md
     - Postprocessors: configuration/plugins/postprocessor.md
 - Developer Guide: developer-guide.md

@@ -1,5 +1,11 @@
 ## Analysers
 
+!!! note
+    This section is yet to be completed.
+    
+    TODO: Describe generic configuration properties for required values, value
+    propagation, automatic execution, etc.
+
 ### Regex Analyser Plugin
 
 A _Regex Analyser_ plugin can check in the imported data if a field contains

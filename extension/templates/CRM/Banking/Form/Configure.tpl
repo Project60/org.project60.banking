@@ -61,6 +61,14 @@
   var type_map = {$type_map};
 
   {literal}
+  // safe entity decoding,
+  //   see https://stackoverflow.com/questions/1147359/how-to-decode-html-entities-using-jquery/1395954#1395954
+  function decodeEntities(encodedString) {
+    let div = document.createElement('div');
+    div.innerHTML = encodedString;
+    return div.textContent;
+  }
+
   function updateTypeList() {
     var plugin_type_id = cj("#plugin_type_id").val();
     var plugin_class_list = type_map[plugin_type_id];
@@ -89,7 +97,7 @@
       }
     };
     // decode base64 injected configuration
-    let configuration = atob(cj("input[name=configuration]").val());
+    let configuration = decodeEntities(atob(cj("input[name=configuration]").val()));
     cj("input[name=configuration]").val(configuration);
     var editor = new JSONEditor(container, options, JSON.parse(configuration));
   })

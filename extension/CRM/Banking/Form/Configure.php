@@ -77,7 +77,7 @@ class CRM_Banking_Form_Configure extends CRM_Core_Form {
                       array('class' => 'huge'),
                       TRUE);
 
-    $this->add('hidden', 'configuration', base64_encode($this->plugin['config']));
+    $this->add('hidden', 'configuration', base64_encode(htmlentities($this->plugin['config'])));
     $this->add('hidden', 'pid', $plugin_id);
 
     $this->addButtons(array(

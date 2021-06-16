@@ -38,6 +38,7 @@ class CRM_Banking_PluginImpl_PostProcessor_AddressUpdate extends CRM_Banking_Plu
     if (!isset($config->create_diff_if_missing))       $config->create_diff_if_missing       = false;
     if (!isset($config->create_diff_activity_type))    $config->create_diff_activity_type    = 1;
     if (!isset($config->create_diff_activity_subject)) $config->create_diff_activity_subject = E::ts("New Address Received");
+    if (!isset($config->create_diff_activity_status_id)) $config->create_diff_activity_status_id = NULL; // "Completed"
     if (!isset($config->tag_diff))                     $config->tag_diff                     = array();
     if (!isset($config->tag_create))                   $config->tag_create                   = array();
 
@@ -245,11 +246,16 @@ class CRM_Banking_PluginImpl_PostProcessor_AddressUpdate extends CRM_Banking_Plu
         $details = $smarty->fetch('CRM/Banking/PluginImpl/PostProcessor/AddressUpdate.activity.tpl');
         $smarty->popScope();
 
-        civicrm_api3('Activity', 'create', array(
+        $activity_params = [
           'subject'          => $config->create_diff_activity_subject,
           'details'          => $details,
           'activity_type_id' => $config->create_diff_activity_type,
-          'target_id'        => $contact_id));
+          'target_id'        => $contact_id
+        ];
+        if (!empty($config->create_diff_activity_status_id)) {
+          $activity_params['status_id'] = $config->create_diff_activity_status_id;
+        }
+        civicrm_api3('Activity', 'create', $activity_params);
         break;
 
       default:

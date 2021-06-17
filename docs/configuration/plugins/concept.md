@@ -25,7 +25,7 @@ is divided into 4 steps:
 
 Each step is being taken care of by CiviBanking Plugins of the respective type.
 Plugins can be installed or imported with the **Banking>Configuration Manager**,
-which is accessbiel in the CiviBanking navigation menu. The first time you
+which is accessible in the CiviBanking navigation menu. The first time you
 access the Configuration Manager you will probably get a form like this:
 
 ![Screenshot](../../img/config_manager_empty.png)
@@ -36,6 +36,8 @@ and so on) for CiviBanking from another CiviCRM installation, you can use the **
 IMPORTER** link to select an exported configuration file and import that into
 your new CiviBanking installation. There are quite some examples in the
 [Configuration Example Database](https://github.com/Project60/org.project60.banking/tree/master/configuration_database)
+
+You will need to configure at least one importer and some matchers.
 
 We will look into each step in some more detail in the following sections from a
 configuration point of view.

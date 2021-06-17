@@ -6,19 +6,19 @@ theme:
 
 nav:
 - Introduction: index.md
-- From a user perspective: user-perspective.md
-- Configuration explanation: config-explanation.md
-- Terminology: terminology.md
-- How To Guide: how-to.md
-- Techie - How to create an importer: create-importer.md
-- Techie - Importer XML actions: importer-xml-actions.md
-- Techie - How to create a matcher: create-matcher.md
-- Techie - How to extend memberships when a payment is received: membership-extension-post-processor.md
-- Techie - How to create a postprocessor: create-postprocessor.md
-- Techie - Hooks:
-  - Introduction: hooks/index.md
-  - hook_civicrm_banking_transaction_summary: hooks/hook_civicrm_banking_transaction_summary.md
-  - banking_contact_option_element: hooks/banking_contact_option_element.md
+- User Guide: user-guide.md
+- Configuration:
+  - Extension Settings: configuration/settings.md
+  - Plugins:
+    - Concept: configuration/plugins/concept.md
+    - Importers:
+        - XML Importer: configuration/plugins/importers/xml.md
+        - CSV Importer: configuration/plugins/importers/csv.md
+        - Fixed Width Text Importer: configuration/plugins/importers/fixed_width_text.md
+        - Dummy Data Importer: configuration/plugins/importers/dummy_data.md
+    - Analysers and Matchers: configuration/plugins/analyser-matcher.md
+    - Postprocessors: configuration/plugins/postprocessor.md
+- Developer Guide: developer-guide.md
 
 markdown_extensions:
   - attr_list

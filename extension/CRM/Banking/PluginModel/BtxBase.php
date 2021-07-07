@@ -321,6 +321,7 @@ abstract class CRM_Banking_PluginModel_BtxBase extends CRM_Banking_PluginModel_B
    * @return the variables length
    */
   function getVariable($name) {
+    $value = null;
     if (isset($this->_plugin_config->variables->$name)) {
       $variable_spec = $this->_plugin_config->variables->$name;
       if (!empty($variable_spec->cached)) {

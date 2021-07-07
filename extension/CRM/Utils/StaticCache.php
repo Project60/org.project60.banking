@@ -27,9 +27,11 @@ class CRM_Utils_StaticCache {
   /**
    * Will check if the given key is set in the cache
    *
-   * @return the previously stored value, or NULL
+   * @todo use CiviCRM caching
+   *
+   * @return mixed the previously stored value, or NULL
    */
-  public function getCachedEntry($key) {
+  public static function getCachedEntry($key) {
     // error_log("LOOKING FOR '$key'");
     global $_CRM_Utils_StaticCache;
     if ($_CRM_Utils_StaticCache !== NULL) {
@@ -44,8 +46,11 @@ class CRM_Utils_StaticCache {
 
   /**
    * Set the given cache value
+   *
+   * @todo use CiviCRM caching
+   *
    */
-  public function setCachedEntry($key, $value) {
+  public static function setCachedEntry($key, $value) {
     global $_CRM_Utils_StaticCache;
     if ($_CRM_Utils_StaticCache === NULL) {
       // error_log("CACHE INITIALIZED");

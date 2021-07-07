@@ -52,9 +52,11 @@ class CRM_Banking_PluginImpl_Matcher_Membership extends CRM_Banking_PluginModel_
 
     // find potential contacts
     $contacts_found = $context->findContacts($threshold, $data_parsed['name'], $config->lookup_contact_by_name);
+    $this->logMessage('potential contact IDs: ' . implode(',', array_keys($contacts_found)), 'debug');
 
     // with the identified contacts, look up matching memberships
     $memberships = $this->findMemberships($contacts_found, $btx, $context);
+    $this->logMessage('potential membership IDs: ' . implode(',', array_keys($memberships)), 'debug');
 
     // transform all memberships into suggestions
     foreach ($memberships as $membership) {
@@ -212,6 +214,8 @@ class CRM_Banking_PluginImpl_Matcher_Membership extends CRM_Banking_PluginModel_
   /**
    * This function will use the given parameters to find
    * all potential membership IDs with the contacts found.
+   *
+   * @return array list of membership attribute arrays
    */
   protected function findMemberships($contact2probability, $btx, $context) {
     if (empty($contact2probability)) return array();
@@ -220,7 +224,9 @@ class CRM_Banking_PluginImpl_Matcher_Membership extends CRM_Banking_PluginModel_
     $penalty     = $this->getPenalty($btx);
     $memberships = array();
     $query_sql = $this->createSQLQuery(array_keys($contact2probability), $btx->amount, $context);
+    CRM_Core_DAO::disableFullGroupByMode();
     $query = CRM_Core_DAO::executeQuery($query_sql);
+    CRM_Core_DAO::reenableFullGroupByMode();
     while ($query->fetch()) {
       $memberships[] = array(
         'id'                           => $query->id,
@@ -249,7 +255,10 @@ class CRM_Banking_PluginImpl_Matcher_Membership extends CRM_Banking_PluginModel_
       $probability -= $penalty;
       if ($probability >= $config->threshold) {
         $membership['probability'] = $probability;
-        $result[] = $membership;
+        $this->logMessage("Membership considered ({$probability}): #" . $membership['id'], 'debug');
+        $result[$membership['id']] = $membership;
+      } else {
+        $this->logMessage("Membership discarded ({$probability}): #" . $membership['id'], 'debug');
       }
     }
 
@@ -266,7 +275,7 @@ class CRM_Banking_PluginImpl_Matcher_Membership extends CRM_Banking_PluginModel_
    * the query itself is derived from the plugin's configuration
    * and will be cached.
    *
-   * @return SQL string
+   * @return string SQL
    */
   protected function createSQLQuery($contact_ids, $amount, $context) {
     $cache_key = "matcher_membership_" . $this->_plugin_id . "_query";
@@ -280,7 +289,7 @@ class CRM_Banking_PluginImpl_Matcher_Membership extends CRM_Banking_PluginModel_
         civicrm_membership.id                     AS id,
         civicrm_membership.contact_id             AS contact_id,
         civicrm_membership.membership_type_id     AS membership_type_id,
-        civicrm_membership.$date_field            AS membership_start_date,
+        civicrm_membership.{$date_field}          AS membership_start_date,
         civicrm_membership_type.duration_unit     AS membership_duration_unit,
         civicrm_membership_type.duration_interval AS membership_duration_interval,
         civicrm_membership_type.period_type       AS membership_period_type,
@@ -297,6 +306,7 @@ class CRM_Banking_PluginImpl_Matcher_Membership extends CRM_Banking_PluginModel_
       WHERE
         civicrm_membership.contact_id           IN (CONTACT_IDS)
       AND civicrm_membership.membership_type_id IN (%s)
+      AND (%s)
       AND (%s)
       GROUP BY
         civicrm_membership.id,
@@ -316,10 +326,13 @@ class CRM_Banking_PluginImpl_Matcher_Membership extends CRM_Banking_PluginModel_
       LIMIT 1";
 
       // load all membership types
-      $membership_types = array();
-      $_membership_types = civicrm_api3('MembershipType', 'get', array('option.limit' => 99999));
+      $membership_types = [];
+      $_membership_types = civicrm_api3('MembershipType', 'get', ['option.limit' => 0]);
       foreach ($_membership_types['values'] as $membership_type) {
         $membership_types[$membership_type['id']] = $membership_type;
+      }
+      if (empty($membership_types)) {
+        $this->logMessage("WARNING: No active membership types found!", 'warn');
       }
 
       // get $membership_type_id_list
@@ -343,10 +356,10 @@ class CRM_Banking_PluginImpl_Matcher_Membership extends CRM_Banking_PluginModel_
       //if (empty($membership_type_ids)) throw Exception("matcher_membership: No active membership types found.");
 
       // compile $membership_type_clauses
-      $membership_type_clauses = array();
+      $membership_amount_clauses = [];
       foreach ($membership_type_ids as $membership_type_id) {
         $amount_range = $this->getMembershipAmountRange($membership_types[$membership_type_id], $context);
-        $membership_type_clauses[] = "(
+        $membership_amount_clauses[] = "(
           (civicrm_membership.membership_type_id = $membership_type_id)
           AND
           (BTX_AMOUNT >= ${amount_range[0]})
@@ -354,13 +367,33 @@ class CRM_Banking_PluginImpl_Matcher_Membership extends CRM_Banking_PluginModel_
           (BTX_AMOUNT <= ${amount_range[1]})
           )";
       }
+      if (empty($membership_amount_clauses)) $membership_amount_clauses[] = 'TRUE';
+
+      // compile $membership_status clause
+      $membership_status_clauses = [];
+      foreach ($membership_type_ids as $membership_type_id) {
+        $eligible_statuses = $this->getMembershipOption($membership_type_id, 'membership_status_ids', '');
+        if (!empty($eligible_statuses)) {
+          // make sure this is a comma separated integer list
+          if (!is_array($eligible_statuses)) {
+            $eligible_statuses = explode(',', $eligible_statuses);
+          }
+          $eligible_statuses = implode(',', array_map('intval', $eligible_statuses));
+          if ($eligible_statuses) {
+            $membership_status_clauses[] = "((civicrm_membership.membership_type_id = $membership_type_id) AND civicrm_membership.status_id IN ({$eligible_statuses}))";
+          }
+        }
+      }
+      if (empty($membership_status_clauses)) $membership_status_clauses[] = 'TRUE';
 
       // compile final query:
-      $membership_type_id_list     = implode(',',    $membership_type_ids);
-      $membership_type_clauses_sql = implode(' OR ', $membership_type_clauses);
+      $membership_type_id_list       = implode(',',    $membership_type_ids);
+      $membership_amount_clauses_sql = implode(' OR ', $membership_amount_clauses);
+      $membership_status_clauses_sql = implode(' OR ', $membership_status_clauses);
       $query = sprintf($base_query, $contribution_subquery,
                                     $membership_type_id_list,
-                                    $membership_type_clauses_sql);
+                                    $membership_amount_clauses_sql,
+                                    $membership_status_clauses_sql);
 
       // normalize query (remove extra whitespaces)
       $query = preg_replace('/\s+/', ' ', $query);
@@ -373,7 +406,7 @@ class CRM_Banking_PluginImpl_Matcher_Membership extends CRM_Banking_PluginModel_
     $contact_id_list = implode(',', $contact_ids);
     $final_sql = str_replace('CONTACT_IDS', $contact_id_list, $query);
     $final_sql = str_replace('BTX_AMOUNT',  $amount,          $final_sql);
-    //error_log($final_sql);
+    $this->logMessage("Search Query: " . $final_sql, 'debug');
     return $final_sql;
   }
 
@@ -388,7 +421,7 @@ class CRM_Banking_PluginImpl_Matcher_Membership extends CRM_Banking_PluginModel_
     $min_factor   = (float) $this->getMembershipOption($membership_type['id'],
                                 'amount_min',     1.0);
     $max_factor   = (float) $this->getMembershipOption($membership_type['id'],
-                                'amount_max',     1000.0);
+                                'amount_max',     1.0);
     return array($expected_fee * $min_factor, $expected_fee * $max_factor, $expected_fee);
   }
 

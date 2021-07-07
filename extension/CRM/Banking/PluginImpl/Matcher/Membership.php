@@ -383,13 +383,12 @@ class CRM_Banking_PluginImpl_Matcher_Membership extends CRM_Banking_PluginModel_
    * @return array($min_amount, $max_amount, $exact_amount)
    */
   protected function getMembershipAmountRange($membership_type, $context) {
-    $config = $this->_plugin_config;
     $expected_fee = (float) $this->getMembershipOption($membership_type['id'],
                                 'membership_fee', $membership_type['minimum_fee']);
     $min_factor   = (float) $this->getMembershipOption($membership_type['id'],
                                 'amount_min',     1.0);
     $max_factor   = (float) $this->getMembershipOption($membership_type['id'],
-                                'amount_max',     1.0);
+                                'amount_max',     1000.0);
     return array($expected_fee * $min_factor, $expected_fee * $max_factor, $expected_fee);
   }
 

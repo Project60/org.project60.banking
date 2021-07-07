@@ -52,6 +52,7 @@
 </div>
 <div>
 {if $last_fee.id}
+  <div>{ts domain='org.project60.banking'}Last Membership Payment:{/ts}</div>
   <table border="1">
     <tbody>
       <tr>
@@ -81,6 +82,7 @@
     </tbody>
   </table>
 {else}
+  <div>{ts domain='org.project60.banking'}Membership Information:{/ts}</div>
   <table border="1">
     <tbody>
       <tr>

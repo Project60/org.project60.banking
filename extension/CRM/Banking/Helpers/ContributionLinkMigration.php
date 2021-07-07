@@ -62,8 +62,8 @@ class CRM_Banking_Helpers_ContributionLinkMigration
               AND bank_tx.status_id IN (%3)
           ",
         [
-            1 => [$this->from_tx_id, 'Integer'],
-            2 => [$this->to_tx_id, 'Integer'],
+            1 => [(int) $this->from_tx_id, 'Integer'],
+            2 => [(int) $this->to_tx_id, 'Integer'],
             3 => [$this->status_ids, 'CommaSeparatedIntegers'],
         ]
     );

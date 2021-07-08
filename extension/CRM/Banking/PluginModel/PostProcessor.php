@@ -60,7 +60,7 @@ abstract class CRM_Banking_PluginModel_PostProcessor extends CRM_Banking_PluginM
    *
    * @return mixed
    */
-  public function visualizeExecutedMatch(CRM_Banking_Matcher_Suggestion $match,  CRM_Banking_PluginModel_Matcher $matcher, CRM_Banking_Matcher_Context $context, array $result) {
+  public function visualizeExecutedMatch(CRM_Banking_Matcher_Suggestion $match,  CRM_Banking_PluginModel_Matcher $matcher, CRM_Banking_Matcher_Context $context, $result) {
     return E::ts('%1 might have been executed.', [1 => $this->getName()]);
   }
 

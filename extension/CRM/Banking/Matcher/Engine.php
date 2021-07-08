@@ -255,6 +255,7 @@ class CRM_Banking_Matcher_Engine {
           $result = $postprocessor->processExecutedMatch($suggestion, $matcher, $context);
           if ($result !== NULL) {
             $suggestion->setExecutedPostprocessor($postprocessor, $result);
+            $btx->saveSuggestions();
           }
           $logger->logTime("Postprocessor [{$postprocessor->getPluginID()}]", 'postprocessor');
 

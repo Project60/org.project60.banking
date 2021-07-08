@@ -253,7 +253,7 @@ class CRM_Banking_Matcher_Engine {
           $logger->setTimer('postprocessor');
           $logger->logDebug("Calling PostProcessor [{$postprocessor->getName()}]...");
           $result = $postprocessor->processExecutedMatch($suggestion, $matcher, $context);
-          if ($result !== NULL) {
+          if ($result !== FALSE) {
             $suggestion->setExecutedPostprocessor($postprocessor, $result);
             $btx->saveSuggestions();
           }

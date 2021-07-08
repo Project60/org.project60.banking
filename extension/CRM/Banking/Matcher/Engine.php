@@ -235,6 +235,8 @@ class CRM_Banking_Matcher_Engine {
 
   /**
    * will run the postprocessors on the recently executed match
+   *
+   * @param \CRM_Banking_Matcher_Suggestion $suggestion
    */
   public function runPostProcessors($suggestion, $btx, $matcher) {
     // run through the list of matchers
@@ -246,10 +248,15 @@ class CRM_Banking_Matcher_Engine {
     $all_postprocessors = $this->getPostprocessors();
     foreach ($all_postprocessors as $weight => $postprocessors) {
       foreach ($postprocessors as $postprocessor) {
+        /* @var CRM_Banking_PluginModel_PostProcessor $postprocessor */
         try {
           $logger->setTimer('postprocessor');
           $logger->logDebug("Calling PostProcessor [{$postprocessor->getName()}]...");
-          $postprocessor->processExecutedMatch($suggestion, $matcher, $context);
+          $result = $postprocessor->processExecutedMatch($suggestion, $matcher, $context);
+          if ($result !== FALSE) {
+            $suggestion->setExecutedPostprocessor($postprocessor, $result);
+            $btx->saveSuggestions();
+          }
           $logger->logTime("Postprocessor [{$postprocessor->getPluginID()}]", 'postprocessor');
 
         } catch (Exception $e) {
@@ -261,6 +268,37 @@ class CRM_Banking_Matcher_Engine {
 
     $logger->logTime("Postprocessing of btx [{$btx->id}]", 'postprocessing');
     $context->destroy();
+  }
+
+  /**
+   * Visualizes the execution of post processors on a given suggestion.
+   *
+   * @param CRM_Banking_Matcher_Suggestion $suggestion
+   * @param CRM_Banking_BAO_BankTransaction $btx
+   * @param CRM_Banking_PluginModel_Matcher $matcher
+   */
+  public function visualizePostProcessorResults($suggestion, $btx, $matcher) {
+    $context = new CRM_Banking_Matcher_Context($btx);
+    $results = [];
+    $all_postprocessors = $this->getPostprocessors();
+    $executed_postprocessors = $suggestion->getExecutedPostprocessors();
+    foreach ($all_postprocessors as $weight => $postprocessors) {
+      foreach ($postprocessors as $postprocessor) {
+        /* @var CRM_Banking_PluginModel_PostProcessor $postprocessor */
+        if (array_key_exists($plugin_id = $postprocessor->getPluginId(), $executed_postprocessors)) {
+          $result = $executed_postprocessors[$plugin_id];
+          try {
+            if (!empty($result = $postprocessor->visualizeExecutedMatch($suggestion, $matcher, $context, $result))) {
+              $results[] = $result;
+            }
+          } catch (Exception $e) {
+            $matcher_id = $matcher->getPluginID();
+            error_log("org.project60.banking - Exception during the visualization of results of postprocessor [$matcher_id], error was: ".$e->getMessage());
+          }
+        }
+      }
+    }
+    return $results;
   }
 
   /**

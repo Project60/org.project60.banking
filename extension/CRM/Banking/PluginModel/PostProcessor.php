@@ -44,11 +44,29 @@ abstract class CRM_Banking_PluginModel_PostProcessor extends CRM_Banking_PluginM
    * @param $matcher  the matcher plugin executed
    * @param $context  the matcher context contains cache data and context information
    *
+   * @return array | FALSE | NULL
+   *   The result of the execution, or FALSE when it has not been executed, or
+   *   NULL when it might have been executed.
    */
   public abstract function processExecutedMatch(CRM_Banking_Matcher_Suggestion $match, CRM_Banking_PluginModel_Matcher $matcher, CRM_Banking_Matcher_Context $context);
 
   /**
-   * Preview the postprocessing of the (not yet executed) match
+   * Visualizes the post processing result for the (already executed) match.
+   *
+   * @param CRM_Banking_Matcher_Suggestion $match
+   * @param CRM_Banking_PluginModel_Matcher $matcher
+   * @param CRM_Banking_Matcher_Context $context
+   * @param array $result
+   *
+   * @return mixed
+   */
+  public function visualizeExecutedMatch(CRM_Banking_Matcher_Suggestion $match,  CRM_Banking_PluginModel_Matcher $matcher, CRM_Banking_Matcher_Context $context, $result) {
+    return E::ts('%1 might have been executed.', [1 => $this->getName()]);
+  }
+
+  /**
+   * Should this postprocessor spring into action?
+   * Evaluates the common 'required' fields in the configuration
    *
    * @param CRM_Banking_Matcher_Suggestion $match
    *   The executed match.

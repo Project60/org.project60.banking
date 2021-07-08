@@ -277,6 +277,7 @@ class CRM_Banking_PluginImpl_PostProcessor_MembershipExtension extends CRM_Banki
    * @throws Exception if anything goes wrong
    */
   public function processExecutedMatch(CRM_Banking_Matcher_Suggestion $match, CRM_Banking_PluginModel_Matcher $matcher, CRM_Banking_Matcher_Context $context) {
+    $result = NULL;
     $config = $this->_plugin_config;
 
     // this is pretty straightforward
@@ -285,6 +286,7 @@ class CRM_Banking_PluginImpl_PostProcessor_MembershipExtension extends CRM_Banki
       foreach ($contributions as $contribution) {
         // get memberships
         $memberships = $this->getEligibleMemberships($contribution, $match, $context);
+        $membership = NULL;
         if (empty($memberships)) {
           // no membership found
           if (
@@ -299,23 +301,60 @@ class CRM_Banking_PluginImpl_PostProcessor_MembershipExtension extends CRM_Banki
             ))
           ) {
             $this->logMessage("No membership identified for contribution [{$contribution['id']}]. Creating one...", 'debug');
-            $this->createMembership($contribution, $create_type_id);
+            $membership = $this->createMembership($contribution, $create_type_id);
           } else {
             $this->logMessage("No membership identified for contribution [{$contribution['id']}].", 'debug');
+            $result = FALSE;
           }
 
         } else {
           // memberships found
           if (count($memberships) > 1) {
             $this->logMessage("More than one membership identified for contribution [{$contribution['id']}]. Processing first!", 'debug');
+            $result = FALSE;
           }
 
           // extend membership
           $membership = reset($memberships);
           $this->extendMembership($membership, $contribution);
         }
+        if (!is_null($membership)) {
+          // TODO: Add more information on what exactly has been done with the
+          //   membership, depending on configuration and actual results.
+          $result['memberships'][] = $membership;
+        }
       }
     }
+    else {
+      $result = FALSE;
+    }
+    return $result;
+  }
+
+  public function visualizeExecutedMatch(
+    CRM_Banking_Matcher_Suggestion $match,
+    CRM_Banking_PluginModel_Matcher $matcher,
+    CRM_Banking_Matcher_Context $context,
+    array $result
+  ) {
+    $return = $this->getName() . '<ul>';
+    foreach ($result['memberships'] as $membership) {
+      $url = CRM_Utils_System::url(
+        'civicrm/contact/view/membership',
+        [
+          'action' => 'view',
+          'id' => $membership['id']
+        ]
+      );
+      // TODO: Elaborate on what exactly has been done, depending on $result.
+      $return .= '<li>'
+        . E::ts('The membership %1 has been extended or created.', [
+          1 => '<a href="' . $url . '">#' . $membership['id'] . '</a>'
+        ])
+        . '</li>';
+    }
+    $return .= '</ul>';
+    return $return;
   }
 
 
@@ -354,6 +393,8 @@ class CRM_Banking_PluginImpl_PostProcessor_MembershipExtension extends CRM_Banki
     if ($config->link_as_payment) {
       $this->link($contribution['id'], $membership['id']);
     }
+
+    return $membership;
   }
 
   /**

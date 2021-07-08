@@ -140,6 +140,22 @@ class CRM_Banking_Matcher_Suggestion {
         $this->setParameter('executed_by', $user_id);
     }
 
+  /**
+   * @param \CRM_Banking_PluginModel_PostProcessor $postprocessor
+   * @param $result
+   */
+    public function setExecutedPostprocessor($postprocessor, $result) {
+      if (!is_array($postprocessors = $this->getParameter('executed_postprocessors'))) {
+        $postprocessors = [];
+      }
+      $postprocessors[$postprocessor->getPluginID()] = $result;
+      $this->setParameter('executed_postprocessors', $postprocessors);
+    }
+
+    public function getExecutedPostprocessors() {
+      return $this->getParameter('executed_postprocessors');
+    }
+
     public function isExecuted() {
         return $this->getParameter('executed');
     }
@@ -293,7 +309,21 @@ class CRM_Banking_Matcher_Suggestion {
     public function visualize_execution(CRM_Banking_BAO_BankTransaction $btx = null, CRM_Banking_PluginModel_Matcher $plugin = null) {
         // if btx/plugin is not supplied (by the matcher engine), recreate it
         $this->_updateObjects($btx, $plugin);
-        return $this->_plugin->visualize_execution_info($this, $btx);
+        $visualisation = $this->_plugin->visualize_execution_info($this, $btx);
+
+        $engine = CRM_Banking_Matcher_Engine::getInstance();
+
+        // Visualize post processors.
+        if (!empty($post_processor_results = $engine->visualizePostProcessorResults($this, $btx, $this->_plugin))) {
+            $visualisation .= '<p>' . E::ts('The following post processors have been executed after processing this suggestion:') . '</p>';
+            $visualisation .= '<ol>';
+            foreach ($post_processor_results as $post_processor_result) {
+                $visualisation .= '<li>' . $post_processor_result . '</li>';
+            }
+            $visualisation .= '</ol>';
+        }
+
+        return $visualisation;
     }
 
     public function prepForJson() {

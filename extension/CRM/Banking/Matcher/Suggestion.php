@@ -140,11 +140,15 @@ class CRM_Banking_Matcher_Suggestion {
         $this->setParameter('executed_by', $user_id);
     }
 
+  /**
+   * @param \CRM_Banking_PluginModel_PostProcessor $postprocessor
+   * @param $result
+   */
     public function setExecutedPostprocessor($postprocessor, $result) {
       if (!is_array($postprocessors = $this->getParameter('executed_postprocessors'))) {
         $postprocessors = [];
       }
-      $postprocessors[] = [$postprocessor, $result];
+      $postprocessors[$postprocessor->getPluginID()] = $result;
       $this->setParameter('executed_postprocessors', $postprocessors);
     }
 

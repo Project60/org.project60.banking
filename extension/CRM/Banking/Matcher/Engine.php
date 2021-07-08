@@ -279,15 +279,22 @@ class CRM_Banking_Matcher_Engine {
   public function visualizePostProcessorResults($suggestion, $btx, $matcher) {
     $context = new CRM_Banking_Matcher_Context($btx);
     $results = [];
-    foreach ($suggestion->getExecutedPostprocessors() as [$postprocessor, $result]) {
-      /* @var CRM_Banking_PluginModel_PostProcessor $postprocessor */
-      try {
-        if (!empty($result = $postprocessor->visualizeExecutedMatch($suggestion, $matcher, $context, $result))) {
-          $results[] = $result;
+    $all_postprocessors = $this->getPostprocessors();
+    $executed_postprocessors = $suggestion->getExecutedPostprocessors();
+    foreach ($all_postprocessors as $weight => $postprocessors) {
+      foreach ($postprocessors as $postprocessor) {
+        /* @var CRM_Banking_PluginModel_PostProcessor $postprocessor */
+        if (array_key_exists($plugin_id = $postprocessor->getPluginId(), $executed_postprocessors)) {
+          $result = $executed_postprocessors[$plugin_id];
+          try {
+            if (!empty($result = $postprocessor->visualizeExecutedMatch($suggestion, $matcher, $context, $result))) {
+              $results[] = $result;
+            }
+          } catch (Exception $e) {
+            $matcher_id = $matcher->getPluginID();
+            error_log("org.project60.banking - Exception during the visualization of results of postprocessor [$matcher_id], error was: ".$e->getMessage());
+          }
         }
-      } catch (Exception $e) {
-        $matcher_id = $matcher->getPluginID();
-        error_log("org.project60.banking - Exception during the visualization of results of postprocessor [$matcher_id], error was: ".$e->getMessage());
       }
     }
     return $results;

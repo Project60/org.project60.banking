@@ -140,6 +140,18 @@ class CRM_Banking_Matcher_Suggestion {
         $this->setParameter('executed_by', $user_id);
     }
 
+    public function setExecutedPostprocessor($postprocessor, $result) {
+      if (!is_array($postprocessors = $this->getParameter('executed_postprocessors'))) {
+        $postprocessors = [];
+      }
+      $postprocessors[] = [$postprocessor, $result];
+      $this->setParameter('executed_postprocessors', $postprocessors);
+    }
+
+    public function getExecutedPostprocessors() {
+      return $this->getParameter('executed_postprocessors');
+    }
+
     public function isExecuted() {
         return $this->getParameter('executed');
     }

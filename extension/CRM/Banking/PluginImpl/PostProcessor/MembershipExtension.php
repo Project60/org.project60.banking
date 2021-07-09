@@ -335,7 +335,7 @@ class CRM_Banking_PluginImpl_PostProcessor_MembershipExtension extends CRM_Banki
     CRM_Banking_Matcher_Suggestion $match,
     CRM_Banking_PluginModel_Matcher $matcher,
     CRM_Banking_Matcher_Context $context,
-    array $result
+    $result
   ) {
     $return = $this->getName() . '<ul>';
     foreach ($result['memberships'] as $membership) {

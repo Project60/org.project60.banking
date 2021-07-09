@@ -281,7 +281,7 @@ class CRM_Banking_Matcher_Engine {
     $context = new CRM_Banking_Matcher_Context($btx);
     $results = [];
     $all_postprocessors = $this->getPostprocessors();
-    $executed_postprocessors = $suggestion->getExecutedPostprocessors();
+    $executed_postprocessors = $suggestion->getExecutedPostprocessors() ?: [];
     foreach ($all_postprocessors as $weight => $postprocessors) {
       foreach ($postprocessors as $postprocessor) {
         /* @var CRM_Banking_PluginModel_PostProcessor $postprocessor */

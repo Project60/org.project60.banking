@@ -1,0 +1,54 @@
+{
+  "delimiter": ";",
+  "encoding": "CP1252",
+  "header": 1,
+  "title": "GLS {starting_date} - {ending_date} [{md5}]",
+  "defaults": {
+    "_IBAN": "DE123456789",
+    "payment_instrument_id": "1",
+    "currency": "EUR"
+  },
+  "fields": "Buchungstag,Valuta,Textschlüssel,Primanota,Zahlungsempfänger,ZahlungsempfängerKto,ZahlungsempfängerIBAN,ZahlungsempfängerBLZ,ZahlungsempfängerBIC,Vorgang/Verwendungszweck,Kundenreferenz,Währung,Umsatz,Soll/Haben",
+  "rules": [
+    {
+      "from": "Buchungstag",
+      "to": "booking_date",
+      "type": "strtotime:d.m.Y"
+    },
+    {
+      "from": "Valuta",
+      "to": "value_date",
+      "type": "strtotime:d.m.Y"
+    },
+    {
+      "from": "Buchungstext",
+      "to": "transaction_class",
+      "type": "set"
+    },
+    {
+      "from": "Umsatz",
+      "to": "amount",
+      "type": "amount"
+    },
+    {
+      "from": "Währung",
+      "to": "currency",
+      "type": "set"
+    },
+    {
+      "from": "Zahlungsempfänger",
+      "to": "name",
+      "type": "set"
+    },
+    {
+      "from": "ZahlungsempfängerIBAN",
+      "to": "_party_IBAN",
+      "type": "set"
+    },
+    {
+      "from": "Vorgang/Verwendungszweck",
+      "to": "purpose",
+      "type": "append:"
+    }
+  ]
+}

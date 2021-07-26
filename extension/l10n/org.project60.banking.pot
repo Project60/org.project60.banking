@@ -1431,7 +1431,15 @@ msgid "New Address Received"
 msgstr ""
 
 #: extension/CRM/Banking/PluginImpl/PostProcessor/MembershipExtension.php
-msgid "A <a href=\"%1\">membership</a> was found and will be extended from <em>%2</em> by <em>%3</em> until <em>%4</em>."
+msgid "A <a href=\"%1\">membership</a> with status <em>%2</em> was found."
+msgstr ""
+
+#: extension/CRM/Banking/PluginImpl/PostProcessor/MembershipExtension.php
+msgid "Its status will be set to <em>%1</em>."
+msgstr ""
+
+#: extension/CRM/Banking/PluginImpl/PostProcessor/MembershipExtension.php
+msgid "It will be extended from <em>%1</em> by <em>%2</em> until <em>%3</em>."
 msgstr ""
 
 #: extension/CRM/Banking/PluginImpl/PostProcessor/MembershipExtension.php
@@ -1451,7 +1459,7 @@ msgid "A membership for the selected contact might be extended"
 msgstr ""
 
 #: extension/CRM/Banking/PluginImpl/PostProcessor/MembershipExtension.php
-msgid " or a new membership of the type <em>%1</em> might be created for the contact, starting from <em>%2</em>"
+msgid "or a new membership of the type <em>%1</em> might be created for the contact, starting from <em>%2</em>"
 msgstr ""
 
 #: extension/CRM/Banking/PluginImpl/PostProcessor/MembershipExtension.php

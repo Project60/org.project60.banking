@@ -9,7 +9,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Generator: Poedit 1.8.7.1\n"
+"X-Generator: Poedit 2.3\n"
 
 #: extension/CRM/Admin/Form/Setting/BankingSettings.php
 msgid "New user interface"
@@ -899,7 +899,7 @@ msgid ""
 "The following post processors may be executed after processing this "
 "suggestion:"
 msgstr ""
-"Die folgenden Post-prozessoren könnten nach der Verarbeitung dieses "
+"Die folgenden Post-Prozessoren könnten nach der Verarbeitung dieses "
 "Vorschlags ausgeführt werden:"
 
 #: extension/CRM/Banking/Matcher/Suggestion.php
@@ -1636,12 +1636,20 @@ msgid "New Address Received"
 msgstr "Neue Adresse erhalten"
 
 #: extension/CRM/Banking/PluginImpl/PostProcessor/MembershipExtension.php
-msgid ""
-"A <a href=\"%1\">membership</a> was found and will be extended from <em>%2</"
-"em> by <em>%3</em> until <em>%4</em>."
+msgid "A <a href=\"%1\">membership</a> with status <em>%2</em> was found."
 msgstr ""
-"Eine <a href=\"%1\">Mitgliedschaft</a> wurde gefunden und wird vom <em>%2</"
-"em> um <em>%3</em> bis zum <em>%4</em> verlängert werden."
+"Eine <a href=\"%1\">Mitgliedschaft</a> mit dem Status <em>%2</em> wurde "
+"gefunden."
+
+#: extension/CRM/Banking/PluginImpl/PostProcessor/MembershipExtension.php
+msgid "Its status will be set to <em>%1</em>."
+msgstr "Ihr Status wird auf <em>%1</em> gesetzt werden."
+
+#: extension/CRM/Banking/PluginImpl/PostProcessor/MembershipExtension.php
+msgid "It will be extended from <em>%1</em> by <em>%2</em> until <em>%3</em>."
+msgstr ""
+"Sie wird vom <em>%1</em> um <em>%2</em> bis zum <em>%3</em> verlängert "
+"werden."
 
 #: extension/CRM/Banking/PluginImpl/PostProcessor/MembershipExtension.php
 msgid "The end date will be aligned to the <em>%1</em>"
@@ -1668,7 +1676,7 @@ msgstr ""
 
 #: extension/CRM/Banking/PluginImpl/PostProcessor/MembershipExtension.php
 msgid ""
-" or a new membership of the type <em>%1</em> might be created for the "
+"or a new membership of the type <em>%1</em> might be created for the "
 "contact, starting from <em>%2</em>"
 msgstr ""
 "oder eine neue Mitgliedschaft des Typs <em>%1</em> könnte für den Kontakt "

@@ -148,37 +148,75 @@ class CRM_Banking_PluginImpl_PostProcessor_MembershipExtension extends CRM_Banki
           );
           if (!empty($memberships)) {
             $membership = reset($memberships);
-            $extend_from = $this->getMembershipExtensionAttribute(
-              'extend_from',
-              [
-                'extend_from' => $config->extend_from,
-                'end_date' => strtotime($membership['end_date']),
-                'receive_date' => strtotime($contribution_dummy['receive_date']),
-              ]
-            );
-            $extend_by = $this->getMembershipExtensionAttribute(
-              'extend_by',
-              [
-                'extend_by' => $config->extend_by,
-                'membership_type_id' => $membership['membership_type_id'],
-              ]
-            );
-            $extend_to = strtotime($extend_by, $extend_from);
             $preview = ' &ndash; '
               . E::ts(
-                'A <a href="%1">membership</a> was found and will be extended from <em>%2</em> by <em>%3</em> until <em>%4</em>.',
+                'A <a href="%1">membership</a> with status <em>%2</em> was found.',
                 [
-                  1 => CRM_Utils_System::url("civicrm/contact/view/membership?action=view&reset=1&cid={$membership['contact_id']}&id={$membership['id']}"),
-                  2 => CRM_Utils_Date::customFormat(
-                    date_create()->setTimestamp($extend_from)->format('Ymd'),
-                    CRM_Core_Config::singleton()->dateformatFull
+                  1 => CRM_Utils_System::url(
+                    "civicrm/contact/view/membership?action=view&reset=1&cid={$membership['contact_id']}&id={$membership['id']}"
                   ),
-                  3 => trim($extend_by, '+-'),
-                  4 => CRM_Utils_Date::customFormat(
-                    date_create()->setTimestamp($extend_to)->format('Ymd'),
-                    CRM_Core_Config::singleton()->dateformatFull
+                  2 => civicrm_api3(
+                    'MembershipStatus',
+                    'getvalue',
+                    [
+                      'id' => $membership['status_id'],
+                      'return' => 'label',
+                    ]
                   ),
                 ]);
+
+            // Denote the status the membership will be set to (set_status).
+            if (!empty($config->set_status)) {
+              $preview .= ' '
+                . E::ts(
+                  'Its status will be set to <em>%1</em>.',
+                  [
+                    1 => civicrm_api3(
+                      'MembershipStatus',
+                      'getvalue',
+                      [
+                        'id' => $config->set_status,
+                        'return' => 'label',
+                      ]
+                    ),
+                  ]
+                );
+            }
+
+            if (!in_array($membership['status_id'], $config->skip_extend_status)) {
+              $extend_from = $this->getMembershipExtensionAttribute(
+                'extend_from',
+                [
+                  'extend_from' => $config->extend_from,
+                  'end_date' => strtotime($membership['end_date']),
+                  'receive_date' => strtotime($contribution_dummy['receive_date']),
+                ]
+              );
+              $extend_by = $this->getMembershipExtensionAttribute(
+                'extend_by',
+                [
+                  'extend_by' => $config->extend_by,
+                  'membership_type_id' => $membership['membership_type_id'],
+                ]
+              );
+              $extend_to = strtotime($extend_by, $extend_from);
+              $preview .= ' '
+                . E::ts(
+                  'It will be extended from <em>%1</em> by <em>%2</em> until <em>%3</em>.',
+                  [
+                    1 => CRM_Utils_Date::customFormat(
+                      date_create()->setTimestamp($extend_from)->format('Ymd'),
+                      CRM_Core_Config::singleton()->dateformatFull
+                    ),
+                    2 => trim($extend_by, '+-'),
+                    3 => CRM_Utils_Date::customFormat(
+                      date_create()->setTimestamp($extend_to)->format('Ymd'),
+                      CRM_Core_Config::singleton()->dateformatFull
+                    ),
+                  ]
+                );
+            }
+
             if ($config->align_end_date) {
               $preview .= ' '
                 . E::ts(
@@ -186,6 +224,7 @@ class CRM_Banking_PluginImpl_PostProcessor_MembershipExtension extends CRM_Banki
                   [1 => $config->align_end_date]
                 );
             }
+
             if (count($memberships) > 1) {
               $preview .= '<div class="messages status no-popup">'
                 . '<div class="icon inform-icon"></div>'
@@ -249,16 +288,20 @@ class CRM_Banking_PluginImpl_PostProcessor_MembershipExtension extends CRM_Banki
                 'receive_date' => $contribution_dummy['receive_date'],
               ]
             );
-            $preview .= E::ts(
-              ' or a new membership of the type <em>%1</em> might be created for the contact, starting from <em>%2</em>',
-              [
-                1 => self::getMembershipType($create_type_id)['name'],
-                2 => CRM_Utils_Date::customFormat(
-                  date_create_from_format('Y-m-d', $create_start_date)->format('Ymd'),
-                  CRM_Core_Config::singleton()->dateformatFull
-                )
-              ]
-            );
+            $preview .= ' '
+              . E::ts(
+                'or a new membership of the type <em>%1</em> might be created for the contact, starting from <em>%2</em>',
+                [
+                  1 => self::getMembershipType($create_type_id)['name'],
+                  2 => CRM_Utils_Date::customFormat(
+                    date_create_from_format(
+                      'Y-m-d',
+                      $create_start_date
+                    )->format('Ymd'),
+                    CRM_Core_Config::singleton()->dateformatFull
+                  ),
+                ]
+              );
           }
           $preview .= '.';
         }
@@ -534,7 +577,7 @@ class CRM_Banking_PluginImpl_PostProcessor_MembershipExtension extends CRM_Banki
         try {
           $contacts_memberships = civicrm_api3('Membership', 'get', [
               'contact_id'   => $contact_id,
-              'return'       => 'id',
+              'return'       => ['id', 'status_id'],
               'option.limit' => 0]);
           foreach ($contacts_memberships['values'] as $contacts_membership) {
             $membership_ids[] = $contacts_membership['id'];

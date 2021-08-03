@@ -162,7 +162,7 @@ class CRM_Banking_PluginImpl_Matcher_CreateMultipleContributions extends CRM_Ban
 
       // Add suggestions for creating new contribution(s).
       foreach ($contacts_found as $contact_id => $contact_probability) {
-        $remainder = $data_parsed['amount_parsed'];
+        $remainder = $data_parsed['amount'];
         $contributions = [];
         $skipped_contributions = [];
         $index = 0;

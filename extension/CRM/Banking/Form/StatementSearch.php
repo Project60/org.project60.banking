@@ -209,7 +209,7 @@ class CRM_Banking_Form_StatementSearch extends CRM_Core_Form
             '_BIC'            => E::ts('Your BIC (<code>_BIC</code>)'),
             '_party_IBAN'     => E::ts('Other\'s IBAN (<code>_party_IBAN</code>)'),
             '_party_BIC'      => E::ts('Other\'s BIC (<code>_party_BIC</code>)'),
-            'cancel_reason'   => E::ts('Other\'s IBAN (<code>cancel_reason</code>)'),
+            'cancel_reason'   => E::ts('Cancel Reason (<code>cancel_reason</code>)'),
             '__other__'       => E::ts('other'),
         ];
     }
@@ -429,7 +429,7 @@ class CRM_Banking_Form_StatementSearch extends CRM_Core_Form
             %2";
 
       $count_sql_query = "
-        SELECT COUNT(DISTINCT(tx.id)) 
+        SELECT COUNT(DISTINCT(tx.id))
         FROM
             civicrm_bank_tx AS tx
         LEFT JOIN
@@ -474,7 +474,7 @@ class CRM_Banking_Form_StatementSearch extends CRM_Core_Form
                                                         $transactionDao->our_account_references, $data_parsed, true),
                 'other_account' => self::renderAccounts($transactionDao->other_account_id, $transactionDao->other_account_data,
                                                         $transactionDao->other_account_references, $data_parsed, false),
-                'purpose'       => $purpose,
+                'purpose'       => '<span style="white-space: pre-wrap">' . $purpose . '</span>',
                 'review_link'   => E::ts('<a href="%1" class="crm-popup">[#%2]</a>', [1 => $review_link, 2 => $transactionDao->id]),
             ];
         }

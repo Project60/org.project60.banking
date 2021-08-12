@@ -11,7 +11,7 @@
         <td>
             <table class="explorer">
                 {foreach from=$extra_data key=k item=v}
-                    <tr><td class="xk">{ts domain='org.project60.banking'}{$k}{/ts}</td><td class="btx-detail-entry">{$v}</td></tr>
+                    <tr><td class="xk">{ts domain='org.project60.banking'}{$k}{/ts}</td><td class="btx-detail-entry significant-whitespace">{$v}</td></tr>
                 {/foreach}
             </table>
         </td>

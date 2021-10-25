@@ -34,6 +34,7 @@ class CRM_Banking_PluginImpl_Matcher_Membership extends CRM_Banking_PluginModel_
     if (!isset($config->threshold))           $config->threshold = 0.5;
     if (!isset($config->general_options))     $config->general_options = array();
     if (!isset($config->membership_options))  $config->membership_options = array();
+    if (!isset($config->multi_match_penalty)) $config->multi_match_penalty = 0.0;
 
     // if TRUE, the start_date will be used to determine the payment cycle,
     //   if FALSE, the join_date will be used.
@@ -245,7 +246,7 @@ class CRM_Banking_PluginImpl_Matcher_Membership extends CRM_Banking_PluginModel_
     }
 
     // now rate all the memberships, and cut off the ones under the threshold
-    $result = array();
+    $result = [];
     foreach ($memberships as $membership) {
       $probability = $this->rateMembership($membership, $btx, $context);
       if (isset($contact2probability[$membership['contact_id']])) {
@@ -259,6 +260,19 @@ class CRM_Banking_PluginImpl_Matcher_Membership extends CRM_Banking_PluginModel_
         $result[$membership['id']] = $membership;
       } else {
         $this->logMessage("Membership discarded ({$probability}): #" . $membership['id'], 'debug');
+      }
+    }
+
+    // add a penalty if it's more than one:
+    if (count($result) > 1 && $config->multi_match_penalty > 0.0) {
+      $this->logMessage("More than one membership found, applying a penalty of {$config->multi_match_penalty} to each candidate.", 'info');
+      foreach ($result as &$membership) {
+        $probability = $membership['probability'] ?? 0.0;
+        $probability = $probability - $config->multi_match_penalty;
+        if ($probability < 0.0) {
+          $probability = 0;
+        }
+        $membership['probability'] = $probability;
       }
     }
 

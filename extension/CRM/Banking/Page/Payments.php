@@ -109,12 +109,17 @@ class CRM_Banking_Page_Payments extends CRM_Core_Page {
         FROM civicrm_bank_tx
         WHERE status_id IN ({$payment_states['suggestions']['id']})
           AND id NOT IN ({$new_statement_id_list});");
-    $open_statement_ids = explode(',', $open_statement_id_list);
-    $this->assign('count_analysed', count($open_statement_ids));
+    if (empty($open_statement_id_list)) {
+      $open_statement_id_list = 0;
+      $open_statement_count = 0;
+    } else {
+      $open_statement_count = count(explode(',', $open_statement_id_list));
+    }
+    $this->assign('count_analysed', $open_statement_count);
 
     // closed count is merely the total count without the former two
     $closed_statement_count = CRM_Core_DAO::singleValueQuery("SELECT COUNT(id) FROM civicrm_bank_tx_batch;")
-       - count($open_statement_ids) - count($new_statement_ids);
+       - $open_statement_count - count($new_statement_ids);
     $this->assign('count_completed', $closed_statement_count);
 
 
@@ -136,7 +141,7 @@ class CRM_Banking_Page_Payments extends CRM_Core_Page {
       // 'ANALYSED' mode will show all that have been partially analysed, but not all completed
       if ($open_statement_id_list) {
         $where_clause = "btxb.id IN ({$open_statement_id_list})";
-        $this->assign('status_message', E::ts("%1 analysed statements.", [1 => count($open_statement_ids)]));
+        $this->assign('status_message', E::ts("%1 analysed statements.", [1 => $open_statement_count]));
       } else {
         $where_clause = "FALSE";
         $this->assign('status_message', E::ts("No analysed statements."));
@@ -152,7 +157,7 @@ class CRM_Banking_Page_Payments extends CRM_Core_Page {
         $where_clause .= " AND btxb.id NOT IN ({$open_statement_id_list}) ";
       }
       $this->assign('status_message', E::ts("%1 closed statements.", [
-        1 => $closed_statement_count - count($open_statement_ids) - count($new_statement_ids)]));
+        1 => $closed_statement_count - $open_statement_count - count($new_statement_ids)]));
     }
 
     // RUN THE STATEMENT QUERY

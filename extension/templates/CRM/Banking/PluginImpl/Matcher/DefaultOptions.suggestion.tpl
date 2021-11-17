@@ -242,7 +242,7 @@
     // sum up the rows
     var sum = 0.0;
     cj("#manual_match_contribution_table tr").each(function() {
-      sum += parseFloat(cj("td[name=amount]", this).text());
+      sum += parseFloat(cj("td[name=amount]", this).text()) || 0;
     });
 
     // update the style...

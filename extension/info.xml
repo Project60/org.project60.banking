@@ -20,6 +20,9 @@
   <compatibility>
     <ver>5.19</ver>
   </compatibility>
+  <classloader>
+    <psr4 prefix="Civi\" path="Civi" />
+  </classloader>
   <comments>Implements handling of bank accounts for contacts, as well as handling of bank files (and individual bank payments extracted from the files). Bank files can be imported, transactions matched to CiviCRM entities, and the resulting data exported. Specific handlers for all of these actions are provided through plugins, some of which are shipped with the core banking extension, while some more complex ones are provided in separate extensions. More information here: https://docs.civicrm.org/banking/en/latest</comments>
   <civix>
     <namespace>CRM/Banking</namespace>

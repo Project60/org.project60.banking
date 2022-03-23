@@ -17,6 +17,16 @@
 require_once 'banking.civix.php';
 require_once 'hooks.php';
 require_once 'banking_options.php';
+use Symfony\Component\DependencyInjection\ContainerBuilder;
+
+/**
+ * Implements hook_civicrm_container().
+ *
+ * @param ContainerBuilder $container
+ */
+function banking_civicrm_container(ContainerBuilder $container) {
+  $container->addCompilerPass(new Civi\Banking\CompilerPass());
+}
 
 /**
  * Implementation of hook_civicrm_config

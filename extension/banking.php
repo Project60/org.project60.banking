@@ -25,7 +25,9 @@ use Symfony\Component\DependencyInjection\ContainerBuilder;
  * @param ContainerBuilder $container
  */
 function banking_civicrm_container(ContainerBuilder $container) {
-  $container->addCompilerPass(new Civi\Banking\CompilerPass());
+  if (class_exists('Civi\Banking\CompilerPass')) {
+    $container->addCompilerPass(new Civi\Banking\CompilerPass());
+  }
 }
 
 /**

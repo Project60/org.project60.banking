@@ -357,6 +357,7 @@ class CRM_Banking_PluginImpl_Matcher_SepaMandate extends CRM_Banking_PluginModel
     $query['contribution_status_id'] = $status_completed;
     $query['receive_date'] = date('Ymdhis', strtotime($btx->value_date));
     $query = array_merge($query, $this->getPropagationSet($btx, $match, 'contribution'));   // add propagated values
+    CRM_Banking_Helpers_IssueMitigation::mitigate358($query);
     $result = civicrm_api('Contribution', 'create', $query);
 
     if (isset($result['is_error']) && $result['is_error']) {
@@ -458,6 +459,7 @@ class CRM_Banking_PluginImpl_Matcher_SepaMandate extends CRM_Banking_PluginModel
       $query['cancel_reason'] = $match->getParameter('cancel_reason');
     }
     $this->logMessage("SepaMandate matcher calling Contribution.create: " . json_encode($query), 'debug');
+    CRM_Banking_Helpers_IssueMitigation::mitigate358($query);
     $result = civicrm_api('Contribution', 'create', $query);
     $this->logTime('Cancel Contribution', 'sepa_mandate_cancel_contribution');
 

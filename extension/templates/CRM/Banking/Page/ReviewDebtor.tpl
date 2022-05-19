@@ -38,7 +38,7 @@
             {if $contact}
                 <div class="btxlabel">{ts domain='org.project60.banking'}Contact{/ts}</div>
                 <div class="btxvalue btxl">
-                    <a href="{$base_url}/civicrm/contact/view?reset=1&cid={$contact.id}">{$contact.display_name}&nbsp;[{$contact.id}]</a>
+                    <a href="{crmURL p="civicrm/contact/view" q="reset=1&cid=$ba_contact_id"}">{$contact.display_name}&nbsp;[{$contact.id}]</a>
                 </div>
             {/if}
         </td>

@@ -1,836 +1,827 @@
 #
 # Translators:
-# Carolina Bardisa <c.bardisa@ixiam.com>, 2018
-# Gilles LE POITTEVIN <gilles@radiomaria.fr>, 2017
-# H. Bond <bonduaeux.h@gmail.com>, 2017
-# Philippe SAMPONT <PhilippeS@cncd.be>, 2016
-# Xynn <xynn.anhnguyen@gmail.com>, 2015
+# sluc23 <sluc23@hotmail.com>, 2017
+# sluc23 <sluc23@hotmail.com>, 2017
 msgid ""
 msgstr ""
 "Project-Id-Version: CiviCRM_extensions\n"
 "POT-Creation-Date: 2018-10-08 09:54+0100\n"
-"PO-Revision-Date: 2018-10-08 09:55+0100\n"
-"Last-Translator: Carolina Bardisa <c.bardisa@ixiam.com>\n"
-"Language-Team: French (http://www.transifex.com/civicrm/civicrm_extensions/"
-"language/fr/)\n"
-"Language: fr\n"
+"PO-Revision-Date: 2018-10-08 09:54+0100\n"
+"Last-Translator: sluc23 <sluc23@hotmail.com>\n"
+"Language-Team: Spanish (http://www.transifex.com/civicrm/civicrm_extensions/"
+"language/es/)\n"
+"Language: es\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Plural-Forms: nplurals=2; plural=(n > 1);\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
 "X-Generator: Poedit 1.8.7.1\n"
 
-#: extension/CRM/Admin/Form/Setting/BankingSettings.php
+#: CRM/Admin/Form/Setting/BankingSettings.php
 msgid "New user interface"
 msgstr ""
 
-#: extension/CRM/Admin/Form/Setting/BankingSettings.php
+#: CRM/Admin/Form/Setting/BankingSettings.php
 msgid "Legacy user interface"
 msgstr ""
 
-#: extension/CRM/Admin/Form/Setting/BankingSettings.php
+#: CRM/Admin/Form/Setting/BankingSettings.php
 msgid "Statement User interface"
 msgstr ""
 
-#: extension/CRM/Admin/Form/Setting/BankingSettings.php
+#: CRM/Admin/Form/Setting/BankingSettings.php
 msgid "In Main Menu"
 msgstr ""
 
-#: extension/CRM/Admin/Form/Setting/BankingSettings.php
+#: CRM/Admin/Form/Setting/BankingSettings.php
 msgid "In Contribution Menu"
 msgstr ""
 
-#: extension/CRM/Admin/Form/Setting/BankingSettings.php
+#: CRM/Admin/Form/Setting/BankingSettings.php
 msgid "No Menu"
 msgstr ""
 
-#: extension/CRM/Admin/Form/Setting/BankingSettings.php
+#: CRM/Admin/Form/Setting/BankingSettings.php
 msgid "CiviBanking Menu Position"
 msgstr ""
 
-#: extension/CRM/Admin/Form/Setting/BankingSettings.php
+#: CRM/Admin/Form/Setting/BankingSettings.php
 msgid "Tree View"
 msgstr ""
 
-#: extension/CRM/Admin/Form/Setting/BankingSettings.php
+#: CRM/Admin/Form/Setting/BankingSettings.php
 msgid "Simple Text"
 msgstr ""
 
-#: extension/CRM/Admin/Form/Setting/BankingSettings.php
+#: CRM/Admin/Form/Setting/BankingSettings.php
 msgid "JSON Code"
 msgstr ""
 
-#: extension/CRM/Admin/Form/Setting/BankingSettings.php
+#: CRM/Admin/Form/Setting/BankingSettings.php
 msgid "Tree Editor"
 msgstr ""
 
-#: extension/CRM/Admin/Form/Setting/BankingSettings.php
+#: CRM/Admin/Form/Setting/BankingSettings.php
 msgid "Form Editor"
 msgstr ""
 
-#: extension/CRM/Admin/Form/Setting/BankingSettings.php
+#: CRM/Admin/Form/Setting/BankingSettings.php
 msgid "Configuration Editor Default Mode"
 msgstr ""
 
-#: extension/CRM/Admin/Form/Setting/BankingSettings.php
+#: CRM/Admin/Form/Setting/BankingSettings.php
 msgid "Log Level"
 msgstr ""
 
-#: extension/CRM/Admin/Form/Setting/BankingSettings.php
+#: CRM/Admin/Form/Setting/BankingSettings.php
 msgid "Log File"
 msgstr ""
 
-#: extension/CRM/Admin/Form/Setting/BankingSettings.php
+#: CRM/Admin/Form/Setting/BankingSettings.php
 msgid "Don't store bank accounts automatically"
 msgstr ""
 
-#: extension/CRM/Admin/Form/Setting/BankingSettings.php
+#: CRM/Admin/Form/Setting/BankingSettings.php
 msgid "Normalise bank account references"
 msgstr ""
 
-#: extension/CRM/Admin/Form/Setting/BankingSettings.php
+#: CRM/Admin/Form/Setting/BankingSettings.php
 msgid "Validate bank account references"
 msgstr ""
 
-#: extension/CRM/Admin/Form/Setting/BankingSettings.php
+#: CRM/Admin/Form/Setting/BankingSettings.php
 msgid "Lenient bank account dedupe"
 msgstr ""
 
-#: extension/CRM/Admin/Form/Setting/BankingSettings.php
-#: extension/CRM/Banking/Form/AccountsTab.php
-#: extension/CRM/Banking/Form/Configure.php extension/ang/banking/Main.html
+#: CRM/Admin/Form/Setting/BankingSettings.php
+#: CRM/Banking/Form/AccountsTab.php
+#: CRM/Banking/Form/Configure.php extension/ang/banking/Main.html
 msgid "Save"
 msgstr ""
 
-#: extension/CRM/Banking/BAO/PluginInstance.php
+#: CRM/Banking/BAO/PluginInstance.php
 msgid "Cannot update, wrong plugin type!"
 msgstr ""
 
-#: extension/CRM/Banking/BAO/PluginInstance.php
+#: CRM/Banking/BAO/PluginInstance.php
 msgid "Cannot update, wrong plugin class!"
 msgstr ""
 
-#: extension/CRM/Banking/BAO/PluginInstance.php
+#: CRM/Banking/BAO/PluginInstance.php
 msgid "Cannot update, field %1 differs."
 msgstr ""
 
-#: extension/CRM/Banking/DAO/BankAccount.php
-#: extension/CRM/Banking/DAO/PluginInstance.php
-#: extension/CRM/Banking/Form/Configure.php
+#: CRM/Banking/DAO/BankAccount.php
+#: CRM/Banking/DAO/PluginInstance.php
+#: CRM/Banking/Form/Configure.php
 #: extension/templates/CRM/Banking/Page/Manager.tpl
 msgid "Description"
-msgstr "Description"
+msgstr "Descripción"
 
-#: extension/CRM/Banking/DAO/BankAccount.php
+#: CRM/Banking/DAO/BankAccount.php
 msgid "Date created"
-msgstr "Date créée"
+msgstr "Fecha de creación"
 
-#: extension/CRM/Banking/DAO/BankAccount.php
+#: CRM/Banking/DAO/BankAccount.php
 msgid "Date modified"
-msgstr "Date modifiée"
+msgstr "Fecha de modificación"
 
-#: extension/CRM/Banking/DAO/BankAccount.php
-#: extension/CRM/Banking/DAO/BankTransaction.php
+#: CRM/Banking/DAO/BankAccount.php
+#: CRM/Banking/DAO/BankTransaction.php
 msgid "Data Raw"
-msgstr "Données brutes"
+msgstr "Datos sin procesar"
 
-#: extension/CRM/Banking/DAO/BankAccount.php
-#: extension/CRM/Banking/DAO/BankTransaction.php
+#: CRM/Banking/DAO/BankAccount.php
+#: CRM/Banking/DAO/BankTransaction.php
 msgid "Data Parsed"
-msgstr "Données Analysées"
+msgstr "Datos procesados"
 
-#: extension/CRM/Banking/DAO/BankAccount.php
-#: extension/CRM/Banking/PluginImpl/Matcher/RulesAnalyser.php
+#: CRM/Banking/DAO/BankAccount.php
+#: CRM/Banking/PluginImpl/Matcher/RulesAnalyser.php
 msgid "Contact ID"
-msgstr "IDentifiant de contact"
+msgstr "Identificador de contacto"
 
-#: extension/CRM/Banking/DAO/BankAccountReference.php
+#: CRM/Banking/DAO/BankAccountReference.php
 msgid "Reference value"
-msgstr "Valeur de référence"
+msgstr "Valor de la referencia"
 
-#: extension/CRM/Banking/DAO/BankAccountReference.php
+#: CRM/Banking/DAO/BankAccountReference.php
 msgid "Reference type"
-msgstr "Type de référence"
+msgstr "Tipo de la referencia"
 
-#: extension/CRM/Banking/DAO/BankAccountReference.php
-#: extension/CRM/Banking/DAO/BankTransaction.php
+#: CRM/Banking/DAO/BankAccountReference.php
+#: CRM/Banking/DAO/BankTransaction.php
 msgid "Bank Account ID"
-msgstr "Identifiant du compte bancaire"
+msgstr "ID de la cuenta de banco"
 
-#: extension/CRM/Banking/DAO/BankTransaction.php
+#: CRM/Banking/DAO/BankTransaction.php
 msgid "Unique Statement Reference"
-msgstr "Référence d'état unique"
+msgstr "Referencia única del extracto"
 
-#: extension/CRM/Banking/DAO/BankTransaction.php
+#: CRM/Banking/DAO/BankTransaction.php
 msgid "Value date"
-msgstr "Date de valeur"
+msgstr "Fecha del valor"
 
-#: extension/CRM/Banking/DAO/BankTransaction.php
+#: CRM/Banking/DAO/BankTransaction.php
 msgid "Booking date"
-msgstr "Date de réservation"
+msgstr "Fecha de reserva"
 
-#: extension/CRM/Banking/DAO/BankTransaction.php
+#: CRM/Banking/DAO/BankTransaction.php
 msgid "Transaction amount"
-msgstr "Montant de la transaction"
+msgstr "Cantidad de la transacción"
 
-#: extension/CRM/Banking/DAO/BankTransaction.php
-#: extension/CRM/Banking/DAO/BankTransactionBatch.php
+#: CRM/Banking/DAO/BankTransaction.php
+#: CRM/Banking/DAO/BankTransactionBatch.php
 msgid "Currency"
-msgstr "Devise"
+msgstr "Moneda"
 
-#: extension/CRM/Banking/DAO/BankTransaction.php
+#: CRM/Banking/DAO/BankTransaction.php
 msgid "Bank Transaction Type"
-msgstr "Type de transaction bancaire"
+msgstr "Tipo de transacción bancaria"
 
-#: extension/CRM/Banking/DAO/BankTransaction.php
+#: CRM/Banking/DAO/BankTransaction.php
 msgid "Bank Transaction Status"
-msgstr "Etat de la transaction bancaire"
+msgstr "Estado de la transacción bancaria"
 
-#: extension/CRM/Banking/DAO/BankTransaction.php
+#: CRM/Banking/DAO/BankTransaction.php
 msgid "Party Bank Account ID"
-msgstr "ID de compte bancaire tiers"
+msgstr ""
 
-#: extension/CRM/Banking/DAO/BankTransaction.php
+#: CRM/Banking/DAO/BankTransaction.php
 msgid "Bank Transaction Batch ID"
-msgstr "ID de lot de transaction bancaire"
+msgstr ""
 
-#: extension/CRM/Banking/DAO/BankTransaction.php
+#: CRM/Banking/DAO/BankTransaction.php
 msgid "Sequence in statement"
-msgstr "Séquence en cours de traitement"
+msgstr "Secuencia en el extracto"
 
-#: extension/CRM/Banking/DAO/BankTransaction.php
+#: CRM/Banking/DAO/BankTransaction.php
 msgid "Suggestions"
-msgstr "Suggestions"
+msgstr "Sugerencias"
 
-#: extension/CRM/Banking/DAO/BankTransactionBatch.php
+#: CRM/Banking/DAO/BankTransactionBatch.php
 msgid "Issue date"
-msgstr "Date d'émission"
+msgstr "Fecha de asunto"
 
-#: extension/CRM/Banking/DAO/BankTransactionBatch.php
+#: CRM/Banking/DAO/BankTransactionBatch.php
 msgid "Statement Reference"
-msgstr "Référence du Relevé"
+msgstr "Referencia del extracto"
 
-#: extension/CRM/Banking/DAO/BankTransactionBatch.php
+#: CRM/Banking/DAO/BankTransactionBatch.php
 msgid "Bank Statement sequence"
-msgstr "Séquence du Relevé Bancaire"
+msgstr "Secuencia del extracto bancario"
 
-#: extension/CRM/Banking/DAO/BankTransactionBatch.php
+#: CRM/Banking/DAO/BankTransactionBatch.php
 msgid "Starting Balance"
-msgstr "Solde Initial"
+msgstr "Balance inicial"
 
-#: extension/CRM/Banking/DAO/BankTransactionBatch.php
+#: CRM/Banking/DAO/BankTransactionBatch.php
 msgid "Ending Balance"
-msgstr "Solde de Clôture"
+msgstr "Balance final"
 
-#: extension/CRM/Banking/DAO/BankTransactionBatch.php
+#: CRM/Banking/DAO/BankTransactionBatch.php
 msgid "Transaction Count"
-msgstr "Nombre de transactions"
+msgstr "Cantidad de transacciones"
 
-#: extension/CRM/Banking/DAO/BankTransactionBatch.php
+#: CRM/Banking/DAO/BankTransactionBatch.php
 msgid "Start date"
-msgstr "Date de début"
+msgstr "Fecha de inicio"
 
-#: extension/CRM/Banking/DAO/BankTransactionBatch.php
+#: CRM/Banking/DAO/BankTransactionBatch.php
 msgid "End date"
-msgstr "Date de fin"
+msgstr "Fecha de fin"
 
-#: extension/CRM/Banking/DAO/PluginInstance.php
+#: CRM/Banking/DAO/PluginInstance.php
 msgid "Plugin type"
-msgstr "Type de Plugin"
+msgstr "Tipo de plugin"
 
-#: extension/CRM/Banking/DAO/PluginInstance.php
+#: CRM/Banking/DAO/PluginInstance.php
 msgid "Plugin class name"
-msgstr "Nom de la classe de Plugin"
+msgstr "Nombre de clase del plugin"
 
-#: extension/CRM/Banking/DAO/PluginInstance.php extension/ang/banking/Main.html
+#: CRM/Banking/DAO/PluginInstance.php extension/ang/banking/Main.html
 msgid "Name"
-msgstr "Nom"
+msgstr "Nombre"
 
-#: extension/CRM/Banking/DAO/PluginInstance.php
+#: CRM/Banking/DAO/PluginInstance.php
 #: extension/ang/banking/Rules.html
 msgid "Enabled"
-msgstr "Activé"
+msgstr "Activado"
 
-#: extension/CRM/Banking/DAO/PluginInstance.php
+#: CRM/Banking/DAO/PluginInstance.php
 msgid "Weight"
-msgstr "Poids"
+msgstr "Peso"
 
-#: extension/CRM/Banking/DAO/PluginInstance.php
+#: CRM/Banking/DAO/PluginInstance.php
 msgid "Config"
-msgstr "Configuration"
+msgstr "Configuración"
 
-#: extension/CRM/Banking/DAO/PluginInstance.php
+#: CRM/Banking/DAO/PluginInstance.php
 msgid "State"
-msgstr "Etat"
+msgstr "Estado"
 
-#: extension/CRM/Banking/Form/AccountsTab.php
-#: extension/CRM/Banking/Page/Dashboard.php
-#: extension/CRM/Banking/Page/Payments.php
-#: extension/CRM/Banking/PluginImpl/Matcher/ExistingContribution.php
-#: extension/CRM/Banking/PluginImpl/Matcher/SepaMandate.php
+#: CRM/Banking/Form/AccountsTab.php
+#: CRM/Banking/Page/Dashboard.php
+#: CRM/Banking/Page/Payments.php
+#: CRM/Banking/PluginImpl/Matcher/ExistingContribution.php
+#: CRM/Banking/PluginImpl/Matcher/SepaMandate.php
 msgid "Unknown"
-msgstr "Inconnu"
+msgstr "Desconocido"
 
-#: extension/CRM/Banking/Form/AccountsTab.php
+#: CRM/Banking/Form/AccountsTab.php
 msgid "Bank Account Type"
 msgstr ""
 
-#: extension/CRM/Banking/Form/AccountsTab.php
+#: CRM/Banking/Form/AccountsTab.php
 msgid "Bank Account Number"
 msgstr ""
 
-#: extension/CRM/Banking/Form/AccountsTab.php
+#: CRM/Banking/Form/AccountsTab.php
 msgid "BIC"
 msgstr ""
 
-#: extension/CRM/Banking/Form/AccountsTab.php
+#: CRM/Banking/Form/AccountsTab.php
 #: extension/templates/CRM/Banking/Form/AccountsTab.tpl
 msgid "Bank Name"
-msgstr "Nom de la banque"
+msgstr "Nombre del banco"
 
-#: extension/CRM/Banking/Form/AccountsTab.php
+#: CRM/Banking/Form/AccountsTab.php
 #: extension/templates/CRM/Banking/Form/AccountsTab.tpl
 #: extension/templates/CRM/Banking/PluginImpl/PostProcessor/AddressUpdate.activity.tpl
 #: extension/templates/CRM/Banking/PluginImpl/PostProcessor/AddressUpdate.note.tpl
 msgid "Country"
 msgstr ""
 
-#: extension/CRM/Banking/Form/AccountsTab.php
+#: CRM/Banking/Form/AccountsTab.php
 msgid "Cancel"
 msgstr ""
 
-#: extension/CRM/Banking/Form/AccountsTab.php
+#: CRM/Banking/Form/AccountsTab.php
 msgid "Invalid reference."
 msgstr ""
 
-#: extension/CRM/Banking/Form/AccountsTab.php
+#: CRM/Banking/Form/AccountsTab.php
 msgid "Invalid reference '%1'"
 msgstr ""
 
-#: extension/CRM/Banking/Form/AccountsTab.php
+#: CRM/Banking/Form/AccountsTab.php
 msgid "Failure"
 msgstr ""
 
-#: extension/CRM/Banking/Form/AccountsTab.php
+#: CRM/Banking/Form/AccountsTab.php
 msgid "Bank account '%1' was created."
 msgstr ""
 
-#: extension/CRM/Banking/Form/AccountsTab.php
-#: extension/CRM/Banking/Form/PluginUpload.php
-#: extension/CRM/Banking/Page/AccountDedupe.php
-#: extension/CRM/Banking/PluginImpl/Matcher/RulesAnalyser.php
-#: extension/CRM/Banking/PluginImpl/Matcher/SepaMandate.php
+#: CRM/Banking/Form/AccountsTab.php
+#: CRM/Banking/Form/PluginUpload.php
+#: CRM/Banking/Page/AccountDedupe.php
+#: CRM/Banking/PluginImpl/Matcher/RulesAnalyser.php
+#: CRM/Banking/PluginImpl/Matcher/SepaMandate.php
 #: extension/templates/CRM/Banking/Form/AccountsTab.tpl
 msgid "Success"
-msgstr "Succès"
+msgstr "Éxito"
 
-#: extension/CRM/Banking/Form/AccountsTab.php
+#: CRM/Banking/Form/AccountsTab.php
 msgid "Bank account '%1' was updated."
 msgstr ""
 
-#: extension/CRM/Banking/Form/Configure.php
+#: CRM/Banking/Form/Configure.php
 msgid "Enter name"
 msgstr ""
 
-#: extension/CRM/Banking/Form/Configure.php
+#: CRM/Banking/Form/Configure.php
 msgid "Describe here what this plugin does."
 msgstr ""
 
-#: extension/CRM/Banking/Form/Configure.php
+#: CRM/Banking/Form/Configure.php
 msgid "Configure Plugin \"%1\""
 msgstr ""
 
-#: extension/CRM/Banking/Form/Configure.php
+#: CRM/Banking/Form/Configure.php
 msgid "Plugin Name"
 msgstr ""
 
-#: extension/CRM/Banking/Form/Configure.php
+#: CRM/Banking/Form/Configure.php
 msgid "Plugin Class"
 msgstr ""
 
-#: extension/CRM/Banking/Form/Configure.php
+#: CRM/Banking/Form/Configure.php
 msgid "Implementation"
 msgstr ""
 
-#: extension/CRM/Banking/Form/PluginUpload.php
+#: CRM/Banking/Form/PluginUpload.php
 msgid "Update plugin '%1' with configuration file."
 msgstr ""
 
-#: extension/CRM/Banking/Form/PluginUpload.php
+#: CRM/Banking/Form/PluginUpload.php
 msgid "Select configuration file"
 msgstr ""
 
-#: extension/CRM/Banking/Form/PluginUpload.php
+#: CRM/Banking/Form/PluginUpload.php
 msgid "Update"
 msgstr ""
 
-#: extension/CRM/Banking/Form/PluginUpload.php
+#: CRM/Banking/Form/PluginUpload.php
 msgid "Import CiviBanking Plugins"
 msgstr ""
 
-#: extension/CRM/Banking/Form/PluginUpload.php
+#: CRM/Banking/Form/PluginUpload.php
 msgid "Select files to import"
 msgstr ""
 
-#: extension/CRM/Banking/Form/PluginUpload.php
+#: CRM/Banking/Form/PluginUpload.php
 #: extension/templates/CRM/Banking/Page/Statements.tpl
 msgid "Import"
 msgstr ""
 
-#: extension/CRM/Banking/Form/PluginUpload.php
+#: CRM/Banking/Form/PluginUpload.php
 msgid "%1 new plugins imported"
 msgstr ""
 
-#: extension/CRM/Banking/Form/PluginUpload.php
+#: CRM/Banking/Form/PluginUpload.php
 msgid "Plugin configuration updated"
 msgstr ""
 
-#: extension/CRM/Banking/Form/PluginUpload.php
+#: CRM/Banking/Form/PluginUpload.php
 msgid "No configuration files selected"
 msgstr ""
 
-#: extension/CRM/Banking/Form/PluginUpload.php
-#: extension/CRM/Banking/Page/Review.php
-#: extension/CRM/Banking/PluginImpl/Matcher/Batches.php
-#: extension/CRM/Banking/PluginImpl/Matcher/CreateContribution.php
-#: extension/CRM/Banking/PluginImpl/Matcher/DefaultOptions.php
-#: extension/CRM/Banking/PluginImpl/Matcher/ExistingContribution.php
-#: extension/CRM/Banking/PluginImpl/Matcher/Membership.php
-#: extension/CRM/Banking/PluginImpl/Matcher/RecurringContribution.php
-#: extension/CRM/Banking/PluginImpl/Matcher/Rules.php
-#: extension/CRM/Banking/PluginImpl/Matcher/RulesAnalyser.php
-#: extension/CRM/Banking/PluginImpl/Matcher/SepaMandate.php
-#: extension/CRM/Banking/PluginModel/Matcher.php
+#: CRM/Banking/Form/PluginUpload.php
+#: CRM/Banking/Page/Review.php
+#: CRM/Banking/PluginImpl/Matcher/Batches.php
+#: CRM/Banking/PluginImpl/Matcher/CreateContribution.php
+#: CRM/Banking/PluginImpl/Matcher/DefaultOptions.php
+#: CRM/Banking/PluginImpl/Matcher/ExistingContribution.php
+#: CRM/Banking/PluginImpl/Matcher/Membership.php
+#: CRM/Banking/PluginImpl/Matcher/RecurringContribution.php
+#: CRM/Banking/PluginImpl/Matcher/Rules.php
+#: CRM/Banking/PluginImpl/Matcher/RulesAnalyser.php
+#: CRM/Banking/PluginImpl/Matcher/SepaMandate.php
+#: CRM/Banking/PluginModel/Matcher.php
 #: extension/templates/CRM/Banking/Form/AccountsTab.tpl
 #: extension/templates/CRM/Banking/Page/Payments.tpl
 #: extension/templates/CRM/Banking/Page/Review.tpl
 #: extension/templates/CRM/Banking/Page/StatementLine.tpl
 #: extension/templates/CRM/Banking/Page/Statements.tpl
 msgid "Error"
-msgstr "Erreur"
+msgstr "Error"
 
-#: extension/CRM/Banking/Form/PluginUpload.php
+#: CRM/Banking/Form/PluginUpload.php
 msgid "Import/update failed: %1"
 msgstr ""
 
-#: extension/CRM/Banking/Form/PluginUpload.php
+#: CRM/Banking/Form/PluginUpload.php
 #: extension/templates/CRM/Banking/Form/AccountsTab.tpl
 msgid "Failed"
 msgstr ""
 
-#: extension/CRM/Banking/Helpers/AnalysisRunner.php
+#: CRM/Banking/Helpers/AnalysisRunner.php
 msgid "Initialising analyser..."
 msgstr ""
 
-#: extension/CRM/Banking/Helpers/AnalysisRunner.php
+#: CRM/Banking/Helpers/AnalysisRunner.php
 msgid "Analysing bank transactions %1-%2"
 msgstr ""
 
-#: extension/CRM/Banking/Helpers/AnalysisRunner.php
+#: CRM/Banking/Helpers/AnalysisRunner.php
 msgid "Analysing %1 bank transactions"
 msgstr ""
 
-#: extension/CRM/Banking/Helpers/Logger.php
+#: CRM/Banking/Helpers/Logger.php
 msgid "No Logging"
 msgstr ""
 
-#: extension/CRM/Banking/Helpers/Logger.php
+#: CRM/Banking/Helpers/Logger.php
 msgid "Debug"
 msgstr ""
 
-#: extension/CRM/Banking/Helpers/Logger.php
+#: CRM/Banking/Helpers/Logger.php
 msgid "Info"
 msgstr ""
 
-#: extension/CRM/Banking/Helpers/Logger.php
+#: CRM/Banking/Helpers/Logger.php
 msgid "Warnings"
 msgstr ""
 
-#: extension/CRM/Banking/Helpers/Logger.php
+#: CRM/Banking/Helpers/Logger.php
 msgid "Errors"
 msgstr ""
 
-#: extension/CRM/Banking/Matcher/Engine.php
+#: CRM/Banking/Matcher/Engine.php
 msgid "Error while trying to query database for matcher plugins!"
-msgstr ""
-"Erreur lors de la tentative de consulter la base de données pour matcher "
-"plugins!"
+msgstr "Error al buscar en la base de datos los matcher plugins"
 
-#: extension/CRM/Banking/Matcher/Engine.php
+#: CRM/Banking/Matcher/Engine.php
 msgid "No processors"
-msgstr "Pas de processeurs"
+msgstr "No hay procesadores"
 
-#: extension/CRM/Banking/Matcher/Engine.php
+#: CRM/Banking/Matcher/Engine.php
 msgid "Error while trying to query database for postprocessor plugins!"
 msgstr ""
 
-#: extension/CRM/Banking/Matcher/Engine.php
+#: CRM/Banking/Matcher/Engine.php
 msgid "No matcher plugins configured!"
-msgstr "Aucun plugin matcher configuré!"
+msgstr "No se han configurado los matcher plugins"
 
-#: extension/CRM/Banking/Matcher/Suggestion.php
+#: CRM/Banking/Matcher/Suggestion.php
 msgid "Matcher tried to override BTX object with different entity"
-msgstr "Matcher a tenté de remplacer l'objet BTX par une entité différente"
+msgstr ""
 
-#: extension/CRM/Banking/Matcher/Suggestion.php
+#: CRM/Banking/Matcher/Suggestion.php
 msgid "Matcher Failure"
-msgstr "Matcher Échec"
+msgstr ""
 
-#: extension/CRM/Banking/Matcher/Suggestion.php
+#: CRM/Banking/Matcher/Suggestion.php
 msgid "Could not load BTX object, no id stored."
 msgstr ""
-"Impossible de charger l'objet BTX, aucun identifiant n'a été enregistré."
 
-#: extension/CRM/Banking/Matcher/Suggestion.php
+#: CRM/Banking/Matcher/Suggestion.php
 msgid "Matcher tried to override plugin object with different entity"
-msgstr "Matcher a tenté de remplacer l'objet plugin par une entité différente"
+msgstr ""
 
-#: extension/CRM/Banking/Matcher/Suggestion.php
+#: CRM/Banking/Matcher/Suggestion.php
 msgid "Could not load plugin object, no id stored."
-msgstr "Impossible de charger l'objet plugin, aucun identifiant stocké."
+msgstr ""
 
-#: extension/CRM/Banking/Matcher/Suggestion.php
+#: CRM/Banking/Matcher/Suggestion.php
 msgid "Cannot add evidence outside [0,1] range, assuming 1"
 msgstr ""
-"Impossible d'ajouter une preuve en dehors l´intervalle [0,1], en supposant 1"
 
-#: extension/CRM/Banking/Matcher/Suggestion.php
+#: CRM/Banking/Matcher/Suggestion.php
 msgid "Warning: bad matcher evidence"
-msgstr "Attention: mauvaise évidence de concordance"
+msgstr ""
 
-#: extension/CRM/Banking/Page/AccountDedupe.php
+#: CRM/Banking/Page/AccountDedupe.php
 msgid "Dedupe Bank Accounts"
 msgstr ""
 
-#: extension/CRM/Banking/Page/AccountDedupe.php
+#: CRM/Banking/Page/AccountDedupe.php
 msgid ""
 "%1 errors were encountered when trying to merge duplicate bank accounts, %2/"
 "%3 bank accounts were successfully merged."
 msgstr ""
 
-#: extension/CRM/Banking/Page/AccountDedupe.php
+#: CRM/Banking/Page/AccountDedupe.php
 msgid "Errors encountered"
 msgstr ""
 
-#: extension/CRM/Banking/Page/AccountDedupe.php
+#: CRM/Banking/Page/AccountDedupe.php
 msgid "%1 duplicate bank accounts successfully merged."
 msgstr ""
 
-#: extension/CRM/Banking/Page/AccountDedupe.php
+#: CRM/Banking/Page/AccountDedupe.php
 msgid ""
 "%1 errors were encountered when trying to delete duplicate references. %2/%3 "
 "references were successfully deleted."
 msgstr ""
 
-#: extension/CRM/Banking/Page/AccountDedupe.php
+#: CRM/Banking/Page/AccountDedupe.php
 msgid "%1 duplicate references successfully deleted."
 msgstr ""
 
-#: extension/CRM/Banking/Page/AccountSearch.php extension/hooks.php
+#: CRM/Banking/Page/AccountSearch.php extension/hooks.php
 msgid "Find Accounts"
-msgstr "Rechercher des comptes"
+msgstr "Buscar Cuentas"
 
-#: extension/CRM/Banking/Page/Dashboard.php
+#: CRM/Banking/Page/Dashboard.php
 msgid "CiviBanking Dashboard"
-msgstr "Tableau de bord CiviBanking"
+msgstr "Panel de Control de CiviBanking"
 
-#: extension/CRM/Banking/Page/Dashboard.php
+#: CRM/Banking/Page/Dashboard.php
 msgid "account"
-msgstr "compte"
+msgstr "cuenta"
 
-#: extension/CRM/Banking/Page/Dashboard.php
+#: CRM/Banking/Page/Dashboard.php
 msgid "Payments"
-msgstr "Paiements"
+msgstr "Pagos"
 
-#: extension/CRM/Banking/Page/Dashboard.php
+#: CRM/Banking/Page/Dashboard.php
 msgid "current year"
-msgstr "cette année"
+msgstr "año actual"
 
-#: extension/CRM/Banking/Page/Dashboard.php
+#: CRM/Banking/Page/Dashboard.php
 msgid "last year"
-msgstr "l'année passée"
+msgstr "año pasado"
 
-#: extension/CRM/Banking/Page/Dashboard.php
+#: CRM/Banking/Page/Dashboard.php
 msgid "all times"
-msgstr "chaque fois"
+msgstr "todos los tiempos"
 
-#: extension/CRM/Banking/Page/Export.php
+#: CRM/Banking/Page/Export.php
 msgid "Bank Transaction Exporter"
 msgstr ""
 
-#: extension/CRM/Banking/Page/Import.php
+#: CRM/Banking/Page/Import.php
 msgid "Bank Transaction Importer"
 msgstr ""
 
-#: extension/CRM/Banking/Page/Import.php
+#: CRM/Banking/Page/Import.php
 msgid "File rejected by importer!"
-msgstr "Fichier rejeté par l'importateur!"
+msgstr "Archivo rechazado por el importador"
 
-#: extension/CRM/Banking/Page/Import.php
+#: CRM/Banking/Page/Import.php
 msgid "Bad input file"
-msgstr "Mauvais fichier d'entrée"
+msgstr "Archivo de entrada incorrecto"
 
-#: extension/CRM/Banking/Page/Import.php
+#: CRM/Banking/Page/Import.php
 msgid "Import stream rejected by importer, maybe not ready!"
 msgstr ""
-"Flux d'importation rejeté par l'importateur, il est peut-être pas prêt!"
 
-#: extension/CRM/Banking/Page/Import.php
+#: CRM/Banking/Page/Import.php
 msgid "Bad input stream"
-msgstr "Mauvais flux d'entrée"
+msgstr "Flujo de entrada incorrecto"
 
-#: extension/CRM/Banking/Page/Import.php
+#: CRM/Banking/Page/Import.php
 msgid "Importer needs a file to proceed."
-msgstr "L'importateur a besoin d'un fichier pour continuer."
+msgstr "El importador necesita un archivo a procesar"
 
-#: extension/CRM/Banking/Page/Import.php
+#: CRM/Banking/Page/Import.php
 msgid "No input file"
-msgstr "Aucun fichier sélectionner"
+msgstr "No hay archivo de entrada"
 
-#: extension/CRM/Banking/Page/Import.php
+#: CRM/Banking/Page/Import.php
 msgid "Automated running not yet implemented"
-msgstr "Fonctionnement automatisé non encore implémenté"
+msgstr "Running automático no ha sido implementado"
 
-#: extension/CRM/Banking/Page/Import.php
+#: CRM/Banking/Page/Import.php
 msgid "Not implemented"
-msgstr "Pas mis en oeuvre"
+msgstr "Sin implementar"
 
-#: extension/CRM/Banking/Page/Import.php
+#: CRM/Banking/Page/Import.php
 msgid "Import Warning"
 msgstr ""
 
-#: extension/CRM/Banking/Page/Import.php
+#: CRM/Banking/Page/Import.php
 msgid "Import Error"
 msgstr ""
 
-#: extension/CRM/Banking/Page/Manager.php
+#: CRM/Banking/Page/Manager.php
 msgid "Manage CiviBanking Configuration"
 msgstr ""
 
-#: extension/CRM/Banking/Page/Manager.php
+#: CRM/Banking/Page/Manager.php
 msgid "CiviBanking plugin [%1] deleted."
 msgstr ""
 
-#: extension/CRM/Banking/Page/Manager.php
+#: CRM/Banking/Page/Manager.php
 msgid "Plugin deleted"
 msgstr ""
 
-#: extension/CRM/Banking/Page/Payments.php
+#: CRM/Banking/Page/Payments.php
 #: extension/templates/CRM/Banking/Page/Export.tpl
 msgid "Bank Transactions"
 msgstr ""
 
-#: extension/CRM/Banking/Page/Payments.php
+#: CRM/Banking/Page/Payments.php
 msgid "Unnamed"
-msgstr "Inconnu"
+msgstr "Sin nombre"
 
-#: extension/CRM/Banking/Page/Payments.php
+#: CRM/Banking/Page/Payments.php
 msgid "%d incomplete statments."
-msgstr "%d relevés incomplets."
+msgstr "%d extractos incompletos"
 
-#: extension/CRM/Banking/Page/Payments.php
+#: CRM/Banking/Page/Payments.php
 msgid "%d analysed statments."
-msgstr "%d relevés analysés."
+msgstr "%d extractos analizados"
 
-#: extension/CRM/Banking/Page/Payments.php
+#: CRM/Banking/Page/Payments.php
 msgid "%d completed statments."
-msgstr "%d relevés terminés."
+msgstr "%d extractos completados"
 
-#: extension/CRM/Banking/Page/Payments.php
+#: CRM/Banking/Page/Payments.php
 msgid "not yet identified."
-msgstr "Pas encore identifié"
+msgstr "aún sin identificar."
 
-#: extension/CRM/Banking/Page/Payments.php
+#: CRM/Banking/Page/Payments.php
 msgid "%d new transactions."
 msgstr ""
 
-#: extension/CRM/Banking/Page/Payments.php
+#: CRM/Banking/Page/Payments.php
 msgid "%d analysed transactions."
 msgstr ""
 
-#: extension/CRM/Banking/Page/Payments.php
+#: CRM/Banking/Page/Payments.php
 msgid "%d completed transactions."
 msgstr ""
 
-#: extension/CRM/Banking/Page/Payments.php
+#: CRM/Banking/Page/Payments.php
 msgid "Internal limit of 2000 transactions hit. Please use smaller statements."
 msgstr ""
 
-#: extension/CRM/Banking/Page/Payments.php
+#: CRM/Banking/Page/Payments.php
 msgid "List incomplete"
 msgstr ""
 
-#: extension/CRM/Banking/Page/Review.php
+#: CRM/Banking/Page/Review.php
 msgid "<i>unknown date</i>"
 msgstr ""
 
-#: extension/CRM/Banking/Page/Review.php
+#: CRM/Banking/Page/Review.php
 msgid "Unknown User"
 msgstr ""
 
-#: extension/CRM/Banking/Page/Review.php
+#: CRM/Banking/Page/Review.php
 msgid "automatically"
 msgstr ""
 
-#: extension/CRM/Banking/Page/Review.php
+#: CRM/Banking/Page/Review.php
 msgid "This transaction was <b>%s processed</b> on %s by %s."
 msgstr ""
 
-#: extension/CRM/Banking/Page/Review.php
+#: CRM/Banking/Page/Review.php
 msgid "This transaction was <b>%s ignored</b> on %s by %s."
 msgstr ""
 
-#: extension/CRM/Banking/Page/Review.php
+#: CRM/Banking/Page/Review.php
 msgid "This transaction was <b>processed</b> on %s."
 msgstr ""
 
-#: extension/CRM/Banking/Page/Review.php
+#: CRM/Banking/Page/Review.php
 msgid "This transaction was marked to be <b>ignored</b> on %s."
 msgstr ""
 
-#: extension/CRM/Banking/Page/Review.php
+#: CRM/Banking/Page/Review.php
 msgid "Review Bank Transaction %1 of %2 (%3 unprocessed ahead)"
 msgstr ""
 
-#: extension/CRM/Banking/Page/Review.php
+#: CRM/Banking/Page/Review.php
 msgid "Review Bank Transaction"
-msgstr "Détails de la transaction bancaire"
+msgstr "Revisr transacción bancaria"
 
-#: extension/CRM/Banking/Page/Review.php
+#: CRM/Banking/Page/Review.php
 msgid "The transaction has been analysed again."
 msgstr ""
 
-#: extension/CRM/Banking/Page/Review.php
+#: CRM/Banking/Page/Review.php
 msgid "Transaction analysed"
 msgstr ""
 
-#: extension/CRM/Banking/Page/Review.php
+#: CRM/Banking/Page/Review.php
 msgid "The transaction was booked."
 msgstr ""
 
-#: extension/CRM/Banking/Page/Review.php
+#: CRM/Banking/Page/Review.php
 msgid "Transaction closed"
 msgstr ""
 
-#: extension/CRM/Banking/Page/Review.php
+#: CRM/Banking/Page/Review.php
 msgid "The transaction was ignored."
 msgstr ""
 
-#: extension/CRM/Banking/Page/Review.php
+#: CRM/Banking/Page/Review.php
 msgid "The transaction could not be closed."
 msgstr ""
 
-#: extension/CRM/Banking/Page/Review.php
+#: CRM/Banking/Page/Review.php
 msgid "The execution failed, please re-analyse the transaction."
 msgstr ""
 
-#: extension/CRM/Banking/Page/Review.php
+#: CRM/Banking/Page/Review.php
 msgid "Selected suggestions disappeared. Suggestion NOT executed!"
-msgstr "Les suggestions sélectionnées ont disparu. Suggestion NON exécutée!"
+msgstr ""
+"Sugerencia seleccionada ha desaparecido. La sugerencia no ha sido ejecutada"
 
-#: extension/CRM/Banking/Page/Review.php
+#: CRM/Banking/Page/Review.php
 msgid "Internal Error"
-msgstr "Erreur interne"
+msgstr "Error interno"
 
-#: extension/CRM/Banking/Page/StatementLine.php
+#: CRM/Banking/Page/StatementLine.php
 msgid "Statement Lines"
 msgstr ""
 
-#: extension/CRM/Banking/Page/Statements.php
+#: CRM/Banking/Page/Statements.php
 msgid "Banking statements"
 msgstr ""
 
-#: extension/CRM/Banking/Page/Statements.php
+#: CRM/Banking/Page/Statements.php
 msgid "Statements %%StatusMessage%%"
 msgstr ""
 
-#: extension/CRM/Banking/Page/Statements.php
+#: CRM/Banking/Page/Statements.php
 msgid "Unknown account"
 msgstr ""
 
-#: extension/CRM/Banking/PluginImpl/Importer/CSV.php
+#: CRM/Banking/PluginImpl/Importer/CSV.php
 msgid "Rule '%s' failed. Exception was %s"
-msgstr "La règle '%s' a échoué. L'exception était %s"
+msgstr "La regla '%s' ha fallado. La excepción ha sido %s"
 
-#: extension/CRM/Banking/PluginImpl/Importer/CSV.php
-#: extension/CRM/Banking/PluginImpl/Importer/XML.php
+#: CRM/Banking/PluginImpl/Importer/CSV.php
+#: CRM/Banking/PluginImpl/Importer/XML.php
 msgid "Pattern '%s' was not found in entry '%s'."
-msgstr "Le modèle '%s' n'a pas été trouvé dans le saisie '%s'."
+msgstr "El patrón '%s' no se ha encontrado en la entrada '%s'."
 
-#: extension/CRM/Banking/PluginImpl/Importer/CSV.php
-#: extension/CRM/Banking/PluginImpl/Importer/Fixed.php
-#: extension/CRM/Banking/PluginImpl/Importer/XML.php
+#: CRM/Banking/PluginImpl/Importer/CSV.php
+#: CRM/Banking/PluginImpl/Importer/Fixed.php
+#: CRM/Banking/PluginImpl/Importer/XML.php
 msgid "Importing streams not supported by this plugin."
-msgstr "Importation de flux non pris en charge par ce plugin."
+msgstr "Flujos de importación no soportados por este plugin."
 
-#: extension/CRM/Banking/PluginImpl/Matcher/Batches.php
+#: CRM/Banking/PluginImpl/Matcher/Batches.php
 msgid "Settles a contribution batch"
-msgstr "Établit un lot de contribution"
+msgstr ""
 
-#: extension/CRM/Banking/PluginImpl/Matcher/Batches.php
+#: CRM/Banking/PluginImpl/Matcher/Batches.php
 msgid "Internal error! Cannot find batch %s"
-msgstr "Erreur interne! Impossible de trouver le lot %s"
+msgstr "Error interno: no se puede encontrar el lote %s"
 
-#: extension/CRM/Banking/PluginImpl/Matcher/Batches.php
+#: CRM/Banking/PluginImpl/Matcher/Batches.php
 msgid ""
 "Internal error! Cannot complete contribution %s. Error message was: '%s'"
 msgstr ""
-"Erreur interne! Impossible de terminer la contribution %s. Le message "
-"d'erreur était: '%s'"
+"Error interno: no se puede completar la contribución %s. El mensaje de error "
+"fue: '%s'"
 
-#: extension/CRM/Banking/PluginImpl/Matcher/Batches.php
+#: CRM/Banking/PluginImpl/Matcher/Batches.php
 msgid "Completed all %d contributions."
-msgstr "Terminés toutes les contributions %d."
+msgstr "Completadas todas las %d contribuciones."
 
-#: extension/CRM/Banking/PluginImpl/Matcher/Batches.php
+#: CRM/Banking/PluginImpl/Matcher/Batches.php
 msgid "Batch completed"
-msgstr "Lot terminé"
+msgstr "Lote completado"
 
-#: extension/CRM/Banking/PluginImpl/Matcher/Batches.php
+#: CRM/Banking/PluginImpl/Matcher/Batches.php
 msgid ""
 "Some contribtions in batch %s are not in state 'pending', and override was "
 "not enabled. The payment was NOT processed!"
 msgstr ""
-"Certaines contributions dans le lot %s ne sont pas dans l'état 'en attente' "
-"et le contournement n'a pas été activé. Le paiement n'a PAS été traité!"
 
-#: extension/CRM/Banking/PluginImpl/Matcher/Batches.php
+#: CRM/Banking/PluginImpl/Matcher/Batches.php
 msgid "Internal error! Cannot find batch #"
-msgstr "Erreur interne! Impossible de trouver le lot #"
+msgstr "Error interno: No se pudo encontrar el lote #"
 
-#: extension/CRM/Banking/PluginImpl/Matcher/Batches.php
+#: CRM/Banking/PluginImpl/Matcher/Batches.php
 msgid "not exported"
-msgstr "Non exporté"
+msgstr "no exportado"
 
-#: extension/CRM/Banking/PluginImpl/Matcher/Batches.php
+#: CRM/Banking/PluginImpl/Matcher/Batches.php
 msgid "WARNING! Not all contributions of this batch are in status 'pending'."
 msgstr ""
-"ATTENTION! Toutes les contributions de ce lot ne sont pas dans l´état \"en "
-"attente\"."
+"PRECAUCIÓN: No todas las contribuciones de este lote están en estado "
+"'pendiente'."
 
-#: extension/CRM/Banking/PluginImpl/Matcher/Batches.php
+#: CRM/Banking/PluginImpl/Matcher/Batches.php
 msgid "Override and set all contributions to 'completed' anyway."
-msgstr ""
-"Outrepasser et mettre toutes les contributions à «terminé» de toute façon."
+msgstr "Sobreescribir y setear todas las contribuciones en 'completado'."
 
-#: extension/CRM/Banking/PluginImpl/Matcher/Batches.php
+#: CRM/Banking/PluginImpl/Matcher/Batches.php
 msgid "All contributions of this batch will be set to 'completed'."
-msgstr "Toutes les contributions de ce lot seront définies comme 'terminées'."
+msgstr ""
+"Todas las contribuciones de este lote serán asignadas como 'completado'"
 
-#: extension/CRM/Banking/PluginImpl/Matcher/Batches.php
+#: CRM/Banking/PluginImpl/Matcher/Batches.php
 msgid "Created"
-msgstr "Créé"
+msgstr "Creado"
 
-#: extension/CRM/Banking/PluginImpl/Matcher/Batches.php
+#: CRM/Banking/PluginImpl/Matcher/Batches.php
 msgid "Exported"
-msgstr "Exporté"
+msgstr "Exportado"
 
-#: extension/CRM/Banking/PluginImpl/Matcher/Batches.php
+#: CRM/Banking/PluginImpl/Matcher/Batches.php
 #: extension/templates/CRM/Banking/Page/Statements.tpl
 msgid "Transactions"
 msgstr ""
 
-#: extension/CRM/Banking/PluginImpl/Matcher/Batches.php
+#: CRM/Banking/PluginImpl/Matcher/Batches.php
 #: extension/templates/CRM/Banking/Page/Payments.tpl
 #: extension/templates/CRM/Banking/Page/StatementLine.tpl
 #: extension/templates/CRM/Banking/Page/Statements.tpl
@@ -840,391 +831,381 @@ msgstr ""
 #: extension/templates/CRM/Banking/PluginImpl/Matcher/RecurringContribution.suggestion.tpl
 #: extension/templates/CRM/Banking/PluginImpl/Matcher/RulesAnalyser.suggestion.tpl
 msgid "Amount"
-msgstr "Montant"
+msgstr "Cantidad"
 
-#: extension/CRM/Banking/PluginImpl/Matcher/Batches.php
+#: CRM/Banking/PluginImpl/Matcher/Batches.php
 msgid ""
 "This transaction was associated with <a href=\"%s\">payment batch #%s</a>."
 msgstr ""
 
-#: extension/CRM/Banking/PluginImpl/Matcher/CreateContribution.php
+#: CRM/Banking/PluginImpl/Matcher/CreateContribution.php
 msgid "Source"
 msgstr ""
 
-#: extension/CRM/Banking/PluginImpl/Matcher/CreateContribution.php
+#: CRM/Banking/PluginImpl/Matcher/CreateContribution.php
 msgid "Create a new contribution"
-msgstr "Créer une nouvelle contribution"
+msgstr "Crear un nuevo panel de control"
 
-#: extension/CRM/Banking/PluginImpl/Matcher/CreateContribution.php
-#: extension/CRM/Banking/PluginImpl/Matcher/Membership.php
-#: extension/CRM/Banking/PluginImpl/Matcher/RecurringContribution.php
+#: CRM/Banking/PluginImpl/Matcher/CreateContribution.php
+#: CRM/Banking/PluginImpl/Matcher/Membership.php
+#: CRM/Banking/PluginImpl/Matcher/RecurringContribution.php
 msgid "Couldn't create contribution."
-msgstr "Impossible de créer une contribution."
+msgstr "No se ha podido crear la contribución."
 
-#: extension/CRM/Banking/PluginImpl/Matcher/CreateContribution.php
-#: extension/CRM/Banking/PluginImpl/Matcher/Membership.php
-#: extension/CRM/Banking/PluginImpl/Matcher/RecurringContribution.php
+#: CRM/Banking/PluginImpl/Matcher/CreateContribution.php
+#: CRM/Banking/PluginImpl/Matcher/Membership.php
+#: CRM/Banking/PluginImpl/Matcher/RecurringContribution.php
 msgid "Error was: "
 msgstr ""
 
-#: extension/CRM/Banking/PluginImpl/Matcher/DefaultOptions.php
+#: CRM/Banking/PluginImpl/Matcher/DefaultOptions.php
 msgid "Couldn't find contribution #%s"
-msgstr "Impossible de trouver la contribution #%s"
+msgstr "No se he podido encontrar la contribución #%s"
 
-#: extension/CRM/Banking/PluginImpl/Matcher/DefaultOptions.php
+#: CRM/Banking/PluginImpl/Matcher/DefaultOptions.php
 msgid "Couldn't modify contribution #%s"
-msgstr "Impossible de modifier la contribution #%s"
+msgstr ""
 
-#: extension/CRM/Banking/PluginImpl/Matcher/DefaultOptions.php
+#: CRM/Banking/PluginImpl/Matcher/DefaultOptions.php
 msgid "The contribution is not valid. The transaction is NOT completed."
 msgstr ""
 
-#: extension/CRM/Banking/PluginImpl/Matcher/DefaultOptions.php
+#: CRM/Banking/PluginImpl/Matcher/DefaultOptions.php
 msgid "Transaction NOT completed."
 msgstr ""
 
-#: extension/CRM/Banking/PluginImpl/Matcher/DefaultOptions.php
+#: CRM/Banking/PluginImpl/Matcher/DefaultOptions.php
 msgid "No contribution given. The transaction is NOT completed."
 msgstr ""
 
-#: extension/CRM/Banking/PluginImpl/Matcher/DefaultOptions.php
+#: CRM/Banking/PluginImpl/Matcher/DefaultOptions.php
 msgid "This transaction was manually matched to the following contributions:"
 msgstr ""
 
-#: extension/CRM/Banking/PluginImpl/Matcher/DefaultOptions.php
+#: CRM/Banking/PluginImpl/Matcher/DefaultOptions.php
 #: extension/templates/CRM/Banking/PluginImpl/Matcher/SepaMandate.activity.tpl
 msgid "Contribution"
-msgstr "Contribution"
+msgstr "Contribución"
 
-#: extension/CRM/Banking/PluginImpl/Matcher/ExistingContribution.php
+#: CRM/Banking/PluginImpl/Matcher/ExistingContribution.php
 msgid "Contact was positively identified."
-msgstr "Le contact a été identifié positivement."
+msgstr "El contacto has sido identificado."
 
-#: extension/CRM/Banking/PluginImpl/Matcher/ExistingContribution.php
+#: CRM/Banking/PluginImpl/Matcher/ExistingContribution.php
 msgid "Contact was likely identified."
 msgstr ""
 
-#: extension/CRM/Banking/PluginImpl/Matcher/ExistingContribution.php
+#: CRM/Banking/PluginImpl/Matcher/ExistingContribution.php
 msgid "Matching contribution found"
-msgstr "Contribution correspondante trouvée"
+msgstr "Contribución coincidente encontrada"
 
-#: extension/CRM/Banking/PluginImpl/Matcher/ExistingContribution.php
+#: CRM/Banking/PluginImpl/Matcher/ExistingContribution.php
 msgid "A pending contribution matching the transaction was found."
 msgstr ""
 
-#: extension/CRM/Banking/PluginImpl/Matcher/ExistingContribution.php
+#: CRM/Banking/PluginImpl/Matcher/ExistingContribution.php
 msgid "This transaction is the <b>cancellation</b> of the below contribution."
 msgstr ""
 
-#: extension/CRM/Banking/PluginImpl/Matcher/ExistingContribution.php
+#: CRM/Banking/PluginImpl/Matcher/ExistingContribution.php
 msgid "Possible matching contribution found"
-msgstr "Possible contribution correspondante trouvée"
+msgstr "Posible contribución coincidente encontrada"
 
-#: extension/CRM/Banking/PluginImpl/Matcher/ExistingContribution.php
+#: CRM/Banking/PluginImpl/Matcher/ExistingContribution.php
 msgid "A pending contribution partially matching the transaction was found."
 msgstr ""
 
-#: extension/CRM/Banking/PluginImpl/Matcher/ExistingContribution.php
+#: CRM/Banking/PluginImpl/Matcher/ExistingContribution.php
 msgid ""
 "This transaction could be the <b>cancellation</b> of the below contribution."
 msgstr ""
 
-#: extension/CRM/Banking/PluginImpl/Matcher/ExistingContribution.php
+#: CRM/Banking/PluginImpl/Matcher/ExistingContribution.php
 msgid "Contribution has disappeared."
 msgstr ""
 
-#: extension/CRM/Banking/PluginImpl/Matcher/ExistingContribution.php
+#: CRM/Banking/PluginImpl/Matcher/ExistingContribution.php
 msgid "Error was:"
 msgstr ""
 
-#: extension/CRM/Banking/PluginImpl/Matcher/ExistingContribution.php
+#: CRM/Banking/PluginImpl/Matcher/ExistingContribution.php
 msgid "Execution Failure"
 msgstr ""
 
-#: extension/CRM/Banking/PluginImpl/Matcher/ExistingContribution.php
-#: extension/CRM/Banking/PluginImpl/Matcher/SepaMandate.php
+#: CRM/Banking/PluginImpl/Matcher/ExistingContribution.php
+#: CRM/Banking/PluginImpl/Matcher/SepaMandate.php
 msgid "Contribution status has been modified."
 msgstr ""
 
-#: extension/CRM/Banking/PluginImpl/Matcher/ExistingContribution.php
-#: extension/CRM/Banking/PluginImpl/Matcher/SepaMandate.php
+#: CRM/Banking/PluginImpl/Matcher/ExistingContribution.php
+#: CRM/Banking/PluginImpl/Matcher/SepaMandate.php
 msgid "Couldn't modify contribution."
-msgstr "Impossible de modifier la contribution."
+msgstr "No se ha podido modificar la cotnribución."
 
-#: extension/CRM/Banking/PluginImpl/Matcher/Generic.php
+#: CRM/Banking/PluginImpl/Matcher/Generic.php
 msgid "the transaction amount is in the range [ "
-msgstr "le montant de la transaction est compris dans la plage ["
+msgstr "la cantidad de la transacción está en el rango [ "
 
-#: extension/CRM/Banking/PluginImpl/Matcher/Generic.php
+#: CRM/Banking/PluginImpl/Matcher/Generic.php
 msgid "the transaction value date is in the range [ "
-msgstr "la date de la valeur de transaction est comprise dans la plage ["
+msgstr "la fecha de la transacción está en el rango [ "
 
-#: extension/CRM/Banking/PluginImpl/Matcher/Generic.php
+#: CRM/Banking/PluginImpl/Matcher/Generic.php
 msgid "the transaction purpose matches the expression \"%s\""
-msgstr "le but de la transaction correspond à l'expression \"%s\""
+msgstr "el propósito de la transacción coincide con la expresión \"%s\""
 
-#: extension/CRM/Banking/PluginImpl/Matcher/Ignore.php
-#: extension/CRM/Banking/PluginModel/Matcher.php
+#: CRM/Banking/PluginImpl/Matcher/Ignore.php
+#: CRM/Banking/PluginModel/Matcher.php
 msgid "Because :"
-msgstr "En raison de :"
+msgstr "Porque :"
 
-#: extension/CRM/Banking/PluginImpl/Matcher/Membership.php
+#: CRM/Banking/PluginImpl/Matcher/Membership.php
 msgid "Record as Membership Fee"
 msgstr ""
 
-#: extension/CRM/Banking/PluginImpl/Matcher/RecurringContribution.php
+#: CRM/Banking/PluginImpl/Matcher/RecurringContribution.php
 msgid "A general penalty was applied."
 msgstr ""
 
-#: extension/CRM/Banking/PluginImpl/Matcher/RecurringContribution.php
+#: CRM/Banking/PluginImpl/Matcher/RecurringContribution.php
 msgid ""
 "The expected amount for the recurring contribution(s) seems to have changed. "
 "Please analyse transaction again."
 msgstr ""
 
-#: extension/CRM/Banking/PluginImpl/Matcher/RecurringContribution.php
+#: CRM/Banking/PluginImpl/Matcher/RecurringContribution.php
 msgid "Recurring contribution changed"
 msgstr ""
 
-#: extension/CRM/Banking/PluginImpl/Matcher/RecurringContribution.php
+#: CRM/Banking/PluginImpl/Matcher/RecurringContribution.php
 #: extension/templates/CRM/Banking/PluginImpl/Matcher/Membership.suggestion.tpl
 #: extension/templates/CRM/Banking/PluginImpl/Matcher/RecurringContribution.suggestion.tpl
 msgid "None"
 msgstr ""
 
-#: extension/CRM/Banking/PluginImpl/Matcher/RecurringContribution.php
+#: CRM/Banking/PluginImpl/Matcher/RecurringContribution.php
 msgid ""
 "The situation for the recurring contribution seems to have changed. Please "
 "analyse transaction again."
 msgstr ""
 
-#: extension/CRM/Banking/PluginImpl/Matcher/RecurringContribution.php
+#: CRM/Banking/PluginImpl/Matcher/RecurringContribution.php
 msgid "The contact could not be uniquely identified."
 msgstr ""
 
-#: extension/CRM/Banking/PluginImpl/Matcher/RecurringContribution.php
+#: CRM/Banking/PluginImpl/Matcher/RecurringContribution.php
 msgid "The amount of the transaction differs from the expected amount."
 msgstr ""
 
-#: extension/CRM/Banking/PluginImpl/Matcher/RecurringContribution.php
+#: CRM/Banking/PluginImpl/Matcher/RecurringContribution.php
 msgid "The currency of the transaction is not as expected."
 msgstr ""
 
-#: extension/CRM/Banking/PluginImpl/Matcher/RecurringContribution.php
+#: CRM/Banking/PluginImpl/Matcher/RecurringContribution.php
 msgid "The date of the transaction deviates too much from the expected date."
 msgstr ""
 
-#: extension/CRM/Banking/PluginImpl/Matcher/RecurringContribution.php
+#: CRM/Banking/PluginImpl/Matcher/RecurringContribution.php
 msgid "There is already another contribution recorded for this interval: "
 msgstr ""
 
-#: extension/CRM/Banking/PluginImpl/Matcher/RecurringContribution.php
+#: CRM/Banking/PluginImpl/Matcher/RecurringContribution.php
 msgid "There are already multiple contributions recorded for this interval: "
 msgstr ""
 
-#: extension/CRM/Banking/PluginImpl/Matcher/Rules.php
+#: CRM/Banking/PluginImpl/Matcher/Rules.php
 msgid "You cannot "
 msgstr ""
 
-#: extension/CRM/Banking/PluginImpl/Matcher/RulesAnalyser.php
+#: CRM/Banking/PluginImpl/Matcher/RulesAnalyser.php
 msgid "Campaign ID"
 msgstr ""
 
-#: extension/CRM/Banking/PluginImpl/Matcher/RulesAnalyser.php
+#: CRM/Banking/PluginImpl/Matcher/RulesAnalyser.php
 msgid "Membership ID"
 msgstr ""
 
-#: extension/CRM/Banking/PluginImpl/Matcher/RulesAnalyser.php
+#: CRM/Banking/PluginImpl/Matcher/RulesAnalyser.php
 msgid "Financial Type ID"
 msgstr ""
 
-#: extension/CRM/Banking/PluginImpl/Matcher/RulesAnalyser.php
+#: CRM/Banking/PluginImpl/Matcher/RulesAnalyser.php
 msgid "Payment Instrument ID"
 msgstr ""
 
-#: extension/CRM/Banking/PluginImpl/Matcher/RulesAnalyser.php
+#: CRM/Banking/PluginImpl/Matcher/RulesAnalyser.php
 msgid "No new rule was created."
 msgstr ""
 
-#: extension/CRM/Banking/PluginImpl/Matcher/RulesAnalyser.php
+#: CRM/Banking/PluginImpl/Matcher/RulesAnalyser.php
 msgid "Nothing to do"
 msgstr ""
 
-#: extension/CRM/Banking/PluginImpl/Matcher/RulesAnalyser.php
+#: CRM/Banking/PluginImpl/Matcher/RulesAnalyser.php
 msgid "New rule created."
 msgstr ""
 
-#: extension/CRM/Banking/PluginImpl/Matcher/RulesAnalyser.php
+#: CRM/Banking/PluginImpl/Matcher/RulesAnalyser.php
 msgid "Error: "
 msgstr ""
 
-#: extension/CRM/Banking/PluginImpl/Matcher/SepaMandate.php
+#: CRM/Banking/PluginImpl/Matcher/SepaMandate.php
 msgid "Unspecified SEPA cancellation"
 msgstr ""
 
-#: extension/CRM/Banking/PluginImpl/Matcher/SepaMandate.php
+#: CRM/Banking/PluginImpl/Matcher/SepaMandate.php
 msgid "Follow-up SEPA Cancellation"
 msgstr ""
 
-#: extension/CRM/Banking/PluginImpl/Matcher/SepaMandate.php
+#: CRM/Banking/PluginImpl/Matcher/SepaMandate.php
 msgid "Couldn't load SEPA mandate for reference %s"
-msgstr "Impossible de charger le mandat SEPA pour la référence %s"
+msgstr ""
 
-#: extension/CRM/Banking/PluginImpl/Matcher/SepaMandate.php
+#: CRM/Banking/PluginImpl/Matcher/SepaMandate.php
 msgid ""
 "There was more than one matching contribution found! Try to configure the "
 "plugin with a smaller search time span."
 msgstr ""
-"Plus d'une contribution correspondante a été trouvée! Essayez de configurer "
-"le plugin avec une durée de recherche plus courte."
 
-#: extension/CRM/Banking/PluginImpl/Matcher/SepaMandate.php
+#: CRM/Banking/PluginImpl/Matcher/SepaMandate.php
 msgid ""
 "There was no matching contribution! Try to configure the plugin with a "
 "larger search time span."
 msgstr ""
-"Il n'y avait pas de contribution correspondante! Essayez de configurer le "
-"plugin avec une période de recherche plus longue."
 
-#: extension/CRM/Banking/PluginImpl/Matcher/SepaMandate.php
+#: CRM/Banking/PluginImpl/Matcher/SepaMandate.php
 msgid "The contribution connected to this mandate could not be read."
-msgstr "La contribution liée à ce mandat n'a pas pu être lue."
+msgstr "La contribución asociada con este mandato no pudo ser leíada"
 
-#: extension/CRM/Banking/PluginImpl/Matcher/SepaMandate.php
+#: CRM/Banking/PluginImpl/Matcher/SepaMandate.php
 msgid "The contact connected to this mandate could not be read."
-msgstr "Le contact lié à ce mandat n'a pas pu être lu."
+msgstr "El contacto asociado con este mandato no pudo ser leído"
 
-#: extension/CRM/Banking/PluginImpl/Matcher/SepaMandate.php
+#: CRM/Banking/PluginImpl/Matcher/SepaMandate.php
 msgid "SEPA SDD Transaction"
 msgstr ""
 
-#: extension/CRM/Banking/PluginImpl/Matcher/SepaMandate.php
+#: CRM/Banking/PluginImpl/Matcher/SepaMandate.php
 msgid "The contribution does not feature the expected amount."
-msgstr "La contribution ne comprend pas le montant prévu."
+msgstr ""
 
-#: extension/CRM/Banking/PluginImpl/Matcher/SepaMandate.php
+#: CRM/Banking/PluginImpl/Matcher/SepaMandate.php
 msgid "The contribution does not have the expected status 'in Progress'."
-msgstr "La contribution n'a pas l´ état attendu \"en cours\"."
+msgstr "La contribución no posée el estado esperado 'En Progreso'."
 
-#: extension/CRM/Banking/PluginImpl/Matcher/SepaMandate.php
+#: CRM/Banking/PluginImpl/Matcher/SepaMandate.php
 msgid "The contact this mandate belongs to has been deleted."
-msgstr "Le contact auquel ce mandat appartient a été supprimé."
+msgstr "El contacto de este mandato ha sido eliminado."
 
-#: extension/CRM/Banking/PluginImpl/Matcher/SepaMandate.php
+#: CRM/Banking/PluginImpl/Matcher/SepaMandate.php
 msgid "Cancel SEPA SDD Transaction"
 msgstr ""
 
-#: extension/CRM/Banking/PluginImpl/Matcher/SepaMandate.php
+#: CRM/Banking/PluginImpl/Matcher/SepaMandate.php
 msgid ""
 "The cancellation fee, i.e. the deviation from the original amount, is not in "
 "the specified range."
 msgstr ""
 
-#: extension/CRM/Banking/PluginImpl/Matcher/SepaMandate.php
+#: CRM/Banking/PluginImpl/Matcher/SepaMandate.php
 msgid "Contribution is NOT member in exactly one SEPA transaction group!"
 msgstr ""
-"La contribution n'est pas membre dans exactement un groupe de transactions "
-"SEPA!"
 
-#: extension/CRM/Banking/PluginImpl/Matcher/SepaMandate.php
+#: CRM/Banking/PluginImpl/Matcher/SepaMandate.php
 msgid "SEPA transaction group '%s' was marked as received."
-msgstr "Le groupe de transactions SEPA '%s' a été marqué comme reçu."
+msgstr "El grupo de transacciones SEPA '%s' ha sido marcado como recibido"
 
-#: extension/CRM/Banking/PluginImpl/Matcher/SepaMandate.php
+#: CRM/Banking/PluginImpl/Matcher/SepaMandate.php
 msgid "Couldn't modify mandate."
 msgstr ""
 
-#: extension/CRM/Banking/PluginImpl/Matcher/SepaMandate.php
+#: CRM/Banking/PluginImpl/Matcher/SepaMandate.php
 msgid "Internal error! Cannot find contribution #"
-msgstr "Erreur interne ! Impossible de trouver la contribution #"
+msgstr "Error interno: No se puede encontrar la contribución"
 
-#: extension/CRM/Banking/PluginImpl/PostProcessor/AddressUpdate.php
+#: CRM/Banking/PluginImpl/PostProcessor/AddressUpdate.php
 msgid "New Address Received"
 msgstr ""
 
-#: extension/CRM/Banking/PluginModel/Importer.php
+#: CRM/Banking/PluginModel/Importer.php
 msgid "Internal error: trying to open BTX batch before closing an old one."
-msgstr "Erreur interne: essayer d'ouvrir le lot BTX avant de fermer un ancien."
+msgstr "Error: se ha intentdo abrir un lote BTX antes de cerrar uno antiguo"
 
-#: extension/CRM/Banking/PluginModel/Importer.php
+#: CRM/Banking/PluginModel/Importer.php
 msgid "Adjusted ending balance from %s to %s!"
-msgstr "Solde final ajusté de %s à %s!"
+msgstr "Balance final ajustado desde %s a %s"
 
-#: extension/CRM/Banking/PluginModel/Importer.php
+#: CRM/Banking/PluginModel/Importer.php
 msgid "Internal error: trying to close a nonexisting BTX batch."
-msgstr "Erreur interne: tentative de fermeture d'un lot BTX inexistant."
+msgstr "Erroe interno: tratando de cerrar un lote BTX inexistente"
 
-#: extension/CRM/Banking/PluginModel/Importer.php
+#: CRM/Banking/PluginModel/Importer.php
 msgid "WARNING: multiple currency batches not fully supported"
-msgstr ""
-"AVERTISSEMENT: les lots de plusieurs devises ne sont pas entièrement pris en "
-"charge"
+msgstr "PRECAUCIÓN: lotes con múltiple monedas no soportado completamente"
 
-#: extension/CRM/Banking/PluginModel/Importer.php
+#: CRM/Banking/PluginModel/Importer.php
 msgid "Failed to query BTX."
-msgstr "Impossible d'accéder BTX."
+msgstr "Error al consultar BTX."
 
-#: extension/CRM/Banking/PluginModel/Importer.php
+#: CRM/Banking/PluginModel/Importer.php
 msgid "Duplicate BTX entry detected. Not imported!"
-msgstr "Entrée BTX en double détectée. Pas importé!"
+msgstr "Entrada BTX duplicada ha sido detectada. No se importará"
 
-#: extension/CRM/Banking/PluginModel/Importer.php
+#: CRM/Banking/PluginModel/Importer.php
 msgid "No valid booking date detected. Not imported!"
 msgstr ""
 
-#: extension/CRM/Banking/PluginModel/Importer.php
+#: CRM/Banking/PluginModel/Importer.php
 msgid "No valid value date detected. Not imported!"
 msgstr ""
 
-#: extension/CRM/Banking/PluginModel/Importer.php
+#: CRM/Banking/PluginModel/Importer.php
 msgid "DRY RUN: Did not create bank transaction (%1 on %2)"
 msgstr ""
 
-#: extension/CRM/Banking/PluginModel/Importer.php
+#: CRM/Banking/PluginModel/Importer.php
 msgid "Error while storing BTX: %s"
-msgstr "Erreur lors du stockage de BTX: %s"
+msgstr "Error al guardar BTC: %s"
 
-#: extension/CRM/Banking/PluginModel/Importer.php
+#: CRM/Banking/PluginModel/Importer.php
 msgid "Created BTX <b>%1</b> for <b>%2</b> on %3"
 msgstr ""
 
-#: extension/CRM/Banking/PluginModel/Matcher.php
+#: CRM/Banking/PluginModel/Matcher.php
 msgid "No further information available"
-msgstr "Pas d'autres informations disponibles"
+msgstr "No hay más información disponible"
 
-#: extension/CRM/Banking/PluginModel/Matcher.php
+#: CRM/Banking/PluginModel/Matcher.php
 msgid "created by CiviBanking"
-msgstr "créé par CiviBanking"
+msgstr "creado por CiviBanking"
 
-#: extension/CRM/Banking/PluginModel/Matcher.php
+#: CRM/Banking/PluginModel/Matcher.php
 msgid "Couldn't create reference. Error was: '%1'"
 msgstr ""
 
-#: extension/CRM/Banking/PluginModel/Matcher.php
+#: CRM/Banking/PluginModel/Matcher.php
 msgid ""
 "The account information of this contact was saved, but it is also used by "
 "the following contacts:<br/><ul>%s</ul>"
 msgstr ""
-"Les informations du compte de ce contact ont été enregistrées, mais elles "
-"sont également utilisées par les contacts suivants:<br/><ul> %s</ul>"
 
-#: extension/CRM/Banking/PluginModel/Matcher.php
+#: CRM/Banking/PluginModel/Matcher.php
 msgid "Warning"
-msgstr "Avertissement"
+msgstr "Precaución"
 
-#: extension/CRM/Banking/PluginModel/Matcher.php
+#: CRM/Banking/PluginModel/Matcher.php
 msgid "The account information of this contact was saved."
-msgstr "Les informations de compte de ce contact ont été enregistrées."
+msgstr "La información de la cuenta ha sido guardada"
 
-#: extension/CRM/Banking/PluginModel/Matcher.php
+#: CRM/Banking/PluginModel/Matcher.php
 msgid "Account saved"
-msgstr "Compte enregistré"
+msgstr "Cuenta guardada"
 
-#: extension/CRM/Banking/Rules/Rule.php
+#: CRM/Banking/Rules/Rule.php
 msgid "Unnamed Rule [%1]"
 msgstr ""
 
-#: extension/CRM/Banking/Upgrader/Base.php
+#: CRM/Banking/Upgrader/Base.php
 msgid "Upgrade %1 to revision %2"
 msgstr ""
 
@@ -1416,7 +1397,7 @@ msgstr ""
 
 #: extension/hooks.php
 msgid "Dashboard"
-msgstr "Tableau de bord"
+msgstr "Panel de control"
 
 #: extension/hooks.php extension/templates/CRM/Banking/Page/Payments.tpl
 msgid "Show Transactions"
@@ -1436,7 +1417,7 @@ msgstr ""
 
 #: extension/hooks.php
 msgid "Bank Accounts"
-msgstr "Comptes bancaires"
+msgstr "Cuentas bancarias"
 
 #: extension/templates/CRM/Admin/Form/Setting/BankingSettings.tpl
 msgid "General Settings"
@@ -1448,15 +1429,15 @@ msgstr ""
 
 #: extension/templates/CRM/Banking/Form/AccountsTab.tpl
 msgid "Bank Account"
-msgstr "Compte bancaire"
+msgstr "Cuenta bancaria"
 
 #: extension/templates/CRM/Banking/Form/AccountsTab.tpl
 msgid "Bank"
-msgstr "Banque"
+msgstr "Banco"
 
 #: extension/templates/CRM/Banking/Form/AccountsTab.tpl
 msgid "German"
-msgstr "Allemand"
+msgstr "Alemán"
 
 #: extension/templates/CRM/Banking/Form/AccountsTab.tpl
 msgid "delete"
@@ -1478,19 +1459,19 @@ msgstr ""
 #: extension/templates/CRM/Banking/Page/Manager.tpl
 #: extension/templates/CRM/Banking/Page/Payments.tpl
 msgid "Delete"
-msgstr "Supprimer"
+msgstr "Eliminar"
 
 #: extension/templates/CRM/Banking/Form/AccountsTab.tpl
 msgid "Edit"
-msgstr "Editer"
+msgstr "Editar"
 
 #: extension/templates/CRM/Banking/Form/AccountsTab.tpl
 msgid "This contact has no known accounts associated with him/her."
-msgstr "Aucun compte connu n'est associé à ce contact."
+msgstr "Este contacto no tiene cuentas asociadas"
 
 #: extension/templates/CRM/Banking/Form/AccountsTab.tpl
 msgid "Add"
-msgstr "Ajouter"
+msgstr "Agregar"
 
 #: extension/templates/CRM/Banking/Form/AccountsTab.tpl
 msgid "Edit Bank Account"
@@ -1522,7 +1503,7 @@ msgstr ""
 
 #: extension/templates/CRM/Banking/Form/Configure.tpl
 msgid "Configuration"
-msgstr "Configuration"
+msgstr "Configuración"
 
 #: extension/templates/CRM/Banking/Page/AccountDedupe.tpl
 msgid ""
@@ -1602,66 +1583,66 @@ msgstr ""
 
 #: extension/templates/CRM/Banking/Page/AccountSearch.tpl
 msgid "Search Criteria"
-msgstr "Critères de recherche"
+msgstr "Criterio de búsqueda"
 
 #: extension/templates/CRM/Banking/Page/AccountSearch.tpl
 msgid "Bank account number<br/>(or partials)"
-msgstr "Numéro de compte bancaire<br/>(ou partiel)"
+msgstr "Número de cuenta bancaria<br/>(o parciales)"
 
 #: extension/templates/CRM/Banking/Page/AccountSearch.tpl
 msgid "Also search additional account information"
-msgstr "Recherchez également des informations supplémentaires de compte "
+msgstr "Además busque en información adicional de la cuenta"
 
 #: extension/templates/CRM/Banking/Page/AccountSearch.tpl
 msgid "Search"
-msgstr "Rechercher"
+msgstr "Buscar"
 
 #: extension/templates/CRM/Banking/Page/AccountSearch.tpl
 msgid "accounts match your search"
-msgstr "comptes trouvés"
+msgstr "cuentas han coincidido con su búsqueda"
 
 #: extension/templates/CRM/Banking/Page/AccountSearch.tpl
 msgid "Sorry, no accounts match your search!"
-msgstr "Désolé, aucun compte ne correspond à vos critères de recherche. "
+msgstr "Lo sentimos, ninguna cuenta aha coincidido con su búsqueda"
 
 #: extension/templates/CRM/Banking/Page/Dashboard.tpl
 msgid "Weekly overview"
-msgstr "Vue hebdomadaire"
+msgstr "Vista semanal"
 
 #: extension/templates/CRM/Banking/Page/Dashboard.tpl
 #: extension/templates/CRM/Banking/Page/Payments.tpl
 #: extension/templates/CRM/Banking/Page/Review.tpl
 #: extension/templates/CRM/Banking/Page/Statements.tpl
 msgid "Account"
-msgstr "Compte"
+msgstr "Cuenta"
 
 #: extension/templates/CRM/Banking/Page/Dashboard.tpl
 msgid "in the past"
-msgstr "dans le passé"
+msgstr "en el pasado"
 
 #: extension/templates/CRM/Banking/Page/Dashboard.tpl
 msgid "week"
-msgstr "semaine"
+msgstr "semana"
 
 #: extension/templates/CRM/Banking/Page/Dashboard.tpl
 msgid "There are no records for this time span."
-msgstr "Il n'y a aucun enregistrement pour cette fourchette de temps."
+msgstr "No hay registros para este período de tiempo"
 
 #: extension/templates/CRM/Banking/Page/Dashboard.tpl
 msgid "no records"
-msgstr "pas d'enregistrements"
+msgstr "sin registros"
 
 #: extension/templates/CRM/Banking/Page/Dashboard.tpl
 msgid "Statistics"
-msgstr "Statistiques"
+msgstr "Estadísticas"
 
 #: extension/templates/CRM/Banking/Page/Dashboard.tpl
 msgid "<domain=\"temporal\">From</domain>"
-msgstr "<domain=\"temporal\">Depuis le</domain>"
+msgstr "<domain=\"temporal\">De</domain>"
 
 #: extension/templates/CRM/Banking/Page/Dashboard.tpl
 msgid "<domain=\"temporal\">To</domain>"
-msgstr "<domain=\"temporal\">Jusqu'au</domain>"
+msgstr "<domain=\"temporal\">A</domain>"
 
 #: extension/templates/CRM/Banking/Page/Dashboard.tpl
 msgid "Total"
@@ -1682,12 +1663,12 @@ msgstr ""
 #: extension/templates/CRM/Banking/Page/Export.tpl
 #: extension/templates/CRM/Banking/Page/Import.tpl
 msgid "Choose configuration"
-msgstr "Choisissez une configuration"
+msgstr "Elija configuración"
 
 #: extension/templates/CRM/Banking/Page/Export.tpl
 #: extension/templates/CRM/Banking/Page/Import.tpl
 msgid "select"
-msgstr "- selectionner -"
+msgstr "seleccionar"
 
 #: extension/templates/CRM/Banking/Page/Export.tpl
 msgid "Export Options"
@@ -1708,7 +1689,7 @@ msgstr ""
 #: extension/templates/CRM/Banking/Page/Export.tpl
 #: extension/templates/CRM/Banking/Page/Payments.tpl
 msgid "Export"
-msgstr "Exporter"
+msgstr "Exportar"
 
 #: extension/templates/CRM/Banking/Page/Export.tpl
 msgid "&nbsp;Back"
@@ -1716,15 +1697,15 @@ msgstr ""
 
 #: extension/templates/CRM/Banking/Page/Import.tpl
 msgid "Select Importer"
-msgstr "Sélection d'un importateur"
+msgstr "Seleccione importador"
 
 #: extension/templates/CRM/Banking/Page/Import.tpl
 msgid "Import Options"
-msgstr "Options d'importation"
+msgstr "Importar opciones"
 
 #: extension/templates/CRM/Banking/Page/Import.tpl
 msgid "Dry run"
-msgstr "Galope d´essai"
+msgstr ""
 
 #: extension/templates/CRM/Banking/Page/Import.tpl
 msgid "Process transactions right away"
@@ -1732,15 +1713,15 @@ msgstr ""
 
 #: extension/templates/CRM/Banking/Page/Import.tpl
 msgid "Import!"
-msgstr "Importer !"
+msgstr "Importar"
 
 #: extension/templates/CRM/Banking/Page/Import.tpl
 msgid "See Results"
-msgstr "Afficher les résultats"
+msgstr "Ver resultados"
 
 #: extension/templates/CRM/Banking/Page/Import.tpl
 msgid "Import More"
-msgstr "Autre importation"
+msgstr "Importar más"
 
 #: extension/templates/CRM/Banking/Page/Manager.tpl
 msgid "Delete Plugin \"%1\""
@@ -1794,11 +1775,11 @@ msgstr ""
 #: extension/templates/CRM/Banking/PluginImpl/Matcher/ExistingContribution.suggestion.tpl
 #: extension/templates/CRM/Banking/PluginImpl/Matcher/Membership.suggestion.tpl
 msgid "Type"
-msgstr "Type"
+msgstr "Tipo"
 
 #: extension/templates/CRM/Banking/Page/Manager.tpl
 msgid "Enabled?"
-msgstr "Activé ?"
+msgstr "¿Activado?"
 
 #: extension/templates/CRM/Banking/Page/Manager.tpl
 msgid "Selection Order"
@@ -1874,30 +1855,30 @@ msgstr ""
 
 #: extension/templates/CRM/Banking/Page/Payments.tpl
 msgid "New"
-msgstr "Nouveau"
+msgstr "Nuevo"
 
 #: extension/templates/CRM/Banking/Page/Payments.tpl
 msgid "Analysed"
-msgstr "Analysé"
+msgstr "Analizados"
 
 #: extension/templates/CRM/Banking/Page/Payments.tpl
 #: extension/templates/CRM/Banking/PluginImpl/Matcher/DefaultOptions.suggestion.tpl
 msgid "Completed"
-msgstr "Terminé "
+msgstr "Completados"
 
 #: extension/templates/CRM/Banking/Page/Payments.tpl
 msgid "Show Statements"
-msgstr "Afficher les relevés"
+msgstr "Mostrar extractos"
 
 #: extension/templates/CRM/Banking/Page/Payments.tpl
 #: extension/templates/CRM/Banking/Page/Statements.tpl
 msgid "Showing statements for"
-msgstr "Afficher les relevés de"
+msgstr "Mostrar extractos para"
 
 #: extension/templates/CRM/Banking/Page/Payments.tpl
 #: extension/templates/CRM/Banking/Page/Statements.tpl
 msgid "all accounts"
-msgstr "tous les comptes"
+msgstr "todas las cuentas"
 
 #: extension/templates/CRM/Banking/Page/Payments.tpl
 #: extension/templates/CRM/Banking/Page/StatementLine.tpl
@@ -1916,8 +1897,6 @@ msgid ""
 "No statments could be found with the requested status. Try the other status "
 "filter buttons above to find your imported statements."
 msgstr ""
-"Aucune déclaration n'a pu être trouvée avec l´état demandé. Essayez les "
-"autres boutons de filtre d'état ci-dessus pour trouver vos relevés importées."
 
 #: extension/templates/CRM/Banking/Page/Payments.tpl
 #: extension/templates/CRM/Banking/Page/StatementLine.tpl
@@ -1926,31 +1905,31 @@ msgstr ""
 #: extension/templates/CRM/Banking/PluginImpl/Matcher/DefaultOptions.suggestion.tpl
 #: extension/templates/CRM/Banking/PluginImpl/Matcher/ExistingContribution.suggestion.tpl
 msgid "Date"
-msgstr "Date"
+msgstr "Fecha"
 
 #: extension/templates/CRM/Banking/Page/Payments.tpl
 msgid "Party"
-msgstr "Tiers"
+msgstr ""
 
 #: extension/templates/CRM/Banking/Page/Payments.tpl
 #: extension/templates/CRM/Banking/Page/Review.tpl
 #: extension/templates/CRM/Banking/Page/StatementLine.tpl
 #: extension/templates/CRM/Banking/PluginImpl/Matcher/DefaultOptions.suggestion.tpl
 msgid "Status"
-msgstr "Statut"
+msgstr "Estado"
 
 #: extension/templates/CRM/Banking/Page/Payments.tpl
 #: extension/templates/CRM/Banking/PluginImpl/Matcher/DefaultOptions.suggestion.tpl
 msgid "view"
-msgstr "Vue"
+msgstr "ver"
 
 #: extension/templates/CRM/Banking/Page/Payments.tpl
 msgid "Target Account"
-msgstr "Compte cible"
+msgstr "Cuenta de destino"
 
 #: extension/templates/CRM/Banking/Page/Payments.tpl
 msgid "Statement"
-msgstr "Relevé"
+msgstr "Extracto"
 
 #: extension/templates/CRM/Banking/Page/Payments.tpl
 msgid "Transaction count"
@@ -1958,15 +1937,15 @@ msgstr ""
 
 #: extension/templates/CRM/Banking/Page/Payments.tpl
 msgid "With selected items perform:"
-msgstr "Avec les éléments sélectionnés, effectuez:"
+msgstr "Con los items seleccionados ejecutar: "
 
 #: extension/templates/CRM/Banking/Page/Payments.tpl
 msgid "Review"
-msgstr "Révision"
+msgstr "Revisar"
 
 #: extension/templates/CRM/Banking/Page/Payments.tpl
 msgid "Process"
-msgstr "Traiter"
+msgstr "Procesar"
 
 #: extension/templates/CRM/Banking/Page/Payments.tpl
 msgid "List Lines"
@@ -1974,7 +1953,7 @@ msgstr ""
 
 #: extension/templates/CRM/Banking/Page/Payments.tpl
 msgid "Please select one or more items"
-msgstr "Veuillez sélectionner un ou plusieurs éléments"
+msgstr "Por favor seleccione uno o más ítems"
 
 #: extension/templates/CRM/Banking/Page/Payments.tpl
 #: extension/templates/CRM/Banking/Page/StatementLine.tpl
@@ -2015,64 +1994,64 @@ msgstr ""
 
 #: extension/templates/CRM/Banking/Page/Review.tpl
 msgid "BASIC INFO"
-msgstr "INFORMATIONS GÉNÉRALES"
+msgstr "INFORMACIÓN BÁSICA"
 
 #: extension/templates/CRM/Banking/Page/Review.tpl
 msgid "Booking"
-msgstr "Réservation"
+msgstr "Reservar"
 
 #: extension/templates/CRM/Banking/Page/Review.tpl
 #: extension/templates/CRM/Banking/PluginImpl/Matcher/RulesAnalyser.suggestion.tpl
 msgid "Value"
-msgstr "Valeur"
+msgstr "Valor"
 
 #: extension/templates/CRM/Banking/Page/Review.tpl
 msgid "TRANSACTION INFO"
-msgstr "INFORMATIONS SUR LA TRANSACTION"
+msgstr "INFORMACIÓN DE LA TRANSACCIÓN"
 
 #: extension/templates/CRM/Banking/Page/Review.tpl
 msgid "Stmt. #"
-msgstr "N° de relevé"
+msgstr "Extr. #"
 
 #: extension/templates/CRM/Banking/Page/Review.tpl
 msgid "Trans. #"
-msgstr "N° de trans."
+msgstr "Trans. #"
 
 #: extension/templates/CRM/Banking/Page/Review.tpl
 msgid "DEBTOR INFO"
-msgstr "INFORMATIONS SUR LE DÉBITEUR"
+msgstr "INFORMACION DEL DEUDOR"
 
 #: extension/templates/CRM/Banking/Page/Review.tpl
 msgid "Address"
-msgstr "Adresse"
+msgstr "Dirección"
 
 #: extension/templates/CRM/Banking/Page/Review.tpl
 #: extension/templates/CRM/Banking/Page/StatementLine.tpl
 msgid "Owner"
-msgstr "Titulaire"
+msgstr "Dueño"
 
 #: extension/templates/CRM/Banking/Page/Review.tpl
 #: extension/templates/CRM/Banking/PluginImpl/Matcher/DefaultOptions.suggestion.tpl
 #: extension/templates/CRM/Banking/PluginImpl/Matcher/SepaMandate.activity.tpl
 msgid "Contact"
-msgstr "Contacter"
+msgstr "Contacto"
 
 #: extension/templates/CRM/Banking/Page/Review.tpl
 #: extension/templates/CRM/Banking/Page/StatementLine.tpl
 msgid "Purpose"
-msgstr "Objet"
+msgstr "Propósito"
 
 #: extension/templates/CRM/Banking/Page/Review.tpl
 msgid "DETAILS"
-msgstr "DÉTAILS "
+msgstr "DETALLES"
 
 #: extension/templates/CRM/Banking/Page/Review.tpl
 msgid "(click to see)"
-msgstr "(cliquez pour voir)"
+msgstr "(click para ver)"
 
 #: extension/templates/CRM/Banking/Page/Review.tpl
 msgid "Back"
-msgstr "Retour"
+msgstr "Atrás"
 
 #: extension/templates/CRM/Banking/Page/Review.tpl
 msgid "Analyse (again)"
@@ -2080,23 +2059,23 @@ msgstr ""
 
 #: extension/templates/CRM/Banking/Page/Review.tpl
 msgid "Confirm and Continue"
-msgstr "Confirmer et continuer"
+msgstr "Confirmar y continuar"
 
 #: extension/templates/CRM/Banking/Page/Review.tpl
 msgid "Skip"
-msgstr "Passer"
+msgstr "Saltar"
 
 #: extension/templates/CRM/Banking/Page/Review.tpl
 msgid "Skip Processed"
-msgstr "Ignorer traité"
+msgstr "Saltar procesadas"
 
 #: extension/templates/CRM/Banking/Page/Review.tpl
 msgid "Confirm and Exit"
-msgstr "Confirmer et quitter"
+msgstr "Confirmar y salir"
 
 #: extension/templates/CRM/Banking/Page/Review.tpl
 msgid "Skip and Exit"
-msgstr "Passer et quitter"
+msgstr "Saltar y salir"
 
 #: extension/templates/CRM/Banking/Page/Review.tpl
 msgid "Back to statement lines"
@@ -2236,12 +2215,12 @@ msgstr ""
 
 #: extension/templates/CRM/Banking/PluginImpl/Matcher/CreateContribution.suggestion.tpl
 msgid "The following contribution will be created:"
-msgstr "La contribution suivante sera créée:"
+msgstr "La siguiente contribución será creada:"
 
 #: extension/templates/CRM/Banking/PluginImpl/Matcher/CreateContribution.suggestion.tpl
 #: extension/templates/CRM/Banking/PluginImpl/Matcher/ExistingContribution.suggestion.tpl
 msgid "Donor"
-msgstr "Donateur"
+msgstr "Donante"
 
 #: extension/templates/CRM/Banking/PluginImpl/Matcher/CreateContribution.suggestion.tpl
 msgid "Campaign"
@@ -2255,15 +2234,15 @@ msgstr ""
 
 #: extension/templates/CRM/Banking/PluginImpl/Matcher/DefaultOptions.suggestion.tpl
 msgid "add new contribution for:"
-msgstr "Ajouter une nouvelle contribution pour :"
+msgstr "agregar nueva contribución para:"
 
 #: extension/templates/CRM/Banking/PluginImpl/Matcher/DefaultOptions.suggestion.tpl
 msgid "add contact ID to list"
-msgstr "Ajouter un ID de contact à la liste"
+msgstr "agregar Id de contacto a la lista"
 
 #: extension/templates/CRM/Banking/PluginImpl/Matcher/DefaultOptions.suggestion.tpl
 msgid "refresh"
-msgstr "actualiser"
+msgstr "refrescar"
 
 #: extension/templates/CRM/Banking/PluginImpl/Matcher/DefaultOptions.suggestion.tpl
 msgid "create empty contribution"
@@ -2271,35 +2250,34 @@ msgstr ""
 
 #: extension/templates/CRM/Banking/PluginImpl/Matcher/DefaultOptions.suggestion.tpl
 msgid "add existing contribution by ID"
-msgstr "Ajouter une contribution via son ID"
+msgstr "agregar contribución existente por ID"
 
 #: extension/templates/CRM/Banking/PluginImpl/Matcher/DefaultOptions.suggestion.tpl
 msgid "sum"
-msgstr "Montant"
+msgstr "sumar"
 
 #: extension/templates/CRM/Banking/PluginImpl/Matcher/DefaultOptions.suggestion.tpl
 msgid ""
 "<strong>WARNING:</strong> This is a negative amount, so all contributions "
 "below will be <strong>cancelled</strong>."
 msgstr ""
-"<strong>ATTENTION:</strong> Ceci est un montant négatif, donc toutes les "
-"contributions ci-dessous seront <strong>annulées</strong>."
 
 #: extension/templates/CRM/Banking/PluginImpl/Matcher/DefaultOptions.suggestion.tpl
 msgid "unknown address"
-msgstr "Adresse inconnue"
+msgstr "dirección desconocida"
 
 #: extension/templates/CRM/Banking/PluginImpl/Matcher/DefaultOptions.suggestion.tpl
 msgid "No contact found... add manually &nbsp;&nbsp;&nbsp;=>"
-msgstr "Aucun contact trouvé ... ajouter manuellement &nbsp;&nbsp;&nbsp;=>"
+msgstr ""
+"No se ha encontrado el contacto... agregar manualmente &nbsp;&nbsp;&nbsp;=>"
 
 #: extension/templates/CRM/Banking/PluginImpl/Matcher/DefaultOptions.suggestion.tpl
 msgid "remove"
-msgstr "Retirer"
+msgstr "eliminar"
 
 #: extension/templates/CRM/Banking/PluginImpl/Matcher/DefaultOptions.suggestion.tpl
 msgid "<br/><b>Will be cancelled.</b>"
-msgstr "<br/><b>seront annulés.</b>"
+msgstr "<br/><b>Será cancelado.</b>"
 
 #: extension/templates/CRM/Banking/PluginImpl/Matcher/DefaultOptions.suggestion.tpl
 msgid "OK"
@@ -2311,7 +2289,7 @@ msgstr ""
 
 #: extension/templates/CRM/Banking/PluginImpl/Matcher/DefaultOptions.suggestion.tpl
 msgid "No valid contribution ID given."
-msgstr "L'identifiant de contribution n'est pas valide"
+msgstr "No se ha dado un ID de contribución válido"
 
 #: extension/templates/CRM/Banking/PluginImpl/Matcher/ExistingContribution.execution.tpl
 msgid "This transaction cancelled <a href=\"%1\">contribution #%2</a>."
@@ -2339,11 +2317,11 @@ msgstr ""
 
 #: extension/templates/CRM/Banking/PluginImpl/Matcher/ExistingContribution.suggestion.tpl
 msgid "There seems to be a match:"
-msgstr "Il semble y avoir une correspondance:"
+msgstr ""
 
 #: extension/templates/CRM/Banking/PluginImpl/Matcher/ExistingContribution.suggestion.tpl
 msgid "edit contribution"
-msgstr "Editer la contribution"
+msgstr "editar contribución"
 
 #: extension/templates/CRM/Banking/PluginImpl/Matcher/ExistingContribution.suggestion.tpl
 #: extension/templates/CRM/Banking/PluginImpl/Matcher/SepaMandate.suggestion.tpl
@@ -2636,7 +2614,7 @@ msgstr ""
 
 #: extension/templates/CRM/Banking/PluginImpl/Matcher/SepaMandate.suggestion.tpl
 msgid "<b>Warning! There are some problems with this contribution:</b>"
-msgstr "<b>Attention! Il y a quelques problèmes avec cette contribution:</b>"
+msgstr ""
 
 #: extension/templates/CRM/Banking/PluginImpl/PostProcessor/AddressUpdate.activity.tpl
 #: extension/templates/CRM/Banking/PluginImpl/PostProcessor/AddressUpdate.note.tpl
@@ -2687,341 +2665,254 @@ msgid ""
 msgstr ""
 
 #~ msgid "Couldn't find group '%s'!"
-#~ msgstr "N'a pas pu trouver le groupe '%s'!"
+#~ msgstr "No se pudo encontrar el grupo '%s'"
 
 #~ msgid "Couldn't find type '%s' in group %d!"
-#~ msgstr "Impossible de trouver le type %sdans le groupe %d"
+#~ msgstr "No se pudo encontrar el tipo '%s' en el grupo %d"
 
 #~ msgid "Couldn't query plugin list from API!"
-#~ msgstr "Impossible de consulter la liste des plugins de l'API!"
+#~ msgstr "No se pudo consultar la lista de plugins desde la API"
 
 #~ msgid ""
 #~ "Could not locate the class name for civicrm_banking.plugin_classes member "
 #~ "%d."
 #~ msgstr ""
-#~ "Impossible de trouver le nom de la classe pour le membre civicrm_banking."
-#~ "plugin_classes %d."
+#~ "No se pudo ubicar el nombre de clase para el miembro %d de "
+#~ "civicrm_banking.plugin_classes"
 
 #~ msgid "This plugin requires class %s which does not seem to exist."
-#~ msgstr "Ce plugin nécessite la classe %s qui ne semble pas exister."
+#~ msgstr "Este plugin requiere la clase %s que no existe"
 
 #~ msgid "Error while looking up option group '%s'!"
-#~ msgstr "Erreur lors de la recherche d'option de groupe '%s'!"
+#~ msgstr "Error al buscar el grupo de opción '%s'"
 
 #~ msgid "Error while looking up option value '%s'!"
-#~ msgstr "Erreur lors de la recherche d'option de valeur '%s'!"
+#~ msgstr "Error al buscar el valor de opción '%s'"
 
 #~ msgid "Couldn't find value '%s'!"
-#~ msgstr "Valeur '%s' impossible à trouver !"
+#~ msgstr "No se pudo encontrar el valor '%s'"
 
 #~ msgid "Error while looking up option values for group '%s'!"
-#~ msgstr ""
-#~ "Erreur lors de la recherche des valeurs d'option pour le groupe '%s'!"
+#~ msgstr "Error al buscar valores de opción para el grupo '%s'"
 
 #~ msgid "Accounts"
-#~ msgstr "Comptes"
+#~ msgstr "Cuentas"
 
 #~ msgid "Bank Payment Importer"
-#~ msgstr "Importateur de paiement bancaire"
+#~ msgstr "Importador de pago bancario"
 
 #~ msgid "Manage CiviBanking Components"
-#~ msgstr "Gestion des composants de CiviBanking"
+#~ msgstr "Gestionar componentes de CiviBanking"
 
 #~ msgid "payments"
-#~ msgstr "paiements"
+#~ msgstr "pagos"
 
 #~ msgid "statements"
-#~ msgstr "relevés"
+#~ msgstr "extractos"
 
 #~ msgid "Failed to delete %d of %d selected %s."
-#~ msgstr "Échec de la suppression  de %d sur les %d %s sélectionnés ."
+#~ msgstr "Error al eliminar %d de %d seleccionados %s."
 
 #~ msgid "Deletion problems"
-#~ msgstr "Problèmes de suppression"
+#~ msgstr "Errores al eliminar"
 
 #~ msgid "Deleted %d selected %s."
-#~ msgstr "Suppression de %d sur les %s sélectionnés"
+#~ msgstr "Eliminados %d seleccionados %s."
 
 #~ msgid "Deletion succesfull"
-#~ msgstr "Suppression éffectuer"
+#~ msgstr "Eliminados exitósamente"
 
 #~ msgid "Analysed %d payments."
-#~ msgstr "%d relevés analysés."
+#~ msgstr "Analizados %d pagos."
 
 #~ msgid "Analysis completed."
-#~ msgstr "Analyse complète."
+#~ msgstr "Análisis completo."
 
 #~ msgid "Error while querying BTX with parameters '%s'!"
-#~ msgstr "Erreur lors de la requête de BTX avec les paramètres '%s'!"
+#~ msgstr "Error al consultar BTX con parámetros '%s'"
 
 #~ msgid "SEPAMandates"
-#~ msgstr "Mandat SEPA"
+#~ msgstr "Mandatos SEPA"
 
 #~ msgid "Processing CODA statement %s for account %s"
-#~ msgstr "Traitement de Relevé bancaire CODA %s pour le compte %s"
-
-#~ msgid "DRY RUN: Did not create bank transaction '%d' (%s %s on %s)"
-#~ msgstr ""
-#~ "GALOP D´ESSAI: n'a pas créé la transaction bancaire '%d' (%s %ssur %s)"
+#~ msgstr "Procesando extracto CODA %s para la cuenta %s"
 
 #~ msgid "Created BTX <b>%d</b> for <b>%s %s</b> on %s"
-#~ msgstr ""
-#~ "Création de la transaction n° <b>%d</b> de <b>%s %s</b> en date du %s"
-
-#~ msgid "dry_run"
-#~ msgstr "galope_dessai"
+#~ msgstr "BTX creado <b>%d</b> para <b>%s %s</b> en %s"
 
 #~ msgid "Process payments right away"
-#~ msgstr "Traiter les paiements tout de suite"
+#~ msgstr "Procesar pagos en este momento"
 
 #~ msgid "Interface"
 #~ msgstr "Interface"
 
 #~ msgid "Profiles"
-#~ msgstr "Profils"
+#~ msgstr "Perfiles"
 
 #~ msgid "Matcher"
 #~ msgstr "Matcher"
 
 #~ msgid "Review Required"
-#~ msgstr "Révision Requis"
+#~ msgstr "Revisar requeridas"
 
 #~ msgid "Add Profile"
-#~ msgstr "Ajouter Profil"
+#~ msgstr "Agregar perfil"
 
 #~ msgid "Show Payments"
-#~ msgstr "Voir paiements"
+#~ msgstr "Mostrar pagos"
 
 #~ msgid "Custom Filter"
-#~ msgstr "Filtre personnalisé"
+#~ msgstr "Filtros personalizados"
 
 #~ msgid "Select all"
-#~ msgstr "Tout sélectionner"
+#~ msgstr "Seleccionar todos"
 
 #~ msgid "Select none"
-#~ msgstr "La sélection est vide"
+#~ msgstr "Seleccioanr ninguno"
 
 #~ msgid "EXTRA"
 #~ msgstr "EXTRA"
 
-#~ msgid "Match (again)"
-#~ msgstr "Match (encore)"
-
 #~ msgid "Back to payment list"
-#~ msgstr "Retour à la liste des paiements"
+#~ msgstr "Volver a la lista de pagos"
 
 #~ msgid "Suggestions "
-#~ msgstr "Suggestions"
+#~ msgstr "Sugerencias"
 
 #~ msgid "Go ahead"
-#~ msgstr "Allez-y"
+#~ msgstr "Seguir adelante"
 
 #~ msgid "Go ahead as suggested"
-#~ msgstr "Allez-y comme suggéré"
+#~ msgstr "Seguir adelante como fue sugerido"
 
 #~ msgid "(In your native language) The current time is %1."
-#~ msgstr "(Dans votre langue natale) L'heure actuelle est% 1."
+#~ msgstr "(En tu idioma nativo) LA hora actual es %1."
 
 #~ msgid "Internal error while looking up contacts."
-#~ msgstr "Erreur interne lors de la recherche de contacts."
+#~ msgstr "Error interno al buscar contactos."
 
 #~ msgid ""
 #~ "Internal limit of 1000 transactions hit. Please use smaller statments."
 #~ msgstr ""
-#~ "Limite interne de 1000 transactions atteint. Veuillez utiliser des bilans "
-#~ "plus petits."
+#~ "Límite interno de 1000 transacciones alcanzado. Por favor use extractos "
+#~ "más pequeños"
 
 #~ msgid "Internal restriction"
-#~ msgstr "Restriction interne"
+#~ msgstr "Restricción interna"
 
 #~ msgid "The contribution is not valid. The payment is NOT completed."
-#~ msgstr "La contribution n'est pas valide. Le paiement n'est pas terminé."
+#~ msgstr "La contribución no es válida. El pago NO ha sido completado."
 
 #~ msgid "Payment NOT completed."
-#~ msgstr "Le paiement n'est PAS terminé."
+#~ msgstr "Pago NO completado."
 
 #~ msgid "No contribution given. The payment is NOT completed."
-#~ msgstr "Aucune contribution indiquée. Le paiement n'est pas terminé."
-
-#~ msgid ""
-#~ "Please manually process this payment and <b>then</b> add the resulting "
-#~ "contributions to this list."
-#~ msgstr ""
-#~ "Veuillez traiter ce paiement manuellement et <b> puis </b> ajouter les "
-#~ "contributions résultantes à cette liste."
+#~ msgstr "No se ha dado una contribución. El pago NO ha sido completado"
 
 #~ msgid "create new"
-#~ msgstr "créer nouveau"
+#~ msgstr "crear nuevo"
 
 #~ msgid "add by ID"
-#~ msgstr "ajouter par ID"
+#~ msgstr "agregar por ID"
 
 #~ msgid "WARNING!"
-#~ msgstr "ATTENTION !"
+#~ msgstr "PRECAUCIÓN!"
 
 #~ msgid "Contact was most likely identified."
-#~ msgstr ""
-#~ "Le contact  identifié est le plus susceptible d´ être le bon contact"
+#~ msgstr "El contacto ha sido identificado parcialmente"
 
 #~ msgid "A pending contribution matching the payment was found."
 #~ msgstr ""
-#~ "Une contribution en attente correspondant au paiement a été trouvée."
+#~ "Una contribución pendiente coincidente con el pago ha sido encontrada."
 
 #~ msgid "A pending contribution partially matching the payment was found."
 #~ msgstr ""
-#~ "Une contribution en attente correspondant partiellement au paiement a été "
-#~ "trouvée."
-
-#~ msgid ""
-#~ "No payments could be found with the requested status. Try the other "
-#~ "status filter buttons above to find your imported payments."
-#~ msgstr ""
-#~ "Aucun paiement n'a pu être trouvé avec l´etat demandé. Essayez les autres "
-#~ "boutons de filtre d'état ci-dessus pour trouver vos paiements importés."
+#~ "Una contribución pendiente que coincide parcialmente con el pago ha sido "
+#~ "encontrada"
 
 #~ msgid "Manage Accounts"
-#~ msgstr "Gérer les comptes"
+#~ msgstr "Gestionar cuentas"
 
 #~ msgid "Import Payments"
-#~ msgstr "Importer les paiements"
-
-#~ msgid ""
-#~ "Please manually process this payment and <i>then</i> add the resulting "
-#~ "contributions to this list, <b><i>before</i></b> confirming this option."
-#~ msgstr ""
-#~ "Veuillez traiter ce paiement manuellement et<i> puis </i> ajouter les "
-#~ "contributions qui en résultent à cette liste, <b><i> avant </i></b>de "
-#~ "confirmer cette option."
+#~ msgstr "Importar pagos"
 
 #~ msgid "add empty contribution"
-#~ msgstr "Ajouter une nouvelle contribution"
+#~ msgstr "agregar contribución vacia"
 
 #~ msgid "No valid contact ID given."
-#~ msgstr "Aucun ID de contact valide indiquée."
-
-#~ msgid "A pending contribution partially matching the paymenty was found."
-#~ msgstr ""
-#~ "Une contribution en attente correspondant partiellement au paiement a été "
-#~ "trouvée."
+#~ msgstr "No se ha dado un ID de contacto válido"
 
 #~ msgid "Next"
-#~ msgstr "Suivant"
+#~ msgstr "Próximo"
 
 #~ msgid "Exit"
-#~ msgstr "Quitter"
+#~ msgstr "Salir"
 
 #~ msgid "This payment was"
-#~ msgstr "Ce paiement était"
-
-#~ msgid "on"
-#~ msgstr "Sur"
+#~ msgstr "Este pago ha sido"
 
 #~ msgid "This payment was <b>processed</b> on %s."
-#~ msgstr "Ce paiement a été <b> traité </b> sur %s."
+#~ msgstr "El pago ha sido <b>procesado</b> en %s."
 
 #~ msgid "This payment was marked to be <b>ignored</b> on %s."
-#~ msgstr "Ce paiement a été marqué pour être  <b>ignoré </b> sur %s."
+#~ msgstr "Este pago ha sido marcado para ser <b>ignorado</b> en %s."
 
 #~ msgid "Payment count"
-#~ msgstr "Nombre de paiements"
-
-#~ msgid "This payment was manually matched to the following contributions:"
-#~ msgstr "Ce paiement a été apparié manuellement aux contributions suivantes:"
+#~ msgstr "Cantidad de pagos"
 
 #~ msgid ""
 #~ "This payment was associated with <a href=\"%s\">payment batch #%s</a>."
-#~ msgstr ""
-#~ "Ce paiement était associé au <a href=\"%s\"> lot de paiement #%s </a>."
+#~ msgstr "El pago ha sido asociado con <a href=\"%s\">lote de pagos #%s</a>."
 
 #~ msgid ""
 #~ "This payment was associated with <a href=\"%s\">contribution #%s</a>."
-#~ msgstr ""
-#~ "Ce paiement était associé à <a href=\"%s\"> la contribution #%s </a>."
-
-#~ msgid "This payment is the <b>cancellation</b> of the below contribution."
-#~ msgstr ""
-#~ "Ce paiement est <b> l'annulation </b> de la contribution ci-dessous."
-
-#~ msgid ""
-#~ "This payment could be the <b>cancellation</b> of the below contribution."
-#~ msgstr ""
-#~ "Ce paiement pourrait être <b> l'annulation </b> de la contribution ci-"
-#~ "dessous."
-
-#~ msgid "Internal error while looking up bank account '%s'. Error was: %s"
-#~ msgstr ""
-#~ "Erreur interne lors de la recherche du compte bancaire '%s'. L'erreur "
-#~ "était: %s"
-
-#~ msgid "You don't have the permissions to delete statements or payments."
-#~ msgstr ""
-#~ "Vous n'avez pas les autorisations pour supprimer des relevés ou des "
-#~ "paiements."
+#~ msgstr "El pago ha sido asociado con <a href=\"%s\">contribución #%s</a>."
 
 #~ msgid ""
 #~ "Internal limit of 1000 transactions hit. Please use smaller statements."
 #~ msgstr ""
-#~ "Limite interne de 1000 transactions atteint. Veuillez utiliser des bilans "
-#~ "plus petits."
+#~ "Límite interno de 1000 transacciones alcanzado. Por favor utilice un "
+#~ "extracto más pequeño."
 
 #~ msgid "Processing incomplete"
-#~ msgstr "Traitement incomplet"
+#~ msgstr "Procesando incompleto"
 
 #~ msgid "The payment was booked."
-#~ msgstr "Le paiement a été réservé."
+#~ msgstr "El pago ha sido reservado."
 
 #~ msgid "Payment closed"
-#~ msgstr "Paiement fermé"
+#~ msgstr "Pago cerrado"
 
 #~ msgid "The payment was ignored."
-#~ msgstr "Le paiement a été ignoré."
+#~ msgstr "El pago ha sido ignorado"
 
 #~ msgid "Internal error! Cannot find contact #"
-#~ msgstr "Erreur interne ! Impossible de trouver le contact #"
+#~ msgstr "Error interno: No se pudo encontrar el contacto #"
 
 #~ msgid "address unknown"
-#~ msgstr "Adresse inconnue"
+#~ msgstr "dirección desconocida"
 
 #~ msgid "BIC is too short!"
-#~ msgstr "Le code BIC est trop court !"
-
-#~ msgid "IBAN is wrong!"
-#~ msgstr "IBAN incorrect !"
+#~ msgstr "El BIC es muy corto"
 
 #~ msgid "SEPA SDD Payment"
-#~ msgstr "Paiement SEPA SDD"
+#~ msgstr "Pago SEPA SDD"
 
 #~ msgid "This payment is a SEPA direct debit contribution by %s."
-#~ msgstr "Ce paiement est une contribution SEPA de débit direct de %s."
+#~ msgstr "Este pago es una contribución de débito directo SEPA para %s."
 
 #~ msgid "The mandate reference is <a href=\"%s\" target=\"_blank\">%s</a>."
-#~ msgstr "La référence du mandat est <a href=\"%s\" target=\"_blank\">%s</a>."
-
-#~ msgid ""
-#~ "Contribution <a href=\"%s\" target=\"_blank\">[%s]</a> will be closed, as "
-#~ "will be the sepa transaction group if this is the last contribution."
 #~ msgstr ""
-#~ "La contribution <a href=\"%s\" target=\"_blank\"> [%s]</a> sera fermée, "
-#~ "de même que le groupe de transactions SEPA s'il s'agit de la dernière "
-#~ "contribution."
-
-#~ msgid ""
-#~ "This SEPA payment was associated with <a href=\"%s\">contribution #%s</a>."
-#~ msgstr ""
-#~ "Ce paiement SEPA était associé à <a href=\"%s\"> la contribution #%s</a>."
+#~ "La referencia del mandato es <a href=\"%s\" target=\"_blank\">%s</a>."
 
 #~ msgid "Sorry, the configuration interface is not yet functional!"
-#~ msgstr ""
-#~ "Désolé, l'interface de configuration n'est pas encore fonctionnelle!"
+#~ msgstr "Lo sentimos, esta configuración no se encuentra operativa"
 
 #~ msgid "%d new payments."
-#~ msgstr "%d nouveaux paiements."
+#~ msgstr "%d pagos nuevos"
 
 #~ msgid "%d analysed payments."
-#~ msgstr "%d paiements analysés"
+#~ msgstr "%d pagos analizados"
 
 #~ msgid "%d completed payments."
-#~ msgstr "%d paiements terminés."
-
-#~ msgid "DRY RUN: Did not create bank transaction (%s %s on %s)"
-#~ msgstr "GALOP D´ESSAI: n'a pas créé de transaction bancaire (%s%s sur %s)"
+#~ msgstr "%d pagos completados"

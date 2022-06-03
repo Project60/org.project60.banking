@@ -39,6 +39,7 @@ class CRM_Banking_PluginImpl_Matcher_DefaultOptions extends CRM_Banking_PluginMo
     if (!isset($config->manual_message)) $config->manual_message = "Please configure";
     if (!isset($config->manual_default_source)) $config->manual_default_source = "";
     if (!isset($config->manual_contribution)) $config->manual_contribution = "Contribution:";
+    if (!isset($config->contribution_id_injection)) $config->contribution_id_injection = '';  // parameter name containing comma separated list to be added to the manually matched contributions
     if (!isset($config->manual_default_contacts)) $config->manual_default_contacts = array(); // contacts to always be added to the list (contact_id => probability)
     if (!isset($config->default_financial_type_id)) $config->default_financial_type_id = 1;
     if (!isset($config->createnew_value_propagation)) $config->createnew_value_propagation = array();
@@ -227,6 +228,8 @@ class CRM_Banking_PluginImpl_Matcher_DefaultOptions extends CRM_Banking_PluginMo
     $smarty_vars['manual_default_source'] =          $this->_plugin_config->manual_default_source;
     $smarty_vars['manual_default_financial_type_id']=$this->_plugin_config->manual_default_financial_type_id;
     $smarty_vars['create_propagation'] =             $this->getPropagationSet($btx, $match, 'contribution', $this->_plugin_config->createnew_value_propagation);
+    $smarty_vars['contribution_id_injection'] =      $match->getParameter($this->_plugin_config->contribution_id_injection);
+
 
     // the behaviour for Contribution.get has changed in a weird way with 4.7
     if (version_compare(CRM_Utils_System::version(), '4.7', '>=')) {

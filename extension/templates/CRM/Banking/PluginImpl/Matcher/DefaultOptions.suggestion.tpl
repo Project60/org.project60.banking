@@ -79,7 +79,12 @@
 
 {* MANUAL CONTRIBUTION MATCHER JAVASCRIPT FUNCTIONS *}
 <script type="text/javascript">
-  var contact_ids2probablility = {$contact_ids2probablility};
+  let contact_ids2probablility = {$contact_ids2probablility};
+  let contribution_id_injection = "{$contribution_id_injection}";
+
+  if (contribution_id_injection) {
+    cj("#manual_match_contributions").val(contribution_id_injection);
+  }
 
   {literal}
   

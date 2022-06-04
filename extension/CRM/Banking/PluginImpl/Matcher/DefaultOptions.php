@@ -84,9 +84,14 @@ class CRM_Banking_PluginImpl_Matcher_DefaultOptions extends CRM_Banking_PluginMo
           }
         }
 
-        // add result to paramters
+        // add result to parameters
         $manually_processed->setParameter('contact_ids', implode(',', array_keys($contacts)));
-        $manually_processed->setParameter('contact_ids2probablility', json_encode($contacts));
+        $manually_processed->setParameter('contact_ids2probability', json_encode($contacts));
+
+        // add injected contributions
+        if ($config->contribution_id_injection && !empty($data_parsed[$config->contribution_id_injection])) {
+          $manually_processed->setParameter('injected_contribution_ids', $data_parsed[$config->contribution_id_injection]);
+        }
 
         $btx->addSuggestion($manually_processed);
       }
@@ -221,14 +226,14 @@ class CRM_Banking_PluginImpl_Matcher_DefaultOptions extends CRM_Banking_PluginMo
     $smarty_vars['btx'] =                            $btx_data;
     $smarty_vars['mode'] =                           $match->getId();
     $smarty_vars['contact_ids'] =                    $match->getParameter('contact_ids');
-    $smarty_vars['contact_ids2probablility'] =       $match->getParameter('contact_ids2probablility');
+    $smarty_vars['contact_ids2probability'] =       $match->getParameter('contact_ids2probability');
+    $smarty_vars['injected_contribution_ids'] =      $match->getParameter('injected_contribution_ids');
     $smarty_vars['ignore_message'] =                 $this->_plugin_config->ignore_message;
     $smarty_vars['booking_date'] =                   date('YmdHis', strtotime($btx->booking_date));
     $smarty_vars['status_pending'] =                 banking_helper_optionvalue_by_groupname_and_name('contribution_status', 'Pending');
     $smarty_vars['manual_default_source'] =          $this->_plugin_config->manual_default_source;
     $smarty_vars['manual_default_financial_type_id']=$this->_plugin_config->manual_default_financial_type_id;
     $smarty_vars['create_propagation'] =             $this->getPropagationSet($btx, $match, 'contribution', $this->_plugin_config->createnew_value_propagation);
-    $smarty_vars['contribution_id_injection'] =      $match->getParameter($this->_plugin_config->contribution_id_injection);
 
 
     // the behaviour for Contribution.get has changed in a weird way with 4.7

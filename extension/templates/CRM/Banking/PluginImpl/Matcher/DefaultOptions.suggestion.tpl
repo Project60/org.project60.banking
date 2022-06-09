@@ -79,7 +79,9 @@
 
 {* MANUAL CONTRIBUTION MATCHER JAVASCRIPT FUNCTIONS *}
 <script type="text/javascript">
-  var contact_ids2probablility = {$contact_ids2probablility};
+  let contact_ids2probability = {$contact_ids2probability};
+  let injected_contribution_ids = "{$injected_contribution_ids}".split(',');
+  let contribution_ids_injected = false;
 
   {literal}
   
@@ -87,6 +89,18 @@
   cj(document).on('crmPopupClose', manual_match_refresh_list);
   cj(document).on('crmPopupFormSuccess', manual_match_refresh_list);
   cj(document).on('crmFormSuccess', manual_match_refresh_list);
+
+  if (injected_contribution_ids) {
+    cj(document).ready(function() {
+      if (!contribution_ids_injected) {
+        if (cj("#manual_match_contributions")) {
+          contribution_ids_injected = true;
+          cj("#manual_match_contributions").val(injected_contribution_ids.join());
+          manual_match_refresh_list();
+        }
+      }
+    });
+  }
 
   /** 
    * refresh the table showing the related contributions 
@@ -97,9 +111,9 @@
     cj("#manual_match_contribution_table tr.manual-match-contribution").remove();
 
     // then rebuild with the cids in the list
-    var list = cj("#manual_match_contributions").val().split(",");
+    let list = cj("#manual_match_contributions").val().split(",");
     for (cid_idx in list) {
-      cid = parseInt(list[cid_idx]);
+      let cid = parseInt(list[cid_idx]);
       if (!isNaN(cid) && cid>0) {
         // load the contribution
         CRM.api3("Contribution", "get", {
@@ -126,8 +140,8 @@
 
             // generate precision indicator
             var percent = 1.0; // default value
-            if (contact.id in contact_ids2probablility)
-              percent = contact_ids2probablility[contact.id];
+            if (contact.id in contact_ids2probability)
+              percent = contact_ids2probability[contact.id];
             percent_string = Math.floor(percent * 100.0) + "%";
             if (percent < 0.1) {
               percent_string = "0" + percent_string;
@@ -211,7 +225,7 @@
         view_link = view_link.replace("__contributionid__", contribution.id);
         view_link = view_link.replace("__contactid__", contribution.contact_id);
 
-        var row = "<tr class=\"manual-match-contribution\" id=\"manual_match_row_cid_" + contribution.id + "\">";
+        let row = "<tr class=\"manual-match-contribution\" id=\"manual_match_row_cid_" + contribution.id + "\">";
         row += "<td><a onclick=\"manual_match_remove_contribution(" + contribution.id + ");\">[{/literal}{ts domain='org.project60.banking'}remove{/ts}{literal}]</a>";
         row += "&nbsp;<a href=\"" + view_link + "\" target=\"_blank\" class=\"crm-popup\">[{/literal}{ts domain='org.project60.banking'}view{/ts}{literal}]</a></td>";
         row += "<td>" + contribution.display_name + "</td>";
@@ -260,7 +274,7 @@
    */
   function manual_match_create_contribution() {
     // get selected contact
-    var contact_id = cj("#manual_match_contact_selector").val();
+    let contact_id = cj("#manual_match_contact_selector").val();
     if (!contact_id) {
       // TODO: set/translate message
       alert("No ID set!");
@@ -282,7 +296,7 @@
                                         {/foreach}{literal}
                                       },
       { success: function(data) {
-        var contribution = data.values[0];
+        let contribution = data.values[0];
 
         // succesfully created -> add to our list
         manual_match_add_contribution_to_field(contribution.id);
@@ -307,12 +321,12 @@
    */
   function manual_match_add_contribution() {
     // we will try to extract an contribution id from the input field, add it to the (hidden) list of contributions and call refresh
-    var value = cj("#manual_match_add").val();
+    let value = cj("#manual_match_add").val();
     // maybe it`s only an ID:
-    var cid = parseInt(value);
+    let cid = parseInt(value);
     if (isNaN(cid)) {
       // if not, maybe it`s a URL and we can parse the cid...
-      var parts = value.split("&");
+      let parts = value.split("&");
       for (part in parts) {
         if (parts[part].substring(0, 3)==="id=") {
           cid = parseInt(parts[part].substring(3));
@@ -338,12 +352,12 @@
    */
   function manual_match_add_contact() {
     // we will try to extract an contact id from the input field, add it to the (hidden) list of contributions
-    var value = cj("#manual_match_add_contact_input").val();
+    let value = cj("#manual_match_add_contact_input").val();
     // maybe it`s only an ID:
-    var contact_id = parseInt(value);
+    let contact_id = parseInt(value);
     if (isNaN(contact_id)) {
       // if not, maybe it`s a URL and we can parse the contact_id...
-      var parts = value.split("&");
+      let parts = value.split("&");
       for (part in parts) {
         if (parts[part].substring(0, 4)==="cid=") {
           contact_id = parseInt(parts[part].substring(4));
@@ -356,8 +370,8 @@
       alert("{/literal}{ts domain='org.project60.banking'}No valid contribution ID given.{/ts}{literal}");
     } else {
       // add ID to the hidden field
-      var list = cj("#manual_match_contacts").val().split(",");
-      var index = cj.inArray(contact_id.toString(), list);
+      let list = cj("#manual_match_contacts").val().split(",");
+      let index = cj.inArray(contact_id.toString(), list);
       if (index == -1) {
         //list.splice(0, 0, contact_id.toString());   // insert at beginning
         list.push(contact_id.toString());
@@ -377,8 +391,8 @@
    */
   function manual_match_add_contribution_to_field(contribution_id) {
     // add to field
-    var list = cj("#manual_match_contributions").val().split(",");
-    var index = cj.inArray(contribution_id.toString(), list);
+    let list = cj("#manual_match_contributions").val().split(",");
+    let index = cj.inArray(contribution_id.toString(), list);
     if (index == -1) {
       list.push(contribution_id);
       cj("#manual_match_contributions").val(list.join());
@@ -390,8 +404,9 @@
    */
   function manual_match_remove_contribution(contribution_id) {
       // remove ID from the hidden field
-      var list = cj("#manual_match_contributions").val().split(",");
-      var index = cj.inArray(cid.toString(), list);
+      console.log("remove " + contribution_id);
+      let list = cj("#manual_match_contributions").val().split(",");
+      let index = cj.inArray(cid.toString(), list);
       if (index != -1) {
         list.splice(index, 1);
         cj("#manual_match_contributions").val(list.join());
@@ -404,7 +419,7 @@
    */
   function manual_match_show_selected_contact() {
       // get contact_id from selector
-      var contact_id = cj("#manual_match_contact_selector").val();
+      let contact_id = cj("#manual_match_contact_selector").val();
       if (parseInt(contact_id) > 0) {
         banking_open_link("{/literal}{$view_contact_link}{literal}", {"__contactid__":contact_id}, false);
       } else {

@@ -158,6 +158,7 @@ class CRM_Banking_PluginImpl_Matcher_DefaultOptions extends CRM_Banking_PluginMo
               $query['receive_date'] = date('YmdHis', strtotime($btx->booking_date));
             }
 
+            CRM_Banking_Helpers_IssueMitigation::mitigate358($query);
             $result = civicrm_api('Contribution', 'create', $query);
             if (isset($result['is_error']) && $result['is_error']) {
               CRM_Core_Session::setStatus(sprintf(E::ts("Couldn't modify contribution #%s"), $cid), E::ts('Error'), 'error');

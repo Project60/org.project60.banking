@@ -34,7 +34,7 @@ class CRM_Banking_Helpers_ContributionLinkMigration
     $this->from_tx_id = $from_tx_id;
     $this->to_tx_id   = $this->from_tx_id + $batch_size - 1;
     $this->title      = E::ts("Migrated transactions %1 - %2", [1 => $this->from_tx_id, 2 => $this->to_tx_id]);
-    $this->status_ids = implode(self::getTxStatusIDs());
+    $this->status_ids = implode(',', self::getTxStatusIDs());
   }
 
   /**

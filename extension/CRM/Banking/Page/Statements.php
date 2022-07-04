@@ -64,7 +64,7 @@ class CRM_Banking_Page_Statements extends CRM_Core_Page {
       $queryParams[$paramCount] = array($strDate, 'String');
     }
 
-    $statementWhere .= implode($statementsWhereClauses, " AND ");
+    $statementWhere .= implode(' AND ', $statementsWhereClauses);
 
     $count = CRM_Core_DAO::singleValueQuery("SELECT COUNT(*) {$statementFrom} {$statementWhere} {$statementGroupBy}", $queryParams);
 
@@ -111,7 +111,7 @@ class CRM_Banking_Page_Statements extends CRM_Core_Page {
     }
 
     // Build the status count for each statement.
-    $batchIds = implode(array_keys($statements), ", ");
+    $batchIds = implode(',', array_keys($statements));
     if (count($statements)) {
       $statusCountSql = "SELECT COUNT(*) as count, status.name as status, tx.tx_batch_id as batch_id
                         FROM civicrm_bank_tx tx

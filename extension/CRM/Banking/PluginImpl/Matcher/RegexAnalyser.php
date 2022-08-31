@@ -160,6 +160,11 @@ class CRM_Banking_PluginImpl_Matcher_RegexAnalyser extends CRM_Banking_PluginMod
         //   parameters are in format: "EntityName,result_field,lookup_field"
         $params = explode(',', substr($action->action, 7));
         $value = $this->getValue($action->from, $match_data, $match_index, $data_parsed, $btx);
+        // try json decoding to support complex queries - see BANKING-369
+        if (json_decode($value, true)) {
+          $value = json_decode($value, true);
+          $this->logMessage("JSON-decoded parameter {$value}", 'debug');
+        }
         $query = array($params[2] => $value, 'version' => 3, 'return' => $params[1]);
         if (!empty($action->parameters)) {
           foreach($action->parameters as $key => $value) {

@@ -76,6 +76,8 @@ class CRM_Banking_PluginImpl_Importer_XML extends CRM_Banking_PluginModel_Import
     // document not yet parsed => do it
     $config = $this->_plugin_config;
     $this->document = new DOMDocument();
+    // todo: is this needed?
+    // $this->document->encoding = 'ISO-8859-1';
     $this->document->Load($file_path);
     $this->xpath = new DOMXPath($this->document);
 

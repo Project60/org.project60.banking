@@ -2365,6 +2365,14 @@ msgstr "Ergebnisse"
 msgid "Import More"
 msgstr "Nochmal Importieren"
 
+#: extension/templates/CRM/Banking/Page/Import.tpl
+msgid "Upload File"
+msgstr "Dateiupload"
+
+#: extension/templates/CRM/Banking/Page/Import.tpl
+msgid "Import Data File"
+msgstr "Importdatei"
+
 #: extension/templates/CRM/Banking/Page/Manager.tpl
 msgid "Delete Plugin \"%1\""
 msgstr "Lösche Plugin \"%1\""

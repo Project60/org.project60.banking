@@ -48,7 +48,7 @@ class CRM_Banking_BAO_PluginInstance extends CRM_Banking_DAO_PluginInstance {
    */
   static function listInstances($type_name, $enabled_only=TRUE) {
     // find the correct plugin type
-    $import_plugin_type = civicrm_api3('OptionValue', 'getsingle', array(
+    $import_plugin_type = civicrm_api3('OptionValue', 'get', array(
         'name'     => $type_name,
         'option_group_id' => 'civicrm_banking.plugin_classes',
         'option.limit' => 0));

@@ -1,0 +1,70 @@
+{
+    "plugin_type_name": "import",
+    "plugin_class_name": "importer_csv",
+    "name": "GLS Volksbank",
+    "description": "Importiert CSV Kontoausz\u00fcge von deutschen Volksbanken und GLS, angepasst im Mai 2022",
+    "weight": "1000",
+    "config": {
+        "delimiter": ";",
+        "encoding": "CP1252",
+        "header": 1,
+        "title": "GLS {starting_date} - {ending_date} [{md5}]",
+        "defaults": {
+            "_IBAN": "HIER IBAN DES KONTOINHABERS SYSTEMBETREIBERS EINGEBEN",
+            "payment_instrument_id": "5",
+            "currency": "EUR"
+        },
+		
+	"fields": "Bezeichnung Auftragskonto,IBAN Auftragskonto,BIC Auftragskonto,Bankname Auftragskonto,Buchungstag,Valutadatum,Name Zahlungsbeteiligter,IBAN Zahlungsbeteiligter,BIC (SWIFT-Code) Zahlungsbeteiligter,Buchungstext,Verwendungszweck,Betrag,Waehrung,Saldo nach Buchung,Bemerkung,Kategorie,Steuerrelevant,Glaeubiger ID,Mandatsreferenz",
+ 
+        "rules": [
+            {
+                "from": "Buchungstag",
+                "to": "booking_date",
+                "type": "strtotime:d.m.Y"
+            },
+            {
+                "from": "Valutadatum",
+                "to": "value_date",
+                "type": "strtotime:d.m.Y"
+            },
+            {
+                "from": "Buchungstext",
+                "to": "transaction_class",
+                "type": "set"
+            },
+            {
+                "from": "Betrag",
+                "to": "amount",
+                "type": "amount"
+            },
+            {
+                "from": "Waehrung",
+                "to": "currency",
+                "type": "set"
+            },
+            {
+                "from": "Name Zahlungsbeteiligter",
+                "to": "name",
+                "type": "set"
+            },
+            {
+                "from": "IBAN Zahlungsbeteiligter",
+                "to": "_party_IBAN",
+                "type": "set"
+            },
+            {
+                "from": "Verwendungszweck",
+                "to": "purpose",
+                "type": "append:"
+            },
+
+		{
+                "from": "Mandatsreferenz",
+                "to": "reference",
+                "type": "set"
+            }
+        ]
+    },
+    "state": []
+}

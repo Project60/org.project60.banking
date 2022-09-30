@@ -105,7 +105,7 @@ class CRM_Banking_PluginImpl_Matcher_ExistingContribution extends CRM_Banking_Pl
     }
     $contribution_amount = $contribution['total_amount'];
     $target_date = strtotime($context->btx->value_date);
-    $contribution_date = (int) strtotime($contribution['receive_date']);
+    $contribution_date = (int) strtotime(date('Y-m-d', strtotime($contribution['receive_date'])));
 
     // check for date limits
     if ($config->received_date_check) {
@@ -423,6 +423,7 @@ class CRM_Banking_PluginImpl_Matcher_ExistingContribution extends CRM_Banking_Pl
     }
 
     CRM_Banking_Helpers_IssueMitigation::mitigate358($query);
+
     $result = civicrm_api('Contribution', 'create', $query);
     if (isset($result['is_error']) && $result['is_error']) {
       CRM_Core_Session::setStatus(E::ts("Couldn't modify contribution.") . "<br/>" . $result['error_message'], E::ts('Error'), 'error');

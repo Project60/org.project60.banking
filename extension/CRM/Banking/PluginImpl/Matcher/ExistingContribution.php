@@ -52,6 +52,7 @@ class CRM_Banking_PluginImpl_Matcher_ExistingContribution extends CRM_Banking_Pl
     if (!isset($config->received_date_maximum))      $config->received_date_maximum = "+1 days";
     if (!isset($config->date_penalty))               $config->date_penalty = 1.0;
     if (!isset($config->payment_instrument_penalty)) $config->payment_instrument_penalty = 0.0;
+    if (!isset($config->financial_type_penalty))     $config->financial_type_penalty = 0.0;
 
     // amount check / amount penalty
     if (!isset($config->amount_check))            $config->amount_check = "1";
@@ -61,6 +62,8 @@ class CRM_Banking_PluginImpl_Matcher_ExistingContribution extends CRM_Banking_Pl
     if (!isset($config->amount_absolute_maximum)) $config->amount_absolute_maximum = 1;
     if (!isset($config->amount_penalty))          $config->amount_penalty = 1.0;
     if (!isset($config->currency_penalty))        $config->currency_penalty = 0.5;
+
+    if (!isset($config->request_amount_confirmation))  $config->request_amount_confirmation = FALSE;   // if true, user confirmation is required to reconcile differing amounts
 
     // extended cancellation features: enter cancel_reason
     if (!isset($config->cancellation_cancel_reason))         $config->cancellation_cancel_reason         = 0; // set to 1 to enable
@@ -143,6 +146,17 @@ class CRM_Banking_PluginImpl_Matcher_ExistingContribution extends CRM_Banking_Pl
       }
     }
 
+    // Apply financial type mismatch penalty.
+    $financial_type_penalty = 0.0;
+    if (
+      $config->financial_type_penalty
+      && isset($contribution['financial_type_id'])
+      && isset($parsed_data['financial_type_id'])
+      && $contribution['financial_type_id'] != $parsed_data['financial_type_id']
+    ) {
+      $financial_type_penalty = $config->financial_type_penalty;
+    }
+
     $penalty = 0.0;
     if ($date_range)   $penalty += $config->date_penalty * ($date_delta / $date_range);
     if ($amount_range) $penalty += $config->amount_penalty * (abs($amount_delta) / $amount_range);
@@ -150,6 +164,7 @@ class CRM_Banking_PluginImpl_Matcher_ExistingContribution extends CRM_Banking_Pl
       $penalty += $config->currency_penalty;
     }
     $penalty += (float) $payment_instrument_penalty;
+    $penalty += (float) $financial_type_penalty;
 
     return max(0, 1.0 - $penalty);
   }
@@ -314,10 +329,17 @@ class CRM_Banking_PluginImpl_Matcher_ExistingContribution extends CRM_Banking_Pl
         }
       }
 
+      // fill suggestion
       $suggestion->setId("existing-$contribution_id");
       $suggestion->setParameter('contribution_id', $contribution_id);
       $suggestion->setParameter('contact_id', $contact_id);
       $suggestion->setParameter('mode', $config->mode);
+      if ($config->request_amount_confirmation) {
+        // add a confirmation if the amount differs between btx and contribution
+        if (abs($btx->amount) != $contribution2totalamount[$contribution_id]) {
+          $suggestion->setUserConfirmation(E::ts("The reconciled amount of this suggestion would differ from the transaction amount. Do you want to continue anyway?"));
+        }
+      }
 
       // generate cancellation extra parameters
       if ($config->mode == 'cancellation') {
@@ -361,10 +383,14 @@ class CRM_Banking_PluginImpl_Matcher_ExistingContribution extends CRM_Banking_Pl
   }
 
   /**
-   * Handle the different actions, should probably be handles at base class level ...
+   * Execute the previously generated suggestion,
+   *   and close the transaction
    *
-   * @param type $match
-   * @param type $btx
+   * @param CRM_Banking_Matcher_Suggestion $suggestion
+   *   the suggestion to be executed
+   *
+   * @param CRM_Banking_BAO_BankTransaction $btx
+   *   the bank transaction this is related to
    */
   public function execute($suggestion, $btx) {
     $config = $this->_plugin_config;
@@ -396,11 +422,16 @@ class CRM_Banking_PluginImpl_Matcher_ExistingContribution extends CRM_Banking_Pl
       }
     }
 
+    CRM_Banking_Helpers_IssueMitigation::mitigate358($query);
+
     $result = civicrm_api('Contribution', 'create', $query);
     if (isset($result['is_error']) && $result['is_error']) {
       CRM_Core_Session::setStatus(E::ts("Couldn't modify contribution.") . "<br/>" . $result['error_message'], E::ts('Error'), 'error');
       return false;
     } else {
+      // link the contribution
+      CRM_Banking_BAO_BankTransactionContribution::linkContribution($btx->id, $contribution_id);
+
       // everything seems fine, save the account
       if (!empty($result['values'][$contribution_id]['contact_id'])) {
         $this->storeAccountWithContact($btx, $result['values'][$contribution_id]['contact_id']);
@@ -408,6 +439,8 @@ class CRM_Banking_PluginImpl_Matcher_ExistingContribution extends CRM_Banking_Pl
         $this->storeAccountWithContact($btx, $result['values'][0]['contact_id']);
       }
     }
+
+
 
     $newStatus = banking_helper_optionvalueid_by_groupname_and_name('civicrm_banking.bank_tx_status', 'Processed');
     $btx->setStatus($newStatus);

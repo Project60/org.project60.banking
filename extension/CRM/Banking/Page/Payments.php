@@ -83,39 +83,113 @@ class CRM_Banking_Page_Payments extends CRM_Core_Page {
       $target_ba_id = $_REQUEST['target_ba_id'];
     }
 
-    $statements_new = array();
-    $statements_analysed = array();
-    $statements_completed = array();
+    // FIRST: CALCULATE COUNTS
+    // calculate statement counts
+    $new_statement_id_list = CRM_Core_DAO::singleValueQuery("
+        SELECT GROUP_CONCAT(DISTINCT(tx_batch_id))
+        FROM civicrm_bank_tx
+        WHERE status_id IN ({$payment_states['new']['id']})
+          AND id NOT IN (          
+            SELECT tx_batch_id
+            FROM civicrm_bank_tx
+            WHERE status_id IN ({$payment_states['suggestions']['id']}, {$payment_states['ignored']['id']}, {$payment_states['processed']['id']})
+          );");
+    if (empty($new_statement_id_list)) {
+      $new_statement_id_list = '0'; // i.e. no such ID
+      $new_statement_ids = [];
+      $this->assign('count_new', 0);
+    } else {
+      $new_statement_ids = explode(',', $new_statement_id_list);
+      $this->assign('count_new', count($new_statement_ids));
+    }
+
+    // calculate statement counts
+    $open_statement_id_list = CRM_Core_DAO::singleValueQuery("
+        SELECT GROUP_CONCAT(DISTINCT(tx_batch_id))
+        FROM civicrm_bank_tx
+        WHERE status_id IN ({$payment_states['suggestions']['id']})
+          AND id NOT IN ({$new_statement_id_list});");
+    if (empty($open_statement_id_list)) {
+      $open_statement_id_list = 0;
+      $open_statement_count = 0;
+    } else {
+      $open_statement_count = count(explode(',', $open_statement_id_list));
+    }
+    $this->assign('count_analysed', $open_statement_count);
+
+    // closed count is merely the total count without the former two
+    $closed_statement_count = CRM_Core_DAO::singleValueQuery("SELECT COUNT(id) FROM civicrm_bank_tx_batch;")
+       - $open_statement_count - count($new_statement_ids);
+    $this->assign('count_completed', $closed_statement_count);
+
 
     // collect an array of target accounts, serving to limit the display
-    $target_accounts = array();
+    $target_accounts = [];
 
-    // TODO: we NEED a tx_batch status field, see https://github.com/Project60/CiviBanking/issues/20
-    $sql_query =    // this query joins the bank_account table to determine the target account
+    // PROCESS REQUESTED CASE
+    if ($_REQUEST['status_ids']==$payment_states['new']['id']) {
+      // 'NEW' mode will show all that have not been completely analysed
+      if ($new_statement_id_list) {
+        $where_clause = "btxb.id IN ({$new_statement_id_list})";
+        $this->assign('status_message', E::ts("%1 new statements.", [1 => count($new_statement_ids)]));
+      } else {
+        $where_clause = "FALSE";
+        $this->assign('status_message', E::ts("No new statements."));
+      }
+
+    } elseif ($_REQUEST['status_ids']==$payment_states['suggestions']['id']) {
+      // 'ANALYSED' mode will show all that have been partially analysed, but not all completed
+      if ($open_statement_id_list) {
+        $where_clause = "btxb.id IN ({$open_statement_id_list})";
+        $this->assign('status_message', E::ts("%1 analysed statements.", [1 => $open_statement_count]));
+      } else {
+        $where_clause = "FALSE";
+        $this->assign('status_message', E::ts("No analysed statements."));
+      }
+
+    } else {
+      // 'COMPLETE' mode will show all that have been entirely processed
+      $where_clause = " TRUE ";
+      if ($new_statement_id_list) {
+        $where_clause .= " AND btxb.id NOT IN ({$new_statement_id_list}) ";
+      }
+      if ($open_statement_id_list) {
+        $where_clause .= " AND btxb.id NOT IN ({$open_statement_id_list}) ";
+      }
+      $this->assign('status_message', E::ts("%1 closed statements.", [
+        1 => $closed_statement_count - $open_statement_count - count($new_statement_ids)]));
+    }
+
+    // RUN THE STATEMENT QUERY
+    $sql_query =
         "SELECT
-          btxb.id AS id,
-          ba.id AS ba_id,
-          reference,
-          btxb.sequence as sequence,
-          starting_date,
-          tx_count,
-          ba_id,
-          ba.data_parsed as data_parsed,
-          sum(btx.amount) as total,
-          btx.currency as currency
-        FROM
-          civicrm_bank_tx_batch btxb
-          LEFT JOIN civicrm_bank_tx btx ON btx.tx_batch_id = btxb.id
-          LEFT JOIN civicrm_bank_account ba ON ba.id = btx.ba_id "
+          btxb.id         AS id,
+          ba.id           AS ba_id,
+          reference       AS reference,
+          btxb.sequence   AS sequence,
+          starting_date   AS starting_date,
+          tx_count        AS tx_count,          
+          ba.data_parsed  AS data_parsed,
+          sum(btx.amount) AS total,
+          btx.currency    AS currency
+        FROM civicrm_bank_tx_batch btxb
+        LEFT JOIN civicrm_bank_tx btx 
+               ON btx.tx_batch_id = btxb.id
+        LEFT JOIN civicrm_bank_account ba 
+               ON ba.id = btx.ba_id 
+        WHERE {$where_clause}"
           .
-            ($target_ba_id ? ' WHERE ba_id = ' . $target_ba_id : '')
+            ($target_ba_id ? ' AND ba_id = ' . $target_ba_id : '')
           .
           "
         GROUP BY
-          id
+          id, ba_id, currency
         ORDER BY
           starting_date DESC;";
     $stmt = CRM_Core_DAO::executeQuery($sql_query);
+
+    // process/sort results
+    $rows = [];
     while($stmt->fetch()) {
       // check the states
       $info = $this->investigate($stmt->id, $payment_states);
@@ -128,55 +202,25 @@ class CRM_Banking_Page_Payments extends CRM_Core_Page {
       }
 
       // finally, create the data row
-      $row = array(
-                    'id' => $stmt->id,
-                    'reference' => $stmt->reference,
-                    'sequence' => $stmt->sequence,
-                    'total' => $stmt->total,
-                    'currency' => $stmt->currency,
-                    'date' => strtotime($stmt->starting_date),
-                    'count' => $stmt->tx_count,
-                    'target' => $target_name,
-                    'analysed' => $info['analysed'].'%',
-                    'completed' => $info['completed'].'%',
-                );
-
-      // sort it
-      if ($info['completed']==100) {
-        array_push($statements_completed, $row);
-      } else {
-        if ($info['analysed']>0) {
-          array_push($statements_analysed, $row);
-        }
-        if ($info['analysed']<100) {
-          array_push($statements_new, $row);
-        }
-      }
+      $rows[] = [
+          'id' => $stmt->id,
+          'reference' => $stmt->reference,
+          'sequence' => $stmt->sequence,
+          'total' => $stmt->total,
+          'currency' => $stmt->currency,
+          'date' => strtotime($stmt->starting_date),
+          'count' => $stmt->tx_count,
+          'target' => $target_name,
+          'analysed' => $info['analysed'].'%',
+          'completed' => $info['completed'].'%',
+      ];
 
       // collect the target BA
       $target_accounts[ $stmt->ba_id ] = $target_name;
-
     }
 
-    if ($_REQUEST['status_ids']==$payment_states['new']['id']) {
-      // 'NEW' mode will show all that have not been completely analysed
-      $this->assign('rows', $statements_new);
-      $this->assign('status_message', sprintf(E::ts("%d incomplete statments."), sizeof($statements_new)));
-
-    } elseif ($_REQUEST['status_ids']==$payment_states['suggestions']['id']) {
-      // 'ANALYSED' mode will show all that have been partially analysed, but not all completed
-      $this->assign('rows', $statements_analysed);
-      $this->assign('status_message', sprintf(E::ts("%d analysed statments."), sizeof($statements_analysed)));
-
-    } else {
-      // 'COMPLETE' mode will show all that have been entirely processed
-      $this->assign('rows', $statements_completed);
-      $this->assign('status_message', sprintf(E::ts("%d completed statments."), sizeof($statements_completed)));
-    }
-
-    $this->assign('count_new',       count($statements_new));
-    $this->assign('count_analysed',  count($statements_analysed));
-    $this->assign('count_completed', count($statements_completed));
+    // evaluate results
+    $this->assign('rows', $rows);
     $this->assign('target_accounts', $target_accounts);
     $this->assign('target_ba_id', $target_ba_id);
     $this->assign('show', 'statements');

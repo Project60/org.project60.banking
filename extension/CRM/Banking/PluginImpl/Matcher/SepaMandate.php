@@ -47,6 +47,7 @@ class CRM_Banking_PluginImpl_Matcher_SepaMandate extends CRM_Banking_PluginModel
     if (!isset($config->value_propagation)) $config->value_propagation = array();
 
     if (!isset($config->cancellation_enabled)) $config->cancellation_enabled = FALSE;
+    if (!isset($config->cancelled_contribution_status_id)) $config->cancelled_contribution_status_id = NULL; // default is cancelled
     if (!isset($config->cancellation_general_penalty)) $config->cancellation_general_penalty = 0.0;
     if (!isset($config->cancellation_update_mandate_status_OOFF)) $config->cancellation_update_mandate_status_OOFF = 'INVALID';
     if (!isset($config->cancellation_update_mandate_status_RCUR)) $config->cancellation_update_mandate_status_RCUR = false;
@@ -301,10 +302,14 @@ class CRM_Banking_PluginImpl_Matcher_SepaMandate extends CRM_Banking_PluginModel
   }
 
   /**
-   * Handle the different actions, should probably be handles at base class level ...
+   * Execute the previously generated suggestion,
+   *   and close the transaction
    *
-   * @param type $match
-   * @param type $btx
+   * @param CRM_Banking_Matcher_Suggestion $suggestion
+   *   the suggestion to be executed
+   *
+   * @param CRM_Banking_BAO_BankTransaction $btx
+   *   the bank transaction this is related to
    */
   public function execute($match, $btx) {
     $this->contribution = NULL;
@@ -352,6 +357,7 @@ class CRM_Banking_PluginImpl_Matcher_SepaMandate extends CRM_Banking_PluginModel
     $query['contribution_status_id'] = $status_completed;
     $query['receive_date'] = date('Ymdhis', strtotime($btx->value_date));
     $query = array_merge($query, $this->getPropagationSet($btx, $match, 'contribution'));   // add propagated values
+    CRM_Banking_Helpers_IssueMitigation::mitigate358($query);
     $result = civicrm_api('Contribution', 'create', $query);
 
     if (isset($result['is_error']) && $result['is_error']) {
@@ -365,6 +371,9 @@ class CRM_Banking_PluginImpl_Matcher_SepaMandate extends CRM_Banking_PluginModel
       } elseif (!empty($result['values'][0]['contact_id'])) {
         $this->storeAccountWithContact($btx, $result['values'][0]['contact_id']);
       }
+
+      // link the contribution
+      CRM_Banking_BAO_BankTransactionContribution::linkContribution($btx->id, $contribution_id);
 
       // close transaction group if this was the last transaction
       $open_contributions_in_group_sql = "
@@ -405,17 +414,20 @@ class CRM_Banking_PluginImpl_Matcher_SepaMandate extends CRM_Banking_PluginModel
   }
 
   /**
-   * Handle the different actions, should probably be handles at base class level ...
+   * Execute the previously generated cancellation suggestion,
+   *   and close the transaction
    *
-   * @param type $match
-   * @param type $btx
+   * @param CRM_Banking_Matcher_Suggestion $match
+   *   the suggestion to be executed
+   *
+   * @param CRM_Banking_BAO_BankTransaction $btx
+   *   the bank transaction this is related to
    */
   public function executeCancellation($match, $btx) {
     $config = $this->_plugin_config;
     $contribution_id = $match->getParameter('contribution_id');
     $contribution_status_id = $match->getParameter('contribution_status_id');
     $mandate_id = $match->getParameter('mandate_id');
-    $status_cancelled = banking_helper_optionvalue_by_groupname_and_name('contribution_status', 'Cancelled');
 
     // load contribution to double-check status (see BANKING-135)
     $contribution = civicrm_api3('Contribution', 'getsingle', array('id' => $contribution_id));
@@ -429,6 +441,12 @@ class CRM_Banking_PluginImpl_Matcher_SepaMandate extends CRM_Banking_PluginModel
     $this->contribution = $contribution;
 
     // set the status to 'Cancelled'
+    if (!empty($config->cancelled_contribution_status_id)) {
+      $status_cancelled = $config->cancelled_contribution_status_id;
+    } else {
+      $status_cancelled = banking_helper_optionvalue_by_groupname_and_name('contribution_status', 'Cancelled');
+    }
+
     $this->logger->setTimer('sepa_mandate_cancel_contribution');
     $query = array('version' => 3, 'id' => $contribution_id);
     $query['contribution_status_id'] = $status_cancelled;
@@ -441,6 +459,7 @@ class CRM_Banking_PluginImpl_Matcher_SepaMandate extends CRM_Banking_PluginModel
       $query['cancel_reason'] = $match->getParameter('cancel_reason');
     }
     $this->logMessage("SepaMandate matcher calling Contribution.create: " . json_encode($query), 'debug');
+    CRM_Banking_Helpers_IssueMitigation::mitigate358($query);
     $result = civicrm_api('Contribution', 'create', $query);
     $this->logTime('Cancel Contribution', 'sepa_mandate_cancel_contribution');
 
@@ -500,6 +519,38 @@ class CRM_Banking_PluginImpl_Matcher_SepaMandate extends CRM_Banking_PluginModel
 
       // load the mandate
       $mandate = civicrm_api('SepaMandate', 'getsingle', array('id' => $mandate_id, 'version' => 3));
+      if ($mandate['type']=='RCUR' && $mandate['entity_table'] == 'civicrm_contribution_recur') {
+        // add some additional parameters for RCUR (see #256)
+        $rcur = civicrm_api3('ContributionRecur', 'getsingle', array('id' => $mandate['entity_id']));
+        foreach ($rcur as $key => $value) {
+          $mandate["rcur_{$key}"] = $value;
+        }
+
+        // if CiviSEPA is present, add a nicer
+        if (method_exists('CRM_Utils_SepaOptionGroupTools', 'getFrequencyText')) {
+          $mandate["rcur_frequency"] = CRM_Utils_SepaOptionGroupTools::getFrequencyText($rcur['frequency_interval'], $rcur['frequency_unit'], TRUE);
+        } else {
+          if ($rcur['frequency_interval'] == 1) {
+            if ($rcur['frequency_unit'] == 'month') {
+              $mandate["rcur_frequency"] = E::ts("monthly");
+            } elseif ($rcur['frequency_unit'] == 'year') {
+              $mandate["rcur_frequency"] = E::ts("annually");
+            } else {
+              $mandate["rcur_frequency"] = $rcur['frequency_unit'].'ly';
+            }
+          } else {
+            if ($rcur['frequency_unit'] == 'month') {
+              $mandate["rcur_frequency"] = E::ts("every %1 months", [1 => $rcur['frequency_interval']]);
+            } elseif ($rcur['frequency_unit'] == 'year') {
+              $mandate["rcur_frequency"] = E::ts("every %1 years", [1 => $rcur['frequency_interval']]);
+            } elseif ($rcur['frequency_unit'] == 'week') {
+              $mandate["rcur_frequency"] = E::ts("every %1 weeks", [1 => $rcur['frequency_interval']]);
+            } else {
+              $mandate["rcur_frequency"] = E::ts("every %1 %2", [1 => $rcur['frequency_interval'], 2 => $rcur['frequency_unit']]);
+            }
+          }
+        }
+      }
       $smarty_vars['mandate'] = $mandate;
 
       // load the contact
@@ -540,9 +591,18 @@ class CRM_Banking_PluginImpl_Matcher_SepaMandate extends CRM_Banking_PluginModel
       if (empty($config->cancellation_create_activity_text)) {
         $details = $smarty->fetch('CRM/Banking/PluginImpl/Matcher/SepaMandate.activity.tpl');
       } else {
-        $details = $smarty->fetch("string:" . $config->cancellation_create_activity_text);
+        if (substr($config->cancellation_create_activity_text, 0, 5) == 'file:') {
+          // this is a template file path
+          $details = $smarty->fetch(substr($config->cancellation_create_activity_text, 5));
+        } else {
+          // this contains the template date itself:
+          $details = $smarty->fetch("string:" . $config->cancellation_create_activity_text);
+        }
       }
       $smarty->popScope();
+
+      // at some point, all newlines got replaced with <br/> - we don't want that:
+      $details = str_replace("\n", '', $details);
 
       $activity_parameters = array(
         'version'            => 3,
@@ -563,6 +623,9 @@ class CRM_Banking_PluginImpl_Matcher_SepaMandate extends CRM_Banking_PluginModel
       );
       $assignment = CRM_Activity_BAO_ActivityContact::create($assignment_parameters);
     }
+
+    // link contribution
+    CRM_Banking_BAO_BankTransactionContribution::linkContribution($btx->id, $contribution_id);
 
     $newStatus = banking_helper_optionvalueid_by_groupname_and_name('civicrm_banking.bank_tx_status', 'Processed');
     $btx->setStatus($newStatus);

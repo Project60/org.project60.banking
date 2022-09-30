@@ -60,7 +60,7 @@
 </div>
 
 <div class="crm-block crm-form-block crm-import-datasource-form-block" id="upload_file" style="display: none;">
-  <h3>Upload File</h3>
+  <h3>{ts domain='org.project60.banking'}Upload File{/ts}</h3>
   <table class="form-layout">
     <tbody>
       <tr>
@@ -68,7 +68,7 @@
           <td>Processed file "{$file_info.name}"...</td>
         {else}        
           <td class="label">
-            <label for="uploadFile">  Import Data File<span title="This field is required." class="crm-marker">*</span></label>
+            <label for="uploadFile">  {ts domain='org.project60.banking'}Import Data File{/ts}<span title="This field is required." class="crm-marker">*</span></label>
           </td>
           <td>
             <input type="file" class="form-file required" id="uploadFile" name="uploadFile" maxlength="255" size="30" 

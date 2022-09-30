@@ -1,26 +1,32 @@
 site_name: Civi Banking
-site_description: Civi Banking extension
+site_description: CiviBanking extension
 repo_url: https://github.com/Project60/org.project60.banking
-theme: material
+theme: 
+  name: material
 
-pages:
+nav:
 - Introduction: index.md
-- From a user perspective: user-perspective.md
-- Configuration explanation: config-explanation.md
-- Terminology: terminology.md
-- How To Guide: how-to.md
-- Techie - How to create an importer: create-importer.md
-- Techie - Importer XML actions: importer-xml-actions.md
-- Techie - How to create a matcher: create-matcher.md
-- Techie - How to extend memberships when a payment is received: membership-extension-post-processor.md
-- Techie - How to create a postprocessor: create-postprocessor.md
+- User Guide: user-guide.md
+- Configuration:
+  - Extension Settings: configuration/settings.md
+  - Plugins:
+    - Concept: configuration/plugins/concept.md
+    - Importers:
+        - XML Importer: configuration/plugins/importers/xml.md
+        - CSV Importer: configuration/plugins/importers/csv.md
+        - Fixed Width Text Importer: configuration/plugins/importers/fixed_width_text.md
+        - Dummy Data Importer: configuration/plugins/importers/dummy_data.md
+    - Analysers and Matchers: configuration/plugins/analyser-matcher.md
+    - Postprocessors: configuration/plugins/postprocessor.md
+- Developer Guide: developer-guide.md
 
 markdown_extensions:
   - attr_list
   - admonition
   - def_list
   - codehilite
-  - toc(permalink=true)
+  - toc:
+      permalink: true
   - pymdownx.superfences
   - pymdownx.inlinehilite
   - pymdownx.tilde

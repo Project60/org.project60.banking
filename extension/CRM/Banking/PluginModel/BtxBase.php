@@ -321,6 +321,7 @@ abstract class CRM_Banking_PluginModel_BtxBase extends CRM_Banking_PluginModel_B
    * @return the variables length
    */
   function getVariable($name) {
+    $value = null;
     if (isset($this->_plugin_config->variables->$name)) {
       $variable_spec = $this->_plugin_config->variables->$name;
       if (!empty($variable_spec->cached)) {
@@ -359,5 +360,87 @@ abstract class CRM_Banking_PluginModel_BtxBase extends CRM_Banking_PluginModel_B
     }
 
     return NULL;
+  }
+
+
+  /**************************************************************
+   *                   generic validation                       *
+   *  (safe) generic evaluation of a condition on given data    *
+   **************************************************************/
+
+  /**
+   * Evaluate the given condition. A condition is an array with three parts (3-tuple):
+   *  0) key to the data array. Determines the value
+   *  1) operator: one of '==', '===', '!=', '<', '>', '<=', '>=', 'match', 'in', 'not in'
+   *  2) value to compare with. If it starts with '$' it will be used as a key for data, otherwise literally
+   *
+   * @param $data       array key=>value data
+   * @param $condition  array condition, see above
+   *
+   * @return TRUE iff the condition is met
+   */
+  public function evaluateCondition($data, $condition) {
+    if (!is_array($condition) || count($condition) != 3) {
+      $condition_text = json_encode($condition);
+      $this->logMessage("Configuration error, condition is not an 3-tuple: {$condition_text}", 'warn');
+      return FALSE;
+    }
+
+    // let's get the values
+    $left_value  = CRM_Utils_Array::value($condition[0], $data);
+    $right_value = $condition[2];
+    if (is_string($right_value) && strlen($right_value) > 0 && $right_value[0] == '$') {
+      // if it starts with '$' it will be used as a key for data, otherwise literally
+      $key = substr($right_value, 1);
+      $right_value = CRM_Utils_Array::value($key, $data);
+    }
+    if (is_object($right_value)) {
+      $condition_text = json_encode($condition);
+      $this->logMessage("Configuration error, condition has a bad 3rd parameter: {$condition_text}", 'warn');
+      return FALSE;
+    }
+
+    switch (strtolower($condition[1])) {
+      case '==':
+        return $left_value == $right_value;
+
+      case '===':
+        return $left_value == $right_value;
+
+      case '!=':
+        return $left_value != $right_value;
+
+      case '<':
+        return $left_value < $right_value;
+
+      case '>':
+        return $left_value > $right_value;
+
+      case '<=':
+        return $left_value <= $right_value;
+
+      case '>=':
+        return $left_value >= $right_value;
+
+      case 'match':
+        $matched = preg_match($right_value, $left_value);
+        return $matched > 0;
+
+      case 'in':
+        if (!is_array($right_value)) {
+          $right_value = explode(',', $right_value);
+        }
+        return in_array($left_value, $right_value);
+
+      case 'not_in':
+        if (!is_array($right_value)) {
+          $right_value = explode(',', $right_value);
+        }
+        return !in_array($left_value, $right_value);
+
+      default:
+        $this->logMessage("Configuration error, condition has a bad operator: {$condition[1]}", 'warn');
+        return FALSE;
+    }
   }
 }

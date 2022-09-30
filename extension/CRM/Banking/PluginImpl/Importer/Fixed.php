@@ -236,10 +236,10 @@ class CRM_Banking_PluginImpl_Importer_Fixed extends CRM_Banking_PluginModel_Impo
     switch ($rule->type) {
       case 'extract':
         if (strpos($rule->position, '-') !== FALSE) {
-          list($pos_from, $pos_to) = split('-', $rule->position);
+          list($pos_from, $pos_to) = explode('-', $rule->position);
           $length = $pos_to - $pos_from + 1;
         } elseif (strpos($rule->position, '+') !== FALSE) {
-          list($pos_from, $length) = split('+', $rule->position);
+          list($pos_from, $length) = explode('+', $rule->position);
         } else {
           // TODO: error handling
         }
@@ -305,7 +305,11 @@ class CRM_Banking_PluginImpl_Importer_Fixed extends CRM_Banking_PluginModel_Impo
         $value = $this->getValue($rule->from);
         $datetime = DateTime::createFromFormat($rule->format, $value);
         if ($datetime) {
-          $date_value = $datetime->format('YmdHis');
+          if (isset($rule->store_format)) {
+            $date_value = $datetime->format($rule->store_format);
+          } else {
+            $date_value = $datetime->format('YmdHis');
+          }
           $this->storeValue($rule->to, $date_value);
         } else {
           // TODO: error handling date format wrong
@@ -403,7 +407,7 @@ class CRM_Banking_PluginImpl_Importer_Fixed extends CRM_Banking_PluginModel_Impo
     // do some post processing
     if (!isset($config->bank_reference)) {
       // set SHA1 hash as unique reference
-      $btx['bank_reference'] = sha1(json_encode($btx));
+      $btx['bank_reference'] = sha1($btx['data_raw']);
     } else {
       // we have a template
       $bank_reference = $config->bank_reference;

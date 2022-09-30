@@ -202,7 +202,41 @@ class CRM_Banking_Matcher_Engine {
   }
 
   /**
+   * Previews the execution of post processors on a given suggestion.
+   *
+   * @param CRM_Banking_Matcher_Suggestion $suggestion
+   * @param CRM_Banking_BAO_BankTransaction $btx
+   * @param CRM_Banking_PluginModel_Matcher $matcher
+   */
+  public function previewPostProcessors($suggestion, $btx, $matcher) {
+    $context = new CRM_Banking_Matcher_Context($btx);
+    $all_postprocessors = $this->getPostprocessors();
+    $previews = [];
+    foreach ($all_postprocessors as $weight => $postprocessors) {
+      foreach ($postprocessors as $postprocessor) {
+        /* @var CRM_Banking_PluginModel_PostProcessor $postprocessor */
+        try {
+          // Check for NULL. An empty string is considered a valid preview.
+          if (!is_null($preview = $postprocessor->previewMatch(
+            $suggestion,
+            $matcher,
+            $context
+          ))) {
+            $previews[$postprocessor->getName()] = $preview;
+          }
+        } catch (Exception $e) {
+          $matcher_id = $matcher->getPluginID();
+          error_log("org.project60.banking - Exception during the preview of postprocessor [$matcher_id], error was: ".$e->getMessage());
+        }
+      }
+    }
+    return $previews;
+  }
+
+  /**
    * will run the postprocessors on the recently executed match
+   *
+   * @param \CRM_Banking_Matcher_Suggestion $suggestion
    */
   public function runPostProcessors($suggestion, $btx, $matcher) {
     // run through the list of matchers
@@ -214,10 +248,15 @@ class CRM_Banking_Matcher_Engine {
     $all_postprocessors = $this->getPostprocessors();
     foreach ($all_postprocessors as $weight => $postprocessors) {
       foreach ($postprocessors as $postprocessor) {
+        /* @var CRM_Banking_PluginModel_PostProcessor $postprocessor */
         try {
           $logger->setTimer('postprocessor');
           $logger->logDebug("Calling PostProcessor [{$postprocessor->getName()}]...");
-          $postprocessor->processExecutedMatch($suggestion, $matcher, $context);
+          $result = $postprocessor->processExecutedMatch($suggestion, $matcher, $context);
+          if ($result !== FALSE) {
+            $suggestion->setExecutedPostprocessor($postprocessor, $result);
+            $btx->saveSuggestions();
+          }
           $logger->logTime("Postprocessor [{$postprocessor->getPluginID()}]", 'postprocessor');
 
         } catch (Exception $e) {
@@ -232,20 +271,66 @@ class CRM_Banking_Matcher_Engine {
   }
 
   /**
+   * Visualizes the execution of post processors on a given suggestion.
+   *
+   * @param CRM_Banking_Matcher_Suggestion $suggestion
+   * @param CRM_Banking_BAO_BankTransaction $btx
+   * @param CRM_Banking_PluginModel_Matcher $matcher
+   */
+  public function visualizePostProcessorResults($suggestion, $btx, $matcher) {
+    $context = new CRM_Banking_Matcher_Context($btx);
+    $results = [];
+    $all_postprocessors = $this->getPostprocessors();
+    $executed_postprocessors = $suggestion->getExecutedPostprocessors() ?: [];
+    foreach ($all_postprocessors as $weight => $postprocessors) {
+      foreach ($postprocessors as $postprocessor) {
+        /* @var CRM_Banking_PluginModel_PostProcessor $postprocessor */
+        if (array_key_exists($plugin_id = $postprocessor->getPluginId(), $executed_postprocessors)) {
+          $result = $executed_postprocessors[$plugin_id];
+          try {
+            if (!empty($result = $postprocessor->visualizeExecutedMatch($suggestion, $matcher, $context, $result))) {
+              $results[] = $result;
+            }
+          } catch (Exception $e) {
+            $matcher_id = $matcher->getPluginID();
+            error_log("org.project60.banking - Exception during the visualization of results of postprocessor [$matcher_id], error was: ".$e->getMessage());
+          }
+        }
+      }
+    }
+    return $results;
+  }
+
+  /**
    * Test if the given plugin can execute a suggestion right away
    *
+   * @param $plugin CRM_Banking_PluginModel_Matcher
+   * @param $btx    CRM_Banking_BAO_BankTransaction
    * @return true iff the plugin was executed and the payment is fully processed
    */
   protected function checkAutoExecute($plugin, $btx) {
     if (!$plugin->autoExecute()) return false;
     foreach ($btx->getSuggestions() as $suggestions ) {
       foreach ($suggestions as $suggestion) {
-        if ($suggestion->getPluginID()==$plugin->getPluginID()) {
+        /* @var $suggestion CRM_Banking_Matcher_Suggestion */
+        if ($suggestion->getPluginID() == $plugin->getPluginID()) {
+
+          // check if the suggestion requires user confirmation
+          $user_confirmation_required = $suggestion->getUserConfirmation();
+          if (!empty($user_confirmation_required)) {
+            // there is some user confirmation required, NO AUTO EXEC!
+            continue;
+          }
+
+          // check if the probability is high enough
           if ($suggestion->getProbability() >= $plugin->autoExecute()) {
+            // all good, AUTO EXEC:
             $btx->saveSuggestions();
-            $result = $suggestion->execute($btx, $this);
+            $transaction = new CRM_Core_Transaction();
+            $result = $suggestion->execute($btx);
             $suggestion->setParameter('executed_automatically', 1);
             $btx->saveSuggestions();
+            $transaction->commit();
             return $result;
           }
         }

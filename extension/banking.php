@@ -17,6 +17,18 @@
 require_once 'banking.civix.php';
 require_once 'hooks.php';
 require_once 'banking_options.php';
+use Symfony\Component\DependencyInjection\ContainerBuilder;
+
+/**
+ * Implements hook_civicrm_container().
+ *
+ * @param ContainerBuilder $container
+ */
+function banking_civicrm_container(ContainerBuilder $container) {
+  if (class_exists('Civi\Banking\CompilerPass')) {
+    $container->addCompilerPass(new Civi\Banking\CompilerPass());
+  }
+}
 
 /**
  * Implementation of hook_civicrm_config
@@ -45,6 +57,9 @@ function banking_civicrm_install() {
 
   //add the required option groups
   banking_civicrm_install_options(_banking_options());
+
+  // Set the bank account reference probability to 100%.
+  CRM_Core_BAO_Setting::setItem('1.0', 'CiviBanking', 'reference_matching_probability');
 
   return _banking_civix_civicrm_install();
 }

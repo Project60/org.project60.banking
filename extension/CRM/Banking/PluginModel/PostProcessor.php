@@ -44,27 +44,102 @@ abstract class CRM_Banking_PluginModel_PostProcessor extends CRM_Banking_PluginM
    * @param $matcher  the matcher plugin executed
    * @param $context  the matcher context contains cache data and context information
    *
+   * @return array | FALSE | NULL
+   *   The result of the execution, or FALSE when it has not been executed, or
+   *   NULL when it might have been executed.
    */
   public abstract function processExecutedMatch(CRM_Banking_Matcher_Suggestion $match, CRM_Banking_PluginModel_Matcher $matcher, CRM_Banking_Matcher_Context $context);
+
+  /**
+   * Visualizes the post processing result for the (already executed) match.
+   *
+   * @param CRM_Banking_Matcher_Suggestion $match
+   * @param CRM_Banking_PluginModel_Matcher $matcher
+   * @param CRM_Banking_Matcher_Context $context
+   * @param array $result
+   *
+   * @return mixed
+   */
+  public function visualizeExecutedMatch(CRM_Banking_Matcher_Suggestion $match,  CRM_Banking_PluginModel_Matcher $matcher, CRM_Banking_Matcher_Context $context, $result) {
+    return E::ts('%1 might have been executed.', [1 => $this->getName()]);
+  }
 
   /**
    * Should this postprocessor spring into action?
    * Evaluates the common 'required' fields in the configuration
    *
-   * @param $match    the executed match
-   * @param $btx      the related transaction
-   * @param $context  the matcher context contains cache data and context information
+   * @param CRM_Banking_Matcher_Suggestion $match
+   *   The executed match.
+   * @param CRM_Banking_BAO_BankTransaction $btx
+   *   The related transaction.
+   * @param CRM_Banking_PluginModel_Matcher $matcher
+   *   The matcher plugin executed.
+   * @param CRM_Banking_Matcher_Context $context
+   *    The matcher context contains cache data and context information.
    *
-   * @return bool     should the this postprocessor be activated
+   * @return string | NULL
+   *   HTML markup describing what this post processor might/will be doing after
+   *   executing the selected match, or NULL when the post processor will
+   *   certainly not be process the executed match. If unsure whether the post
+   *   processor will process the executed match, return something describing
+   *   that uncertainty and only return NULL if it really will not spring into
+   *   action.
    */
-  protected function shouldExecute(CRM_Banking_Matcher_Suggestion $match, CRM_Banking_PluginModel_Matcher $matcher, CRM_Banking_Matcher_Context $context) {
-    // check if the btx status is accepted
-    $config = $this->_plugin_config;
-    $btx_status_name = CRM_Core_OptionGroup::getValue('civicrm_banking.bank_tx_status', $context->btx->status_id, 'id', 'String', 'name');
-    if (!in_array($btx_status_name, $config->require_btx_status_list)) {
-      // TODO: log: NOT IN STATUS
-      $this->logMessage("Not executing, not in status " . json_encode($config->require_btx_status_list), 'debug');
-      return FALSE;
+  public function previewMatch(
+    CRM_Banking_Matcher_Suggestion $match,
+    CRM_Banking_PluginModel_Matcher $matcher,
+    CRM_Banking_Matcher_Context $context
+  ) {
+    return $this->shouldExecute(
+      $match,
+      $matcher,
+      $context,
+      TRUE
+    ) ? '' : NULL;
+  }
+
+  /**
+   * Determines whether this post processor is to be executed.
+   *
+   * Evaluates the common 'required' fields in the configuration.
+   *
+   * @param CRM_Banking_Matcher_Suggestion $match
+   *   The executed match.
+   * @param CRM_Banking_BAO_BankTransaction $btx
+   *   The related transaction.
+   * @param CRM_Banking_Matcher_Context $context
+   *   The matcher context contains cache data and context information.
+   * @param bool $preview
+   *   Whether to preview the execution (i.e. not check btx status).
+   *
+   * @return bool
+   *   Whether this postprocessor is to be executed.
+   *
+   * @throws Exception
+   */
+  protected function shouldExecute(
+    CRM_Banking_Matcher_Suggestion $match,
+    CRM_Banking_PluginModel_Matcher $matcher,
+    CRM_Banking_Matcher_Context $context,
+    $preview = FALSE
+  ) {
+    if (!$preview) {
+      // check if the btx status is accepted
+      $config = $this->_plugin_config;
+      $btx_status_name = civicrm_api3(
+        'OptionValue',
+        'getvalue',
+        [
+          'return' => 'name',
+          'option_group_id' => 'civicrm_banking.bank_tx_status',
+          'id' => $context->btx->status_id,
+        ]
+      );
+      if (!in_array($btx_status_name, $config->require_btx_status_list)) {
+        // TODO: log: NOT IN STATUS
+        $this->logMessage("Not executing, not in status " . json_encode($config->require_btx_status_list), 'debug');
+        return FALSE;
+      }
     }
 
     // check required values
@@ -280,18 +355,20 @@ abstract class CRM_Banking_PluginModel_PostProcessor extends CRM_Banking_PluginM
     $match = $context->getExecutedSuggestion();
     $contribution_ids = array();
 
-    // get the single-style ('contribution_id')
-    $single_id = $match->getParameter('contribution_id');
-    if (is_numeric($single_id)) {
-      $contribution_ids[$single_id] = 1;
-    }
+    if ($match) {
+      // get the single-style ('contribution_id')
+      $single_id = $match->getParameter('contribution_id');
+      if (is_numeric($single_id)) {
+        $contribution_ids[$single_id] = 1;
+      }
 
-    // get the multi-style ('contribution_ids')
-    $multi_ids = $match->getParameter('contribution_ids');
-    if (is_array($multi_ids)) {
-      foreach ($multi_ids as $contribution_id) {
-        if (is_numeric($contribution_id)) {
-          $contribution_ids[$contribution_id] = 1;
+      // get the multi-style ('contribution_ids')
+      $multi_ids = $match->getParameter('contribution_ids');
+      if (is_array($multi_ids)) {
+        foreach ($multi_ids as $contribution_id) {
+          if (is_numeric($contribution_id)) {
+            $contribution_ids[$contribution_id] = 1;
+          }
         }
       }
     }

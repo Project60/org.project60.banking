@@ -2,7 +2,7 @@
 <extension key="org.project60.banking" type="module">
   <file>banking</file>
   <name>CiviBanking</name>
-  <description>Implements handling of bank accounts for contacts, as well as handling of bank files (and individual bank payements extracted from the files). Bank files can be imported, transactions matched to CiviCRM entities, and the resulting data exported. Specific handlers for all of these actions are provided through plugins, some of which are shipped with the core banking extension, while some more complex ones are provided in separate extensions.</description>
+  <description>Automatic and semi-automatic processing of bank statements and other payment files.</description>
   <license>GNU AGPL v3 or later</license>
   <maintainer>
     <author>Björn Endres</author>
@@ -10,19 +10,21 @@
   </maintainer>
   <urls>
     <url desc="Main Extension Page">https://github.com/project60/org.project60.banking</url>
-    <url desc="Documentation">https://github.com/project60/org.project60.banking</url>
+    <url desc="Documentation">https://docs.civicrm.org/banking</url>
     <url desc="Support">https://github.com/project60/org.project60.banking/issues</url>
     <url desc="Licensing">http://www.gnu.org/licenses/agpl-3.0.html</url>
   </urls>
-  <releaseDate>2019-03-21</releaseDate>
-  <version>0.7-alpha6</version>
-  <develStage>alpha</develStage>
+  <releaseDate></releaseDate>
+  <version>1.0-dev</version>
+  <develStage>dev</develStage>
   <compatibility>
-    <ver>4.6</ver>
-    <ver>4.7</ver>
-    <ver>5.7</ver>
+    <ver>5.19</ver>
+    <ver>5.37</ver>
   </compatibility>
-  <comments>More information here: http://wiki.civicrm.org/confluence/display/CRM/CiviBanking</comments>
+  <classloader>
+    <psr4 prefix="Civi\" path="Civi" />
+  </classloader>
+  <comments>Implements handling of bank accounts for contacts, as well as handling of bank files (and individual bank payments extracted from the files). Bank files can be imported, transactions matched to CiviCRM entities, and the resulting data exported. Specific handlers for all of these actions are provided through plugins, some of which are shipped with the core banking extension, while some more complex ones are provided in separate extensions. More information here: https://docs.civicrm.org/banking/en/latest</comments>
   <civix>
     <namespace>CRM/Banking</namespace>
   </civix>

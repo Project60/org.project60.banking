@@ -1,0 +1,203 @@
+#btx-details .btxheader.collapsible-closed {
+  background: url("{$base_url}/sites/all/modules/civicrm/i/TreeMinus.gif")  4px 4px no-repeat;
+  background-color: #CCC;
+  color: #000;
+  font-weight: bold;
+  padding-left: 20px;
+}
+#btx-details .btxheader {
+  background: url("{$base_url}/sites/all/modules/civicrm/i/TreePlus.gif") 4px 4px no-repeat;
+  background-color: #CCC;
+  color: #000;
+  font-weight: bold;
+  padding-left: 20px;
+}
+#btx {
+  background-color: #F4F4ED;
+}
+#btx div {
+}
+#btx div.content {
+  padding: 4px 8px;;
+  margin: 0;
+  border: none;
+  background-color: #f7f7f7;
+}
+#btx h4 {
+  width: auto;
+  background-color: #CCC;
+  margin: 0px;
+  padding: 2px 8px;
+  color: #000;
+}
+#btx table td {
+  padding: 0;
+}
+#btx table td div {
+  padding: 2px 8px;
+}
+#btx-amt {
+  float: left;
+  width: 25%;
+  margin: 0;
+}
+#btx-info {
+  float: left;
+  width: 25%;
+  margin: 0;
+}
+#btx-debtor {
+  float: left;
+  width: 50%;
+  margin: 0;
+}
+#btx-purpose {
+  float: left;
+  width: 100%;
+  margin: 0;
+}
+.significant-whitespace {
+  white-space: pre-wrap;
+}
+#btx-details {
+  float: left;
+  width: 100%;
+  margin: 0;
+}
+td.btx-detail-entry {
+  white-space: pre-wrap;
+  font-family: Courier;
+}
+.btxvalue {
+  background-color: #F4F4ED;
+  border-bottom: 1px solid white;
+}
+.btxc {
+  text-align: center;
+}
+.btxl {
+  text-align: left;
+}
+.btxamt {
+  text-align: right;
+  font-size: 36px;
+  font-weight: bold;
+  padding: 4px 8px;
+  line-height: 1.2em;
+}
+.btxamtlarge {
+  font-size: 32px !important;
+}
+.btxamtneg {
+  color: red;
+}
+.btxlabel {
+  background-color: #FAFAFA;
+  float: left;
+  width: 46px;
+  font-size: 9px;
+  color: #999;
+  margin-right: 4px;
+}
+.btxcurr {
+  float: right;
+  font-size: 10px;
+  font-weight: normal;
+  line-height: 10px;
+  vertical-align: top;
+}
+.btxheader {
+  background-color: #CCC;
+  color: #000;
+  font-weight: bold;
+  padding-left: 20px;
+}
+table.suggestions table {
+  border: 0px solid red !important;
+}
+table.suggestions tr td.layout {
+  padding: 0px !important;
+}
+table.suggestions table tr.suggestion {
+  background-color: #fafafa;
+}
+table.suggestions table tr.suggestion:hover {
+  background-color: #eee;
+}
+table.suggestions table tr.suggestion-selected {
+  background-color: #e6e6bb;
+  outline: 2px solid gray;
+}
+table.suggestions table tr.suggestion-selected:hover {
+  background-color: #dedeb6;
+}
+td.prob {
+  font-size: 18px;
+  font-weight: bold;
+  padding:  8px 4px;
+  text-align: center;
+}
+td.suggest {
+  font-family: Georgia,"Times New Roman",Times,serif;
+  font-size: 14px;
+  color: #666;
+  padding:  8px;
+  position: relative;
+}
+td.suggest h4 {
+  font-family: Arial,sans-serif;
+  font-size: 18px;
+  font-weight: bold;
+  margin: 0 0 4px 0;
+  padding-left: 4px;
+  color: #000;
+}
+td.suggest ul {
+  margin: 0px;
+  padding: 4px;
+}
+td.suggest ul li{
+  margin: 0 0 0 15px;
+}
+td.suggest .banking--postprocessor-preview {
+  top: 2px; /* Due to 2px outline */
+  right: 8px;
+}
+.suggestion:first-child td.suggest .banking--postprocessor-preview {
+  top: 0;
+}
+.suggestion-selected td.suggest .banking--postprocessor-preview {
+  top: 0;
+}
+td.suggest .banking--postprocessor-preview .crm-accordion-header {
+  padding: 0.125em 0.5em;
+}
+td.suggest .banking--postprocessor-preview .crm-accordion-body {
+  padding: 8px;
+  background: white;
+}
+td.suggest .banking--postprocessor-preview.collapsed {
+  position: absolute;
+}
+td.suggest .banking--postprocessor-preview.collapsed .crm-accordion-header {
+  border-top-left-radius: 0;
+  border-top-right-radius: 0;
+}
+table.explorer td.xk {
+  background-color: #FAFAFA;
+  font-size: 10px;
+  color: #999;
+  width: 25%;
+}
+table.explorer td {
+  background-color: #F4F4ED;
+  border-bottom: 1px solid white;
+  padding: 1px 4px !important;
+}
+.crm-container table.suggestions .messages {
+  padding: 0.5em;
+}
+table.suggestions .messages .msg-text ul,
+table.suggestions .messages .msg-text ol {
+  margin-bottom: 0;
+}

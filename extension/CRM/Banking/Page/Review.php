@@ -20,9 +20,16 @@ require_once 'CRM/Core/Page.php';
 require_once 'CRM/Banking/Helpers/OptionValue.php';
 require_once 'CRM/Banking/Helpers/URLBuilder.php';
 
+/**
+ * The CiviBanking review page lets the user have a look at an individual transaction,
+ *  presents him/her with the list of suggestions, and allows to process the transaction
+ *  by selecting one of the suggestions to execute.
+ */
 class CRM_Banking_Page_Review extends CRM_Core_Page {
 
   function run() {
+      CRM_Core_Resources::singleton()->addStyleFile(E::LONG_NAME, 'css/banking.css');
+
       $new_ui_enabled = CRM_Core_BAO_Setting::getItem('CiviBanking', 'new_ui');
       // set this variable to request a redirect
       $url_redirect = NULL;
@@ -125,12 +132,15 @@ class CRM_Banking_Page_Review extends CRM_Core_Page {
 
         $this->assign('party_ba', $ba_bao);
         $this->assign('party_ba_data_parsed', json_decode($ba_bao->data_parsed, true));
-        $this->assign('party_ba_references', $ba_bao->getReferences());
-
-        // deprecated: contact can also be identified via other means, see below
-        if ($ba_bao->contact_id && empty($contact)) {
-          $contact = $this->getContactSafe($ba_bao->contact_id);
+        $party_ba_references = $ba_bao->getReferences();
+        foreach($party_ba_references as $_idx=>$_party_ba_reference) {
+          if ($_party_ba_reference['probability'] >= 1.0 && empty($contact)) {
+            $contact = $this->getContactSafe($_party_ba_reference['contact_id']);
+          }
+          $party_ba_references[$_idx]['color'] = $this->translateProbability($_party_ba_reference['probability'] * 100);
+          $party_ba_references[$_idx]['probability'] = sprintf('%d%%', ($_party_ba_reference['probability'] * 100));
         }
+        $this->assign('party_ba_references', $party_ba_references);
       } else {
         // there is no party bank account connected this (yet)
         foreach ($data_parsed as $key => $value) {
@@ -138,7 +148,15 @@ class CRM_Banking_Page_Review extends CRM_Core_Page {
             $reftype = substr($key, 7);
             $this->assign('party_account_ref',     $value);
             $this->assign('party_account_reftype', $reftype);
-            $reftype_name = CRM_Core_OptionGroup::getValue('civicrm_banking.reference_types', $reftype, 'name', 'String', 'label');
+            $reftype_name = civicrm_api3(
+              'OptionValue',
+              'getvalue',
+              [
+                'return' => 'label',
+                'option_group_id' => 'civicrm_banking.reference_types',
+                'name' => $reftype,
+              ]
+            );
             $this->assign('party_account_reftypename', $reftype_name);
             if ($reftype=='IBAN') {
               $this->assign('party_account_reftype2', $reftype);
@@ -217,16 +235,19 @@ class CRM_Banking_Page_Review extends CRM_Core_Page {
         $suggestions = array();
         $suggestion_objects = $btx_bao->getSuggestionList();
         foreach ($suggestion_objects as $suggestion) {
+          /* @var $suggestion CRM_Banking_Matcher_Suggestion */
           $color = $this->translateProbability($suggestion->getProbability() * 100);
             array_push($suggestions, array(
-                'hash' => $suggestion->getHash(),
-                'probability' => sprintf('%d&nbsp;%%', ($suggestion->getProbability() * 100)),
-                'color' => $color,
-                'visualization' => $suggestion->visualize($btx_bao),
-                'title' => $suggestion->getTitle(),
+                'hash'              => $suggestion->getHash(),
+                'user_confirmation' => $suggestion->getUserConfirmation(),
+                'probability'       => sprintf('%d&nbsp;%%', ($suggestion->getProbability() * 100)),
+                'color'             => $color,
+                'visualization'     => $suggestion->visualize($btx_bao),
+                'title'             => $suggestion->getTitle(),
             ));
         }
         $this->assign('suggestions', $suggestions);
+        $this->assign('user_confirmation_title', E::ts("Confirmation Required"));
       }
 
       // URLs & stats
@@ -241,7 +262,7 @@ class CRM_Banking_Page_Review extends CRM_Core_Page {
         } elseif (isset($_REQUEST['s_list'])) {
           $this->assign('url_back', banking_helper_buildURL('civicrm/banking/statements', array()));
           $this->assign('back_to_statement_lines', false);
-        }  
+        }
       }
 
       if (isset($next_pid)) {
@@ -284,6 +305,35 @@ class CRM_Banking_Page_Review extends CRM_Core_Page {
       if ($url_redirect) {
         CRM_Utils_System::redirect($url_redirect);
       }
+
+      $summaryTemplates = [
+        'ReviewBasic',
+        'ReviewTransaction',
+        'ReviewDebtor',
+        'ReviewPurpose',
+        'ReviewDetails',
+      ];
+      $vars = $this->get_template_vars();
+      $template = CRM_Core_Smarty::singleton();
+      $template->assignAll($vars);
+      $summary_blocks = [];
+      foreach ($summaryTemplates as $summaryTemplate) {
+        $summary_blocks[$summaryTemplate] = $template->fetch(
+          "CRM/Banking/Page/{$summaryTemplate}.tpl"
+        );
+      }
+      CRM_Utils_Hook::singleton()->invoke(
+        ['banking_transaction', 'summary_blocks'],
+        $btx_bao,
+        $summary_blocks,
+        CRM_Utils_Hook::$_nullObject,
+        CRM_Utils_Hook::$_nullObject,
+        CRM_Utils_Hook::$_nullObject,
+        CRM_Utils_Hook::$_nullObject,
+        'civicrm_banking_transaction_summary'
+      );
+      $this->assign('summary_blocks', $summary_blocks);
+
       parent::run();
   }
 
@@ -389,6 +439,7 @@ class CRM_Banking_Page_Review extends CRM_Core_Page {
       $suggestion->update_parameters($parameters);
 
       // now, execute
+      $transaction = new CRM_Core_Transaction();
       $result = $suggestion->execute($btx_bao);
       if ($result) {
         if ($result === 're-run') {
@@ -396,7 +447,8 @@ class CRM_Banking_Page_Review extends CRM_Core_Page {
           $engine = CRM_Banking_Matcher_Engine::getInstance();
           $engine->match($parameters['execute']);
           CRM_Core_Session::setStatus(E::ts("The transaction has been analysed again."), E::ts("Transaction analysed"), 'info');
-          return NULL; // NO SUCCESSFULL EXECUTION (because it's a re-run)
+          $transaction->commit();
+          return NULL; // NO SUCCESSFUL EXECUTION (because it's a re-run)
         } else {
           // ALL GOOD:
           // create a notification bubble for the user
@@ -408,15 +460,17 @@ class CRM_Banking_Page_Review extends CRM_Core_Page {
           } else {
             CRM_Core_Session::setStatus(E::ts("The transaction could not be closed."), E::ts("Error"), 'alert');
           }
-          return TRUE; // SUCCESSFULL EXECUTION
+          $transaction->commit();
+          return TRUE; // SUCCESSFUL EXECUTION
         }
       } else {
         // something went wrong
+        $transaction->rollback();
         CRM_Core_Session::setStatus(E::ts("The execution failed, please re-analyse the transaction."), E::ts("Error"), 'alert');
       }
     } else {
       CRM_Core_Session::setStatus(E::ts("Selected suggestions disappeared. Suggestion NOT executed!"), E::ts("Internal Error"), 'error');
     }
-    return NULL; // NO SUCCESSFULL EXECUTION
+    return NULL; // NO SUCCESSFUL EXECUTION
   }
 }

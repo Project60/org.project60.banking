@@ -110,7 +110,7 @@ class CRM_Banking_Form_AccountsTab extends CRM_Core_Form {
     $this->addElement(
         'text',
         'bank_name',
-        E::ts("Bank Name"),
+        E::ts("Account Name"),
         array('size' => 40),
         false
     );

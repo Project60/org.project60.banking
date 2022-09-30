@@ -1,0 +1,111 @@
+{
+    "plugin_type_name": "export",
+    "plugin_class_name": "exporter_csv",
+    "name": "Conspicuous Bookings",
+    "description": "Will export all conspicuous payments, i.e. payments that have NOT been reconciled with contributions with the same amount",
+    "weight": "1000",
+    "config": {
+        "comment": "Conspicuous Bookings",
+        "delimiter": ";",
+        "quotes": "\"",
+        "header": 1,
+        "name": "Conspicuous Bookings",
+        "default_values": {
+            "processed_status": "processed",
+            "ignored_status": "ignored"
+        },
+        "filters": [
+            [
+                {
+                    "comment": "ONLY completed transactions",
+                    "type": "compare",
+                    "value_1": "tx_status",
+                    "value_2": "processed_status",
+                    "comparator": "=="
+                },
+                {
+                    "comment": "...that have been reconciled with a different amount",
+                    "type": "compare",
+                    "value_1": "tx_amount",
+                    "value_2": "exec_total_amount",
+                    "comparator": "!="
+                }
+            ]
+        ],
+        "columns": [
+            "Transaction ID",
+            "Statement ID",
+            "Status",
+            "Donor ID",
+            "Donor Name",
+            "Booking Date",
+            "Transaction Amount",
+            "Reconciled Amount",
+            "Booked By"
+        ],
+        "rules": [
+            {
+                "from": "txbatch_id",
+                "to": "Statement ID",
+                "type": "set"
+            },
+            {
+                "from": "tx_id",
+                "to": "Transaction ID",
+                "type": "set"
+            },
+            {
+                "type": "lookup",
+                "entity": "Contact",
+                "from": "exec_executed_by",
+                "key": "id",
+                "to": "exec_user_"
+            },
+            {
+                "from": "exec_user_display_name",
+                "to": "Booked By",
+                "type": "set"
+            },
+            {
+                "type": "lookup",
+                "entity": "Contact",
+                "from": "exec_contribution_contact_id",
+                "key": "id",
+                "to": "exec_contribution_user_"
+            },
+            {
+                "from": "exec_contribution_user_display_name",
+                "to": "Donor Name",
+                "type": "set"
+            },
+            {
+                "from": "exec_contribution_user_id",
+                "to": "Donor ID",
+                "type": "set"
+            },
+            {
+                "from": "tx_booking_date",
+                "to": "Booking Date",
+                "type": "set"
+            },
+            {
+                "from": "tx_amount",
+                "to": "Transaction Amount",
+                "currency": "tx_currency",
+                "type": "amount"
+            },
+            {
+                "from": "exec_total_amount",
+                "to": "Reconciled Amount",
+                "currency": "exec_total_currency",
+                "type": "amount"
+            },
+            {
+                "from": "tx_status_name",
+                "to": "Status",
+                "type": "set"
+            }
+        ]
+    },
+    "state": {}
+}

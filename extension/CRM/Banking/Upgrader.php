@@ -38,25 +38,25 @@ class CRM_Banking_Upgrader extends CRM_Banking_Upgrader_Base {
 
     return TRUE;
   }
-  
+
   /**
-   * When upgrading the extension keep the new UI disabled. 
+   * When upgrading the extension keep the new UI disabled.
    * This way the new UI is only visible upon a new installation.
-   * 
+   *
    * Also update the order of the transaction statuses as we use the order to sort the statement lines screen.
-   * 
+   *
    * @return TRUE on success
    */
   public function upgrade_0611() {
     CRM_Core_BAO_Setting::setItem(false, 'org.project60.banking', 'new_ui');
-    
+
     // Update order of the option group banking_tx_status.
     $statusApi = civicrm_api3('OptionValue', 'get', array('option_group_id' => 'civicrm_banking.bank_tx_status', 'options' => array('limit' => 0)));
     $statuses = array();
     foreach($statusApi['values'] as $status) {
       $statuses[$status['name']] = $status;
     }
-    
+
     // Set ignore status the weight from processed
     CRM_Core_DAO::executeQuery("UPDATE civicrm_option_value SET weight = %1 WHERE id = %2", array(
       1=> array($statuses['processed']['weight'], 'Integer'),
@@ -166,4 +166,91 @@ class CRM_Banking_Upgrader extends CRM_Banking_Upgrader_Base {
     banking_civicrm_install_options(_banking_options());
     return true;
   }
+
+  /**
+   * Upgrader for 0.7.alpha7 release
+   *
+   * @return TRUE on success
+   */
+  public function upgrade_0704() {
+    // rebuild menu, in particular for the UI
+    CRM_Core_Invoke::rebuildMenuAndCaches();
+    CRM_Core_BAO_Setting::setItem($values['reference_matching_probability'], 'CiviBanking', 'reference_matching_probability');
+    return true;
+  }
+
+  /**
+   * Upgrader for 0.8 release
+   *
+   * @return TRUE on success
+   */
+  public function upgrade_0800() {
+    // Set the bank account reference probability to 100%.
+    CRM_Core_BAO_Setting::setItem('1.0', 'CiviBanking', 'reference_matching_probability');
+    return true;
+  }
+
+  /**
+   * Upgrader for 0.8 / BANKING-313:
+   *
+   * Adding an index to civicrm_bank_tx.status_id
+   *
+   * @return TRUE on success
+   */
+  public function upgrade_0801() {
+    // adding an index
+    if (!CRM_Core_DAO::singleValueQuery("SHOW INDEX FROM civicrm_bank_tx WHERE key_name = 'FK_civicrm_bank_tx_status_id'")) {
+      $this->ctx->log->info('Adding status_id index to transaction table.');
+      $this->executeSql("ALTER TABLE civicrm_bank_tx ADD KEY `FK_civicrm_bank_tx_status_id`(`status_id`);");
+    }
+    return true;
+  }
+
+  /**
+   * Upgrader for 0.8 / BANKING-323:
+   *
+   * Update options/matchers/etc.
+   *
+   * @return TRUE on success
+   */
+  public function upgrade_0802() {
+    // update option groups
+    $this->ctx->log->info('Updated options.');
+    banking_civicrm_install_options(_banking_options());
+    return true;
+  }
+
+
+  /**
+   * Upgrader for 0.8 / BANKING-312:
+   *
+   * Add new civicrm_bank_tx_contribution table
+   *  and migrate existing transactions (from json_blob)
+   *
+   * @return TRUE on success
+   */
+  public function upgrade_0804() {
+    // to add the table, simply run sql schema script again
+    $this->ctx->log->info('Added transaction-contribution link table.');
+    $this->executeSqlFile('sql/banking.sql');
+
+    // schedule migrating existing transactions ($batch_size at a time)
+    $batch_size = 1000;
+    $min_bank_tx_id = CRM_Core_DAO::singleValueQuery("SELECT MIN(id) FROM civicrm_bank_tx;");
+    $max_bank_tx_id = CRM_Core_DAO::singleValueQuery("SELECT MAX(id) FROM civicrm_bank_tx;");
+    $current_bank_tx_id = $min_bank_tx_id;
+    while ($current_bank_tx_id <= $max_bank_tx_id) {
+      $this->ctx->queue->createItem(
+        new CRM_Banking_Helpers_ContributionLinkMigration($current_bank_tx_id, $batch_size));
+      $current_bank_tx_id += $batch_size;
+    }
+
+    // update logging schema
+    $logging = new CRM_Logging_Schema();
+    $logging->fixSchemaDifferences();
+
+    return true;
+  }
+
+
 }

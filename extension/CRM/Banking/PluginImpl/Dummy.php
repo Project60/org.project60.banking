@@ -113,7 +113,7 @@ class CRM_Banking_PluginImpl_Dummy extends CRM_Banking_PluginModel_Importer {
     // fetch $count random contacts
     $query_params = array(
       'version' => 3,
-      'option.sort' => 'rand()',
+      'option.sort' => 'hash',
       'option.limit' => 2*$count,
     );
     $result = civicrm_api('Contact', 'get', $query_params);

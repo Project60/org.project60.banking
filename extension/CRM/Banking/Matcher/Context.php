@@ -28,9 +28,16 @@ class CRM_Banking_Matcher_Context {
   // will store cached data needed/produced by the helper functions
   private $_caches;
 
+  protected $bank_account_reference_matching_probability = null;
+
   public function __construct( CRM_Banking_BAO_BankTransaction $btx ) {
     $this->btx = $btx;
     $btx->context = $this;
+
+    $this->bank_account_reference_matching_probability = CRM_Core_BAO_Setting::getItem('CiviBanking', 'reference_matching_probability');
+    if ($this->bank_account_reference_matching_probability === null) {
+      $this->bank_account_reference_matching_probability = 1.0;
+    }
   }
 
   /**
@@ -78,7 +85,7 @@ class CRM_Banking_Matcher_Context {
     // look up accounts
     $account_owners = $this->getAccountContacts();
     foreach ($account_owners as $account_owner) {
-      $contacts[$account_owner] = 1.0;
+      $contacts[$account_owner] = $this->bank_account_reference_matching_probability;
     }
 
     // check if multiple 1.0 probabilities are there...
@@ -171,11 +178,11 @@ class CRM_Banking_Matcher_Context {
       $data_parsed = $this->btx->getDataParsed();
       if (!empty($data_parsed['party_ba_reference'])) {
         // find all accounts references matching the parsed data
-        $account_references = civicrm_api('BankAccountReference', 'get', array('reference' => $data_parsed['party_ba_reference'], 'version' => 3));
+        $account_references = civicrm_api('BankingAccountReference', 'get', array('reference' => $data_parsed['party_ba_reference'], 'version' => 3));
         if (empty($account_references['is_error'])) {
           foreach ($account_references['values'] as $account_reference) {
             // then load the respective accounts
-            $account = civicrm_api('BankAccount', 'getsingle', array('id' => $account_reference['ba_id'], 'version' => 3));
+            $account = civicrm_api('BankingAccount', 'getsingle', array('id' => $account_reference['ba_id'], 'version' => 3));
             if (empty($account['is_error'])) {
               // and add the owner
               array_push($contact_ids, $account['contact_id']);

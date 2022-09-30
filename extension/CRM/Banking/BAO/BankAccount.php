@@ -1,7 +1,7 @@
 <?php
 /*-------------------------------------------------------+
 | Project 60 - CiviBanking                               |
-| Copyright (C) 2013-2018 SYSTOPIA                       |
+| Copyright (C) 2013-2021 SYSTOPIA                       |
 | Author: B. Endres (endres -at- systopia.de)            |
 | http://www.systopia.de/                                |
 +--------------------------------------------------------+
@@ -39,7 +39,7 @@ class CRM_Banking_BAO_BankAccount extends CRM_Banking_DAO_BankAccount {
     } else {
       $params['modified_date'] = date('YmdHis');
     }
-    
+
     $hook = empty($params['id']) ? 'create' : 'edit';
     CRM_Utils_Hook::pre($hook, 'BankAccount', CRM_Utils_Array::value('id', $params), $params);
 
@@ -88,12 +88,17 @@ class CRM_Banking_BAO_BankAccount extends CRM_Banking_DAO_BankAccount {
    *          ordered by the reference types' order in the option group
    */
   public function getReferences() {
+    $bank_account_reference_matching_probability = CRM_Core_BAO_Setting::getItem('CiviBanking', 'reference_matching_probability');
+    if ($bank_account_reference_matching_probability === null) {
+      $bank_account_reference_matching_probability = 1.0;
+    }
+
     $orderedReferences = array();
-    $sql = "SELECT 
-                civicrm_option_value.value               AS reference_type, 
-                civicrm_option_value.label               AS reference_type_label, 
-                civicrm_option_value.description         AS reference_type_description, 
-                civicrm_option_value.id                  AS reference_type_id, 
+    $sql = "SELECT
+                civicrm_option_value.value               AS reference_type,
+                civicrm_option_value.label               AS reference_type_label,
+                civicrm_option_value.description         AS reference_type_description,
+                civicrm_option_value.id                  AS reference_type_id,
                 civicrm_bank_account_reference.reference AS reference,
                 civicrm_bank_account_reference.id        AS reference_id,
                 civicrm_bank_account.contact_id          AS contact_id,
@@ -116,7 +121,8 @@ class CRM_Banking_BAO_BankAccount extends CRM_Banking_DAO_BankAccount {
                                      'contact_id'                 => $orderedReferenceQuery->contact_id,
                                      'contact_ok'                 => ((!empty($orderedReferenceQuery->contact_id))
                                                                      && empty($orderedReferenceQuery->is_deleted)
-                                                                     && empty($orderedReferenceQuery->is_deceased)) ? '1' : '0'
+                                                                     && empty($orderedReferenceQuery->is_deceased)) ? '1' : '0',
+                                    'probability'                 => $bank_account_reference_matching_probability,
           );
     }
     return $orderedReferences;

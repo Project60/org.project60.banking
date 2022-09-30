@@ -64,7 +64,7 @@ class CRM_Banking_Matcher_Suggestion {
     }
 
     public function setId($identification) {
-        return $this->setParameter('id', $identification);
+        $this->setParameter('id', $identification);
     }
 
     public function getHash() {
@@ -85,12 +85,37 @@ class CRM_Banking_Matcher_Suggestion {
         return $this->_plugin->_plugin_id;
     }
 
+    /**
+     * The user confirmation will prompt the user to
+     *  separately confirm whatever question (string) is posted
+     *  here.
+     *
+     * @return string|null a human readable yes/no question, that will be presented verbatim to the user.
+     *                     NULL or empty string are to be ignored
+     */
+    public function getUserConfirmation() {
+      return $this->getParameter('user_confirmation');
+    }
+
+    /**
+     * The user confirmation will prompt the user to
+     *  separately confirm whatever question (string) is posted
+     *  here.
+     *
+     *  CAUTION: setting this string will also prevent automatic execution
+     *
+     * @param $question string  a human readable yes/no question, that will be presented verbatim to the user
+     */
+    public function setUserConfirmation($question) {
+      $this->setParameter('user_confirmation', $question);
+    }
+
     public function getTitle() {
         return $this->getParameter('title');
     }
 
     public function setTitle($name) {
-        return $this->setParameter('title', $name);
+        $this->setParameter('title', $name);
     }
 
     public function getProbability() {
@@ -98,7 +123,7 @@ class CRM_Banking_Matcher_Suggestion {
     }
 
     public function setProbability($probability) {
-        return $this->setParameter('probability', $probability);
+        $this->setParameter('probability', $probability);
     }
 
     public function getEvidence() {
@@ -106,13 +131,29 @@ class CRM_Banking_Matcher_Suggestion {
     }
 
     public function setEvidence($reasons) {
-        return $this->setParameter('reasons', $reasons);
+        $this->setParameter('reasons', $reasons);
     }
 
     public function setExecuted() {
         $this->setParameter('executed', date('YmdHis'));
         $user_id = CRM_Core_Session::singleton()->get('userID');
         $this->setParameter('executed_by', $user_id);
+    }
+
+  /**
+   * @param \CRM_Banking_PluginModel_PostProcessor $postprocessor
+   * @param $result
+   */
+    public function setExecutedPostprocessor($postprocessor, $result) {
+      if (!is_array($postprocessors = $this->getParameter('executed_postprocessors'))) {
+        $postprocessors = [];
+      }
+      $postprocessors[$postprocessor->getPluginID()] = $result;
+      $this->setParameter('executed_postprocessors', $postprocessors);
+    }
+
+    public function getExecutedPostprocessors() {
+      return $this->getParameter('executed_postprocessors');
     }
 
     public function isExecuted() {
@@ -209,8 +250,12 @@ class CRM_Banking_Matcher_Suggestion {
 
     /**
      * Execute this suggestion on the given transaction
+     *
+     * @param $btx CRM_Banking_BAO_BankTransaction
+     *
+     * @return boolean
      */
-    public function execute(CRM_Banking_BAO_BankTransaction $btx) {
+    public function execute($btx) {
         // only execute if not completed yet
         if (!banking_helper_tx_status_closed($btx->status_id)) {
             // perform execute
@@ -231,7 +276,31 @@ class CRM_Banking_Matcher_Suggestion {
     public function visualize(CRM_Banking_BAO_BankTransaction $btx = null, CRM_Banking_PluginModel_Matcher $plugin = null) {
         // if btx/plugin is not supplied (by the matcher engine), recreate it
         $this->_updateObjects($btx, $plugin);
-        return $this->_plugin->visualize_match($this, $btx);
+        $visualisation = $this->_plugin->visualize_match($this, $btx);
+
+        // Visualize post processors.
+        if (!empty($post_processor_previews = $this->getParameter(
+            'post_processor_previews'
+        ))) {
+          $count = count($post_processor_previews);
+          $visualisation .= '<div class="banking--postprocessor-preview crm-accordion-wrapper collapsed">'
+            . '<div class="crm-accordion-header">'
+            . ($count == 1
+              ? E::ts('1 Post Processor')
+              : E::ts('%1 Post Processors', [1 => $count]))
+            . '</div>'
+            . '<div class="crm-accordion-body">';
+
+            $visualisation .= '<p>' . E::ts('The following post processors may be executed after processing this suggestion:') . '</p>';
+            $visualisation .= '<ol>';
+            foreach ($post_processor_previews as $post_processor_title => $post_processor_preview) {
+                $visualisation .= '<li>' . $post_processor_title . $post_processor_preview . '</li>';
+            }
+            $visualisation .= '</ol>';
+            $visualisation .= '</div></div>';
+        }
+
+        return $visualisation;
     }
 
     /**
@@ -240,7 +309,21 @@ class CRM_Banking_Matcher_Suggestion {
     public function visualize_execution(CRM_Banking_BAO_BankTransaction $btx = null, CRM_Banking_PluginModel_Matcher $plugin = null) {
         // if btx/plugin is not supplied (by the matcher engine), recreate it
         $this->_updateObjects($btx, $plugin);
-        return $this->_plugin->visualize_execution_info($this, $btx);
+        $visualisation = $this->_plugin->visualize_execution_info($this, $btx);
+
+        $engine = CRM_Banking_Matcher_Engine::getInstance();
+
+        // Visualize post processors.
+        if (!empty($post_processor_results = $engine->visualizePostProcessorResults($this, $btx, $this->_plugin))) {
+            $visualisation .= '<p>' . E::ts('The following post processors have been executed after processing this suggestion:') . '</p>';
+            $visualisation .= '<ol>';
+            foreach ($post_processor_results as $post_processor_result) {
+                $visualisation .= '<li>' . $post_processor_result . '</li>';
+            }
+            $visualisation .= '</ol>';
+        }
+
+        return $visualisation;
     }
 
     public function prepForJson() {

@@ -71,16 +71,24 @@ function banking_civicrm_navigationMenu(&$menu) {
   ));
 
   _banking_civix_insert_navigation_menu($menu, "{$anchor}CiviBanking", array(
-      'label'      => E::ts('Show Transactions'),
-      'name'       => 'Transactions',
-      'url'        => $statementUrl,
-      'permission' => 'access CiviContribute',
-  ));
-
-  _banking_civix_insert_navigation_menu($menu, "{$anchor}CiviBanking", array(
       'label'      => E::ts('Import Transactions'),
       'name'       => 'Import Transactions',
       'url'        => 'civicrm/banking/import',
+      'permission' => 'access CiviContribute',
+      'separator'  => 1,
+  ));
+
+  _banking_civix_insert_navigation_menu($menu, "{$anchor}CiviBanking", array(
+    'label'      => E::ts('Show Transactions'),
+    'name'       => 'Transactions',
+    'url'        => $statementUrl,
+    'permission' => 'access CiviContribute',
+  ));
+
+  _banking_civix_insert_navigation_menu($menu, "{$anchor}CiviBanking", array(
+      'label'      => E::ts('Find Transactions'),
+      'name'       => 'Find Transactions',
+      'url'        => 'civicrm/banking/statements/search',
       'permission' => 'access CiviContribute',
       'separator'  => 1,
   ));
@@ -141,16 +149,25 @@ function banking_civicrm_entityTypes(&$entityTypes) {
 }
 
 
-function banking_civicrm_tabs( &$tabs, $contactID ) {
-  $count_query = CRM_Core_DAO::executeQuery("SELECT COUNT(id) AS acCount FROM civicrm_bank_account WHERE contact_id=$contactID;");
-  $count_query->fetch();
-  array_push($tabs, array(
-    'id' =>       'bank_accounts',
-    'url' =>      CRM_Utils_System::url('civicrm/banking/accounts_tab', "snippet=1&amp;cid=$contactID"),
-    'title' =>    E::ts("Bank Accounts"),
-    'weight' =>   95,
-    'count' =>    $count_query->acCount));
+/**
+ * Implements hook_civicrm_tabset()
+ *
+ * Will inject the "Banking Accounts" tab
+ */
+function banking_civicrm_tabset($tabsetName, &$tabs, $context) {
+  if ($tabsetName == 'civicrm/contact/view' && !empty($context['contact_id'])) {
+    $contactID = (int) $context['contact_id'];
+    $count = CRM_Core_DAO::singleValueQuery("SELECT COUNT(id) FROM civicrm_bank_account WHERE contact_id={$contactID};");
+    $tabs[] = [
+        'id'     => 'bank_accounts',
+        'url'    => CRM_Utils_System::url('civicrm/banking/accounts_tab', "snippet=1&amp;cid=$contactID"),
+        'title'  => E::ts("Bank Accounts"),
+        'count'  => $count,
+        'weight' => 95
+    ];
+  }
 }
+
 
 
 /* bank accounts in merge operations
@@ -202,4 +219,29 @@ function banking_civicrm_get_max_nav_id($menu) {
     }
   }
   return $max_id;
+}
+
+
+/**
+ * Replace (some of) the summary blocks on the banking review page
+ *
+ * @param CRM_Banking_BAO_BankTransaction $banking_transaction
+ * @param array $summary_blocks
+ */
+function banking_civicrm_banking_transaction_summary($banking_transaction, &$summary_blocks)
+{
+  // Add rule match indicators:
+  $ruleMatchIndicators = new CRM_Banking_RuleMatchIndicators($banking_transaction, $summary_blocks);
+  $ruleMatchIndicators->addContactMatchIndicator();
+  $ruleMatchIndicators->addIbanMatchIndicator();
+}
+
+/**
+ * Inject contribution - transaction link
+ */
+function banking_civicrm_pageRun(&$page) {
+  $pageName = $page->getVar('_name');
+  if ($pageName == 'CRM_Contribute_Page_Tab') {
+    CRM_Banking_BAO_BankTransactionContribution::injectLinkedTransactions($page);
+  }
 }

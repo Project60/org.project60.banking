@@ -1,6 +1,6 @@
 {crmScope extensionKey='org.project60.banking'}
 
-<form action="" method="get">
+<form action="" method="post">
   <div class="crm-block crm-form-block">
     <h3>{ts domain='org.project60.banking'}Showing statements for{/ts}</h3>
     <table class="form-layout">

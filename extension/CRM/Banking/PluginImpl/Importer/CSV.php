@@ -40,6 +40,7 @@ class CRM_Banking_PluginImpl_Importer_CSV extends CRM_Banking_PluginModel_Import
     if (!isset($config->defaults))       $config->defaults = array();
     if (!isset($config->rules))          $config->rules = array();
     if (!isset($config->drop_columns))   $config->drop_columns = array();
+    if (!isset($config->strip_bom))      $config->strip_bom = false;
   }
 
   /**
@@ -137,7 +138,7 @@ class CRM_Banking_PluginImpl_Importer_CSV extends CRM_Banking_PluginModel_Import
     $bytes_read = 0;
     $header = array();
 
-    if (fgets($file, 4) !== "\xef\xbb\xbf") { // Skip BOM if present
+    if ($config->strip_bom && fgets($file, 4) !== "\xef\xbb\xbf") { // Skip BOM if present
         rewind($file); // Or rewind pointer to start of file
     }
 

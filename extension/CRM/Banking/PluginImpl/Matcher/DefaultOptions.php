@@ -43,6 +43,7 @@ class CRM_Banking_PluginImpl_Matcher_DefaultOptions extends CRM_Banking_PluginMo
     if (!isset($config->default_financial_type_id)) $config->default_financial_type_id = 1;
     if (!isset($config->createnew_value_propagation)) $config->createnew_value_propagation = array();
     if (!isset($config->manual_default_financial_type_id)) $config->manual_default_financial_type_id = NULL;
+    if (!isset($config->contribution_status_override)) $config->contribution_status_override = FALSE;
 
     if (!isset($config->ignore_enabled)) $config->ignore_enabled = true;
     if (!isset($config->ignore_probability)) $config->ignore_probability = 0.1;
@@ -119,6 +120,15 @@ class CRM_Banking_PluginImpl_Matcher_DefaultOptions extends CRM_Banking_PluginMo
       if ($cids) {
         $completed_status = banking_helper_optionvalue_by_groupname_and_name('contribution_status', 'Completed');
         $cancelled_status = banking_helper_optionvalue_by_groupname_and_name('contribution_status', 'Cancelled');
+        // Do we have an override active?
+        if ($this->_plugin_config->contribution_status_override) {
+          // Get the values of the transaction
+          $getPropagationValues = $this->getPropagationSet($btx, $suggestion, 'contribution', $this->_plugin_config->createnew_value_propagation);
+          if (array_key_exists('contribution_status_id', $getPropagationValues)) {
+            // We have an override, set both values as the passed contribution_status_id
+            $completed_status = $cancelled_status = $getPropagationValues['contribution_status_id'];
+          }
+        }
 
         foreach ($cids as $cid) {
           if ($cid) {
@@ -136,27 +146,15 @@ class CRM_Banking_PluginImpl_Matcher_DefaultOptions extends CRM_Banking_PluginMo
             $query = array('version' => 3, 'id' => $cid);
             $query['is_test'] = 0;
             $query = array_merge($query, $this->getPropagationSet($btx, $suggestion, 'contribution'));   // add propagated values
-            $getPropagationValues = $this->getPropagationSet($btx, $suggestion, 'contribution',$this->_plugin_config->createnew_value_propagation);
 
             // set status to completed, unless it's a negative amount...
             if ($btx->amount < 0) {
-              // ...in this case, we want to cancel this, but check first if we already have an overriding status in the values
-              if (!isset($getPropagationValues['contribution_status_id'])) {
-                $query['contribution_status_id'] = $cancelled_status;
-              } 
-              else {
-                $query['contribution_status_id'] = $getPropagationValues['contribution_status_id'];
-              }
+              // ...in this case, we want to cancel this
+              $query['contribution_status_id'] = $cancelled_status;
               $query['cancel_date'] = date('YmdHis', strtotime($btx->booking_date));
-            } 
-            else {
-              // ...otherwise, we close it but check first if we already have an overriding status in the values
-              if (!isset($getPropagationValues['contribution_status_id'])) {
-                $query['contribution_status_id'] = $completed_status;
-              } 
-              else {
-                $query['contribution_status_id'] = $getPropagationValues['contribution_status_id'];
-              }
+            } else {
+              // ...otherwise, we close it
+              $query['contribution_status_id'] = $completed_status;
               $query['receive_date'] = date('YmdHis', strtotime($btx->booking_date));
             }
 
@@ -231,6 +229,7 @@ class CRM_Banking_PluginImpl_Matcher_DefaultOptions extends CRM_Banking_PluginMo
     $smarty_vars['status_pending'] =                 banking_helper_optionvalue_by_groupname_and_name('contribution_status', 'Pending');
     $smarty_vars['manual_default_source'] =          $this->_plugin_config->manual_default_source;
     $smarty_vars['manual_default_financial_type_id']=$this->_plugin_config->manual_default_financial_type_id;
+    $smarty_vars['contribution_status_override'] =   $this->_plugin_config->contribution_status_override;
     $smarty_vars['create_propagation'] =             $this->getPropagationSet($btx, $match, 'contribution', $this->_plugin_config->createnew_value_propagation);
 
     // assign to smarty and compile HTML

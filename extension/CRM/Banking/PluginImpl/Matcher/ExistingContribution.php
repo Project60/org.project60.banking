@@ -105,7 +105,7 @@ class CRM_Banking_PluginImpl_Matcher_ExistingContribution extends CRM_Banking_Pl
     }
     $contribution_amount = $contribution['total_amount'];
     $target_date = strtotime($context->btx->value_date);
-    $contribution_date = (int) strtotime($contribution['receive_date']);
+    $contribution_date = (int) strtotime(date('Y-m-d', strtotime($contribution['receive_date'])));
 
     // check for date limits
     if ($config->received_date_check) {

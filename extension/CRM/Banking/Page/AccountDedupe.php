@@ -77,6 +77,7 @@ class CRM_Banking_Page_AccountDedupe extends CRM_Core_Page {
                         reference_type_id
                       FROM civicrm_bank_account_reference
                       LEFT JOIN civicrm_bank_account ON ba_id = civicrm_bank_account.id
+                      WHERE contact_id IS NOT NULL
                       GROUP BY reference, reference_type_id
                       ORDER BY last_change DESC
                       ) AS dupequery

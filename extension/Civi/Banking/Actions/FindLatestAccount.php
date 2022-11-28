@@ -38,7 +38,7 @@ class FindLatestAccount extends AbstractAction {
   }
 
   /**
-   * Do the actual action - add IBAN to contact
+   * Do the actual action - find the latest bank account ID for contact and with that ID find account
    *
    * @param ParameterBagInterface $parameters
    * @param ParameterBagInterface $output

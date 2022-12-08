@@ -38,15 +38,6 @@ function banking_civicrm_config(&$config) {
 }
 
 /**
- * Implementation of hook_civicrm_xmlMenu
- *
- * @param $files array(string)
- */
-function banking_civicrm_xmlMenu(&$files) {
-  _banking_civix_civicrm_xmlMenu($files);
-}
-
-/**
  * Implementation of hook_civicrm_install
  */
 function banking_civicrm_install() {
@@ -101,16 +92,24 @@ function banking_civicrm_upgrade($op, CRM_Queue_Queue $queue = NULL) {
   return _banking_civix_civicrm_upgrade($op, $queue);
 }
 
-/**
- * Implementation of hook_civicrm_managed
- *
- * Generate a list of entities to create/deactivate/delete when this module
- * is installed, disabled, uninstalled.
- */
-function banking_civicrm_managed(&$entities) {
-  return _banking_civix_civicrm_managed($entities);
+function banking_civicrm_angularModules(&$angularModules) {
+  return;
 }
 
-function banking_civicrm_angularModules(&$angularModules) {
-  return _banking_civix_civicrm_angularModules($angularModules);
+/**
+ * Implements hook_civicrm_postInstall().
+ *
+ * @link https://docs.civicrm.org/dev/en/latest/hooks/hook_civicrm_postInstall
+ */
+function banking_civicrm_postInstall() {
+  _banking_civix_civicrm_postInstall();
+}
+
+/**
+ * Implements hook_civicrm_entityTypes().
+ *
+ * @link https://docs.civicrm.org/dev/en/latest/hooks/hook_civicrm_entityTypes
+ */
+function banking_civicrm_entityTypes(&$entityTypes) {
+  _banking_civix_civicrm_entityTypes($entityTypes);
 }

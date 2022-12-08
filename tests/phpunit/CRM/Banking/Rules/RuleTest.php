@@ -15,7 +15,7 @@ drupal_bootstrap(DRUPAL_BOOTSTRAP_FULL);
  *
  * @group no_db_writes
  */
-class CRM_Banking_Rules_RuleTest extends \PHPUnit_Framework_TestCase {
+class CRM_Banking_Rules_RuleTest extends \PHPUnit\Framework\TestCase {
   public function testDatabaseArrayCasting() {
     civicrm_initialize();
     $x = new CRM_Banking_Rules_Rule();

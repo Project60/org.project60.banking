@@ -40,7 +40,17 @@ class CRM_Banking_Importer_CSVTest extends CRM_Banking_TestBase implements Headl
    * Test a basic PayPal import
    */
   public function testBasicCSVImport():void {
-    $this->configureCiviBankingModule(E::path('/tests/resources/importer/configuration/PayPal CSV.civbanking'));
+    // create importer
+    $importer_spec = '/tests/resources/importer/configuration/Test01.civbanking';
+    $importer_id = $this->configureCiviBankingModule(E::path($importer_spec));
 
+    // import the file
+    $import_file = '/tests/resources/importer/data/Test01.csv';
+    $batch_id = $this->importFile($importer_id, E::path($import_file));
+    $this->assertNotEmpty($batch_id, "Importer failed to read '{$import_file}'.");
+
+    // check the content
+    // todo
+    
   }
 }

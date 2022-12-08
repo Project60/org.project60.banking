@@ -65,6 +65,59 @@ class CRM_Banking_TestBase extends \PHPUnit\Framework\TestCase implements Headle
     $this->assertTrue(is_array($decoding_test), "Configuration file '{$configuration_file}' didn't contain json.");
     $plugin_bao = new CRM_Banking_BAO_PluginInstance();
     $plugin_bao->updateWithSerialisedData($data);
+    $this->assertNotEmpty($plugin_bao->id, "Configuration from file '{$configuration_file}' couldn't be stored.");
     return $plugin_bao->id;
+  }
+
+  /**
+   * Import bank statement file
+   *
+   * @param integer $importer_id
+   *   importer ID
+   *
+   * @param string $input_file
+   *   file path to the file to be imported
+   *
+   * @return integer
+   *    tx_batch ID
+   */
+  public function importFile($importer_id, $input_file) : int
+  {
+    $this->assertTrue(file_exists($input_file), "Configuration file '{$input_file}' not found.");
+    $this->assertTrue(is_readable($input_file), "Configuration file '{$input_file}' cannot be opened.");
+
+    // load the [first, hopefully only] Matcher of this plugin class type and get its config.
+    /** @var CRM_Banking_PluginModel_Importer $importer */
+    $importer = $this->getPluginInstance($importer_id);
+    $importer->import_file($input_file, ['source' => $input_file]);
+    return $this->getLatestTransactionBatchId();
+  }
+
+  /**
+   * Get the ID of the latest transaction batch
+   *
+   * @return integer
+   *   the ID of the latest batch
+   */
+  public function getLatestTransactionBatchId() : int
+  {
+    return (int) CRM_Core_DAO::singleValueQuery("SELECT MAX(id) FROM civicrm_bank_tx_batch");
+  }
+
+  /**
+   * Get an instance of the plugin with the given ID
+   *
+   * @param integer $plugin_id
+   *   the ID of the plugin
+   *
+   * @return CRM_Banking_PluginModel_Base
+   *   plugin instance
+   */
+  public function getPluginInstance($plugin_id)
+  {
+    // load the Matcher and the mapping
+    $pi_bao = new CRM_Banking_BAO_PluginInstance();
+    $pi_bao->get('id', $plugin_id);
+    return $pi_bao->getInstance();
   }
 }

@@ -1,4 +1,18 @@
 <?php
+/*-------------------------------------------------------+
+| Project 60 - CiviBanking - Unit Test                   |
+| Copyright (C) 2022 SYSTOPIA                            |
+| Author: B. Endres (endres -at- systopia.de)            |
+| http://www.systopia.de/                                |
++--------------------------------------------------------+
+| This program is released as free software under the    |
+| Affero GPL v3 license. You can redistribute it and/or  |
+| modify it under the terms of this license which you    |
+| can read by viewing the included agpl.txt or online    |
+| at www.gnu.org/licenses/agpl.html. Removal of this     |
+| copyright header is strictly prohibited without        |
+| written permission from the original author(s).        |
++--------------------------------------------------------*/
 
 use CRM_Banking_ExtensionUtil as E;
 use Civi\Test\HeadlessInterface;
@@ -90,7 +104,9 @@ class CRM_Banking_TestBase extends \PHPUnit\Framework\TestCase implements Headle
     /** @var CRM_Banking_PluginModel_Importer $importer */
     $importer = $this->getPluginInstance($importer_id);
     $importer->import_file($input_file, ['source' => $input_file]);
-    return $this->getLatestTransactionBatchId();
+    $batch_id = $this->getLatestTransactionBatchId();
+    $this->assertNotEmpty($batch_id, "Importer module [{$importer_id}] failed on file '{$input_file}'.");
+    return $batch_id;
   }
 
   /**
@@ -102,6 +118,31 @@ class CRM_Banking_TestBase extends \PHPUnit\Framework\TestCase implements Headle
   public function getLatestTransactionBatchId() : int
   {
     return (int) CRM_Core_DAO::singleValueQuery("SELECT MAX(id) FROM civicrm_bank_tx_batch");
+  }
+
+  /**
+   * Get a transaction batch BAO
+   *
+   * @param integer $batch_id
+   *   the ID of the batch to be loaded. If left empty, the most recently created one is returned
+   *
+   * @return CRM_Banking_BAO_BankTransactionBatch|null
+   *   the transaction batch
+   */
+  public function getBatch(int $batch_id = 0)
+  {
+    $batch_bao = new CRM_Banking_BAO_BankTransactionBatch();
+    if ($batch_id) {
+      $batch_bao->id = $batch_id;
+    } else {
+      $batch_bao->id = $this->getLatestTransactionBatchId();
+    }
+    if ($batch_bao->find()) {
+      $batch_bao->fetch();
+      return $batch_bao;
+    } else {
+      return null;
+    }
   }
 
   /**
@@ -119,5 +160,23 @@ class CRM_Banking_TestBase extends \PHPUnit\Framework\TestCase implements Headle
     $pi_bao = new CRM_Banking_BAO_PluginInstance();
     $pi_bao->get('id', $plugin_id);
     return $pi_bao->getInstance();
+  }
+
+  /**
+   * Get the full path of a test resource
+   *
+   * @param string $internal_path
+   *   the internal path
+   *
+   * @return string
+   *   the full path
+   */
+  public function getTestResourcePath($internal_path)
+  {
+    $importer_spec = '/tests/resources/' . $internal_path;
+    $full_path = E::path($importer_spec);
+    $this->assertTrue(file_exists($full_path), "Test resource '{$internal_path}' not found.");
+    $this->assertTrue(is_readable($full_path), "Test resource '{$internal_path}' cannot be opened.");
+    return $full_path;
   }
 }

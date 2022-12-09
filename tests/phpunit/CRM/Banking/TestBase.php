@@ -20,21 +20,21 @@ use Civi\Test\HookInterface;
 use Civi\Test\TransactionalInterface;
 use Civi\Test\CiviEnvBuilder;
 
+include_once "CRM/Banking/Helpers/OptionValue.php";
+
 /**
- * FIXME - Add test description.
- *
- * Tips:
- *  - With HookInterface, you may implement CiviCRM hooks directly in the test class.
- *    Simply create corresponding functions (e.g. "hook_civicrm_post(...)" or similar).
- *  - With TransactionalInterface, any data changes made by setUp() or test****() functions will
- *    rollback automatically -- as long as you don't manipulate schema or truncate tables.
- *    If this test needs to manipulate schema or truncate tables, then either:
- *       a. Do all that using setupHeadless() and Civi\Test.
- *       b. Disable TransactionalInterface, and handle all setup/teardown yourself.
+ * Base class for all CiviBanking tests
  *
  * @group headless
  */
-class CRM_Banking_TestBase extends \PHPUnit\Framework\TestCase implements HeadlessInterface, HookInterface, TransactionalInterface {
+class CRM_Banking_TestBase extends \PHPUnit\Framework\TestCase implements HeadlessInterface, HookInterface, TransactionalInterface
+{
+  use \Civi\Test\Api3TestTrait {
+    callAPISuccess as protected traitCallAPISuccess;
+  }
+
+  /** The primary fields of the transaction are the fields of its database table. All other fields will be written as JSON to "data_parsed".*/
+  const PRIMARY_TRANSACTION_FIELDS = ['version', 'debug', 'amount', 'bank_reference', 'value_date', 'booking_date', 'currency', 'type_id', 'status_id', 'data_raw', 'data_parsed', 'ba_id', 'party_ba_id', 'tx_batch_id', 'sequence'];
 
   /**
    * Setup used when HeadlessInterface is implemented.
@@ -47,17 +47,20 @@ class CRM_Banking_TestBase extends \PHPUnit\Framework\TestCase implements Headle
    *
    * @throws \CRM_Extension_Exception_ParseException
    */
-  public function setUpHeadless(): CiviEnvBuilder {
+  public function setUpHeadless(): CiviEnvBuilder
+  {
     return \Civi\Test::headless()
       ->installMe(__DIR__)
       ->apply();
   }
 
-  public function setUp():void {
+  public function setUp(): void
+  {
     parent::setUp();
   }
 
-  public function tearDown():void {
+  public function tearDown(): void
+  {
     parent::tearDown();
   }
 
@@ -74,7 +77,7 @@ class CRM_Banking_TestBase extends \PHPUnit\Framework\TestCase implements Headle
   {
     $this->assertTrue(file_exists($configuration_file), "Configuration file '{$configuration_file}' not found.");
     $this->assertTrue(is_readable($configuration_file), "Configuration file '{$configuration_file}' cannot be opened.");
-    $data = file_get_contents($configuration_file);
+    $data          = file_get_contents($configuration_file);
     $decoding_test = json_decode($data, true);
     $this->assertTrue(is_array($decoding_test), "Configuration file '{$configuration_file}' didn't contain json.");
     $plugin_bao = new CRM_Banking_BAO_PluginInstance();
@@ -95,7 +98,7 @@ class CRM_Banking_TestBase extends \PHPUnit\Framework\TestCase implements Headle
    * @return integer
    *    tx_batch ID
    */
-  public function importFile($importer_id, $input_file) : int
+  public function importFile($importer_id, $input_file): int
   {
     $this->assertTrue(file_exists($input_file), "Configuration file '{$input_file}' not found.");
     $this->assertTrue(is_readable($input_file), "Configuration file '{$input_file}' cannot be opened.");
@@ -115,9 +118,9 @@ class CRM_Banking_TestBase extends \PHPUnit\Framework\TestCase implements Headle
    * @return integer
    *   the ID of the latest batch
    */
-  public function getLatestTransactionBatchId() : int
+  public function getLatestTransactionBatchId(): int
   {
-    return (int) CRM_Core_DAO::singleValueQuery("SELECT MAX(id) FROM civicrm_bank_tx_batch");
+    return (int)CRM_Core_DAO::singleValueQuery("SELECT MAX(id) FROM civicrm_bank_tx_batch");
   }
 
   /**
@@ -174,9 +177,271 @@ class CRM_Banking_TestBase extends \PHPUnit\Framework\TestCase implements Headle
   public function getTestResourcePath($internal_path)
   {
     $importer_spec = '/tests/resources/' . $internal_path;
-    $full_path = E::path($importer_spec);
+    $full_path     = E::path($importer_spec);
     $this->assertTrue(file_exists($full_path), "Test resource '{$internal_path}' not found.");
     $this->assertTrue(is_readable($full_path), "Test resource '{$internal_path}' cannot be opened.");
     return $full_path;
+  }
+
+  /**
+   * Create a contact and return its ID.
+   *
+   * @return int The ID of the created contact.
+   *
+   * @author B. Zschiedrich (zschiedrich@systopia.de)
+   */
+  public function createContact(): int
+  {
+    $contact = $this->callAPISuccess(
+      'Contact', 'create',
+      [
+        'contact_type' => 'Individual',
+        'email'        => 'unittests@banking.project60.org',
+      ]
+    );
+    $this->assertArrayHasKey('id', $contact, "Contact was not created.");
+    $this->assertNotEmpty($contact['id'], "Contact was not created.");
+    return $contact['id'];
+  }
+
+  /**
+   * Get a transaction by its ID.
+   *
+   * @param int $id
+   *   the transaction ID
+   *
+   * @return array
+   *  transaction data
+   */
+  protected function getTransaction(int $id): array
+  {
+    $transaction = $this->callAPISuccess('BankingTransaction', 'getsingle', ['id' => $id]);
+    unset($transaction['is_error']);
+    return $transaction;
+  }
+
+  /**
+   * Create a transaction and return its ID.
+   *
+   * @param array $parameters
+   *   The parameters for the transaction. Only set values will overwrite defaults.
+   *
+   * @return int
+   *   The ID of the created transaction.
+   *
+   * @author B. Zschiedrich (zschiedrich@systopia.de)
+   */
+  protected function createTransaction(array $parameters = []): int
+  {
+    static $transactionReferenceCounter = 0;
+    $transactionReferenceCounter++;
+
+    // create some default values
+    $defaults = [
+      'bank_reference' => 'TestBankReference-' . $transactionReferenceCounter,
+      'booking_date'   => date('Y-m-d'),
+      'value_date'     => date('Y-m-d'),
+      'currency'       => 'EUR',
+      'sequence'       => $transactionReferenceCounter,
+      'status_id'      => $this->getTxStatusID('new'),
+    ];
+
+    // overwrite the values submitted
+    $transaction = array_merge($defaults, $parameters);
+
+    // Fill parsed data:
+    $parsedData = [];
+    foreach ($transaction as $key => $value) {
+      if (!in_array($key, self::PRIMARY_TRANSACTION_FIELDS)) {
+        $parsedData[$key] = $value;
+        unset($transaction[$key]);
+      }
+    }
+    $transaction['data_parsed'] = json_encode($parsedData);
+
+    // create the transaction
+    $result = $this->callAPISuccess('BankingTransaction', 'create', $transaction);
+    return $result['id'];
+  }
+
+  /**
+   * Get the latest contribution.
+   *
+   * @return array The contribution.
+   *
+   * @author B. Zschiedrich (zschiedrich@systopia.de)
+   */
+  protected function getLatestContribution()
+  {
+    return $this->callAPISuccessGetSingle(
+      'Contribution',
+      [
+        'options' => [
+          'sort'  => 'id DESC',
+          'limit' => 1,
+        ],
+      ]
+    );
+  }
+
+  /**
+   * Create a matcher and return its ID.
+   *
+   * @param string $type The matcher/analyser type, e.g. "match".
+   * @param string $class The matcher/analyser class, e.g. "analyser_regex".
+   * @param string $configuration The configuration for the matcher. Only set values will overwrite defaults.
+   * @param string $parameters The parameters for the matcher. Only set values will overwrite defaults.
+   *
+   * @return int The matcher ID.
+   *
+   * @author B. Zschiedrich (zschiedrich@systopia.de)
+   */
+  protected function createMatcher(
+    string $type,
+    string $class,
+    array $configuration = [],
+    array $parameters = []
+  ): int {
+    $typeId = $this->matcherTypeNameToId($type);
+    $classId = $this->matcherClassNameToId($class);
+
+    $parameterDefaults = [
+      'plugin_class_id' => $classId,
+      'plugin_type_id' => $typeId,
+      'name' => 'Test Matcher ' . $type,
+      'description' => 'Test Matcher "' . $type . '" with class "' . $class . '"',
+      'enabled' => 1,
+      'weight' => $this->getNextPluginWeight(),
+      'state' => '{}',
+    ];
+
+    $mergedParameters = array_merge($parameterDefaults, $parameters);
+    $matcher = $this->callAPISuccess('BankingPluginInstance', 'create', $mergedParameters);
+    $configurationDefaults = ['auto_exec' => 1];
+    $mergedConfiguration = array_merge($configurationDefaults, $configuration);
+
+    // Set the config via SQL (API causes issues):
+    if (empty($matcher['id'])) {
+      throw new Exception("Matcher could not be created.");
+    } else {
+      $configurationAsJson = json_encode($mergedConfiguration);
+
+      CRM_Core_DAO::executeQuery(
+        "UPDATE civicrm_bank_plugin_instance SET config=%1 WHERE id=%2;",
+        [
+          1 => [$configurationAsJson, 'String'],
+          2 => [$matcher['id'], 'Integer']
+        ]
+      );
+    }
+
+    return $matcher['id'];
+  }
+
+  /**
+   * Return the ID for a type by its name.
+   *
+   * @param string $typeName
+   *    The internal name of the type.
+   *
+   * @return int
+   *    The ID of the type.
+   */
+  protected function matcherTypeNameToId(string $typeName): int
+  {
+    return $this->callAPISuccess('OptionValue', 'getsingle', [
+        // NOTE: Class and type seem to be flipped in the extension code:
+        'option_group_id' => 'civicrm_banking.plugin_classes',
+        'name' => $typeName,
+      ])['id'];
+  }
+
+  /**
+   * Return the ID for a type by its name.
+   *
+   * @param string $className
+   *    The internal name of the class.
+   *
+   * @return int
+   *    The ID of the type.
+   */
+  protected function matcherClassNameToId(string $className): int
+  {
+    return $this->callAPISuccess('OptionValue', 'getsingle', [
+      // NOTE: Class and type seem to be flipped in the extension code:
+      'option_group_id' => 'civicrm_banking.plugin_types',
+      'name' => $className,
+    ])['id'];
+  }
+
+  /**
+   * Get a weight value that is higher than all previously issued ones
+   *
+   * @return int
+   *   the weight value
+   */
+  protected function getNextPluginWeight()
+  {
+    static $weight = 10;
+    $weight += 10;
+    return $weight;
+  }
+
+  /**
+   * Process transactions, i.e. run all matchers on it. By default, all transactions are process
+   *
+   * @param array|null $transactionIds
+   *  Will be used instead of all created transactions if not null.
+   */
+  public function runMatchers(array $transactionIds = null): void
+  {
+    $transactionIdsForMatching = $transactionIds === null ? $this->getAllTransactionIDs() : $transactionIds;
+    $engine = new CRM_Banking_Matcher_Engine();
+    foreach ($transactionIdsForMatching as $transactionId) {
+      $engine->match($transactionId);
+    }
+  }
+
+  /**
+   * Run all transactions
+   *
+   * @param $status_ids
+   *   filter by these status IDs. Default is 'new'
+   *
+   * @return array
+   *   list of transaction IDs
+   */
+  public function getAllTransactionIDs($status_ids = null)
+  {
+    $transactions = [];
+    if ($status_ids === null) {
+      $status_new = $this->getTxStatusID('new');
+      $status_ids = [$status_new];
+    }
+
+    $status_id_list = implode(",", $status_ids);
+    $tx_search = CRM_Core_DAO::executeQuery("SELECT id AS tid FROM civicrm_bank_tx WHERE status_id IN ({$status_id_list})");
+    while ($tx_search->fetch()) {
+      $transactions[] = $tx_search->tid;
+    }
+    return $transactions;
+  }
+
+  /**
+   * Get the status ID for the given status
+   *
+   * @param $status
+   *   the status name, like 'new', 'suggestions', 'ignored' or 'processed'
+   *
+   * @return int
+   */
+  public function getTxStatusID($status)
+  {
+    static $status_list = [];
+    if (!isset($status_list[$status])) {
+      $status_entry = banking_helper_optionvalueid_by_groupname_and_name('civicrm_banking.bank_tx_status', $status);
+      $status_list[$status] = $status_entry;
+    }
+    return $status_list[$status];
   }
 }

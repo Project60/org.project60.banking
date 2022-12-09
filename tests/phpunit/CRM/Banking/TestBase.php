@@ -186,19 +186,22 @@ class CRM_Banking_TestBase extends \PHPUnit\Framework\TestCase implements Headle
   /**
    * Create a contact and return its ID.
    *
-   * @return int The ID of the created contact.
+   * @param array $additional_parameters
+   *    additional parameters for hte contact
+   *
+   * @return int
+   *    The ID of the created contact.
    *
    * @author B. Zschiedrich (zschiedrich@systopia.de)
    */
-  public function createContact(): int
+  public function createContact($additional_parameters = []): int
   {
-    $contact = $this->callAPISuccess(
-      'Contact', 'create',
-      [
-        'contact_type' => 'Individual',
-        'email'        => 'unittests@banking.project60.org',
-      ]
-    );
+    $defaults = [
+      'contact_type' => 'Individual',
+      'email'        => 'unittests@banking.project60.org',
+    ];
+    $contact_parameters = array_merge($defaults, $additional_parameters);
+    $contact = $this->callAPISuccess('Contact', 'create', $contact_parameters);
     $this->assertArrayHasKey('id', $contact, "Contact was not created.");
     $this->assertNotEmpty($contact['id'], "Contact was not created.");
     return $contact['id'];
@@ -443,5 +446,129 @@ class CRM_Banking_TestBase extends \PHPUnit\Framework\TestCase implements Headle
       $status_list[$status] = $status_entry;
     }
     return $status_list[$status];
+  }
+
+  /**
+   * Get the data_parsed array from a transaction
+   *
+   * @param int $id
+   *   transaction ID
+   *
+   * @return array
+   *   (extracted) contents of data_parsed
+   */
+  protected function getTransactionDataParsed(int $id): array
+  {
+    $transaction = $this->getTransaction($id);
+    $this->assertArrayHasKey('data_parsed', $transaction, 'No data_parsed set');
+    $parsed_data = json_decode($transaction['data_parsed'], true);
+    $this->assertNotNull($parsed_data, 'Invalid data_parsed blob');
+    return $parsed_data;
+  }
+
+  // LEGACY FUNCTIONS
+
+  /**
+   * Create a "create contribution" matcher with simple defaults.
+   *
+   * @param array $configuration
+   *  The configuration for the matcher. Only set values will overwrite defaults.
+   *
+   * @return int
+   *   The matcher ID.
+   *
+   * @author B. Zschiedrich (zschiedrich@systopia.de)
+   */
+  protected function createCreateContributionMatcher(array $configuration = []): int
+  {
+    $defaultConfiguration = [
+      'required_values' => [
+        'btx.financial_type_id',
+        'btx.payment_instrument_id',
+        'btx.contact_id',
+      ],
+      'value_propagation' => [
+        'btx.financial_type_id' => 'contribution.financial_type_id',
+        'btx.payment_instrument_id' => 'contribution.payment_instrument_id',
+      ],
+      'lookup_contact_by_name' => [
+        'mode' => 'off'
+      ]
+    ];
+    $mergedConfiguration = array_merge($defaultConfiguration, $configuration);
+    $matcherId = $this->createMatcher('match', 'matcher_create', $mergedConfiguration);
+    return $matcherId;
+  }
+
+  /**
+   * Create a regex analyser with simple defaults.
+   *
+   * @param array|null $rules
+   *  The rules to apply for the matcher. If null, default rules are used, otherwise the given ones.
+   *
+   * @param array $configuration
+   *   The configuration for the matcher. Only set values will overwrite defaults.
+   *
+   * @return int The matcher ID.
+   *
+   * @author B. Zschiedrich (zschiedrich@systopia.de)
+   */
+  public function createRegexAnalyser(array $rules = null, array $configuration = []): int
+  {
+    $defaultRules = [
+      [
+        'comment' => 'Austrian address type 1',
+        'fields' => [
+          'address_line'
+        ],
+        'pattern' => '#^(?P<postal_code>[0-9]{4}) (?P<city>[\\w\/]+)[ ,]*(?P<street_address>.*)$#',
+        'actions' => [
+          [
+            'from' => 'street_address',
+            'action' => 'copy',
+            'to' => 'street_address'
+          ],
+          [
+            'from' => 'postal_code',
+            'action' => 'copy',
+            'to' => 'postal_code'
+          ],
+          [
+            'from' => 'city',
+            'action' => 'copy',
+            'to' => 'city'
+          ]
+        ]
+      ],
+      [
+        'comment' => 'Austrian address type 2',
+        'fields' => [
+          'address_line'
+        ],
+        'pattern' => '#^(?P<street_address>[^,]+).*(?P<postal_code>[0-9]{4}) +(?P<city>[\\w ]+)$#',
+        'actions' => [
+          [
+            'from' => 'street_address',
+            'action' => 'copy',
+            'to' => 'street_address'
+          ],
+          [
+            'from' => 'postal_code',
+            'action' => 'copy',
+            'to' => 'postal_code'
+          ],
+          [
+            'from' => 'city',
+            'action' => 'copy',
+            'to' => 'city'
+          ]
+        ]
+      ]
+    ];
+
+    $finalRules = $rules === null ? $defaultRules : $rules;
+    $defaultConfiguration = ['rules' => $finalRules];
+    $mergedConfiguration = array_merge($defaultConfiguration, $configuration);
+    return $this->createMatcher('match', 'analyser_regex', $mergedConfiguration);
   }
 }

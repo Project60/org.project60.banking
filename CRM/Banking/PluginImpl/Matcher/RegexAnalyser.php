@@ -43,7 +43,7 @@ class CRM_Banking_PluginImpl_Matcher_RegexAnalyser extends CRM_Banking_PluginMod
   public function analyse(CRM_Banking_BAO_BankTransaction $btx, CRM_Banking_Matcher_Context $context) {    $config = $this->_plugin_config;
     $data_parsed = $btx->getDataParsed();
 
-    // itreate trough all rules
+    // iterate through all rules
     foreach ($this->_plugin_config->rules as $rule) {
       if (empty($rule->fields)) {
         $fields = array('purpose');
@@ -327,7 +327,7 @@ class CRM_Banking_PluginImpl_Matcher_RegexAnalyser extends CRM_Banking_PluginMod
       // should there be a limit
       if ($command == 'getsingle') {
         $limit = 'LIMIT 1';
-      } elseif ($query['limit']) {
+      } elseif (!empty($query['limit'])) {
         $limit = "LIMIT {$query['limit']}";
       } else {
         $limit = '';

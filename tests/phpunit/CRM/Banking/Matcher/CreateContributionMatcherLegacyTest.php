@@ -31,7 +31,7 @@ use CRM_Banking_ExtensionUtil as E;
  *
  * @group headless
  */
-class CRM_Banking_CreateContributionLegacyTest extends CRM_Banking_LegacyTestBase
+class CRM_Banking_CreateContributionLegacyTest extends CRM_Banking_TestBase
 {
     public function testSimpleCreateContributionMatcher()
     {

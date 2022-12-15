@@ -234,7 +234,7 @@ abstract class CRM_Banking_PluginModel_Matcher extends CRM_Banking_PluginModel_B
    */
   function storeAccountWithContact($btx, $contact_id) {
     // check if this has been turned off
-    if (CRM_Core_BAO_Setting::getItem('CiviBanking', 'reference_store_disabled')) {
+    if (Civi::settings()->get('reference_store_disabled')) {
       return;
     }
 

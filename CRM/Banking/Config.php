@@ -23,7 +23,7 @@ class CRM_Banking_Config {
    * Should the bank account dedupe be done in a lenient way?
    */
   public static function lenientDedupe() {
-    $value = CRM_Core_BAO_Setting::getItem('CiviBanking', 'lenient_dedupe');
+    $value = Civi::settings()->get('lenient_dedupe');
     if (empty($value)) {
       return FALSE;
     } else {

@@ -30,7 +30,7 @@ class CRM_Banking_Page_Review extends CRM_Core_Page {
   function run() {
       CRM_Core_Resources::singleton()->addStyleFile(E::LONG_NAME, 'css/banking.css');
 
-      $new_ui_enabled = CRM_Core_BAO_Setting::getItem('CiviBanking', 'new_ui');
+      $new_ui_enabled = Civi::settings()->get('new_ui');
       // set this variable to request a redirect
       $url_redirect = NULL;
 
@@ -297,7 +297,7 @@ class CRM_Banking_Page_Review extends CRM_Core_Page {
       // tell the page if popups are available
       $popups_allowed = (int) version_compare(CRM_Utils_System::version(), '4.6', '>=');
       if ($popups_allowed) { // take the popup switch into account (thanks @VangelisP)
-        $popups_allowed = (int) CRM_Core_BAO_Setting::getItem('CiviCRM Preferences', 'ajaxPopupsEnabled');
+        $popups_allowed = (int) Civi::settings()->get('ajaxPopupsEnabled');
       }
       $this->assign('popups_allowed', $popups_allowed);
 

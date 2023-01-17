@@ -118,6 +118,59 @@ class CRM_Banking_TestBase extends \PHPUnit\Framework\TestCase implements Headle
    * @return integer
    *   the ID of the latest batch
    */
+  public function getLatestTransactionId(): int
+  {
+    return (int)CRM_Core_DAO::singleValueQuery("SELECT MAX(id) FROM civicrm_bank_tx");
+  }
+
+  /**
+   * Get an instance of the latest bank transaction
+   *
+   * @return CRM_Banking_BAO_BankTransaction|null
+   *   the ID of the latest batch
+   */
+  public function getLatestTransaction()
+  {
+    $latest_tx_id = $this->getLatestTransactionId();
+    if ($latest_tx_id) {
+      return $this->getTransactionInstance($latest_tx_id);
+    } else {
+      return null;
+    }
+  }
+
+  /**
+   * Get a transaction BAO
+   *
+   * @param integer $tx_id
+   *   the ID of the transaction to be loaded. If left empty, the most recently created one is returned
+   *
+   * @return CRM_Banking_BAO_BankTransaction|null
+   *   the transaction batch
+   */
+  public function getTransactionInstance(int $tx_id = 0)
+  {
+    $tx_bao = new CRM_Banking_BAO_BankTransaction();
+    if ($tx_id) {
+      $tx_bao->id = $tx_id;
+    } else {
+      $tx_bao->id = $this->getLatestTransactionId();
+    }
+    if ($tx_bao->find()) {
+      $tx_bao->fetch();
+      return $tx_bao;
+    } else {
+      return null;
+    }
+  }
+
+
+  /**
+   * Get the ID of the latest transaction batch
+   *
+   * @return integer
+   *   the ID of the latest batch
+   */
   public function getLatestTransactionBatchId(): int
   {
     return (int)CRM_Core_DAO::singleValueQuery("SELECT MAX(id) FROM civicrm_bank_tx_batch");
@@ -276,15 +329,19 @@ class CRM_Banking_TestBase extends \PHPUnit\Framework\TestCase implements Headle
    */
   protected function getLatestContribution()
   {
-    return $this->callAPISuccessGetSingle(
-      'Contribution',
-      [
-        'options' => [
-          'sort'  => 'id DESC',
-          'limit' => 1,
-        ],
-      ]
-    );
+    try {
+      return $this->callAPISuccessGetSingle(
+          'Contribution',
+          [
+              'options' => [
+                  'sort'  => 'id DESC',
+                  'limit' => 1,
+              ],
+          ]
+      );
+    } catch (Exception $ex) {
+      return null;
+    }
   }
 
   /**
@@ -570,5 +627,50 @@ class CRM_Banking_TestBase extends \PHPUnit\Framework\TestCase implements Headle
     $defaultConfiguration = ['rules' => $finalRules];
     $mergedConfiguration = array_merge($defaultConfiguration, $configuration);
     return $this->createMatcher('match', 'analyser_regex', $mergedConfiguration);
+  }
+
+  /**
+   * Generate a random string
+   *
+   * @return string
+   *   a random string
+   */
+  public function getRandomString($length = 32)
+  {
+    return substr(base64_encode(random_bytes($length)), 0, $length);
+  }
+
+  /**
+   * Get a random financial type ID
+   *
+   * @return int
+   *   random (valid) financial type ID
+   */
+  public function getRandomFinancialTypeID()
+  {
+    return CRM_Core_DAO::singleValueQuery("SELECT id FROM civicrm_financial_type ORDER BY RAND() LIMIT 1;");
+  }
+
+
+  /**
+   * Get a random option value from the given group
+   *
+   * @param string|int
+   *   $option_group_id
+   *
+   * @return string|integer
+   *   random option value
+   */
+  public function getRandomOptionValue($option_group_id)
+  {
+    $this->assertNotEmpty($option_group_id, "No option group ID/name given");
+    if (!is_numeric($option_group_id)) {
+      $option_group_id = (int) CRM_Core_DAO::singleValueQuery(
+        "SELECT id FROM civicrm_option_group WHERE name = %1", [1 => [$option_group_id, 'String']]);
+      $this->assertNotEmpty($option_group_id, "Unknown option group");
+    }
+    return CRM_Core_DAO::singleValueQuery(
+      "SELECT value FROM civicrm_option_value WHERE option_group_id = %1 ORDER BY RAND() LIMIT 1;",
+      [1 => [$option_group_id, 'String']]);
   }
 }

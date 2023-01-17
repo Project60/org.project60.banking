@@ -673,4 +673,40 @@ class CRM_Banking_TestBase extends \PHPUnit\Framework\TestCase implements Headle
       "SELECT value FROM civicrm_option_value WHERE option_group_id = %1 ORDER BY RAND() LIMIT 1;",
       [1 => [$option_group_id, 'String']]);
   }
+
+  /**
+   * Create a new contribution with random parameters
+   *
+   * @param array $attributes
+   *   pass values you want to see in your contribution
+   *
+   * @return array
+   *   generated contribution data
+   */
+  public function createContribution($attributes = [])
+  {
+    if (empty($attributes['contact_id'])) {
+      $attributes['contact_id'] = $this->createContact();
+    }
+    if (empty($attributes['financial_type_id'])) {
+      $attributes['financial_type_id'] = $this->getRandomFinancialTypeID();
+    }
+    if (empty($attributes['payment_instrument_id'])) {
+      $attributes['payment_instrument_id'] = $this->getRandomOptionValue('payment_instrument');
+    }
+    if (empty($attributes['total_amount'])) {
+      $attributes['total_amount'] = random_int(100, 10000000) / 100.0;
+    }
+    if (empty($attributes['contribution_status_id'])) {
+      $attributes['contribution_status_id'] = 'Completed';
+    }
+    if (empty($attributes['currency'])) {
+      $config = CRM_Core_Config::singleton();
+      $attributes['currency'] = $config->defaultCurrency;
+    }
+
+    // create and return the contribution
+    $result = $this->callAPISuccess('Contribution', 'create', $attributes);
+    return reset($result['values']);
+  }
 }

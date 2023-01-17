@@ -21,7 +21,7 @@ use Civi\Test\TransactionalInterface;
 use Civi\Test\CiviEnvBuilder;
 
 /**
- * Test ContributionMatcher module
+ * Test CreateContributionMatcher module
  *
  * @group headless
  */

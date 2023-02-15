@@ -1,7 +1,7 @@
 <?php
 /*-------------------------------------------------------+
 | Project 60 - CiviBanking                               |
-| Copyright (C) 2013-2018 SYSTOPIA                       |
+| Copyright (C) 2013-2023 SYSTOPIA                       |
 | Author: B. Endres (endres -at- systopia.de)            |
 | http://www.systopia.de/                                |
 +--------------------------------------------------------+
@@ -149,7 +149,14 @@ class CRM_Banking_Page_Payments extends CRM_Core_Page {
 
     } else {
       // 'COMPLETE' mode will show all that have been entirely processed
-      $where_clause = " TRUE ";
+      $cutoff_interval = $this->getStatementCutoff();
+      if (empty($cutoff_interval)) {
+        $where_clause = " TRUE ";
+        $this->assign('url_show_payments_recently_completed', false);
+      } else {
+        $where_clause = " (btxb.starting_date >= DATE(NOW() - {$cutoff_interval})) ";
+        $this->assign('url_show_payments_recently_completed', true);
+      }
       if ($new_statement_id_list) {
         $where_clause .= " AND btxb.id NOT IN ({$new_statement_id_list}) ";
       }
@@ -289,21 +296,19 @@ class CRM_Banking_Page_Payments extends CRM_Core_Page {
           $status = sprintf("%s (%d%%)", $status, $probability * 100.0);
         }
 
-        array_push($payment_rows,
-            array(
-                    'id'            => $entry['id'],
-                    'date'          => $entry['value_date'],
-                    'sequence'      => $entry['sequence'],
-                    'currency'      => $entry['currency'],
-                    'amount'        => (isset($entry['amount'])?$entry['amount']:"unknown"),
-                    'account_owner' => CRM_Utils_Array::value('description', $bank_account),
-                    'party'         => $party,
-                    'party_contact' => $contact,
-                    'state'         => $status,
-                    'url_link'      => CRM_Utils_System::url('civicrm/banking/review', 'id='.$entry['id']),
-                    'payment_data_parsed' => $data_parsed,
-                )
-        );
+      $payment_rows[] = [
+          'id'            => $entry['id'],
+          'date'          => $entry['value_date'],
+          'sequence'      => $entry['sequence'],
+          'currency'      => $entry['currency'],
+          'amount'        => (isset($entry['amount'])?$entry['amount']:"unknown"),
+          'account_owner' => CRM_Utils_Array::value('description', $bank_account),
+          'party'         => $party,
+          'party_contact' => $contact,
+          'state'         => $status,
+          'url_link'      => CRM_Utils_System::url('civicrm/banking/review', 'id='.$entry['id']),
+          'payment_data_parsed' => $data_parsed,
+      ];
     }
 
     $this->assign('rows', $payment_rows);
@@ -531,5 +536,22 @@ class CRM_Banking_Page_Payments extends CRM_Core_Page {
         $params[$key] = $value;
     }
     return $params;
+  }
+
+  /**
+   * Return a sql INTERVAL expression to cut off the completed transactions horizon
+   *
+   * @return string
+   *   SQL interval expression
+   */
+  protected function getStatementCutoff()
+  {
+    if (isset($_REQUEST['recent'])) {
+      $config_setting = (int) Civi::settings()->get('recently_completed_cutoff');
+      if (!empty($config_setting)) {
+        return "INTERVAL {$config_setting} MONTH";
+      }
+    }
+    return null;
   }
 }

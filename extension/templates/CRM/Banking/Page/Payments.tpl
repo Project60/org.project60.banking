@@ -35,6 +35,11 @@
 <a class="button" href="{$url_show_payments_analysed}">
   <span style="{$button_style_analysed}"><div class="icon inform-icon"></div>{ts domain='org.project60.banking'}Analysed{/ts} ({$count_analysed})</span>
 </a>
+{if $url_show_payments_recently_completed}
+<a class="button" href="{$url_show_payments_recently_completed}">
+  <span style="{$button_style_completed}"><div class="icon inform-icon"></div>{ts domain='org.project60.banking'}Recently Completed{/ts} ({$count_recently_completed})</span>
+</a>
+{/if}
 <a class="button" href="{$url_show_payments_completed}">
   <span style="{$button_style_completed}"><div class="icon inform-icon"></div>{ts domain='org.project60.banking'}Completed{/ts} ({$count_completed})</span>
 </a>

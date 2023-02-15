@@ -31,7 +31,7 @@ class CRM_Admin_Form_Setting_BankingSettings extends CRM_Core_Form {
         '1' => E::ts("New user interface"),
         '0' => E::ts("Legacy user interface")
     );
-    $new_ui = $this->add(
+    $this->add(
         'select',
         'new_ui',
         E::ts('Statement User interface'),
@@ -45,7 +45,7 @@ class CRM_Admin_Form_Setting_BankingSettings extends CRM_Core_Form {
       1 => E::ts("In Contribution Menu"),
       2 => E::ts("No Menu"));
 
-    $menu_position = $this->add(
+    $this->add(
       'select',
       'menu_position',
       E::ts('CiviBanking Menu Position'),
@@ -62,7 +62,7 @@ class CRM_Admin_Form_Setting_BankingSettings extends CRM_Core_Form {
       'form' => E::ts("Form Editor"),
     );
 
-    $json_editor_mode = $this->add(
+    $this->add(
       'select',
       'json_editor_mode',
       E::ts('Configuration Editor Default Mode'),
@@ -71,14 +71,30 @@ class CRM_Admin_Form_Setting_BankingSettings extends CRM_Core_Form {
     );
 
     // logging
-    $log_level = $this->add(
+    $this->add(
       'select',
       'banking_log_level',
       E::ts('Log Level'),
       CRM_Banking_Helpers_Logger::getLoglevels()
     );
 
-    $log_file = $this->add(
+    $this->add(
+        'select',
+        'recently_completed_cutoff',
+        E::ts("Recently Completed Statements"),
+        [
+          0 => E::ts('disabled'),
+          1 => E::ts('last month'),
+          3 => E::ts('last quarter'),
+          6 => E::ts('last %1 months', [1 => "6"]),
+          12 => E::ts('last %1 months', [1 => "12"]),
+          24 => E::ts('last %1 years', [1 => "2"]),
+          60 => E::ts('last %1 years', [1 => "5"]),
+        ],
+        TRUE,
+    );
+
+    $this->add(
       'text',
       'banking_log_file',
       E::ts('Log File'),
@@ -86,27 +102,27 @@ class CRM_Admin_Form_Setting_BankingSettings extends CRM_Core_Form {
     );
 
     // store bank accounts
-    $this->addElement(
+    $this->add(
       'checkbox',
       'reference_store_disabled',
       E::ts("Don't store bank accounts automatically"),
       '');
 
     // normalise bank account references?
-    $this->addElement(
+    $this->add(
       'checkbox',
       'reference_normalisation',
       E::ts('Normalise bank account references'),
       '');
 
     // validate bank account references?
-    $this->addElement(
+    $this->add(
       'checkbox',
       'reference_validation',
       E::ts('Validate bank account references'),
       '');
     // validate bank account references?
-    $this->addElement(
+    $this->add(
       'text',
       'reference_matching_probability',
       E::ts('Probability of contact matching based on bank account'),
@@ -114,7 +130,7 @@ class CRM_Admin_Form_Setting_BankingSettings extends CRM_Core_Form {
     $this->addRule('reference_matching_probability', E::ts('Not a valid number. A valid number is 1.0 or 0.9'), 'numeric');
 
     // validate bank account references?
-    $this->addElement(
+    $this->add(
       'checkbox',
       'lenient_dedupe',
       E::ts('Lenient bank account dedupe'),
@@ -138,21 +154,21 @@ class CRM_Admin_Form_Setting_BankingSettings extends CRM_Core_Form {
    * @return array
    */
   function setDefaultValues() {
-    $defaults = array();
-
-    $defaults['new_ui']                   = CRM_Core_BAO_Setting::getItem('CiviBanking', 'new_ui');
-    $defaults['menu_position']            = CRM_Core_BAO_Setting::getItem('CiviBanking', 'menu_position');
-    $defaults['json_editor_mode']         = CRM_Core_BAO_Setting::getItem('CiviBanking', 'json_editor_mode');
-    $defaults['banking_log_level']        = CRM_Core_BAO_Setting::getItem('CiviBanking', 'banking_log_level');
-    $defaults['banking_log_file']         = CRM_Core_BAO_Setting::getItem('CiviBanking', 'banking_log_file');
-    $defaults['reference_store_disabled'] = CRM_Core_BAO_Setting::getItem('CiviBanking', 'reference_store_disabled');
-    $defaults['reference_normalisation']  = CRM_Core_BAO_Setting::getItem('CiviBanking', 'reference_normalisation');
-    $defaults['reference_matching_probability']     = CRM_Core_BAO_Setting::getItem('CiviBanking', 'reference_matching_probability');
+    $defaults = [];
+    $defaults['new_ui']                          = Civi::settings()->get('new_ui');
+    $defaults['menu_position']                   = Civi::settings()->get('menu_position');
+    $defaults['json_editor_mode']                = Civi::settings()->get('json_editor_mode');
+    $defaults['banking_log_level']               = Civi::settings()->get('banking_log_level');
+    $defaults['banking_log_file']                = Civi::settings()->get('banking_log_file');
+    $defaults['reference_store_disabled']        = Civi::settings()->get('reference_store_disabled');
+    $defaults['reference_normalisation']         = Civi::settings()->get('reference_normalisation');
+    $defaults['recently_completed_cutoff']       = Civi::settings()->get('recently_completed_cutoff');
+    $defaults['reference_matching_probability']  = Civi::settings()->get('reference_matching_probability');
+    $defaults['reference_validation']            = Civi::settings()->get('reference_validation');
+    $defaults['lenient_dedupe']                  = Civi::settings()->get('lenient_dedupe');
     if ($defaults['reference_matching_probability'] === null) {
       $defaults['reference_matching_probability'] = '1.0';
     }
-    $defaults['reference_validation']     = CRM_Core_BAO_Setting::getItem('CiviBanking', 'reference_validation');
-    $defaults['lenient_dedupe']           = CRM_Core_BAO_Setting::getItem('CiviBanking', 'lenient_dedupe');
 
     return $defaults;
   }
@@ -172,24 +188,25 @@ class CRM_Admin_Form_Setting_BankingSettings extends CRM_Core_Form {
     $new_ui_style = (int) $values['new_ui'];
 
     if ($old_menu_position != $new_menu_position || $old_ui_style != $new_ui_style) {
-      CRM_Core_BAO_Setting::setItem($new_ui_style, 'CiviBanking', 'new_ui');
-      CRM_Core_BAO_Setting::setItem($new_menu_position, 'CiviBanking', 'menu_position');
+      Civi::settings()->set('new_ui', $new_ui_style);
+      Civi::settings()->set('menu_position', $new_menu_position);
       CRM_Core_BAO_Navigation::resetNavigation();
     }
 
     // process menu entry
-    CRM_Core_BAO_Setting::setItem($values['json_editor_mode'], 'CiviBanking', 'json_editor_mode');
+    Civi::settings()->set('json_editor_mode', $new_menu_position);
 
     // log levels
-    CRM_Core_BAO_Setting::setItem($values['banking_log_level'], 'CiviBanking', 'banking_log_level');
-    CRM_Core_BAO_Setting::setItem($values['banking_log_file'],  'CiviBanking', 'banking_log_file');
+    Civi::settings()->set('banking_log_level', $values['banking_log_level']);
+    Civi::settings()->set('banking_log_file', $values['banking_log_file']);
 
     // process reference normalisation / validation
-    CRM_Core_BAO_Setting::setItem(!empty($values['reference_store_disabled']),'CiviBanking', 'reference_store_disabled');
-    CRM_Core_BAO_Setting::setItem(!empty($values['reference_normalisation']), 'CiviBanking', 'reference_normalisation');
-    CRM_Core_BAO_Setting::setItem($values['reference_matching_probability'], 'CiviBanking', 'reference_matching_probability');
-    CRM_Core_BAO_Setting::setItem(!empty($values['reference_validation']),    'CiviBanking', 'reference_validation');
-    CRM_Core_BAO_Setting::setItem(!empty($values['lenient_dedupe']),          'CiviBanking', 'lenient_dedupe');
+    Civi::settings()->set('reference_store_disabled', !empty($values['reference_store_disabled']));
+    Civi::settings()->set('reference_normalisation', !empty($values['reference_normalisation']));
+    Civi::settings()->set('reference_validation', !empty($values['reference_validation']));
+    Civi::settings()->set('lenient_dedupe', !empty($values['lenient_dedupe']));
+    Civi::settings()->set('reference_matching_probability', $values['reference_matching_probability']);
+    Civi::settings()->set('recently_completed_cutoff', $values['recently_completed_cutoff']);
 
     // log results
     $logger = CRM_Banking_Helpers_Logger::getLogger();

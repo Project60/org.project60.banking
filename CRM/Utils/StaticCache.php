@@ -39,9 +39,9 @@ class CRM_Utils_StaticCache {
         // error_log("CACHE HIT '$key'");
         return $_CRM_Utils_StaticCache[$key];
       }
-    }      
+    }
     // error_log("CACHE MISS '$key'");
-    return NULL;      
+    return NULL;
   }
 
   /**
@@ -53,10 +53,13 @@ class CRM_Utils_StaticCache {
   public static function setCachedEntry($key, $value) {
     global $_CRM_Utils_StaticCache;
     if ($_CRM_Utils_StaticCache === NULL) {
-      // error_log("CACHE INITIALIZED");
-      $_CRM_Utils_StaticCache = array();
+      $_CRM_Utils_StaticCache = [];
     }
-    // error_log("SETTING '$key'");
     $_CRM_Utils_StaticCache[$key] = $value;
+  }
+
+  public static function clearCache() {
+    global $_CRM_Utils_StaticCache;
+    $_CRM_Utils_StaticCache = [];
   }
 }

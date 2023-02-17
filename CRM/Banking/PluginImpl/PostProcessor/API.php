@@ -131,7 +131,7 @@ class CRM_Banking_PluginImpl_PostProcessor_API extends CRM_Banking_PluginModel_P
           }
         }
       } else {
-        $this->logMessage("loop paramater is incorrectly structured.", 'error');
+        $this->logMessage("loop parameter is incorrectly structured.", 'error');
       }
     }
   }

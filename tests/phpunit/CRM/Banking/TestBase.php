@@ -49,6 +49,7 @@ class CRM_Banking_TestBase extends \PHPUnit\Framework\TestCase implements Headle
    */
   public function setUpHeadless(): CiviEnvBuilder
   {
+    $this->setUp();
     return \Civi\Test::headless()
       ->installMe(__DIR__)
       ->apply();
@@ -57,6 +58,8 @@ class CRM_Banking_TestBase extends \PHPUnit\Framework\TestCase implements Headle
   public function setUp(): void
   {
     parent::setUp();
+    CRM_Utils_StaticCache::clearCache();
+    CRM_Banking_Matcher_Engine::clearCachedInstance();
   }
 
   public function tearDown(): void

@@ -30,13 +30,31 @@ class CRM_Banking_Matcher_Engine {
 
   // CLASS METHODS
 
+  /** @var CRM_Banking_Matcher_Engine  */
   static private $singleton = null;
 
+  /**
+   * Get an instance of the current matching engine.
+   *  This instance is kept for the whole process for performance
+   *  reasons
+   *
+   * @return CRM_Banking_Matcher_Engine
+   */
   public static function getInstance() {
     if (self::$singleton === null) {
       self::$singleton = new CRM_Banking_Matcher_Engine();
     }
     return self::$singleton;
+  }
+
+  /**
+   * Allows you to discard the current matching engine.
+   * This should only be relevant for unit tests
+   *
+   * @return void
+   */
+  public static function clearCachedInstance() {
+    self::$singleton = null;
   }
 
   //----------------------------------------------------------------------------

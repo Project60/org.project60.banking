@@ -27,21 +27,6 @@ use Civi\Test\CiviEnvBuilder;
  */
 class CRM_Banking_PostProcessor_ApiPostProcessorTest extends CRM_Banking_TestBase implements HeadlessInterface, HookInterface, TransactionalInterface {
 
-  /**
-   * Setup used when HeadlessInterface is implemented.
-   *
-   * Civi\Test has many helpers, like install(), uninstall(), sql(), and sqlFile().
-   *
-   * @link https://github.com/civicrm/org.civicrm.testapalooza/blob/master/civi-test.md
-   *
-   * @return \Civi\Test\CiviEnvBuilder
-   *
-   * @throws \CRM_Extension_Exception_ParseException
-   */
-  public function setUpHeadless(): CiviEnvBuilder {
-    return parent::setUpHeadless();
-  }
-
   public function setUp():void {
     parent::setUp();
   }

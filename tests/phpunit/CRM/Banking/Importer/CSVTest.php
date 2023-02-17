@@ -56,7 +56,7 @@ class CRM_Banking_Importer_CSVTest extends CRM_Banking_TestBase implements Headl
   public function testBasicCSVImport():void {
     // create importer
     $importer_id = $this->configureCiviBankingModule(
-      $this->getTestResourcePath('importer/configuration/Test01.civbanking'));
+      $this->getTestResourcePath('importer/configuration/Test01.civibanking'));
 
     // import the file
     $import_file = $this->getTestResourcePath('importer/data/Test01.csv');
@@ -81,7 +81,7 @@ class CRM_Banking_Importer_CSVTest extends CRM_Banking_TestBase implements Headl
   public function testBasicCSVImportWithBOM():void {
     // create importer
     $importer_id = $this->configureCiviBankingModule(
-      $this->getTestResourcePath('importer/configuration/Test02.civbanking'));
+      $this->getTestResourcePath('importer/configuration/Test02.civibanking'));
 
     // import the file
     $import_file = $this->getTestResourcePath('importer/data/Test02_UTF8_with_BOM.csv');

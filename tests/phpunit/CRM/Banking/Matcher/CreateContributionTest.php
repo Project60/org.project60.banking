@@ -74,7 +74,7 @@ class CRM_Banking_Matcher_CreateContributionMatcherTest extends CRM_Banking_Test
     );
 
     $this->configureCiviBankingModule(
-      $this->getTestResourcePath('matcher/configuration/ContributionMatcher-01.civbanking'));
+      $this->getTestResourcePath('matcher/configuration/ContributionMatcher-01.civibanking'));
 
     // run the matcher
     $this->runMatchers();
@@ -117,7 +117,7 @@ class CRM_Banking_Matcher_CreateContributionMatcherTest extends CRM_Banking_Test
     );
 
     $this->configureCiviBankingModule(
-      $this->getTestResourcePath('matcher/configuration/ContributionMatcher-01.civbanking'));
+      $this->getTestResourcePath('matcher/configuration/ContributionMatcher-01.civibanking'));
 
     // run the matcher
     $this->runMatchers();

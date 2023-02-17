@@ -1,0 +1,34 @@
+{
+    "plugin_type_name": "postprocess",
+    "plugin_class_name": "postprocessor_api",
+    "name": "Mark MD07 contact deceased",
+    "description": "Mark contact deceased if cancel_reason is MD07, see https://www.twikey.com/product/r-codes/MD07.html",
+    "weight": "80",
+    "config": {
+        "log_level": "debug",
+        "comment": "Will cancel all (active) contracts for a deceased contact",
+        "plugin_type": "postprocessor_api",
+        "require_btx_status_list": [
+            "processed"
+        ],
+        "required_values": {
+            "btx.contact_id": "type:positiveInteger",
+            "btx.cancel_reason": "equal_constant:MD07"
+        },
+        "loop": [
+            {
+                "id": "btx.contact_ids"
+            }
+        ],
+        "entity": "Contact",
+        "action": "create",
+        "params": {
+            "id": "id",
+            "is_deceased": "1"
+        },
+        "param_propagation": {
+            "btx.cancel_reason": "note"
+        }
+    },
+    "state": {}
+}

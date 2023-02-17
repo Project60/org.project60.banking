@@ -1,0 +1,26 @@
+{
+    "plugin_type_name": "postprocess",
+    "plugin_class_name": "postprocessor_api",
+    "name": "tag contact",
+    "description": "tag a contact after running",
+    "weight": "80",
+    "config": {
+        "log_level": "debug",
+        "plugin_type": "postprocessor_api",
+        "require_btx_status_list": [
+            "processed"
+        ],
+        "required_values": {
+            "btx.contact_id": "type:positiveInteger"
+        },
+        "entity": "EntityTag",
+        "action": "create",
+        "params": {
+            "tag_id": "Tagged"
+        },
+        "param_propagation": {
+            "btx.contact_id": "entity_id"
+        }
+    },
+    "state": {}
+}

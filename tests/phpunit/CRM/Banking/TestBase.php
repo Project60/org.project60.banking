@@ -709,4 +709,51 @@ class CRM_Banking_TestBase extends \PHPUnit\Framework\TestCase implements Headle
     $result = $this->callAPISuccess('Contribution', 'create', $attributes);
     return reset($result['values']);
   }
+
+  /**
+   * Fetch tag or create a new one
+   *
+   * @param $name
+   * @param $parameters
+   * @return array
+   */
+  public function getOrCreateTag($name, $parameters = [])
+  {
+    // see if ID given: get-or-create
+    try {
+      return civicrm_api3('Tag', 'getsingle', ['name' => $name]);
+    } catch (CRM_Core_Exception $ex) {
+      // doesn't exist -> create
+      $parameters['name'] = $name;
+      $this->callAPISuccess('Tag', 'create', $parameters);
+      return civicrm_api3('Tag', 'getsingle', ['name' => $name]);
+    }
+  }
+
+  /**
+   * Assert the a certain entity is tagged with the given tag ID
+   *
+   * @param sting $tag_id
+   *   the tag ID
+   *
+   * @param integer $entity_id
+   *   the entity ID
+   *
+   * @param string $entity_table
+   *   the entity table
+   *
+   * @param string $failure_message
+   *   assertion failed message
+   */
+  public function assertEntityTagged($tag_name, $entity_id, $entity_table, $failure_message)
+  {
+    $tagged = $this->callAPISuccess('EntityTag', 'get', [
+      'tag_name' => $tag_name,
+      'entity_id' => $entity_id,
+      'entity_table' => $entity_table
+    ]);
+    if (empty($tagged['count'])) {
+      $this->fail($failure_message);
+    }
+  }
 }

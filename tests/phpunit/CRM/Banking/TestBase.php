@@ -733,7 +733,7 @@ class CRM_Banking_TestBase extends \PHPUnit\Framework\TestCase implements Headle
   /**
    * Assert the a certain entity is tagged with the given tag ID
    *
-   * @param sting $tag_id
+   * @param string $tag_id
    *   the tag ID
    *
    * @param integer $entity_id
@@ -748,7 +748,7 @@ class CRM_Banking_TestBase extends \PHPUnit\Framework\TestCase implements Headle
   public function assertEntityTagged($tag_name, $entity_id, $entity_table, $failure_message)
   {
     $tagged = $this->callAPISuccess('EntityTag', 'get', [
-      'tag_name' => $tag_name,
+      'tag_id' => $tag_name,
       'entity_id' => $entity_id,
       'entity_table' => $entity_table
     ]);

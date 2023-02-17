@@ -15,19 +15,14 @@
             "btx.contact_id": "type:positiveInteger",
             "btx.cancel_reason": "equal_constant:MD07"
         },
-        "loop": [
-            {
-                "id": "btx.contact_ids"
-            }
-        ],
         "entity": "Contact",
         "action": "create",
         "params": {
-            "id": "id",
-            "is_deceased": "1"
+          "is_deceased": 1
         },
         "param_propagation": {
-            "btx.cancel_reason": "note"
+          "btx.contact_id": "id",
+          "btx.cancel_reason": "note"
         }
     },
     "state": {}

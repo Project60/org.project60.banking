@@ -57,30 +57,36 @@ class CRM_Banking_PostProcessor_ApiPostProcessorTest extends CRM_Banking_TestBas
   public function testTagPostprocessor():void {
     $TAG_NAME = 'Tagged'; // as used in config file
     $this->getOrCreateTag($TAG_NAME, ['used_for' => 'civicrm_contact']);
-    $contact_id = $this->createContact();
+
+    $contribution = $this->createContribution([
+      'contribution_status_id' => 'Completed',
+    ]);
 
     // create a transaction to process
+    $contact_id = $contribution['contact_id'];
     $transaction_source = $this->getRandomString();
     $financial_type_id = $this->getRandomFinancialTypeID();
     $payment_instrument_id = $this->getRandomOptionValue('payment_instrument');
     $this->createTransaction(
       [
-        'purpose' => 'This is a donation',
-        'source' => $transaction_source,
-        'financial_type_id' => $financial_type_id,
-        'payment_instrument_id' => $payment_instrument_id,
-        'contact_id' => $contact_id,
-        'name' => "doesn't matter"
+        'purpose'       => 'This is a cancellation',
+        'name'          => "doesn't matter",
+        'amount'        => -$contribution['total_amount'],
+        'contact_id'    => $contact_id,
+        'booking_date'  => date('Y-m-d', strtotime($contribution['receive_date'])),
+        'value_date'    => date('Y-m-d', strtotime($contribution['receive_date'])),
+        'currency'      => $contribution['currency'],
+        'cancel_reason' => 'MD07'
       ]
     );
 
     // configure the matcher (copied from testContributionMatcherFires)
     $this->configureCiviBankingModule(
-      $this->getTestResourcePath('matcher/configuration/CancelExistingContribution-01.civbanking'));
+      $this->getTestResourcePath('matcher/configuration/CancelExistingContribution-01.civibanking'));
 
     // configure a post-processor to tag the contact
     $this->configureCiviBankingModule(
-      $this->getTestResourcePath('post_processor/configuration/TagContact.civbanking'));
+      $this->getTestResourcePath('post_processor/configuration/TagContact.civibanking'));
 
     // run the matcher
     $this->runMatchers();
@@ -123,7 +129,7 @@ class CRM_Banking_PostProcessor_ApiPostProcessorTest extends CRM_Banking_TestBas
 
     // configure a post-processor to tag the contact
     $this->configureCiviBankingModule(
-      $this->getTestResourcePath('post_processor/configuration/MarkContactDeceased.civbanking'));
+      $this->getTestResourcePath('post_processor/configuration/MarkContactDeceased.civibanking'));
 
     // run the matcher
     $this->runMatchers();

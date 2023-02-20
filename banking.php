@@ -20,6 +20,7 @@ require_once 'banking_options.php';
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use CRM_Banking_ExtensionUtil as E;
 
+
 /**
  * Implements hook_civicrm_container().
  *

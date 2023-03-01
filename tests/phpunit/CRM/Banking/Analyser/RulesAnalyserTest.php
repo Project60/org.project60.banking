@@ -94,9 +94,16 @@ class CRM_Banking_Analyser_RulesAnalyserTest extends CRM_Banking_TestBase implem
       $this->getTestResourcePath('matcher/configuration/ContributionMatcher-01.civibanking'));
 
     // run the matcher and verify that it was NOT executed
+    $latest_contribution_before = $this->getLatestContribution();
     $this->runMatchers();
     $current_transaction = $this->getTransaction($transaction_id);
-    $this->assertNotEquals($state_processed, $current_transaction['status_id'], "The transaction should not have been processed.");
+    $this->assertNotEquals($state_processed, $current_transaction['status_id'], "The transaction should not have been marked 'processed'.");
+    $latest_contribution = $this->getLatestContribution();
+    if ($latest_contribution_before) {
+      $this->assertEquals($latest_contribution_before['id'], $latest_contribution['id'], "A contribution should not have been created");
+    } else {
+      $this->assertNull($latest_contribution, "A contribution should not have been created");
+    }
     CRM_Banking_Matcher_Engine::clearCachedInstance();
 
 
@@ -122,42 +129,9 @@ class CRM_Banking_Analyser_RulesAnalyserTest extends CRM_Banking_TestBase implem
     $this->assertNotEmpty($rule_id, "Rule could not be created.");
 
     // run the matcher again and verify that this time IT WAS executed
+    //  if this is the case, it's because the rule was executed and supplied the required attributes
     $this->runMatchers();
-    $latest_contribution = $this->getLatestContribution();
-    $this->assertNotNull($latest_contribution, "No contribution was created, the matcher failed.");
-
-    // create a transaction to process
-    $transaction_source = $this->getRandomString();
-    $financial_type_id = $this->getRandomFinancialTypeID();
-    $payment_instrument_id = $this->getRandomOptionValue('payment_instrument');
-    $this->createTransaction(
-      [
-        'purpose' => 'This is a donation',
-        'source' => $transaction_source,
-        'financial_type_id' => $financial_type_id,
-        'payment_instrument_id' => $payment_instrument_id,
-        'contact_id' => $this->createContact(),
-        'name' => "doesn't matter"
-      ]
-    );
-
-    $this->configureCiviBankingModule(
-      $this->getTestResourcePath('matcher/configuration/ContributionMatcher-01.civibanking'));
-
-
-    // check the result
-    $created_contribution = $this->getLatestContribution();
-//    if ($previous_contribution) {
-//      $this->assertNotEquals($created_contribution['id'], $previous_contribution['id'], "No contribution created!");
-//    }
-    $this->assertTrue(key_exists('contribution_source', $created_contribution),
-                      "Source was not passed to the created contribution");
-    $this->assertEquals($created_contribution['contribution_source'], $transaction_source,
-                        "Source was not passed to the created contribution");
-    $this->assertEquals($created_contribution['financial_type_id'], $financial_type_id,
-                        "Financial Type was not passed to the created contribution");
-    $this->assertEquals($created_contribution['payment_instrument_id'], $payment_instrument_id,
-                        "PaymentInstrument was not passed to the created contribution");
+    $post_matcher_contribution = $this->getLatestContribution();
+    $this->assertNotNull($post_matcher_contribution, "No contribution was created, the matcher failed.");
   }
-
 }

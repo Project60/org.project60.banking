@@ -28,11 +28,18 @@ require_once 'CRM/Banking/Helpers/OptionValue.php';
 
 class CRM_Banking_Matcher_Engine {
 
-  // CLASS METHODS
+  // PROPERTIES
+  /** @var array list of matcher instances, ordered by weight */
+  private $matchers = NULL;
+
+  /** @var array list of post-processor instances, ordered by weight */
+  private $postprocessors = NULL;
 
   /** @var CRM_Banking_Matcher_Engine  */
   static private $singleton = null;
 
+
+  // CLASS METHODS
   /**
    * Get an instance of the current matching engine.
    *  This instance is kept for the whole process for performance
@@ -60,12 +67,6 @@ class CRM_Banking_Matcher_Engine {
   //----------------------------------------------------------------------------
   //
   // INSTANCE METHODS
-
-
-  private $plugins;
-  private $matchers = NULL;
-  private $postprocessors = NULL;
-
 
   /**
    * Initialize this instance

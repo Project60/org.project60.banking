@@ -67,6 +67,9 @@ class CRM_Banking_Rules_Rule {
     'match_counter' => TRUE,
     'last_match'    => TRUE,
   ];
+
+  const SEARCH_COLUMNS = ['name', 'party_ba_ref', 'ba_ref', 'party_name', 'tx_reference', 'tx_purpose'];
+
   protected $dirty_props = [];
 
   /** For testing: NULL or callback to mock CRM_Core_DAO::executeQuery */
@@ -151,7 +154,7 @@ class CRM_Banking_Rules_Rule {
       $sql_params[$c] = [$params['created_by'], 'String'];
       $sql[] = "created_by = %" . ($c++);
     }
-    foreach ([ 'name', 'party_ba_ref', 'ba_ref', 'party_name', 'tx_reference', 'tx_purpose' ] as $_) {
+    foreach (self::SEARCH_COLUMNS as $_) {
 
       if (isset($params[$_])) {
         if ($params[$_]) {
@@ -662,5 +665,46 @@ class CRM_Banking_Rules_Rule {
         CRM_Core_Error::debug_log_message("Field '{$field_name}' was too long and had to be truncated.");
       }
     }
+  }
+
+  /**
+   * A new implementation for generating rules, aiming at shielding the user from the
+   *  confusing details.
+   *
+   * @param array $conditions
+   *  list of conditions to be executed, generally for the sql-supported parameters
+   *   name, amount_min, amount_max, party_ba_ref, tx_reference and tx_purpose,
+   *   put could potentially be any other value in the transaction (at performance penalties)
+   *
+   * @param array $execution
+   *   list of execution tuples like this:
+   *      ['set_param_name' => 'contact_id', 'set_param_value' => 123],
+   * Currently, only set_param_name/set_param_value are implemented
+   *
+   * @return integer
+   *   ID of the new rule
+   */
+  public static function addRule($conditions = [], $execution = [])
+  {
+    $rule_data = [
+      'execution' => $execution,
+      'conditions' => [],
+    ];
+
+    // map the search columns into their own DB fields
+    foreach (self::SEARCH_COLUMNS as $parameter_name) {
+      if (isset($conditions[$parameter_name])) {
+        $rule_data[$parameter_name] = $conditions[$parameter_name];
+        unset($conditions[$parameter_name]);
+      }
+    }
+
+    // map the remaining parameter as conditions
+    foreach ($conditions as $field_name => $value) {
+      $rule_data[$field_name] = $value;
+    }
+
+    $result = self::createRule($rule_data);
+    return $result->id;
   }
 }

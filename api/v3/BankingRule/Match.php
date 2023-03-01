@@ -52,7 +52,7 @@ function civicrm_api3_banking_rule_Match($params) {
     unset($rule_data['btx_id']);
 
     // Create the rule.
-    $rule = CRM_Banking_PluginImpl_Matcher_RulesAnalyser::createRule($rule_data);
+    $rule = CRM_Banking_PluginImpl_Matcher_RulesAnalyser::createRuleFromRuleMatcherForm($rule_data);
 
     // Got rule, now test our btx.
     $matches = CRM_Banking_Rules_Match::matchTransaction($btx, $pi_mapping, [], 1, 0, $rule->getId());

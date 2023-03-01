@@ -1,8 +1,8 @@
 <?php
 /*-------------------------------------------------------+
 | Project 60 - CiviBanking - Unit Test                   |
-| Copyright (C) 2022 SYSTOPIA                            |
-| Author: B. Endres (endres -at- systopia.de)            |
+| Copyright (C) 2023 SYSTOPIA                            |
+| Author: B. Endres (endres@systopia.de)                 |
 | http://www.systopia.de/                                |
 +--------------------------------------------------------+
 | This program is released as free software under the    |

@@ -458,7 +458,7 @@ class CRM_Banking_TestBase extends \PHPUnit\Framework\TestCase implements Headle
    */
   public function runMatchers(array $transactionIds = null): void
   {
-    $transactionIdsForMatching = $transactionIds === null ? $this->getAllTransactionIDs() : $transactionIds;
+    $transactionIdsForMatching = $transactionIds === null ? $this->getAllTransactionIDs(['new', 'suggestions']) : $transactionIds;
     $engine = new CRM_Banking_Matcher_Engine();
     foreach ($transactionIdsForMatching as $transactionId) {
       $engine->match($transactionId);
@@ -482,6 +482,16 @@ class CRM_Banking_TestBase extends \PHPUnit\Framework\TestCase implements Headle
       $status_ids = [$status_new];
     }
 
+    // make sure they're all resolved
+    foreach ($status_ids as &$status_id) {
+      if (!is_integer($status_id)) {
+        $status_id_int = $this->getTxStatusID($status_id);
+        $this->assertNotEmpty($status_id_int, "Couldn't resolve transaction status " . $status_id);
+        $status_id = $status_id_int;
+      }
+    }
+
+    // find the transactions
     $status_id_list = implode(",", $status_ids);
     $tx_search = CRM_Core_DAO::executeQuery("SELECT id AS tid FROM civicrm_bank_tx WHERE status_id IN ({$status_id_list})");
     while ($tx_search->fetch()) {

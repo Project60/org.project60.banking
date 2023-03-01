@@ -52,7 +52,7 @@ class CRM_Banking_PluginImpl_Matcher_RulesAnalyser extends CRM_Banking_PluginMod
     // caution: field_mapping should not be used, doesn't work properly:
     if (!isset($config->field_mapping))         $config->field_mapping = array();
 
-    // for documentation: set all matchin rule (names/ids) to the given data field
+    // for documentation: set all matching rule (names/ids) to the given data field
     if (!isset($config->copy_matching_rule_names_to)) $config->copy_matching_rule_names_to = '';
     if (!isset($config->copy_matching_rule_ids_to))   $config->copy_matching_rule_ids_to   = '';
     if (!isset($config->lookup_contact_by_name)) {
@@ -161,7 +161,7 @@ class CRM_Banking_PluginImpl_Matcher_RulesAnalyser extends CRM_Banking_PluginMod
 
     // User wants to create a rule.
     try {
-      $rule = static::createRule($input);
+      $rule = static::createRuleFromRuleMatcherForm($input);
       CRM_Core_Session::setStatus(E::ts("New rule created."), E::ts('Success'), 'success');
     }
     catch (InvalidArgumentException $e) {
@@ -260,7 +260,7 @@ class CRM_Banking_PluginImpl_Matcher_RulesAnalyser extends CRM_Banking_PluginMod
    * @param array $input
    * @return CRM_Banking_Rules_Rule object.
    */
-  public static function createRule($input) {
+  public static function createRuleFromRuleMatcherForm($input) {
 
     $i = 1;
     $params = [];
@@ -328,7 +328,7 @@ class CRM_Banking_PluginImpl_Matcher_RulesAnalyser extends CRM_Banking_PluginMod
     $row['conditions'] = $conditions;
 
     //
-    // Instructions ("Actions") stored in the execution field:
+    // Instructions ("Actions") stored in the 'execution' field:
     //
     // execution: [
     //   { set_param_name: <field e.g. contact_id>, set_param_value: <the value> },

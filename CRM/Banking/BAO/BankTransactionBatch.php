@@ -49,4 +49,17 @@ class CRM_Banking_BAO_BankTransactionBatch extends CRM_Banking_DAO_BankTransacti
     return $dao;
   }
 
+  /**
+   * Get the list of transactions
+   *
+   * @return array of CRM_Banking_BAO_BankTransaction
+   */
+  public function getTransactions()
+  {
+    $search = new CRM_Banking_BAO_BankTransaction();
+    $search->tx_batch_id = $this->id;
+    $search->find();
+    return $search->fetchAll();
+  }
+
 }

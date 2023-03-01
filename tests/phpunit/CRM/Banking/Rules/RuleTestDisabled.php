@@ -2,7 +2,7 @@
 // @todo test setters, save, get...
 define('DRUPAL_ROOT', getcwd());
 chdir(DRUPAL_ROOT); // This seems to be required.
-require_once DRUPAL_ROOT . '/includes/bootstrap.inc';
+//require_once DRUPAL_ROOT . '/includes/bootstrap.inc';
 $_SERVER['REMOTE_ADDR'] = '127.0.0.1';
 $_SERVER['REQUEST_METHOD'] = 'GET'; // without this I've had crashes
 

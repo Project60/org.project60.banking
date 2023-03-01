@@ -180,6 +180,7 @@ class CRM_Banking_PluginImpl_Matcher_ExistingContribution extends CRM_Banking_Pl
     $config = $this->_plugin_config;
 
     // check in cache
+    $range_back = (int) $config->received_range_days;
     $cache_key = "_contributions_${contact_id}_{$range_back}_{$config->received_date_check}";
     $contributions = $context->getCachedEntry($cache_key);
     if ($contributions != NULL) return $contributions;
@@ -236,10 +237,11 @@ class CRM_Banking_PluginImpl_Matcher_ExistingContribution extends CRM_Banking_Pl
     // resolve accepted states
     $accepted_status_ids = $this->getAcceptedContributionStatusIDs();
 
-    $contributions = array();
-    $contribution2contact = array();
-    $contribution2totalamount = array();
-    $contributions_identified = array();
+    $contributions = [];
+    $contribution2contact = [];
+    $contribution2totalamount = [];
+    $contributions_identified = [];
+    $contacts_found = [];
 
     // check if this is actually enabled
     if ($config->contribution_search) {
@@ -477,7 +479,7 @@ class CRM_Banking_PluginImpl_Matcher_ExistingContribution extends CRM_Banking_Pl
    */
   function visualize_match( CRM_Banking_Matcher_Suggestion $match, $btx) {
     $config = $this->_plugin_config;
-    $smarty_vars = array();
+    $smarty_vars = [];
 
     // load the data
     $contribution_id = $match->getParameter('contribution_id');

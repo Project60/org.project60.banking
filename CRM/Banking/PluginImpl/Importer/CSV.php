@@ -87,10 +87,18 @@ class CRM_Banking_PluginImpl_Importer_CSV extends CRM_Banking_PluginModel_Import
   function probe_file( $file_path, $params )
   {
     $config = $this->_plugin_config;
+
     if (!empty($config->sentinel)) {
       // the sentinel is used to verify, that the file is of the expected format
       $file = fopen($file_path, 'r');
-      $probe_data = fread($file, 1024);
+
+      // skip BOM if present
+      $possible_bom_hex = bin2hex(fgets($file, 4));
+      if ($possible_bom_hex !== 'efbbbf') { // Skip BOM if present
+        rewind($file); // Or rewind pointer to start of file
+      }
+
+      $probe_data = fgets($file, 1024);
       fclose($file);
 
       // check encoding if necessary...
@@ -138,8 +146,10 @@ class CRM_Banking_PluginImpl_Importer_CSV extends CRM_Banking_PluginModel_Import
     $bytes_read = 0;
     $header = array();
 
-    if ($config->strip_bom && fgets($file, 4) !== "\xef\xbb\xbf") { // Skip BOM if present
-        rewind($file); // Or rewind pointer to start of file
+    // skip BOM if present
+    $possible_bom_hex = bin2hex(fgets($file, 4));
+    if ($possible_bom_hex !== 'efbbbf') { // Skip BOM if present
+      rewind($file); // Or rewind pointer to start of file
     }
 
     $batch = $this->openTransactionBatch();

@@ -91,14 +91,10 @@ class CRM_Banking_PluginImpl_Importer_CSV extends CRM_Banking_PluginModel_Import
       // the sentinel is used to verify, that the file is of the expected format
       $file = fopen($file_path, 'r');
 
-      // strip BOM
-      foreach ([4, 3] as $byte_count) {
-        $possible_bom_hex = bin2hex(fgets($file, $byte_count));
-        if ($possible_bom_hex !== 'efbbbf') { // Skip BOM if present
-          rewind($file); // Or rewind pointer to start of file
-        } else {
-          break;
-        }
+      // skip BOM if present
+      $possible_bom_hex = bin2hex(fgets($file, 4));
+      if ($possible_bom_hex !== 'efbbbf') { // Skip BOM if present
+        rewind($file); // Or rewind pointer to start of file
       }
 
       $probe_data = fgets($file, 1024);
@@ -149,13 +145,10 @@ class CRM_Banking_PluginImpl_Importer_CSV extends CRM_Banking_PluginModel_Import
     $bytes_read = 0;
     $header = array();
 
-    foreach ([4, 3] as $byte_count) {
-      $possible_bom_hex = bin2hex(fgets($file, $byte_count));
-      if ($possible_bom_hex !== 'efbbbf') { // Skip BOM if present
-        rewind($file); // Or rewind pointer to start of file
-      } else {
-        break;
-      }
+    // skip BOM if present
+    $possible_bom_hex = bin2hex(fgets($file, 4));
+    if ($possible_bom_hex !== 'efbbbf') { // Skip BOM if present
+      rewind($file); // Or rewind pointer to start of file
     }
 
     $batch = $this->openTransactionBatch();

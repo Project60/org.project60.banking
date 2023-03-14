@@ -28,8 +28,8 @@ class CRM_Admin_Form_Setting_BankingSettings extends CRM_Core_Form {
   function buildQuickForm() {
     // add new UI (#200) options
     $ui_options = array(
-        '1' => E::ts("New user interface"),
-        '0' => E::ts("Legacy user interface")
+        '1' => E::ts("Simplified user interface"),
+        '0' => E::ts("Traditional user interface")
     );
     $new_ui = $this->add(
         'select',

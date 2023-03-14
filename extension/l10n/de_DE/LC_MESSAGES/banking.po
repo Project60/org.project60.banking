@@ -1,7 +1,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: \n"
-"POT-Creation-Date: 2022-09-07 16:03+0200\n"
+"POT-Creation-Date: 2023-03-14 11:20+0100\n"
 "PO-Revision-Date: \n"
 "Last-Translator: Bjoern Endres <Bjoern.Endres@didonai.com>\n"
 "Language-Team: \n"
@@ -12,11 +12,11 @@ msgstr ""
 "X-Generator: Poedit 2.0.6\n"
 
 #: CRM/Admin/Form/Setting/BankingSettings.php
-msgid "New user interface"
-msgstr "Neue Benutzeroberfläche"
+msgid "Simplified user interface"
+msgstr "Vereinfachte Benutzeroberfläche"
 
 #: CRM/Admin/Form/Setting/BankingSettings.php
-msgid "Legacy user interface"
+msgid "Traditional user interface"
 msgstr "Traditionelle Benutzeroberfläche"
 
 #: CRM/Admin/Form/Setting/BankingSettings.php
@@ -125,7 +125,8 @@ msgstr "Updatefehler: Feld %1 weicht ab."
 msgid "Bank Accounts"
 msgstr "Konten"
 
-#: CRM/Banking/DAO/BankAccount.php templates/CRM/Banking/Form/AccountsTab.tpl
+#: CRM/Banking/DAO/BankAccount.php Civi/Banking/Actions/FindLatestAccount.php
+#: templates/CRM/Banking/Form/AccountsTab.tpl
 msgid "Bank Account"
 msgstr "Bankkonto"
 
@@ -174,7 +175,7 @@ msgstr "Ein JSON-formatiertes Array, das kodierte Felder enthält"
 
 #: CRM/Banking/DAO/BankAccount.php
 #: CRM/Banking/PluginImpl/Matcher/RulesAnalyser.php
-#: Civi/Banking/Actions/AddIban.php
+#: Civi/Banking/Actions/AddIban.php Civi/Banking/Actions/FindLatestAccount.php
 msgid "Contact ID"
 msgstr "Kontakt ID"
 
@@ -1766,16 +1767,12 @@ msgid "Upgrade %1 to revision %2"
 msgstr "Upgrade von %1 auf %2"
 
 #: Civi/Banking/Actions/AddIban.php
-#, fuzzy
-#| msgid "Our IBAN"
 msgid "IBAN"
-msgstr "Unsere IBAN"
+msgstr "IBAN"
 
 #: Civi/Banking/Actions/AddIban.php
-#, fuzzy
-#| msgid "Country"
 msgid "Country ISO Code"
-msgstr "Land"
+msgstr "Land - ISO Code"
 
 #: Civi/Banking/Actions/AddIban.php
 msgid "Could not add bank account"
@@ -1790,9 +1787,23 @@ msgid ""
 ", error message from API3 BankingAccount or BankingAccountReference create: "
 msgstr ""
 
+#: Civi/Banking/Actions/FindLatestAccount.php
+msgid "Could not find a bank account for contact"
+msgstr "Bankkonto nicht gefunden"
+
+#: Civi/Banking/Actions/FindLatestAccount.php
+msgid ""
+", error message from API3 BankingAccount or BankingAccountReference "
+"getvalue: "
+msgstr ""
+
 #: Civi/Banking/CompilerPass.php
 msgid "Add IBAN to Contact"
 msgstr ""
+
+#: Civi/Banking/CompilerPass.php
+msgid "Find Latest Bank Account for Contact"
+msgstr "Aktuelles (letztes) Bankkonto des Kontakts ermitteln"
 
 #: ang/banking/Main.html
 msgid "About %1"
@@ -3364,6 +3375,9 @@ msgid ""
 "The contact name  should be divided in two parts, the first name and last "
 "name."
 msgstr "Der Kontaktname sollte in Vor- und Nachname unterteilt sein."
+
+#~ msgid "Legacy user interface"
+#~ msgstr "Traditionelle Benutzeroberfläche"
 
 #~ msgid "Bank Name"
 #~ msgstr "Bank"

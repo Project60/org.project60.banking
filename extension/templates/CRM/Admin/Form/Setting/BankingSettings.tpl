@@ -80,6 +80,12 @@
   <div class="clear"></div>
 </div>
 
+<div class="crm-section">
+  <div class="label">{$form.transaction_list_cutoff.label}</div>
+  <div class="content">{$form.transaction_list_cutoff.html}</div>
+  <div class="clear"></div>
+</div>
+
 <br/>
 {* FOOTER *}
 <div class="crm-submit-buttons">

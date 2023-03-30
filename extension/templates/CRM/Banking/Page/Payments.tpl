@@ -35,7 +35,7 @@
 <a class="button" href="{$url_show_payments_analysed}">
   <span style="{$button_style_analysed}"><div class="crm-i fa-star-o"></div> {ts domain='org.project60.banking'}Analysed{/ts} ({$count_analysed})</span>
 </a>
-{if $url_show_payments_recently_completed}
+{if $url_show_payments_recently_completed and $show == 'statements'}
 <a class="button" href="{$url_show_payments_recently_completed}">
   <span style="{$button_style_completed}"><div class="crm-i fa-check-circle-o"></div> {ts domain='org.project60.banking'}Recently Completed{/ts} ({$count_recently_completed})</span>
 </a>
@@ -45,11 +45,11 @@
 </a>
 {if $show == 'payments'}
   <a class="button" href="{$url_show_statements}" style="float: right;">
-    <span><div class="icon details-icon ui-icon-circle-arrow-e"></div>{ts domain='org.project60.banking'}Show Statements{/ts}</span>
+    <span><div class="crm-i fa-list"></div> {ts domain='org.project60.banking'}Show Statements{/ts}</span>
   </a>
 {else}
   <a class="button" onClick="callWithSelected('{$url_show_payments}', true)" style="float: right;">
-    <span><div class="icon details-icon ui-icon-circle-arrow-e"></div>{ts domain='org.project60.banking'}Show Transactions{/ts}</span>
+    <span><div class="crm-i fa-list"></div> {ts domain='org.project60.banking'}Show Transactions{/ts}</span>
   </a>
 {/if}
 </div>

@@ -41,17 +41,6 @@ class CRM_Banking_Page_Statements extends CRM_Core_Page {
     $statementsWhereClauses = array();
     $statementsWhereClauses[] = "1";
 
-    // if requested, add the restriction to 'recent' statements
-    $recent = CRM_Utils_Request::retrieve('recent', 'Integer', $null, false, 0);
-    if ($recent) {
-      // add restricted completed list (if enabled)
-      $cutoff_interval = CRM_Banking_Config::getStatementCutoff();
-      if (!empty($cutoff_interval)) {
-        $paramCount++;
-        $statementsWhereClauses[] = " (btxb.starting_date >= DATE(NOW() - {$cutoff_interval})) ";
-      }
-    }
-
     $target_ba_id = CRM_Utils_Request::retrieve('target_ba_id', 'Integer', CRM_Core_DAO::$_nullObject, false, -1);
     if ($target_ba_id > 0) {
       $paramCount++;

@@ -27,6 +27,7 @@ class CRM_Banking_Page_Payments extends CRM_Core_Page {
 
     // look up the payment states
     $payment_states = banking_helper_optiongroup_id_name_mapping('civicrm_banking.bank_tx_status');
+    $recently_closed_enabled = (boolean) CRM_Banking_Config::getStatementCutoff();
 
     if (!isset($_REQUEST['status_ids'])) {
       $_REQUEST['status_ids'] = $payment_states['new']['id'];
@@ -53,8 +54,11 @@ class CRM_Banking_Page_Payments extends CRM_Core_Page {
 
     $this->assign('url_show_payments_new', banking_helper_buildURL('civicrm/banking/payments', $this->_pageParameters(array('status_ids'=>$payment_states['new']['id']))));
     $this->assign('url_show_payments_analysed', banking_helper_buildURL('civicrm/banking/payments', $this->_pageParameters(array('status_ids'=>$payment_states['suggestions']['id']))));
-    $this->assign('url_show_payments_recently_completed', banking_helper_buildURL('civicrm/banking/payments', $this->_pageParameters(array('recent' => 1, 'status_ids'=>$payment_states['processed']['id'].",".$payment_states['ignored']['id']))));
     $this->assign('url_show_payments_completed', banking_helper_buildURL('civicrm/banking/payments', $this->_pageParameters(array('status_ids'=>$payment_states['processed']['id'].",".$payment_states['ignored']['id']))));
+
+    if ($recently_closed_enabled) {
+      $this->assign('url_show_payments_recently_completed', banking_helper_buildURL('civicrm/banking/payments', $this->_pageParameters(array('recent' => 1, 'status_ids'=>$payment_states['processed']['id'].",".$payment_states['ignored']['id']))));
+    }
 
     $this->assign('url_review_selected_payments', banking_helper_buildURL('civicrm/banking/review', array($list_type=>"__selected__")));
     $this->assign('url_export_selected_payments', banking_helper_buildURL('civicrm/banking/export', array($list_type=>"__selected__")));

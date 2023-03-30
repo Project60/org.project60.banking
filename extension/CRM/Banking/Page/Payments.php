@@ -61,13 +61,13 @@ class CRM_Banking_Page_Payments extends CRM_Core_Page {
     // status filter button styles
     if (isset($_REQUEST['status_ids']) && strlen($_REQUEST['status_ids'])>0) {
       if ($_REQUEST['status_ids']==$payment_states['new']['id']) {
-        $this->assign('button_style_new', "color:green");
+        $this->assign('button_style_new', "color:lightgreen");
       } else if ($_REQUEST['status_ids']==$payment_states['suggestions']['id']) {
-        $this->assign('button_style_analysed', "color:green");
+        $this->assign('button_style_analysed', "color:lightgreen");
       } else if ($_REQUEST['status_ids']==$payment_states['processed']['id'].",".$payment_states['ignored']['id']) {
-        $this->assign('button_style_completed', "color:green");
+        $this->assign('button_style_completed', "color:lightgreen");
       } else {
-        $this->assign('button_style_custom', "color:green");
+        $this->assign('button_style_custom', "color:lightgreen");
       }
     }
 
@@ -84,7 +84,7 @@ class CRM_Banking_Page_Payments extends CRM_Core_Page {
     }
 
     // FIRST: CALCULATE COUNTS
-    // calculate statement counts
+    // calculate statement counts: NEW (at least one transaction in status new)
     $new_statement_id_list = CRM_Core_DAO::singleValueQuery("
         SELECT GROUP_CONCAT(DISTINCT(tx_batch_id))
         FROM civicrm_bank_tx
@@ -92,34 +92,38 @@ class CRM_Banking_Page_Payments extends CRM_Core_Page {
           AND id NOT IN (
             SELECT tx_batch_id
             FROM civicrm_bank_tx
-            WHERE status_id IN ({$payment_states['suggestions']['id']}, {$payment_states['ignored']['id']}, {$payment_states['processed']['id']})
+            WHERE status_id IN ({$payment_states['new']['id']})
           );");
     if (empty($new_statement_id_list)) {
       $new_statement_ids = [];
-      $new_statement_id_list = '0'; // i.e. no such ID
+      $new_statement_id_list = ''; // i.e. no such ID
       $this->assign('count_new', 0);
     } else {
       $new_statement_ids = explode(',', $new_statement_id_list);
       $this->assign('count_new', count($new_statement_ids));
     }
 
-    // calculate statement counts
+    // calculate statement counts: OPEN (at least one transaction in status suggestions)
     $open_statement_id_list = CRM_Core_DAO::singleValueQuery("
         SELECT GROUP_CONCAT(DISTINCT(tx_batch_id))
         FROM civicrm_bank_tx
-        WHERE status_id IN ({$payment_states['suggestions']['id']})
-          AND id NOT IN ({$new_statement_id_list});");
+        WHERE status_id IN ({$payment_states['suggestions']['id']})");
     if (empty($open_statement_id_list)) {
+      $open_statement_ids = [];
       $open_statement_id_list = 0;
       $open_statement_count = 0;
     } else {
-      $open_statement_count = count(explode(',', $open_statement_id_list));
+      $open_statement_ids = explode(',', $open_statement_id_list);
+      $open_statement_count = count($open_statement_ids);
     }
     $this->assign('count_analysed', $open_statement_count);
 
+    // calculate the number of statements that are not closed
+    $non_closed_statement_ids = array_unique(array_merge($open_statement_ids, $new_statement_ids));
+
     // closed count is merely the total count without the former two
-    $closed_statement_count = CRM_Core_DAO::singleValueQuery("SELECT COUNT(id) FROM civicrm_bank_tx_batch;")
-       - $open_statement_count - count($new_statement_ids);
+    $total_statement_count = CRM_Core_DAO::singleValueQuery("SELECT COUNT(id) FROM civicrm_bank_tx_batch;");
+    $closed_statement_count = $total_statement_count - count($non_closed_statement_ids);
     $this->assign('count_completed', $closed_statement_count);
 
     // add restricted completed list (if enabled)
@@ -131,8 +135,7 @@ class CRM_Banking_Page_Payments extends CRM_Core_Page {
       $where_clause = " (btxb.starting_date >= DATE(NOW() - {$cutoff_interval})) ";
       $recently_closed_statement_count = CRM_Core_DAO::singleValueQuery("SELECT COUNT(id) FROM civicrm_bank_tx_batch btxb WHERE {$where_clause};");
 
-      $recently_closed_statement_count -= $open_statement_count;
-      $recently_closed_statement_count -= count($new_statement_ids);
+      $recently_closed_statement_count -= count($non_closed_statement_ids);
       $this->assign('url_show_payments_recently_completed', true);
       $this->assign('count_recently_completed', $recently_closed_statement_count);
     }
@@ -170,7 +173,7 @@ class CRM_Banking_Page_Payments extends CRM_Core_Page {
         $where_clause .= " AND btxb.id NOT IN ({$open_statement_id_list}) ";
       }
       $this->assign('status_message', E::ts("%1 closed statements.", [
-        1 => $closed_statement_count - $open_statement_count - count($new_statement_ids)]));
+        1 => $closed_statement_count]));
     }
 
     // RUN THE STATEMENT QUERY
@@ -208,7 +211,7 @@ class CRM_Banking_Page_Payments extends CRM_Core_Page {
       $info = $this->investigate($stmt->id, $payment_states);
 
       // look up the target account
-      $target_name = E::ts("Unnamed");
+      $target_name = E::ts("Unknown");
       $target_info = json_decode($stmt->data_parsed);
       if (isset($target_info->name)) {
         $target_name = $target_info->name;

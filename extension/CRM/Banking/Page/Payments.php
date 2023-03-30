@@ -89,14 +89,14 @@ class CRM_Banking_Page_Payments extends CRM_Core_Page {
         SELECT GROUP_CONCAT(DISTINCT(tx_batch_id))
         FROM civicrm_bank_tx
         WHERE status_id IN ({$payment_states['new']['id']})
-          AND id NOT IN (          
+          AND id NOT IN (
             SELECT tx_batch_id
             FROM civicrm_bank_tx
             WHERE status_id IN ({$payment_states['suggestions']['id']}, {$payment_states['ignored']['id']}, {$payment_states['processed']['id']})
           );");
     if (empty($new_statement_id_list)) {
-      $new_statement_id_list = '0'; // i.e. no such ID
       $new_statement_ids = [];
+      $new_statement_id_list = '0'; // i.e. no such ID
       $this->assign('count_new', 0);
     } else {
       $new_statement_ids = explode(',', $new_statement_id_list);
@@ -122,6 +122,20 @@ class CRM_Banking_Page_Payments extends CRM_Core_Page {
        - $open_statement_count - count($new_statement_ids);
     $this->assign('count_completed', $closed_statement_count);
 
+    // add restricted completed list (if enabled)
+    $cutoff_interval = $this->getStatementCutoff();
+    if (empty($cutoff_interval)) {
+      $where_clause = " TRUE ";
+      $this->assign('url_show_payments_recently_completed', false);
+    } else {
+      $where_clause = " (btxb.starting_date >= DATE(NOW() - {$cutoff_interval})) ";
+      $recently_closed_statement_count = CRM_Core_DAO::singleValueQuery("SELECT COUNT(id) FROM civicrm_bank_tx_batch btxb WHERE {$where_clause};");
+
+      $recently_closed_statement_count -= $open_statement_count;
+      $recently_closed_statement_count -= count($new_statement_ids);
+      $this->assign('url_show_payments_recently_completed', true);
+      $this->assign('count_recently_completed', $recently_closed_statement_count);
+    }
 
     // collect an array of target accounts, serving to limit the display
     $target_accounts = [];
@@ -130,10 +144,10 @@ class CRM_Banking_Page_Payments extends CRM_Core_Page {
     if ($_REQUEST['status_ids']==$payment_states['new']['id']) {
       // 'NEW' mode will show all that have not been completely analysed
       if ($new_statement_id_list) {
-        $where_clause = "btxb.id IN ({$new_statement_id_list})";
+        $where_clause .= "AND btxb.id IN ({$new_statement_id_list})";
         $this->assign('status_message', E::ts("%1 new statements.", [1 => count($new_statement_ids)]));
       } else {
-        $where_clause = "FALSE";
+        $where_clause .= "AND FALSE";
         $this->assign('status_message', E::ts("No new statements."));
       }
 
@@ -149,14 +163,6 @@ class CRM_Banking_Page_Payments extends CRM_Core_Page {
 
     } else {
       // 'COMPLETE' mode will show all that have been entirely processed
-      $cutoff_interval = $this->getStatementCutoff();
-      if (empty($cutoff_interval)) {
-        $where_clause = " TRUE ";
-        $this->assign('url_show_payments_recently_completed', false);
-      } else {
-        $where_clause = " (btxb.starting_date >= DATE(NOW() - {$cutoff_interval})) ";
-        $this->assign('url_show_payments_recently_completed', true);
-      }
       if ($new_statement_id_list) {
         $where_clause .= " AND btxb.id NOT IN ({$new_statement_id_list}) ";
       }
@@ -175,15 +181,15 @@ class CRM_Banking_Page_Payments extends CRM_Core_Page {
           reference       AS reference,
           btxb.sequence   AS sequence,
           starting_date   AS starting_date,
-          tx_count        AS tx_count,          
+          tx_count        AS tx_count,
           ba.data_parsed  AS data_parsed,
           sum(btx.amount) AS total,
           btx.currency    AS currency
         FROM civicrm_bank_tx_batch btxb
-        LEFT JOIN civicrm_bank_tx btx 
+        LEFT JOIN civicrm_bank_tx btx
                ON btx.tx_batch_id = btxb.id
-        LEFT JOIN civicrm_bank_account ba 
-               ON ba.id = btx.ba_id 
+        LEFT JOIN civicrm_bank_account ba
+               ON ba.id = btx.ba_id
         WHERE {$where_clause}"
           .
             ($target_ba_id ? ' AND ba_id = ' . $target_ba_id : '')
@@ -546,12 +552,9 @@ class CRM_Banking_Page_Payments extends CRM_Core_Page {
    */
   protected function getStatementCutoff()
   {
-    if (isset($_REQUEST['recent'])) {
-      $config_setting = (int) Civi::settings()->get('recently_completed_cutoff');
-      if (!empty($config_setting)) {
-        return "INTERVAL {$config_setting} MONTH";
-      }
+    $config_setting = (int) Civi::settings()->get('recently_completed_cutoff');
+    if (!empty($config_setting)) {
+      return "INTERVAL {$config_setting} MONTH";
     }
-    return null;
   }
 }

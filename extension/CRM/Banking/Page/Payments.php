@@ -36,10 +36,12 @@ class CRM_Banking_Page_Payments extends CRM_Core_Page {
         // PAYMENT MODE REQUESTED
         $this->build_paymentPage($payment_states);
         $list_type = 'list';
+        CRM_Utils_System::setTitle(E::ts('Bank Transactions'));
     } else {
         // STATEMENT MODE REQUESTED
         $this->build_statementPage($payment_states);
         $list_type = 's_list';
+        CRM_Utils_System::setTitle(E::ts('Bank Statements'));
     }
 
     // URLs
@@ -51,6 +53,7 @@ class CRM_Banking_Page_Payments extends CRM_Core_Page {
 
     $this->assign('url_show_payments_new', banking_helper_buildURL('civicrm/banking/payments', $this->_pageParameters(array('status_ids'=>$payment_states['new']['id']))));
     $this->assign('url_show_payments_analysed', banking_helper_buildURL('civicrm/banking/payments', $this->_pageParameters(array('status_ids'=>$payment_states['suggestions']['id']))));
+    $this->assign('url_show_payments_recently_completed', banking_helper_buildURL('civicrm/banking/payments', $this->_pageParameters(array('recent' => 1, 'status_ids'=>$payment_states['processed']['id'].",".$payment_states['ignored']['id']))));
     $this->assign('url_show_payments_completed', banking_helper_buildURL('civicrm/banking/payments', $this->_pageParameters(array('status_ids'=>$payment_states['processed']['id'].",".$payment_states['ignored']['id']))));
 
     $this->assign('url_review_selected_payments', banking_helper_buildURL('civicrm/banking/review', array($list_type=>"__selected__")));
@@ -127,7 +130,7 @@ class CRM_Banking_Page_Payments extends CRM_Core_Page {
     $this->assign('count_completed', $closed_statement_count);
 
     // add restricted completed list (if enabled)
-    $cutoff_interval = $this->getStatementCutoff();
+    $cutoff_interval = CRM_Banking_Config::getStatementCutoff();
     if (empty($cutoff_interval)) {
       $where_clause = " TRUE ";
       $this->assign('url_show_payments_recently_completed', false);
@@ -545,19 +548,5 @@ class CRM_Banking_Page_Payments extends CRM_Core_Page {
         $params[$key] = $value;
     }
     return $params;
-  }
-
-  /**
-   * Return a sql INTERVAL expression to cut off the completed transactions horizon
-   *
-   * @return string
-   *   SQL interval expression
-   */
-  protected function getStatementCutoff()
-  {
-    $config_setting = (int) Civi::settings()->get('recently_completed_cutoff');
-    if (!empty($config_setting)) {
-      return "INTERVAL {$config_setting} MONTH";
-    }
   }
 }

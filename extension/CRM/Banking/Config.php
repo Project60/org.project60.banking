@@ -30,4 +30,19 @@ class CRM_Banking_Config {
       return TRUE;
     }
   }
+
+  /**
+   * Return a sql INTERVAL expression to cut off the completed transactions horizon
+   *
+   * @return string
+   *   SQL interval expression
+   */
+  public static function getStatementCutoff()
+  {
+    $config_setting = (int) Civi::settings()->get('recently_completed_cutoff');
+    if (!empty($config_setting)) {
+      return "INTERVAL {$config_setting} MONTH";
+    }
+  }
+
 }

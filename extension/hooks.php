@@ -115,6 +115,13 @@ function banking_civicrm_navigationMenu(&$menu) {
       'permission' => 'administer CiviCRM',
   ));
 
+  _banking_civix_insert_navigation_menu($menu, "{$anchor}CiviBanking", array(
+    'label'      => E::ts('CiviBanking Settings'),
+    'name'       => 'Settings',
+    'url'        => 'civicrm/admin/setting/banking?reset=1',
+    'permission' => 'administer CiviCRM',
+  ));
+
   _banking_civix_navigationMenu($menu);
 }
 

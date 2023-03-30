@@ -82,7 +82,7 @@ class CRM_Admin_Form_Setting_BankingSettings extends CRM_Core_Form {
       'text',
       'banking_log_file',
       E::ts('Log File'),
-      "TEST"
+      ['class' => 'huge']
     );
 
     // store bank accounts

@@ -146,7 +146,6 @@ class CRM_Banking_Page_Payments extends CRM_Core_Page {
       $where_clause = " (btxb.starting_date >= DATE(NOW() - {$recently_closed_cutoff})) ";
       $recently_closed_statement_count = CRM_Core_DAO::singleValueQuery("SELECT COUNT(id) FROM civicrm_bank_tx_batch btxb WHERE {$where_clause};");
 
-      $recently_closed_statement_count -= count($non_closed_statement_ids);
       $this->assign('url_show_payments_recently_completed', banking_helper_buildURL('civicrm/banking/payments', $this->_pageParameters(array('recent' => 1, 'status_ids'=>$payment_states['processed']['id'].",".$payment_states['ignored']['id']))));
       $this->assign('count_recently_completed', $recently_closed_statement_count);
     }
@@ -445,8 +444,8 @@ class CRM_Banking_Page_Payments extends CRM_Core_Page {
     $count_completed = 0;
 
     // find batches
-    $clean_batch_ids = array();
-    if (isset($_REQUEST['s_list'])) {
+    $clean_batch_ids = [];
+    if (!empty($_REQUEST['s_list'])) {
       $batch_ids = explode(',', $_REQUEST['s_list']);
       foreach ($batch_ids as $batch_id) {
         if ((int) $batch_id) {
@@ -459,17 +458,19 @@ class CRM_Banking_Page_Payments extends CRM_Core_Page {
     if (count($clean_batch_ids)) {
       $batch_id_list = implode(',', $clean_batch_ids);
       $sql = "SELECT status_id, COUNT(id) AS count FROM civicrm_bank_tx WHERE tx_batch_id IN ($batch_id_list) GROUP BY status_id;";
-      $query = CRM_Core_DAO::executeQuery($sql);
-      while ($query->fetch()) {
-        if ($query->status_id == $payment_states['new']['id']) {
-          $count_new += $query->count;
-        } elseif ($query->status_id == $payment_states['processed']['id']) {
-          $count_completed += $query->count;
-        } elseif ($query->status_id == $payment_states['ignored']['id']) {
-          $count_completed += $query->count;
-        } elseif ($query->status_id == $payment_states['suggestions']['id']) {
-          $count_analysed += $query->count;
-        }
+    } else {
+      $sql = "SELECT status_id, COUNT(id) AS count FROM civicrm_bank_tx GROUP BY status_id;";
+    }
+    $query = CRM_Core_DAO::executeQuery($sql);
+    while ($query->fetch()) {
+      if ($query->status_id == $payment_states['new']['id']) {
+        $count_new += $query->count;
+      } elseif ($query->status_id == $payment_states['processed']['id']) {
+        $count_completed += $query->count;
+      } elseif ($query->status_id == $payment_states['ignored']['id']) {
+        $count_completed += $query->count;
+      } elseif ($query->status_id == $payment_states['suggestions']['id']) {
+        $count_analysed += $query->count;
       }
     }
 

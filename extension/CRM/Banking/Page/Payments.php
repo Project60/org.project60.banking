@@ -482,10 +482,12 @@ class CRM_Banking_Page_Payments extends CRM_Core_Page {
   }
 
   function _findBTX($status_id, $batch_id) {
-    $btxs = array();
+    $transaction_display_cutoff = CRM_Banking_Config::transactionViewCutOff();
+
+    $btxs = [];
     $btx_search = new CRM_Banking_BAO_BankTransaction();
-    $btx_search->limit(1999);
-    if (!empty($status_id)) $btx_search->status_id =   (int) $status_id;
+    $btx_search->limit($transaction_display_cutoff);
+    if (!empty($status_id)) $btx_search->status_id   = (int) $status_id;
     if (!empty($batch_id))  $btx_search->tx_batch_id = (int) $batch_id;
     $btx_search->find();
     while ($btx_search->fetch()) {
@@ -504,8 +506,16 @@ class CRM_Banking_Page_Payments extends CRM_Core_Page {
         );
     }
 
-    if (count($btxs) >= 1999) {
-      CRM_Core_Session::setStatus(sprintf(ts('Internal limit of 2000 transactions hit. Please use smaller statements.')), ts('List incomplete'), 'alert');
+    if (count($btxs) >= $transaction_display_cutoff) {
+      CRM_Core_Session::setStatus(
+          E::ts("Internal limit (%1) of transactions to show was exceeded. Please use smaller statements, or adjust the cut-off value in the settings (<a href=\"%2#transaction_list_cutoff\">here</a>).",
+          [
+            1 => $transaction_display_cutoff,
+            2 => CRM_Utils_System::url('civicrm/admin/setting/banking', "reset=1"),
+          ],
+        ),
+        E::ts('Incomplete Transaction List'),
+        'alert');
     }
 
     return $btxs;

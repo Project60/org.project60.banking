@@ -120,6 +120,17 @@ class CRM_Admin_Form_Setting_BankingSettings extends CRM_Core_Form {
       E::ts('Lenient bank account dedupe'),
       '');
 
+    // validate bank account references?
+    $this->addElement(
+      'text',
+      CRM_Banking_Config::SETTING_TRANSACTION_LIST_CUTOFF,
+      E::ts('Transaction limit in view')
+    );
+    $this->addRule(
+      CRM_Banking_Config::SETTING_TRANSACTION_LIST_CUTOFF,
+      E::ts('This needs to be a number larger than 0'),
+      'positiveInteger'
+    );
 
     $this->addButtons(array(
       array(
@@ -153,6 +164,8 @@ class CRM_Admin_Form_Setting_BankingSettings extends CRM_Core_Form {
     }
     $defaults['reference_validation']     = CRM_Core_BAO_Setting::getItem('CiviBanking', 'reference_validation');
     $defaults['lenient_dedupe']           = CRM_Core_BAO_Setting::getItem('CiviBanking', 'lenient_dedupe');
+    $defaults[CRM_Banking_Config::SETTING_TRANSACTION_LIST_CUTOFF]
+                                          = CRM_Banking_Config::transactionViewCutOff();
 
     return $defaults;
   }
@@ -187,9 +200,13 @@ class CRM_Admin_Form_Setting_BankingSettings extends CRM_Core_Form {
     // process reference normalisation / validation
     CRM_Core_BAO_Setting::setItem(!empty($values['reference_store_disabled']),'CiviBanking', 'reference_store_disabled');
     CRM_Core_BAO_Setting::setItem(!empty($values['reference_normalisation']), 'CiviBanking', 'reference_normalisation');
-    CRM_Core_BAO_Setting::setItem($values['reference_matching_probability'], 'CiviBanking', 'reference_matching_probability');
+    CRM_Core_BAO_Setting::setItem($values['reference_matching_probability'],  'CiviBanking', 'reference_matching_probability');
     CRM_Core_BAO_Setting::setItem(!empty($values['reference_validation']),    'CiviBanking', 'reference_validation');
     CRM_Core_BAO_Setting::setItem(!empty($values['lenient_dedupe']),          'CiviBanking', 'lenient_dedupe');
+
+    // display settings
+    Civi::settings()->set(CRM_Banking_Config::SETTING_TRANSACTION_LIST_CUTOFF,
+      $values[CRM_Banking_Config::SETTING_TRANSACTION_LIST_CUTOFF]);
 
     // log results
     $logger = CRM_Banking_Helpers_Logger::getLogger();

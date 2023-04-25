@@ -156,7 +156,6 @@ class CRM_Banking_Page_Payments extends CRM_Core_Page {
         FROM civicrm_bank_tx_batch btxb
         WHERE starting_date >= (NOW() - {$recently_closed_cutoff})
         AND btxb.id NOT IN ({$non_closed_statement_id_list});");
-      $recently_closed_statement_count -= count($non_closed_statement_ids);
       $this->assign('count_recently_completed', $recently_closed_statement_count);
     }
 

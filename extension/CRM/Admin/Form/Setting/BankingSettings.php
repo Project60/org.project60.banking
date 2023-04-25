@@ -81,7 +81,7 @@ class CRM_Admin_Form_Setting_BankingSettings extends CRM_Core_Form {
     $this->add(
         'select',
         'recently_completed_cutoff',
-        E::ts("Recently Completed Statements"),
+        E::ts("Show Completed Statements (Recent)"),
         [
           0 => E::ts('disabled'),
           1 => E::ts('last month'),

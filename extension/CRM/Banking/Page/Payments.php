@@ -27,7 +27,6 @@ class CRM_Banking_Page_Payments extends CRM_Core_Page {
 
     // look up the payment states
     $payment_states = banking_helper_optiongroup_id_name_mapping('civicrm_banking.bank_tx_status');
-    $recently_closed_enabled = (boolean) CRM_Banking_Config::getStatementCutoff();
 
     if (!isset($_REQUEST['status_ids'])) {
       $_REQUEST['status_ids'] = $payment_states['new']['id'];
@@ -56,10 +55,6 @@ class CRM_Banking_Page_Payments extends CRM_Core_Page {
     $this->assign('url_show_payments_analysed', banking_helper_buildURL('civicrm/banking/payments', $this->_pageParameters(array('status_ids'=>$payment_states['suggestions']['id']))));
     $this->assign('url_show_payments_completed', banking_helper_buildURL('civicrm/banking/payments', $this->_pageParameters(array('status_ids'=>$payment_states['processed']['id'].",".$payment_states['ignored']['id']))));
 
-    if ($recently_closed_enabled) {
-      $this->assign('url_show_payments_recently_completed', banking_helper_buildURL('civicrm/banking/payments', $this->_pageParameters(array('recent' => 1, 'status_ids'=>$payment_states['processed']['id'].",".$payment_states['ignored']['id']))));
-    }
-
     $this->assign('url_review_selected_payments', banking_helper_buildURL('civicrm/banking/review', array($list_type=>"__selected__")));
     $this->assign('url_export_selected_payments', banking_helper_buildURL('civicrm/banking/export', array($list_type=>"__selected__")));
 
@@ -72,7 +67,11 @@ class CRM_Banking_Page_Payments extends CRM_Core_Page {
       } else if ($_REQUEST['status_ids']==$payment_states['suggestions']['id']) {
         $this->assign('button_style_analysed', "color:lightgreen");
       } else if ($_REQUEST['status_ids']==$payment_states['processed']['id'].",".$payment_states['ignored']['id']) {
-        $this->assign('button_style_completed', "color:lightgreen");
+        if (empty($_REQUEST['recent'])) {
+          $this->assign('button_style_completed', "color:lightgreen");
+        } else {
+          $this->assign('button_style_recently_completed', "color:lightgreen");
+        }
       } else {
         $this->assign('button_style_custom', "color:lightgreen");
       }
@@ -88,6 +87,12 @@ class CRM_Banking_Page_Payments extends CRM_Core_Page {
     $target_ba_id = null;
     if (isset($_REQUEST['target_ba_id'])) {
       $target_ba_id = $_REQUEST['target_ba_id'];
+    }
+
+    // evaluate statement
+    $recently_closed_cutoff = CRM_Banking_Config::getRecentlyCompletedStatementCutoff();
+    if ($recently_closed_cutoff) {
+      $this->assign('url_show_payments_recently_completed', banking_helper_buildURL('civicrm/banking/payments', $this->_pageParameters(array('recent' => 1, 'status_ids'=>$payment_states['processed']['id'].",".$payment_states['ignored']['id']))));
     }
 
     // FIRST: CALCULATE COUNTS
@@ -134,16 +139,15 @@ class CRM_Banking_Page_Payments extends CRM_Core_Page {
     $this->assign('count_completed', $closed_statement_count);
 
     // add restricted completed list (if enabled)
-    $cutoff_interval = CRM_Banking_Config::getStatementCutoff();
-    if (empty($cutoff_interval)) {
+    if (empty($recently_closed_cutoff)) {
       $where_clause = " TRUE ";
       $this->assign('url_show_payments_recently_completed', false);
     } else {
-      $where_clause = " (btxb.starting_date >= DATE(NOW() - {$cutoff_interval})) ";
+      $where_clause = " (btxb.starting_date >= DATE(NOW() - {$recently_closed_cutoff})) ";
       $recently_closed_statement_count = CRM_Core_DAO::singleValueQuery("SELECT COUNT(id) FROM civicrm_bank_tx_batch btxb WHERE {$where_clause};");
 
       $recently_closed_statement_count -= count($non_closed_statement_ids);
-      $this->assign('url_show_payments_recently_completed', true);
+      $this->assign('url_show_payments_recently_completed', banking_helper_buildURL('civicrm/banking/payments', $this->_pageParameters(array('recent' => 1, 'status_ids'=>$payment_states['processed']['id'].",".$payment_states['ignored']['id']))));
       $this->assign('count_recently_completed', $recently_closed_statement_count);
     }
 

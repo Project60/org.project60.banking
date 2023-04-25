@@ -37,11 +37,13 @@ class CRM_Banking_Config {
    * @return string
    *   SQL interval expression
    */
-  public static function getStatementCutoff()
+  public static function getRecentlyCompletedStatementCutoff() : string
   {
     $config_setting = (int) Civi::settings()->get('recently_completed_cutoff');
     if (!empty($config_setting)) {
       return "INTERVAL {$config_setting} MONTH";
+    } else {
+      return '';
     }
   }
 

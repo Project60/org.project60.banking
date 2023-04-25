@@ -37,7 +37,7 @@
 </a>
 {if $url_show_payments_recently_completed and $show == 'statements'}
 <a class="button" href="{$url_show_payments_recently_completed}">
-  <span style="{$button_style_completed}"><div class="crm-i fa-check-circle-o"></div> {ts domain='org.project60.banking'}Recently Completed{/ts} ({$count_recently_completed})</span>
+  <span style="{$button_style_recently_completed}"><div class="crm-i fa-check-circle-o"></div> {ts domain='org.project60.banking'}Recently Completed{/ts} ({$count_recently_completed})</span>
 </a>
 {/if}
 <a class="button" href="{$url_show_payments_completed}">

@@ -191,6 +191,10 @@ class CRM_Banking_Page_Payments extends CRM_Core_Page {
       if ($open_statement_id_list) {
         $where_clause .= " AND btxb.id NOT IN ({$open_statement_id_list}) ";
       }
+      if (!empty($_REQUEST['recent']) && $recently_closed_cutoff) {
+        $where_clause .= " AND (btxb.starting_date >= DATE(NOW() - {$recently_closed_cutoff})) ";
+      }
+
       $this->assign('status_message', E::ts("%1 closed statements.", [
         1 => $closed_statement_count]));
     }

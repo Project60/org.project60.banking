@@ -84,6 +84,7 @@ class CRM_Banking_Page_Payments extends CRM_Core_Page {
    * STATEMENT MODE
    ****************/
   function build_statementPage($payment_states) {
+    $where_clause = ' TRUE ';
     $target_ba_id = null;
     if (isset($_REQUEST['target_ba_id'])) {
       $target_ba_id = $_REQUEST['target_ba_id'];
@@ -122,7 +123,7 @@ class CRM_Banking_Page_Payments extends CRM_Core_Page {
         WHERE status_id IN ({$payment_states['suggestions']['id']})");
     if (empty($open_statement_id_list)) {
       $open_statement_ids = [];
-      $open_statement_id_list = 0;
+      $open_statement_id_list = '';
       $open_statement_count = 0;
     } else {
       $open_statement_ids = explode(',', $open_statement_id_list);
@@ -139,16 +140,14 @@ class CRM_Banking_Page_Payments extends CRM_Core_Page {
     $this->assign('count_completed', $closed_statement_count);
 
     // add restricted completed list (if enabled)
-    if (empty($recently_closed_cutoff)) {
-      $where_clause = " TRUE ";
-      $this->assign('url_show_payments_recently_completed', false);
+    if (!empty($_REQUEST['recent']) && $recently_closed_cutoff) {
+      $where_clause .= " AND (btxb.starting_date >= DATE(NOW() - {$recently_closed_cutoff})) ";
+      $recently_closed_statement_count = CRM_Core_DAO::singleValueQuery("SELECT COUNT(DISTINCT(id)) FROM civicrm_bank_tx_batch btxb WHERE {$where_clause};");
+      $recently_closed_statement_count -= count($non_closed_statement_ids);
     } else {
-      $where_clause = " (btxb.starting_date >= DATE(NOW() - {$recently_closed_cutoff})) ";
-      $recently_closed_statement_count = CRM_Core_DAO::singleValueQuery("SELECT COUNT(id) FROM civicrm_bank_tx_batch btxb WHERE {$where_clause};");
-
-      $this->assign('url_show_payments_recently_completed', banking_helper_buildURL('civicrm/banking/payments', $this->_pageParameters(array('recent' => 1, 'status_ids'=>$payment_states['processed']['id'].",".$payment_states['ignored']['id']))));
-      $this->assign('count_recently_completed', $recently_closed_statement_count);
+      $recently_closed_statement_count = 0;
     }
+    $this->assign('count_recently_completed', $recently_closed_statement_count);
 
     // collect an array of target accounts, serving to limit the display
     $target_accounts = [];

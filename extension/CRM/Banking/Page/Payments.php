@@ -142,12 +142,23 @@ class CRM_Banking_Page_Payments extends CRM_Core_Page {
     // add restricted completed list (if enabled)
     if (!empty($_REQUEST['recent']) && $recently_closed_cutoff) {
       $where_clause .= " AND (btxb.starting_date >= DATE(NOW() - {$recently_closed_cutoff})) ";
-      $recently_closed_statement_count = CRM_Core_DAO::singleValueQuery("SELECT COUNT(DISTINCT(id)) FROM civicrm_bank_tx_batch btxb WHERE {$where_clause};");
-      $recently_closed_statement_count -= count($non_closed_statement_ids);
-    } else {
-      $recently_closed_statement_count = 0;
     }
-    $this->assign('count_recently_completed', $recently_closed_statement_count);
+
+    // add the 'recently closed' count
+    if ($recently_closed_cutoff) {
+      if ($non_closed_statement_ids) {
+        $non_closed_statement_id_list = implode(',', $non_closed_statement_ids);
+      } else {
+        $non_closed_statement_id_list = "-1";
+      }
+      $recently_closed_statement_count = CRM_Core_DAO::singleValueQuery("
+        SELECT COUNT(DISTINCT(id))
+        FROM civicrm_bank_tx_batch btxb
+        WHERE starting_date >= (NOW() - {$recently_closed_cutoff})
+        AND btxb.id NOT IN ({$non_closed_statement_id_list});");
+      $recently_closed_statement_count -= count($non_closed_statement_ids);
+      $this->assign('count_recently_completed', $recently_closed_statement_count);
+    }
 
     // collect an array of target accounts, serving to limit the display
     $target_accounts = [];

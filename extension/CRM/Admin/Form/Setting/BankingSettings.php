@@ -91,7 +91,7 @@ class CRM_Admin_Form_Setting_BankingSettings extends CRM_Core_Form {
           24 => E::ts('last %1 years', [1 => "2"]),
           60 => E::ts('last %1 years', [1 => "5"]),
         ],
-        TRUE,
+        TRUE
     );
 
     $this->add(

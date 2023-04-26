@@ -19,7 +19,7 @@ function banking_helper_buildURL($base, $set_params, $keep_params=array(), $dele
     if ($keep_param_source==NULL) $keep_param_source = $_REQUEST;
 
     $params = array();
-    // take over selected parameters from sourc
+    // take over selected parameters from source
     foreach ($keep_params as $key) {
         if (isset($keep_param_source[$key])) {
             $params[$key] = $keep_param_source[$key];

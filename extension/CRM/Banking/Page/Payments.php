@@ -551,7 +551,7 @@ class CRM_Banking_Page_Payments extends CRM_Core_Page {
           [
             1 => $transaction_display_cutoff,
             2 => CRM_Utils_System::url('civicrm/admin/setting/banking', "reset=1"),
-          ],
+          ]
         ),
         E::ts('Incomplete Transaction List'),
         'alert');

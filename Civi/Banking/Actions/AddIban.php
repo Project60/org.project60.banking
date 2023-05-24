@@ -104,13 +104,13 @@ class AddIban extends AbstractAction {
     if (function_exists('civicrm_api4')) {
       try {
         $optionValues = \Civi\Api4\OptionValue::get()
-          ->addSelect('value')
+          ->addSelect('id')
           ->addWhere('option_group_id:name', '=', 'civicrm_banking.reference_types')
           ->addWhere('name', '=', 'IBAN')
           ->execute();
         $optionValue = $optionValues->first();
-        if ($optionValue['value']) {
-          return $optionValue['value'];
+        if ($optionValue['id']) {
+          return $optionValue['id'];
         }
       }
       catch (\API_Exception $ex) {
@@ -119,7 +119,7 @@ class AddIban extends AbstractAction {
     else {
       try {
         $accRef = civicrm_api3('OptionValue', 'getvalue', [
-          'return' => "value",
+          'return' => "id",
           'option_group_id' => "civicrm_banking.reference_types",
           'name' => "IBAN",
         ]);

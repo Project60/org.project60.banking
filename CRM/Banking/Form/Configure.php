@@ -42,7 +42,7 @@ class CRM_Banking_Form_Configure extends CRM_Core_Form {
     }
 
     // set default editor mode
-    $json_editor_mode = CRM_Core_BAO_Setting::getItem('CiviBanking', 'json_editor_mode');
+    $json_editor_mode = Civi::settings()->get('json_editor_mode');
     if (empty($json_editor_mode)) {
       $json_editor_mode = 'text';
     }

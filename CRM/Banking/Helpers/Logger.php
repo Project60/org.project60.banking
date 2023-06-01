@@ -48,7 +48,7 @@ class CRM_Banking_Helpers_Logger {
   protected function __construct() {
     // read log level
     $all_levels = self::getLoglevels();
-    $this->log_level = CRM_Core_BAO_Setting::getItem('CiviBanking', 'banking_log_level');
+    $this->log_level = Civi::settings()->get('banking_log_level');
     if (!isset($all_levels[$this->log_level])) {
       // invalid log level -> fall back to 'off'
       $this->log_level = 'off';
@@ -58,7 +58,7 @@ class CRM_Banking_Helpers_Logger {
     $this->timers = array();
 
     // create log file
-    $log_file = CRM_Core_BAO_Setting::getItem('CiviBanking', 'banking_log_file');
+    $log_file = Civi::settings()->get('banking_log_file');
     if (!empty($log_file)) {
       // log to file:
       if (substr($log_file, 0, 1) != '/') {

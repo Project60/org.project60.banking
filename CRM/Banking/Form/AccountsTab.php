@@ -70,11 +70,11 @@ class CRM_Banking_Form_AccountsTab extends CRM_Core_Form {
     }
 
     // load settings
-    $this->assign('reference_normalisation', (int) CRM_Core_BAO_Setting::getItem('CiviBanking', 'reference_normalisation'));
-    $this->assign('reference_validation',    (int) CRM_Core_BAO_Setting::getItem('CiviBanking', 'reference_validation'));
+    $this->assign('reference_normalisation', (int) Civi::settings()->get('reference_normalisation'));
+    $this->assign('reference_validation',    (int) Civi::settings()->get('reference_validation'));
 
     // ACCOUNT REFRENCE ITEMS
-    $this->add('hidden', 'contact_id', $contact_id, true);
+    $this->add('hidden', 'contact_id', $contact_id, []);
     $this->add('hidden', 'reference_id');
 
     $reference_type = $this->add(
@@ -85,7 +85,7 @@ class CRM_Banking_Form_AccountsTab extends CRM_Core_Form {
         true // is required
     );
     // set last value
-    $reference_type->setSelected(CRM_Core_BAO_Setting::getItem('CiviBanking', 'account.default_reference_id'));
+    $reference_type->setSelected(Civi::settings()->get('account.default_reference_id'));
 
     $reference_type = $this->add(
         'text',
@@ -95,7 +95,7 @@ class CRM_Banking_Form_AccountsTab extends CRM_Core_Form {
         true
     );
 
-    
+
     // BANK ITEMS
     $this->add('hidden', 'ba_id');
 
@@ -123,7 +123,7 @@ class CRM_Banking_Form_AccountsTab extends CRM_Core_Form {
         false
     );
     // set last value
-    $country->setSelected(CRM_Core_BAO_Setting::getItem('CiviBanking', 'account.default_country'));
+    $country->setSelected(Civi::settings()->get('account.default_country'));
 
 
     $this->addButtons(array(
@@ -148,8 +148,8 @@ class CRM_Banking_Form_AccountsTab extends CRM_Core_Form {
   public function validate() {
     $error = parent::validate();
     $values = $this->exportValues();
-    $normalise = CRM_Core_BAO_Setting::getItem('CiviBanking', 'reference_normalisation');
-    $validate  = CRM_Core_BAO_Setting::getItem('CiviBanking', 'reference_validation');
+    $normalise = Civi::settings()->get('reference_normalisation');
+    $validate  = Civi::settings()->get('reference_validation');
 
     if (!empty($values['reference_type']) && !empty($values['reference'])) {
         if ($validate || $normalise) {
@@ -164,10 +164,10 @@ class CRM_Banking_Form_AccountsTab extends CRM_Core_Form {
             } elseif ($normalise && $result['normalised'] ) {
                 $values['reference'] = $result['reference'];
                 $this->set('reference', $result['reference']);
-            }            
+            }
         }
     }
-    
+
     if (0 == count($this->_errors)) {
         return TRUE;
     } else {
@@ -182,15 +182,15 @@ class CRM_Banking_Form_AccountsTab extends CRM_Core_Form {
   function postProcess() {
     $values = $this->exportValues();
     $was_created = FALSE;
-    
+
     // save presets
     if (!empty($values['reference_type'])) {
-        CRM_Core_BAO_Setting::setItem($values['reference_type'], 'CiviBanking', 'account.default_reference_id');
+        Civi::settings()->set('account.default_reference_id', $values['reference_type']);
     }
     if (!empty($values['country'])) {
-        CRM_Core_BAO_Setting::setItem($values['country'], 'CiviBanking', 'account.default_country');
+        Civi::settings()->set('account.default_country', $values['country']);
     }
-    
+
     // create bank account
     $ba_id = $values['ba_id'];
     if (empty($ba_id)) {
@@ -226,7 +226,7 @@ class CRM_Banking_Form_AccountsTab extends CRM_Core_Form {
     if (!empty($values['reference_id'])) {
         $reference_update['id'] = $values['reference_id'];
     }
-    
+
     civicrm_api3('BankingAccountReference', 'create', $reference_update);
 
     if ($was_created) {
@@ -237,7 +237,7 @@ class CRM_Banking_Form_AccountsTab extends CRM_Core_Form {
 
     // return to accounts tab
     if (!empty($values['contact_id'])) {
-        CRM_Utils_System::redirect(CRM_Utils_System::url('civicrm/contact/view', "reset=1&cid={$values['contact_id']}&selectedChild=bank_accounts"));        
+        CRM_Utils_System::redirect(CRM_Utils_System::url('civicrm/contact/view', "reset=1&cid={$values['contact_id']}&selectedChild=bank_accounts"));
     }
     parent::postProcess();
   }

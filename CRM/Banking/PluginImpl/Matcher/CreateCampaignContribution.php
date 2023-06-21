@@ -70,7 +70,6 @@ class CRM_Banking_PluginImpl_Matcher_CreateCampaignContribution extends CRM_Bank
     // generate an api query to look for eligible activities
     $activity_search_query = [
       'option.limit'       => 0,
-      '_return'            => 'TODO',
       'contact_id'         => ['IN' => array_keys($contacts_found)],
       'campaign_id'        => ['IN' => explode(',', $config->campaign_id)],
       'status_id'          => ['IN' => array_keys($config->status_id)],
@@ -78,6 +77,7 @@ class CRM_Banking_PluginImpl_Matcher_CreateCampaignContribution extends CRM_Bank
             date('Y-m-d H:i:s', strtotime("{$btx->booking_date} - {$config->time_frame}")),
             date('Y-m-d H:i:s', strtotime("{$btx->booking_date}"))
       ]],
+      '_return'            => 'TODO',
     ];
     $this->logMessage("Looking for activities with query: " . json_encode($activity_search_query), 'debug');
     $this->logger->setTimer('campaign_contribution:search');

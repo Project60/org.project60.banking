@@ -4,8 +4,8 @@
 # make sure you license it to CiviCRM LLC under Academic Free License 3.0.
 msgid ""
 msgstr ""
-"Project-Id-Version: extension\n"
-"POT-Creation-Date: 2023-03-14 11:20+0100\n"
+"Project-Id-Version: CiviBanking\n"
+"POT-Creation-Date: 2023-06-22 19:01+0200\n"
 "Language-Team: CiviCRM Translators <civicrm-translators@lists.civicrm.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -68,6 +68,30 @@ msgid "Log Level"
 msgstr ""
 
 #: CRM/Admin/Form/Setting/BankingSettings.php
+msgid "Show Completed Statements (Recent)"
+msgstr ""
+
+#: CRM/Admin/Form/Setting/BankingSettings.php
+msgid "disabled"
+msgstr ""
+
+#: CRM/Admin/Form/Setting/BankingSettings.php
+msgid "last month"
+msgstr ""
+
+#: CRM/Admin/Form/Setting/BankingSettings.php
+msgid "last quarter"
+msgstr ""
+
+#: CRM/Admin/Form/Setting/BankingSettings.php
+msgid "last %1 months"
+msgstr ""
+
+#: CRM/Admin/Form/Setting/BankingSettings.php
+msgid "last %1 years"
+msgstr ""
+
+#: CRM/Admin/Form/Setting/BankingSettings.php
 msgid "Log File"
 msgstr ""
 
@@ -95,6 +119,14 @@ msgstr ""
 msgid "Lenient bank account dedupe"
 msgstr ""
 
+#: CRM/Admin/Form/Setting/BankingSettings.php
+msgid "Transaction limit in view"
+msgstr ""
+
+#: CRM/Admin/Form/Setting/BankingSettings.php
+msgid "This needs to be a number larger than 0"
+msgstr ""
+
 #: CRM/Admin/Form/Setting/BankingSettings.php CRM/Banking/Form/AccountsTab.php
 #: CRM/Banking/Form/Configure.php ang/banking/Main.html
 msgid "Save"
@@ -120,7 +152,7 @@ msgstr ""
 msgid "Cannot update, field %1 differs."
 msgstr ""
 
-#: CRM/Banking/DAO/BankAccount.php hooks.php
+#: CRM/Banking/DAO/BankAccount.php banking.php
 msgid "Bank Accounts"
 msgstr ""
 
@@ -908,7 +940,7 @@ msgstr ""
 msgid "%1 duplicate references successfully deleted."
 msgstr ""
 
-#: CRM/Banking/Page/AccountSearch.php hooks.php
+#: CRM/Banking/Page/AccountSearch.php banking.php
 msgid "Find Accounts"
 msgstr ""
 
@@ -996,6 +1028,10 @@ msgstr ""
 msgid "Plugin deleted"
 msgstr ""
 
+#: CRM/Banking/Page/Payments.php templates/CRM/Banking/Page/Export.tpl
+msgid "Bank Statements"
+msgstr ""
+
 #: CRM/Banking/Page/Payments.php
 msgid "%1 new statements."
 msgstr ""
@@ -1017,10 +1053,6 @@ msgid "%1 closed statements."
 msgstr ""
 
 #: CRM/Banking/Page/Payments.php
-msgid "Unnamed"
-msgstr ""
-
-#: CRM/Banking/Page/Payments.php
 msgid "not yet identified."
 msgstr ""
 
@@ -1037,11 +1069,14 @@ msgid "%d completed transactions."
 msgstr ""
 
 #: CRM/Banking/Page/Payments.php
-msgid "Internal limit of 2000 transactions hit. Please use smaller statements."
+msgid ""
+"Internal limit (%1) of transactions to show was exceeded. Please use smaller "
+"statements, or adjust the cut-off value in the settings (<a href="
+"\"%2#transaction_list_cutoff\">here</a>)."
 msgstr ""
 
 #: CRM/Banking/Page/Payments.php
-msgid "List incomplete"
+msgid "Incomplete Transaction List"
 msgstr ""
 
 #: CRM/Banking/Page/Review.php
@@ -1817,6 +1852,34 @@ msgstr ""
 msgid "Complete"
 msgstr ""
 
+#: banking.php
+msgid "CiviBanking"
+msgstr ""
+
+#: banking.php
+msgid "Dashboard"
+msgstr ""
+
+#: banking.php
+msgid "Import Transactions"
+msgstr ""
+
+#: banking.php templates/CRM/Banking/Page/Payments.tpl
+msgid "Show Transactions"
+msgstr ""
+
+#: banking.php
+msgid "Find Transactions"
+msgstr ""
+
+#: banking.php
+msgid "Dedupe Accounts"
+msgstr ""
+
+#: banking.php
+msgid "Configuration Manager"
+msgstr ""
+
 #: banking_options.php
 msgid "International Bank Account Number"
 msgstr ""
@@ -1919,34 +1982,6 @@ msgstr ""
 
 #: banking_options.php
 msgid "Traditional Spanish bank account number"
-msgstr ""
-
-#: hooks.php
-msgid "CiviBanking"
-msgstr ""
-
-#: hooks.php
-msgid "Dashboard"
-msgstr ""
-
-#: hooks.php
-msgid "Import Transactions"
-msgstr ""
-
-#: hooks.php templates/CRM/Banking/Page/Payments.tpl
-msgid "Show Transactions"
-msgstr ""
-
-#: hooks.php
-msgid "Find Transactions"
-msgstr ""
-
-#: hooks.php
-msgid "Dedupe Accounts"
-msgstr ""
-
-#: hooks.php
-msgid "Configuration Manager"
 msgstr ""
 
 #: templates/CRM/Admin/Form/Setting/BankingSettings.tpl
@@ -2222,10 +2257,6 @@ msgid "Export bank transactions"
 msgstr ""
 
 #: templates/CRM/Banking/Page/Export.tpl
-msgid "Bank Statements"
-msgstr ""
-
-#: templates/CRM/Banking/Page/Export.tpl
 msgid "Select Exporter"
 msgstr ""
 
@@ -2329,7 +2360,7 @@ msgstr ""
 #: templates/CRM/Banking/Page/Manager.tpl
 msgid ""
 "You might also want to have a look at the <a href=\"%1\" target=\"_blank"
-"\">CivBanking <strong>SETTINGS</strong></a>"
+"\">CiviBanking <strong>SETTINGS</strong></a>"
 msgstr ""
 
 #: templates/CRM/Banking/Page/Manager.tpl
@@ -2443,6 +2474,10 @@ msgstr ""
 
 #: templates/CRM/Banking/Page/Payments.tpl
 msgid "Analysed"
+msgstr ""
+
+#: templates/CRM/Banking/Page/Payments.tpl
+msgid "Completed (Recent)"
 msgstr ""
 
 #: templates/CRM/Banking/Page/Payments.tpl
@@ -3224,4 +3259,48 @@ msgstr ""
 msgid ""
 "The contact name  should be divided in two parts, the first name and last "
 "name."
+msgstr ""
+
+#: tests/phpunit/CRM/Banking/Analyser/RegexAnalyserTest.php
+msgid "The financial type ID is not correctly set."
+msgstr ""
+
+#: tests/phpunit/CRM/Banking/Analyser/RegexAnalyserTest.php
+msgid "The financial type ID is set but should not."
+msgstr ""
+
+#: tests/phpunit/CRM/Banking/Analyser/RegexAnalyserTest.php
+msgid "The payment instrument ID is not correctly set."
+msgstr ""
+
+#: tests/phpunit/CRM/Banking/Matcher/CreateContributionMatcherLegacyTest.php
+msgid "The contact ID is not correct."
+msgstr ""
+
+#: tests/phpunit/CRM/Banking/Matcher/CreateContributionMatcherLegacyTest.php
+msgid "The payment instrument ID is not correct."
+msgstr ""
+
+#: tests/phpunit/CRM/Banking/Matcher/CreateContributionMatcherLegacyTest.php
+msgid "The financial type ID is not correct."
+msgstr ""
+
+#: tests/phpunit/CRM/Banking/Matcher/MatchersIntegrationLegacyTest.php
+msgid "The transaction's financial type ID is not correct."
+msgstr ""
+
+#: tests/phpunit/CRM/Banking/Matcher/MatchersIntegrationLegacyTest.php
+msgid "The transaction's payment instrument ID is not correct."
+msgstr ""
+
+#: tests/phpunit/CRM/Banking/Matcher/MatchersIntegrationLegacyTest.php
+msgid "The contribution's contact ID is not correct."
+msgstr ""
+
+#: tests/phpunit/CRM/Banking/Matcher/MatchersIntegrationLegacyTest.php
+msgid "The contributions' payment instrument ID is not correct."
+msgstr ""
+
+#: tests/phpunit/CRM/Banking/Matcher/MatchersIntegrationLegacyTest.php
+msgid "The contributions' financial type ID is not correct."
 msgstr ""

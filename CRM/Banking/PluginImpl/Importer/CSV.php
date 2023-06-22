@@ -40,7 +40,6 @@ class CRM_Banking_PluginImpl_Importer_CSV extends CRM_Banking_PluginModel_Import
     if (!isset($config->defaults))       $config->defaults = array();
     if (!isset($config->rules))          $config->rules = array();
     if (!isset($config->drop_columns))   $config->drop_columns = array();
-    if (!isset($config->strip_bom))      $config->strip_bom = false;
   }
 
   /**

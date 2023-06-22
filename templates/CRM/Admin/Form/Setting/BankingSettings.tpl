@@ -28,6 +28,12 @@
 </div>
 
 <div class="crm-section">
+  <div class="label">{$form.recently_completed_cutoff.label}</div>
+  <div class="content">{$form.recently_completed_cutoff.html}</div>
+  <div class="clear"></div>
+</div>
+
+<div class="crm-section">
   <div class="label">{$form.json_editor_mode.label}</div>
   <div class="content">{$form.json_editor_mode.html}</div>
   <div class="clear"></div>

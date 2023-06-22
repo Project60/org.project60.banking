@@ -40,7 +40,7 @@ class CRM_Banking_Page_Import extends CRM_Core_Page {
         if ($plugin->id == $plugin_id) {
           $this->assign('plugin_list', array($plugin));
           break;
-        } 
+        }
       }
 
       // RUN the importer
@@ -70,7 +70,7 @@ class CRM_Banking_Page_Import extends CRM_Core_Page {
       } else {
         CRM_Core_Session::setStatus(E::ts('Importer needs a file to proceed.'), E::ts('No input file'), 'alert');
       }
-      
+
       // TODO: RUN the processor
       if (isset($_REQUEST['process']) && $_REQUEST['process']=="on") {
         CRM_Core_Session::setStatus(E::ts('Automated running not yet implemented'), E::ts('Not implemented'), 'alert');
@@ -98,11 +98,11 @@ class CRM_Banking_Page_Import extends CRM_Core_Page {
       foreach ($plugin_list as $plugin) {
         $class = $plugin->getClass();
         if ($class::does_import_files()) {
-          $has_file_source[$plugin->id] = 'true';  
+          $has_file_source[$plugin->id] = 'true';
         } else {
-          $has_file_source[$plugin->id] = 'false';  
+          $has_file_source[$plugin->id] = 'false';
         }
-        
+
       }
       $this->assign('has_file_source', $has_file_source);
     }
@@ -112,7 +112,9 @@ class CRM_Banking_Page_Import extends CRM_Core_Page {
     if ($new_ui_enabled) {
       $this->assign('url_payments', CRM_Utils_System::url('civicrm/banking/statements'));
     } else {
-      $this->assign('url_payments', CRM_Utils_System::url('civicrm/banking/payments', 'show=statements'));
+      $this->assign('url_payments', CRM_Utils_System::url(
+        'civicrm/banking/payments',
+        'show=statements&recent=' . empty($_REQUEST['recent']) ? 0 : 1));
     }
     $this->assign('url_action', CRM_Utils_System::url('civicrm/banking/import'));
 

@@ -39,13 +39,13 @@ class CRM_Banking_PluginImpl_Matcher_CreateCampaignContribution extends CRM_Bank
     if (!isset($config->lookup_contact_by_name)) $config->lookup_contact_by_name = array("hard_cap_probability" => 0.9);
 
     // activity search profile (MUST OVERRIDE IN CONFIG)
-    if (!isset($config->campaign_id))       $config->campaign_id = 1;
-    if (!isset($config->activity_type_id))  $config->activity_type_id = [1,2,3]; // optional, activity type IDs to consider - or *any* if empty
-    if (!isset($config->status_id))         $config->status_id = [2];            // optional, activity status IDs to consider - or *any* if empty
-    if (!isset($config->time_frame))        $config->time_frame = "40 days";     // optional, time AFTER the activity timestamp - or *any* if empty
+    if (!isset($config->campaign_id))       $config->campaign_id = 1;            // activity campaign
+    if (!isset($config->activity_type_id))  $config->activity_type_id = [2,3,4]; // activity type IDs to consider - or *any* if empty
+    if (!isset($config->status_id))         $config->status_id = [2];            // activity status IDs to consider - or *any* if empty
+    if (!isset($config->time_frame))        $config->time_frame = "40 days";     // maximum time between the activity and the bank transaction
 
     // contribution create parameters (SHOULD OVERRIDE IN CONFIG)
-    if (!isset($config->financial_type_id))  $config->financial_type_id = 1;   // optional, time AFTER the activity timestamp - or *any* if empty
+    if (!isset($config->financial_type_id))  $config->financial_type_id = 1;     // optional, time AFTER the activity timestamp - or *any* if empty
   }
 
 
@@ -70,38 +70,55 @@ class CRM_Banking_PluginImpl_Matcher_CreateCampaignContribution extends CRM_Bank
     // generate an api query to look for eligible activities
     $activity_search_query = [
       'option.limit'       => 0,
-      'contact_id'         => ['IN' => array_keys($contacts_found)],
-      'campaign_id'        => ['IN' => explode(',', $config->campaign_id)],
-      'status_id'          => ['IN' => array_keys($config->status_id)],
+      'target_id'          => ['IN' => array_keys($contacts_found)],
+      'activity_status_id' => ['IN' => $config->status_id ?? ['Completed']],
       'activity_date_time' => ['BETWEEN' => [
             date('Y-m-d H:i:s', strtotime("{$btx->booking_date} - {$config->time_frame}")),
-            date('Y-m-d H:i:s', strtotime("{$btx->booking_date}"))
-      ]],
-      '_return'            => 'TODO',
+            date('Y-m-d H:i:s', strtotime("{$btx->booking_date} +1 day"))] // we add a day to cover the whole day
+      ],
+      'return' => [
+        'target_contact_id',
+        'source_contact_id',
+        'activity_type_id',
+        'subject',
+        'activity_date_time',
+        'status_id',
+      ]
     ];
+
+    // add campaign IDs from the configuration
+    if (!empty($config->campaign_ids)) {
+      $activity_search_query['campaign_id'] = ['IN' => $config->campaign_ids];
+    }
+    // add specific return values
+    if (!empty($config->load_activity_fields)) {
+      $activity_search_query['return'] = $config->load_activity_fields;
+    }
+
+    // run query
     $this->logMessage("Looking for activities with query: " . json_encode($activity_search_query), 'debug');
     $this->logger->setTimer('campaign_contribution:search');
     $activities = civicrm_api3('Activity', 'get', $activity_search_query);
-    $this->logTime("Finding {$activities['count']} activities to consider.", 'campaign_contribution:search');
+    $this->logTime("Found {$activities['count']} activities to consider", 'campaign_contribution:search');
 
-    // get activity target contacts
-    $activity_to_contacts = $this->getActivity2Contact(array_keys($activities['values']));
-
-    // investigate and rate the options
+    // investigate and rate the activities found
     foreach ($activities['values'] as $activity) {
       $activity_id = $activity['id'];
-      $contact_ids = $activity_to_contacts[$activity_id] ?? [];
+      $contact_ids = array_values($activity['target_contact_id']) ?? [];
       foreach ($contact_ids as $contact_id) {
-        $suggestion = new CRM_Banking_Matcher_Suggestion($this, $btx);
-        $suggestion->setTitle(E::ts("Create Campaign Contribution"));
-        $suggestion->setId("create-{$activity_id}");
-        $suggestion->setParameter('contact_id', $contact_id);
-
-        // set probability manually
-        $contact_probability -= $penalty;
-        if ($contact_probability >= $threshold) {
-          $suggestion->setProbability($contact_probability);
-          $btx->addSuggestion($suggestion);
+        if (isset($contacts_found[$contact_id])) {
+          $contact_probability = $contacts_found[$contact_id];
+          if ($contact_probability >= $threshold) {
+            // this is one of the contacts we're looking for -> create suggestion
+            $suggestion = new CRM_Banking_Matcher_Suggestion($this, $btx);
+            $suggestion->setTitle(E::ts("Create Campaign Contribution"));
+            $suggestion->setId("create-campaign-{$activity_id}-{$contact_id}");
+            $suggestion->setParameter('contact_id', $contact_id);
+            $suggestion->setParameter('activity_id', $activity_id);
+            // todo: calculate gradual probability to, for example, e.g. lower the longer ago the activity was
+            $suggestion->setProbability($contact_probability);
+            $btx->addSuggestion($suggestion);
+          }
         }
       }
     }
@@ -230,7 +247,10 @@ class CRM_Banking_PluginImpl_Matcher_CreateCampaignContribution extends CRM_Bank
    * compile the contribution data from the BTX and the propagated values
    */
   function get_contribution_data($btx, $match, $contact_id) {
-    $contribution = array();
+    $config = $this->getConfig();
+    $contribution = [];
+    $contribution['currency'] = $btx->currency;
+    $contribution['financial_type_id'] = $this->getConfig()->financial_type_id ?? null;
     $contribution['contact_id'] = $contact_id;
     $contribution['total_amount'] = $btx->amount;
     $contribution['receive_date'] = $btx->value_date;

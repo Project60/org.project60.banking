@@ -304,7 +304,7 @@ class CRM_Banking_TestBase extends \PHPUnit\Framework\TestCase implements Headle
   {
     $defaults = [
       'subject'            => 'Campaign ' . base64_encode(microtime()),
-      'status_id'          => $this->getRandomOptionValue('activity_status'),
+      'activity_status_id' => $this->getRandomOptionValue('activity_status'),
       'activity_type_id'   => $this->getRandomOptionValue('activity_type'),
       'activity_date_time' => date('Y-m-d', strtotime('yesterday')),
       'details'            => 'TMI',

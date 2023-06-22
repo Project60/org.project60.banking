@@ -56,12 +56,13 @@ class CRM_Banking_Matcher_CreateCampaignContributionMatcherTest extends CRM_Bank
    * Basic test to see if the contribution matcher fires
    *   and passes on the respective variables
    */
-  public function testCampaignMatcher():void {
+  public function testCampaignMatcherBasic():void {
     // step 1: create a simple scenario
     $contact_id = $this->createContact();
     $campaign_id = $this->createCampaign();
     $this->createActivity([
-      'target_id' => $contact_id,
+      'target_id'          => $contact_id,
+      'activity_status_id' => 'Completed',
     ]);
 
     // step 2: configure a simple campaign matcher
@@ -72,6 +73,7 @@ class CRM_Banking_Matcher_CreateCampaignContributionMatcherTest extends CRM_Bank
     $transaction1_id = $this->createTransaction([
       'purpose' => "This transaction should trigger a campaign-based contribution",
       'campaign_id' => $campaign_id,
+      'contact_id' => $contact_id
     ]);
 
     // get the previous existing contribution
@@ -84,5 +86,42 @@ class CRM_Banking_Matcher_CreateCampaignContributionMatcherTest extends CRM_Bank
     // check the result
     $created_contribution = $this->getLatestContribution();
     $this->assertNotNull($created_contribution, "No contribution generated. Something doesn't work.");
+  }
+
+  /**
+   * Basic test to see respects
+   */
+  public function testCampaignMatcherBasicNegative():void {
+    // step 1: create a simple scenario
+    $contact_id = $this->createContact();
+    $campaign_id = $this->createCampaign();
+    $this->createActivity([
+        'target_id'          => $contact_id,
+        'activity_status_id' => 'Completed',
+        // default is 40 days, so this should fail:
+        'activity_date_time' => date('Y-m-d', strtotime("now -41 days"))
+      ]);
+
+    // step 2: configure a simple campaign matcher
+    $this->configureCiviBankingModule(
+      $this->getTestResourcePath('matcher/configuration/CampaignMatcher-01.civibanking'));
+
+    // step 3: create a transaction
+    $transaction1_id = $this->createTransaction([
+      'purpose' => "This transaction should trigger a campaign-based contribution",
+      'campaign_id' => $campaign_id,
+      'contact_id' => $contact_id
+    ]);
+
+    // get the previous existing contribution
+    $last_contribution = $this->getLatestContribution();
+    $this->assertNull($last_contribution, "there should NOT be a contribution at this point. Or is this too restrictive?");
+
+    // run the matcher
+    $this->runMatchers();
+
+    // check the result
+    $new_last_contribution = $this->getLatestContribution();
+    $this->assertEquals($last_contribution, $new_last_contribution, "No contribution should've been generated. Something doesn't work right.");
   }
 }

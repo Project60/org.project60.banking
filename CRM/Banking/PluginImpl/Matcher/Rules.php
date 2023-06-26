@@ -83,10 +83,11 @@ class CRM_Banking_PluginImpl_Matcher_Rules extends CRM_Banking_PluginModel_Match
    * @param type $btx
    */
   public function execute($match, $btx) {
+    /* what happened here?
     if (!$rule) {
       CRM_Core_Session::setStatus(ts("You cannot "), ts('Error'), 'error');
       return;
-    }
+    }*/
 
     $rule_id = $match->getParameter('rule_id');
     $rule = CRM_Banking_Rules_Rule::get($rule_id);

@@ -28,7 +28,6 @@ class CRM_Banking_Helpers_AnalysisRunner {
   protected $btx_ids = NULL;
 
   protected function __construct($btx_ids, $batch_number) {
-    $this->title   = $title;
     $this->btx_ids = $btx_ids;
 
     if ($btx_ids === NULL) {

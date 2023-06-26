@@ -232,7 +232,7 @@ class CRM_Banking_TestBase extends \PHPUnit\Framework\TestCase implements Headle
    */
   public function getTestResourcePath($internal_path)
   {
-    $importer_spec = '/tests/resources/' . $internal_path;
+    $importer_spec = 'tests/resources/' . $internal_path;
     $full_path     = E::path($importer_spec);
     $this->assertTrue(file_exists($full_path), "Test resource '{$internal_path}' not found.");
     $this->assertTrue(is_readable($full_path), "Test resource '{$internal_path}' cannot be opened.");
@@ -303,6 +303,7 @@ class CRM_Banking_TestBase extends \PHPUnit\Framework\TestCase implements Headle
       'currency'       => 'EUR',
       'sequence'       => $transactionReferenceCounter,
       'status_id'      => $this->getTxStatusID('new'),
+      'name'           => $this->getRandomString(),
     ];
 
     // overwrite the values submitted

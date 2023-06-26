@@ -247,6 +247,7 @@ function _civicrm_api3_banking_lookup_contactbyname_sql($name_mutations, $params
 
   // compile SQL query
   $sql_clauses = array();
+  $name_mutation = '';
   foreach ($name_mutations as $name_mutation) {
     $name_mutation = CRM_Utils_Type::escape($name_mutation, 'String');
     $sql_clauses[] = "(`sort_name` LIKE '{$name_mutation}%')";

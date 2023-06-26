@@ -175,7 +175,7 @@ class CRM_Banking_Upgrader extends CRM_Banking_Upgrader_Base {
   public function upgrade_0704() {
     // rebuild menu, in particular for the UI
     CRM_Core_Invoke::rebuildMenuAndCaches();
-    CRM_Core_BAO_Setting::setItem($values['reference_matching_probability'], 'CiviBanking', 'reference_matching_probability');
+    Civi::settings()->set('reference_matching_probability', 1.0);
     return true;
   }
 
@@ -186,7 +186,7 @@ class CRM_Banking_Upgrader extends CRM_Banking_Upgrader_Base {
    */
   public function upgrade_0800() {
     // Set the bank account reference probability to 100%.
-    CRM_Core_BAO_Setting::setItem('1.0', 'CiviBanking', 'reference_matching_probability');
+    Civi::settings()->set('reference_matching_probability', 1.0);
     return true;
   }
 
@@ -219,7 +219,6 @@ class CRM_Banking_Upgrader extends CRM_Banking_Upgrader_Base {
     banking_civicrm_install_options(_banking_options());
     return true;
   }
-
 
   /**
    * Upgrader for 0.8 / BANKING-312:

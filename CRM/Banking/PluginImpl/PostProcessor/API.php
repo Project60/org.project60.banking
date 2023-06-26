@@ -140,7 +140,7 @@ class CRM_Banking_PluginImpl_PostProcessor_API extends CRM_Banking_PluginModel_P
    * get a list of values from the field
    */
   protected function getLoopValues($context, $source) {
-    $value = $this->getPropagationValue($context->btx, $match, $source);
+    $value = $this->getPropagationValue($context->btx, null, $source);
 
     if ($value === NULL) {
       return array();

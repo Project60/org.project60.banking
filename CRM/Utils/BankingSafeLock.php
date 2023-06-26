@@ -40,12 +40,12 @@ class CRM_Utils_BankingSafeLock {
   }
 
   /**
-   * Will acquire a lock with the given name, 
+   * Will acquire a lock with the given name,
    * if no other lock has been acquired by this process.
-   * 
+   *
    * If the same lock has been acquired before (and not been released),
    * in internal counter is increased. Therefore you can acquire the same
-   * lock multiple times, but you will then have to release them 
+   * lock multiple times, but you will then have to release them
    * the same amount of times
    *
    * @return a SafeLock instance or NULL if timed out
@@ -84,7 +84,7 @@ class CRM_Utils_BankingSafeLock {
   }
 
   /**
-   * Will release a lock with the given name, 
+   * Will release a lock with the given name,
    *  if it has been acquired before
    */
   public static function releaseLock($name) {
@@ -106,7 +106,7 @@ class CRM_Utils_BankingSafeLock {
   }
 
   /**
-   * Will release a lock with the given name, 
+   * Will release a lock with the given name,
    *  if it has been acquired before
    */
   public function release() {
@@ -125,8 +125,8 @@ class CRM_Utils_BankingSafeLock {
 
     } else {
       // lock has already been released!
-      error_log("org.project60.banking: This process cannot realease lock '$name', it has already been released before.");
-      throw new Exception("This process cannot realease lock '$name', it has already been released before.");   
+      error_log("org.project60.banking: This process cannot release the lock, it has already been released before.");
+      throw new Exception("This process cannot release the lock', it has already been released before.");
     }
   }
 }

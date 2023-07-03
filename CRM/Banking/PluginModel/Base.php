@@ -117,7 +117,7 @@ abstract class CRM_Banking_PluginModel_Base {
    *
    * TODO: data format? float [0..1]?
    */
-  function reportProgress($progress, $message=None, $level=self::REPORT_LEVEL_INFO) {
+  function reportProgress($progress, $message='', $level=self::REPORT_LEVEL_INFO) {
     if ($progress==self::REPORT_PROGRESS_NONE) {
       // this means, no new progress has been made, simple take the last one
       $last_entry = array_slice( $this->_progress_log, -1, 1, TRUE );
@@ -139,7 +139,7 @@ abstract class CRM_Banking_PluginModel_Base {
       $_progress_callback->reportProgress($progress, $message, $level);
     }
     // log internally
-    array_push($this->_progress_log, array(date('Y-m-d H:i:s'), $progress, $message, $level));
+    $this->_progress_log[] = [date('Y-m-d H:i:s'), $progress, $message, $level];
   }
 
   /**

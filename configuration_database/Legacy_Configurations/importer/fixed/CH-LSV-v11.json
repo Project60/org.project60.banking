@@ -1,7 +1,7 @@
 {
    "sentinel": "#^(202|205)#",
    "defaults": {
-      "tx.currency": "EUR",
+      "tx.currency": "EUR"
       },
 	"generic_rules": [
       {

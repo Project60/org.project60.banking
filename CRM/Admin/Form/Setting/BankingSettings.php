@@ -101,6 +101,13 @@ class CRM_Admin_Form_Setting_BankingSettings extends CRM_Core_Form {
       ['class' => 'huge']
     );
 
+    // allow status reset on transactions
+    $this->add(
+      'checkbox',
+      'allow_trx_reset',
+      E::ts("Allow status reset on ignored transactions"),
+      '');
+
     // store bank accounts
     $this->add(
       'checkbox',
@@ -171,6 +178,7 @@ class CRM_Admin_Form_Setting_BankingSettings extends CRM_Core_Form {
     $defaults['json_editor_mode']                = Civi::settings()->get('json_editor_mode');
     $defaults['banking_log_level']               = Civi::settings()->get('banking_log_level');
     $defaults['banking_log_file']                = Civi::settings()->get('banking_log_file');
+    $defaults['allow_trx_reset']                 = Civi::settings()->get('allow_trx_reset');
     $defaults['reference_store_disabled']        = Civi::settings()->get('reference_store_disabled');
     $defaults['reference_normalisation']         = Civi::settings()->get('reference_normalisation');
     $defaults['recently_completed_cutoff']       = Civi::settings()->get('recently_completed_cutoff');
@@ -206,6 +214,9 @@ class CRM_Admin_Form_Setting_BankingSettings extends CRM_Core_Form {
       Civi::settings()->set('menu_position', $new_menu_position);
       CRM_Core_BAO_Navigation::resetNavigation();
     }
+
+    // allow trx status reset
+    Civi::settings()->set('allow_trx_reset', !empty($values['allow_trx_reset']));
 
     // process menu entry
     Civi::settings()->set('json_editor_mode', $new_menu_position);

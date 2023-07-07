@@ -51,6 +51,12 @@
   <div class="clear"></div>
 </div>
 
+<div class="crm-section">
+  <div class="label">{$form.allow_trx_reset.label}</div>
+  <div class="content">{$form.allow_trx_reset.html}</div>
+  <div class="clear"></div>
+</div>
+
 <br/>
 <h3>{ts domain='org.project60.banking'}Bank Account Settings{/ts}</h3>
 

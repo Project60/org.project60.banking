@@ -185,10 +185,10 @@ class CRM_Banking_Form_AccountsTab extends CRM_Core_Form {
     
     // save presets
     if (!empty($values['reference_type'])) {
-        CRM_Core_BAO_Setting::setItem($values['reference_type'], 'CiviBanking', 'account.default_reference_id');
+        Civi::settings()->set('account.default_reference_id', $values['reference_type']);
     }
     if (!empty($values['country'])) {
-        CRM_Core_BAO_Setting::setItem($values['country'], 'CiviBanking', 'account.default_country');
+        Civi::settings()->set('account.default_country', $values['country']);
     }
     
     // create bank account

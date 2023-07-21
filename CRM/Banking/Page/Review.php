@@ -95,6 +95,9 @@ class CRM_Banking_Page_Review extends CRM_Core_Page {
         }
       }
 
+      $allow_trx_reset = CRM_Core_BAO_Setting::getItem('CiviBanking', 'allow_trx_reset');
+      $this->assign('allow_trx_reset', $allow_trx_reset);
+
       // parse structured data
       $this->assign('btxstatus', $choices[$btx_bao->status_id]);
       $this->assign('payment', $btx_bao);

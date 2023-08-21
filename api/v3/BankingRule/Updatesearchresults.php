@@ -36,6 +36,7 @@ function civicrm_api3_banking_rule_Updatesearchresults($params) {
   $all_results_params['options']['limit'] = 0;
   $all_results_params['options']['offset'] = 0;
   $results = CRM_Banking_Rules_Rule::search($all_results_params);
+  $rules = (array) $results['rules'];
 
   // Update them.
   // Currently only is_enabled is the only update we allow, but this could be
@@ -44,7 +45,7 @@ function civicrm_api3_banking_rule_Updatesearchresults($params) {
     && in_array($params['update']['is_enabled'], [0, 1])) {
 
     $enabled = (int) $params['update']['is_enabled'];
-    foreach ($results['rules'] as $rule) {
+    foreach ($rules as $rule) {
       $rule->setIs_enabled($enabled);
       $rule->save();
     }
@@ -55,7 +56,7 @@ function civicrm_api3_banking_rule_Updatesearchresults($params) {
   $limit  = (empty($params['options']['limit']) ? 10 : (int)$params['options']['limit']);
 
   $return = [];
-  foreach ($results['rules'] as $i=>$rule) {
+  foreach ($rules as $i=>$rule) {
     if ($i >= $offset && $i < $offset+$limit) {
       $return[] = $rule->getRuleData();
     }

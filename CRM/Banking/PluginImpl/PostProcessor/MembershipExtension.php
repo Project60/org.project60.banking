@@ -760,7 +760,7 @@ class CRM_Banking_PluginImpl_PostProcessor_MembershipExtension extends CRM_Banki
           self::$_current_status_ids[] = $status['id'];
         }
       } catch (Exception $ex) {
-        CRM_Core_Error::debug_log_message("Unexpected error: " . $ex->getMessage());
+        Civi::log()->debug("Unexpected error: " . $ex->getMessage());
       }
     }
 
@@ -782,7 +782,7 @@ class CRM_Banking_PluginImpl_PostProcessor_MembershipExtension extends CRM_Banki
             'sequential'   => 0
         ])['values'];
       } catch (Exception $ex) {
-        CRM_Core_Error::debug_log_message("Unexpected error: " . $ex->getMessage());
+        Civi::log()->debug("Unexpected error: " . $ex->getMessage());
       }
     }
 

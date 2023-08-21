@@ -249,12 +249,12 @@ function _civicrm_api3_banking_transaction_analyselist_spec(&$spec) {
  */
 function civicrm_api3_banking_transaction_analyseoldest($params) {
   // first: check time restrictions
-  $now = strtotime('now');
+  $now = (int) strtotime('now');
   if (!empty($params['time'])) {
     // try to parse time
     $times = explode('-', $params['time']);
-    $from = strtotime($times[0]);
-    $to = strtotime($times[1]);
+    $from = (int) strtotime($times[0]);
+    $to = (int) strtotime($times[1]);
     if (empty($from) || empty($to)) {
       return civicrm_api3_create_error("Something's wrong with your time parameter. Expected format is 'hh:mm-hh:mm'.");
     }
@@ -284,14 +284,14 @@ function civicrm_api3_banking_transaction_analyseoldest($params) {
   $processed_count = $engine->bulkRun($max_count);
 
   // finally, compile the result
-  $after_exec = strtotime('now');
+  $after_exec = (int) strtotime('now');
   $result = array(
     'max_count' =>        $max_count,
     'processed_count' =>  $processed_count,
     'time'            =>  ($after_exec - $now),
   );
   if ($processed_count > 0) {
-    $result['time_per_tx'] = ($after_exec - $now) / $processed_count;
+    $result['time_per_tx'] = (float) ($after_exec - $now) / (float) $processed_count;
   }
 
   return civicrm_api3_create_success($result);
@@ -300,8 +300,9 @@ function civicrm_api3_banking_transaction_analyseoldest($params) {
 
 /**
  * extracts the individual transaction IDs from the parameter set
- * @param  list    comma separated list of bank_tx ids to process
- * @param  s_list  comma separated list of bank_tx_batch ids to process
+ * @param array $params list of paramters:
+ *    list    comma separated list of bank_tx ids to process
+ *    s_list  comma separated list of bank_tx_batch ids to process
  *
  * @return array of IDs
  */

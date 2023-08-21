@@ -343,7 +343,7 @@ function _civicrm_api3_banking_lookup_contactbyname_penalties(&$contactID2probab
       if ((int) $penalty->relation_type_id) {
         $relation_type_ids[] = (int) $penalty->relation_type_id;
       } else {
-        CRM_Core_Error::debug_log_message("org.project60.banking.lookup - invalid or no 'relation_type_id' given in penalty definition.");
+        Civi::log()->debug("org.project60.banking.lookup - invalid or no 'relation_type_id' given in penalty definition.");
       }
     } elseif ($penalty->type == 'individual_single_name') {
       if (!empty($contactID2probability)) {
@@ -393,7 +393,7 @@ function _civicrm_api3_banking_lookup_contactbyname_penalties(&$contactID2probab
         }
 
       } else {
-        CRM_Core_Error::debug_log_message("org.project60.banking.lookup - penalty type not implemented: '{$penalty->type}'. Ignored.");
+        Civi::log()->debug("org.project60.banking.lookup - penalty type not implemented: '{$penalty->type}'. Ignored.");
       }
     }
     $contactID2probability[$contact_id] = $probability;

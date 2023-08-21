@@ -369,7 +369,7 @@ class CRM_Banking_Page_AccountDedupe extends CRM_Core_Page {
           if (empty($result['is_error'])) {
             $refs_fixed += 1;
           } else {
-            CRM_Core_Error::debug_log_message("org.project60.banking.dedupe: Error while deleting dupe reference: " .$result['error_message']);
+            Civi::log()->debug("org.project60.banking.dedupe: Error while deleting dupe reference: " .$result['error_message']);
             $errors_ecountered += 1;
           }
         }

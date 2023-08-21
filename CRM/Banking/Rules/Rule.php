@@ -662,7 +662,7 @@ class CRM_Banking_Rules_Rule {
       $field_name = $prefix . $raw_field_name;
       if (isset($params[$field_name]) && (strlen($params[$field_name]) > $max_length)) {
         $params[$field_name] = substr($params[$field_name], 0, $max_length);
-        CRM_Core_Error::debug_log_message("Field '{$field_name}' was too long and had to be truncated.");
+        Civi::log()->debug("Field '{$field_name}' was too long and had to be truncated.");
       }
     }
   }

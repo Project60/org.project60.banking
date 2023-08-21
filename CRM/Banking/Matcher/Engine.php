@@ -382,9 +382,11 @@ class CRM_Banking_Matcher_Engine {
   /**
    * Bulk-run a set of <n> unprocessed items
    *
-   * @param $max_count       the maximal amount of bank transactions to process
+   * @param integer $max_count
+   *   the maximal amount of bank transactions to process
    *
-   * @return the actual amount of bank transactions prcoessed
+   * @return integer
+   *   actual amount of bank transactions prcoessed
    */
   public function bulkRun($max_count) {
     $unprocessed_ids = CRM_Banking_BAO_BankTransaction::findUnprocessedIDs($max_count);

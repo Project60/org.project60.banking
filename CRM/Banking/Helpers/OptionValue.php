@@ -18,9 +18,9 @@ use CRM_Banking_ExtensionUtil as E;
 
 /**
  * looks up an option group ID
- * 
+ *
  * the implementation is probably not optimal, but it'll do for the moment
- * 
+ *
  * @package org.project60.banking
  * @copyright GNU Affero General Public License
  * $Id$
@@ -30,7 +30,7 @@ function banking_helper_optiongroupid_by_name($group_name) {
     $result = civicrm_api3('OptionGroup', 'get', array('name' => $group_name));
 
     if (empty($result['id'])) {
-      CRM_Core_Error::debug_log_message("org.project60.banking: Couldn't find option group '{$group_name}'!");
+      Civi::log()->debug("org.project60.banking: Couldn't find option group '{$group_name}'!");
       return 0;
     } else {
       return $result['id'];
@@ -40,9 +40,9 @@ function banking_helper_optiongroupid_by_name($group_name) {
 
 /**
  * looks up an option value
- * 
+ *
  * the implementation is probably not optimal, but it'll do for the moment
- * 
+ *
  * @package org.project60.banking
  * @copyright GNU Affero General Public License
  * $Id$
@@ -54,7 +54,7 @@ function banking_helper_optionvalueid_by_name($group_id, $value_name) {
         'option_group_id' => $group_id));
 
   if (empty($result['id'])) {
-    CRM_Core_Error::debug_log_message("org.project60.banking: Couldn't find option value '{$value_name}'!");
+    Civi::log()->debug("org.project60.banking: Couldn't find option value '{$value_name}'!");
     return 0;
   } else {
     return $result['id'];
@@ -63,9 +63,9 @@ function banking_helper_optionvalueid_by_name($group_id, $value_name) {
 
 /**
  * looks up an option value
- * 
+ *
  * the implementation is probably not optimal, but it'll do for the moment
- * 
+ *
  * @package org.project60.banking
  * @copyright GNU Affero General Public License
  * $Id$
@@ -77,7 +77,7 @@ function banking_helper_optionvalue_by_name($group_id, $value_name) {
         'option_group_id' => $group_id));
 
     if (empty($result['id'])) {
-      CRM_Core_Error::debug_log_message("org.project60.banking: Couldn't find option value '{$value_name}'!");
+      Civi::log()->debug("org.project60.banking: Couldn't find option value '{$value_name}'!");
       return 0;
     } else {
       return $result['values'][$result['id']]['value'];
@@ -86,9 +86,9 @@ function banking_helper_optionvalue_by_name($group_id, $value_name) {
 
 /**
  * looks up an option value ID by group name and value name
- * 
+ *
  * the implementation is probably not optimal, but it'll do for the moment
- * 
+ *
  * @package org.project60.banking
  * @copyright GNU Affero General Public License
  * $Id$
@@ -105,9 +105,9 @@ function banking_helper_optionvalueid_by_groupname_and_name($group_name, $value_
 
 /**
  * looks up an option value by group name and value name
- * 
+ *
  * the implementation is probably not optimal, but it'll do for the moment
- * 
+ *
  * @package org.project60.banking
  * @copyright GNU Affero General Public License
  * $Id$
@@ -124,9 +124,9 @@ function banking_helper_optionvalue_by_groupname_and_name($group_name, $value_na
 
 /**
  * creates an id/name => object mapping for the given option group
- * 
+ *
  * the implementation is probably not optimal, but it'll do for the moment
- * 
+ *
  * @package org.project60.banking
  * @copyright GNU Affero General Public License
  * $Id$
@@ -161,6 +161,6 @@ function banking_helper_optiongroup_id_name_mapping($group_name) {
  */
 function banking_helper_tx_status_closed($tx_status_id) {
     $status = banking_helper_optiongroup_id_name_mapping('civicrm_banking.bank_tx_status');
-    return $status[$tx_status_id]['name']=='processed' 
+    return $status[$tx_status_id]['name']=='processed'
         || $status[$tx_status_id]['name']=='ignored';
 }

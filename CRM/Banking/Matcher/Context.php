@@ -85,7 +85,9 @@ class CRM_Banking_Matcher_Context {
     // look up accounts
     $account_owners = $this->getAccountContacts();
     foreach ($account_owners as $account_owner) {
-      $contacts[$account_owner] = $this->bank_account_reference_matching_probability;
+      if (!isset($contacts[$account_owner])) {
+        $contacts[$account_owner] = $this->bank_account_reference_matching_probability;
+      }
     }
 
     // check if multiple 1.0 probabilities are there...

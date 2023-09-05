@@ -168,11 +168,19 @@ class CRM_Banking_PluginImpl_Importer_XML extends CRM_Banking_PluginModel_Import
 
       // first: set the count
       $params['total_tx_count'] = 0;
-      foreach ($config->payments as $payment_spec) {
-        $params['total_tx_count'] += $this->xpath->query($payment_spec->path)->length;
+      if (!empty($config->payments)) {
+        foreach ($config->payments as $payment_spec) {
+          if (!empty($payment_spec->path)) {
+            $params['total_tx_count'] += (int) $this->xpath->query($payment_spec->path)->length;
+          }
+        }
       }
-      foreach ($config->payment_lines as $payment_spec) {
-        $params['total_tx_count'] += $this->xpath->query($payment_spec->path)->length;
+      if (!empty($config->payment_lines)) {
+        foreach ($config->payment_lines as $payment_spec) {
+          if (!empty($payment_spec->path)) {
+            $params['total_tx_count'] += (int) $this->xpath->query($payment_spec->path)->length;
+          }
+        }
       }
 
       // then: run the importer
@@ -185,11 +193,15 @@ class CRM_Banking_PluginImpl_Importer_XML extends CRM_Banking_PluginModel_Import
       // first: set the count
       $params['total_tx_count'] = 0;
       foreach ($statements as $statement) {
-        foreach ($config->payments as $payment_spec) {
-          $params['total_tx_count'] += $this->xpath->query($payment_spec->path, $statement)->length;
+        if (!empty($config->payments)) {
+          foreach ($config->payments as $payment_spec) {
+            $params['total_tx_count'] += $this->xpath->query($payment_spec->path, $statement)->length;
+          }
         }
-        foreach ($config->payment_lines as $payment_spec) {
-          $params['total_tx_count'] += $this->xpath->query($payment_spec->path, $statement)->length;
+        if (!empty($config->payment_lines)) {
+          foreach ($config->payment_lines as $payment_spec) {
+            $params['total_tx_count'] += $this->xpath->query($payment_spec->path, $statement)->length;
+          }
         }
       }
 
@@ -315,7 +327,12 @@ class CRM_Banking_PluginImpl_Importer_XML extends CRM_Banking_PluginModel_Import
    */
   protected function import_payment($payment_spec, $payment_node, $stmt_data, $index, $params) {
     $config = $this->_plugin_config;
-    $progress = ((float)$index / (float) $params['total_tx_count']);
+    $total_tx_count = (float) $params['total_tx_count'] ?? 1.0;
+    if ($total_tx_count) {
+      $progress = ((float)$index / ((float) $params['total_tx_count'] ?? 0.0));
+    } else {
+      $progress = 0;
+    }
 
     $raw_data = $payment_node->ownerDocument->saveXML($payment_node);
     $raw_data = preg_replace("/>\s+</", "><", $raw_data);      // 'flatten' raw_data

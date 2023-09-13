@@ -279,16 +279,6 @@ Note, that once you have imported data into your system
 you should not delete any related configurations (importer, analyser, matcher). 
 You should instead deactivate them. 
 
-There is a contact lookup function, used in a lot of the 
-configurations and also for the default matcher: 
-`lookup_contact_by_name` . 
-This function has an issue, with the probability rate of every 
-result contact found, which impacts transactions with longer texts:  
-The analysed strings is being split on empty space and every 
-part of the string is evaluated separately.
-You can look up the issue queue for any progress on this issue 
-or alternative solutions.
-
 
 #### Default Options Matcher
 This matcher provides the default processing options for manual reconciling: 

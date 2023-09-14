@@ -33,8 +33,8 @@ For Importer examples reference [importer actions](https://github.com/Project60/
   
 ###  Flow of Control
 | name 			| description |CSV Importer	|XML Importer	|
-| ----------- 	| ----------- | ----------- |
-| if			| the action of a group only happens if evalutes True|equalto, matches|=,!=,<,>,<=,>=,IN,!IN
+| ----------- 	| ----------- | ----------- |----------- |
+| if			| the action of a group only happens if evalutes True|equalto, matches|=,!=,<,>,<=,>=,IN,!IN|
 
 ###  Project 60 Data Model
 

@@ -122,6 +122,6 @@ class CRM_Banking_Matcher_CreateCampaignContributionMatcherTest extends CRM_Bank
 
     // check the result
     $new_last_contribution = $this->getLatestContribution();
-    $this->assertEquals($last_contribution, $new_last_contribution, "No contribution should've been generated. Something doesn't work right.");
+    $this->assertNull($new_last_contribution, "No contribution should've been generated. Something doesn't work right.");
   }
 }

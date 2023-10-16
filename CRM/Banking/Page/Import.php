@@ -57,10 +57,11 @@ class CRM_Banking_Page_Import extends CRM_Core_Page
       ];
       if ($file_info != null && $plugin_instance::does_import_files()) {
         // extract files
-        $files = $this->extractFiles($file_info);
+        $files = $this->getFiles($file_info);
 
         foreach ($files as $file) {
           // run file import
+          $plugin_instance->resetImporter();
           if ($plugin_instance->probe_file($file, $import_parameters)) {
             $plugin_instance->import_file($file, $import_parameters);
           } else {
@@ -146,7 +147,7 @@ class CRM_Banking_Page_Import extends CRM_Core_Page
    * @return array
    *    list of file infos
    */
-  public function extractFiles(array $file_info): array
+  public function getFiles(array $file_info): array
   {
     $uploaded_file = $file_info['tmp_name'];
 

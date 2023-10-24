@@ -170,7 +170,7 @@ class CRM_Banking_PluginImpl_Importer_XML extends CRM_Banking_PluginModel_Import
     // Init
     $config = $this->_plugin_config;
     $this->resetImporter();
-    $this->reportProgress(0.0, sprintf("Starting to read file '%s'...", $params['source']));
+    $this->reportProgress(0.0, E::ts("Starting to read file '%1'...", [1 => basename($file_path)]));
     $this->initDocument($file_path, $params);
 
     if (empty($config->stmt_path)) {

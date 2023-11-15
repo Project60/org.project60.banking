@@ -264,6 +264,61 @@ class CRM_Banking_TestBase extends \PHPUnit\Framework\TestCase implements Headle
   }
 
   /**
+   * Create a campaign and return its ID.
+   *
+   * @param array $additional_parameters
+   *    additional parameters for hte contact
+   *
+   * @return int
+   *    The ID of the created contact.
+   *
+   * @author B. Endres (endres@systopia.de)
+   */
+  public function createCampaign($additional_parameters = []): int
+  {
+    $defaults = [
+      'title'             => 'Campaign - ' . base64_encode(microtime()),
+      'status_id'         => 'In Progress',
+      'campaign_type_id'  => 'Direct Mail',
+      'start_date'        => date('Y-m-d H:i:s', strtotime('now - 1 day'))
+    ];
+    $campaign_parameters = array_merge($defaults, $additional_parameters);
+    $campaign = $this->callAPISuccess('Campaign', 'create', $campaign_parameters);
+    $this->assertArrayHasKey('id', $campaign, "Campaign was not created.");
+    $this->assertNotEmpty($campaign['id'], "Campaign was not created.");
+    return $campaign['id'];
+  }
+
+  /**
+   * Create an activity and return its ID.
+   *
+   * @param array $additional_parameters
+   *    additional parameters for hte contact
+   *
+   * @return int
+   *    The ID of the created activity.
+   *
+   * @author B. Endres (endres@systopia.de)
+   */
+  public function createActivity($additional_parameters = []): int
+  {
+    $defaults = [
+      'subject'            => 'Campaign ' . base64_encode(microtime()),
+      'activity_status_id' => $this->getRandomOptionValue('activity_status'),
+      'activity_type_id'   => $this->getRandomOptionValue('activity_type'),
+      'activity_date_time' => date('Y-m-d', strtotime('yesterday')),
+      'details'            => 'TMI',
+      'source_contact_id'  => $additional_parameters['target_id'] ?? $this->createContact(),
+    ];
+    $activity_parameters = array_merge($defaults, $additional_parameters);
+    $activity = $this->callAPISuccess('Activity', 'create', $activity_parameters);
+    $this->assertArrayHasKey('id', $activity, "Activity was not created.");
+    $this->assertNotEmpty($activity['id'], "Activity was not created.");
+    return $activity['id'];
+  }
+
+
+  /**
    * Get a transaction by its ID.
    *
    * @param int $id

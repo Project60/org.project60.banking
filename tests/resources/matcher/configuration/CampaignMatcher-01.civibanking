@@ -3,8 +3,8 @@
   "plugin_class_name": "matcher_create_campaign",
   "name": "Create Campaign Contribution",
   "description": "Test",
-  "campaign_ids": "",
-  "activity_type_ids": "113",
+  "campaign_id": "",
+  "activity_type_id": "113",
   "weight": "130",
   "config": {
     "auto_exec": 1,

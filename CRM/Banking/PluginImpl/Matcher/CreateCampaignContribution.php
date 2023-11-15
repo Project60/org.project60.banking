@@ -87,15 +87,15 @@ class CRM_Banking_PluginImpl_Matcher_CreateCampaignContribution extends CRM_Bank
     ];
 
     // add campaign IDs from the configuration
-    if (!empty($config->campaign_ids)) {
-      if (!is_array($config->campaign_ids)) {
-        $config->campaign_ids = explode(',', $config->campaign_ids);
+    if (!empty($config->campaign_id)) {
+      if (!is_array($config->campaign_id)) {
+        $config->campaign_id = explode(',', $config->campaign_id);
       }
-      $activity_search_query['campaign_id'] = ['IN' => $config->campaign_ids];
+      $activity_search_query['campaign_id'] = ['IN' => $config->campaign_id];
     }
     if (empty($config->activity_type_id)) {
       // add warning if no activity_type_id is given
-      $this->logMessage("No activity_type_id configured, you should restrict the search to certain activity types!", 'warn');
+      $this->logMessage("No activity_type_id configured, you should probably restrict the search to certain activity types!", 'warn');
     } else {
       if (!is_array($config->activity_type_id)) {
         $config->activity_type_id = explode(',', $config->activity_type_id);

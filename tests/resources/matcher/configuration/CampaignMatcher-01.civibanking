@@ -4,13 +4,13 @@
   "name": "Create Campaign Contribution",
   "description": "Test",
   "campaign_ids": "",
+  "activity_type_ids": "113",
   "weight": "130",
   "config": {
     "auto_exec": 1,
     "required_values": [
       "btx.financial_type_id",
-      "btx.payment_instrument_id",
-      "btx.source"
+      "btx.payment_instrument_id"
     ],
     "value_propagation": {
       "btx.financial_type_id": "contribution.financial_type_id",

@@ -1,6 +1,6 @@
 {*-------------------------------------------------------+
 | Project 60 - CiviBanking                               |
-| Copyright (C) 2013-2023 SYSTOPIA                       |
+| Copyright (C) 2013-2018 SYSTOPIA                       |
 | Author: B. Endres (endres -at- systopia.de)            |
 | http://www.systopia.de/                                |
 +--------------------------------------------------------+
@@ -24,7 +24,7 @@
 </div>
 {else}
 <div>
-  {ts domain='org.project60.banking'}The following contribution will be created:{/ts}
+  {ts domain='org.project60.banking'}The following campaign contribution will be created:{/ts}
   <br/>
   <div>
     <table border="1" style="empty-cells : hide;">
@@ -33,10 +33,6 @@
           <td>
             <div class="btxlabel">{ts domain='org.project60.banking'}Donor{/ts}:&nbsp;</div>
             <div class="btxvalue">{$contact_link}</div>
-          </td>
-          <td>
-            <div class="btxlabel">{ts domain='org.project60.banking'}Campaign{/ts}:&nbsp;</div>
-            <div class="btxvalue">{$campaign.title}</div>
           </td>
           <td>
             <div class="btxlabel">{ts domain='org.project60.banking'}Amount{/ts}:&nbsp;</div>

@@ -70,11 +70,11 @@ class CRM_Banking_PluginImpl_Matcher_CreateCampaignContribution extends CRM_Bank
     // generate an api query to look for eligible activities
     $activity_search_query = [
       'option.limit'       => 0,
-      'target_id'          => ['IN' => array_keys($contacts_found)],
-      'activity_status_id' => ['IN' => $config->status_id ?? ['Completed']],
+      'target_contact_id'  => ['IN' => array_keys($contacts_found)],
+      'activity_status_id' => ['IN' => $config->status_id ? [$config->status_id] : ['Completed']],
       'activity_date_time' => ['BETWEEN' => [
             date('Y-m-d H:i:s', strtotime("{$btx->booking_date} - {$config->time_frame}")),
-            date('Y-m-d H:i:s', strtotime("{$btx->booking_date} +1 day"))] // we add a day to cover the whole day
+            date('Y-m-d H:i:s', strtotime("{$btx->booking_date} + 1 day"))] // we add a day to cover the whole day
       ],
       'return' => [
         'target_contact_id',
@@ -88,8 +88,21 @@ class CRM_Banking_PluginImpl_Matcher_CreateCampaignContribution extends CRM_Bank
 
     // add campaign IDs from the configuration
     if (!empty($config->campaign_ids)) {
+      if (!is_array($config->campaign_ids)) {
+        $config->campaign_ids = explode(',', $config->campaign_ids);
+      }
       $activity_search_query['campaign_id'] = ['IN' => $config->campaign_ids];
     }
+    if (empty($config->activity_type_id)) {
+      // add warning if no activity_type_id is given
+      $this->logMessage("No activity_type_id configured, you should restrict the search to certain activity types!", 'warn');
+    } else {
+      if (!is_array($config->activity_type_id)) {
+        $config->activity_type_id = explode(',', $config->activity_type_id);
+      }
+      $activity_search_query['activity_type_id'] = ['IN' => $config->activity_type_id];
+    }
+
     // add specific return values
     if (!empty($config->load_activity_fields)) {
       $activity_search_query['return'] = $config->load_activity_fields;
@@ -98,8 +111,14 @@ class CRM_Banking_PluginImpl_Matcher_CreateCampaignContribution extends CRM_Bank
     // run query
     $this->logMessage("Looking for activities with query: " . json_encode($activity_search_query), 'debug');
     $this->logger->setTimer('campaign_contribution:search');
-    $activities = civicrm_api3('Activity', 'get', $activity_search_query);
-    $this->logTime("Found {$activities['count']} activities to consider", 'campaign_contribution:search');
+    try {
+      $activities = civicrm_api3('Activity', 'get', $activity_search_query);
+      //$this->logMessage("Result is " . json_encode($activities), 'debug');
+      $this->logTime("Finding {$activities['count']} activities to consider", 'campaign_contribution:search');
+    } catch (Exception $ex) {
+      $this->logMessage("Failed to find eligible activities, error was " . $ex->getMessage(), 'error');
+      return;
+    }
 
     // investigate and rate the activities found
     foreach ($activities['values'] as $activity) {
@@ -217,7 +236,7 @@ class CRM_Banking_PluginImpl_Matcher_CreateCampaignContribution extends CRM_Bank
     // assign to smarty and compile HTML
     $smarty = CRM_Banking_Helpers_Smarty::singleton();
     $smarty->pushScope($smarty_vars);
-    $html_snippet = $smarty->fetch('CRM/Banking/PluginImpl/Matcher/CreateContribution.suggestion.tpl');
+    $html_snippet = $smarty->fetch('CRM/Banking/PluginImpl/Matcher/CreateCampaignContribution.suggestion.tpl');
     $smarty->popScope();
     return $html_snippet;
   }

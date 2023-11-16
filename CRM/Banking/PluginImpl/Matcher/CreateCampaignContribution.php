@@ -240,11 +240,18 @@ class CRM_Banking_PluginImpl_Matcher_CreateCampaignContribution extends CRM_Bank
     $smarty_vars['source_label'] = $this->_plugin_config->source_label;
 
     // assign to smarty and compile HTML
-    $smarty_vars['contact']       = $contact;
+    $smarty_vars['activity']      = $contact;
     $smarty_vars['contribution']  = $contribution;
 
-    $smarty_vars['activity_reference']  = 'TODO: activity';
+    // add activity info
+    $smarty_vars['activity_title']     = E::ts("Activity '%1' from %2 days earlier.", [1 => $activity['subject']]);
+    $smarty_vars['activity_url']       = CRM_Utils_System::url('civicrm/activity/view', "action=view&reset=1&id={$activity['id']}");
+    $smarty_vars['activity_reference'] =
+
+    // add campaign info
     $smarty_vars['campaign_name']       = $campaign['title'];
+    $smarty_vars['campaign_id']         = $campaign['id'];
+    $smarty_vars['campaign_url']        = 'TODO';
 
     // assign to smarty and compile HTML
     $smarty = CRM_Banking_Helpers_Smarty::singleton();

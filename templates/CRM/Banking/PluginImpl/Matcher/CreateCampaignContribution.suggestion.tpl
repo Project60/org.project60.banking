@@ -17,7 +17,7 @@
 {assign var=contact_id value=$contact.id}
 {capture assign=address_text}{if $contact.city}{$contact.street_address}, {$contact.city}{else}{ts}Address incomplete{/ts}{/if}{/capture}
 {capture assign=contact_link}<a title="{$address_text}" href="{crmURL p="civicrm/contact/view" q="reset=1&cid=$contact_id"}">{$contact.display_name} [{$contact.id}]</a>{/capture}
-{capture assign=activity_link}<a title="" href="{crmURL p="civicrm/contact/view" q="reset=1&cid=$contact_id"}">{$contact.display_name} [{$contact.id}]</a>{/capture}
+{capture assign=activity_link}<a title="{activity_title}" href="{$activity_url}">{activity_title} [{activity_id}]</a>{/capture}
 
 {if $error}
 <div>
@@ -26,7 +26,7 @@
 </div>
 {else}
 <div>
-  {ts 1=$activity_reference}Based on activity '%1', the following contribution will be created:{/ts}
+  {ts 1=$activity_link}Based on activity '%1', the following contribution will be created:{/ts}
   <br/>
   <div>
     <table border="1" style="empty-cells : hide;">
@@ -45,10 +45,6 @@
             <div class="btxvalue">{$campaign_name}</div>
           </td>
           <td>
-            <div class="btxlabel">{ts}Amount{/ts}:&nbsp;</div>
-            <div class="btxvalue">{$contribution.total_amount|crmMoney:$contribution.currency}</div>
-          </td>
-          <td>
             <div class="btxlabel">{ts}Date{/ts}:&nbsp;</div>
             <div class="btxvalue">{$contribution.receive_date|crmDate:$config->dateformatFull}</div>
           </td>
@@ -57,18 +53,6 @@
             <div class="btxvalue">{$contribution.financial_type}</div>
           </td>
         </tr>
-        {if $campaign or $source}
-        <tr>
-          <td colspan="2">
-            <div class="btxlabel">{ts}Campaign{/ts}:&nbsp;</div>
-            <div class="btxvalue">{$campaign.title}</div>
-          </td>
-          <td colspan="2">
-            <div class="btxlabel">{$source_label}:&nbsp;</div>
-            <div class="btxvalue">{$source}</div>
-          </td>
-        </tr>
-        {/if}
       </tbody>
     </table>
   </div>

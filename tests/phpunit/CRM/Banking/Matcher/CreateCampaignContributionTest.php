@@ -57,13 +57,27 @@ class CRM_Banking_Matcher_CreateCampaignContributionMatcherTest extends CRM_Bank
    *   and passes on the respective variables
    */
   public function testCampaignMatcherBasic():void {
+    // step zero: we have to make sure the activity type used in the config exists
+    $activity_type_id_used_in_matcher_config = 4;
+    try {
+      civicrm_api3('OptionValue', 'getsingle', [
+        'option_group_id' => 'activity_type',
+        'value'           => $activity_type_id_used_in_matcher_config
+      ]);
+    } catch (Exception $ex) {
+      $this->fail("This test requires activity type [{$activity_type_id_used_in_matcher_config}] to exist.");
+    }
+
     // step 1: create a simple scenario
     $contact_id = $this->createContact();
     $campaign_id = $this->createCampaign();
-    $this->createActivity([
+    $activity_id = $this->createActivity([
       'target_id'          => $contact_id,
       'activity_status_id' => 'Completed',
+      'campaign_id'        => $campaign_id,
+      'activity_type_id'   => $activity_type_id_used_in_matcher_config,
     ]);
+    $this->assertNotNull($activity_id, "Test activity not created!");
 
     // step 2: configure a simple campaign matcher
     $this->configureCiviBankingModule(

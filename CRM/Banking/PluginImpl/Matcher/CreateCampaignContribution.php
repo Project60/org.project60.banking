@@ -63,7 +63,7 @@ class CRM_Banking_PluginImpl_Matcher_CreateCampaignContribution extends CRM_Bank
     // get the potential contacts
     $contacts_found = $context->findContacts(
       $threshold,
-      $data_parsed['name'],
+      $data_parsed['name'] ?? E::ts("n/a"),
       $config->lookup_contact_by_name
     );
 

@@ -26,7 +26,7 @@
 </div>
 {else}
 <div>
-  {ts 1="{$activity_reference}" 2="{$campaing_name}"}Based on activity '%1', the following contribution will be created:{/ts}
+  {ts 1=$activity_reference 2=$campaing_name}Based on activity '%1', the following contribution will be created:{/ts}
   <br/>
   <div>
     <table border="1" style="empty-cells : hide;">

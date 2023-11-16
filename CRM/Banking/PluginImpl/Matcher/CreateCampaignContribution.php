@@ -210,7 +210,7 @@ class CRM_Banking_PluginImpl_Matcher_CreateCampaignContribution extends CRM_Bank
     $smarty_vars = array();
 
     $contact_id   = $match->getParameter('contact_id');
-    $activity_id  = $match->getParameter('$activity_id');
+    $activity_id  = $match->getParameter('activity_id');
     $contribution = $this->get_contribution_data($btx, $match, $contact_id);
 
     // load contact

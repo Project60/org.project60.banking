@@ -107,7 +107,12 @@ class CRM_Banking_PluginImpl_Matcher_CreateCampaignContribution extends CRM_Bank
 
     // add specific return values
     if (!empty($config->load_activity_fields)) {
-      $activity_search_query['return'] = $config->load_activity_fields;
+      if (!is_array($config->load_activity_fields)) {
+        $config->load_activity_fields = explode(',', $config->load_activity_fields);
+      }
+      // add the values for display
+      $config->load_activity_fields[] = 'campaign_id';
+      $activity_search_query['return'] = implode(',', $config->load_activity_fields);
     }
 
     // run query
@@ -136,6 +141,7 @@ class CRM_Banking_PluginImpl_Matcher_CreateCampaignContribution extends CRM_Bank
             $suggestion->setId("create-campaign-{$activity_id}-{$contact_id}");
             $suggestion->setParameter('contact_id', $contact_id);
             $suggestion->setParameter('activity_id', $activity_id);
+            $suggestion->setParameter('campaign', $campaign);
             // todo: calculate gradual probability to, for example, e.g. lower the longer ago the activity was
             $suggestion->setProbability($contact_probability);
             $btx->addSuggestion($suggestion);

@@ -241,6 +241,9 @@ class CRM_Banking_PluginImpl_Matcher_CreateCampaignContribution extends CRM_Bank
     $smarty_vars['contact']       = $contact;
     $smarty_vars['contribution']  = $contribution;
 
+    $smarty_vars['activity_reference']  = 'TODO: activity';
+    $smarty_vars['campaign_name']       = 'TODO: campaign';
+
     // assign to smarty and compile HTML
     $smarty = CRM_Banking_Helpers_Smarty::singleton();
     $smarty->pushScope($smarty_vars);

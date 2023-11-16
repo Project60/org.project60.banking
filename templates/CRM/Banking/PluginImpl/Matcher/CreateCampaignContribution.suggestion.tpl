@@ -33,15 +33,15 @@
       <tbody>
         <tr>
           <td>
-            <div class="btxlabel">{ts}Donor{/ts}:&nbsp;</div>
+            <div class="btxlabel">{ts}Donor{/ts} </div>
             <div class="btxvalue">{$contact_link}</div>
           </td>
           <td>
-            <div class="btxlabel">{ts}Amount{/ts}:&nbsp;</div>
+            <div class="btxlabel">{ts}Amount{/ts} </div>
             <div class="btxvalue">{$contribution.total_amount|crmMoney:$contribution.currency}</div>
           </td>
           <td>
-            <div class="btxlabel">{ts}Campaign{/ts}:&nbsp;</div>
+            <div class="btxlabel">{ts}Campaign{/ts}: </div>
             <div class="btxvalue">{$campaign_name}</div>
           </td>
           <td>

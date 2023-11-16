@@ -33,7 +33,7 @@ class CRM_Banking_PluginImpl_Matcher_CreateCampaignContribution extends CRM_Bank
     // read config, set defaults (SHOULD OVERRIDE IN CONFIG)
     $config = $this->_plugin_config;
     if (!isset($config->auto_exec))              $config->auto_exec = false;
-    if (!isset($config->required_values))        $config->required_values = array("btx.financial_type_id", "btx.campaign_id");
+    if (!isset($config->required_values))        $config->required_values = array("btx.financial_type_id");
     if (!isset($config->threshold))              $config->threshold = 0.9;
     if (!isset($config->source_label))           $config->source_label = E::ts('Source');
     if (!isset($config->lookup_contact_by_name)) $config->lookup_contact_by_name = array("hard_cap_probability" => 0.9);
@@ -120,10 +120,10 @@ class CRM_Banking_PluginImpl_Matcher_CreateCampaignContribution extends CRM_Bank
     $this->logger->setTimer('campaign_contribution:search');
     try {
       $activities = civicrm_api3('Activity', 'get', $activity_search_query);
-      //$this->logMessage("Result is " . json_encode($activities), 'debug');
+      $this->logMessage("Result is " . json_encode($activities), 'debug');
       $this->logTime("Finding {$activities['count']} activities to consider", 'campaign_contribution:search');
     } catch (Exception $ex) {
-      $this->logMessage("Failed to find eligible activities, error was " . $ex->getMessage(), 'error');
+      $this->logMessage("Failed to search for eligible activities, error was " . $ex->getMessage(), 'error');
       return;
     }
 
@@ -141,7 +141,6 @@ class CRM_Banking_PluginImpl_Matcher_CreateCampaignContribution extends CRM_Bank
             $suggestion->setId("create-campaign-{$activity_id}-{$contact_id}");
             $suggestion->setParameter('contact_id', $contact_id);
             $suggestion->setParameter('activity_id', $activity_id);
-            $suggestion->setParameter('campaign', $campaign);
             // todo: calculate gradual probability to, for example, e.g. lower the longer ago the activity was
             $suggestion->setProbability($contact_probability);
             $btx->addSuggestion($suggestion);
@@ -211,6 +210,7 @@ class CRM_Banking_PluginImpl_Matcher_CreateCampaignContribution extends CRM_Bank
     $smarty_vars = array();
 
     $contact_id   = $match->getParameter('contact_id');
+    $activity_id  = $match->getParameter('$activity_id');
     $contribution = $this->get_contribution_data($btx, $match, $contact_id);
 
     // load contact
@@ -219,19 +219,21 @@ class CRM_Banking_PluginImpl_Matcher_CreateCampaignContribution extends CRM_Bank
       $smarty_vars['error'] = $contact['error_message'];
     }
 
+    // load activity
+    $activity = civicrm_api3('Activity', 'getsingle', ['id' => $activity_id]);
+
+    // load campaign
+    if ($activity['campaign_id']) {  // this should always be the case, but better be sure
+      $campaign = civicrm_api3('Campaign', 'getsingle', ['id' => $activity['campaign_id']]);
+    } else {
+      // this shouldn't happen
+      $campaign = ['title' => E::ts("-no campaign-")];
+    }
+    $smarty_vars['campaign'] = $campaign;
+
     // look up financial type
     $financial_types = CRM_Contribute_PseudoConstant::financialType();
     $contribution['financial_type'] = $financial_types[$contribution['financial_type_id']];
-
-    // look up campaign
-    if (!empty($contribution['campaign_id'])) {
-      $campaign = civicrm_api('Campaign', 'getsingle', array('id' => $contribution['campaign_id'], 'version' => 3));
-      if (!empty($contact['is_error'])) {
-        $smarty_vars['error'] = $campaign['error_message'];
-      } else {
-        $smarty_vars['campaign'] = $campaign;
-      }
-    }
 
     // assign source
     $smarty_vars['source']       = CRM_Utils_Array::value('source', $contribution);
@@ -242,7 +244,7 @@ class CRM_Banking_PluginImpl_Matcher_CreateCampaignContribution extends CRM_Bank
     $smarty_vars['contribution']  = $contribution;
 
     $smarty_vars['activity_reference']  = 'TODO: activity';
-    $smarty_vars['campaign_name']       = 'TODO: campaign';
+    $smarty_vars['campaign_name']       = $campaign['title'];
 
     // assign to smarty and compile HTML
     $smarty = CRM_Banking_Helpers_Smarty::singleton();

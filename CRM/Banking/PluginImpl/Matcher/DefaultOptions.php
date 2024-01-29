@@ -44,6 +44,7 @@ class CRM_Banking_PluginImpl_Matcher_DefaultOptions extends CRM_Banking_PluginMo
     if (!isset($config->default_financial_type_id)) $config->default_financial_type_id = 1;
     if (!isset($config->createnew_value_propagation)) $config->createnew_value_propagation = array();
     if (!isset($config->manual_default_financial_type_id)) $config->manual_default_financial_type_id = NULL;
+    if (!isset($config->preserve_receive_date)) $config->preserve_receive_date = 0; // Set to 1 to preserve the receive_date (instead of overwriting it with the booking_date). See issue #409.
 
     if (!isset($config->ignore_enabled)) $config->ignore_enabled = true;
     if (!isset($config->ignore_probability)) $config->ignore_probability = 0.1;
@@ -123,6 +124,8 @@ class CRM_Banking_PluginImpl_Matcher_DefaultOptions extends CRM_Banking_PluginMo
    *   the bank transaction this is related to
    */
   public function execute($suggestion, $btx) {
+    $config = $this->_plugin_config;
+
     if ($suggestion->getId()==="manual") {
       $cids = $suggestion->getParameter('contribution_ids');
       $contribution_count = 0;
@@ -155,7 +158,9 @@ class CRM_Banking_PluginImpl_Matcher_DefaultOptions extends CRM_Banking_PluginMo
             } else {
               // ...otherwise, we close it
               $query['contribution_status_id'] = $completed_status;
-              $query['receive_date'] = date('YmdHis', strtotime($btx->booking_date));
+              if (!$config->preserve_receive_date) {
+                $query['receive_date'] = date('YmdHis', strtotime($btx->booking_date));
+              }
             }
 
             CRM_Banking_Helpers_IssueMitigation::mitigate358($query);

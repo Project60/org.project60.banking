@@ -315,7 +315,7 @@ class CRM_Banking_Matcher_Suggestion {
 
         // Visualize post processors.
         if (!empty($post_processor_results = $engine->visualizePostProcessorResults($this, $btx, $this->_plugin))) {
-            $visualisation .= '<p>' . E::ts('The following post processors have been executed after processing this suggestion:') . '</p>';
+            $visualisation .= '<p>' . E::ts('The following post processors have been triggered after processing this suggestion:') . '</p>';
             $visualisation .= '<ol>';
             foreach ($post_processor_results as $post_processor_result) {
                 $visualisation .= '<li>' . $post_processor_result . '</li>';

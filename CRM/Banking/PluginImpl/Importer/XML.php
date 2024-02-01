@@ -30,25 +30,34 @@ class CRM_Banking_PluginImpl_Importer_XML extends CRM_Banking_PluginModel_Import
    */
   function __construct($config_name) {
     parent::__construct($config_name);
+  }
 
+  /**
+   * @return void
+   */
+  public function resetImporter()
+  {
     // read config, set defaults
+    parent::resetImporter();
     $config = $this->_plugin_config;
-    if (!isset($config->defaults))      $config->defaults      = array();
-    if (!isset($config->payments))      $config->payments      = array();
-    if (!isset($config->payment_lines)) $config->payment_lines = array();
+    $this->document = null;
+    $this->xpath = null;
+    if (!isset($config->defaults))      $config->defaults      = [];
+    if (!isset($config->payments))      $config->payments      = [];
+    if (!isset($config->payment_lines)) $config->payment_lines = [];
   }
 
   /**
    * parsed XML document
    * @var DOMDocument
    */
-  protected $document = NULL;
+  protected $document = null;
 
   /**
    * XPath query engine on the current path
    * @var DOMXPath
    */
-  protected $xpath = NULL;
+  protected $xpath = null;
 
   /**
    * This will be used to suppress duplicates within the same statement
@@ -160,7 +169,8 @@ class CRM_Banking_PluginImpl_Importer_XML extends CRM_Banking_PluginModel_Import
   {
     // Init
     $config = $this->_plugin_config;
-    $this->reportProgress(0.0, sprintf("Starting to read file '%s'...", $params['source']));
+    $this->resetImporter();
+    $this->reportProgress(0.0, E::ts("Starting to read file '%1'...", [1 => basename($file_path)]));
     $this->initDocument($file_path, $params);
 
     if (empty($config->stmt_path)) {
@@ -169,10 +179,14 @@ class CRM_Banking_PluginImpl_Importer_XML extends CRM_Banking_PluginModel_Import
       // first: set the count
       $params['total_tx_count'] = 0;
       foreach ($config->payments as $payment_spec) {
-        $params['total_tx_count'] += $this->xpath->query($payment_spec->path)->length;
+        if (!empty($payment_spec->path)) {
+          $params['total_tx_count'] += $this->xpath->query($payment_spec->path)->length;
+        }
       }
       foreach ($config->payment_lines as $payment_spec) {
-        $params['total_tx_count'] += $this->xpath->query($payment_spec->path)->length;
+        if (!empty($payment_spec->path)) {
+          $params['total_tx_count'] += $this->xpath->query($payment_spec->path)->length;
+        }
       }
 
       // then: run the importer
@@ -315,7 +329,10 @@ class CRM_Banking_PluginImpl_Importer_XML extends CRM_Banking_PluginModel_Import
    */
   protected function import_payment($payment_spec, $payment_node, $stmt_data, $index, $params) {
     $config = $this->_plugin_config;
-    $progress = ((float)$index / (float) $params['total_tx_count']);
+    $progress = 100;
+    if (!empty($params['total_tx_count']) && is_numeric($params['total_tx_count'])) {
+      $progress = ((float)$index / (float) $params['total_tx_count']);
+    }
 
     $raw_data = $payment_node->ownerDocument->saveXML($payment_node);
     $raw_data = preg_replace("/>\s+</", "><", $raw_data);      // 'flatten' raw_data

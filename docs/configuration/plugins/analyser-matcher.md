@@ -647,7 +647,7 @@ example, to remove a field from the transaction data.
 }
 ```
 
-Thi example unsets the `btx.source` field.
+This example unsets the `btx.source` field.
 
 ### Configuration Examples
 
@@ -864,7 +864,7 @@ The configuration could look like this:
         {
           "comment": "Set the contribution source by looking up the campaign title",
           "action": "lookup:Campaign,title,external_identifier",
-          "from": "werbecode_trimmed",
+          "from": "campaign_code",
           "to": "source"
         }
       ]

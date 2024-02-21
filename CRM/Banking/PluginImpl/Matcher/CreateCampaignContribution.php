@@ -185,15 +185,15 @@ class CRM_Banking_PluginImpl_Matcher_CreateCampaignContribution extends CRM_Bank
     // gather contribution data
     $contribution = $this->get_contribution_data($btx, $suggestion, $suggestion->getParameter('contact_id'));
     try {
-      $this->logMessage("Trying to create contribution: " . json_encode($contribution));
+      $this->logMessage("Trying to create contribution: " . json_encode($contribution), 'debug');
       $contribution = civicrm_api3('Contribution', 'create', $contribution);
-      $this->logMessage("Created contribution [{$contribution['id']}].");
+      $this->logMessage("Created contribution [{$contribution['id']}].", 'debug');
       $suggestion->setParameter('contribution_id', $contribution['id']);
       $this->storeAccountWithContact($btx, $suggestion->getParameter('contact_id'));
       CRM_Banking_BAO_BankTransactionContribution::linkContribution($btx->id, $contribution['id']);
 
     } catch (Exception $ex) {
-      $this->logMessage("Error on contribution creation: " . $ex->getMessage());
+      $this->logMessage("Error on contribution creation: " . $ex->getMessage(), 'error');
       CRM_Core_Session::setStatus(
         E::ts("Error was: %1", [1 => $ex->getMessage()]),
         E::ts("Couldn't create contribution.")."<br/>");

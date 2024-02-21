@@ -39,7 +39,7 @@ class CRM_Banking_PluginImpl_Matcher_CreateCampaignContribution extends CRM_Bank
     if (!isset($config->lookup_contact_by_name)) $config->lookup_contact_by_name = array("hard_cap_probability" => 0.9);
 
     // activity search profile (SHOULD OVERRIDE IN CONFIG)
-    if (!isset($config->campaign_id))       $config->campaign_id = null;         // activity campaign
+    if (!isset($config->campaign_id))       $config->campaign_id = null;         // activity campaign. If empty will use the campaign of the activity
     if (!isset($config->activity_type_id))  $config->activity_type_id = null;    // activity type IDs to consider - or *any* if empty
     if (!isset($config->status_id))         $config->status_id = [2];            // activity status IDs to consider - or *any* if empty
     if (!isset($config->time_frame))        $config->time_frame = "40 days";     // maximum time between the activity and the bank transaction
@@ -66,19 +66,19 @@ class CRM_Banking_PluginImpl_Matcher_CreateCampaignContribution extends CRM_Bank
       $data_parsed['name'] ?? E::ts("n/a"),
       $config->lookup_contact_by_name
     );
+    $contact_ids_considered = array_keys($contacts_found);
 
     // generate an api query to look for eligible activities
     $activity_search_query = [
       'option.limit'       => 0,
-      'target_contact_id'  => ['IN' => array_keys($contacts_found)],
-      'activity_status_id' => ['IN' => $config->status_id ? [$config->status_id] : ['Completed']],
+      'target_contact_id'  => ['IN' => $contact_ids_considered],
+      'status_id'          => ['IN' => $config->status_id ? [$config->status_id] : ['Completed']],
       'activity_date_time' => ['BETWEEN' => [
             date('Y-m-d H:i:s', strtotime("{$btx->booking_date} - {$config->time_frame}")),
             date('Y-m-d H:i:s', strtotime("{$btx->booking_date} + 1 day"))] // we add a day to cover the whole day
       ],
       'return' => [
         'target_contact_id',
-        'source_contact_id',
         'activity_type_id',
         'subject',
         'activity_date_time',
@@ -97,7 +97,7 @@ class CRM_Banking_PluginImpl_Matcher_CreateCampaignContribution extends CRM_Bank
     // add activity type
     if (empty($config->activity_type_id)) {
       // add warning if no activity_type_id is given
-      $this->logMessage("No activity_type_id configured, you would probably want to restrict the search to certain activity types!", 'info');
+      $this->logMessage("No activity_type_id configured, you would probably want to restrict the search to certain activity types!", 'debug');
     } else {
       if (!is_array($config->activity_type_id)) {
         $config->activity_type_id = explode(',', $config->activity_type_id);

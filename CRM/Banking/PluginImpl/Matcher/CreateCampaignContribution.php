@@ -68,11 +68,17 @@ class CRM_Banking_PluginImpl_Matcher_CreateCampaignContribution extends CRM_Bank
     );
     $contact_ids_considered = array_keys($contacts_found);
 
+    // filter for valid activity status IDs
+    $status_ids = ['Completed']; // default
+    if (!empty($config->status_id)) {
+      $status_ids = is_array($config->status_id) ? $config->status_id : [$config->status_id];
+    }
+
     // generate an api query to look for eligible activities
     $activity_search_query = [
       'option.limit'       => 0,
       'target_contact_id'  => ['IN' => $contact_ids_considered],
-      'status_id'          => ['IN' => $config->status_id ? [$config->status_id] : ['Completed']],
+      'status_id'          => ['IN' => $status_ids],
       'activity_date_time' => ['BETWEEN' => [
             date('Y-m-d H:i:s', strtotime("{$btx->booking_date} - {$config->time_frame}")),
             date('Y-m-d H:i:s', strtotime("{$btx->booking_date} + 1 day"))] // we add a day to cover the whole day

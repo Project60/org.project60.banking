@@ -160,6 +160,17 @@ class CRM_Banking_PluginImpl_Matcher_CreateCampaignContribution extends CRM_Bank
     return empty($this->_suggestions) ? null : $this->_suggestions;
   }
 
+  protected function get_contribution_data($btx, $suggestion, $contact_id)
+  {
+    $contribution = [];
+    $contribution['currency'] = $btx->currency;
+    $contribution['financial_type_id'] = $this->getConfig()->financial_type_id ?? null;
+    $contribution['contact_id'] = $contact_id;
+    $contribution['campaign_id'] = $suggestion->getParameter('campaign_id');
+    $contribution['total_amount'] = $btx->amount;
+    $contribution['receive_date'] = $btx->value_date;
+    return array_merge($contribution, $this->getPropagationSet($btx, $suggestion, 'contribution'));
+  }
   /**
    * Execute the previously generated suggestion,
    *   and close the transaction
@@ -172,14 +183,7 @@ class CRM_Banking_PluginImpl_Matcher_CreateCampaignContribution extends CRM_Bank
    */
   public function execute($suggestion, $btx) {
     // gather contribution data
-    $contribution = [];
-    $contribution['currency'] = $btx->currency;
-    $contribution['financial_type_id'] = $this->getConfig()->financial_type_id ?? null;
-    $contribution['contact_id'] = $suggestion->getParameter('contact_id');
-    $contribution['campaign_id'] = $suggestion->getParameter('campaign_id');
-    $contribution['total_amount'] = $btx->amount;
-    $contribution['receive_date'] = $btx->value_date;
-    $contribution = array_merge($contribution, $this->getPropagationSet($btx, $suggestion, 'contribution'));
+    $contribution = $this->get_contribution_data($btx, $suggestion, $suggestion->getParameter('contact_id'));
     try {
       $this->logMessage("Trying to create contribution: " . json_encode($contribution));
       $contribution = civicrm_api3('Contribution', 'create', $contribution);

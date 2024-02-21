@@ -146,6 +146,7 @@ class CRM_Banking_PluginImpl_Matcher_CreateCampaignContribution extends CRM_Bank
             $suggestion->setTitle(E::ts("Create Campaign Contribution"));
             $suggestion->setId("create-campaign-{$activity_id}-{$contact_id}");
             $suggestion->setParameter('contact_id', $contact_id);
+            $suggestion->setParameter('campaign_id', $contact_id);
             $suggestion->setParameter('activity_id', $activity_id);
             // todo: calculate gradual probability to, for example, e.g. lower the longer ago the activity was
             $suggestion->setProbability($contact_probability);
@@ -170,22 +171,30 @@ class CRM_Banking_PluginImpl_Matcher_CreateCampaignContribution extends CRM_Bank
    *   the bank transaction this is related to
    */
   public function execute($suggestion, $btx) {
-    // create contribution
-    $query = $this->get_contribution_data($btx, $suggestion, $suggestion->getParameter('contact_id'));
-    $query['version'] = 3;
-    $result = civicrm_api('Contribution', 'create', $query);
-    if (isset($result['is_error']) && $result['is_error']) {
-      CRM_Core_Session::setStatus(E::ts("Couldn't create contribution.")."<br/>".E::ts("Error was: ").$result['error_message'], E::ts('Error'), 'error');
+    // gather contribution data
+    $contribution = [];
+    $contribution['currency'] = $btx->currency;
+    $contribution['financial_type_id'] = $this->getConfig()->financial_type_id ?? null;
+    $contribution['contact_id'] = $suggestion->getParameter('contact_id');
+    $contribution['campaign_id'] = $suggestion->getParameter('campaign_id');
+    $contribution['total_amount'] = $btx->amount;
+    $contribution['receive_date'] = $btx->value_date;
+    $contribution = array_merge($contribution, $this->getPropagationSet($btx, $suggestion, 'contribution'));
+    try {
+      $this->logMessage("Trying to create contribution: " . json_encode($contribution));
+      $contribution = civicrm_api3('Contribution', 'create', $contribution);
+      $this->logMessage("Created contribution [{$contribution['id']}].");
+      $suggestion->setParameter('contribution_id', $contribution['id']);
+      $this->storeAccountWithContact($btx, $suggestion->getParameter('contact_id'));
+      CRM_Banking_BAO_BankTransactionContribution::linkContribution($btx->id, $contribution['id']);
+
+    } catch (Exception $ex) {
+      $this->logMessage("Error on contribution creation: " . $ex->getMessage());
+      CRM_Core_Session::setStatus(
+        E::ts("Error was: %1", [1 => $ex->getMessage()]),
+        E::ts("Couldn't create contribution.")."<br/>");
       return true;
     }
-
-    $suggestion->setParameter('contribution_id', $result['id']);
-
-    // save the account
-    $this->storeAccountWithContact($btx, $suggestion->getParameter('contact_id'));
-
-    // link the contribution
-    CRM_Banking_BAO_BankTransactionContribution::linkContribution($btx->id, $result['id']);
 
     // wrap it up
     $newStatus = banking_helper_optionvalueid_by_groupname_and_name('civicrm_banking.bank_tx_status', 'Processed');
@@ -288,22 +297,6 @@ class CRM_Banking_PluginImpl_Matcher_CreateCampaignContribution extends CRM_Bank
     $html_snippet = $smarty->fetch('CRM/Banking/PluginImpl/Matcher/CreateContribution.execution.tpl');
     $smarty->popScope();
     return $html_snippet;
-  }
-
-  /**
-   * compile the contribution data from the BTX and the propagated values
-   */
-  function get_contribution_data($btx, $match, $contact_id) {
-    $config = $this->getConfig();
-    $contribution = [];
-    $contribution['currency'] = $btx->currency;
-    $contribution['financial_type_id'] = $this->getConfig()->financial_type_id ?? null;
-    $contribution['contact_id'] = $contact_id;
-    $contribution['total_amount'] = $btx->amount;
-    $contribution['receive_date'] = $btx->value_date;
-    $contribution['currency'] = $btx->currency;
-    $contribution = array_merge($contribution, $this->getPropagationSet($btx, $match, 'contribution'));
-    return $contribution;
   }
 }
 

@@ -75,14 +75,14 @@ class CRM_Banking_PluginImpl_Matcher_CreateCampaignContribution extends CRM_Bank
     }
 
     // generate an api query to look for eligible activities
+    $time_frame = $config->time_frame ?? '30 days';
+    $min_date = date('Y-m-d H:i:s', strtotime("{$btx->booking_date} - {$time_frame}"));
+    $max_date = date('Y-m-d H:i:s', strtotime("{$btx->booking_date} + 1 day")); // we add 24h to cover the whole day
     $activity_search_query = [
       'option.limit'       => 0,
       'target_contact_id'  => ['IN' => $contact_ids_considered],
       'status_id'          => ['IN' => $status_ids],
-      'activity_date_time' => ['BETWEEN' => [
-            date('Y-m-d H:i:s', strtotime("{$btx->booking_date} - {$config->time_frame}")),
-            date('Y-m-d H:i:s', strtotime("{$btx->booking_date} + 1 day"))] // we add a day to cover the whole day
-      ],
+      'activity_date_time' => ['BETWEEN' => [$min_date, $max_date]],
       'return' => [
         'target_contact_id',
         'activity_type_id',
@@ -134,6 +134,7 @@ class CRM_Banking_PluginImpl_Matcher_CreateCampaignContribution extends CRM_Bank
     }
 
     // investigate and rate the activities found
+    $activity_count_with_confidence_100 = 0;
     foreach ($activities['values'] as $activity) {
       $activity_id = $activity['id'];
       $contact_ids = array_values($activity['target_contact_id']) ?? [];
@@ -148,11 +149,25 @@ class CRM_Banking_PluginImpl_Matcher_CreateCampaignContribution extends CRM_Bank
             $suggestion->setParameter('contact_id', $contact_id);
             $suggestion->setParameter('campaign_id', $contact_id);
             $suggestion->setParameter('activity_id', $activity_id);
-            // todo: calculate gradual probability to, for example, e.g. lower the longer ago the activity was
+            $suggestion->setParameter('time_after_activity', strtotime("{$btx->booking_date}") - strtotime($activity['activity_date_time']));
             $suggestion->setProbability($contact_probability);
+            if ($contact_probability == 1.0) $activity_count_with_confidence_100++;
             $btx->addSuggestion($suggestion);
           }
         }
+      }
+    }
+
+    // if there's more than one suggestion with 100% confidence, reduce
+    if ($activity_count_with_confidence_100 > 1) {
+      $this->logMessage("Multiple suggestions with 100% confidence generated, will apply temporal distance penalties.", 'debug');
+      $time_window_size = strtotime($max_date) - strtotime($min_date);
+      foreach ($btx->getSuggestions() as $suggestion) {
+        /** @var $suggestion CRM_Banking_Matcher_Suggestion */
+        $confidence = (float) $suggestion->getProbability();
+        $adjusted_confidence = $confidence - ($suggestion->getParameter('time_after_activity') / $time_window_size);
+        $suggestion->setProbability(min($adjusted_confidence, 0.99)); // don't create 100% matches at this point
+        $this->logMessage("Adjusted confidence for suggestion from {$confidence} to {$adjusted_confidence}.", 'debug');
       }
     }
 

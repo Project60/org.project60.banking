@@ -291,7 +291,11 @@ class CRM_Banking_PluginImpl_Matcher_CreateCampaignContribution extends CRM_Bank
 
     // add activity info
     $days_since_contribution = (strtotime($btx->booking_date) - strtotime($activity['activity_date_time'])) / 60 / 60 / 24;
-    $smarty_vars['activity_title'] = E::ts("'%1' from %2 days earlier", [1 => $activity['subject'], 2 => $days_since_contribution]);
+    if ($days_since_contribution == 0) {
+      $smarty_vars['activity_title'] = E::ts("'%1' from the same day", [1 => $activity['subject']]);
+    } else {
+      $smarty_vars['activity_title'] = E::ts("'%1' from %2 days earlier", [1 => $activity['subject'], 2 => $days_since_contribution]);
+    }
     $smarty_vars['activity_id']    = $activity['id'] ?? 'n/a';
     $smarty_vars['activity_url']   = CRM_Utils_System::url('civicrm/activity/view', "action=view&reset=1&id={$activity['id']}");
     $smarty_vars['activity_link']  = E::ts('<a class="crm-popup" href="%1">%2</a>', [1 => $smarty_vars['activity_url'], 2 => $smarty_vars['activity_title']]);

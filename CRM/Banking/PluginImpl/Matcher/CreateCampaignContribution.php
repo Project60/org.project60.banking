@@ -153,6 +153,7 @@ class CRM_Banking_PluginImpl_Matcher_CreateCampaignContribution extends CRM_Bank
             $suggestion->setParameter('time_after_activity', strtotime("{$btx->booking_date}") - strtotime($activity['activity_date_time']));
             $suggestion->setProbability($contact_probability);
             if ($contact_probability == 1.0) $activity_count_with_confidence_100++;
+            $this->logMessage("Added suggestion.", 'debug');
             $suggestions[] = $suggestion;
           }
         }
@@ -161,20 +162,24 @@ class CRM_Banking_PluginImpl_Matcher_CreateCampaignContribution extends CRM_Bank
 
     // if there's more than one suggestion with 100% confidence, reduce
     if ($activity_count_with_confidence_100 > 1) {
-      $this->logMessage("Multiple suggestions with 100% confidence generated, will apply temporal distance penalties.", 'debug');
+      $this->logMessage("{$activity_count_with_confidence_100} suggestions with 100% confidence generated, will apply temporal distance penalties.", 'debug');
       $time_window_size = strtotime($max_date) - strtotime($min_date);
       foreach ($suggestions as $suggestion) {
         /** @var $suggestion CRM_Banking_Matcher_Suggestion */
         $confidence = (float) $suggestion->getProbability();
+        $this->logMessage('confidence: ' . $confidence, 'debug');
+        $this->logMessage('time_after_activity: ' . $suggestion->getParameter('time_after_activity'), 'debug');
+        $this->logMessage('time_window_size: ' . $time_window_size, 'debug');
         $adjusted_confidence = $confidence - ((float) $suggestion->getParameter('time_after_activity') / (float) $time_window_size);
-        $suggestion->setProbability(min($adjusted_confidence, 0.99)); // don't create 100% matches at this point
+        $adjusted_confidence = min($adjusted_confidence, 0.99);
+        $suggestion->setProbability($adjusted_confidence); // don't create 100% matches at this point
         $this->logMessage("Adjusted confidence for suggestion from {$confidence} to {$adjusted_confidence}.", 'debug');
-        $this->addSuggestion($suggestion);
+        $btx->addSuggestion($suggestion);
       }
     } else {
       // no more than one 100% suggestions from our end, so everything can go ahead without changes
       foreach ($suggestions as $suggestion) {
-        $this->addSuggestion($suggestion);
+        $btx->addSuggestion($suggestion);
       }
     }
 

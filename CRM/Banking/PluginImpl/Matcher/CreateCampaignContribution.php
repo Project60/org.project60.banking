@@ -148,7 +148,7 @@ class CRM_Banking_PluginImpl_Matcher_CreateCampaignContribution extends CRM_Bank
             $suggestion->setTitle(E::ts("Create Campaign Contribution"));
             $suggestion->setId("create-campaign-{$activity_id}-{$contact_id}");
             $suggestion->setParameter('contact_id', $contact_id);
-            $suggestion->setParameter('campaign_id', $contact_id);
+            $suggestion->setParameter('campaign_id', $activity['campaign_id']);
             $suggestion->setParameter('activity_id', $activity_id);
             $suggestion->setParameter('time_after_activity', strtotime("{$btx->booking_date}") - strtotime($activity['activity_date_time']));
             $suggestion->setProbability($contact_probability);
@@ -320,7 +320,7 @@ class CRM_Banking_PluginImpl_Matcher_CreateCampaignContribution extends CRM_Bank
     // assign to smarty and compile HTML
     $smarty = CRM_Banking_Helpers_Smarty::singleton();
     $smarty->pushScope($smarty_vars);
-    $html_snippet = $smarty->fetch('CRM/Banking/PluginImpl/Matcher/CreateContribution.execution.tpl');
+    $html_snippet = $smarty->fetch('CRM/Banking/PluginImpl/Matcher/CreateCampaignContribution.execution.tpl');
     $smarty->popScope();
     return $html_snippet;
   }

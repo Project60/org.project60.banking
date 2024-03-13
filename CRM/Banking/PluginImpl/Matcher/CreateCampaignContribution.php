@@ -284,10 +284,11 @@ class CRM_Banking_PluginImpl_Matcher_CreateCampaignContribution extends CRM_Bank
     if ($result['count'] > 0) {
       $contact_probability = max(0.0, $contact_probability - $recurring_contribution_penalty);
       $this->logMessage("{$result['count']} active recurring contributions have been found with contact [{$contact_id}], suggestion will be reduced by a penalty of {$recurring_contribution_penalty}.", 'info');
+      return $recurring_contribution_penalty;
     } else {
       $this->logMessage("No active recurring contributions have been found with contact [{$contact_id}], suggestion will not be penalised.", 'debug');
+      return 0.0;
     }
-    return $recurring_contribution_penalty;
   }
 
   /**

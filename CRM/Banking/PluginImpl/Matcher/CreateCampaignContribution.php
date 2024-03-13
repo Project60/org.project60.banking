@@ -44,6 +44,11 @@ class CRM_Banking_PluginImpl_Matcher_CreateCampaignContribution extends CRM_Bank
     if (!isset($config->status_id))         $config->status_id = [2];            // activity status IDs to consider - or *any* if empty
     if (!isset($config->time_frame))        $config->time_frame = "40 days";     // maximum time between the activity and the bank transaction
 
+    if (!isset($config->active_recurring_contribution_penalty))                  // penalty for finding active recurring contributions
+      $config->active_recurring_contribution_penalty = 0.00;
+    if (!isset($config->active_recurring_contribution_status_ids))               // default status is 'in Progress'
+      $config->active_recurring_contribution_status_ids = ['In Progress'];
+
     // contribution create parameters (SHOULD OVERRIDE IN CONFIG)
     if (!isset($config->financial_type_id))  $config->financial_type_id = 1;     // optional, time AFTER the activity timestamp - or *any* if empty
   }
@@ -141,7 +146,8 @@ class CRM_Banking_PluginImpl_Matcher_CreateCampaignContribution extends CRM_Bank
       $contact_ids = array_values($activity['target_contact_id']) ?? [];
       foreach ($contact_ids as $contact_id) {
         if (isset($contacts_found[$contact_id])) {
-          $contact_probability = $contacts_found[$contact_id];
+          $contact_probability = max($contacts_found[$contact_id] - $penalty, 0.0);
+          $penalty_applied = $this->adjustRatingOfRecurringContributions($contact_id, $contact_probability);
           if ($contact_probability >= $threshold) {
             // this is one of the contacts we're looking for -> create suggestion
             $suggestion = new CRM_Banking_Matcher_Suggestion($this, $btx);
@@ -150,6 +156,7 @@ class CRM_Banking_PluginImpl_Matcher_CreateCampaignContribution extends CRM_Bank
             $suggestion->setParameter('contact_id', $contact_id);
             $suggestion->setParameter('campaign_id', $activity['campaign_id']);
             $suggestion->setParameter('activity_id', $activity_id);
+            $suggestion->setParameter('penalty_applied', $penalty_applied);
             $suggestion->setParameter('time_after_activity', strtotime("{$btx->booking_date}") - strtotime($activity['activity_date_time']));
             $suggestion->setProbability($contact_probability);
             if ($contact_probability == 1.0) $activity_count_with_confidence_100++;
@@ -235,6 +242,51 @@ class CRM_Banking_PluginImpl_Matcher_CreateCampaignContribution extends CRM_Bank
   }
 
   /**
+   * This will reduce the probability of a campaign contribution if
+   *   and active recurring contribution is present
+   *
+   * @param int $contact_id
+   *    contact ID
+   *
+   * @param float $contact_probability
+   *    the probability of the contact to be adjusted (reduced)
+   *
+   * @param array $status_ids
+   *    the status ids to be considered relevant, by default that's 'In Progress'
+   *
+   * @return float penalty added to the contact's rating
+   */
+  public function adjustRatingOfRecurringContributions($contact_id, &$contact_probability)
+  {
+    // only look into this if there's a penalty and a contribution status set
+    $recurring_contribution_penalty = (float) $this->_plugin_config->active_recurring_contribution_penalty ?? 0;
+    if ($recurring_contribution_penalty <= 0) {
+      return 0.0; // no penalty disables the check
+    }
+    $status_ids = (array) $this->_plugin_config->active_recurring_contribution_status_ids;
+    if (empty($status_ids)) {
+      return 0.0; // no status_id disables the check
+    }
+
+    // run the query
+    $result = civicrm_api3('ContributionRecur', 'get', [
+        'contact_id' => $contact_id,
+        'contribution_status_id' => ['IN' => $status_ids],
+        'start_date' => ['>=' => "2023-101029"],
+        'return' => ['id'],
+    ]);
+
+    // if there is, apply the penalty
+    if ($result['count'] > 0) {
+      $contact_probability = min(0.0, $contact_probability - $recurring_contribution_penalty);
+      $this->logMessage("{$result['count']} active recurring contributions have been found with contact [{$contact_id}], suggestion will be reduced by a penalty of {$recurring_contribution_penalty}.", 'info');
+    } else {
+      $this->logMessage("No active recurring contributions have been found with contact [{$contact_id}], suggestion will not be penalised.", 'debug');
+    }
+    return $recurring_contribution_penalty;
+  }
+
+  /**
    * If the user has modified the input fields provided by the "visualize" html code,
    * the new values will be passed here BEFORE execution
    *
@@ -255,8 +307,9 @@ class CRM_Banking_PluginImpl_Matcher_CreateCampaignContribution extends CRM_Bank
   function visualize_match( CRM_Banking_Matcher_Suggestion $match, $btx) {
     $smarty_vars = array();
 
-    $contact_id   = $match->getParameter('contact_id');
-    $activity_id  = $match->getParameter('activity_id');
+    $contact_id      = $match->getParameter('contact_id');
+    $activity_id     = $match->getParameter('activity_id');
+    $penalty_applied = $match->getParameter('penalty_applied');
     $contribution = $this->get_contribution_data($btx, $match, $contact_id);
 
     // load contact
@@ -296,9 +349,10 @@ class CRM_Banking_PluginImpl_Matcher_CreateCampaignContribution extends CRM_Bank
     } else {
       $smarty_vars['activity_title'] = E::ts("'%1' from %2 days earlier", [1 => $activity['subject'], 2 => $days_since_contribution]);
     }
-    $smarty_vars['activity_id']    = $activity['id'] ?? 'n/a';
-    $smarty_vars['activity_url']   = CRM_Utils_System::url('civicrm/activity/view', "action=view&reset=1&id={$activity['id']}");
-    $smarty_vars['activity_link']  = E::ts('<a class="crm-popup" href="%1">%2</a>', [1 => $smarty_vars['activity_url'], 2 => $smarty_vars['activity_title']]);
+    $smarty_vars['activity_id']     = $activity['id'] ?? 'n/a';
+    $smarty_vars['activity_url']    = CRM_Utils_System::url('civicrm/activity/view', "action=view&reset=1&id={$activity['id']}");
+    $smarty_vars['activity_link']   = E::ts('<a class="crm-popup" href="%1">%2</a>', [1 => $smarty_vars['activity_url'], 2 => $smarty_vars['activity_title']]);
+    $smarty_vars['penalty_applied'] = (int) (100.0 * $penalty_applied);
 
     // add campaign info
     $smarty_vars['campaign_name']       = $campaign['title'];

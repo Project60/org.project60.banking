@@ -56,6 +56,10 @@
       </tbody>
     </table>
   </div>
+  {if $penalty_applied}
+    <br/>
+    {ts 1=$penalty_applied}Caution: this contact has <b>active recurring contributions</b>, so the score of this suggestion has been reduced by %1%.{/ts}
+  {/if}
 </div>
 {/if}
 {/crmScope}

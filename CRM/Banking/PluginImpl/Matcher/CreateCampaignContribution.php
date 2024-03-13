@@ -147,7 +147,7 @@ class CRM_Banking_PluginImpl_Matcher_CreateCampaignContribution extends CRM_Bank
       foreach ($contact_ids as $contact_id) {
         if (isset($contacts_found[$contact_id])) {
           $contact_probability = max($contacts_found[$contact_id] - $penalty, 0.0);
-          $penalty_applied = $this->adjustRatingOfRecurringContributions($contact_id, $contact_probability);
+          $penalty_applied = $this->adjustRatingOfRecurringContributions($contact_id, $contact_probability, $btx);
           if ($contact_probability >= $threshold) {
             // this is one of the contacts we're looking for -> create suggestion
             $suggestion = new CRM_Banking_Matcher_Suggestion($this, $btx);
@@ -256,7 +256,7 @@ class CRM_Banking_PluginImpl_Matcher_CreateCampaignContribution extends CRM_Bank
    *
    * @return float penalty added to the contact's rating
    */
-  public function adjustRatingOfRecurringContributions($contact_id, &$contact_probability)
+  public function adjustRatingOfRecurringContributions($contact_id, &$contact_probability, $btx)
   {
     // only look into this if there's a penalty and a contribution status set
     $recurring_contribution_penalty = (float) $this->_plugin_config->active_recurring_contribution_penalty ?? 0;
@@ -269,12 +269,14 @@ class CRM_Banking_PluginImpl_Matcher_CreateCampaignContribution extends CRM_Bank
     }
 
     // run the query
-    $result = civicrm_api3('ContributionRecur', 'get', [
+    $recurring_contribution_query = [
         'contact_id' => $contact_id,
         'contribution_status_id' => ['IN' => $status_ids],
-        'start_date' => ['>=' => "2023-101029"],
+        'start_date' => ['<=' => date('YmdHis', strtotime($btx->booking_date))],
         'return' => ['id'],
-    ]);
+    ];
+    $this->logMessage("Looking for recurring contributions with query: " . json_encode($recurring_contribution_query), 'debug');
+    $result = civicrm_api3('ContributionRecur', 'get', $recurring_contribution_query);
 
     // if there is, apply the penalty
     if ($result['count'] > 0) {

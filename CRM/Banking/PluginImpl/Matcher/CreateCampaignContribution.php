@@ -34,7 +34,7 @@ class CRM_Banking_PluginImpl_Matcher_CreateCampaignContribution extends CRM_Bank
     $config = $this->_plugin_config;
     if (!isset($config->auto_exec))              $config->auto_exec = false;
     if (!isset($config->required_values))        $config->required_values = array("btx.financial_type_id");
-    if (!isset($config->threshold))              $config->threshold = 0.9;
+    if (!isset($config->threshold))              $config->threshold = 0.5;
     if (!isset($config->source_label))           $config->source_label = E::ts('Source');
     if (!isset($config->lookup_contact_by_name)) $config->lookup_contact_by_name = array("hard_cap_probability" => 0.9);
 
@@ -144,9 +144,11 @@ class CRM_Banking_PluginImpl_Matcher_CreateCampaignContribution extends CRM_Bank
     foreach ($activities['values'] as $activity) {
       $activity_id = $activity['id'];
       $contact_ids = array_values($activity['target_contact_id']) ?? [];
+      $this->logMessage("General penalty is: {$penalty}", 'debug');
       foreach ($contact_ids as $contact_id) {
         if (isset($contacts_found[$contact_id])) {
           $contact_probability = max($contacts_found[$contact_id] - $penalty, 0.0);
+          $this->logMessage("Penalty for [{$contact_id}]: {$contacts_found[$contact_id]}", 'debug');
           $penalty_applied = $this->adjustRatingOfRecurringContributions($contact_id, $contact_probability, $btx);
           if ($contact_probability >= $threshold) {
             // this is one of the contacts we're looking for -> create suggestion
@@ -280,7 +282,7 @@ class CRM_Banking_PluginImpl_Matcher_CreateCampaignContribution extends CRM_Bank
 
     // if there is, apply the penalty
     if ($result['count'] > 0) {
-      $contact_probability = min(0.0, $contact_probability - $recurring_contribution_penalty);
+      $contact_probability = max(0.0, $contact_probability - $recurring_contribution_penalty);
       $this->logMessage("{$result['count']} active recurring contributions have been found with contact [{$contact_id}], suggestion will be reduced by a penalty of {$recurring_contribution_penalty}.", 'info');
     } else {
       $this->logMessage("No active recurring contributions have been found with contact [{$contact_id}], suggestion will not be penalised.", 'debug');

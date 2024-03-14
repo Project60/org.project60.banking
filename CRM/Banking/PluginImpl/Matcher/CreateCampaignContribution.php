@@ -92,6 +92,7 @@ class CRM_Banking_PluginImpl_Matcher_CreateCampaignContribution extends CRM_Bank
         'target_contact_id',
         'activity_type_id',
         'subject',
+        'campaign_id',
         'activity_date_time',
         'status_id',
       ]
@@ -148,7 +149,7 @@ class CRM_Banking_PluginImpl_Matcher_CreateCampaignContribution extends CRM_Bank
       foreach ($contact_ids as $contact_id) {
         if (isset($contacts_found[$contact_id])) {
           $contact_probability = max($contacts_found[$contact_id] - $penalty, 0.0);
-          $this->logMessage("Penalty for [{$contact_id}]: {$contacts_found[$contact_id]}", 'debug');
+          $this->logMessage("Found [{$contact_id}] with confidence {$contact_probability} (including penalty of {$penalty})", 'debug');
           $penalty_applied = $this->adjustRatingOfRecurringContributions($contact_id, $contact_probability, $btx);
           if ($contact_probability >= $threshold) {
             // this is one of the contacts we're looking for -> create suggestion

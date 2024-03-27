@@ -3,7 +3,7 @@
 ###  Actions
 
 the following actions can be used in Civi Banking Plugins. Not every action can be used everywhere. 
-For Importer examples reference [importer actions](https://github.com/Project60/org.project60.banking/blob/master/docs/configuration/plugins/importer-actions.md)
+For Importer examples reference [importer actions](importer-actions.md)
 
 | name 				| description |Importer|RegexAnalyser|
 | ----------- 		| ----------- |-----------|-----------|

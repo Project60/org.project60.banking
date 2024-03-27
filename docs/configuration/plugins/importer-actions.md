@@ -4,29 +4,37 @@
 {
   "comment": "CAMT.53 Import configuration (BNP Paribas Fortis)",
   "defaults": {
-    "payment_instrument_id": "4" 
+    "payment_instrument_id": "4"
   },
   "namespaces": {
-    "camt": "urn:iso:std:iso:20022:tech:xsd:camt.053.001.02" 
+    "camt": "urn:iso:std:iso:20022:tech:xsd:camt.053.001.02"
   },
-  "probe": "camt:BkToCstmrStmt/camt:GrpHdr/camt:MsgId",
+  "probe": "camt:BkToCstmrStmt/camt:GrpHdr/camt:MsgId"
+}
 ```
 
 ### Comments
 
-We start of by adding a comment so that it will make our lives easier in case we have many importers at a later stage. Note: Comment tags are always *optional*. But we really point out to put comments in order to remind you about the purpose of your current element/group.
+We start of by adding a comment so that it will make our lives easier in case we
+have many importers at a later stage. Note: Comment tags are always *optional*.
+But we really point out to put comments in order to remind you about the purpose
+of your current element/group.
 
 ### Defaults
 
-The group **Defaults** is used to enclose definitions for some standard piece of information about the incoming transactions that will be added to **all** the upcoming transactions of the file that we will be importing.
+The group **Defaults** is used to enclose definitions for some standard piece of
+information about the incoming transactions that will be added to **all** the
+upcoming transactions of the file that we will be importing.
 
-In this example, we specify that by default the attribute of **payment_instrument_id** will always be the number '4' (unless we alter it during the matcher chapter)
+In this example, we specify that by default the attribute of *
+*payment_instrument_id** will always be the number '4' (unless we alter it
+during the matcher chapter)
 
 !!! note
-The *payment_instrument_id* is really important and should be configured
-correctly. This means that the ID should exist in your database and reflect
-the payment instrument you want to use for the incoming transactions, for
-example Bank Transfer.
+    The *payment_instrument_id* is really important and should be configured
+    correctly. This means that the ID should exist in your database and reflect
+    the payment instrument you want to use for the incoming transactions, for
+    example Bank Transfer.
 
 ## List of supported actions
 
@@ -34,11 +42,16 @@ example Bank Transfer.
 
 #### Description
 
-Sets a variable with a fixed value, by reading a value in column (named by column number or name in the first row) of a CSV file or an XPATH in XML (if xpath: is defined in the from) or another variable
+Sets a variable with a fixed value, by reading a value in column (named by
+column number or name in the first row) of a CSV file or an XPATH in XML (if
+xpath: is defined in the from) or another variable
 
 #### Parameters
 
-* "from": Defines which element from the CSV column, XML Path OR variable to read so that it can find the variable. If our definition is starting with `xpath` then we're directing the importer to find that XPATH instead of a variable.
+* "from": Defines which element from the CSV column, XML Path OR variable to
+  read so that it can find the variable. If our definition is starting
+  with `xpath` then we're directing the importer to find that XPATH instead of a
+  variable.
 * "to": Which variable to use to store the altered value.
 
 #### Examples
@@ -49,7 +62,7 @@ Sets a variable with a fixed value, by reading a value in column (named by colum
    "from": "IBAN",
    "to": "_IBAN",
    "type": "set"
-},
+}
 ```
 
 ```json
@@ -57,7 +70,7 @@ Sets a variable with a fixed value, by reading a value in column (named by colum
   "comment": "XML: Get the name from XPATH and store it to variable name",
   "from": "xpath:camt:BkToCstmrStmt/camt:Stmt/camt:Acct/camt:Id/camt:IBAN",
   "to": "tx.name",
-  "type": "set" 
+  "type": "set"
 }
 ```
 
@@ -66,7 +79,7 @@ Sets a variable with a fixed value, by reading a value in column (named by colum
   "comment": "Get the value from another variable and store it to the new variable",
   "from": "temp_name",
   "to": "tx.name",
-  "type": "set" 
+  "type": "set"
 }
 ```
 
@@ -74,11 +87,16 @@ Sets a variable with a fixed value, by reading a value in column (named by colum
 
 #### Description
 
-Although a little bit similar to the `set` action, amount is used when we know that our variable is an amount. The difference is that there are special formatters being used so that it can treat properly the thousands/decimals separators.
+Although a little bit similar to the `set` action, amount is used when we know
+that our variable is an amount. The difference is that there are special
+formatters being used so that it can treat properly the thousands/decimals
+separators.
 
 #### Parameters
 
-* "from": Defines which element from the XML Path OR variable to read so that it can find the variable. if our definition is starting with `xpath` then we're directing the importer to find that XPATH instead of a variable.
+* "from": Defines which element from the XML Path OR variable to read so that it
+  can find the variable. if our definition is starting with `xpath` then we're
+  directing the importer to find that XPATH instead of a variable.
 * "to": Which variable to use to store the altered value.
 
 #### Examples
@@ -88,7 +106,7 @@ Although a little bit similar to the `set` action, amount is used when we know t
   "from": "CSV: Column amount",
   "to": "amount",
   "type": "amount"
-},
+}
 ```
 
 ```json
@@ -96,7 +114,7 @@ Although a little bit similar to the `set` action, amount is used when we know t
   "comment": "XML statement amount",
   "from": "xpath:camt:BkToCstmrStmt/camt:Stmt/camt:Bal[2]/camt:Amt",
   "to": "amount",
-  "type": "amount" 
+  "type": "amount"
 }
 ```
 
@@ -104,28 +122,35 @@ Although a little bit similar to the `set` action, amount is used when we know t
 
 #### Description
 
-Fields with dates have their own action, called "strtotime" which does the datetime handling on its own. Similar to the `set` action, they also require 2 parameters to work, `from` and `to`. Usually you want to store the variable `booking_date` and `value_date` here.
+Fields with dates have their own action, called "strtotime" which does the
+datetime handling on its own. Similar to the `set` action, they also require 2
+parameters to work, `from` and `to`. Usually you want to store the
+variable `booking_date` and `value_date` here.
 
 #### Parameters
 
-* "from": Defines which element from the XML Path OR variable to read so that it can find the variable. if our definition is starting with `xpath` then we're directing the importer to find that XPATH instead of a variable.
+* "from": Defines which element from the XML Path OR variable to read so that it
+  can find the variable. if our definition is starting with `xpath` then we're
+  directing the importer to find that XPATH instead of a variable.
 * "to": Which variable to use to store the altered value.
 
 #### Examples
 
 ```json
- {
-   "comment": "CSV: column booking-date"
-   "from": "bookingdate",
-   "to": "booking_date",
-   "type": "strtotime:d.m.y"
- },
- {
-   "comment": "CSV: column Valuta",
-   "from": "Valuta",
-   "to": "value_date",
-   "type": "strtotime:d.m.y"
- },
+ [
+  {
+    "comment": "CSV: column booking-date"
+    "from": "bookingdate",
+    "to": "booking_date",
+    "type": "strtotime:d.m.y"
+  },
+  {
+    "comment": "CSV: column Valuta",
+    "from": "Valuta",
+    "to": "value_date",
+    "type": "strtotime:d.m.y"
+  }
+]
 ```
 
 ```json
@@ -133,7 +158,7 @@ Fields with dates have their own action, called "strtotime" which does the datet
   "comment": "booking date",
   "from": "xpath:camt:BookgDt/camt:Dt",
   "to": "booking_date",
-  "type": "strtotime" 
+  "type": "strtotime"
 }
 ```
 
@@ -141,11 +166,16 @@ Fields with dates have their own action, called "strtotime" which does the datet
 
 #### Description
 
-This action is doing an in-place replacement of a string into another string. The source string is specified directly after the `replace` string. The replacement string is specified directly after the source string.
+This action is doing an in-place replacement of a string into another string.
+The source string is specified directly after the `replace` string. The
+replacement string is specified directly after the source string.
 
 #### Parameters
 
-* "from": Defines which element from the XML Path OR variable to read so that it can find the variable. if our definition is starting with an `xpath` string, then we're directing the importer to find that variable in the transaction entry, otherwise it will bring back the variable defined.
+* "from": Defines which element from the XML Path OR variable to read so that it
+  can find the variable. if our definition is starting with an `xpath` string,
+  then we're directing the importer to find that variable in the transaction
+  entry, otherwise it will bring back the variable defined.
 * "to": Which variable to use to store the altered value.
 * "type": replace:<source_string>:<target_string>
 
@@ -156,7 +186,7 @@ This action is doing an in-place replacement of a string into another string. Th
   "comment": "DBIT means negative, replace this in the amount",
   "from": "amount",
   "to": "amount",
-  "type": "replace:DBIT:-" 
+  "type": "replace:DBIT:-"
 }
 ```
 
@@ -164,11 +194,16 @@ This action is doing an in-place replacement of a string into another string. Th
 
 #### Description
 
-Similar to the `set` action, the `regex` action does what it exactly implies: Using a regular expression, it extracts the piece of information that was requested.
+Similar to the `set` action, the `regex` action does what it exactly implies:
+Using a regular expression, it extracts the piece of information that was
+requested.
 
 #### Parameters
 
-* "from": Defines which element from the XML Path OR variable to read so that it can find the variable. if our definition is starting with an `xpath` string, then we're directing the importer to find that variable inside the specified XPATH, otherwise, look into other already processed variables.
+* "from": Defines which element from the XML Path OR variable to read so that it
+  can find the variable. if our definition is starting with an `xpath` string,
+  then we're directing the importer to find that variable inside the specified
+  XPATH, otherwise, look into other already processed variables.
 * "to": Which variable to use to store the altered value.
 * "type": `regex:<regex_expression>`
 
@@ -179,12 +214,13 @@ Similar to the `set` action, the `regex` action does what it exactly implies: Us
   "comment": "party address",
   "from": "xpath:camt:RltdPties/camt:Dbtr/camt:PstlAdr/camt:AdrLine[2]|camt:RltdPties/camt:Cdtr/camt:PstlAdr/camt:AdrLine[2]",
   "to": "postal_code",
-  "type": "regex:#^(\\d{4}) +\\w+#" 
+  "type": "regex:#^(\\d{4}) +\\w+#"
 }
 ```
 
 !!! notes
-Keep in mind that you need to escape backslashes by using twice the backslash
+    Keep in mind that you need to escape backslashes by using twice the
+    backslash
 
 ### trim
 
@@ -194,7 +230,10 @@ Takes out the (trims) a given character from a given string.
 
 #### Parameters
 
-* "from": Defines which element from the XML Path OR variable to read so that it can find the variable. if our definition is starting with an `xpath` string, then we're directing the importer to find that variable inside the specified XPATH, otherwise, look into other already processed variables.
+* "from": Defines which element from the XML Path OR variable to read so that it
+  can find the variable. if our definition is starting with an `xpath` string,
+  then we're directing the importer to find that variable inside the specified
+  XPATH, otherwise, look into other already processed variables.
 * "to": Which variable to use to store the altered value.
 * "type": `trim:<character_to_trim>`
 
@@ -205,7 +244,7 @@ Takes out the (trims) a given character from a given string.
   "comment": "Trim whitespaces from the name field",
   "from": "name",
   "to": "name",
-  "type": "trim: " 
+  "type": "trim: "
 }
 ```
 
@@ -217,7 +256,10 @@ Appends on variable after another by using a character defined in type type
 
 #### Parameters
 
-* "from": Defines which element from the XML Path OR variable to read so that it can find the variable. if our definition is starting with an `xpath` string, then we're directing the importer to find that variable inside the specified XPATH, otherwise, look into other already processed variables.
+* "from": Defines which element from the XML Path OR variable to read so that it
+  can find the variable. if our definition is starting with an `xpath` string,
+  then we're directing the importer to find that variable inside the specified
+  XPATH, otherwise, look into other already processed variables.
 * "to": Which variable to use to append the altered value.
 * "type": `append:<character_to_append_between_variables>`
 
@@ -248,7 +290,7 @@ Unlike `set`, this action **removes** complete a variable from the namespace.
 {
   "comment": "unset variable postal_code",
   "to": "postal_code",
-  "type": "unset" 
+  "type": "unset"
 }
 ```
 
@@ -260,7 +302,10 @@ Formats a variable using the [sprintf](http://php.net/manual/en/function.sprintf
 
 #### Parameters
 
-* "from": Defines which element from the XML Path OR variable to read so that it can find the variable. if our definition is starting with an `xpath` string, then we're directing the importer to find that variable inside the specified XPATH, otherwise, look into other already processed variables.
+* "from": Defines which element from the XML Path OR variable to read so that it
+  can find the variable. if our definition is starting with an `xpath` string,
+  then we're directing the importer to find that variable inside the specified
+  XPATH, otherwise, look into other already processed variables.
 * "to": Which variable to use to store the altered value.
 * "type": `format:<formatting_parameters>`
 
@@ -271,11 +316,12 @@ Formats a variable using the [sprintf](http://php.net/manual/en/function.sprintf
   "comment": "Format the variable into",
   "from": "tmp_identifier",
   "to": "final_identifier",
-  "type": "format:%010d" 
+  "type": "format:%010d"
 }
 ```
 
-Formats the variable `tmp_identifier ` into a 10-digit variable, adding prepending zeros and then stores it into the variable `final_identifier`
+Formats the variable `tmp_identifier ` into a 10-digit variable, adding
+prepending zeros and then stores it into the variable `final_identifier`
 
 ### constant
 
@@ -300,7 +346,8 @@ Assigns a value to the variable
 
 ### Flow of control: if
 
-You may add an if statement to a group to apply the group only if a certain case exists.
+You may add an if statement to a group to apply the group only if a certain case
+exists.
 
 #### Examples
 
@@ -311,5 +358,5 @@ You may add an if statement to a group to apply the group only if a certain case
   "if": "equalto:<a valid IBAN>",
   "type": "replace:<IBAN>:<payment_instrument_id>",
   "to": "payment_instrument_id"
- },
+ }
 ```

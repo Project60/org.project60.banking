@@ -338,7 +338,10 @@ class CRM_Banking_PluginImpl_Matcher_CreateCampaignContribution extends CRM_Bank
 
     $contact_id      = $match->getParameter('contact_id');
     $activity_id     = $match->getParameter('activity_id');
-    $penalty_applied = $match->getParameter('penalty_applied');
+    $no_campaign_penalty_applied
+                     = $match->getParameter('no_campaign_penalty_applied');
+    $multiple_recurring_contributions_penalty_applied
+                     = $match->getParameter('multiple_recurring_contributions_penalty_applied');
     $contribution = $this->get_contribution_data($btx, $match, $contact_id);
 
     // load contact
@@ -380,7 +383,12 @@ class CRM_Banking_PluginImpl_Matcher_CreateCampaignContribution extends CRM_Bank
     $smarty_vars['activity_id']     = $activity['id'] ?? 'n/a';
     $smarty_vars['activity_url']    = CRM_Utils_System::url('civicrm/activity/view', "action=view&reset=1&id={$activity['id']}");
     $smarty_vars['activity_link']   = E::ts('<a class="crm-popup" href="%1">%2</a>', [1 => $smarty_vars['activity_url'], 2 => $smarty_vars['activity_title']]);
-    $smarty_vars['penalty_applied'] = (int) (100.0 * $penalty_applied);
+
+    // penalties
+    $smarty_vars['no_campaign_penalty_applied']
+                                    = (int) (100.0 * $no_campaign_penalty_applied);
+    $smarty_vars['multiple_recurring_contributions_penalty_applied']
+                                    = (int) (100.0 * $multiple_recurring_contributions_penalty_applied);
 
     // add campaign info
     $smarty_vars['campaign_name']       = $campaign['title'];

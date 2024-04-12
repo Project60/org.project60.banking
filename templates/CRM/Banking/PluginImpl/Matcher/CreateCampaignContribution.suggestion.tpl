@@ -26,9 +26,14 @@
 </div>
 {else}
 <div>
-  {if $penalty_applied}
+  {if $multiple_recurring_contributions_penalty_applied}
     <br/>
-    {ts 1=$penalty_applied}<b>Caution</b>: this contact has one or more <b>active recurring contribution(s)</b>, so the score of this suggestion has been reduced by %1%.{/ts}
+    {ts 1=$multiple_recurring_contributions_penalty_applied}<b>Caution</b>: this contact has one or more <b>active recurring contribution(s)</b>, so the score of this suggestion has been reduced by %1%.{/ts}
+    <br/><br/>
+  {/if}
+  {if $no_campaign_penalty_applied}
+    <br/>
+    {ts 1=$no_campaign_penalty_applied}<b>Caution</b>: the activity found has <b>no campaign</b>, so the score of this suggestion has been reduced by %1%.{/ts}
     <br/><br/>
   {/if}
   {ts 1=$activity_link}Based on activity '%1', the following contribution will be created:{/ts}

@@ -46,6 +46,8 @@ class CRM_Banking_PluginImpl_Matcher_CreateCampaignContribution extends CRM_Bank
 
     if (!isset($config->active_recurring_contribution_penalty))                  // penalty for finding active recurring contributions
       $config->active_recurring_contribution_penalty = 0.00;
+    if (!isset($config->activity_with_no_campaign_penalty))                      // penalty for finding active recurring contributions
+      $config->activity_with_no_campaign_penalty = 1.00;                         // ...default for which is: only activities with campaigns
     if (!isset($config->active_recurring_contribution_status_ids))               // default status is 'in Progress'
       $config->active_recurring_contribution_status_ids = ['In Progress'];
 
@@ -63,6 +65,8 @@ class CRM_Banking_PluginImpl_Matcher_CreateCampaignContribution extends CRM_Bank
     $config = $this->_plugin_config;
     $threshold   = $this->getThreshold();
     $penalty     = $this->getPenalty($btx);
+    $activity_with_no_campaign_penalty
+                 = (double) $config->activity_with_no_campaign_penalty;
     $data_parsed = $btx->getDataParsed();
 
     // get the potential contacts
@@ -72,6 +76,10 @@ class CRM_Banking_PluginImpl_Matcher_CreateCampaignContribution extends CRM_Bank
       $config->lookup_contact_by_name
     );
     $contact_ids_considered = array_keys($contacts_found);
+    if (empty($contact_ids_considered)) {
+      $this->logMessage("No eligible contacts found.", 'debug');
+      return [];
+    }
 
     // filter for valid activity status IDs
     $status_ids = ['Completed']; // default
@@ -136,7 +144,7 @@ class CRM_Banking_PluginImpl_Matcher_CreateCampaignContribution extends CRM_Bank
       $this->logTime("Finding {$activities['count']} activities to consider", 'campaign_contribution:search');
     } catch (Exception $ex) {
       $this->logMessage("Failed to search for eligible activities, error was " . $ex->getMessage(), 'error');
-      return;
+      return [];
     }
 
     // investigate and rate the activities found
@@ -148,21 +156,35 @@ class CRM_Banking_PluginImpl_Matcher_CreateCampaignContribution extends CRM_Bank
       $this->logMessage("General penalty is: {$penalty}", 'debug');
       foreach ($contact_ids as $contact_id) {
         if (isset($contacts_found[$contact_id])) {
-          $contact_probability = max($contacts_found[$contact_id] - $penalty, 0.0);
-          $this->logMessage("Found [{$contact_id}] with confidence {$contact_probability} (including penalty of {$penalty})", 'debug');
-          $penalty_applied = $this->adjustRatingOfRecurringContributions($contact_id, $contact_probability, $btx);
-          if ($contact_probability >= $threshold) {
+          $no_campaign_penalty_applied = 0.0;
+          $activity_confidence = max($contacts_found[$contact_id] - $penalty, 0.0);
+          $this->logMessage("Found [{$contact_id}] with confidence {$activity_confidence} (including penalty of {$penalty})", 'debug');
+          $multiple_recurring_contributions_penalty_applied = $this->adjustRatingOfRecurringContributions($contact_id, $activity_confidence, $btx);
+          $penalty_applied = $multiple_recurring_contributions_penalty_applied;
+
+          // also: add a penalty for activities without campaign (if configured this way)
+          if ($activity_with_no_campaign_penalty > 0.0) {
+            if (empty($activity['campaign_id'])) {
+              $activity_confidence = min($activity_confidence - $activity_with_no_campaign_penalty, 0.99);
+              $this->logMessage("Added a penalty of {$activity_with_no_campaign_penalty} because the activity has no campaign.", 'debug');
+              $no_campaign_penalty_applied = $activity_with_no_campaign_penalty;
+              $penalty_applied += $no_campaign_penalty_applied;
+            }
+          }
+
+          if ($activity_confidence >= $threshold) {
             // this is one of the contacts we're looking for -> create suggestion
             $suggestion = new CRM_Banking_Matcher_Suggestion($this, $btx);
             $suggestion->setTitle(E::ts("Create Campaign Contribution"));
             $suggestion->setId("create-campaign-{$activity_id}-{$contact_id}");
             $suggestion->setParameter('contact_id', $contact_id);
-            $suggestion->setParameter('campaign_id', $activity['campaign_id']);
+            $suggestion->setParameter('campaign_id', $activity['campaign_id'] ?? null);
             $suggestion->setParameter('activity_id', $activity_id);
-            $suggestion->setParameter('penalty_applied', $penalty_applied);
+            $suggestion->setParameter('multiple_recurring_contributions_penalty_applied', $multiple_recurring_contributions_penalty_applied);
+            $suggestion->setParameter('no_campaign_penalty_applied', $no_campaign_penalty_applied);
             $suggestion->setParameter('time_after_activity', strtotime("{$btx->booking_date}") - strtotime($activity['activity_date_time']));
-            $suggestion->setProbability($contact_probability);
-            if ($contact_probability == 1.0) $activity_count_with_confidence_100++;
+            $suggestion->setProbability($activity_confidence);
+            if ($activity_confidence == 1.0) $activity_count_with_confidence_100++;
             $this->logMessage("Added suggestion.", 'debug');
             $suggestions[] = $suggestion;
           }
@@ -176,12 +198,15 @@ class CRM_Banking_PluginImpl_Matcher_CreateCampaignContribution extends CRM_Bank
       $time_window_size = strtotime($max_date) - strtotime($min_date);
       foreach ($suggestions as $suggestion) {
         /** @var $suggestion CRM_Banking_Matcher_Suggestion */
+
+        // first adjust confidence based on temporal proximity
         $confidence = (float) $suggestion->getProbability();
         $this->logMessage('confidence: ' . $confidence, 'debug');
         $this->logMessage('time_after_activity: ' . $suggestion->getParameter('time_after_activity'), 'debug');
         $this->logMessage('time_window_size: ' . $time_window_size, 'debug');
         $adjusted_confidence = $confidence - ((float) $suggestion->getParameter('time_after_activity') / (float) $time_window_size);
         $adjusted_confidence = min($adjusted_confidence, 0.99);
+
         $suggestion->setProbability($adjusted_confidence); // don't create 100% matches at this point
         $this->logMessage("Adjusted confidence for suggestion from {$confidence} to {$adjusted_confidence}.", 'debug');
         $btx->addSuggestion($suggestion);
@@ -328,10 +353,9 @@ class CRM_Banking_PluginImpl_Matcher_CreateCampaignContribution extends CRM_Bank
     $activity = civicrm_api3('Activity', 'getsingle', ['id' => $activity_id]);
 
     // load campaign
-    if ($activity['campaign_id']) {  // this should always be the case, but better be sure
+    if (!empty($activity['campaign_id'])) {  // this should always be the case, but better be sure
       $campaign = civicrm_api3('Campaign', 'getsingle', ['id' => $activity['campaign_id']]);
     } else {
-      // this shouldn't happen
       $campaign = ['title' => E::ts("-no campaign-")];
     }
     $smarty_vars['campaign'] = $campaign;

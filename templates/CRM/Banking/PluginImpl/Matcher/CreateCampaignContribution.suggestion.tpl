@@ -26,6 +26,10 @@
 </div>
 {else}
 <div>
+  {if $penalty_applied}
+    {ts 1=$penalty_applied}<b>Caution</b>: this contact has one or more <b>active recurring contribution(s)</b>, so the score of this suggestion has been reduced by %1%.{/ts}
+    <br/>
+  {/if}
   {ts 1=$activity_link}Based on activity '%1', the following contribution will be created:{/ts}
   <br/>
   <div>
@@ -56,10 +60,6 @@
       </tbody>
     </table>
   </div>
-  {if $penalty_applied}
-    <br/>
-    {ts 1=$penalty_applied}<b>Caution</b>: this contact has one or more <b>active recurring contribution(s)</b>, so the score of this suggestion has been reduced by %1%.{/ts}
-  {/if}
 </div>
 {/if}
 {/crmScope}

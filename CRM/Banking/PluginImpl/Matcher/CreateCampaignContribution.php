@@ -160,15 +160,13 @@ class CRM_Banking_PluginImpl_Matcher_CreateCampaignContribution extends CRM_Bank
           $activity_confidence = max($contacts_found[$contact_id] - $penalty, 0.0);
           $this->logMessage("Found [{$contact_id}] with confidence {$activity_confidence} (including penalty of {$penalty})", 'debug');
           $multiple_recurring_contributions_penalty_applied = $this->adjustRatingOfRecurringContributions($contact_id, $activity_confidence, $btx);
-          $penalty_applied = $multiple_recurring_contributions_penalty_applied;
 
           // also: add a penalty for activities without campaign (if configured this way)
           if ($activity_with_no_campaign_penalty > 0.0) {
             if (empty($activity['campaign_id'])) {
               $activity_confidence = min($activity_confidence - $activity_with_no_campaign_penalty, 0.99);
-              $this->logMessage("Added a penalty of {$activity_with_no_campaign_penalty} because the activity has no campaign.", 'debug');
+              $this->logMessage("Added a penalty of {$activity_with_no_campaign_penalty} because the activity [{$activity_id}] has no campaign.", 'debug');
               $no_campaign_penalty_applied = $activity_with_no_campaign_penalty;
-              $penalty_applied += $no_campaign_penalty_applied;
             }
           }
 

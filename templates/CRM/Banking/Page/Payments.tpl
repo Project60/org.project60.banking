@@ -117,7 +117,7 @@
   {foreach from=$rows item=field key=fieldName}
   <tr class="odd ">
     <td><input id="check_{$field.id}" type="checkbox" name="payment_selected" onClick="cj('#banking_selector').attr('checked',false);"></td>
-    <td class="" nowrap>{$field.date|date_format:"%d-%m-%Y"}</td>
+    <td class="" nowrap>{$field.date|crmDate}</td>
     <td class="">{$field.account_owner}</td>
     <td class="" style="text-align: center;">{$field.sequence}</td>
     <td class="" style="text-align: right;">{$field.amount} {$field.currency}</td>
@@ -174,7 +174,7 @@
   {foreach from=$rows item=field key=fieldName}
   <tr class="odd ">
     <td><input id="check_{$field.id}" type="checkbox" name="payment_selected" onClick="cj('#banking_selector').attr('checked',false);"></td>
-    <td nowrap class="crm-contact-activity-activity_type">{$field.date|date_format:"%d-%m-%Y"}</td>
+    <td nowrap class="crm-contact-activity-activity_type">{$field.date|crmDate}</td>
     <td class="crm-contact-activity-source_contact"><b>{$field.target}</b></td>
     <td class="">
       {if $field.sequence}

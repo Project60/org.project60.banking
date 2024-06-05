@@ -20,7 +20,7 @@ use CRM_Banking_ExtensionUtil as E;
 /**
  * Collection of upgrade steps.
  */
-class CRM_Banking_Upgrader extends CRM_Banking_Upgrader_Base {
+class CRM_Banking_Upgrader extends CRM_Extension_Upgrader_Base {
 
   /**
    * Create table for Rules Matcher/Analyser

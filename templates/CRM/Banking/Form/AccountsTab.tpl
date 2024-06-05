@@ -14,8 +14,7 @@
 +--------------------------------------------------------*}
 
 {* check for the org.project60.bic extension *}
-{crmAPI var='bic_extension_check' entity='Bic' action='findbyiban' q='civicrm/ajax/rest' bic='TEST'}
-{capture assign=bic_extension_installed}{if $bic_extension_check.is_error eq 0}1{/if}{/capture}
+{capture assign=bic_extension_installed}{if $bic_extension_status eq 1}1{/if}{/capture}
 
 {if $bank_accounts}
 <div>
@@ -29,13 +28,13 @@
   </thead>
   <tbody>
     {foreach from=$bank_accounts item=account}
-    <tr class="{cycle values="odd,even"}">      
+    <tr class="{cycle values="odd,even"}">
       <td>
         <table style="border: 0;">
         {foreach from=$account.references item=reference name=account_reference}
           <tr><td>
             {if $reference.reference_type eq 'NBAN_DE'}
-            {assign var=german value="/"|explode:$reference.reference} 
+            {assign var=german value="/"|explode:$reference.reference}
             BLZ:&nbsp;{$german.0}&nbsp;&nbsp;&nbsp;Kto:&nbsp;{$german.1}&nbsp;({ts domain='org.project60.banking'}German{/ts})
             {elseif $reference.reference_type eq 'ENTITY'}
             {* We hide entity references for the moment *}
@@ -156,7 +155,7 @@ cj("input.cancel").click(function() {
   cj("input[name='reference_id']").val('');
   cj("#reference").val('');
   cj("#reference_type").val('');
-  return false;  
+  return false;
 })
 
 // show description of reference type
@@ -288,8 +287,8 @@ cj("#reference").change(function() {
           cj("#reference_status_img").attr('src', error_icon_url);
         }
         if (result.is_valid) {
-          cj("#reference_status_img").attr('src', good_icon_url);          
-        }        
+          cj("#reference_status_img").attr('src', good_icon_url);
+        }
       }
       if (normalise_ref && result.normalised) {
         cj("#reference").val(result.reference);
@@ -303,7 +302,7 @@ cj("#reference").change(function() {
       // and log the error via console
       cj("#reference_checking").remove();
       return false;
-    }});  
+    }});
 });
 
 {/literal}
@@ -336,7 +335,7 @@ cj("#bic").change(function() {
       // and log the error via console
       cj("#bic_busy").remove();
       return false;
-    }});  
+    }});
 });
 
 // Look up IBAN
@@ -366,7 +365,7 @@ function banking_iban_lookup() {
       // and log the error via console
       cj("#iban_busy").remove();
       return false;
-    }});  
+    }});
 }
 </script>
 {/literal}

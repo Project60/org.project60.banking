@@ -53,6 +53,7 @@ class CRM_Banking_PluginImpl_Matcher_ExistingContribution extends CRM_Banking_Pl
     if (!isset($config->date_penalty))               $config->date_penalty = 1.0;
     if (!isset($config->payment_instrument_penalty)) $config->payment_instrument_penalty = 0.0;
     if (!isset($config->financial_type_penalty))     $config->financial_type_penalty = 0.0;
+    if (!isset($config->preserve_receive_date))      $config->preserve_receive_date = 0; // Set to 1 to preserve the receive_date (instead of overwriting it with the booking_date). See issue #409.
 
     // amount check / amount penalty
     if (!isset($config->amount_check))            $config->amount_check = "1";
@@ -415,7 +416,9 @@ class CRM_Banking_PluginImpl_Matcher_ExistingContribution extends CRM_Banking_Pl
     // depending on mode...
     if ($this->_plugin_config->mode != "cancellation") {
       $query['contribution_status_id'] = banking_helper_optionvalue_by_groupname_and_name('contribution_status', 'Completed');
-      $query['receive_date'] = date('YmdHis', strtotime($btx->booking_date));
+      if (!$config->preserve_receive_date) {
+        $query['receive_date'] = date('YmdHis', strtotime($btx->booking_date));
+      }
     } else {
       $query['contribution_status_id'] = banking_helper_optionvalue_by_groupname_and_name('contribution_status', 'Cancelled');
       $query['cancel_date'] = date('YmdHis', strtotime($btx->booking_date));

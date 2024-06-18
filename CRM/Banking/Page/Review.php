@@ -313,7 +313,15 @@ class CRM_Banking_Page_Review extends CRM_Core_Page {
         'ReviewPurpose',
         'ReviewDetails',
       ];
-      $vars = $this->get_template_vars();
+
+      // Check if this method exists already
+      if (method_exists($this, 'getTemplateVars')) {
+        $vars = $this->getTemplateVars();
+      }
+      else {
+        $vars = $this->get_template_vars();
+      }
+
       $template = CRM_Core_Smarty::singleton();
       $template->assignAll($vars);
       $summary_blocks = [];

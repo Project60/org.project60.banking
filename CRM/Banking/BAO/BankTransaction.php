@@ -196,7 +196,7 @@ class CRM_Banking_BAO_BankTransaction extends CRM_Banking_DAO_BankTransaction {
   }
 
   /**
-   * Persist suggestiosn for this BTX by converting them into a specific JSON string
+   * Persist suggestion for this BTX by converting them into a specific JSON string
    *
    * TODO: fix problem by which a $bao->save() operation screws up the date values
    */

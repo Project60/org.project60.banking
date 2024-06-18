@@ -1,7 +1,14 @@
 Configuring CiviBanking is a bit of a job. As it is pretty powerful and can
 handle different types of files, it also needs configuration for each file. And
 as you are importing files from specific formats it also requires quite some
-technical knowledge to understand all the steps required.
+technical knowledge to understand all the steps required. Since a bank account is crucial information for reconciling bank statement
+transactions, CiviBanking provides a new entity for storing bank account
+information on contact records in multiple formats, e.g. IBAN, national account
+and bank numbers, or payment provider identifiers.
+
+However, configuring CiviBanking for a specific scenario is not an easy task and involves writing JSON code. We strongly recommend to use an external editor that can highlight JSON syntax. Copy configurations from there into the extension editor.
+
+You will have to write RegEx. Use a good online tool for verification.
 
 !!! note "What if I want to know more?"
     Please note that this chapter does not mention all possibilities or options.
@@ -30,7 +37,8 @@ access the Configuration Manager you will probably get a form like this:
 
 ![Screenshot](../../img/config_manager_empty.png)
 
-For creating a new plugin instance, click on the **add a new one** link.
+For creating a new plugin instance, click on the **add a new one** link. 
+
 Alternatively, if you have a plugin configuration (including importers, matchers
 and so on) for CiviBanking from another CiviCRM installation, you can use the **
 IMPORTER** link to select an exported configuration file and import that into
@@ -72,6 +80,20 @@ CiviBanking ships with the following importer plugins:
 * **Fixed Width TXT Importer** - a configurable plugin for most fixed-width txt
   standards
 * **Dummy Data Importer Plugin** - For testing purposes only
+
+There are a handful of variables that have special weight
+in the CiviBanking ecosystem. Those are:
+
+* `booking_date`
+* `value_date`
+* `amount`
+* `currency`
+
+Those variables are considered mandatory and need to be defined in our importer
+rule.
+
+Lastly, it's important to mention that all rules must be written in valid JSON
+format. Please refer to the guide of [actions for an importer](importer-actions.md).
 
 ## Analyzing
 
@@ -174,4 +196,7 @@ CiviBanking ship swith the following Postprocessor plugins:
 
 There are example configurations for each plugin type in
 the [Configuration Example Database](https://github.com/Project60/org.project60.banking/tree/master/configuration_database)
-.
+
+## Reference
+
+You can find a short [reference of actions and the data model ](../../reference.md) which gives an overview about most available actions.

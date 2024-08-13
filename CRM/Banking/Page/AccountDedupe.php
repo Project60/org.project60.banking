@@ -14,7 +14,7 @@
 | written permission from the original author(s).        |
 +--------------------------------------------------------*/
 
-
+use Civi\Api4\BankTransaction;
 use CRM_Banking_ExtensionUtil as E;
 
 require_once 'CRM/Core/Page.php';
@@ -314,8 +314,14 @@ class CRM_Banking_Page_AccountDedupe extends CRM_Core_Page {
           unset($bank_account_ids[0]);
           $delete_ids = implode(',', $bank_account_ids);
           CRM_Core_DAO::singleValueQuery("UPDATE civicrm_bank_account_reference SET ba_id=$target_id WHERE ba_id IN ($delete_ids);");
-          CRM_Core_DAO::singleValueQuery("UPDATE civicrm_bank_tx SET ba_id=$target_id WHERE ba_id IN ($delete_ids);");
-          CRM_Core_DAO::singleValueQuery("UPDATE civicrm_bank_tx SET party_ba_id=$target_id WHERE party_ba_id IN ($delete_ids);");
+          BankTransaction::update()
+            ->addValue('ba_id', $target_id)
+            ->addWhere('ba_id', 'IN', $bank_account_ids)
+            ->execute();
+          BankTransaction::update()
+            ->addValue('party_ba_id', $target_id)
+            ->addWhere('party_ba_id', 'IN', $bank_account_ids)
+            ->execute();
           CRM_Core_DAO::singleValueQuery("DELETE FROM civicrm_bank_account WHERE id IN ($delete_ids);");
           $accounts_fixed += 1;
 

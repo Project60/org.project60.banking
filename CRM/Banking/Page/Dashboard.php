@@ -14,6 +14,8 @@
 | written permission from the original author(s).        |
 +--------------------------------------------------------*/
 
+use Civi\Api4\BankTransaction;
+use Civi\Banking\Permissions\AllowedDomainsSqlGenerator;
 use CRM_Banking_ExtensionUtil as E;
 
 require_once 'CRM/Core/Page.php';
@@ -30,10 +32,16 @@ class CRM_Banking_Page_Dashboard extends CRM_Core_Page {
     $payment_states = banking_helper_optiongroup_id_name_mapping('civicrm_banking.bank_tx_status');
     $account_names = array();
 
+    /** @var \Civi\Banking\Permissions\AllowedDomainsSqlGenerator $allowedDomainsSqlGenerator */
+    $allowedDomainsSqlGenerator = \Civi::service(AllowedDomainsSqlGenerator::class);
+    $allowedDomainsClause = $allowedDomainsSqlGenerator->generateWhereClause();
+
     // get the week based data
     $account_week_data = array();
 	for ($i=$week_count; $i>=0; $i--)
 		$weeks[] = date('YW', strtotime("now -$i weeks"));
+
+    // Migration to APIv4 would require YEARWEEK as \Civi\Api4\Query\SqlFunction.
     $account_based_data_sql = "
     SELECT
       COUNT(*)               AS count,
@@ -42,6 +50,7 @@ class CRM_Banking_Page_Dashboard extends CRM_Core_Page {
       status_id              AS status_id
     FROM
       civicrm_bank_tx
+    WHERE $allowedDomainsClause
     GROUP BY
       ba_id, year_week, status_id;
     ";
@@ -74,7 +83,7 @@ class CRM_Banking_Page_Dashboard extends CRM_Core_Page {
 
     // fill empty weeks
     foreach ($account_week_data as $account_id => $account_data) {
-    	for ($i=$week_count; $i>=0; $i--) { 
+    	for ($i=$week_count; $i>=0; $i--) {
     		$week = date('YW', strtotime("now -$i weeks"));
     		if (!isset($account_data[$week])) {
     			$account_week_data[$account_id][$week] = array('sum' => 0);
@@ -106,52 +115,64 @@ class CRM_Banking_Page_Dashboard extends CRM_Core_Page {
     // get statistics data
     $statistics = array();
     $statistics[] = $this->calculateStats(
-    			E::ts("Payments")." (".E::ts("current year").")",
-    			"YEAR(value_date) = '".date('Y')."'",
-    			$payment_states);
+    E::ts('Payments') . ' (' . E::ts('current year') . ')',
+      [
+        ['value_date', '>=', date('Y-01-01 00:00:00')],
+        ['value_date', '<', date('Y-01-0100:00:00', strtotime('+1 year'))],
+      ],
+      $payment_states
+    );
     $statistics[] = $this->calculateStats(
-    			E::ts("Payments")." (".E::ts("last year").")",
-    			"YEAR(value_date) = '".date('Y', strtotime("-1 year"))."'",
-    			$payment_states);
+    E::ts('Payments') . ' (' . E::ts('last year') . ')',
+      [
+        ['value_date', '>=', date('Y-01-01 00:00:00', strtotime('-1 year'))],
+        ['value_date', '<', date('Y-01-01 00:00:00')],
+      ],
+      $payment_states
+    );
     $statistics[] = $this->calculateStats(
-    			E::ts("Payments")." (".E::ts("all times").")",
-    			"1",
-    			$payment_states);
+      E::ts('Payments') . ' (' . E::ts('all times') . ')',
+      [],
+      $payment_states
+    );
 	$this->assign('statistics', $statistics);
-    
-    parent::run();	
+
+    parent::run();
   }
 
-  function calculateStats($name, $where_clause, $payment_states) {
+  function calculateStats($name, array $where, $payment_states) {
   	$data = array('title' => $name, 'count' => 0, 'stats' => array());
   	foreach ($payment_states as $state) {
   		$data['stats'][$state['label']] = 0;
   	}
-  	$stats_sql = "
-  	SELECT
-  	  COUNT(id)    		AS count,
-  	  MIN(value_date)	AS first_payment,
-  	  MAX(value_date)	AS last_payment,
-  	  status_id		AS status_id
-  	FROM
-  	  civicrm_bank_tx
-  	WHERE 
-  	  $where_clause
-  	GROUP BY
-  	  status_id;
-  	";
-  	$stats = CRM_Core_DAO::executeQuery($stats_sql);
-  	while ($stats->fetch()) {
-  		$data['count'] += $stats->count;
-  		$data['stats'][$payment_states[$stats->status_id]['label']] = $stats->count;
-  		if (!isset($data['from'])) {
-  			$data['from'] = $stats->first_payment;
-  			$data['to'] = $stats->last_payment;
-  		} else {
-  			if ($data['from'] > $stats->first_payment) $data['from'] = $stats->first_payment;
-  			if ($data['to']   < $stats->first_payment) $data['to'] = $stats->first_payment;
-   		}
-  	}
+
+    $statsList = BankTransaction::get()
+      ->addSelect(
+        'COUNT(id) AS count',
+        'MIN(value_data) AS first_payment',
+        'MAX(value_data) AS last_payment',
+        'status_id'
+      )
+      ->setWhere($where)
+      ->addGroupBy('status_id')
+      ->execute();
+
+    foreach ($statsList as $stats) {
+      $data['count'] += $stats['count'];
+      $data['stats'][$payment_states[$stats['status_id']]['label']] = $stats['count'];
+      if (!isset($data['from'])) {
+        $data['from'] = $stats['first_payment'];
+        $data['to'] = $stats['last_payment'];
+      } else {
+        if ($data['from'] > $stats['first_payment']) {
+          $data['from'] = $stats['first_payment'];
+        }
+        if ($data['to'] < $stats['first_payment']) {
+          $data['to'] = $stats['first_payment'];
+        }
+      }
+    }
+
   	return $data;
   }
 }

@@ -14,46 +14,65 @@
 | written permission from the original author(s).        |
 +--------------------------------------------------------*/
 
+use Civi\Banking\Permissions\AssignedTransactionDomainsLoader;
 use CRM_Banking_ExtensionUtil as E;
 
 require_once 'CRM/Core/Page.php';
 
 class CRM_Banking_Page_Import extends CRM_Core_Page
 {
-  function run()
-  {
+
+  private const DOMAIN_NONE = '@none@';
+
+  /**
+   * @throws \CRM_Core_Exception
+   */
+  public function run(): void {
     // Example: Set the page-title dynamically; alternatively, declare a static title in xml/Menu/*.xml
     CRM_Utils_System::setTitle(E::ts('Bank Transaction Importer'));
 
     // get the plugins
     $plugin_list = CRM_Banking_BAO_PluginInstance::listInstances('import');
+    $this->assign('plugin_list', $plugin_list);
 
-    // check for the page mode
-    if (isset($_REQUEST['importer-plugin'])) {
-      // RUN MODE
-      $this->assign('page_mode', 'run');
-      $plugin_id = $_REQUEST['importer-plugin'];
-      $this->assign('plugin_id', $plugin_id);
+    $domains = $this->getDomains();
+    $this->assign('domains', $domains);
 
-      // assign values
-      $this->assign('dry_run', $_REQUEST['dry_run'] ?? "off");
-      $this->assign('process', $_REQUEST['process'] ?? "off");
-      $plugin = reset($plugin_list); // should be overwritten in the next lines
+    $plugin_id = CRM_Utils_Request::retrieve('importer-plugin', 'Positive');
+    if (NULL !== $plugin_id) {
       foreach ($plugin_list as $plugin) {
         if ($plugin->id == $plugin_id) {
-          $this->assign('plugin_list', array($plugin));
+          $this->assign('plugin_id', $plugin_id);
           break;
         }
       }
+    }
+
+    $domain = CRM_Utils_Request::retrieve('domain', 'String');
+    if (isset($domains[$domain])) {
+      $this->assign('domain', $domain);
+    }
+
+    // check for the page mode
+    if (isset($plugin) && isset($domains[$domain])) {
+      // RUN MODE
+      $this->assign('page_mode', 'run');
+
+      // assign values
+      $dry_run = CRM_Utils_Request::retrieve('dry_run', 'String') ?? 'off';
+      $this->assign('dry_run', $dry_run);
+      $this->assign('process', CRM_Utils_Request::retrieve('process', 'String') ?? 'off');
 
       // RUN the importer
       $file_info = $_FILES['uploadFile'] ?? null;
 
       $this->assign('file_info', $file_info);
+      /** @var \CRM_Banking_PluginModel_Importer $plugin_instance */
       $plugin_instance = $plugin->getInstance();
+      $plugin_instance->setDomain(self::DOMAIN_NONE === $domain ? NULL : $domain);
       $import_parameters = [
-        'dry_run' => ($_REQUEST['dry_run'] ?? "off"),
-        'source'  => ($file_info['name'] ?? 'stream'),
+        'dry_run' => $dry_run,
+        'source' => ($file_info['name'] ?? 'stream'),
       ];
       if ($file_info != null && $plugin_instance::does_import_files()) {
         // extract files
@@ -86,7 +105,7 @@ class CRM_Banking_Page_Import extends CRM_Core_Page
       }
 
       // TODO: RUN the processor
-      if (isset($_REQUEST['process']) && $_REQUEST['process'] == "on") {
+      if (CRM_Utils_Request::retrieve('process', 'String') === 'on') {
         CRM_Core_Session::setStatus(E::ts('Automated running not yet implemented'), E::ts('Not implemented'), 'alert');
       }
 
@@ -147,8 +166,7 @@ class CRM_Banking_Page_Import extends CRM_Core_Page
    * @return array
    *    list of file infos
    */
-  public function getFiles(array $file_info): array
-  {
+  public function getFiles(array $file_info): array {
     $uploaded_file = $file_info['tmp_name'];
 
     // try ZIP files
@@ -187,4 +205,25 @@ class CRM_Banking_Page_Import extends CRM_Core_Page
     // no archive: return the file itself
     return [$uploaded_file];
   }
+
+  /**
+   * @phpstan-return array<string, string>
+   *   Mapping of domain to label.
+   *
+   * @throws \CRM_Core_Exception
+   */
+  private function getDomains(): array {
+    if (TRUE === Civi::settings()->get(CRM_Banking_Config::SETTING_FORCE_TRANSACTION_DOMAIN)) {
+      $domains = [];
+    }
+    else {
+      $domains = [self::DOMAIN_NONE => E::ts('None')];
+    }
+
+    /** @var \Civi\Banking\Permissions\AssignedTransactionDomainsLoader $domainsLoader */
+    $domainsLoader = \Civi::service(AssignedTransactionDomainsLoader::class);
+
+    return $domains + $domainsLoader->getAssignedTransactionDomainsWithLabel();
+  }
+
 }

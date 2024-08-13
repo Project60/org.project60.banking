@@ -44,9 +44,9 @@ class CRM_Banking_BAO_PluginInstance extends CRM_Banking_DAO_PluginInstance {
    *
    * If $enabled_only is set to true (default), only enabled plugins will be delivered.
    *
-   * @return array CRM_Banking_BAO_PluginInstances
+   * @phpstan-return list<\CRM_Banking_BAO_PluginInstance>
    */
-  static function listInstances($type_name, $enabled_only=TRUE) {
+  static function listInstances($type_name, $enabled_only = TRUE): array {
     // find the correct plugin type
     $import_plugin_type = civicrm_api3('OptionValue', 'get', array(
         'name'     => $type_name,
@@ -100,7 +100,7 @@ class CRM_Banking_BAO_PluginInstance extends CRM_Banking_DAO_PluginInstance {
   /**
    * getInstance returns an instance of the class implementing this plugin's functionality
    */
-  function getInstance() {
+  public function getInstance(): \CRM_Banking_PluginModel_Base {
     $class = $this->getClass();
     return new $class( $this );
   }
@@ -179,4 +179,3 @@ class CRM_Banking_BAO_PluginInstance extends CRM_Banking_DAO_PluginInstance {
     }
   }
 }
-

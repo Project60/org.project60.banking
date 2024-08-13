@@ -14,6 +14,8 @@
 | written permission from the original author(s).        |
 +--------------------------------------------------------*/
 
+use Civi\Api4\BankTransaction;
+
 /**
  * Class contains functions for CiviBanking bank transactions
  */
@@ -52,14 +54,13 @@ class CRM_Banking_BAO_BankTransactionBatch extends CRM_Banking_DAO_BankTransacti
   /**
    * Get the list of transactions
    *
-   * @return array of CRM_Banking_BAO_BankTransaction
+   * @return list<array<string, mixed>>
    */
-  public function getTransactions()
-  {
-    $search = new CRM_Banking_BAO_BankTransaction();
-    $search->tx_batch_id = $this->id;
-    $search->find();
-    return $search->fetchAll();
+  public function getTransactions(): array {
+    return BankTransaction::get()
+      ->addWhere('tx_batch_id', '=', $this->id)
+      ->execute()
+      ->getArrayCopy();
   }
 
 }

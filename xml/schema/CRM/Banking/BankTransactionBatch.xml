@@ -56,6 +56,20 @@
         <add>4.3</add>
     </field>
 
+    <field>
+        <name>domain</name>
+        <title>Domain</title>
+        <type>varchar</type>
+        <length>255</length>
+        <pseudoconstant>
+            <optionGroupName>banking_transaction_domain</optionGroupName>
+        </pseudoconstant>
+        <default>null</default>
+    </field>
+    <index>
+      <name>index_domain</name>
+      <fieldName>domain</fieldName>
+    </index>
 
     <field>
         <name>starting_balance</name>
@@ -86,20 +100,20 @@
         <required>true</required>
         <add>4.3</add>
     </field>
-    
+
     <field>
         <name>starting_date</name>
         <title>Start date</title>
         <type>datetime</type>
         <comment>Start date of the statement period</comment>
         <add>4.3</add>
-    </field>   
+    </field>
     <field>
         <name>ending_date</name>
         <title>End date</title>
         <type>datetime</type>
         <comment>End date of the statement period</comment>
         <add>4.3</add>
-    </field>   
+    </field>
 
 </table>

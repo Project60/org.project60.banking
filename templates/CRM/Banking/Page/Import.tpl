@@ -16,7 +16,7 @@
 {literal}
   <style>
     table.log tr td {
-      padding: 1px 8px; 
+      padding: 1px 8px;
       font-family: Courier;
       letter-spacing: -1px;
       font-size: 12px;
@@ -25,7 +25,7 @@
     }
   </style>
 {/literal}
-  
+
 
 <form action="{$url_action}" method="post" name="DataSource" id="DataSource" enctype="multipart/form-data" >
   <div class="crm-block crm-form-block crm-import-datasource-form-block" id="choose-data-source">
@@ -37,7 +37,7 @@
             <label for="dataSource">{ts domain='org.project60.banking'}Choose configuration{/ts}<span title="This field is required." class="crm-marker">*</span></label>
           </td>
           <td>
-            <select class="form-select required" id="banking-importer-plugin" name="importer-plugin" onchange="selected_plugin_changed(this.value);" {if $page_mode == 'run'}disabled{/if}>
+            <select class="form-select required" id="banking-importer-plugin" name="importer-plugin" required onchange="selected_plugin_changed(this.value);" {if $page_mode == 'run'}disabled{/if}>
               <option value="-9999">-- {ts domain='org.project60.banking'}select{/ts} --</option>
             {foreach from=$plugin_list item=field key=fieldName}
               <option value="{$field->id}" {if $plugin_id == $field->id} selected{/if}>{$field->name}</option>
@@ -49,15 +49,36 @@
         <td class="label"><label for="dataSource">Plugin Configuration<span title="This field is required." class="crm-marker">*</span></label>
         </td>
         <td>
-          <select class="form-select required" id="banking-importer-plugin-configuration" name="importer-config" onchange="todo(this.value);" 
+          <select class="form-select required" id="banking-importer-plugin-configuration" name="importer-config" onchange="todo(this.value);"
     {if $page_mode == 'run'}disabled{/if}>
 <option selected="selected" value="Default">Default</option>
 </select>
 </td>
 </tr-->
-  </tbody>
-</table>
-</div>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="crm-block crm-form-block crm-import-datasource-form-block">
+    <h3>{ts domain='org.project60.banking'}Select Domain{/ts}</h3>
+    <table class="form-layout">
+      <tbody>
+        <tr>
+          <td class="label">
+            <label for="domain">{ts domain='org.project60.banking'}Domain{/ts}<span title="This field is required." class="crm-marker">*</span></label>
+          </td>
+          <td>
+            <select class="form-select required" id="domain" name="domain" required {if $page_mode == 'run'}disabled{/if}>
+              <option value="">-- {ts domain='org.project60.banking'}select{/ts} --</option>
+              {foreach from=$domains item=label key=value}
+                <option value="{$value}"{if $domain == $value} selected{/if}>{$label}</option>
+              {/foreach}
+            </select>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
 
 <div class="crm-block crm-form-block crm-import-datasource-form-block" id="upload_file" style="display: none;">
   <h3>{ts domain='org.project60.banking'}Upload File{/ts}</h3>
@@ -66,12 +87,12 @@
       <tr>
         {if isset($file_info)}
           <td>Processed file "{$file_info.name}"...</td>
-        {else}        
+        {else}
           <td class="label">
             <label for="uploadFile">  {ts domain='org.project60.banking'}Import Data File{/ts}<span title="This field is required." class="crm-marker">*</span></label>
           </td>
           <td>
-            <input type="file" class="form-file required" id="uploadFile" name="uploadFile" maxlength="255" size="30" 
+            <input type="file" class="form-file required" id="uploadFile" name="uploadFile" maxlength="255" size="30"
                    {if $page_mode == 'run'}
                      disabled
                    {elseif $has_file_source[0] == 'false'}
@@ -158,7 +179,7 @@ DISABLED: Options panel *}
 
 
 <script type="text/javascript">
-  {literal} 
+  {literal}
     var has_file_source = {
   {/literal}
   {foreach from=$has_file_source item=field key=fieldName}
@@ -175,5 +196,5 @@ DISABLED: Options panel *}
       cj('#upload_file').css('display','block');
     }
   }
-  {/literal} 
+  {/literal}
 </script>

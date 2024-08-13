@@ -1,5 +1,7 @@
 <?php
 
+use Civi\Banking\Permissions\TransactionAccessChecker;
+
 /**
  * BankingRule.Match API specification (optional)
  * This is used for documentation and validation.
@@ -31,6 +33,10 @@ function _civicrm_api3_banking_rule_Match_spec(&$spec) {
 function civicrm_api3_banking_rule_Match($params) {
 
   try {
+    if (!TransactionAccessChecker::isAccessibleById((int) $params['btx_id'])) {
+      throw new \CRM_Core_Exception('Transaction does not exist or is not accessible');
+    }
+
     // Load the bank transaction.
     $btx = CRM_Banking_BAO_BankTransaction::findById($params['btx_id']);
 

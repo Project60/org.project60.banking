@@ -169,6 +169,11 @@ function banking_civicrm_entityTypes(&$entityTypes) {
     'table' => 'civicrm_bank_tx_batch',
   );
   $entityTypes[] = array(
+    'name' => 'BankTransactionContribution',
+    'class' => 'CRM_Banking_DAO_BankTransactionContribution',
+    'table' => 'civicrm_bank_tx_contribution',
+  );
+  $entityTypes[] = array(
     'name' => 'PluginInstance',
     'class' => 'CRM_Banking_DAO_PluginInstance',
     'table' => 'civicrm_bank_plugin_instance',

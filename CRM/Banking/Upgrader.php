@@ -48,7 +48,7 @@ class CRM_Banking_Upgrader extends CRM_Extension_Upgrader_Base {
    * @return TRUE on success
    */
   public function upgrade_0611() {
-    CRM_Core_BAO_Setting::setItem(false, 'org.project60.banking', 'new_ui');
+    Civi::settings()->set('new_ui', false);
 
     // Update order of the option group banking_tx_status.
     $statusApi = civicrm_api3('OptionValue', 'get', array('option_group_id' => 'civicrm_banking.bank_tx_status', 'options' => array('limit' => 0)));

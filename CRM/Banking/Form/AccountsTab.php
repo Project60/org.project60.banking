@@ -88,7 +88,7 @@ class CRM_Banking_Form_AccountsTab extends CRM_Core_Form {
     $this->assign('reference_validation',    (int) CRM_Core_BAO_Setting::getItem('CiviBanking', 'reference_validation'));
 
     // ACCOUNT REFRENCE ITEMS
-    $this->add('hidden', 'contact_id', $contact_id, true);
+    $this->add('hidden', 'contact_id', $contact_id);
     $this->add('hidden', 'reference_id');
 
     $reference_type = $this->add(

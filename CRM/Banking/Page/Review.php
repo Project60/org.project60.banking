@@ -288,11 +288,18 @@ class CRM_Banking_Page_Review extends CRM_Core_Page {
 
       // Set the page-title dynamically
       if (count($list) > 1) {
-        CRM_Utils_System::setTitle(E::ts("Review Bank Transaction %1 of %2 (%3 unprocessed ahead)",
-          array(1=>$index+1, 2=>count($list), 3=>$unprocessed_count)));
+        $progress_information = E::ts(
+          "Review Bank Transaction %1 of %2 (%3 unprocessed ahead)",
+          [1 => $index + 1, 2 => count($list), 3 => $unprocessed_count]
+        );
       } else {
-        CRM_Utils_System::setTitle(E::ts("Review Bank Transaction"));
+        $progress_information =E::ts(
+          "Review Bank Transaction [%1]",
+          [1 => reset($list)]
+        );
       }
+      CRM_Utils_System::setTitle($progress_information);
+      $this->assign('progress_information_text', $progress_information);
 
       // tell the page if popups are available
       $popups_allowed = (int) version_compare(CRM_Utils_System::version(), '4.6', '>=');

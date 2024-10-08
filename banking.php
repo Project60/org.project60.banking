@@ -217,7 +217,7 @@ function banking_civicrm_navigationMenu(&$menu) {
   _banking_civix_insert_navigation_menu($menu, $anchor, array(
     'label'      => E::ts('CiviBanking'),
     'name'       => 'CiviBanking',
-    'icon'       => (version_compare(CRM_Utils_System::version(), '5.6', '>=')) ? 'fa fa-btc' : '',
+    'icon'       => (version_compare(CRM_Utils_System::version(), '5.6', '>=')) ? 'crm-i fa-btc' : '',
     'permission' => 'access CiviContribute',
     'operator'   => 'OR',
     'separator'  => $separator,

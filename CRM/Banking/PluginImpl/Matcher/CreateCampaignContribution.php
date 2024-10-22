@@ -69,6 +69,10 @@ class CRM_Banking_PluginImpl_Matcher_CreateCampaignContribution extends CRM_Bank
                  = (double) $config->activity_with_no_campaign_penalty;
     $data_parsed = $btx->getDataParsed();
 
+    if ($penalty) {
+      $this->logMessage("Calculated general penalty for this match is: {$penalty}.", 'debug');
+    }
+
     // get the potential contacts
     $contacts_found = $context->findContacts(
       $threshold,
@@ -152,12 +156,11 @@ class CRM_Banking_PluginImpl_Matcher_CreateCampaignContribution extends CRM_Bank
     $suggestions = [];
     foreach ($activities['values'] as $activity) {
       $activity_id = $activity['id'];
-      $contact_ids = array_values($activity['target_contact_id']) ?? [];
-      $this->logMessage("General penalty is: {$penalty}", 'debug');
+      $contact_ids = array_values($activity['target_contact_id'] ?? []);
       foreach ($contact_ids as $contact_id) {
         if (isset($contacts_found[$contact_id])) {
           $no_campaign_penalty_applied = 0.0;
-          $activity_confidence = max($contacts_found[$contact_id] - $penalty, 0.0);
+          $activity_confidence = max($contacts_found[$contact_id], 0.0);
           $this->logMessage("Found [{$contact_id}] with confidence {$activity_confidence} (including penalty of {$penalty})", 'debug');
           $multiple_recurring_contributions_penalty_applied = $this->adjustRatingOfRecurringContributions($contact_id, $activity_confidence, $btx);
 
@@ -169,6 +172,9 @@ class CRM_Banking_PluginImpl_Matcher_CreateCampaignContribution extends CRM_Bank
               $no_campaign_penalty_applied = $activity_with_no_campaign_penalty;
             }
           }
+
+          // apply the general penalty
+          $activity_confidence = min($activity_confidence - $penalty, 1.0);
 
           if ($activity_confidence >= $threshold) {
             // this is one of the contacts we're looking for -> create suggestion

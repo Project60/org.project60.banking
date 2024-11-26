@@ -37,7 +37,7 @@ class CRM_Banking_Form_AccountsTab extends CRM_Core_Form {
       ->setLimit(1)
       ->addSelect('status')
       ->execute()->first();
-    if (!is_null($bicExtensionStatus) && $bicExtensionStatus == 'installed') {
+    if (!is_null($bicExtensionStatus) && $bicExtensionStatus['status'] == 'installed') {
       $bic_extension_installed = TRUE;
     }
     // Pass the variable to the template

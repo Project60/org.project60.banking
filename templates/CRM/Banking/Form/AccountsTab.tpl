@@ -139,7 +139,6 @@ var reference_types = {$reference_types_json};
 var validate_ref    = {$reference_validation};
 var normalise_ref   = {$reference_normalisation};
 var busy_icon_url   = "{$config->resourceBase}i/loading.gif";
-var error_icon_url  = "{$config->resourceBase}i/Error.gif";
 var good_icon_url   = "{$config->resourceBase}i/check.gif";
 var no_icon_url     = "{$config->resourceBase}i/spacer.gif";
 {literal}
@@ -284,7 +283,7 @@ cj("#reference").change(function() {
       if (validate_ref) {
         if (result.checked && !result.is_valid) {
           // this is not a valid!
-          cj("#reference_status_img").attr('src', error_icon_url);
+          cj("#reference_status_img").attr('src', no_icon_url);
         }
         if (result.is_valid) {
           cj("#reference_status_img").attr('src', good_icon_url);

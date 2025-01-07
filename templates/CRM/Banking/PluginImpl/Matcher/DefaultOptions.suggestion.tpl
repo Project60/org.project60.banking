@@ -414,8 +414,8 @@
       // remove ID from the hidden field
       console.log("remove " + contribution_id);
       let list = cj("#manual_match_contributions").val().split(",");
-      let index = cj.inArray(cid.toString(), list);
-      if (index != -1) {
+      let index = cj.inArray(contribution_id.toString(), list);
+      if (index !== -1) {
         list.splice(index, 1);
         cj("#manual_match_contributions").val(list.join());
       }

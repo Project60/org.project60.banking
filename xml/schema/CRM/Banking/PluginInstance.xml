@@ -25,6 +25,10 @@
     <title>Plugin type</title>
     <required>true</required>
     <comment>Link to an option list of plugin types</comment>
+    <pseudoconstant>
+        <optionGroupName>civicrm_banking.plugin_types</optionGroupName>
+        <keyColumn>id</keyColumn>
+    </pseudoconstant>
     <add>4.3</add>
   </field>
 
@@ -34,6 +38,10 @@
     <title>Plugin class name</title>
     <required>true</required>
     <comment>Link to an option list of plugin class names</comment>
+    <pseudoconstant>
+        <optionGroupName>civicrm_banking.plugin_classes</optionGroupName>
+        <keyColumn>id</keyColumn>
+    </pseudoconstant>
     <add>4.3</add>
   </field>
 
@@ -54,24 +62,24 @@
     <add>4.3</add>
   </field>
 
-  <field>  
-    <name>enabled</name>  
-    <type>boolean</type>  
-    <required>true</required>  
-    <default>1</default> 
+  <field>
+    <name>enabled</name>
+    <type>boolean</type>
+    <required>true</required>
+    <default>1</default>
     <add>4.3</add>
     <comment>If this plugin is enabled</comment>
   </field>
-      
-  <field>  
+
+  <field>
     <name>weight</name>
-    <type>float</type>  
-    <required>true</required>  
-    <default>100.0</default> 
+    <type>float</type>
+    <required>true</required>
+    <default>100.0</default>
     <add>4.3</add>
     <comment>Relative weight of this plugin</comment>
   </field>
-  
+
   <field>
     <name>config</name>
     <type>text</type>
@@ -85,6 +93,5 @@
     <comment>State JSON</comment>
     <add>4.3</add>
   </field>
-          
-</table>
 
+</table>

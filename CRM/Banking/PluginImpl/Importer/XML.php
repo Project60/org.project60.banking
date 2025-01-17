@@ -329,7 +329,7 @@ class CRM_Banking_PluginImpl_Importer_XML extends CRM_Banking_PluginModel_Import
     $config = $this->_plugin_config;
     $total_tx_count = (float) $params['total_tx_count'] ?? 1.0;
     if ($total_tx_count) {
-      $progress = ((float)$index / ((float) $params['total_tx_count'] ?? 0.0));
+      $progress = (((float) $index) / $total_tx_count);
     } else {
       $progress = 0;
     }

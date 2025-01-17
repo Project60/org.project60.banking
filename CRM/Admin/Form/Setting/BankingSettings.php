@@ -208,7 +208,7 @@ class CRM_Admin_Form_Setting_BankingSettings extends CRM_Core_Form {
     }
 
     // process menu entry
-    Civi::settings()->set('json_editor_mode', $new_menu_position);
+    Civi::settings()->set('json_editor_mode', $values['json_editor_mode']);
 
     // log levels
     Civi::settings()->set('banking_log_level', $values['banking_log_level']);

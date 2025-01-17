@@ -58,13 +58,6 @@ function banking_civicrm_install() {
 }
 
 /**
- * Implementation of hook_civicrm_uninstall
- */
-function banking_civicrm_uninstall() {
-  return _banking_civix_civicrm_uninstall();
-}
-
-/**
  * Implementation of hook_civicrm_enable
  */
 function banking_civicrm_enable() {
@@ -74,37 +67,8 @@ function banking_civicrm_enable() {
   return _banking_civix_civicrm_enable();
 }
 
-/**
- * Implementation of hook_civicrm_disable
- */
-function banking_civicrm_disable() {
-  return _banking_civix_civicrm_disable();
-}
-
-/**
- * Implementation of hook_civicrm_upgrade
- *
- * @param $op string, the type of operation being performed; 'check' or 'enqueue'
- * @param $queue CRM_Queue_Queue, (for 'enqueue') the modifiable list of pending up upgrade tasks
- *
- * @return mixed  based on op. for 'check', returns array(boolean) (TRUE if upgrades are pending)
- *                for 'enqueue', returns void
- */
-function banking_civicrm_upgrade($op, CRM_Queue_Queue $queue = NULL) {
-  return _banking_civix_civicrm_upgrade($op, $queue);
-}
-
 function banking_civicrm_angularModules(&$angularModules) {
   return;
-}
-
-/**
- * Implements hook_civicrm_postInstall().
- *
- * @link https://docs.civicrm.org/dev/en/latest/hooks/hook_civicrm_postInstall
- */
-function banking_civicrm_postInstall() {
-  _banking_civix_civicrm_postInstall();
 }
 
 /**
@@ -205,6 +169,11 @@ function banking_civicrm_entityTypes(&$entityTypes) {
     'table' => 'civicrm_bank_tx_batch',
   );
   $entityTypes[] = array(
+    'name' => 'BankTransactionContribution',
+    'class' => 'CRM_Banking_DAO_BankTransactionContribution',
+    'table' => 'civicrm_bank_tx_contribution',
+  );
+  $entityTypes[] = array(
     'name' => 'PluginInstance',
     'class' => 'CRM_Banking_DAO_PluginInstance',
     'table' => 'civicrm_bank_plugin_instance',
@@ -248,7 +217,7 @@ function banking_civicrm_navigationMenu(&$menu) {
   _banking_civix_insert_navigation_menu($menu, $anchor, array(
     'label'      => E::ts('CiviBanking'),
     'name'       => 'CiviBanking',
-    'icon'       => (version_compare(CRM_Utils_System::version(), '5.6', '>=')) ? 'fa fa-btc' : '',
+    'icon'       => (version_compare(CRM_Utils_System::version(), '5.6', '>=')) ? 'crm-i fa-btc' : '',
     'permission' => 'access CiviContribute',
     'operator'   => 'OR',
     'separator'  => $separator,

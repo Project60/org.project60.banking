@@ -201,3 +201,6 @@ table.suggestions .messages .msg-text ul,
 table.suggestions .messages .msg-text ol {
   margin-bottom: 0;
 }
+.manual-match-contribution a {
+  cursor: pointer;
+}

@@ -13,58 +13,59 @@
 | written permission from the original author(s).        |
 +--------------------------------------------------------*}
 
+{crmScope extensionKey='org.project60.banking'}
 {assign var=contact_id value=$contact.id}
-{capture assign=address_text}{if $contact.city}{$contact.street_address}, {$contact.city}{else}{ts domain='org.project60.banking'}Address incomplete{/ts}{/if}{/capture}
+{capture assign=address_text}{if $contact.city}{$contact.street_address}, {$contact.city}{else}{ts}Address incomplete{/ts}{/if}{/capture}
 {capture assign=contact_link}<a title="{$address_text}" href="{crmURL p="civicrm/contact/view" q="reset=1&cid=$contact_id"}">{$contact.display_name} [{$contact.id}]</a>{/capture}
+{capture assign=activity_link}<a title="{$activity_title}" href="{$activity_url}">{$activity_title} [{$activity_id}]</a>{/capture}
 
 {if $error}
 <div>
-  {ts domain='org.project60.banking'}An error has occurred:{/ts} {$error}<br/>
-  {ts domain='org.project60.banking'}This suggestion is possibly outdated. Please try and analyse this transaction again.{/ts}
+  {ts}An error has occurred:{/ts} {$error}<br/>
+  {ts}This suggestion is possibly outdated. Please try and analyse this transaction again.{/ts}
 </div>
 {else}
 <div>
-  {ts domain='org.project60.banking'}The following contribution will be created:{/ts}
+  {if $multiple_recurring_contributions_penalty_applied}
+    <br/>
+    {ts 1=$multiple_recurring_contributions_penalty_applied}<b>Caution</b>: this contact has one or more <b>active recurring contribution(s)</b>, so the score of this suggestion has been reduced by %1%.{/ts}
+    <br/><br/>
+  {/if}
+  {if $no_campaign_penalty_applied}
+    <br/>
+    {ts 1=$no_campaign_penalty_applied}<b>Caution</b>: the activity found has <b>no campaign</b>, so the score of this suggestion has been reduced by %1%.{/ts}
+    <br/><br/>
+  {/if}
+  {ts 1=$activity_link}Based on activity '%1', the following contribution will be created:{/ts}
   <br/>
   <div>
     <table border="1" style="empty-cells : hide;">
       <tbody>
         <tr>
           <td>
-            <div class="btxlabel">{ts domain='org.project60.banking'}Donor{/ts}:&nbsp;</div>
+            <div class="btxlabel">{ts}Donor{/ts} </div>
             <div class="btxvalue">{$contact_link}</div>
           </td>
           <td>
-            <div class="btxlabel">{ts domain='org.project60.banking'}Campaign{/ts}:&nbsp;</div>
-            <div class="btxvalue">{$campaign.title}</div>
-          </td>
-          <td>
-            <div class="btxlabel">{ts domain='org.project60.banking'}Amount{/ts}:&nbsp;</div>
+            <div class="btxlabel">{ts}Amount{/ts} </div>
             <div class="btxvalue">{$contribution.total_amount|crmMoney:$contribution.currency}</div>
           </td>
           <td>
-            <div class="btxlabel">{ts domain='org.project60.banking'}Date{/ts}:&nbsp;</div>
+            <div class="btxlabel">{ts}Campaign{/ts}: </div>
+            <div class="btxvalue">{$campaign_name}</div>
+          </td>
+          <td>
+            <div class="btxlabel">{ts}Date{/ts}:&nbsp;</div>
             <div class="btxvalue">{$contribution.receive_date|crmDate:$config->dateformatFull}</div>
           </td>
           <td>
-            <div class="btxlabel">{ts domain='org.project60.banking'}Type{/ts}:&nbsp;</div>
+            <div class="btxlabel">{ts}Type{/ts}:&nbsp;</div>
             <div class="btxvalue">{$contribution.financial_type}</div>
           </td>
         </tr>
-        {if $campaign or $source}
-        <tr>
-          <td colspan="2">
-            <div class="btxlabel">{ts domain='org.project60.banking'}Campaign{/ts}:&nbsp;</div>
-            <div class="btxvalue">{$campaign.title}</div>
-          </td>
-          <td colspan="2">
-            <div class="btxlabel">{$source_label}:&nbsp;</div>
-            <div class="btxvalue">{$source}</div>
-          </td>
-        </tr>
-        {/if}
       </tbody>
     </table>
   </div>
 </div>
 {/if}
+{/crmScope}

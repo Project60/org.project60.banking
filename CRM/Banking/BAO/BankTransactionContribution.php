@@ -89,9 +89,10 @@ class CRM_Banking_BAO_BankTransactionContribution extends CRM_Banking_DAO_BankTr
    */
   public static function injectLinkedTransactions($page)
   {
-    if (!empty($page->_id) && ($page instanceof CRM_Contribute_Page_Tab)) {
+    $contribution_id = $page->getVar('_id');
+    if (!empty($contribution_id) && ($page instanceof CRM_Contribute_Page_Tab)) {
       try {
-        $contribution_id = (int) $page->_id;
+        $contribution_id = (int) $contribution_id;
         $link_title = E::ts("CiviBanking Transaction");
         $tx_ids = self::getLinkedTransactions($contribution_id);
         if (!empty($tx_ids)) {

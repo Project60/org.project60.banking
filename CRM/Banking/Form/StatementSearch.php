@@ -14,6 +14,7 @@
 | written permission from the original author(s).        |
 +--------------------------------------------------------*/
 
+use Civi\Banking\Permissions\AllowedDomainsSqlGenerator;
 use CRM_Banking_ExtensionUtil as E;
 
 /**
@@ -285,6 +286,10 @@ class CRM_Banking_Form_StatementSearch extends CRM_Core_Form
             2 => [$ajaxParameters['offset'], 'Integer'],
         ];
         $whereClauses = [];
+
+      /** @var \Civi\Banking\Permissions\AllowedDomainsSqlGenerator $allowedDomainsSqlGenerator */
+      $allowedDomainsSqlGenerator = \Civi::service(AllowedDomainsSqlGenerator::class);
+      $whereClauses[] = $allowedDomainsSqlGenerator->generateWhereClause('tx');
 
         if (!empty($ajaxParameters[self::VALUE_DATE_START_ELEMENT])) {
             $parameterCount = count($queryParameters) + 1;

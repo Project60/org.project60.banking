@@ -22,7 +22,9 @@ class CRM_Banking_Config {
   /**
    * Setting for the transaction list cutoff
    */
-  const SETTING_TRANSACTION_LIST_CUTOFF = 'transaction_list_cutoff';
+  public const SETTING_TRANSACTION_LIST_CUTOFF = 'transaction_list_cutoff';
+
+  public const SETTING_FORCE_TRANSACTION_DOMAIN = 'force_transaction_domain';
 
   /**
    * Should the bank account dedupe be done in a lenient way?

@@ -14,6 +14,9 @@
 | written permission from the original author(s).        |
 +--------------------------------------------------------*/
 
+use Civi\Api4\BankTransaction;
+use Civi\Api4\BankTransactionBatch;
+
 /**
  *
  * @package org.project60.banking
@@ -26,32 +29,32 @@ abstract class CRM_Banking_PluginModel_Exporter extends CRM_Banking_PluginModel_
   // ------------------------------------------------------
   // Functions to be provided by the plugin implementations
   // ------------------------------------------------------
-  /** 
+  /**
    * Report if the plugin is capable of exporting files
-   * 
+   *
    * @return bool
    */
   abstract function does_export_files();
 
-  /** 
+  /**
    * Report if the plugin is capable of exporting streams, i.e. data from a non-file source, e.g. the web
-   * 
+   *
    * @return bool
    */
   abstract function does_export_stream();
 
-  /** 
+  /**
    * Export the given btxs
-   * 
+   *
    * $txbatch2ids array(<tx_batch_id> => array(<tx_id>))
    *
    * @return URL of the resulting file
    */
   abstract function export_file( $txbatch2ids, $parameters );
 
-  /** 
+  /**
    * Export the given btxs
-   * 
+   *
    * $txbatch2ids array(<tx_batch_id> => array(<tx_id>))
    *
    * @return bool TRUE if successful
@@ -61,39 +64,43 @@ abstract class CRM_Banking_PluginModel_Exporter extends CRM_Banking_PluginModel_
 
 
   /**
-   * will evaluate the 'list' (comma separated list of tx IDs) and 
+   * will evaluate the 'list' (comma separated list of tx IDs) and
    * 's_list' (comma separated list of tx_batch IDs), if given.
    *
-   * @return an array('tx_batch_id' => array('tx_id'))
+   * @phpstan-return array<int, list<int>>
+   *   Mapping of 'tx_batch_id' to list of 'tx_id'.
    */
-  public static function getIdLists($params) {
+  public static function getIdLists($params): array {
     // first: extract all the IDs
     if (!empty($params['list'])) {
-      $ids = explode(",", $params['list']); 
+      $ids = explode(',', $params['list']);
     } else {
-      $ids = array();
+      $ids = [];
     }
     if (!empty($params['s_list'])) {
       $list = CRM_Banking_Page_Payments::getPaymentsForStatements($params['s_list']);
-      $ids = array_merge(explode(",", $list), $ids);
+      $ids = array_merge(explode(',', $list), $ids);
     }
 
     // now create a (sane) SQL query
-    $sane_ids = array();
+    $sane_ids = [];
     foreach ($ids as $tx_id) {
       if (is_numeric($tx_id)) {
-        $sane_ids[]= (int) $tx_id;
+        $sane_ids[] = (int) $tx_id;
       }
     }
-    if (count($sane_ids) == 0) return array();
-    $sane_ids_list = implode(',', $sane_ids);
+    if ($sane_ids === []) {
+      return [];
+    }
 
     // query the DB
-    $query_sql = "SELECT id, tx_batch_id FROM civicrm_bank_tx WHERE id IN ($sane_ids_list);";
-    $result = array();
-    $query = CRM_Core_DAO::executeQuery($query_sql);
-    while ($query->fetch()) {
-      $result[$query->tx_batch_id][] = $query->id;
+    $transactions = BankTransaction::get()
+      ->addSelect('id', 'tx_batch_id')
+      ->addWhere('id', 'IN', $sane_ids)
+      ->execute();
+    $result = [];
+    foreach ($transactions as $transaction) {
+      $result[$transaction['tx_batch_id']][] = $transaction['id'];
     }
 
     return $result;
@@ -113,11 +120,12 @@ abstract class CRM_Banking_PluginModel_Exporter extends CRM_Banking_PluginModel_
 
   /**
    * Gather all information on the batch
-   * 
-   * @return an array containing all values, keys prefixed with 'txbatch_'
+   *
+   * @phpstan-return array<string, mixed>
+   *   All values, keys prefixed with 'txbatch_'
    */
   public function getBatchData($tx_batch_id) {
-    $result = array();
+    $result = [];
 
     // add default values
     $config = $this->_plugin_config;
@@ -127,20 +135,25 @@ abstract class CRM_Banking_PluginModel_Exporter extends CRM_Banking_PluginModel_
       }
     }
 
-    $txbatch = civicrm_api3('BankingTransactionBatch', 'getsingle', array('id' => $tx_batch_id));
-    if (empty($txbatch['is_error'])) {
+    try {
+      $txbatch = BankTransactionBatch::get()
+        ->addWhere('id', '=', $tx_batch_id)
+        ->execute()
+        ->single();
       foreach ($txbatch as $key => $value) {
-        $result['txbatch_'.$key] = $value;
+        $result['txbatch_' . $key] = $value;
       }
-    } else {
-      error_log("org.project60.banking.exporter.csv: error while reading tx_batch [$tx_batch_id]: " . $txbatch['error_message']);
     }
+    catch (\CRM_Core_Exception $e) {
+      error_log("org.project60.banking.exporter.csv: error while reading tx_batch [$tx_batch_id]: " . $e->getMessage());
+    }
+
     return $result;
   }
 
   /**
    * Gather all information on the transaction / payment
-   * 
+   *
    * @return an array containing all values, keys prefixed with 'tx_'
    */
   public function getTxData($tx_id) {
@@ -228,16 +241,16 @@ abstract class CRM_Banking_PluginModel_Exporter extends CRM_Banking_PluginModel_
             foreach ($contribution as $key => $value) {
               $result[$prefix . $key] = $value;
             }
-            if (!empty($contribution['total_amount'])) 
+            if (!empty($contribution['total_amount']))
               $total_sum += $contribution['total_amount'];
-            if (!empty($contribution['non_deductible_amount'])) 
+            if (!empty($contribution['non_deductible_amount']))
               $total_non_deductible += $contribution['non_deductible_amount'];
             if (!empty($contribution['currency'])) {
               if (empty($total_currency)) {
                 $total_currency = $contribution['currency'];
               } elseif ($total_currency != $contribution['currency']) {
                 $total_currency = 'MIX';
-              }              
+              }
             }
           }
           $counter++;
@@ -257,7 +270,7 @@ abstract class CRM_Banking_PluginModel_Exporter extends CRM_Banking_PluginModel_
 
   /**
    * standard-method to compile the data blob for the individual line
-   * 
+   *
    * exporters may override this method to add more information
    *
    * @return the data blob to be used for the next line
@@ -266,4 +279,3 @@ abstract class CRM_Banking_PluginModel_Exporter extends CRM_Banking_PluginModel_
     return array_merge($tx_batch_data, $tx_data);
   }
 }
-

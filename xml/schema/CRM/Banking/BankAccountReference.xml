@@ -37,6 +37,10 @@
         <title>Reference type</title>
         <required>true</required>
         <comment>Link to an option list</comment>
+        <pseudoconstant>
+            <optionGroupName>civicrm_banking.reference_types</optionGroupName>
+            <keyColumn>id</keyColumn>
+        </pseudoconstant>
         <add>4.3</add>
     </field>
     <field>

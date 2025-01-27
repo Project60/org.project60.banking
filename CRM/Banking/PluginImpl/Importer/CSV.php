@@ -33,6 +33,8 @@ class CRM_Banking_PluginImpl_Importer_CSV extends CRM_Banking_PluginModel_Import
     // read config, set defaults
     $config = $this->_plugin_config;
     if (!isset($config->delimiter))      $config->delimiter = ',';
+    if (!isset($config->enclosure))      $config->enclosure = '\\';
+    if (!isset($config->escape))         $config->escape = '"';
     if (!isset($config->header))         $config->header = 1;
     if (!isset($config->warnings))       $config->warnings = true;
     if (!isset($config->skip))           $config->skip = 0;
@@ -152,7 +154,7 @@ class CRM_Banking_PluginImpl_Importer_CSV extends CRM_Banking_PluginModel_Import
     }
 
     $batch = $this->openTransactionBatch();
-    while (($line = fgetcsv($file, 0, $config->delimiter)) !== FALSE) {
+    while (($line = fgetcsv($file, 0, $config->delimiter, $config->enclosure, $config->escape)) !== FALSE) {
       // update stats
       $line_nr += 1;
       foreach ($line as $item) $bytes_read += strlen($item);

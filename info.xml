@@ -15,23 +15,26 @@
     <url desc="Licensing">http://www.gnu.org/licenses/agpl-3.0.html</url>
   </urls>
   <releaseDate></releaseDate>
-  <version>1.0-dev</version>
+  <version>1.3-dev</version>
   <develStage>dev</develStage>
   <compatibility>
-    <ver>5.37</ver>
     <ver>5.60</ver>
   </compatibility>
   <classloader>
     <psr4 prefix="Civi\" path="Civi"/>
+    <psr0 prefix="CRM_" path="."/>
   </classloader>
   <comments>Implements handling of bank accounts for contacts, as well as handling of bank files (and individual bank payments extracted from the files). Bank files can be imported, transactions matched to CiviCRM entities, and the resulting data exported. Specific handlers for all of these actions are provided through plugins, some of which are shipped with the core banking extension, while some more complex ones are provided in separate extensions. More information here: https://docs.civicrm.org/banking/en/latest</comments>
   <civix>
     <namespace>CRM/Banking</namespace>
-    <format>22.05.2</format>
+    <format>23.02.1</format>
   </civix>
   <mixins>
     <mixin>ang-php@1.0.0</mixin>
     <mixin>menu-xml@1.0.0</mixin>
     <mixin>mgd-php@1.0.0</mixin>
+    <mixin>smarty-v2@1.0.1</mixin>
+    <mixin>entity-types-php@1.0.0</mixin>
   </mixins>
+  <upgrader>CRM_Banking_Upgrader</upgrader>
 </extension>

@@ -33,7 +33,7 @@ abstract class CRM_Banking_PluginModel_Importer extends CRM_Banking_PluginModel_
   protected $_compare_btx_fields = array('bank_reference' => TRUE, 'amount' => TRUE, 'value_date' => TRUE, 'booking_date' => TRUE, 'currency' => TRUE, 'version' => 3);
   // if this is set, all checkAndStoreBTX() methods will be added to it
   protected $_current_transaction_batch = NULL;
-  protected $_current_transaction_batch_attributes = array();
+  protected $_current_transaction_batch_attributes = [];
   protected $_default_btx_state_id = 0;
 
   // this will be used to avoid multiple account lookups
@@ -67,6 +67,17 @@ abstract class CRM_Banking_PluginModel_Importer extends CRM_Banking_PluginModel_
    * @return TODO: data format?
    */
   abstract function probe_file($file_path, $params);
+
+  /**
+   * Reset the state of this importer.
+   *
+   * @return void
+   */
+  public function resetImporter()
+  {
+    $this->_current_transaction_batch = null;
+    $this->_current_transaction_batch_attributes = [];
+  }
 
   /**
    * Import the given file

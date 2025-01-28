@@ -81,13 +81,17 @@
         <comment>Link to an option list</comment>
         <add>4.3</add>
     </field>
-    
+
     <field>
         <name>status_id</name>
         <type>int unsigned</type>
         <title>Bank Transaction Status</title>
         <required>true</required>
         <comment>Link to an option list</comment>
+            <pseudoconstant>
+                <optionGroupName>civicrm_banking.bank_tx_status</optionGroupName>
+                <keyColumn>id</keyColumn>
+            </pseudoconstant>
         <add>4.3</add>
     </field>
 
@@ -165,5 +169,5 @@
         <comment>A JSON-formatted array containing suggestions</comment>
         <add>4.3</add>
     </field>
-    
+
 </table>

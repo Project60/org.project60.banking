@@ -20,7 +20,7 @@ use CRM_Banking_ExtensionUtil as E;
 /**
  * Collection of upgrade steps.
  */
-class CRM_Banking_Upgrader extends CRM_Banking_Upgrader_Base {
+class CRM_Banking_Upgrader extends CRM_Extension_Upgrader_Base {
 
   /**
    * Create table for Rules Matcher/Analyser
@@ -48,7 +48,7 @@ class CRM_Banking_Upgrader extends CRM_Banking_Upgrader_Base {
    * @return TRUE on success
    */
   public function upgrade_0611() {
-    CRM_Core_BAO_Setting::setItem(false, 'org.project60.banking', 'new_ui');
+    Civi::settings()->set('new_ui', false);
 
     // Update order of the option group banking_tx_status.
     $statusApi = civicrm_api3('OptionValue', 'get', array('option_group_id' => 'civicrm_banking.bank_tx_status', 'options' => array('limit' => 0)));
@@ -248,6 +248,20 @@ class CRM_Banking_Upgrader extends CRM_Banking_Upgrader_Base {
     $logging = new CRM_Logging_Schema();
     $logging->fixSchemaDifferences();
 
+    return true;
+  }
+
+  /**
+   * Upgrader for 0.8 / BANKING-296:
+   *
+   * Update options/matchers/etc.
+   *
+   * @return TRUE on success
+   */
+  public function upgrade_0805() {
+    // update option groups
+    $this->ctx->log->info('Updated options.');
+    banking_civicrm_install_options(_banking_options());
     return true;
   }
 

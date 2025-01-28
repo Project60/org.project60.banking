@@ -35,6 +35,7 @@ configuration.
     "payment_instrument_id": 7
   },
   "line_filter": "#(Bedankt voor jouw donatie aan Stichting Voorbeeld)|(\"Status\",Direction,Processed.*)#",
+  "line_filter_use_delimiter": true,
   "filter": [
     {
       "type": "string_positive",
@@ -77,6 +78,12 @@ configuration.
     correctly. This means that the ID should exists in your database and reflect
     the payment instrument you want to use for the incoming transactions, for
     example SMS payment.
+
+Note that 'line_filter' is matched against each single row.
+It must also match the header row.
+
+If you set option `line_filter_use_delimiter` to `true` the matching of the lines 
+use the given `delimiter` to separate the columns (if not `,` is used).
 
 ## Test configuration
 

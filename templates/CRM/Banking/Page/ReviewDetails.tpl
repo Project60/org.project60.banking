@@ -3,7 +3,7 @@
         <td>
             <div class="btxheader collapsible" onclick="cj('#extra').toggle();
               cj(this).toggleClass('collapsible-closed');">
-                {ts domain='org.project60.banking'}DETAILS{/ts} <span style="font-weight: normal;">{ts domain='org.project60.banking'}(click to see){/ts}</span>
+                {ts domain='org.project60.banking'}DETAILS{/ts} {ts domain='org.project60.banking'}(click to see){/ts} <span style="font-weight: bold; float: right;">{$progress_information_text}</span>
             </div>
         </td>
     </tr>

@@ -33,6 +33,8 @@ class CRM_Banking_PluginImpl_Importer_CSV extends CRM_Banking_PluginModel_Import
     // read config, set defaults
     $config = $this->_plugin_config;
     if (!isset($config->delimiter))      $config->delimiter = ',';
+    if (!isset($config->enclosure))      $config->enclosure = '\\';
+    if (!isset($config->escape))         $config->escape = '"';
     if (!isset($config->header))         $config->header = 1;
     if (!isset($config->warnings))       $config->warnings = true;
     if (!isset($config->skip))           $config->skip = 0;
@@ -40,6 +42,8 @@ class CRM_Banking_PluginImpl_Importer_CSV extends CRM_Banking_PluginModel_Import
     if (!isset($config->defaults))       $config->defaults = array();
     if (!isset($config->rules))          $config->rules = array();
     if (!isset($config->drop_columns))   $config->drop_columns = array();
+    if (!isset($config->line_filter_use_delimiter))
+      $config->line_filter_use_delimiter = FALSE;
   }
 
   /**
@@ -151,8 +155,20 @@ class CRM_Banking_PluginImpl_Importer_CSV extends CRM_Banking_PluginModel_Import
       rewind($file); // Or rewind pointer to start of file
     }
 
+    if (!empty($config->line_filter_use_delimiter)) {
+      $separator = $config->delimiter;
+    }
+    else {
+      // Legacy: use comma to rejoin row.
+      // @see https://github.com/Project60/org.project60.banking/issues/443
+      $separator = ',';
+    }
+
+    // Count filtered out lines.
+    $filtered_out = 0;
+
     $batch = $this->openTransactionBatch();
-    while (($line = fgetcsv($file, 0, $config->delimiter)) !== FALSE) {
+    while (($line = fgetcsv($file, 0, $config->delimiter, $config->enclosure, $config->escape)) !== FALSE) {
       // update stats
       $line_nr += 1;
       foreach ($line as $item) $bytes_read += strlen($item);
@@ -163,9 +179,10 @@ class CRM_Banking_PluginImpl_Importer_CSV extends CRM_Banking_PluginModel_Import
 
       // check if we want to skip line (by filter)
       if (!empty($config->line_filter)) {
-        $full_line = trim(implode(',', $line));
+        $full_line = trim(implode($separator, $line));
         if (!preg_match($config->line_filter, $full_line)) {
           $config->header += 1;  // bump line numbers if filtered out
+          $filtered_out++;
           continue;
         }
       }
@@ -244,6 +261,10 @@ class CRM_Banking_PluginImpl_Importer_CSV extends CRM_Banking_PluginModel_Import
       $this->closeTransactionBatch(TRUE);
     } else {
       $this->closeTransactionBatch(FALSE);
+    }
+
+    if ($filtered_out > 0) {
+        $this->reportProgress(1.0, E::ts('Filtered out %1 lines', [1 => $filtered_out]));
     }
     $this->reportDone();
   }
@@ -467,10 +488,10 @@ class CRM_Banking_PluginImpl_Importer_CSV extends CRM_Banking_PluginModel_Import
       // AMOUNT will take care of currency issues, like "," instead of "."
       $btx[$rule->to] = str_replace(",", ".", $value);
 
-    } elseif ($this->startsWith($rule->type, 'amountparse')) {
+    } elseif ($this->startsWith($rule->type, 'largeamount')) {
       // AMOUNT will take care of currency issues, like "," instead of "."
       $value = preg_replace('/\.(?=[\d\.]*,\d{2}\b)/', '', $value); //remove thousand separator dots (e.g. in "10.000,00")
-      $value = preg_replace('/,(?=[\d,]*\.\d{2}\b)/', '', $value); //remove thousand separator commas (e.g. in "10,000.00") 
+      $value = preg_replace('/,(?=[\d,]*\.\d{2}\b)/', '', $value); //remove thousand separator commas (e.g. in "10,000.00")
       $btx[$rule->to] = str_replace(",", ".", $value);
 
     } elseif ($this->startsWith($rule->type, 'regex:')) {

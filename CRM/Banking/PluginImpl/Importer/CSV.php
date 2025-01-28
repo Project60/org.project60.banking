@@ -42,6 +42,8 @@ class CRM_Banking_PluginImpl_Importer_CSV extends CRM_Banking_PluginModel_Import
     if (!isset($config->defaults))       $config->defaults = array();
     if (!isset($config->rules))          $config->rules = array();
     if (!isset($config->drop_columns))   $config->drop_columns = array();
+    if (!isset($config->line_filter_use_delimiter))
+      $config->line_filter_use_delimiter = FALSE;
   }
 
   /**
@@ -153,6 +155,18 @@ class CRM_Banking_PluginImpl_Importer_CSV extends CRM_Banking_PluginModel_Import
       rewind($file); // Or rewind pointer to start of file
     }
 
+    if (!empty($config->line_filter_use_delimiter)) {
+      $separator = $config->delimiter;
+    }
+    else {
+      // Legacy: use comma to rejoin row.
+      // @see https://github.com/Project60/org.project60.banking/issues/443
+      $separator = ',';
+    }
+
+    // Count filtered out lines.
+    $filtered_out = 0;
+
     $batch = $this->openTransactionBatch();
     while (($line = fgetcsv($file, 0, $config->delimiter, $config->enclosure, $config->escape)) !== FALSE) {
       // update stats
@@ -165,9 +179,10 @@ class CRM_Banking_PluginImpl_Importer_CSV extends CRM_Banking_PluginModel_Import
 
       // check if we want to skip line (by filter)
       if (!empty($config->line_filter)) {
-        $full_line = trim(implode(',', $line));
+        $full_line = trim(implode($separator, $line));
         if (!preg_match($config->line_filter, $full_line)) {
           $config->header += 1;  // bump line numbers if filtered out
+          $filtered_out++;
           continue;
         }
       }
@@ -246,6 +261,10 @@ class CRM_Banking_PluginImpl_Importer_CSV extends CRM_Banking_PluginModel_Import
       $this->closeTransactionBatch(TRUE);
     } else {
       $this->closeTransactionBatch(FALSE);
+    }
+
+    if ($filtered_out > 0) {
+        $this->reportProgress(1.0, E::ts('Filtered out %1 lines', [1 => $filtered_out]));
     }
     $this->reportDone();
   }

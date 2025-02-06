@@ -20,6 +20,8 @@
  *
  */
 
+use Civi\Api4\BankTransactionBatch;
+use Civi\Banking\Api4\Api3To4Util;
 
 /**
  * Add an BankingTransactionBatch
@@ -33,12 +35,18 @@
  * @access public
  */
 function civicrm_api3_banking_transaction_batch_create($params) {
-  return _civicrm_api3_basic_create('CRM_Banking_BAO_BankTransactionBatch', $params);
+  $values = Api3To4Util::createValues(BankTransactionBatch::getEntityName(), $params);
+  $resultValues = BankTransactionBatch::create($params['check_permissions'] ?? FALSE)
+    ->setValues($values)
+    ->execute()
+    ->single();
+
+  return civicrm_api3_create_success($resultValues, $params, 'BankTransactionBatch', 'create');
 }
 
 /**
  * Adjust Metadata for Create action
- * 
+ *
  * The metadata is used for setting defaults, documentation & validation
  * @param array $params array or parameters determined by getfields
  */
@@ -80,8 +88,40 @@ function civicrm_api3_banking_transaction_batch_delete($params) {
  * @access public
  */
 function civicrm_api3_banking_transaction_batch_get($params) {
-  return _civicrm_api3_basic_get('CRM_Banking_BAO_BankTransactionBatch', $params);
+  $options = _civicrm_api3_get_options_from_params($params);
+
+  $where = Api3To4Util::createWhere(BankTransactionBatch::getEntityName(), $params);
+  $action = BankTransactionBatch::get($params['check_permissions'] ?? FALSE)
+    ->setWhere($where)
+    ->setLimit($options['limit'])
+    ->setOffset($options['offset']);
+
+  if ($options['is_count']) {
+    $action->selectRowCount();
+  }
+  else {
+    $action->setSelect(array_keys(array_filter($options['return'])));
+    if (isset($options['sort'])) {
+      [$sortFieldName, $sortDirection] = explode(' ', $options['sort']);
+      $action->addOrderBy($sortFieldName, $sortDirection);
+    }
+  }
+
+  $result = $action->execute();
+
+  if ($options['is_count']) {
+    return civicrm_api3_create_success(
+      $result->countMatched(),
+      $params,
+      'BankTransactionBatch',
+      'get'
+    );
+  }
+
+  return civicrm_api3_create_success(
+    $result->indexBy('id')->getArrayCopy(),
+    $params,
+    'BankTransactionBatch',
+    'get'
+  );
 }
-
-
-

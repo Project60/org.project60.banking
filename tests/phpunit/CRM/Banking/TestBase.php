@@ -14,6 +14,7 @@
 | written permission from the original author(s).        |
 +--------------------------------------------------------*/
 
+use Civi\Api4\OptionValue;
 use CRM_Banking_ExtensionUtil as E;
 use Civi\Test\HeadlessInterface;
 use Civi\Test\HookInterface;
@@ -60,11 +61,15 @@ class CRM_Banking_TestBase extends \PHPUnit\Framework\TestCase implements Headle
     parent::setUp();
     CRM_Utils_StaticCache::clearCache();
     CRM_Banking_Matcher_Engine::clearCachedInstance();
-  }
-
-  public function tearDown(): void
-  {
-    parent::tearDown();
+    OptionValue::save(FALSE)
+      ->setMatch(['option_group_id', 'value'])
+      ->addRecord([
+        'option_group_id:name' => 'banking_transaction_domain',
+        'name' => 'test',
+        'value' => 'test',
+        'label' => 'Test',
+      ])
+      ->execute();
   }
 
   /**
@@ -101,7 +106,7 @@ class CRM_Banking_TestBase extends \PHPUnit\Framework\TestCase implements Headle
    * @return integer
    *    tx_batch ID
    */
-  public function importFile($importer_id, $input_file): int
+  public function importFile($importer_id, $input_file, ?string $domain = 'test'): int
   {
     $this->assertTrue(file_exists($input_file), "Configuration file '{$input_file}' not found.");
     $this->assertTrue(is_readable($input_file), "Configuration file '{$input_file}' cannot be opened.");
@@ -109,6 +114,7 @@ class CRM_Banking_TestBase extends \PHPUnit\Framework\TestCase implements Headle
     // load the [first, hopefully only] Matcher of this plugin class type and get its config.
     /** @var CRM_Banking_PluginModel_Importer $importer */
     $importer = $this->getPluginInstance($importer_id);
+    $importer->setDomain($domain);
     $importer->import_file($input_file, ['source' => $input_file]);
     $batch_id = $this->getLatestTransactionBatchId();
     $this->assertNotEmpty($batch_id, "Importer module [{$importer_id}] failed on file '{$input_file}'.");

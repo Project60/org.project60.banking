@@ -14,6 +14,8 @@
 | written permission from the original author(s).        |
 +--------------------------------------------------------*/
 
+use Civi\Api4\BankTransaction;
+use Civi\Banking\Permissions\TransactionAccessChecker;
 use CRM_Banking_ExtensionUtil as E;
 
 require_once 'CRM/Core/Page.php';
@@ -412,19 +414,23 @@ class CRM_Banking_Page_Review extends CRM_Core_Page {
   function getUnprocessedInfo($pid_list, $next_pid, $choices) {
     // first, only query the remaining items
     $index = array_search($next_pid, $pid_list);
-    $remaining_list = implode(',', array_slice($pid_list, $index));
+    $remaining_ids = array_slice($pid_list, $index);
 
-    $unprocessed_states   = $choices['ignored']['id'].','.$choices['processed']['id'];
-    $unprocessed_sql      = "SELECT id FROM civicrm_bank_tx WHERE `status_id` NOT IN ($unprocessed_states) AND `id` IN ($remaining_list)";
-    $unprocessed_query    = CRM_Core_DAO::executeQuery($unprocessed_sql);
+    $unprocessed_ids = BankTransaction::get()
+      ->addSelect('id')
+      ->addWhere('status_id', '!=', $choices['ignored']['id'])
+      ->addWhere('status_id', '!=', $choices['processed']['id'])
+      ->addWhere('id', 'IN', $remaining_ids)
+      ->execute()
+      ->column('id');
     $next_unprocessed_pid = count($pid_list) + 1;
     $unprocessed_count    = 0;
-    while ($unprocessed_query->fetch()) {
+    foreach ($unprocessed_ids as $unprocessed_id) {
       $unprocessed_count++;
-      $unprocessed_id = $unprocessed_query->id;
-      $new_index = array_search($unprocessed_query->id, $pid_list);
-      if ($new_index < $next_unprocessed_pid)
+      $new_index = array_search($unprocessed_id, $pid_list);
+      if ($new_index < $next_unprocessed_pid) {
         $next_unprocessed_pid = $new_index;
+      }
     }
 
     if ($next_unprocessed_pid < count($pid_list)) {
@@ -448,6 +454,16 @@ class CRM_Banking_Page_Review extends CRM_Core_Page {
       $btx_bao = new CRM_Banking_BAO_BankTransaction();
       $btx_bao->get('id', $parameters['execute']);
     }
+
+    if (!TransactionAccessChecker::isAccessibleById((int) $btx_bao->id)) {
+      CRM_Core_Session::setStatus(
+        E::ts('Invalid transaction ID %1.', [1 => $btx_bao->id]),
+        E::ts('Error')
+      );
+
+      return NULL;
+    }
+
     $suggestion = $btx_bao->getSuggestionByHash($suggestion_hash);
     if ($suggestion) {
       // update the parameters
@@ -460,7 +476,7 @@ class CRM_Banking_Page_Review extends CRM_Core_Page {
         if ($result === 're-run') {
           // re-analyse + reload the page
           $engine = CRM_Banking_Matcher_Engine::getInstance();
-          $engine->match($parameters['execute']);
+          $engine->match($btx_bao->id);
           CRM_Core_Session::setStatus(E::ts("The transaction has been analysed again."), E::ts("Transaction analysed"), 'info');
           $transaction->commit();
           return NULL; // NO SUCCESSFUL EXECUTION (because it's a re-run)
@@ -488,4 +504,5 @@ class CRM_Banking_Page_Review extends CRM_Core_Page {
     }
     return NULL; // NO SUCCESSFUL EXECUTION
   }
+
 }

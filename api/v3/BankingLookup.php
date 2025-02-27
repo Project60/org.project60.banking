@@ -21,6 +21,7 @@
  * @package CiviBanking Extension
  */
 
+use Civi\Api4\Contact;
 
 /**
  * Will provide a name based lookup for contacts. It is designed to take care of
@@ -292,25 +293,24 @@ function _civicrm_api3_banking_lookup_contactbyname_sql($name_mutations, $params
 /**
  * find some contacts via API
  */
-function _civicrm_api3_banking_lookup_contactbyname_api($name_mutations, $params) {
-  $contacts_found = array();
-  // query quicksearch for each combination
+function _civicrm_api3_banking_lookup_contactbyname_api($name_mutations, $params): array {
+  $contacts_found = [];
+  // query Contact.autocomplete for each combination
   foreach ($name_mutations as $name_mutation) {
-    $result = civicrm_api3('Contact', 'getquick', array('name' => $name_mutation));
-    foreach ($result['values'] as $contact) {
+    $result = Contact::autocomplete()
+      ->setInput($name_mutation)
+      ->execute();
+    /** @phpstan-var array{id: int, label: string, icon: string, description: list<string>} $contact_autocomplete */
+    foreach ($result as $contact_autocomplete) {
+      $contact_id = $contact_autocomplete['id'];
       // get the current maximum similarity...
-      if (isset($contacts_found[$contact['id']])) {
-        $probability = $contacts_found[$contact['id']];
-      } else {
-        $probability = 0.0;
-      }
+      $probability = $contacts_found[$contact_id] ?? 0.0;
 
       // now, we'll have to find the maximum similarity with any of the name mutations
-      $compare_name = strtolower($contact['sort_name']);
+      $compare_name = strtolower($contact_autocomplete['label']);
       foreach ($name_mutations as $name_mutation) {
         $new_probability = 0.0;
         similar_text(strtolower($name_mutation), $compare_name, $new_probability);
-        //error_log("Compare '$name_mutation' to '".$contact['sort_name']."' => $new_probability");
         $new_probability /= 100.0;
         if ($new_probability > $probability) {
           // square value for better distribution, multiply by 0.999 to avoid 100% match based on name
@@ -318,7 +318,7 @@ function _civicrm_api3_banking_lookup_contactbyname_api($name_mutations, $params
         }
       }
 
-      $contacts_found[$contact['id']] = $probability;
+      $contacts_found[$contact_id] = $probability;
     }
   }
 

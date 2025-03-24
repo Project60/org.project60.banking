@@ -273,7 +273,15 @@ class CRM_Banking_PluginImpl_Exporter_CSV extends CRM_Banking_PluginModel_Export
           $data_blob[$rule->to . $key] = $value;
         }
       }
-
+    } elseif ($rule->type == 'append') {
+        // APPEND appends the string to a give value
+        if (isset($rule->seperator)){
+            // the user defined a concat string
+            $data_blob[$rule->to] = $data_blob[$rule->to].$rule->seperator.$from_value;
+        }else{
+            // default concat string is " "
+            $data_blob[$rule->to] = $data_blob[$rule->to]." ".$from_value;
+        }
     } else {
       $this->logMessage("rule type '{$rule->type}' unknown, rule ignored.", 'warning');
     }

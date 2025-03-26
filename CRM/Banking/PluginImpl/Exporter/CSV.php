@@ -273,7 +273,8 @@ class CRM_Banking_PluginImpl_Exporter_CSV extends CRM_Banking_PluginModel_Export
           $data_blob[$rule->to . $key] = $value;
         }
       }
-    } elseif ($rule->type == 'append') {
+    }
+    elseif ($rule->type == 'append') {
         // APPEND appends the string to a give value
         if (isset($rule->seperator)){
             // the user defined a concat string

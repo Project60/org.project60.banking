@@ -27,7 +27,7 @@ class CRM_Banking_PluginImpl_Exporter_CSV extends CRM_Banking_PluginModel_Export
 
   /**
    * class constructor
-   */ 
+   */
   function __construct($config_name) {
     parent::__construct($config_name);
 
@@ -42,9 +42,9 @@ class CRM_Banking_PluginImpl_Exporter_CSV extends CRM_Banking_PluginModel_Export
     if (!isset($config->name))      $config->name = "CiviBanking Transactions";
   }
 
-  /** 
+  /**
    * the plugin's user readable name
-   * 
+   *
    * @return string
    */
   static function displayName()
@@ -52,9 +52,9 @@ class CRM_Banking_PluginImpl_Exporter_CSV extends CRM_Banking_PluginModel_Export
     return 'CSV Exporter';
   }
 
-  /** 
+  /**
    * Report if the plugin is capable of importing files
-   * 
+   *
    * @return bool
    */
   public function does_export_files()
@@ -62,9 +62,9 @@ class CRM_Banking_PluginImpl_Exporter_CSV extends CRM_Banking_PluginModel_Export
     return true;
   }
 
-  /** 
+  /**
    * Report if the plugin is capable of importing streams, i.e. data from a non-file source, e.g. the web
-   * 
+   *
    * @return bool
    */
   public function does_export_stream()
@@ -72,9 +72,9 @@ class CRM_Banking_PluginImpl_Exporter_CSV extends CRM_Banking_PluginModel_Export
     return false;
   }
 
-  /** 
+  /**
    * Export the given btxs
-   * 
+   *
    * $txbatch2ids array(<tx_batch_id> => array(<tx_id>))
    *
    * @return array of the resulting file
@@ -89,9 +89,9 @@ class CRM_Banking_PluginImpl_Exporter_CSV extends CRM_Banking_PluginModel_Export
     );
   }
 
-  /** 
+  /**
    * Export the given btxs
-   * 
+   *
    * $txbatch2ids array(<tx_batch_id> => array(<tx_id>))
    *
    * @return bool TRUE if successful
@@ -107,7 +107,7 @@ class CRM_Banking_PluginImpl_Exporter_CSV extends CRM_Banking_PluginModel_Export
 
   /**
    * This is the main method where the actual export happens
-   * 
+   *
    * It will create a temp file, export to that, and then return the local path
    */
   protected function _export($txbatch2ids, $parameters ) {
@@ -275,14 +275,15 @@ class CRM_Banking_PluginImpl_Exporter_CSV extends CRM_Banking_PluginModel_Export
       }
     }
     elseif ($rule->type == 'append') {
-        // APPEND appends the string to a give value
-        if (isset($rule->seperator)){
-            // the user defined a concat string
-            $data_blob[$rule->to] = $data_blob[$rule->to].$rule->seperator.$from_value;
-        }else{
-            // default concat string is " "
-            $data_blob[$rule->to] = $data_blob[$rule->to]." ".$from_value;
-        }
+      // APPEND appends the string to a given value.
+      if (isset($rule->seperator)) {
+        // The user defined a concat string.
+        $data_blob[$rule->to] = $data_blob[$rule->to] . $rule->seperator . $from_value;
+      }
+      else {
+        // Default concat string is " ".
+        $data_blob[$rule->to] = $data_blob[$rule->to] . ' ' . $from_value;
+      }
     } else {
       $this->logMessage("rule type '{$rule->type}' unknown, rule ignored.", 'warning');
     }

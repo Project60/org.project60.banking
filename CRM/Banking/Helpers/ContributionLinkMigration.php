@@ -14,6 +14,7 @@
 | written permission from the original author(s).        |
 +--------------------------------------------------------*/
 
+use Civi\Api4\BankTransaction;
 use CRM_Banking_ExtensionUtil as E;
 
 
@@ -51,28 +52,18 @@ class CRM_Banking_Helpers_ContributionLinkMigration
     }
 
     // run a query to the the suggestion strings
-    $batch = CRM_Core_DAO::executeQuery(
-        "
-            SELECT
-              id          AS tx_id,
-              suggestions AS suggestions
-            FROM civicrm_bank_tx bank_tx
-            WHERE bank_tx.id >= %1
-              AND bank_tx.id <= %2
-              AND bank_tx.status_id IN (%3)
-          ",
-        [
-            1 => [(int) $this->from_tx_id, 'Integer'],
-            2 => [(int) $this->to_tx_id, 'Integer'],
-            3 => [$this->status_ids, 'CommaSeparatedIntegers'],
-        ]
-    );
+    $transactions = BankTransaction::get()
+      ->addSelect('id', 'suggestions')
+      ->addWhere('id', '>=', (int) $this->from_tx_id)
+      ->addWhere('id', '<=', (int) $this->to_tx_id)
+      ->addWhere('status_id', 'IN', explode(',', $this->status_ids))
+      ->execute();
 
     // migrate all of them. We have to use a heuristic to extract the linked
     //   contributions, because each matcher could do their own thing...
     $contribution_id_parameters = ['contribution_id', 'contribution_ids'];
-    while ($batch->fetch()) {
-      $suggestions = json_decode($batch->suggestions, true);
+    foreach ($transactions as $transaction) {
+      $suggestions = json_decode($transaction['suggestions'], true);
       foreach ($suggestions as $suggestion) {
         if (!empty($suggestion['executed'])) {
           // this suggestion has been executed -> find contribution_ids
@@ -85,7 +76,7 @@ class CRM_Banking_Helpers_ContributionLinkMigration
               foreach ($contribution_ids as $contribution_id) {
                 $contribution_id = (int) $contribution_id;
                 if ($contribution_id) {
-                  CRM_Banking_BAO_BankTransactionContribution::linkContribution($batch->tx_id, $contribution_id);
+                  CRM_Banking_BAO_BankTransactionContribution::linkContribution($transaction['id'], $contribution_id);
                 }
               }
             }

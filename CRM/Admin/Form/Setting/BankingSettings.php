@@ -148,6 +148,8 @@ class CRM_Admin_Form_Setting_BankingSettings extends CRM_Core_Form {
       'positiveInteger'
     );
 
+    $this->addTransactionDomainElements();
+
     $this->addButtons(array(
       array(
         'type' => 'submit',
@@ -179,6 +181,8 @@ class CRM_Admin_Form_Setting_BankingSettings extends CRM_Core_Form {
     $defaults['lenient_dedupe']                  = Civi::settings()->get('lenient_dedupe');
     $defaults[CRM_Banking_Config::SETTING_TRANSACTION_LIST_CUTOFF]
                                                  = Civi::settings()->get(CRM_Banking_Config::SETTING_TRANSACTION_LIST_CUTOFF);
+    $defaults[CRM_Banking_Config::SETTING_FORCE_TRANSACTION_DOMAIN]
+      = Civi::settings()->get(CRM_Banking_Config::SETTING_FORCE_TRANSACTION_DOMAIN);
 
     if ($defaults['reference_matching_probability'] === null) {
       $defaults['reference_matching_probability'] = '1.0';
@@ -226,10 +230,24 @@ class CRM_Admin_Form_Setting_BankingSettings extends CRM_Core_Form {
     Civi::settings()->set(CRM_Banking_Config::SETTING_TRANSACTION_LIST_CUTOFF,
       $values[CRM_Banking_Config::SETTING_TRANSACTION_LIST_CUTOFF]);
 
+    Civi::settings()->set(
+      CRM_Banking_Config::SETTING_FORCE_TRANSACTION_DOMAIN,
+      (bool) $values[CRM_Banking_Config::SETTING_FORCE_TRANSACTION_DOMAIN]
+    );
+
     // log results
     $logger = CRM_Banking_Helpers_Logger::getLogger();
     $logger->logDebug("Log level changed to '{$values['banking_log_level']}', file is: {$values['banking_log_file']}");
 
     parent::postProcess();
   }
+
+  private function addTransactionDomainElements(): void {
+    $this->add(
+      'checkbox',
+      CRM_Banking_Config::SETTING_FORCE_TRANSACTION_DOMAIN,
+      E::ts('Force transaction domain on import')
+    );
+  }
+
 }

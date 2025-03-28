@@ -17,19 +17,50 @@
 require_once 'banking.civix.php';
 require_once 'banking_options.php';
 
-use Symfony\Component\DependencyInjection\ContainerBuilder;
+use Civi\Banking\EventSubscriber\TransactionAuthorizeRecordSubscriber;
+use Civi\Banking\Permissions\AssignedTransactionDomainsLoader;
+use Civi\Banking\Permissions\AllowedDomainsSqlGenerator;
+use Civi\Banking\Permissions\Permissions;
+use Civi\Banking\Permissions\TransactionDomainPermissionsGenerator;
 use CRM_Banking_ExtensionUtil as E;
-
+use Psr\SimpleCache\CacheInterface;
+use Symfony\Component\Config\Resource\FileResource;
+use Symfony\Component\DependencyInjection\ContainerBuilder;
+use Symfony\Component\DependencyInjection\Reference;
 
 /**
  * Implements hook_civicrm_container().
  *
  * @param ContainerBuilder $container
  */
-function banking_civicrm_container(ContainerBuilder $container) {
-  if (class_exists('Civi\Banking\CompilerPass')) {
+function banking_civicrm_container(ContainerBuilder $container): void {
+  $container->addResource(new FileResource(__FILE__));
+
+  if (class_exists(\Civi\ActionProvider\Action\AbstractAction::class)) {
     $container->addCompilerPass(new Civi\Banking\CompilerPass());
   }
+
+  $container->register('cache.banking.array', CacheInterface::class)
+    ->setFactory([\CRM_Utils_Cache::class, 'create'])
+    ->addArgument([
+      'type' => ['ArrayCache'],
+      'name' => 'banking.array',
+    ])
+    ->setPublic(TRUE);
+
+  $container->autowire(TransactionDomainPermissionsGenerator::class)
+    ->setArgument('$cache', new Reference('cache.banking.array'))
+    ->setPublic(TRUE);
+
+  $container->autowire(AssignedTransactionDomainsLoader::class)
+    ->setArgument('$cache', new Reference('cache.banking.array'))
+    ->setPublic(TRUE);
+
+  $container->autowire(AllowedDomainsSqlGenerator::class)
+    ->setPublic(TRUE);
+
+  $container->autowire(TransactionAuthorizeRecordSubscriber::class)
+    ->addTag('kernel.event_subscriber');
 }
 
 /**
@@ -276,4 +307,29 @@ function banking_civicrm_navigationMenu(&$menu) {
   ));
 
   _banking_civix_navigationMenu($menu);
+}
+
+/**
+ * Implements hook_civicrm_permission().
+ *
+ * @phpstan-param array<string, array{label: string, description: string, implies?: list<string>}> $permissions
+ */
+function banking_civicrm_permission(array &$permissions): void {
+  /** @var \Civi\Banking\Permissions\TransactionDomainPermissionsGenerator $domainPermissionsGenerator */
+  $domainPermissionsGenerator = \Civi::service(TransactionDomainPermissionsGenerator::class);
+
+  $permissions[Permissions::ACCESS_TRANSACTIONS] = [
+    'label' => E::ts('CiviBanking: Access transactions without domain'),
+    'description' => E::ts(
+      'Access CiviBanking transactions without domain. The domain-specific permissions imply this one.'
+    ),
+  ];
+
+  $permissions[Permissions::ACCESS_TRANSACTIONS_ALL] = [
+    'label' => E::ts('CiviBanking: Access transactions for all domains'),
+    'description' => E::ts('Access CiviBanking transactions with any domain.'),
+    'implies' => [Permissions::ACCESS_TRANSACTIONS],
+  ];
+
+  $permissions += $domainPermissionsGenerator->generatePermissions();
 }

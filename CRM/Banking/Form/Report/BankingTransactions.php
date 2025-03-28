@@ -1,4 +1,6 @@
 <?php
+
+use Civi\Banking\Permissions\AllowedDomainsSqlGenerator;
 use CRM_Banking_ExtensionUtil as E;
 
 class CRM_Banking_Form_Report_BankingTransactions extends CRM_Report_Form {
@@ -19,6 +21,10 @@ class CRM_Banking_Form_Report_BankingTransactions extends CRM_Report_Form {
     foreach($statusApi['values'] as $status) {
       $this->bankingStatuses[$status['id']] = $status['label'];
     }
+
+    /** @var \Civi\Banking\Permissions\AllowedDomainsSqlGenerator $allowedDomainsSqlGenerator */
+    $allowedDomainsSqlGenerator = \Civi::service(AllowedDomainsSqlGenerator::class);
+    $this->_whereClauses[] = $allowedDomainsSqlGenerator->generateWhereClause();
 
     $this->_columns = array(
       'civicrm_bank_tx' => array(

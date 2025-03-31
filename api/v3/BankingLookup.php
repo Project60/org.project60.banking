@@ -21,13 +21,15 @@
  * @package CiviBanking Extension
  */
 
+use Civi\Api4\Contact;
 
 /**
  * Will provide a name based lookup for contacts. It is designed to take care of
  *  'tainted' string, i.e. containing abbreviations, initals, titles, etc.
  *
- * @param mode                    which mode to use (default: 'getquick')
- *                                  'getquick' - use Contact.getquick API call
+ * @param mode                    which mode to use (default: 'api')
+ *                                  'api'      - use Contact.autocomplete API call
+ *                                  'getquick' - alias of 'api' for backward compatibility
  *                                  'sql'      - use SQL query
  *                                  'off'      - turn the search off completely
  * @param exact_match_wins        if this is set, the search is cut short if a exact match is found
@@ -146,12 +148,15 @@ function civicrm_api3_banking_lookup_contactbyname($params) {
   }
 
   // run the actual search
-  if (empty($params['mode']) || $params['mode']=='getquick') {
+  if (empty($params['mode']) || $params['mode'] === 'api' || $params['mode'] === 'getquick') {
     $contacts_found = _civicrm_api3_banking_lookup_contactbyname_api($name_mutations, $params);
-  } elseif ($params['mode']=='sql') {
+  }
+  elseif ($params['mode'] === 'sql') {
     $contacts_found = _civicrm_api3_banking_lookup_contactbyname_sql($name_mutations, $params);
-  } else { // OFF / invalid
-    $contacts_found = array();
+  }
+  else {
+    // OFF / invalid
+    $contacts_found = [];
   }
 
   // apply penalties
@@ -292,37 +297,45 @@ function _civicrm_api3_banking_lookup_contactbyname_sql($name_mutations, $params
 /**
  * find some contacts via API
  */
-function _civicrm_api3_banking_lookup_contactbyname_api($name_mutations, $params) {
-  $contacts_found = array();
-  // query quicksearch for each combination
+function _civicrm_api3_banking_lookup_contactbyname_api($name_mutations, $params): array {
+  $contacts_probability = [];
+  $occurrence_count = [];
+  // query Contact.autocomplete for each combination
   foreach ($name_mutations as $name_mutation) {
-    $result = civicrm_api3('Contact', 'getquick', array('name' => $name_mutation));
-    foreach ($result['values'] as $contact) {
+    $result = Contact::autocomplete()
+      ->setInput($name_mutation)
+      ->execute();
+    /** @phpstan-var array{id: int, label: string, icon: string, description: list<string>} $contact_autocomplete */
+    foreach ($result as $contact_autocomplete) {
+      $contact_id = $contact_autocomplete['id'];
+      $occurrence_count[$contact_id] = ($occurrence_count[$contact_id] ?? 0) + 1;
       // get the current maximum similarity...
-      if (isset($contacts_found[$contact['id']])) {
-        $probability = $contacts_found[$contact['id']];
-      } else {
-        $probability = 0.0;
-      }
+      $probability = $contacts_probability[$contact_id] ?? 0.0;
 
       // now, we'll have to find the maximum similarity with any of the name mutations
-      $compare_name = strtolower($contact['sort_name']);
+      $contact_name = strtolower($contact_autocomplete['label']);
       foreach ($name_mutations as $name_mutation) {
         $new_probability = 0.0;
-        similar_text(strtolower($name_mutation), $compare_name, $new_probability);
-        //error_log("Compare '$name_mutation' to '".$contact['sort_name']."' => $new_probability");
+        similar_text(strtolower($name_mutation), $contact_name, $new_probability);
         $new_probability /= 100.0;
+        // square value for better distribution, multiply by 0.999 to avoid 100% match based on name
+        $new_probability = $new_probability * $new_probability * 0.999;
         if ($new_probability > $probability) {
-          // square value for better distribution, multiply by 0.999 to avoid 100% match based on name
-          $probability = $new_probability * $new_probability * 0.999;
+          $probability = $new_probability;
         }
       }
-
-      $contacts_found[$contact['id']] = $probability;
+      $contacts_probability[$contact_id] = $probability;
     }
   }
 
-  return $contacts_found;
+  if ([] !== $contacts_probability) {
+    $max_occurrence = max($occurrence_count);
+    foreach ($contacts_probability as $contact_id => $probability) {
+      $contacts_probability[$contact_id] = $probability * $occurrence_count[$contact_id] / $max_occurrence;
+    }
+  }
+
+  return $contacts_probability;
 }
 
 /**

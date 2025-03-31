@@ -27,8 +27,9 @@ use Civi\Api4\Contact;
  * Will provide a name based lookup for contacts. It is designed to take care of
  *  'tainted' string, i.e. containing abbreviations, initals, titles, etc.
  *
- * @param mode                    which mode to use (default: 'getquick')
- *                                  'getquick' - use Contact.getquick API call
+ * @param mode                    which mode to use (default: 'api')
+ *                                  'api'      - use Contact.autocomplete API call
+ *                                  'getquick' - alias of 'api' for backward compatibility
  *                                  'sql'      - use SQL query
  *                                  'off'      - turn the search off completely
  * @param exact_match_wins        if this is set, the search is cut short if a exact match is found
@@ -147,12 +148,15 @@ function civicrm_api3_banking_lookup_contactbyname($params) {
   }
 
   // run the actual search
-  if (empty($params['mode']) || $params['mode']=='getquick') {
+  if (empty($params['mode']) || $params['mode'] === 'api' || $params['mode'] === 'getquick') {
     $contacts_found = _civicrm_api3_banking_lookup_contactbyname_api($name_mutations, $params);
-  } elseif ($params['mode']=='sql') {
+  }
+  elseif ($params['mode'] === 'sql') {
     $contacts_found = _civicrm_api3_banking_lookup_contactbyname_sql($name_mutations, $params);
-  } else { // OFF / invalid
-    $contacts_found = array();
+  }
+  else {
+    // OFF / invalid
+    $contacts_found = [];
   }
 
   // apply penalties

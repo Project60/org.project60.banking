@@ -2,7 +2,7 @@
     "plugin_type_name": "import",
     "plugin_class_name": "importer_xml",
     "name": "Bank Statement (CAMT.53.001.08 XML).civbanking",
-    "description": "Importiert XML-Kontoausz\u00fcge der BfS aus camt.053.001.08 EBICS 3.7. Ohne Batchsplitting bei SEPA-Sammelbuchungen und mit Negativbetr\u00e4gen.",
+    "description": "Importiert XML-Kontoausz\u00fcge der BfS aus camt.053.001.08 EBICS 3.7. Ohne Batchsplitting bei SEPA-Sammelbuchungen und mit Negativbetr\u00e4gen. Zeilen 11 und 13 bitte anpassen.",
     "weight": "10",
     "config": {
         "namespaces": {
@@ -39,7 +39,7 @@
                 "type": "set"
             },
             {
-                "comment": "BIC preset for payments NEUES FELD BICFI CIVISERVICE",
+                "comment": "BIC preset for payments",
                 "from": "xpath:camt:BkToCstmrStmt\/camt:Stmt\/camt:Acct\/camt:Svcr\/camt:FinInstnId\/camt:BICFI",
                 "to": "tx._BIC",
                 "type": "set"
@@ -57,7 +57,7 @@
                 "type": "strtotime"
             },
             {
-                "comment": "statement currency PRÜFEN CIVISERVICE",
+                "comment": "statement currency",
                 "from": "xpath:camt:BkToCstmrStmt\/camt:Stmt\/camt:Bal[1]\/camt:Amt\/@Ccy",
                 "to": "tx_batch.currency",
                 "type": "set"
@@ -100,7 +100,7 @@
                         "type": "set"
                     },
                     {
-                        "comment": "Amount WIRD JETZT MIT Ccy GELIEFERT CIVISERVICE",
+                        "comment": "Amount",
                         "from": "xpath:camt:Amt",
                         "to": "amount",
                         "type": "append:"
@@ -130,7 +130,7 @@
                         "type": "set"
                     },
                     {
-                        "comment": "party BIC JETZT BICFI STATT BIC CIVISERVICE",
+                        "comment": "party",
                         "from": "xpath:camt:NtryDtls\/camt:TxDtls\/camt:RltdAgts\/camt:DbtrAgt\/camt:FinInstnId\/camt:BICFI",
                         "to": "_party_BIC",
                         "type": "set"
@@ -156,13 +156,13 @@
                         "type": "set"
                     },
                     {
-                        "comment": "transaction message FEHLT CIVISERVICE",
+                        "comment": "transaction message",
                         "from": "xpath:camt:NtryDtls\/camt:TxDtls\/camt:AddtlTxInf",
                         "to": "purpose",
                         "type": "set"
                     },
                     {
-                        "comment": "transaction message (alternative 1) FEHLT CIVISERVICE",
+                        "comment": "transaction message (alternative 1)",
                         "from": "xpath:camt:NtryDtls\/camt:TxDtls\/camt:RmtInf\/camt:Strd\/camt:CdtrRefInf\/camt:Ref",
                         "to": "purpose",
                         "type": "append: "
@@ -174,7 +174,7 @@
                         "type": "append: "
                     },
                     {
-                        "comment": "Reference Code FEHLT CIVISERVICE",
+                        "comment": "Reference Code",
                         "from": "xpath:camt:NtryDtls\/camt:TxDtls\/camt:RmtInf\/camt:Strd\/camt:CdtrRefInf\/camt:Ref",
                         "to": "reference",
                         "type": "set"

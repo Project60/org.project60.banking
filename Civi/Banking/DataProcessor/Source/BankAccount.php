@@ -71,7 +71,7 @@ class BankAccount extends AbstractCivicrmEntitySource {
         $aliasPrefix = $this->getSourceName() . $aliasPrefix;
       }
       $this->baReferenceFlow = new SqlTableDataFlow('civicrm_bank_account_reference', $aliasPrefix);
-      $join = new SimpleJoin($this->getSourceName(), 'id', $aliasPrefix, 'ba_id', 'INNER');
+      $join = new SimpleJoin($this->getSourceName(), 'id', $aliasPrefix, 'ba_id', 'LEFT');
       $join->setDataProcessor($this->dataProcessor);
       $additionalDataFlowDescription = new DataFlowDescription($this->baReferenceFlow, $join);
       $this->additionalDataFlowDescriptions[$aliasPrefix] = $additionalDataFlowDescription;

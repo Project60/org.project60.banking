@@ -92,6 +92,27 @@
   <div class="clear"></div>
 </div>
 
+<h3>{ts domain='org.project60.banking'}Transaction Domains{/ts}</h3>
+
+<div class="crm-section">
+  <div class="label">{$form.force_transaction_domain.label}</div>
+  <div class="content">{$form.force_transaction_domain.html}</div>
+  <div class="clear"></div>
+</div>
+
+<div class="crm-section">
+  <div class="label">
+    {ts domain='org.project60.banking'}Edit Transaction Domains{/ts}
+  </div>
+  <div class="content">
+    <a href="{crmURL p="civicrm/admin/options/banking_transaction_domain" q="reset=1"}" class="crm-option-edit-link medium-popup crm-hover-button" target="_blank" data-option-edit-path="civicrm/admin/options/banking_transaction_domain">
+      <i aria-hidden="true" title="{ts domain='org.project60.banking'}Edit Transaction Domains{/ts}" class="crm-i fa-wrench"></i>
+      <span class="sr-only">{ts domain='org.project60.banking'}Edit Transaction Domains{/ts}</span>
+    </a>
+  </div>
+  <div class="clear"></div>
+</div>
+
 <br/>
 {* FOOTER *}
 <div class="crm-submit-buttons">

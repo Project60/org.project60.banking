@@ -1,6 +1,5 @@
 Active postprocessors are being checked for whether they are likely to be
-executed (skipping contribution-related checks, since there aren't any
-contributions at preview time). The contribution-related checks are being
+executed. The contribution-related checks are being
 skipped (since there aren't any contributions at preview time). A preview for
 each to-be-executed postprocessor is shown in each suggestion inside a collapsed
 accordion element in the top-right corner of each suggestion. When collapsed,

@@ -44,6 +44,12 @@ function _banking_options() {
                   'description' => 'This importer should be configurable to import a variety of XML based data.',
                   'is_default' => 0,
               ),
+            'importer_camt53' => array(
+                  'label' => 'CAMT.053 Importer',
+                  'value' => 'CRM_Banking_PluginImpl_Importer_CAMT53',
+                  'description' => 'This importer should be able to import the CAMT.053 XML statements.',
+                  'is_default' => 0,
+              ),
               'importer_fixed' => array(
                   'label' => 'Fixed Width TXT Importer',
                   'value' => 'CRM_Banking_PluginImpl_Importer_Fixed',

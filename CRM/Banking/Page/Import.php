@@ -50,6 +50,7 @@ class CRM_Banking_Page_Import extends CRM_Core_Page
       $file_info = $_FILES['uploadFile'] ?? null;
 
       $this->assign('file_info', $file_info);
+      /** @var CRM_Banking_PluginModel_Importer $plugin_instance */
       $plugin_instance = $plugin->getInstance();
       $import_parameters = [
         'dry_run' => ($_REQUEST['dry_run'] ?? "off"),
@@ -149,7 +150,10 @@ class CRM_Banking_Page_Import extends CRM_Core_Page
    */
   public function getFiles(array $file_info): array
   {
-    $uploaded_file = $file_info['tmp_name'];
+    $uploaded_file = $file_info['tmp_name'] ?? null;
+    if (empty($uploaded_file) && !empty($file_info['full_path'])) {
+      $uploaded_file = $file_info['full_path'];
+    }
 
     // try ZIP files
     try {

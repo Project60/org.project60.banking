@@ -89,7 +89,6 @@ class CRM_Banking_PluginImpl_Importer_CAMT53 extends CRM_Banking_PluginModel_Imp
 
   function probe_file($file_path, $params)
   {
-    //return true; // todo: remove
     try {
       $this->setFilePath($file_path);
       $model = $this->getCamtModel();
@@ -132,15 +131,110 @@ class CRM_Banking_PluginImpl_Importer_CAMT53 extends CRM_Banking_PluginModel_Imp
       $this->setFilePath($file_path);
       $model = $this->getCamtModel();
       foreach ($model->BkToCstmrStmt->Stmt as $stmt) {
-        // init new statement
+        // create new transaction batch in CiviBanking
+        $this->openTransactionBatch();
+        $current_tx_batch = $this->getCurrentTransactionBatch(false);
 
+        // todo: add statement metadata?
+
+        // now iterate through all Ntry nodes and add transactions (and sub-batches)
+        foreach ($stmt->Ntry as $entry) {
+          // detect and process sub-batches, e.g. SEPA transaction
+          if (isset($entry->NtryDtls->Btch)) {
+            // this is a transaction batch
+            $this->importTransactionBatch($entry);
+
+          } else {
+            $this->importTransaction($entry);
+          }
+        }
       }
     } catch (Error $e) {
       $this->logger->logError("Failed to iterate document tree: " . $e->getMessage());
     }
  }
 
+  /**
+   * Import regular Ntry DOM nodes
+   *
+   * @param DOMNode $entry
+   * @return void
+   */
+ protected function importTransaction(SimpleXMLElement $entry)
+ {
+   /** @var bool $is_credit */
+   $is_credit = $entry->CdtDbtInd[0] == 'CRDT';
 
+   $btx = [
+     'type_id' => 0,                               // TODO: lookup type ?
+     'status_id' => 0,                             // TODO: lookup status new
+     'booking_date' => (string) $entry->BookgDt->Dt,
+     'value_date' =>  (string)  $entry->ValDt->Dt, // use booking for both?
+     'bank_reference' =>  (string) $entry->NtryDtls->TxDtls->Refs->TxId ?? '',
+     'currency' => ((string) $entry->Amt->attributes()['Ccy']) ?? 'EUR',
+   ];
+
+   if ($is_credit) {
+     $btx['amount'] = (string) $entry->Amt;
+     $btx['IBAN'] = (string) $entry->NtryDtls->TxDtls->RltdPties->CdtrAcct->Id->IBAN ?? '';
+     $btx['name'] = (string) $entry->NtryDtls->TxDtls->RltdPties->Dbtr->Pty->Nm ?? '';
+  } else {
+     $btx['amount'] = '-' . $entry->Amt;
+     $btx['name'] = (string) $entry->NtryDtls->TxDtls->RltdPties->Cdtr->Pty->Nm ?? '';
+     $btx['IBAN'] = (string) $entry->NtryDtls->TxDtls->RltdPties->DbtrAcct->Id->IBAN ?? '';
+   }
+
+   $this->lookupBankAccounts($btx);
+
+//   $this->checkAndStoreBTX($btx, $progress, $params);
+   $this->checkAndStoreBTX($btx, 0, []);
+
+   return $btx;
+ }
+
+
+  /**
+   * Import Btch/TxDtls batches
+   *
+   * @param DOMNode $entry
+   * @return void
+   */
+  protected function importTransactionBatch(SimpleXMLElement $entry)
+  {
+    /** @var bool $is_credit */
+    $is_credit = $entry->CdtDbtInd[0] == 'CRDT';
+
+    $btx_template = [
+      'type_id' => 0,                               // TODO: lookup type ?
+      'status_id' => 0,                             // TODO: lookup status new
+      'booking_date' => (string) $entry->BookgDt->Dt,
+      'value_date' => (string) $entry->ValDt->Dt, // use booking for both?
+      'currency' => (string) $entry->Amt->attributes()['Ccy'] ?? 'EUR',
+    ];
+
+    // now process each entry of the batch
+    foreach ($entry->NtryDtls->TxDtls as $txDtl) {
+      $btx = $btx_template;
+      $btx['bank_reference'] = (string) $txDtl->Refs->TxId ?? '';
+      $btx['amount'] = (string) $txDtl->Amt;
+      $btx['purpose'] = (string) $txDtl->RmtInf->Ustrd;
+
+
+      if ($is_credit) {
+        $btx['name'] = (string) $txDtl->RltdPties->Dbtr->Pty->Nm ?? '';
+        $btx['IBAN'] = (string) $txDtl->RltdPties->CdtrAcct->Id->IBAN ?? '';
+      } else {
+        $btx['name'] = (string) $txDtl->RltdPties->Cdtr->Pty->Nm ?? '';
+        $btx['IBAN'] = (string) $txDtl->RltdPties->DbtrAcct->Id->IBAN ?? '';
+      }
+      $this->lookupBankAccounts($btx);
+    }
+
+//   $this->checkAndStoreBTX($btx, $progress, $params);
+    $this->checkAndStoreBTX($btx, 0, []);
+
+    return $btx;
+  }
 
 
 

@@ -167,7 +167,7 @@ class CRM_Banking_PluginImpl_Importer_CAMT53 extends CRM_Banking_PluginModel_Imp
 
    $btx = [
      'type_id' => 0,                               // TODO: lookup type ?
-     'status_id' => 0,                             // TODO: lookup status new
+     'status_id' => $this->_default_btx_state_id,
      'booking_date' => (string) $entry->BookgDt->Dt,
      'value_date' =>  (string)  $entry->ValDt->Dt, // use booking for both?
      'bank_reference' =>  (string) $entry->NtryDtls->TxDtls->Refs->TxId ?? '',
@@ -206,7 +206,7 @@ class CRM_Banking_PluginImpl_Importer_CAMT53 extends CRM_Banking_PluginModel_Imp
 
     $btx_template = [
       'type_id' => 0,                               // TODO: lookup type ?
-      'status_id' => 0,                             // TODO: lookup status new
+      'status_id' => $this->_default_btx_state_id,
       'booking_date' => (string) $entry->BookgDt->Dt,
       'value_date' => (string) $entry->ValDt->Dt, // use booking for both?
       'currency' => (string) $entry->Amt->attributes()['Ccy'] ?? 'EUR',
@@ -233,7 +233,6 @@ class CRM_Banking_PluginImpl_Importer_CAMT53 extends CRM_Banking_PluginModel_Imp
 //   $this->checkAndStoreBTX($btx, $progress, $params);
     $this->checkAndStoreBTX($btx, 0, []);
 
-    return $btx;
   }
 
 

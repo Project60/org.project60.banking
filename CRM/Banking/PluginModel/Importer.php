@@ -352,7 +352,7 @@ abstract class CRM_Banking_PluginModel_Importer extends CRM_Banking_PluginModel_
    *
    * @return TRUE, if successful, FALSE if not, or a duplicate existing BTX as property array
    */
-  function checkAndStoreBTX($btx, $progress, $params = array()) {
+  function checkAndStoreBTX($btx, $progress, $params = []) {
     // make sure the version is set
     $btx['version'] = 3;
 

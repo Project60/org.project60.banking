@@ -89,6 +89,12 @@ class CRM_Banking_PluginImpl_Importer_CAMT53 extends CRM_Banking_PluginModel_Imp
 
   function probe_file($file_path, $params)
   {
+    // check if this would be kicked by the upload limit
+    //$upload_max_size = ini_get('upload_max_filesize');
+    $current_file_size = filesize($file_path);
+    if (empty($current_file_size)) {
+      throw new Exception("Couldn't receive uploaded file, please check permissoions and/or increase PHP's upload_max_filesize setting!");
+    }
     try {
       $this->setFilePath($file_path);
       $model = $this->getCamtModel();
@@ -163,15 +169,17 @@ class CRM_Banking_PluginImpl_Importer_CAMT53 extends CRM_Banking_PluginModel_Imp
  protected function importTransaction(SimpleXMLElement $entry)
  {
    /** @var bool $is_credit */
-   $is_credit = $entry->CdtDbtInd[0] == 'CRDT';
+   $credit_or_debit = (string) $entry->CdtDbtInd;
+   $is_credit = ('CRDT' == $credit_or_debit);
 
    $btx = [
-     'type_id' => 0,                               // TODO: lookup type ?
+     'type_id' => 0,  // not used
      'status_id' => $this->_default_btx_state_id,
      'booking_date' => (string) $entry->BookgDt->Dt,
      'value_date' =>  (string)  $entry->ValDt->Dt, // use booking for both?
      'bank_reference' =>  (string) $entry->NtryDtls->TxDtls->Refs->TxId ?? '',
      'currency' => ((string) $entry->Amt->attributes()['Ccy']) ?? 'EUR',
+     'data_raw' => preg_replace('/\s+/', '', $entry->asXML())  // todo: add settings to turn this off
    ];
 
    if ($is_credit) {
@@ -205,7 +213,7 @@ class CRM_Banking_PluginImpl_Importer_CAMT53 extends CRM_Banking_PluginModel_Imp
     $is_credit = $entry->CdtDbtInd[0] == 'CRDT';
 
     $btx_template = [
-      'type_id' => 0,                               // TODO: lookup type ?
+      'type_id' => 0, // not used
       'status_id' => $this->_default_btx_state_id,
       'booking_date' => (string) $entry->BookgDt->Dt,
       'value_date' => (string) $entry->ValDt->Dt, // use booking for both?
@@ -218,6 +226,7 @@ class CRM_Banking_PluginImpl_Importer_CAMT53 extends CRM_Banking_PluginModel_Imp
       $btx['bank_reference'] = (string) $txDtl->Refs->TxId ?? '';
       $btx['amount'] = (string) $txDtl->Amt;
       $btx['purpose'] = (string) $txDtl->RmtInf->Ustrd;
+      $btx['data_raw'] = $txDtl->asXML();
 
 
       if ($is_credit) {
@@ -230,9 +239,7 @@ class CRM_Banking_PluginImpl_Importer_CAMT53 extends CRM_Banking_PluginModel_Imp
       $this->lookupBankAccounts($btx);
     }
 
-//   $this->checkAndStoreBTX($btx, $progress, $params);
     $this->checkAndStoreBTX($btx, 0, []);
-
   }
 
 
@@ -243,12 +250,12 @@ class CRM_Banking_PluginImpl_Importer_CAMT53 extends CRM_Banking_PluginModel_Imp
   function probe_stream($params)
   {
     // TODO: Implement probe_stream() method.
-    return true;
+    return false;
   }
 
   function import_stream($params)
   {
-    throw new Exception(E::ts("CAMT.053 currently doesn't implement importing streams"));
+    throw new Exception(E::ts("CAMT.053 importer doesn't support importing streams"));
   }
 }
 

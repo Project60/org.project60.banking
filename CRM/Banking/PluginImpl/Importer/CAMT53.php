@@ -207,35 +207,6 @@ class CRM_Banking_PluginImpl_Importer_CAMT53 extends CRM_Banking_PluginModel_Imp
  }
 
   /**
-   * This function will separate the variable/secondary parameters from the btx data and
-   *   move them into the data_parsed key
-   *
-   * @param array $btx_data the collected data on the transaction
-   *
-   * @todo move to (abstract) CRM_Banking_PluginModel_Importer
-   */
- protected function compile_data_parsed(&$btx_data)
- {
-   // make sure there is a data_parsed array
-   if (empty($btx_data['data_parsed']) || $btx_data['data_parsed'] == '[]') {
-     $btx_data['data_parsed'] = [];
-   } elseif (!is_array($btx_data['data_parsed'])) {
-     throw new Exception('Check you importer implementation: data_parsed must be an array if it exists.');
-   }
-
-   // prepare $btx: put all entries, that are not for the basic object, into parsed data
-   $btx_parsed_data = [];
-   foreach ($btx_data as $key => $value) {
-     if (!in_array($key, $this->_primary_btx_fields)) {
-       // this entry has to be moved to the $btx_parsed_data records
-       $btx_parsed_data[$key] = $value;
-       unset($btx_data[$key]);
-     }
-   }
-   $btx_data['data_parsed'] = json_encode($btx_parsed_data);
- }
-
-  /**
    * Import Btch/TxDtls batches
    *
    * @param DOMNode $entry
@@ -265,9 +236,11 @@ class CRM_Banking_PluginImpl_Importer_CAMT53 extends CRM_Banking_PluginModel_Imp
       if ($is_credit) {
         $btx['name'] = (string) $txDtl->RltdPties->Dbtr->Pty->Nm ?? '';
         $btx['_IBAN'] = (string) $txDtl->RltdPties->CdtrAcct->Id->IBAN ?? '';
+        $btx['_party_IBAN'] = (string) $txDtl->RltdPties->DbtrAcct->Id->IBAN ?? '';
       } else {
         $btx['name'] = (string) $txDtl->RltdPties->Cdtr->Pty->Nm ?? '';
         $btx['_IBAN'] = (string) $txDtl->RltdPties->DbtrAcct->Id->IBAN ?? '';
+        $btx['_party_IBAN'] = (string) $txDtl->RltdPties->CdtrAcct->Id->IBAN ?? '';
       }
 
       // postprocess and write to DB
@@ -278,6 +251,34 @@ class CRM_Banking_PluginImpl_Importer_CAMT53 extends CRM_Banking_PluginModel_Imp
   }
 
 
+  /**
+   * This function will separate the variable/secondary parameters from the btx data and
+   *   move them into the data_parsed key
+   *
+   * @param array $btx_data the collected data on the transaction
+   *
+   * @todo move to (abstract) CRM_Banking_PluginModel_Importer
+   */
+  protected function compile_data_parsed(&$btx_data)
+  {
+    // make sure there is a data_parsed array
+    if (empty($btx_data['data_parsed']) || $btx_data['data_parsed'] == '[]') {
+      $btx_data['data_parsed'] = [];
+    } elseif (!is_array($btx_data['data_parsed'])) {
+      throw new Exception('Check you importer implementation: data_parsed must be an array if it exists.');
+    }
+
+    // prepare $btx: put all entries, that are not for the basic object, into parsed data
+    $btx_parsed_data = [];
+    foreach ($btx_data as $key => $value) {
+      if (!in_array($key, $this->_primary_btx_fields)) {
+        // this entry has to be moved to the $btx_parsed_data records
+        $btx_parsed_data[$key] = $value;
+        unset($btx_data[$key]);
+      }
+    }
+    $btx_data['data_parsed'] = json_encode($btx_parsed_data);
+  }
 
 
 

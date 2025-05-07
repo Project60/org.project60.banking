@@ -139,13 +139,12 @@ class CRM_Banking_PluginImpl_Importer_CAMT53 extends CRM_Banking_PluginModel_Imp
       foreach ($model->BkToCstmrStmt->Stmt as $stmt) {
         // create new transaction batch in CiviBanking
         $this->openTransactionBatch();
-        $current_tx_batch = $this->getCurrentTransactionBatch(false);
 
-        // todo: add statement metadata?
+        // todo: add statement metadata
 
         // now iterate through all Ntry nodes and add transactions (and sub-batches)
         foreach ($stmt->Ntry as $entry) {
-          // detect and process sub-batches, e.g. SEPA transaction
+          // detect and process sub-batches, e.g. SEPA collections
           if (isset($entry->NtryDtls->Btch)) {
             // this is a transaction batch
             $this->importTransactionBatch($entry);
@@ -155,8 +154,9 @@ class CRM_Banking_PluginImpl_Importer_CAMT53 extends CRM_Banking_PluginModel_Imp
           }
         }
       }
+      $this->closeTransactionBatch(true);
     } catch (Error $e) {
-      $this->logger->logError("Failed to iterate document tree: " . $e->getMessage());
+      $this->logger->logError("Failed to process document tree: " . $e->getMessage());
     }
  }
 
@@ -172,34 +172,68 @@ class CRM_Banking_PluginImpl_Importer_CAMT53 extends CRM_Banking_PluginModel_Imp
    $credit_or_debit = (string) $entry->CdtDbtInd;
    $is_credit = ('CRDT' == $credit_or_debit);
 
-   $btx = [
+   $btx_data = [
      'type_id' => 0,  // not used
      'status_id' => $this->_default_btx_state_id,
      'booking_date' => (string) $entry->BookgDt->Dt,
      'value_date' =>  (string)  $entry->ValDt->Dt, // use booking for both?
-     'bank_reference' =>  (string) $entry->NtryDtls->TxDtls->Refs->TxId ?? '',
+     'bank_reference' =>  (string) $entry->NtryDtls->TxDtls->Refs->TxId,
      'currency' => ((string) $entry->Amt->attributes()['Ccy']) ?? 'EUR',
-     'data_raw' => preg_replace('/\s+/', '', $entry->asXML())  // todo: add settings to turn this off
+     'purpose' => (string) $entry->NtryDtls->TxDtls->RmtInf->Ustrd,
    ];
 
+   // add raw XML if
+   if (empty($this->getConfig()->dont_store_xml_tx_raw)) {
+     $btx_data['data_raw'] = preg_replace('/\s+/', '', $entry->asXML());
+   };
+
    if ($is_credit) {
-     $btx['amount'] = (string) $entry->Amt;
-     $btx['IBAN'] = (string) $entry->NtryDtls->TxDtls->RltdPties->CdtrAcct->Id->IBAN ?? '';
-     $btx['name'] = (string) $entry->NtryDtls->TxDtls->RltdPties->Dbtr->Pty->Nm ?? '';
+     $btx_data['amount'] = (string) $entry->Amt;
+     $btx_data['name'] = (string) $entry->NtryDtls->TxDtls->RltdPties->Dbtr->Pty->Nm ?? '';
+     $btx_data['_IBAN'] = (string) $entry->NtryDtls->TxDtls->RltdPties->CdtrAcct->Id->IBAN ?? '';
+     $btx_data['_party_IBAN'] = (string) $entry->NtryDtls->TxDtls->RltdPties->DbtrAcct->Id->IBAN ?? '';
   } else {
-     $btx['amount'] = '-' . $entry->Amt;
-     $btx['name'] = (string) $entry->NtryDtls->TxDtls->RltdPties->Cdtr->Pty->Nm ?? '';
-     $btx['IBAN'] = (string) $entry->NtryDtls->TxDtls->RltdPties->DbtrAcct->Id->IBAN ?? '';
+     $btx_data['amount'] = '-' . $entry->Amt;
+     $btx_data['name'] = (string) $entry->NtryDtls->TxDtls->RltdPties->Cdtr->Pty->Nm ?? '';
+     $btx_data['_IBAN'] = (string) $entry->NtryDtls->TxDtls->RltdPties->DbtrAcct->Id->IBAN ?? '';
+     $btx_data['_party_IBAN'] = (string) $entry->NtryDtls->TxDtls->RltdPties->CdtrAcct->Id->IBAN ?? '';
    }
+   $this->lookupBankAccounts($btx_data);
+   $this->compile_data_parsed($btx_data);
 
-   $this->lookupBankAccounts($btx);
 
-//   $this->checkAndStoreBTX($btx, $progress, $params);
-   $this->checkAndStoreBTX($btx, 0, []);
-
-   return $btx;
+   // and finally write it into the DB
+   $this->checkAndStoreBTX($btx_data, 0, []); // todo: progress
  }
 
+  /**
+   * This function will separate the variable/secondary parameters from the btx data and
+   *   move them into the data_parsed key
+   *
+   * @param array $btx_data the collected data on the transaction
+   *
+   * @todo move to (abstract) CRM_Banking_PluginModel_Importer
+   */
+ protected function compile_data_parsed(&$btx_data)
+ {
+   // make sure there is a data_parsed array
+   if (empty($btx_data['data_parsed']) || $btx_data['data_parsed'] == '[]') {
+     $btx_data['data_parsed'] = [];
+   } elseif (!is_array($btx_data['data_parsed'])) {
+     throw new Exception('Check you importer implementation: data_parsed must be an array if it exists.');
+   }
+
+   // prepare $btx: put all entries, that are not for the basic object, into parsed data
+   $btx_parsed_data = [];
+   foreach ($btx_data as $key => $value) {
+     if (!in_array($key, $this->_primary_btx_fields)) {
+       // this entry has to be moved to the $btx_parsed_data records
+       $btx_parsed_data[$key] = $value;
+       unset($btx_data[$key]);
+     }
+   }
+   $btx_data['data_parsed'] = json_encode($btx_parsed_data);
+ }
 
   /**
    * Import Btch/TxDtls batches
@@ -226,20 +260,21 @@ class CRM_Banking_PluginImpl_Importer_CAMT53 extends CRM_Banking_PluginModel_Imp
       $btx['bank_reference'] = (string) $txDtl->Refs->TxId ?? '';
       $btx['amount'] = (string) $txDtl->Amt;
       $btx['purpose'] = (string) $txDtl->RmtInf->Ustrd;
-      $btx['data_raw'] = $txDtl->asXML();
-
+      $btx['data_raw'] = preg_replace('/\s+/', '', $txDtl->asXML());
 
       if ($is_credit) {
         $btx['name'] = (string) $txDtl->RltdPties->Dbtr->Pty->Nm ?? '';
-        $btx['IBAN'] = (string) $txDtl->RltdPties->CdtrAcct->Id->IBAN ?? '';
+        $btx['_IBAN'] = (string) $txDtl->RltdPties->CdtrAcct->Id->IBAN ?? '';
       } else {
         $btx['name'] = (string) $txDtl->RltdPties->Cdtr->Pty->Nm ?? '';
-        $btx['IBAN'] = (string) $txDtl->RltdPties->DbtrAcct->Id->IBAN ?? '';
+        $btx['_IBAN'] = (string) $txDtl->RltdPties->DbtrAcct->Id->IBAN ?? '';
       }
-      $this->lookupBankAccounts($btx);
-    }
 
-    $this->checkAndStoreBTX($btx, 0, []);
+      // postprocess and write to DB
+      $this->lookupBankAccounts($btx);
+      $this->compile_data_parsed($btx);
+      $this->checkAndStoreBTX($btx, 0, []);
+    }
   }
 
 

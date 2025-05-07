@@ -1,7 +1,7 @@
 <?php
 /*-------------------------------------------------------+
-| Project 60 - CiviBanking                               |
-| Copyright (C) 2025 SYSTOPIA                       |
+| Project 60 - CiviBanking complimentary importer        |
+| Copyright (C) 2025 SYSTOPIA                            |
 | Author: B. Endres (endres -at- systopia.de)            |
 | http://www.systopia.de/                                |
 +--------------------------------------------------------+
@@ -27,7 +27,7 @@ class CRM_Banking_PluginImpl_Importer_CAMT53 extends CRM_Banking_PluginModel_Imp
   protected $file_path = null;
 
   /**
-   * @var SimpleXMLElement|null $statement_data
+   * @var ?SimpleXMLElement $statement_data
    *    the parsed CAMT import
    */
   protected $statement_data = null;
@@ -93,7 +93,7 @@ class CRM_Banking_PluginImpl_Importer_CAMT53 extends CRM_Banking_PluginModel_Imp
     //$upload_max_size = ini_get('upload_max_filesize');
     $current_file_size = filesize($file_path);
     if (empty($current_file_size)) {
-      throw new Exception("Couldn't receive uploaded file, please check permissoions and/or increase PHP's upload_max_filesize setting!");
+      throw new Exception("Couldn't receive uploaded file, please check permissions and/or increase PHP's upload_max_filesize setting!");
     }
     try {
       $this->setFilePath($file_path);
@@ -124,7 +124,7 @@ class CRM_Banking_PluginImpl_Importer_CAMT53 extends CRM_Banking_PluginModel_Imp
   }
 
   /**
-   * Import the given file as a bank statment
+   * Import the given file as a bank statement
    *
    * @param string $file_path
    * @param array $params
@@ -140,7 +140,7 @@ class CRM_Banking_PluginImpl_Importer_CAMT53 extends CRM_Banking_PluginModel_Imp
         // create new transaction batch in CiviBanking
         $this->openTransactionBatch();
 
-        // todo: add statement metadata
+        // @todo: add more batch metadata?
 
         // now iterate through all Ntry nodes and add transactions (and sub-batches)
         foreach ($stmt->Ntry as $entry) {
@@ -164,6 +164,7 @@ class CRM_Banking_PluginImpl_Importer_CAMT53 extends CRM_Banking_PluginModel_Imp
    * Import regular Ntry DOM nodes
    *
    * @param DOMNode $entry
+   *
    * @return void
    */
  protected function importTransaction(SimpleXMLElement $entry)
@@ -187,6 +188,7 @@ class CRM_Banking_PluginImpl_Importer_CAMT53 extends CRM_Banking_PluginModel_Imp
      $btx_data['data_raw'] = preg_replace('/\s+/', '', $entry->asXML());
    };
 
+   // map this information (CAMT uses Debitor/Creditor, while CiviCRM uses Donor/Organisation)
    if ($is_credit) {
      $btx_data['amount'] = (string) $entry->Amt;
      $btx_data['name'] = (string) $entry->NtryDtls->TxDtls->RltdPties->Dbtr->Pty->Nm ?? '';
@@ -201,38 +203,8 @@ class CRM_Banking_PluginImpl_Importer_CAMT53 extends CRM_Banking_PluginModel_Imp
    $this->lookupBankAccounts($btx_data);
    $this->compile_data_parsed($btx_data);
 
-
    // and finally write it into the DB
    $this->checkAndStoreBTX($btx_data, 0, []); // todo: progress
- }
-
-  /**
-   * This function will separate the variable/secondary parameters from the btx data and
-   *   move them into the data_parsed key
-   *
-   * @param array $btx_data the collected data on the transaction
-   *
-   * @todo move to (abstract) CRM_Banking_PluginModel_Importer
-   */
- protected function compile_data_parsed(&$btx_data)
- {
-   // make sure there is a data_parsed array
-   if (empty($btx_data['data_parsed']) || $btx_data['data_parsed'] == '[]') {
-     $btx_data['data_parsed'] = [];
-   } elseif (!is_array($btx_data['data_parsed'])) {
-     throw new Exception('Check you importer implementation: data_parsed must be an array if it exists.');
-   }
-
-   // prepare $btx: put all entries, that are not for the basic object, into parsed data
-   $btx_parsed_data = [];
-   foreach ($btx_data as $key => $value) {
-     if (!in_array($key, $this->_primary_btx_fields)) {
-       // this entry has to be moved to the $btx_parsed_data records
-       $btx_parsed_data[$key] = $value;
-       unset($btx_data[$key]);
-     }
-   }
-   $btx_data['data_parsed'] = json_encode($btx_parsed_data);
  }
 
   /**
@@ -262,12 +234,15 @@ class CRM_Banking_PluginImpl_Importer_CAMT53 extends CRM_Banking_PluginModel_Imp
       $btx['purpose'] = (string) $txDtl->RmtInf->Ustrd;
       $btx['data_raw'] = preg_replace('/\s+/', '', $txDtl->asXML());
 
+      // map this information (CAMT uses Debitor/Creditor, while CiviCRM uses Donor/Organisation)
       if ($is_credit) {
         $btx['name'] = (string) $txDtl->RltdPties->Dbtr->Pty->Nm ?? '';
         $btx['_IBAN'] = (string) $txDtl->RltdPties->CdtrAcct->Id->IBAN ?? '';
+        $btx['_party_IBAN'] = (string) $txDtl->RltdPties->DbtrAcct->Id->IBAN ?? '';
       } else {
         $btx['name'] = (string) $txDtl->RltdPties->Cdtr->Pty->Nm ?? '';
         $btx['_IBAN'] = (string) $txDtl->RltdPties->DbtrAcct->Id->IBAN ?? '';
+        $btx['_party_IBAN'] = (string) $txDtl->RltdPties->CdtrAcct->Id->IBAN ?? '';
       }
 
       // postprocess and write to DB
@@ -278,7 +253,34 @@ class CRM_Banking_PluginImpl_Importer_CAMT53 extends CRM_Banking_PluginModel_Imp
   }
 
 
+  /**
+   * This function will separate the variable/secondary parameters from the btx data and
+   *   move them into the data_parsed key
+   *
+   * @param array $btx_data the collected data on the transaction
+   *
+   * @todo move to (abstract) CRM_Banking_PluginModel_Importer
+   */
+  protected function compile_data_parsed(&$btx_data)
+  {
+    // make sure there is a data_parsed array
+    if (empty($btx_data['data_parsed']) || $btx_data['data_parsed'] == '[]') {
+      $btx_data['data_parsed'] = [];
+    } elseif (!is_array($btx_data['data_parsed'])) {
+      throw new Exception('Check you importer implementation: data_parsed must be an array if it exists.');
+    }
 
+    // prepare $btx: put all entries, that are not for the basic object, into parsed data
+    $btx_parsed_data = [];
+    foreach ($btx_data as $key => $value) {
+      if (!in_array($key, $this->_primary_btx_fields)) {
+        // this entry has to be moved to the $btx_parsed_data records
+        $btx_parsed_data[$key] = $value;
+        unset($btx_data[$key]);
+      }
+    }
+    $btx_data['data_parsed'] = json_encode($btx_parsed_data);
+  }
 
 
 

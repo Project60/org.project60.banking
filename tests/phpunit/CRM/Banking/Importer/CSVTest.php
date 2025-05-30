@@ -63,6 +63,7 @@ class CRM_Banking_Importer_CSVTest extends CRM_Banking_TestBase implements Headl
     $batch_id = $this->importFile($importer_id, $import_file);
     $batch = $this->getBatch($batch_id);
     $this->assertNotEmpty($batch, "Importer failed to read '{$import_file}'.");
+    static::assertSame('test', $batch->domain);
 
     // load the transactions
     $transactions = $batch->getTransactions();
@@ -73,6 +74,7 @@ class CRM_Banking_Importer_CSVTest extends CRM_Banking_TestBase implements Headl
     $this->assertEquals(84.00, $trxn['amount'], "The amount is off.");
     $this->assertEquals(date('Y-m-d', strtotime($trxn['value_date'])), '2022-10-07', "The value date is off.");
     $this->assertEquals(date('Y-m-d', strtotime($trxn['booking_date'])), '2022-10-07', "The booking date is off.");
+    static::assertSame('test', $trxn['domain']);
   }
 
   /**
@@ -85,10 +87,11 @@ class CRM_Banking_Importer_CSVTest extends CRM_Banking_TestBase implements Headl
 
     // import the file
     $import_file = $this->getTestResourcePath('importer/data/Test02_UTF8_with_BOM.csv');
-    $batch_id = $this->importFile($importer_id, $import_file);
+    $batch_id = $this->importFile($importer_id, $import_file, NULL);
     $this->assertNotEmpty($batch_id, "Import failed");
     $batch = $this->getBatch($batch_id);
     $this->assertNotEmpty($batch, "Importer failed to read '{$import_file}'.");
+    static::assertNull($batch->domain);
 
     // load the transactions
     $transactions = $batch->getTransactions();
@@ -99,14 +102,15 @@ class CRM_Banking_Importer_CSVTest extends CRM_Banking_TestBase implements Headl
     $this->assertEquals(-9.99, $trxn['amount'], "The amount is off.");
     $this->assertEquals(date('Y-m-d', strtotime($trxn['value_date'])), '2022-06-07', "The value date is off.");
     $this->assertEquals(date('Y-m-d', strtotime($trxn['booking_date'])), '2022-06-07', "The booking date is off.");
-
+    static::assertNull($trxn['domain']);
 
     // also: check the file without BOM
     $import_file = $this->getTestResourcePath('importer/data/Test02_UTF8_without_BOM.csv');
-    $batch_id = $this->importFile($importer_id, $import_file);
+    $batch_id = $this->importFile($importer_id, $import_file, NULL);
     $this->assertNotEmpty($batch_id, "Import failed");
     $batch = $this->getBatch($batch_id);
     $this->assertNotEmpty($batch, "Importer failed to read '{$import_file}'.");
+    static::assertNull($batch->domain);
 
     // load the transactions
     $transactions = $batch->getTransactions();
@@ -117,6 +121,7 @@ class CRM_Banking_Importer_CSVTest extends CRM_Banking_TestBase implements Headl
     $this->assertEquals(-9.99, $trxn['amount'], "The amount is off.");
     $this->assertEquals(date('Y-m-d', strtotime($trxn['value_date'])), '2022-06-07', "The value date is off.");
     $this->assertEquals(date('Y-m-d', strtotime($trxn['booking_date'])), '2022-06-07', "The booking date is off.");
-
+    static::assertNull($trxn['domain']);
   }
+
 }

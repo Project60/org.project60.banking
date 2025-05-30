@@ -20,6 +20,11 @@
  * @package CiviBanking
  *
  */
+
+use Civi\Api4\BankTransaction;
+use Civi\Api4\BankTransactionBatch;
+use Civi\Banking\Api4\Api3To4Util;
+
 require_once 'CRM/Banking/Helpers/OptionValue.php';
 
 
@@ -34,8 +39,14 @@ require_once 'CRM/Banking/Helpers/OptionValue.php';
  * {@getfields banking_transaction_create}
  * @access public
  */
-function civicrm_api3_banking_transaction_create($params) {
-  return _civicrm_api3_basic_create("CRM_Banking_BAO_BankTransaction", $params);
+function civicrm_api3_banking_transaction_create($params): array {
+  $values = Api3To4Util::createValues(BankTransaction::getEntityName(), $params);
+  $resultValues = BankTransaction::create($params['check_permissions'] ?? FALSE)
+    ->setValues($values)
+    ->execute()
+    ->single();
+
+  return civicrm_api3_create_success($resultValues, $params, 'BankTransaction', 'create');
 }
 
 /**
@@ -56,16 +67,27 @@ function _civicrm_api3_banking_transaction_create_spec(&$params) {
 /**
  * Deletes an existing BankingTransaction
  *
- * @param  array  $params
+ * @param array $params
  *
  * @example BankingTransaction.php Standard Delete Example
  *
- * @return boolean | error  true if successfull, error otherwise
- * {@getfields banking_transaction_delete}
+ * @return array
  * @access public
  */
-function civicrm_api3_banking_transaction_delete($params) {
-  return _civicrm_api3_basic_delete('CRM_Banking_BAO_BankTransaction', $params);
+function civicrm_api3_banking_transaction_delete($params): array {
+  if (isset($params['id'])) {
+    throw new CRM_Core_Exception(
+      'Mandatory key(s) missing from params array: ' . implode(', ', ['id']),
+      'mandatory_missing',
+      ['fields' => ['id']]
+    );
+  }
+
+  BankTransaction::delete($params['check_permissions'] ?? FALSE)
+    ->addWhere('id', '=', $params['id'])
+    ->execute();
+
+  return civicrm_api3_create_success();
 }
 
 /**
@@ -78,14 +100,48 @@ function civicrm_api3_banking_transaction_delete($params) {
  *
  * @param  array $params  an associative array of name/value pairs.
  *
- * @return  array api result array
+ * @return array api result array
  * {@getfields banking_transaction_get}
  * @access public
  */
 function civicrm_api3_banking_transaction_get($params) {
-  return _civicrm_api3_basic_get('CRM_Banking_BAO_BankTransaction', $params);
-}
+  $options = _civicrm_api3_get_options_from_params($params);
 
+  $where = Api3To4Util::createWhere(BankTransaction::getEntityName(), $params);
+  $action = BankTransaction::get($params['check_permissions'] ?? FALSE)
+    ->setWhere($where)
+    ->setLimit($options['limit'])
+    ->setOffset($options['offset']);
+
+  if ($options['is_count']) {
+    $action->selectRowCount();
+  }
+  else {
+    $action->setSelect(array_keys(array_filter($options['return'])));
+    if (isset($options['sort'])) {
+      [$sortFieldName, $sortDirection] = explode(' ', $options['sort']);
+      $action->addOrderBy($sortFieldName, $sortDirection);
+    }
+  }
+
+  $result = $action->execute();
+
+  if ($options['is_count']) {
+    return civicrm_api3_create_success(
+      $result->countMatched(),
+      $params,
+      'BankTransaction',
+      'get'
+    );
+  }
+
+  return civicrm_api3_create_success(
+    $result->indexBy('id')->getArrayCopy(),
+    $params,
+    'BankTransaction',
+    'get'
+  );
+}
 
 /**
  * Deletes a given list of bank statments and transactions
@@ -103,7 +159,9 @@ function civicrm_api3_banking_transaction_deletelist($params) {
   // first, delete the indivdual transactions
   $tx_ids = _civicrm_api3_banking_transaction_getTxIDs($params);
   foreach ($tx_ids as $tx_id) {
-    civicrm_api3('BankingTransaction', 'delete', array('id' => $tx_id));
+    BankTransaction::delete($params['check_permissions'] ?? FALSE)
+      ->addWhere('id', '=', $tx_id)
+      ->execute();
     $result['tx_count'] += 1;
   }
 
@@ -113,7 +171,9 @@ function civicrm_api3_banking_transaction_deletelist($params) {
     foreach ($tx_batch_ids as $tx_batch_id) {
       $tx_batch_id = (int) $tx_batch_id;
       if (!empty($tx_batch_id)) {
-        civicrm_api3('BankingTransactionBatch', 'delete', array('id' => $tx_batch_id));
+        BankTransactionBatch::delete($params['check_permissions'] ?? FALSE)
+          ->addWhere('id', '=', $tx_batch_id)
+          ->execute();
         $result['tx_batch_count'] += 1;
       }
     }
@@ -143,16 +203,12 @@ function civicrm_api3_banking_transaction_analyselist($params) {
   $payment_states  = banking_helper_optiongroup_id_name_mapping('civicrm_banking.bank_tx_status');
   $state_ignored   = (int) $payment_states['ignored']['id'];
   $state_processed = (int) $payment_states['processed']['id'];
-  $list_string = implode(',', $tx_ids);
-  $filter_query = "SELECT `id`
-                   FROM `civicrm_bank_tx`
-                   WHERE `status_id` NOT IN ({$state_ignored},{$state_processed})
-                     AND `id` IN ($list_string);";
-  $filter_result = CRM_Core_DAO::executeQuery($filter_query);
-  $filtered_list = array();
-  while ($filter_result->fetch()) {
-    $filtered_list[] = $filter_result->id;
-  }
+  $filtered_list = BankTransaction::get($params['check_permissions'] ?? FALSE)
+    ->addSelect('id')
+    ->addWhere('status_id', 'NOT IN', [$state_ignored, $state_processed])
+    ->addWhere('id', 'IN', $tx_ids)
+    ->execute()
+    ->column('id');
 
   // check if we should use a runner
   if (!empty($params['use_runner']) && count($filtered_list) >= $params['use_runner']) {
@@ -193,7 +249,7 @@ function civicrm_api3_banking_transaction_analyselist($params) {
 
   // done. create a result.
   $after_exec = strtotime('now');
-  $payment_count   = count(explode(',', $list_string));
+  $payment_count   = count($tx_ids);
   $result = array(
     'payment_count'   =>  $payment_count,
     'processed_count' =>  $processed_count,

@@ -56,6 +56,21 @@
     </field>
 
     <field>
+      <name>domain</name>
+      <title>Domain</title>
+      <type>varchar</type>
+      <length>255</length>
+      <pseudoconstant>
+        <optionGroupName>banking_transaction_domain</optionGroupName>
+      </pseudoconstant>
+      <default>null</default>
+    </field>
+    <index>
+      <name>index_domain</name>
+      <fieldName>domain</fieldName>
+    </index>
+
+    <field>
         <name>amount</name>
         <title>Transaction amount</title>
         <type>decimal</type>

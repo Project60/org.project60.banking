@@ -14,6 +14,9 @@
 | written permission from the original author(s).        |
 +--------------------------------------------------------*/
 
+use Civi\Api4\BankTransaction;
+use Civi\Api4\BankTransactionBatch;
+use Civi\Banking\Permissions\AllowedDomainsSqlGenerator;
 use CRM_Banking_ExtensionUtil as E;
 
 require_once 'CRM/Core/Page.php';
@@ -96,12 +99,17 @@ class CRM_Banking_Page_Payments extends CRM_Core_Page {
       $this->assign('url_show_payments_recently_completed', banking_helper_buildURL('civicrm/banking/payments', $this->_pageParameters(array('recent' => 1, 'status_ids'=>$payment_states['processed']['id'].",".$payment_states['ignored']['id']))));
     }
 
+    /** @var \Civi\Banking\Permissions\AllowedDomainsSqlGenerator $allowedDomainsSqlGenerator */
+    $allowedDomainsSqlGenerator = \Civi::service(AllowedDomainsSqlGenerator::class);
+    $allowedDomainsClause = $allowedDomainsSqlGenerator->generateWhereClause();
+
     // FIRST: CALCULATE COUNTS
     // calculate statement counts: NEW (at least one transaction in status new)
     $new_statement_id_list = CRM_Core_DAO::singleValueQuery("
         SELECT GROUP_CONCAT(DISTINCT(tx_batch_id))
         FROM civicrm_bank_tx
         WHERE status_id IN ({$payment_states['new']['id']})
+          AND $allowedDomainsClause
           AND id NOT IN (
             SELECT tx_batch_id
             FROM civicrm_bank_tx
@@ -120,7 +128,8 @@ class CRM_Banking_Page_Payments extends CRM_Core_Page {
     $open_statement_id_list = CRM_Core_DAO::singleValueQuery("
         SELECT GROUP_CONCAT(DISTINCT(tx_batch_id))
         FROM civicrm_bank_tx
-        WHERE status_id IN ({$payment_states['suggestions']['id']})");
+        WHERE status_id IN ({$payment_states['suggestions']['id']})
+        AND $allowedDomainsClause");
     if (empty($open_statement_id_list)) {
       $open_statement_ids = [];
       $open_statement_id_list = '';
@@ -135,7 +144,7 @@ class CRM_Banking_Page_Payments extends CRM_Core_Page {
     $non_closed_statement_ids = array_unique(array_merge($open_statement_ids, $new_statement_ids));
 
     // closed count is merely the total count without the former two
-    $total_statement_count = CRM_Core_DAO::singleValueQuery("SELECT COUNT(id) FROM civicrm_bank_tx_batch;");
+    $total_statement_count = BankTransactionBatch::get()->selectRowCount()->execute()->countMatched();
     $closed_statement_count = $total_statement_count - count($non_closed_statement_ids);
     $this->assign('count_completed', $closed_statement_count);
 
@@ -143,6 +152,9 @@ class CRM_Banking_Page_Payments extends CRM_Core_Page {
     if (!empty($_REQUEST['recent']) && $recently_closed_cutoff) {
       $where_clause .= " AND (btxb.starting_date >= DATE(NOW() - {$recently_closed_cutoff})) ";
     }
+
+    $allowedBatchDomainsClause = $allowedDomainsSqlGenerator->generateWhereClause('btxb');
+    $where_clause .= ' AND ' . $allowedBatchDomainsClause;
 
     // add the 'recently closed' count
     if ($recently_closed_cutoff) {
@@ -155,7 +167,8 @@ class CRM_Banking_Page_Payments extends CRM_Core_Page {
         SELECT COUNT(DISTINCT(id))
         FROM civicrm_bank_tx_batch btxb
         WHERE starting_date >= (NOW() - {$recently_closed_cutoff})
-        AND btxb.id NOT IN ({$non_closed_statement_id_list});");
+        AND btxb.id NOT IN ({$non_closed_statement_id_list});
+        AND $allowedBatchDomainsClause");
       $this->assign('count_recently_completed', $recently_closed_statement_count);
     }
 
@@ -371,25 +384,18 @@ class CRM_Banking_Page_Payments extends CRM_Core_Page {
    * will take a comma separated list of statement IDs and create a list of the related payment ids in the same format
    */
   public static function getPaymentsForStatements($raw_statement_list) {
-    $payments = array();
-    $raw_statements = explode(",", $raw_statement_list);
-    if (count($raw_statements)==0) {
+    $raw_statements = explode(',', $raw_statement_list);
+    if ($raw_statements === []) {
       return '';
     }
 
-    $statements = array();
-    # make sure, that the statments are all integers (SQL injection)
-    foreach ($raw_statements as $stmt_id) {
-      array_push($statements, intval($stmt_id));
-    }
-    $statement_list = implode(",", $statements);
+    $payments = BankTransaction::get()
+      ->addSelect('id')
+      ->addWhere('tx_batch_id', 'IN', $raw_statements)
+      ->execute()
+      ->column('id');
 
-    $sql_query = "SELECT id FROM civicrm_bank_tx WHERE tx_batch_id IN ($statement_list);";
-    $stmt_ids = CRM_Core_DAO::executeQuery($sql_query);
-    while($stmt_ids->fetch()) {
-      array_push($payments, $stmt_ids->id);
-    }
-    return implode(",", $payments);
+    return implode(',', $payments);
   }
 
   /**
@@ -404,14 +410,16 @@ class CRM_Banking_Page_Payments extends CRM_Core_Page {
     $stmt_id = intval($stmt_id);
     $count = 0;
 
-    $sql_query = "SELECT status_id, COUNT(status_id) AS count FROM civicrm_bank_tx WHERE tx_batch_id=$stmt_id GROUP BY status_id;";
-    $stats = CRM_Core_DAO::executeQuery($sql_query);
-    // this creates a table: | status_id | count |
+    $statsList = BankTransaction::get()
+      ->addSelect('status_id', 'COUNT(status_id) AS count')
+      ->addWhere('tx_batch_id', '=', $stmt_id)
+      ->addGroupBy('status_id')
+      ->execute();
 
-    $status2count = array();
-    while ($stats->fetch()) {
-      $status2count[$stats->status_id] = $stats->count;
-      $count += $stats->count;
+    $status2count = [];
+    foreach ($statsList as $stats) {
+      $status2count[$stats['status_id']] = $stats['count'];
+      $count += $stats['count'];
     }
 
     if ($count) {
@@ -468,22 +476,22 @@ class CRM_Banking_Page_Payments extends CRM_Core_Page {
     }
 
     // execute SQL
-    if (count($clean_batch_ids)) {
-      $batch_id_list = implode(',', $clean_batch_ids);
-      $sql = "SELECT status_id, COUNT(id) AS count FROM civicrm_bank_tx WHERE tx_batch_id IN ($batch_id_list) GROUP BY status_id;";
-    } else {
-      $sql = "SELECT status_id, COUNT(id) AS count FROM civicrm_bank_tx GROUP BY status_id;";
+    $getAction = BankTransaction::get()
+      ->addSelect('status_id', 'COUNT(id) AS count')
+      ->addGroupBy('status_id');
+    if ($clean_batch_ids !== []) {
+      $getAction->addWhere('tx_batch_id', 'IN', $clean_batch_ids);
     }
-    $query = CRM_Core_DAO::executeQuery($sql);
-    while ($query->fetch()) {
-      if ($query->status_id == $payment_states['new']['id']) {
-        $count_new += $query->count;
-      } elseif ($query->status_id == $payment_states['processed']['id']) {
-        $count_completed += $query->count;
-      } elseif ($query->status_id == $payment_states['ignored']['id']) {
-        $count_completed += $query->count;
-      } elseif ($query->status_id == $payment_states['suggestions']['id']) {
-        $count_analysed += $query->count;
+
+    foreach ($getAction->execute() as $stats) {
+      if ($stats['status_id'] == $payment_states['new']['id']) {
+        $count_new += $stats['count'];
+      } elseif ($stats['status_id'] == $payment_states['processed']['id']) {
+        $count_completed += $stats['count'];
+      } elseif ($stats['status_id'] == $payment_states['ignored']['id']) {
+        $count_completed += $stats['count'];
+      } elseif ($stats['status_id'] == $payment_states['suggestions']['id']) {
+        $count_analysed += $stats['count'];
       }
     }
 
@@ -492,7 +500,6 @@ class CRM_Banking_Page_Payments extends CRM_Core_Page {
     $this->assign('count_analysed',  $count_analysed);
     $this->assign('count_completed', $count_completed);
   }
-
 
    /**
    * load BTXs according to the 'status_ids' and 'batch_ids' values in $_REQUEST
@@ -523,27 +530,15 @@ class CRM_Banking_Page_Payments extends CRM_Core_Page {
   function _findBTX($status_id, $batch_id) {
     $transaction_display_cutoff = CRM_Banking_Config::transactionViewCutOff();
 
-    $btxs = [];
-    $btx_search = new CRM_Banking_BAO_BankTransaction();
-    $btx_search->limit($transaction_display_cutoff);
-    if (!empty($status_id)) $btx_search->status_id   = (int) $status_id;
-    if (!empty($batch_id))  $btx_search->tx_batch_id = (int) $batch_id;
-    $btx_search->find();
-    while ($btx_search->fetch()) {
-      $btxs[] = array(
-        'id'          => $btx_search->id,
-        'value_date'  => $btx_search->value_date,
-        'sequence'    => $btx_search->sequence,
-        'currency'    => $btx_search->currency,
-        'amount'      => $btx_search->amount,
-        'status_id'   => $btx_search->status_id,
-        'data_parsed' => $btx_search->data_parsed,
-        'suggestions' => $btx_search->suggestions,
-        'ba_id'       => $btx_search->ba_id,
-        'party_ba_id' => $btx_search->party_ba_id,
-        'tx_batch_id' => $btx_search->tx_batch_id,
-        );
+    $getAction = BankTransaction::get()
+      ->setLimit($transaction_display_cutoff);
+    if (!empty($status_id)) {
+      $getAction->addWhere('status_id', '=', $status_id);
     }
+    if (!empty($batch_id)) {
+      $getAction->addWhere('tx_bach_id', '=', $batch_id);
+    }
+    $btxs = $getAction->execute()->getArrayCopy();
 
     if (count($btxs) >= $transaction_display_cutoff) {
       CRM_Core_Session::setStatus(

@@ -265,5 +265,13 @@ class CRM_Banking_Upgrader extends CRM_Extension_Upgrader_Base {
     return true;
   }
 
+  public function upgrade_0806(): bool {
+    $this->executeSql('ALTER TABLE civicrm_bank_tx ADD COLUMN domain VARCHAR(255) DEFAULT NULL AFTER sequence');
+    $this->executeSql('ALTER TABLE civicrm_bank_tx ADD INDEX index_domain(domain)');
+    $this->executeSql('ALTER TABLE civicrm_bank_tx_batch ADD COLUMN domain VARCHAR(255) DEFAULT NULL AFTER sequence');
+    $this->executeSql('ALTER TABLE civicrm_bank_tx_batch ADD INDEX index_domain(domain)');
+
+    return TRUE;
+  }
 
 }

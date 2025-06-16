@@ -14,6 +14,7 @@
 }
 #btx {
   background-color: #F4F4ED;
+  color: #000;
 }
 #btx div {
 }
@@ -22,10 +23,12 @@
   margin: 0;
   border: none;
   background-color: #f7f7f7;
+  color: #000;
 }
 #btx h4 {
   width: auto;
   background-color: #CCC;
+  color: #000;
   margin: 0px;
   padding: 2px 8px;
   color: #000;
@@ -70,6 +73,7 @@ td.btx-detail-entry {
 }
 .btxvalue {
   background-color: #F4F4ED;
+  color: #000;
   border-bottom: 1px solid white;
 }
 .btxc {
@@ -93,6 +97,7 @@ td.btx-detail-entry {
 }
 .btxlabel {
   background-color: #FAFAFA;
+  color: #000;
   float: left;
   width: 46px;
   font-size: 9px;
@@ -191,6 +196,7 @@ table.explorer td.xk {
 }
 table.explorer td {
   background-color: #F4F4ED;
+  color: #000;
   border-bottom: 1px solid white;
   padding: 1px 4px !important;
 }

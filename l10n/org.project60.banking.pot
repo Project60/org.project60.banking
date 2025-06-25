@@ -1,16 +1,3 @@
-# Copyright CiviCRM LLC (c) 2004-2015
-# This file is distributed under the same license as the CiviCRM package.
-# If you contribute heavily to a translation and deem your work copyrightable,
-# make sure you license it to CiviCRM LLC under Academic Free License 3.0.
-msgid ""
-msgstr ""
-"Project-Id-Version: CiviBanking\n"
-"POT-Creation-Date: 2023-06-22 19:01+0200\n"
-"Language-Team: CiviCRM Translators <civicrm-translators@lists.civicrm.org>\n"
-"MIME-Version: 1.0\n"
-"Content-Type: text/plain; charset=UTF-8\n"
-"Content-Transfer-Encoding: 8bit\n"
-
 #: CRM/Admin/Form/Setting/BankingSettings.php
 msgid "Simplified user interface"
 msgstr ""
@@ -96,6 +83,14 @@ msgid "Log File"
 msgstr ""
 
 #: CRM/Admin/Form/Setting/BankingSettings.php
+msgid "Maximum number of contacts loaded from database on contact lookup"
+msgstr ""
+
+#: CRM/Admin/Form/Setting/BankingSettings.php
+msgid "This needs to be a number larger than 0"
+msgstr ""
+
+#: CRM/Admin/Form/Setting/BankingSettings.php
 msgid "Don't store bank accounts automatically"
 msgstr ""
 
@@ -123,12 +118,7 @@ msgstr ""
 msgid "Transaction limit in view"
 msgstr ""
 
-#: CRM/Admin/Form/Setting/BankingSettings.php
-msgid "This needs to be a number larger than 0"
-msgstr ""
-
-#: CRM/Admin/Form/Setting/BankingSettings.php CRM/Banking/Form/AccountsTab.php
-#: CRM/Banking/Form/Configure.php ang/banking/Main.html
+#: CRM/Admin/Form/Setting/BankingSettings.php CRM/Banking/Form/AccountsTab.php CRM/Banking/Form/Configure.php ang/banking/Main.html
 msgid "Save"
 msgstr ""
 
@@ -156,22 +146,15 @@ msgstr ""
 msgid "Bank Accounts"
 msgstr ""
 
-#: CRM/Banking/DAO/BankAccount.php Civi/Banking/Actions/FindLatestAccount.php
-#: templates/CRM/Banking/Form/AccountsTab.tpl
+#: CRM/Banking/DAO/BankAccount.php Civi/Banking/Actions/FindLatestAccount.php templates/CRM/Banking/Form/AccountsTab.tpl
 msgid "Bank Account"
 msgstr ""
 
-#: CRM/Banking/DAO/BankAccount.php CRM/Banking/DAO/BankAccountReference.php
-#: CRM/Banking/DAO/BankTransaction.php CRM/Banking/DAO/BankTransactionBatch.php
-#: CRM/Banking/DAO/BankTransactionContribution.php
-#: CRM/Banking/DAO/PluginInstance.php
-#: CRM/Banking/Form/Report/BankingTransactions.php
-#: templates/CRM/Banking/PluginImpl/Matcher/RecurringContribution.suggestion.tpl
+#: CRM/Banking/DAO/BankAccount.php CRM/Banking/DAO/BankAccountReference.php CRM/Banking/DAO/BankTransaction.php CRM/Banking/DAO/BankTransactionBatch.php CRM/Banking/DAO/BankTransactionContribution.php CRM/Banking/DAO/PluginInstance.php CRM/Banking/Form/Report/BankingTransactions.php templates/CRM/Banking/PluginImpl/Matcher/RecurringContribution.suggestion.tpl
 msgid "ID"
 msgstr ""
 
-#: CRM/Banking/DAO/BankAccount.php CRM/Banking/DAO/PluginInstance.php
-#: CRM/Banking/Form/Configure.php templates/CRM/Banking/Page/Manager.tpl
+#: CRM/Banking/DAO/BankAccount.php CRM/Banking/DAO/PluginInstance.php CRM/Banking/Form/Configure.php templates/CRM/Banking/Page/Manager.tpl
 msgid "Description"
 msgstr ""
 
@@ -195,8 +178,7 @@ msgstr ""
 msgid "The complete information received for this bank account"
 msgstr ""
 
-#: CRM/Banking/DAO/BankAccount.php CRM/Banking/DAO/BankTransaction.php
-#: CRM/Banking/Form/Report/BankingTransactions.php
+#: CRM/Banking/DAO/BankAccount.php CRM/Banking/DAO/BankTransaction.php CRM/Banking/Form/Report/BankingTransactions.php
 msgid "Data Parsed"
 msgstr ""
 
@@ -204,9 +186,7 @@ msgstr ""
 msgid "A JSON-formatted array containing decoded fields"
 msgstr ""
 
-#: CRM/Banking/DAO/BankAccount.php
-#: CRM/Banking/PluginImpl/Matcher/RulesAnalyser.php
-#: Civi/Banking/Actions/AddIban.php Civi/Banking/Actions/FindLatestAccount.php
+#: CRM/Banking/DAO/BankAccount.php CRM/Banking/PluginImpl/Matcher/RulesAnalyser.php Civi/Banking/Actions/AddIban.php Civi/Banking/Actions/FindLatestAccount.php
 msgid "Contact ID"
 msgstr ""
 
@@ -246,8 +226,7 @@ msgstr ""
 msgid "FK to bank_account of target account"
 msgstr ""
 
-#: CRM/Banking/DAO/BankTransaction.php CRM/Banking/Page/Payments.php
-#: templates/CRM/Banking/Page/Export.tpl
+#: CRM/Banking/DAO/BankTransaction.php CRM/Banking/Page/Payments.php templates/CRM/Banking/Page/Export.tpl
 msgid "Bank Transactions"
 msgstr ""
 
@@ -263,8 +242,7 @@ msgstr ""
 msgid "The unique reference for this transaction"
 msgstr ""
 
-#: CRM/Banking/DAO/BankTransaction.php
-#: CRM/Banking/Form/Report/BankingTransactions.php
+#: CRM/Banking/DAO/BankTransaction.php CRM/Banking/Form/Report/BankingTransactions.php
 msgid "Value date"
 msgstr ""
 
@@ -272,8 +250,7 @@ msgstr ""
 msgid "Value date for this bank transaction"
 msgstr ""
 
-#: CRM/Banking/DAO/BankTransaction.php
-#: CRM/Banking/Form/Report/BankingTransactions.php
+#: CRM/Banking/DAO/BankTransaction.php CRM/Banking/Form/Report/BankingTransactions.php
 msgid "Booking date"
 msgstr ""
 
@@ -289,8 +266,7 @@ msgstr ""
 msgid "Transaction amount (positive or negative)"
 msgstr ""
 
-#: CRM/Banking/DAO/BankTransaction.php CRM/Banking/DAO/BankTransactionBatch.php
-#: CRM/Banking/Form/Report/BankingTransactions.php
+#: CRM/Banking/DAO/BankTransaction.php CRM/Banking/DAO/BankTransactionBatch.php CRM/Banking/Form/Report/BankingTransactions.php
 msgid "Currency"
 msgstr ""
 
@@ -450,8 +426,7 @@ msgstr ""
 msgid "Link to an option list of plugin class names"
 msgstr ""
 
-#: CRM/Banking/DAO/PluginInstance.php
-#: CRM/Banking/Form/Report/BankingTransactions.php ang/banking/Main.html
+#: CRM/Banking/DAO/PluginInstance.php CRM/Banking/Form/Report/BankingTransactions.php ang/banking/Main.html
 msgid "Name"
 msgstr ""
 
@@ -495,10 +470,7 @@ msgstr ""
 msgid "State JSON"
 msgstr ""
 
-#: CRM/Banking/Form/AccountsTab.php CRM/Banking/Page/Dashboard.php
-#: CRM/Banking/Page/Payments.php
-#: CRM/Banking/PluginImpl/Matcher/ExistingContribution.php
-#: CRM/Banking/PluginImpl/Matcher/SepaMandate.php
+#: CRM/Banking/Form/AccountsTab.php CRM/Banking/Page/Dashboard.php CRM/Banking/Page/Payments.php CRM/Banking/PluginImpl/Matcher/ExistingContribution.php CRM/Banking/PluginImpl/Matcher/SepaMandate.php
 msgid "Unknown"
 msgstr ""
 
@@ -514,14 +486,11 @@ msgstr ""
 msgid "BIC"
 msgstr ""
 
-#: CRM/Banking/Form/AccountsTab.php Civi/Banking/Actions/AddIban.php
-#: templates/CRM/Banking/Form/AccountsTab.tpl
+#: CRM/Banking/Form/AccountsTab.php Civi/Banking/Actions/AddIban.php templates/CRM/Banking/Form/AccountsTab.tpl
 msgid "Account Name"
 msgstr ""
 
-#: CRM/Banking/Form/AccountsTab.php templates/CRM/Banking/Form/AccountsTab.tpl
-#: templates/CRM/Banking/PluginImpl/PostProcessor/AddressUpdate.activity.tpl
-#: templates/CRM/Banking/PluginImpl/PostProcessor/AddressUpdate.note.tpl
+#: CRM/Banking/Form/AccountsTab.php templates/CRM/Banking/Form/AccountsTab.tpl templates/CRM/Banking/PluginImpl/PostProcessor/AddressUpdate.activity.tpl templates/CRM/Banking/PluginImpl/PostProcessor/AddressUpdate.note.tpl
 msgid "Country"
 msgstr ""
 
@@ -545,11 +514,7 @@ msgstr ""
 msgid "Bank account '%1' was created."
 msgstr ""
 
-#: CRM/Banking/Form/AccountsTab.php CRM/Banking/Form/PluginUpload.php
-#: CRM/Banking/Page/AccountDedupe.php
-#: CRM/Banking/PluginImpl/Matcher/RulesAnalyser.php
-#: CRM/Banking/PluginImpl/Matcher/SepaMandate.php
-#: templates/CRM/Banking/Form/AccountsTab.tpl
+#: CRM/Banking/Form/AccountsTab.php CRM/Banking/Form/PluginUpload.php CRM/Banking/Page/AccountDedupe.php CRM/Banking/PluginImpl/Matcher/RulesAnalyser.php CRM/Banking/PluginImpl/Matcher/SepaMandate.php templates/CRM/Banking/Form/AccountsTab.tpl
 msgid "Success"
 msgstr ""
 
@@ -617,23 +582,7 @@ msgstr ""
 msgid "No configuration files selected"
 msgstr ""
 
-#: CRM/Banking/Form/PluginUpload.php CRM/Banking/Page/Review.php
-#: CRM/Banking/PluginImpl/Matcher/Batches.php
-#: CRM/Banking/PluginImpl/Matcher/CreateContribution.php
-#: CRM/Banking/PluginImpl/Matcher/CreateMultipleContributions.php
-#: CRM/Banking/PluginImpl/Matcher/DefaultOptions.php
-#: CRM/Banking/PluginImpl/Matcher/ExistingContribution.php
-#: CRM/Banking/PluginImpl/Matcher/Membership.php
-#: CRM/Banking/PluginImpl/Matcher/RecurringContribution.php
-#: CRM/Banking/PluginImpl/Matcher/Rules.php
-#: CRM/Banking/PluginImpl/Matcher/RulesAnalyser.php
-#: CRM/Banking/PluginImpl/Matcher/SepaMandate.php
-#: CRM/Banking/PluginModel/Matcher.php
-#: templates/CRM/Banking/Form/AccountsTab.tpl
-#: templates/CRM/Banking/Page/Payments.tpl
-#: templates/CRM/Banking/Page/Review.tpl
-#: templates/CRM/Banking/Page/StatementLine.tpl
-#: templates/CRM/Banking/Page/Statements.tpl
+#: CRM/Banking/Form/PluginUpload.php CRM/Banking/Page/Review.php CRM/Banking/PluginImpl/Matcher/Batches.php CRM/Banking/PluginImpl/Matcher/CreateContribution.php CRM/Banking/PluginImpl/Matcher/CreateMultipleContributions.php CRM/Banking/PluginImpl/Matcher/DefaultOptions.php CRM/Banking/PluginImpl/Matcher/ExistingContribution.php CRM/Banking/PluginImpl/Matcher/Membership.php CRM/Banking/PluginImpl/Matcher/RecurringContribution.php CRM/Banking/PluginImpl/Matcher/RulesAnalyser.php CRM/Banking/PluginImpl/Matcher/SepaMandate.php CRM/Banking/PluginModel/Matcher.php templates/CRM/Banking/Form/AccountsTab.tpl templates/CRM/Banking/Page/Payments.tpl templates/CRM/Banking/Page/Review.tpl templates/CRM/Banking/Page/StatementLine.tpl templates/CRM/Banking/Page/Statements.tpl
 msgid "Error"
 msgstr ""
 
@@ -650,17 +599,10 @@ msgid "Banking Transactions"
 msgstr ""
 
 #: CRM/Banking/Form/Report/BankingTransactions.mgd.php
-msgid ""
-"List all CiviBankiong transactions. Additional filtering is possible on "
-"booking and value date and on status."
+msgid "List all CiviBankiong transactions. Additional filtering is possible on booking and value date and on status."
 msgstr ""
 
-#: CRM/Banking/Form/Report/BankingTransactions.php
-#: templates/CRM/Banking/Form/StatementSearch.tpl
-#: templates/CRM/Banking/Page/Payments.tpl
-#: templates/CRM/Banking/Page/ReviewTransaction.tpl
-#: templates/CRM/Banking/Page/StatementLine.tpl
-#: templates/CRM/Banking/PluginImpl/Matcher/DefaultOptions.suggestion.tpl
+#: CRM/Banking/Form/Report/BankingTransactions.php templates/CRM/Banking/Form/StatementSearch.tpl templates/CRM/Banking/Page/Payments.tpl templates/CRM/Banking/Page/ReviewTransaction.tpl templates/CRM/Banking/Page/StatementLine.tpl templates/CRM/Banking/PluginImpl/Matcher/DefaultOptions.suggestion.tpl
 msgid "Status"
 msgstr ""
 
@@ -668,25 +610,11 @@ msgstr ""
 msgid "CiviBanking Transactions"
 msgstr ""
 
-#: CRM/Banking/Form/Report/BankingTransactions.php
-#: CRM/Banking/PluginImpl/Matcher/Batches.php
-#: templates/CRM/Banking/Form/StatementSearch.tpl
-#: templates/CRM/Banking/Page/Payments.tpl
-#: templates/CRM/Banking/Page/StatementLine.tpl
-#: templates/CRM/Banking/Page/Statements.tpl
-#: templates/CRM/Banking/PluginImpl/Matcher/CreateContribution.suggestion.tpl
-#: templates/CRM/Banking/PluginImpl/Matcher/CreateMultipleContributions.suggestion.tpl
-#: templates/CRM/Banking/PluginImpl/Matcher/DefaultOptions.suggestion.tpl
-#: templates/CRM/Banking/PluginImpl/Matcher/ExistingContribution.suggestion.tpl
-#: templates/CRM/Banking/PluginImpl/Matcher/RecurringContribution.suggestion.tpl
-#: templates/CRM/Banking/PluginImpl/Matcher/RulesAnalyser.suggestion.tpl
+#: CRM/Banking/Form/Report/BankingTransactions.php CRM/Banking/PluginImpl/Matcher/Batches.php templates/CRM/Banking/Form/StatementSearch.tpl templates/CRM/Banking/Page/Payments.tpl templates/CRM/Banking/Page/StatementLine.tpl templates/CRM/Banking/Page/Statements.tpl templates/CRM/Banking/PluginImpl/Matcher/CreateCampaignContribution.suggestion.tpl templates/CRM/Banking/PluginImpl/Matcher/CreateContribution.suggestion.tpl templates/CRM/Banking/PluginImpl/Matcher/CreateMultipleContributions.suggestion.tpl templates/CRM/Banking/PluginImpl/Matcher/DefaultOptions.suggestion.tpl templates/CRM/Banking/PluginImpl/Matcher/ExistingContribution.suggestion.tpl templates/CRM/Banking/PluginImpl/Matcher/RecurringContribution.suggestion.tpl templates/CRM/Banking/PluginImpl/Matcher/RulesAnalyser.suggestion.tpl
 msgid "Amount"
 msgstr ""
 
-#: CRM/Banking/Form/Report/BankingTransactions.php
-#: templates/CRM/Banking/Form/StatementSearch.tpl
-#: templates/CRM/Banking/Page/ReviewPurpose.tpl
-#: templates/CRM/Banking/Page/StatementLine.tpl
+#: CRM/Banking/Form/Report/BankingTransactions.php templates/CRM/Banking/Form/StatementSearch.tpl templates/CRM/Banking/Page/ReviewPurpose.tpl templates/CRM/Banking/Page/StatementLine.tpl
 msgid "Purpose"
 msgstr ""
 
@@ -746,9 +674,7 @@ msgstr ""
 msgid "Suggested field names"
 msgstr ""
 
-#: CRM/Banking/Form/StatementSearch.php
-#: templates/CRM/Banking/Page/ReviewBasic.tpl
-#: templates/CRM/Banking/PluginImpl/Matcher/RulesAnalyser.suggestion.tpl
+#: CRM/Banking/Form/StatementSearch.php templates/CRM/Banking/Page/ReviewBasic.tpl templates/CRM/Banking/PluginImpl/Matcher/RulesAnalyser.suggestion.tpl
 msgid "Value"
 msgstr ""
 
@@ -901,15 +827,11 @@ msgid "%1 Post Processors"
 msgstr ""
 
 #: CRM/Banking/Matcher/Suggestion.php
-msgid ""
-"The following post processors may be executed after processing this "
-"suggestion:"
+msgid "The following post processors may be executed after processing this suggestion:"
 msgstr ""
 
 #: CRM/Banking/Matcher/Suggestion.php
-msgid ""
-"The following post processors have been executed after processing this "
-"suggestion:"
+msgid "The following post processors have been triggered after processing this suggestion:"
 msgstr ""
 
 #: CRM/Banking/Page/AccountDedupe.php
@@ -917,9 +839,7 @@ msgid "Dedupe Bank Accounts"
 msgstr ""
 
 #: CRM/Banking/Page/AccountDedupe.php
-msgid ""
-"%1 errors were encountered when trying to merge duplicate bank accounts, %2/"
-"%3 bank accounts were successfully merged."
+msgid "%1 errors were encountered when trying to merge duplicate bank accounts, %2/%3 bank accounts were successfully merged."
 msgstr ""
 
 #: CRM/Banking/Page/AccountDedupe.php
@@ -931,9 +851,7 @@ msgid "%1 duplicate bank accounts successfully merged."
 msgstr ""
 
 #: CRM/Banking/Page/AccountDedupe.php
-msgid ""
-"%1 errors were encountered when trying to delete duplicate references. %2/%3 "
-"references were successfully deleted."
+msgid "%1 errors were encountered when trying to delete duplicate references. %2/%3 references were successfully deleted."
 msgstr ""
 
 #: CRM/Banking/Page/AccountDedupe.php
@@ -1069,10 +987,7 @@ msgid "%d completed transactions."
 msgstr ""
 
 #: CRM/Banking/Page/Payments.php
-msgid ""
-"Internal limit (%1) of transactions to show was exceeded. Please use smaller "
-"statements, or adjust the cut-off value in the settings (<a href="
-"\"%2#transaction_list_cutoff\">here</a>)."
+msgid "Internal limit (%1) of transactions to show was exceeded. Please use smaller statements, or adjust the cut-off value in the settings (<a href=\"%2#transaction_list_cutoff\">here</a>)."
 msgstr ""
 
 #: CRM/Banking/Page/Payments.php
@@ -1116,7 +1031,7 @@ msgid "Review Bank Transaction %1 of %2 (%3 unprocessed ahead)"
 msgstr ""
 
 #: CRM/Banking/Page/Review.php
-msgid "Review Bank Transaction"
+msgid "Review Bank Transaction [%1]"
 msgstr ""
 
 #: CRM/Banking/Page/Review.php
@@ -1172,18 +1087,23 @@ msgid "Unknown account"
 msgstr ""
 
 #: CRM/Banking/PluginImpl/Importer/CSV.php
+msgid "Filtered out %1 lines"
+msgstr ""
+
+#: CRM/Banking/PluginImpl/Importer/CSV.php
 msgid "Rule '%s' failed. Exception was %s"
 msgstr ""
 
-#: CRM/Banking/PluginImpl/Importer/CSV.php
-#: CRM/Banking/PluginImpl/Importer/XML.php
+#: CRM/Banking/PluginImpl/Importer/CSV.php CRM/Banking/PluginImpl/Importer/XML.php
 msgid "Pattern '%s' was not found in entry '%s'."
 msgstr ""
 
-#: CRM/Banking/PluginImpl/Importer/CSV.php
-#: CRM/Banking/PluginImpl/Importer/Fixed.php
-#: CRM/Banking/PluginImpl/Importer/XML.php
+#: CRM/Banking/PluginImpl/Importer/CSV.php CRM/Banking/PluginImpl/Importer/Fixed.php CRM/Banking/PluginImpl/Importer/XML.php
 msgid "Importing streams not supported by this plugin."
+msgstr ""
+
+#: CRM/Banking/PluginImpl/Importer/XML.php
+msgid "Starting to read file '%1'..."
 msgstr ""
 
 #: CRM/Banking/PluginImpl/Matcher/Batches.php
@@ -1195,8 +1115,7 @@ msgid "Internal error! Cannot find batch %s"
 msgstr ""
 
 #: CRM/Banking/PluginImpl/Matcher/Batches.php
-msgid ""
-"Internal error! Cannot complete contribution %s. Error message was: '%s'"
+msgid "Internal error! Cannot complete contribution %s. Error message was: '%s'"
 msgstr ""
 
 #: CRM/Banking/PluginImpl/Matcher/Batches.php
@@ -1208,9 +1127,7 @@ msgid "Batch completed"
 msgstr ""
 
 #: CRM/Banking/PluginImpl/Matcher/Batches.php
-msgid ""
-"Some contribtions in batch %s are not in state 'pending', and override was "
-"not enabled. The payment was NOT processed!"
+msgid "Some contribtions in batch %s are not in state 'pending', and override was not enabled. The payment was NOT processed!"
 msgstr ""
 
 #: CRM/Banking/PluginImpl/Matcher/Batches.php
@@ -1241,59 +1158,72 @@ msgstr ""
 msgid "Exported"
 msgstr ""
 
-#: CRM/Banking/PluginImpl/Matcher/Batches.php
-#: templates/CRM/Banking/Page/Statements.tpl
+#: CRM/Banking/PluginImpl/Matcher/Batches.php templates/CRM/Banking/Page/Statements.tpl
 msgid "Transactions"
 msgstr ""
 
 #: CRM/Banking/PluginImpl/Matcher/Batches.php
-msgid ""
-"This transaction was associated with <a href=\"%s\">payment batch #%s</a>."
+msgid "This transaction was associated with <a href=\"%s\">payment batch #%s</a>."
 msgstr ""
 
-#: CRM/Banking/PluginImpl/Matcher/CreateContribution.php
-#: CRM/Banking/PluginImpl/Matcher/CreateMultipleContributions.php
+#: CRM/Banking/PluginImpl/Matcher/CreateCampaignContribution.php CRM/Banking/PluginImpl/Matcher/CreateContribution.php CRM/Banking/PluginImpl/Matcher/CreateMultipleContributions.php
 msgid "Source"
+msgstr ""
+
+#: CRM/Banking/PluginImpl/Matcher/CreateCampaignContribution.php
+msgid "n/a"
+msgstr ""
+
+#: CRM/Banking/PluginImpl/Matcher/CreateCampaignContribution.php
+msgid "Create Campaign Contribution"
+msgstr ""
+
+#: CRM/Banking/PluginImpl/Matcher/CreateCampaignContribution.php
+msgid "Error was: %1"
+msgstr ""
+
+#: CRM/Banking/PluginImpl/Matcher/CreateCampaignContribution.php CRM/Banking/PluginImpl/Matcher/CreateContribution.php CRM/Banking/PluginImpl/Matcher/Membership.php CRM/Banking/PluginImpl/Matcher/RecurringContribution.php
+msgid "Couldn't create contribution."
+msgstr ""
+
+#: CRM/Banking/PluginImpl/Matcher/CreateCampaignContribution.php
+msgid "-no campaign-"
+msgstr ""
+
+#: CRM/Banking/PluginImpl/Matcher/CreateCampaignContribution.php
+msgid "'%1' from the same day"
+msgstr ""
+
+#: CRM/Banking/PluginImpl/Matcher/CreateCampaignContribution.php
+msgid "'%1' from %2 days earlier"
+msgstr ""
+
+#: CRM/Banking/PluginImpl/Matcher/CreateCampaignContribution.php
+msgid "<a class=\"crm-popup\" href=\"%1\">%2</a>"
 msgstr ""
 
 #: CRM/Banking/PluginImpl/Matcher/CreateContribution.php
 msgid "Create a new contribution"
 msgstr ""
 
-#: CRM/Banking/PluginImpl/Matcher/CreateContribution.php
-#: CRM/Banking/PluginImpl/Matcher/Membership.php
-#: CRM/Banking/PluginImpl/Matcher/RecurringContribution.php
-msgid "Couldn't create contribution."
-msgstr ""
-
-#: CRM/Banking/PluginImpl/Matcher/CreateContribution.php
-#: CRM/Banking/PluginImpl/Matcher/Membership.php
-#: CRM/Banking/PluginImpl/Matcher/RecurringContribution.php
+#: CRM/Banking/PluginImpl/Matcher/CreateContribution.php CRM/Banking/PluginImpl/Matcher/Membership.php CRM/Banking/PluginImpl/Matcher/RecurringContribution.php
 msgid "Error was: "
 msgstr ""
 
 #: CRM/Banking/PluginImpl/Matcher/CreateMultipleContributions.php
-msgid ""
-"There are missing parameters for contribution %1 and the suggestion is thus "
-"being downgraded by %2 percent."
+msgid "There are missing parameters for contribution %1 and the suggestion is thus being downgraded by %2 percent."
 msgstr ""
 
 #: CRM/Banking/PluginImpl/Matcher/CreateMultipleContributions.php
-msgid ""
-"The transaction amount undercuts the amount of %1 required for contribution "
-"%2 and the suggestion is thus being downgraded by %3 percent."
+msgid "The transaction amount undercuts the amount of %1 required for contribution %2 and the suggestion is thus being downgraded by %3 percent."
 msgstr ""
 
 #: CRM/Banking/PluginImpl/Matcher/CreateMultipleContributions.php
-msgid ""
-"The remainder amount undercuts the minimum amount of %1 and the suggestion "
-"is thus being downgraded by %2 percent."
+msgid "The remainder amount undercuts the minimum amount of %1 and the suggestion is thus being downgraded by %2 percent."
 msgstr ""
 
 #: CRM/Banking/PluginImpl/Matcher/CreateMultipleContributions.php
-msgid ""
-"The remainder amount exceeds the maximum amount of %1 and the suggestion is "
-"thus being downgraded by %2 percent."
+msgid "The remainder amount exceeds the maximum amount of %1 and the suggestion is thus being downgraded by %2 percent."
 msgstr ""
 
 #: CRM/Banking/PluginImpl/Matcher/CreateMultipleContributions.php
@@ -1328,8 +1258,7 @@ msgstr ""
 msgid "This transaction was manually matched to the following contributions:"
 msgstr ""
 
-#: CRM/Banking/PluginImpl/Matcher/DefaultOptions.php
-#: templates/CRM/Banking/PluginImpl/Matcher/SepaMandate.activity.tpl
+#: CRM/Banking/PluginImpl/Matcher/DefaultOptions.php templates/CRM/Banking/PluginImpl/Matcher/SepaMandate.activity.tpl
 msgid "Contribution"
 msgstr ""
 
@@ -1362,15 +1291,11 @@ msgid "A pending contribution partially matching the transaction was found."
 msgstr ""
 
 #: CRM/Banking/PluginImpl/Matcher/ExistingContribution.php
-msgid ""
-"This transaction could be the <b>cancellation</b> of the below contribution."
+msgid "This transaction could be the <b>cancellation</b> of the below contribution."
 msgstr ""
 
-#: CRM/Banking/PluginImpl/Matcher/ExistingContribution.php
-#: CRM/Banking/PluginImpl/Matcher/RecurringContribution.php
-msgid ""
-"The reconciled amount of this suggestion would differ from the transaction "
-"amount. Do you want to continue anyway?"
+#: CRM/Banking/PluginImpl/Matcher/ExistingContribution.php CRM/Banking/PluginImpl/Matcher/RecurringContribution.php
+msgid "The reconciled amount of this suggestion would differ from the transaction amount. Do you want to continue anyway?"
 msgstr ""
 
 #: CRM/Banking/PluginImpl/Matcher/ExistingContribution.php
@@ -1385,18 +1310,15 @@ msgstr ""
 msgid "Execution Failure"
 msgstr ""
 
-#: CRM/Banking/PluginImpl/Matcher/ExistingContribution.php
-#: CRM/Banking/PluginImpl/Matcher/SepaMandate.php
+#: CRM/Banking/PluginImpl/Matcher/ExistingContribution.php CRM/Banking/PluginImpl/Matcher/SepaMandate.php
 msgid "Contribution status has been modified."
 msgstr ""
 
-#: CRM/Banking/PluginImpl/Matcher/ExistingContribution.php
-#: CRM/Banking/PluginImpl/Matcher/SepaMandate.php
+#: CRM/Banking/PluginImpl/Matcher/ExistingContribution.php CRM/Banking/PluginImpl/Matcher/SepaMandate.php
 msgid "Couldn't modify contribution."
 msgstr ""
 
-#: CRM/Banking/PluginImpl/Matcher/Ignore.php
-#: CRM/Banking/PluginModel/Matcher.php
+#: CRM/Banking/PluginImpl/Matcher/Ignore.php CRM/Banking/PluginModel/Matcher.php
 msgid "Because :"
 msgstr ""
 
@@ -1409,25 +1331,19 @@ msgid "A general penalty was applied."
 msgstr ""
 
 #: CRM/Banking/PluginImpl/Matcher/RecurringContribution.php
-msgid ""
-"The expected amount for the recurring contribution(s) seems to have changed. "
-"Please analyse transaction again."
+msgid "The expected amount for the recurring contribution(s) seems to have changed. Please analyse transaction again."
 msgstr ""
 
 #: CRM/Banking/PluginImpl/Matcher/RecurringContribution.php
 msgid "Recurring contribution changed"
 msgstr ""
 
-#: CRM/Banking/PluginImpl/Matcher/RecurringContribution.php
-#: templates/CRM/Banking/PluginImpl/Matcher/Membership.suggestion.tpl
-#: templates/CRM/Banking/PluginImpl/Matcher/RecurringContribution.suggestion.tpl
+#: CRM/Banking/PluginImpl/Matcher/RecurringContribution.php templates/CRM/Banking/PluginImpl/Matcher/Membership.suggestion.tpl templates/CRM/Banking/PluginImpl/Matcher/RecurringContribution.suggestion.tpl
 msgid "None"
 msgstr ""
 
 #: CRM/Banking/PluginImpl/Matcher/RecurringContribution.php
-msgid ""
-"The situation for the recurring contribution seems to have changed. Please "
-"analyse transaction again."
+msgid "The situation for the recurring contribution seems to have changed. Please analyse transaction again."
 msgstr ""
 
 #: CRM/Banking/PluginImpl/Matcher/RecurringContribution.php
@@ -1452,10 +1368,6 @@ msgstr ""
 
 #: CRM/Banking/PluginImpl/Matcher/RecurringContribution.php
 msgid "There are already multiple contributions recorded for this interval: "
-msgstr ""
-
-#: CRM/Banking/PluginImpl/Matcher/Rules.php
-msgid "You cannot "
 msgstr ""
 
 #: CRM/Banking/PluginImpl/Matcher/RulesAnalyser.php
@@ -1503,15 +1415,11 @@ msgid "Couldn't load SEPA mandate for reference %s"
 msgstr ""
 
 #: CRM/Banking/PluginImpl/Matcher/SepaMandate.php
-msgid ""
-"There was more than one matching contribution found! Try to configure the "
-"plugin with a smaller search time span."
+msgid "There was more than one matching contribution found! Try to configure the plugin with a smaller search time span."
 msgstr ""
 
 #: CRM/Banking/PluginImpl/Matcher/SepaMandate.php
-msgid ""
-"There was no matching contribution! Try to configure the plugin with a "
-"larger search time span."
+msgid "There was no matching contribution! Try to configure the plugin with a larger search time span."
 msgstr ""
 
 #: CRM/Banking/PluginImpl/Matcher/SepaMandate.php
@@ -1543,9 +1451,7 @@ msgid "Cancel SEPA SDD Transaction"
 msgstr ""
 
 #: CRM/Banking/PluginImpl/Matcher/SepaMandate.php
-msgid ""
-"The cancellation fee, i.e. the deviation from the original amount, is not in "
-"the specified range."
+msgid "The cancellation fee, i.e. the deviation from the original amount, is not in the specified range."
 msgstr ""
 
 #: CRM/Banking/PluginImpl/Matcher/SepaMandate.php
@@ -1560,27 +1466,19 @@ msgstr ""
 msgid "Couldn't modify mandate."
 msgstr ""
 
-#: CRM/Banking/PluginImpl/Matcher/SepaMandate.php
-#: templates/CRM/Banking/PluginImpl/Matcher/Membership.suggestion.tpl
-#: templates/CRM/Banking/PluginImpl/Matcher/RecurringContribution.suggestion.tpl
+#: CRM/Banking/PluginImpl/Matcher/SepaMandate.php templates/CRM/Banking/PluginImpl/Matcher/Membership.suggestion.tpl templates/CRM/Banking/PluginImpl/Matcher/RecurringContribution.suggestion.tpl
 msgid "monthly"
 msgstr ""
 
-#: CRM/Banking/PluginImpl/Matcher/SepaMandate.php
-#: templates/CRM/Banking/PluginImpl/Matcher/Membership.suggestion.tpl
-#: templates/CRM/Banking/PluginImpl/Matcher/RecurringContribution.suggestion.tpl
+#: CRM/Banking/PluginImpl/Matcher/SepaMandate.php templates/CRM/Banking/PluginImpl/Matcher/Membership.suggestion.tpl templates/CRM/Banking/PluginImpl/Matcher/RecurringContribution.suggestion.tpl
 msgid "annually"
 msgstr ""
 
-#: CRM/Banking/PluginImpl/Matcher/SepaMandate.php
-#: templates/CRM/Banking/PluginImpl/Matcher/Membership.suggestion.tpl
-#: templates/CRM/Banking/PluginImpl/Matcher/RecurringContribution.suggestion.tpl
+#: CRM/Banking/PluginImpl/Matcher/SepaMandate.php templates/CRM/Banking/PluginImpl/Matcher/Membership.suggestion.tpl templates/CRM/Banking/PluginImpl/Matcher/RecurringContribution.suggestion.tpl
 msgid "every %1 months"
 msgstr ""
 
-#: CRM/Banking/PluginImpl/Matcher/SepaMandate.php
-#: templates/CRM/Banking/PluginImpl/Matcher/Membership.suggestion.tpl
-#: templates/CRM/Banking/PluginImpl/Matcher/RecurringContribution.suggestion.tpl
+#: CRM/Banking/PluginImpl/Matcher/SepaMandate.php templates/CRM/Banking/PluginImpl/Matcher/Membership.suggestion.tpl templates/CRM/Banking/PluginImpl/Matcher/RecurringContribution.suggestion.tpl
 msgid "every %1 years"
 msgstr ""
 
@@ -1621,9 +1519,7 @@ msgid "More than one membership was found, only the first will be processed."
 msgstr ""
 
 #: CRM/Banking/PluginImpl/PostProcessor/MembershipExtension.php
-msgid ""
-"A new membership of the type <em>%1</em> will be created for the contact, "
-"starting from <em>%2</em>."
+msgid "A new membership of the type <em>%1</em> will be created for the contact, starting from <em>%2</em>."
 msgstr ""
 
 #: CRM/Banking/PluginImpl/PostProcessor/MembershipExtension.php
@@ -1631,9 +1527,7 @@ msgid "A membership for the selected contact might be extended"
 msgstr ""
 
 #: CRM/Banking/PluginImpl/PostProcessor/MembershipExtension.php
-msgid ""
-"or a new membership of the type <em>%1</em> might be created for the "
-"contact, starting from <em>%2</em>"
+msgid "or a new membership of the type <em>%1</em> might be created for the contact, starting from <em>%2</em>"
 msgstr ""
 
 #: CRM/Banking/PluginImpl/PostProcessor/MembershipExtension.php
@@ -1697,9 +1591,7 @@ msgid "Couldn't create reference. Error was: '%1'"
 msgstr ""
 
 #: CRM/Banking/PluginModel/Matcher.php
-msgid ""
-"The account information of this contact was saved, but it is also used by "
-"the following contacts:<br/><ul>%s</ul>"
+msgid "The account information of this contact was saved, but it is also used by the following contacts:<br/><ul>%s</ul>"
 msgstr ""
 
 #: CRM/Banking/PluginModel/Matcher.php
@@ -1730,10 +1622,6 @@ msgstr ""
 msgid "Unnamed Rule [%1]"
 msgstr ""
 
-#: CRM/Banking/Upgrader/Base.php
-msgid "Upgrade %1 to revision %2"
-msgstr ""
-
 #: Civi/Banking/Actions/AddIban.php
 msgid "IBAN"
 msgstr ""
@@ -1751,8 +1639,7 @@ msgid " to contact ID "
 msgstr ""
 
 #: Civi/Banking/Actions/AddIban.php
-msgid ""
-", error message from API3 BankingAccount or BankingAccountReference create: "
+msgid ", error message from API3 BankingAccount or BankingAccountReference create: "
 msgstr ""
 
 #: Civi/Banking/Actions/FindLatestAccount.php
@@ -1760,9 +1647,7 @@ msgid "Could not find a bank account for contact"
 msgstr ""
 
 #: Civi/Banking/Actions/FindLatestAccount.php
-msgid ""
-", error message from API3 BankingAccount or BankingAccountReference "
-"getvalue: "
+msgid ", error message from API3 BankingAccount or BankingAccountReference getvalue: "
 msgstr ""
 
 #: Civi/Banking/CompilerPass.php
@@ -1771,6 +1656,18 @@ msgstr ""
 
 #: Civi/Banking/CompilerPass.php
 msgid "Find Latest Bank Account for Contact"
+msgstr ""
+
+#: Civi/Banking/CompilerPass.php
+msgid "IBAN (Banking)"
+msgstr ""
+
+#: Civi/Banking/CompilerPass.php
+msgid "CiviBanking: Bank Account"
+msgstr ""
+
+#: Civi/Banking/DataProcessor/FieldoutputHandler/ContactIBANOutputhandler.php
+msgid "Contact ID Field"
 msgstr ""
 
 #: ang/banking/Main.html
@@ -1782,9 +1679,7 @@ msgid "This is an auto-generated skeletal page."
 msgstr ""
 
 #: ang/banking/Main.html
-msgid ""
-"To view more debugging information, edit the URL and include \"?"
-"angularDebug=1\"."
+msgid "To view more debugging information, edit the URL and include \"?angularDebug=1\"."
 msgstr ""
 
 #: ang/banking/Main.html
@@ -1807,8 +1702,7 @@ msgstr ""
 msgid "First"
 msgstr ""
 
-#: ang/banking/Main.html
-#: templates/CRM/Banking/PluginImpl/Matcher/Membership.suggestion.tpl
+#: ang/banking/Main.html templates/CRM/Banking/PluginImpl/Matcher/Membership.suggestion.tpl
 msgid "Last"
 msgstr ""
 
@@ -1885,9 +1779,7 @@ msgid "International Bank Account Number"
 msgstr ""
 
 #: banking_options.php
-msgid ""
-"Format: see <a href=\"https://en.wikipedia.org/wiki/"
-"International_Bank_Account_Number\">IBAN on WikiPedia<a>."
+msgid "Format: see <a href=\"https://en.wikipedia.org/wiki/International_Bank_Account_Number\">IBAN on WikiPedia<a>."
 msgstr ""
 
 #: banking_options.php
@@ -1895,9 +1787,7 @@ msgid "German Bank Account Number"
 msgstr ""
 
 #: banking_options.php
-msgid ""
-"Format is \"BBBBBBBB/KKKKKKKKKK\", (B=\"BLZ\", K=\"Kontonummer\") eg. "
-"\"12345678/0000123456\""
+msgid "Format is \"BBBBBBBB/KKKKKKKKKK\", (B=\"BLZ\", K=\"Kontonummer\") eg. \"12345678/0000123456\""
 msgstr ""
 
 #: banking_options.php
@@ -1905,9 +1795,7 @@ msgid "Austrian Bank Account Number"
 msgstr ""
 
 #: banking_options.php
-msgid ""
-"Format is \"BBBBB/KKKKKKKKKKK\", (B=\"BLZ\", K=\"Kontonummer\") eg. "
-"\"12345/00001234567\""
+msgid "Format is \"BBBBB/KKKKKKKKKKK\", (B=\"BLZ\", K=\"Kontonummer\") eg. \"12345/00001234567\""
 msgstr ""
 
 #: banking_options.php
@@ -1927,9 +1815,7 @@ msgid "Czech Bank Account Number"
 msgstr ""
 
 #: banking_options.php
-msgid ""
-"Format is \"PPPPPP-UUUUUUUUUU/CCCC\" (P=\"predcisli/prefix\", U=\"vlastni "
-"cislo/bank account\", C=\"bank code\") The first part (PPPPPP-) is optional."
+msgid "Format is \"PPPPPP-UUUUUUUUUU/CCCC\" (P=\"predcisli/prefix\", U=\"vlastni cislo/bank account\", C=\"bank code\") The first part (PPPPPP-) is optional."
 msgstr ""
 
 #: banking_options.php
@@ -1993,10 +1879,7 @@ msgid "Bank Account Settings"
 msgstr ""
 
 #: templates/CRM/Admin/Form/Setting/BankingSettings.tpl
-msgid ""
-"E.g. 1.0 or 0.9. A number of 1 means an exact match (it means the system is "
-"100% sure) a number lower than 1.0 means the system is sure for that "
-"percentage."
+msgid "E.g. 1.0 or 0.9. A number of 1 means an exact match (it means the system is 100% sure) a number lower than 1.0 means the system is sure for that percentage."
 msgstr ""
 
 #: templates/CRM/Banking/Form/AccountsTab.tpl
@@ -2023,9 +1906,7 @@ msgstr ""
 msgid "[+]"
 msgstr ""
 
-#: templates/CRM/Banking/Form/AccountsTab.tpl
-#: templates/CRM/Banking/Page/Manager.tpl
-#: templates/CRM/Banking/Page/Payments.tpl
+#: templates/CRM/Banking/Form/AccountsTab.tpl templates/CRM/Banking/Page/Manager.tpl templates/CRM/Banking/Page/Payments.tpl
 msgid "Delete"
 msgstr ""
 
@@ -2073,8 +1954,7 @@ msgstr ""
 msgid "Configuration"
 msgstr ""
 
-#: templates/CRM/Banking/Form/StatementSearch.tpl
-#: templates/CRM/Banking/Page/AccountSearch.tpl
+#: templates/CRM/Banking/Form/StatementSearch.tpl templates/CRM/Banking/Page/AccountSearch.tpl
 msgid "Search Criteria"
 msgstr ""
 
@@ -2090,14 +1970,7 @@ msgstr ""
 msgid "Additional Criteria %1"
 msgstr ""
 
-#: templates/CRM/Banking/Form/StatementSearch.tpl
-#: templates/CRM/Banking/Page/Payments.tpl
-#: templates/CRM/Banking/Page/StatementLine.tpl
-#: templates/CRM/Banking/Page/Statements.tpl
-#: templates/CRM/Banking/PluginImpl/Matcher/CreateContribution.suggestion.tpl
-#: templates/CRM/Banking/PluginImpl/Matcher/CreateMultipleContributions.suggestion.tpl
-#: templates/CRM/Banking/PluginImpl/Matcher/DefaultOptions.suggestion.tpl
-#: templates/CRM/Banking/PluginImpl/Matcher/ExistingContribution.suggestion.tpl
+#: templates/CRM/Banking/Form/StatementSearch.tpl templates/CRM/Banking/Page/Payments.tpl templates/CRM/Banking/Page/StatementLine.tpl templates/CRM/Banking/Page/Statements.tpl templates/CRM/Banking/PluginImpl/Matcher/CreateCampaignContribution.suggestion.tpl templates/CRM/Banking/PluginImpl/Matcher/CreateContribution.suggestion.tpl templates/CRM/Banking/PluginImpl/Matcher/CreateMultipleContributions.suggestion.tpl templates/CRM/Banking/PluginImpl/Matcher/DefaultOptions.suggestion.tpl templates/CRM/Banking/PluginImpl/Matcher/ExistingContribution.suggestion.tpl
 msgid "Date"
 msgstr ""
 
@@ -2114,8 +1987,7 @@ msgid "Transaction"
 msgstr ""
 
 #: templates/CRM/Banking/Page/AccountDedupe.tpl
-msgid ""
-"This page finds and lists duplicate or conflicting bank account information."
+msgid "This page finds and lists duplicate or conflicting bank account information."
 msgstr ""
 
 #: templates/CRM/Banking/Page/AccountDedupe.tpl
@@ -2123,9 +1995,7 @@ msgid "Duplicate References"
 msgstr ""
 
 #: templates/CRM/Banking/Page/AccountDedupe.tpl
-msgid ""
-"These are identical account references (e.g. account numbers) that point to "
-"the same bank account. The duplicates can be removed safely."
+msgid "These are identical account references (e.g. account numbers) that point to the same bank account. The duplicates can be removed safely."
 msgstr ""
 
 #: templates/CRM/Banking/Page/AccountDedupe.tpl
@@ -2157,9 +2027,7 @@ msgid "Duplicate Bank Accounts"
 msgstr ""
 
 #: templates/CRM/Banking/Page/AccountDedupe.tpl
-msgid ""
-"These are duplicate bank accounts listed for the <i>same</i> contact. In "
-"most cases, the bank accounts can be merged automatically."
+msgid "These are duplicate bank accounts listed for the <i>same</i> contact. In most cases, the bank accounts can be merged automatically."
 msgstr ""
 
 #: templates/CRM/Banking/Page/AccountDedupe.tpl
@@ -2171,10 +2039,7 @@ msgid "Bank Account Ownership Conflicts"
 msgstr ""
 
 #: templates/CRM/Banking/Page/AccountDedupe.tpl
-msgid ""
-"These are duplicate bank accounts listed for <i>different</i> contacts. "
-"Those that are not intended to be \"shared\" need to be resolved manually - "
-"sorry."
+msgid "These are duplicate bank accounts listed for <i>different</i> contacts. Those that are not intended to be \"shared\" need to be resolved manually - sorry."
 msgstr ""
 
 #: templates/CRM/Banking/Page/AccountDedupe.tpl
@@ -2213,10 +2078,7 @@ msgstr ""
 msgid "Weekly overview"
 msgstr ""
 
-#: templates/CRM/Banking/Page/Dashboard.tpl
-#: templates/CRM/Banking/Page/Payments.tpl
-#: templates/CRM/Banking/Page/ReviewDebtor.tpl
-#: templates/CRM/Banking/Page/Statements.tpl
+#: templates/CRM/Banking/Page/Dashboard.tpl templates/CRM/Banking/Page/Payments.tpl templates/CRM/Banking/Page/ReviewDebtor.tpl templates/CRM/Banking/Page/Statements.tpl
 msgid "Account"
 msgstr ""
 
@@ -2284,9 +2146,7 @@ msgstr ""
 msgid "Direct Upload"
 msgstr ""
 
-#: templates/CRM/Banking/Page/Export.tpl
-#: templates/CRM/Banking/Page/Payments.tpl
-#: templates/CRM/Banking/Page/Statements.tpl
+#: templates/CRM/Banking/Page/Export.tpl templates/CRM/Banking/Page/Payments.tpl templates/CRM/Banking/Page/Statements.tpl
 msgid "Export"
 msgstr ""
 
@@ -2335,32 +2195,19 @@ msgid "Delete Plugin \"%1\""
 msgstr ""
 
 #: templates/CRM/Banking/Page/Manager.tpl
-msgid ""
-"You are about to delete plugin \"%1\" [%2]. You should consider simply "
-"disabling it, since all banking transactions that have been processed using "
-"this plugin would have a missing link if go through with the deletion. Do "
-"you want to delete it anyway?"
+msgid "You are about to delete plugin \"%1\" [%2]. You should consider simply disabling it, since all banking transactions that have been processed using this plugin would have a missing link if go through with the deletion. Do you want to delete it anyway?"
 msgstr ""
 
 #: templates/CRM/Banking/Page/Manager.tpl
-msgid ""
-"The plugins listed on this page define <i>your</i> bank transaction "
-"processing workflow. You will need at least one import and one matching "
-"plugin to get started."
+msgid "The plugins listed on this page define <i>your</i> bank transaction processing workflow. You will need at least one import and one matching plugin to get started."
 msgstr ""
 
 #: templates/CRM/Banking/Page/Manager.tpl
-msgid ""
-"You can get started downloading example plugin configurations from our <a "
-"href=\"%1\" target=\"_blank\">configuration <strong>DATABASE</strong></a> "
-"(using the 'raw' link), and then upload them with our <strong><a href="
-"\"%2\">IMPORTER</a></strong>."
+msgid "You can get started downloading example plugin configurations from our <a href=\"%1\" target=\"_blank\">configuration <strong>DATABASE</strong></a> (using the 'raw' link), and then upload them with our <strong><a href=\"%2\">IMPORTER</a></strong>."
 msgstr ""
 
 #: templates/CRM/Banking/Page/Manager.tpl
-msgid ""
-"You might also want to have a look at the <a href=\"%1\" target=\"_blank"
-"\">CiviBanking <strong>SETTINGS</strong></a>"
+msgid "You might also want to have a look at the <a href=\"%1\" target=\"_blank\">CiviBanking <strong>SETTINGS</strong></a>"
 msgstr ""
 
 #: templates/CRM/Banking/Page/Manager.tpl
@@ -2368,11 +2215,7 @@ msgid "Importer Plugins"
 msgstr ""
 
 #: templates/CRM/Banking/Page/Manager.tpl
-msgid ""
-"Import plugins are used to transport transaction data obtained from banks "
-"and accounting software into CiviBanking. They source the information from "
-"files as well as from data feeds from external systems. Once imported, the "
-"payments will be processed by the matcher plugins."
+msgid "Import plugins are used to transport transaction data obtained from banks and accounting software into CiviBanking. They source the information from files as well as from data feeds from external systems. Once imported, the payments will be processed by the matcher plugins."
 msgstr ""
 
 #: templates/CRM/Banking/Page/Manager.tpl
@@ -2383,12 +2226,7 @@ msgstr ""
 msgid "Plugin"
 msgstr ""
 
-#: templates/CRM/Banking/Page/Manager.tpl
-#: templates/CRM/Banking/PluginImpl/Matcher/CreateContribution.suggestion.tpl
-#: templates/CRM/Banking/PluginImpl/Matcher/CreateMultipleContributions.suggestion.tpl
-#: templates/CRM/Banking/PluginImpl/Matcher/DefaultOptions.suggestion.tpl
-#: templates/CRM/Banking/PluginImpl/Matcher/ExistingContribution.suggestion.tpl
-#: templates/CRM/Banking/PluginImpl/Matcher/Membership.suggestion.tpl
+#: templates/CRM/Banking/Page/Manager.tpl templates/CRM/Banking/PluginImpl/Matcher/CreateCampaignContribution.suggestion.tpl templates/CRM/Banking/PluginImpl/Matcher/CreateContribution.suggestion.tpl templates/CRM/Banking/PluginImpl/Matcher/CreateMultipleContributions.suggestion.tpl templates/CRM/Banking/PluginImpl/Matcher/DefaultOptions.suggestion.tpl templates/CRM/Banking/PluginImpl/Matcher/ExistingContribution.suggestion.tpl templates/CRM/Banking/PluginImpl/Matcher/Membership.suggestion.tpl
 msgid "Type"
 msgstr ""
 
@@ -2437,11 +2275,7 @@ msgid "Analyser / Matcher Plugins"
 msgstr ""
 
 #: templates/CRM/Banking/Page/Manager.tpl
-msgid ""
-"Matcher Plugins are used to match the transactions with the expected "
-"financial transactions, such as contributions, membership fees, etc. If no "
-"perfect match can be found, they will generate proposals for the user to "
-"review and confirm."
+msgid "Matcher Plugins are used to match the transactions with the expected financial transactions, such as contributions, membership fees, etc. If no perfect match can be found, they will generate proposals for the user to review and confirm."
 msgstr ""
 
 #: templates/CRM/Banking/Page/Manager.tpl
@@ -2453,9 +2287,7 @@ msgid "Postprocessors"
 msgstr ""
 
 #: templates/CRM/Banking/Page/Manager.tpl
-msgid ""
-"Postprocessors are plugins that perform certain extra tasks once the correct "
-"contact, contribution, or other entity has been identified."
+msgid "Postprocessors are plugins that perform certain extra tasks once the correct contact, contribution, or other entity has been identified."
 msgstr ""
 
 #: templates/CRM/Banking/Page/Manager.tpl
@@ -2463,9 +2295,7 @@ msgid "Exporter Plugins"
 msgstr ""
 
 #: templates/CRM/Banking/Page/Manager.tpl
-msgid ""
-"Export plugins are used to save the processed transaction data along with "
-"their matching financial transactions into files or accounting systems."
+msgid "Export plugins are used to save the processed transaction data along with their matching financial transactions into files or accounting systems."
 msgstr ""
 
 #: templates/CRM/Banking/Page/Payments.tpl
@@ -2480,8 +2310,7 @@ msgstr ""
 msgid "Completed (Recent)"
 msgstr ""
 
-#: templates/CRM/Banking/Page/Payments.tpl
-#: templates/CRM/Banking/PluginImpl/Matcher/DefaultOptions.suggestion.tpl
+#: templates/CRM/Banking/Page/Payments.tpl templates/CRM/Banking/PluginImpl/Matcher/DefaultOptions.suggestion.tpl
 msgid "Completed"
 msgstr ""
 
@@ -2489,40 +2318,31 @@ msgstr ""
 msgid "Show Statements"
 msgstr ""
 
-#: templates/CRM/Banking/Page/Payments.tpl
-#: templates/CRM/Banking/Page/Statements.tpl
+#: templates/CRM/Banking/Page/Payments.tpl templates/CRM/Banking/Page/Statements.tpl
 msgid "Showing statements for"
 msgstr ""
 
-#: templates/CRM/Banking/Page/Payments.tpl
-#: templates/CRM/Banking/Page/Statements.tpl
+#: templates/CRM/Banking/Page/Payments.tpl templates/CRM/Banking/Page/Statements.tpl
 msgid "all accounts"
 msgstr ""
 
-#: templates/CRM/Banking/Page/Payments.tpl
-#: templates/CRM/Banking/Page/StatementLine.tpl
-#: templates/CRM/Banking/Page/Statements.tpl
+#: templates/CRM/Banking/Page/Payments.tpl templates/CRM/Banking/Page/StatementLine.tpl templates/CRM/Banking/Page/Statements.tpl
 msgid "Filter"
 msgstr ""
 
 #: templates/CRM/Banking/Page/Payments.tpl
-msgid ""
-"No transactions could be found with the requested status. Try the other "
-"status filter buttons above to find your imported payments."
+msgid "No transactions could be found with the requested status. Try the other status filter buttons above to find your imported payments."
 msgstr ""
 
 #: templates/CRM/Banking/Page/Payments.tpl
-msgid ""
-"No statments could be found with the requested status. Try the other status "
-"filter buttons above to find your imported statements."
+msgid "No statments could be found with the requested status. Try the other status filter buttons above to find your imported statements."
 msgstr ""
 
 #: templates/CRM/Banking/Page/Payments.tpl
 msgid "Party"
 msgstr ""
 
-#: templates/CRM/Banking/Page/Payments.tpl
-#: templates/CRM/Banking/PluginImpl/Matcher/DefaultOptions.suggestion.tpl
+#: templates/CRM/Banking/Page/Payments.tpl templates/CRM/Banking/PluginImpl/Matcher/DefaultOptions.suggestion.tpl
 msgid "view"
 msgstr ""
 
@@ -2554,31 +2374,19 @@ msgstr ""
 msgid "List Lines"
 msgstr ""
 
-#: templates/CRM/Banking/Page/Payments.tpl
-#: templates/CRM/Banking/Page/Statements.tpl
+#: templates/CRM/Banking/Page/Payments.tpl templates/CRM/Banking/Page/Statements.tpl
 msgid "Please select one or more items"
 msgstr ""
 
-#: templates/CRM/Banking/Page/Payments.tpl
-#: templates/CRM/Banking/Page/StatementLine.tpl
-#: templates/CRM/Banking/Page/Statements.tpl
-msgid ""
-"_1 payments have been processed successfully, _2 had already been completed. "
-"The processing took _3s."
+#: templates/CRM/Banking/Page/Payments.tpl templates/CRM/Banking/Page/StatementLine.tpl templates/CRM/Banking/Page/Statements.tpl
+msgid "_1 payments have been processed successfully, _2 had already been completed. The processing took _3s."
 msgstr ""
 
-#: templates/CRM/Banking/Page/Payments.tpl
-#: templates/CRM/Banking/Page/StatementLine.tpl
-#: templates/CRM/Banking/Page/Statements.tpl
-msgid ""
-"<p>_1 out of _2 payments have not been processed!</p><p>If you need to "
-"process large amounts of payments manually, please adjust PHPs "
-"<code>max_execution_time</code>.</p>"
+#: templates/CRM/Banking/Page/Payments.tpl templates/CRM/Banking/Page/StatementLine.tpl templates/CRM/Banking/Page/Statements.tpl
+msgid "<p>_1 out of _2 payments have not been processed!</p><p>If you need to process large amounts of payments manually, please adjust PHPs <code>max_execution_time</code>.</p>"
 msgstr ""
 
-#: templates/CRM/Banking/Page/Payments.tpl
-#: templates/CRM/Banking/Page/StatementLine.tpl
-#: templates/CRM/Banking/Page/Statements.tpl
+#: templates/CRM/Banking/Page/Payments.tpl templates/CRM/Banking/Page/StatementLine.tpl templates/CRM/Banking/Page/Statements.tpl
 msgid "Process timed out"
 msgstr ""
 
@@ -2586,9 +2394,7 @@ msgstr ""
 msgid "_1 payments in _2 statements have been deleted."
 msgstr ""
 
-#: templates/CRM/Banking/Page/Payments.tpl
-#: templates/CRM/Banking/Page/StatementLine.tpl
-#: templates/CRM/Banking/Page/Statements.tpl
+#: templates/CRM/Banking/Page/Payments.tpl templates/CRM/Banking/Page/StatementLine.tpl templates/CRM/Banking/Page/Statements.tpl
 msgid "Are you sure?"
 msgstr ""
 
@@ -2656,14 +2462,11 @@ msgstr ""
 msgid "Address"
 msgstr ""
 
-#: templates/CRM/Banking/Page/ReviewDebtor.tpl
-#: templates/CRM/Banking/Page/StatementLine.tpl
+#: templates/CRM/Banking/Page/ReviewDebtor.tpl templates/CRM/Banking/Page/StatementLine.tpl
 msgid "Owner"
 msgstr ""
 
-#: templates/CRM/Banking/Page/ReviewDebtor.tpl
-#: templates/CRM/Banking/PluginImpl/Matcher/DefaultOptions.suggestion.tpl
-#: templates/CRM/Banking/PluginImpl/Matcher/SepaMandate.activity.tpl
+#: templates/CRM/Banking/Page/ReviewDebtor.tpl templates/CRM/Banking/PluginImpl/Matcher/DefaultOptions.suggestion.tpl templates/CRM/Banking/PluginImpl/Matcher/SepaMandate.activity.tpl
 msgid "Contact"
 msgstr ""
 
@@ -2691,11 +2494,8 @@ msgstr ""
 msgid "Filter lines"
 msgstr ""
 
-#: templates/CRM/Banking/Page/StatementLine.tpl
-#: templates/CRM/Banking/Page/Statements.tpl
-msgid ""
-"Walk through the payments and will show the suggestions and will give you "
-"the possibility to manually process the suggestions"
+#: templates/CRM/Banking/Page/StatementLine.tpl templates/CRM/Banking/Page/Statements.tpl
+msgid "Walk through the payments and will show the suggestions and will give you the possibility to manually process the suggestions"
 msgstr ""
 
 #: templates/CRM/Banking/Page/StatementLine.tpl
@@ -2710,8 +2510,7 @@ msgstr ""
 msgid "No statement lines found."
 msgstr ""
 
-#: templates/CRM/Banking/Page/StatementLine.tpl
-#: templates/CRM/Banking/Page/Statements.tpl
+#: templates/CRM/Banking/Page/StatementLine.tpl templates/CRM/Banking/Page/Statements.tpl
 msgid "Analyse &amp; Process"
 msgstr ""
 
@@ -2719,8 +2518,7 @@ msgstr ""
 msgid "Back to statement list"
 msgstr ""
 
-#: templates/CRM/Banking/Page/StatementLine.tpl
-#: templates/CRM/Banking/Page/Statements.tpl
+#: templates/CRM/Banking/Page/StatementLine.tpl templates/CRM/Banking/Page/Statements.tpl
 msgid "_1 payments have been deleted."
 msgstr ""
 
@@ -2780,49 +2578,48 @@ msgstr ""
 msgid "Do you really want to permanently delete the statement?"
 msgstr ""
 
-#: templates/CRM/Banking/PluginImpl/Matcher/CreateContribution.execution.tpl
-msgid ""
-"This transaction was associated with the new <a href=\"%1\">contribution #"
-"%2</a>."
+#: templates/CRM/Banking/PluginImpl/Matcher/CreateCampaignContribution.execution.tpl
+msgid "This transaction was associated with the new <a href=\"%1\">campaign contribution #%2</a>."
 msgstr ""
 
-#: templates/CRM/Banking/PluginImpl/Matcher/CreateContribution.suggestion.tpl
-#: templates/CRM/Banking/PluginImpl/Matcher/CreateMultipleContributions.suggestion.tpl
-#: templates/CRM/Banking/PluginImpl/Matcher/ExistingContribution.suggestion.tpl
-#: templates/CRM/Banking/PluginImpl/Matcher/Membership.suggestion.tpl
-#: templates/CRM/Banking/PluginImpl/Matcher/RecurringContribution.suggestion.tpl
+#: templates/CRM/Banking/PluginImpl/Matcher/CreateCampaignContribution.suggestion.tpl templates/CRM/Banking/PluginImpl/Matcher/CreateContribution.suggestion.tpl templates/CRM/Banking/PluginImpl/Matcher/CreateMultipleContributions.suggestion.tpl templates/CRM/Banking/PluginImpl/Matcher/ExistingContribution.suggestion.tpl templates/CRM/Banking/PluginImpl/Matcher/Membership.suggestion.tpl templates/CRM/Banking/PluginImpl/Matcher/RecurringContribution.suggestion.tpl
 msgid "Address incomplete"
 msgstr ""
 
-#: templates/CRM/Banking/PluginImpl/Matcher/CreateContribution.suggestion.tpl
-#: templates/CRM/Banking/PluginImpl/Matcher/CreateMultipleContributions.suggestion.tpl
-#: templates/CRM/Banking/PluginImpl/Matcher/ExistingContribution.suggestion.tpl
-#: templates/CRM/Banking/PluginImpl/Matcher/SepaMandate.suggestion.tpl
+#: templates/CRM/Banking/PluginImpl/Matcher/CreateCampaignContribution.suggestion.tpl templates/CRM/Banking/PluginImpl/Matcher/CreateContribution.suggestion.tpl templates/CRM/Banking/PluginImpl/Matcher/CreateMultipleContributions.suggestion.tpl templates/CRM/Banking/PluginImpl/Matcher/ExistingContribution.suggestion.tpl templates/CRM/Banking/PluginImpl/Matcher/SepaMandate.suggestion.tpl
 msgid "An error has occurred:"
 msgstr ""
 
-#: templates/CRM/Banking/PluginImpl/Matcher/CreateContribution.suggestion.tpl
-#: templates/CRM/Banking/PluginImpl/Matcher/CreateMultipleContributions.suggestion.tpl
-#: templates/CRM/Banking/PluginImpl/Matcher/ExistingContribution.suggestion.tpl
-#: templates/CRM/Banking/PluginImpl/Matcher/SepaMandate.suggestion.tpl
-msgid ""
-"This suggestion is possibly outdated. Please try and analyse this "
-"transaction again."
+#: templates/CRM/Banking/PluginImpl/Matcher/CreateCampaignContribution.suggestion.tpl templates/CRM/Banking/PluginImpl/Matcher/CreateContribution.suggestion.tpl templates/CRM/Banking/PluginImpl/Matcher/CreateMultipleContributions.suggestion.tpl templates/CRM/Banking/PluginImpl/Matcher/ExistingContribution.suggestion.tpl templates/CRM/Banking/PluginImpl/Matcher/SepaMandate.suggestion.tpl
+msgid "This suggestion is possibly outdated. Please try and analyse this transaction again."
+msgstr ""
+
+#: templates/CRM/Banking/PluginImpl/Matcher/CreateCampaignContribution.suggestion.tpl
+msgid "<b>Caution</b>: this contact has one or more <b>active recurring contribution(s)</b>, so the score of this suggestion has been reduced by %1%."
+msgstr ""
+
+#: templates/CRM/Banking/PluginImpl/Matcher/CreateCampaignContribution.suggestion.tpl
+msgid "<b>Caution</b>: the activity found has <b>no campaign</b>, so the score of this suggestion has been reduced by %1%."
+msgstr ""
+
+#: templates/CRM/Banking/PluginImpl/Matcher/CreateCampaignContribution.suggestion.tpl
+msgid "Based on activity '%1', the following contribution will be created:"
+msgstr ""
+
+#: templates/CRM/Banking/PluginImpl/Matcher/CreateCampaignContribution.suggestion.tpl templates/CRM/Banking/PluginImpl/Matcher/CreateContribution.suggestion.tpl templates/CRM/Banking/PluginImpl/Matcher/CreateMultipleContributions.suggestion.tpl templates/CRM/Banking/PluginImpl/Matcher/ExistingContribution.suggestion.tpl
+msgid "Donor"
+msgstr ""
+
+#: templates/CRM/Banking/PluginImpl/Matcher/CreateCampaignContribution.suggestion.tpl templates/CRM/Banking/PluginImpl/Matcher/CreateContribution.suggestion.tpl templates/CRM/Banking/PluginImpl/Matcher/CreateMultipleContributions.suggestion.tpl
+msgid "Campaign"
+msgstr ""
+
+#: templates/CRM/Banking/PluginImpl/Matcher/CreateContribution.execution.tpl
+msgid "This transaction was associated with the new <a href=\"%1\">contribution #%2</a>."
 msgstr ""
 
 #: templates/CRM/Banking/PluginImpl/Matcher/CreateContribution.suggestion.tpl
 msgid "The following contribution will be created:"
-msgstr ""
-
-#: templates/CRM/Banking/PluginImpl/Matcher/CreateContribution.suggestion.tpl
-#: templates/CRM/Banking/PluginImpl/Matcher/CreateMultipleContributions.suggestion.tpl
-#: templates/CRM/Banking/PluginImpl/Matcher/ExistingContribution.suggestion.tpl
-msgid "Donor"
-msgstr ""
-
-#: templates/CRM/Banking/PluginImpl/Matcher/CreateContribution.suggestion.tpl
-#: templates/CRM/Banking/PluginImpl/Matcher/CreateMultipleContributions.suggestion.tpl
-msgid "Campaign"
 msgstr ""
 
 #: templates/CRM/Banking/PluginImpl/Matcher/CreateMultipleContributions.execution.tpl
@@ -2838,9 +2635,7 @@ msgid "The contribution is being skipped."
 msgstr ""
 
 #: templates/CRM/Banking/PluginImpl/Matcher/DefaultOptions.suggestion.tpl
-msgid ""
-"Please manually process this transaction and <i>then</i> add the resulting "
-"contributions to this list, <b><i>before</i></b> confirming this option."
+msgid "Please manually process this transaction and <i>then</i> add the resulting contributions to this list, <b><i>before</i></b> confirming this option."
 msgstr ""
 
 #: templates/CRM/Banking/PluginImpl/Matcher/DefaultOptions.suggestion.tpl
@@ -2868,9 +2663,7 @@ msgid "sum"
 msgstr ""
 
 #: templates/CRM/Banking/PluginImpl/Matcher/DefaultOptions.suggestion.tpl
-msgid ""
-"<strong>WARNING:</strong> This is a negative amount, so all contributions "
-"below will be <strong>cancelled</strong>."
+msgid "<strong>WARNING:</strong> This is a negative amount, so all contributions below will be <strong>cancelled</strong>."
 msgstr ""
 
 #: templates/CRM/Banking/PluginImpl/Matcher/DefaultOptions.suggestion.tpl
@@ -2909,24 +2702,20 @@ msgstr ""
 msgid "This transaction cancelled <a href=\"%1\">contribution #%2</a>."
 msgstr ""
 
-#: templates/CRM/Banking/PluginImpl/Matcher/ExistingContribution.execution.tpl
-#: templates/CRM/Banking/PluginImpl/Matcher/SepaMandate.execution.tpl
+#: templates/CRM/Banking/PluginImpl/Matcher/ExistingContribution.execution.tpl templates/CRM/Banking/PluginImpl/Matcher/SepaMandate.execution.tpl
 msgid "The recorded cancellation reason was: \"%1\"."
 msgstr ""
 
-#: templates/CRM/Banking/PluginImpl/Matcher/ExistingContribution.execution.tpl
-#: templates/CRM/Banking/PluginImpl/Matcher/SepaMandate.execution.tpl
+#: templates/CRM/Banking/PluginImpl/Matcher/ExistingContribution.execution.tpl templates/CRM/Banking/PluginImpl/Matcher/SepaMandate.execution.tpl
 msgid "A cancellation fee of %1 was recorded."
 msgstr ""
 
 #: templates/CRM/Banking/PluginImpl/Matcher/ExistingContribution.execution.tpl
-msgid ""
-"This transaction was reconciled with <a href=\"%1\">contribution #%2</a>."
+msgid "This transaction was reconciled with <a href=\"%1\">contribution #%2</a>."
 msgstr ""
 
 #: templates/CRM/Banking/PluginImpl/Matcher/ExistingContribution.execution.tpl
-msgid ""
-"This transaction was associated with <a href=\"%1\">contribution #%2</a>."
+msgid "This transaction was associated with <a href=\"%1\">contribution #%2</a>."
 msgstr ""
 
 #: templates/CRM/Banking/PluginImpl/Matcher/ExistingContribution.suggestion.tpl
@@ -2937,34 +2726,27 @@ msgstr ""
 msgid "edit contribution"
 msgstr ""
 
-#: templates/CRM/Banking/PluginImpl/Matcher/ExistingContribution.suggestion.tpl
-#: templates/CRM/Banking/PluginImpl/Matcher/SepaMandate.suggestion.tpl
+#: templates/CRM/Banking/PluginImpl/Matcher/ExistingContribution.suggestion.tpl templates/CRM/Banking/PluginImpl/Matcher/SepaMandate.suggestion.tpl
 msgid "Cancellation Reason"
 msgstr ""
 
-#: templates/CRM/Banking/PluginImpl/Matcher/ExistingContribution.suggestion.tpl
-#: templates/CRM/Banking/PluginImpl/Matcher/SepaMandate.suggestion.tpl
+#: templates/CRM/Banking/PluginImpl/Matcher/ExistingContribution.suggestion.tpl templates/CRM/Banking/PluginImpl/Matcher/SepaMandate.suggestion.tpl
 msgid "Cancellation Fee"
 msgstr ""
 
 #: templates/CRM/Banking/PluginImpl/Matcher/Membership.execution.tpl
-msgid ""
-"This transaction was recorded as <a href=\"%1\">membership fee contribution "
-"[%2]</a> for <a href=\"%3\">membership [%4]</a>."
+msgid "This transaction was recorded as <a href=\"%1\">membership fee contribution [%2]</a> for <a href=\"%3\">membership [%4]</a>."
 msgstr ""
 
-#: templates/CRM/Banking/PluginImpl/Matcher/Membership.suggestion.tpl
-#: templates/CRM/Banking/PluginImpl/Matcher/RecurringContribution.suggestion.tpl
+#: templates/CRM/Banking/PluginImpl/Matcher/Membership.suggestion.tpl templates/CRM/Banking/PluginImpl/Matcher/RecurringContribution.suggestion.tpl
 msgid "quarterly"
 msgstr ""
 
-#: templates/CRM/Banking/PluginImpl/Matcher/Membership.suggestion.tpl
-#: templates/CRM/Banking/PluginImpl/Matcher/RecurringContribution.suggestion.tpl
+#: templates/CRM/Banking/PluginImpl/Matcher/Membership.suggestion.tpl templates/CRM/Banking/PluginImpl/Matcher/RecurringContribution.suggestion.tpl
 msgid "semi-annually"
 msgstr ""
 
-#: templates/CRM/Banking/PluginImpl/Matcher/Membership.suggestion.tpl
-#: templates/CRM/Banking/PluginImpl/Matcher/RecurringContribution.suggestion.tpl
+#: templates/CRM/Banking/PluginImpl/Matcher/Membership.suggestion.tpl templates/CRM/Banking/PluginImpl/Matcher/RecurringContribution.suggestion.tpl
 msgid "on an irregular basis"
 msgstr ""
 
@@ -2973,9 +2755,7 @@ msgid "%1 has a <i>%2</i> membership of type %3 since %4."
 msgstr ""
 
 #: templates/CRM/Banking/PluginImpl/Matcher/Membership.suggestion.tpl
-msgid ""
-"If you confirm this suggestion, the transaction will be recorded as a fee "
-"payment for this membership."
+msgid "If you confirm this suggestion, the transaction will be recorded as a fee payment for this membership."
 msgstr ""
 
 #: templates/CRM/Banking/PluginImpl/Matcher/Membership.suggestion.tpl
@@ -2990,13 +2770,11 @@ msgstr ""
 msgid "Paid"
 msgstr ""
 
-#: templates/CRM/Banking/PluginImpl/Matcher/Membership.suggestion.tpl
-#: templates/CRM/Banking/PluginImpl/Matcher/RecurringContribution.suggestion.tpl
+#: templates/CRM/Banking/PluginImpl/Matcher/Membership.suggestion.tpl templates/CRM/Banking/PluginImpl/Matcher/RecurringContribution.suggestion.tpl
 msgid "Cycle"
 msgstr ""
 
-#: templates/CRM/Banking/PluginImpl/Matcher/Membership.suggestion.tpl
-#: templates/CRM/Banking/PluginImpl/Matcher/RecurringContribution.suggestion.tpl
+#: templates/CRM/Banking/PluginImpl/Matcher/Membership.suggestion.tpl templates/CRM/Banking/PluginImpl/Matcher/RecurringContribution.suggestion.tpl
 msgid "Due"
 msgstr ""
 
@@ -3005,8 +2783,7 @@ msgid "Fee"
 msgstr ""
 
 #: templates/CRM/Banking/PluginImpl/Matcher/RecurringContribution.execution.tpl
-msgid ""
-"This transaction has created contribution %1 for recurring contribution %2"
+msgid "This transaction has created contribution %1 for recurring contribution %2"
 msgstr ""
 
 #: templates/CRM/Banking/PluginImpl/Matcher/RecurringContribution.suggestion.tpl
@@ -3014,9 +2791,7 @@ msgid "%1 maintains a matching recurring contribution."
 msgstr ""
 
 #: templates/CRM/Banking/PluginImpl/Matcher/RecurringContribution.suggestion.tpl
-msgid ""
-"If you confirm this suggestion, the transaction will be recorded as a new "
-"installment for this recurring contribution."
+msgid "If you confirm this suggestion, the transaction will be recorded as a new installment for this recurring contribution."
 msgstr ""
 
 #: templates/CRM/Banking/PluginImpl/Matcher/RecurringContribution.suggestion.tpl
@@ -3028,9 +2803,7 @@ msgid "%1 maintain %2 matching recurring contributions."
 msgstr ""
 
 #: templates/CRM/Banking/PluginImpl/Matcher/RecurringContribution.suggestion.tpl
-msgid ""
-"If you confirm this suggestion, the transaction will be recorded as new "
-"installments for these recurring contributions."
+msgid "If you confirm this suggestion, the transaction will be recorded as new installments for these recurring contributions."
 msgstr ""
 
 #: templates/CRM/Banking/PluginImpl/Matcher/RecurringContribution.suggestion.tpl
@@ -3046,9 +2819,7 @@ msgid "This suggestion has been downgraded:"
 msgstr ""
 
 #: templates/CRM/Banking/PluginImpl/Matcher/Rules.execution.tpl
-msgid ""
-"This transaction created the new <a href=\"%1\">contribution #%2</a> using "
-"rule [%3]."
+msgid "This transaction created the new <a href=\"%1\">contribution #%2</a> using rule [%3]."
 msgstr ""
 
 #: templates/CRM/Banking/PluginImpl/Matcher/RulesAnalyser.suggestion.tpl
@@ -3092,9 +2863,7 @@ msgid "Transaction Purpose"
 msgstr ""
 
 #: templates/CRM/Banking/PluginImpl/Matcher/RulesAnalyser.suggestion.tpl
-msgid ""
-"The following data has been extracted for this transaction and may be "
-"helpful in adding a custom field."
+msgid "The following data has been extracted for this transaction and may be helpful in adding a custom field."
 msgstr ""
 
 #: templates/CRM/Banking/PluginImpl/Matcher/RulesAnalyser.suggestion.tpl
@@ -3178,9 +2947,7 @@ msgid "This SEPA transaction cancelled <a href=\"%1\">contribution #%2</a>."
 msgstr ""
 
 #: templates/CRM/Banking/PluginImpl/Matcher/SepaMandate.execution.tpl
-msgid ""
-"This SEPA transaction was reconciled with <a href=\"%1\">contribution #%2</"
-"a>."
+msgid "This SEPA transaction was reconciled with <a href=\"%1\">contribution #%2</a>."
 msgstr ""
 
 #: templates/CRM/Banking/PluginImpl/Matcher/SepaMandate.suggestion.tpl
@@ -3192,14 +2959,11 @@ msgid "The mandate reference is <a href=\"%1\" target=\"_blank\">%2</a>"
 msgstr ""
 
 #: templates/CRM/Banking/PluginImpl/Matcher/SepaMandate.suggestion.tpl
-msgid ""
-"Contribution <a href=\"%1\" target=\"_blank\">[%2]</a> will be closed, as "
-"will be the sepa transaction group if this is the last contribution."
+msgid "Contribution <a href=\"%1\" target=\"_blank\">[%2]</a> will be closed, as will be the sepa transaction group if this is the last contribution."
 msgstr ""
 
 #: templates/CRM/Banking/PluginImpl/Matcher/SepaMandate.suggestion.tpl
-msgid ""
-"Contribution <a href=\"%1\" target=\"_blank\">[%2]</a> will be cancelled."
+msgid "Contribution <a href=\"%1\" target=\"_blank\">[%2]</a> will be cancelled."
 msgstr ""
 
 #: templates/CRM/Banking/PluginImpl/Matcher/SepaMandate.suggestion.tpl
@@ -3214,13 +2978,11 @@ msgstr ""
 msgid "<b>Warning! There are some problems with this contribution:</b>"
 msgstr ""
 
-#: templates/CRM/Banking/PluginImpl/PostProcessor/AddressUpdate.activity.tpl
-#: templates/CRM/Banking/PluginImpl/PostProcessor/AddressUpdate.note.tpl
+#: templates/CRM/Banking/PluginImpl/PostProcessor/AddressUpdate.activity.tpl templates/CRM/Banking/PluginImpl/PostProcessor/AddressUpdate.note.tpl
 msgid "The following address was received from a bank statment:"
 msgstr ""
 
-#: templates/CRM/Banking/PluginImpl/PostProcessor/AddressUpdate.activity.tpl
-#: templates/CRM/Banking/PluginImpl/PostProcessor/AddressUpdate.note.tpl
+#: templates/CRM/Banking/PluginImpl/PostProcessor/AddressUpdate.activity.tpl templates/CRM/Banking/PluginImpl/PostProcessor/AddressUpdate.note.tpl
 msgid "Street Address"
 msgstr ""
 
@@ -3232,18 +2994,15 @@ msgstr ""
 msgid "Suppelemental Address 2"
 msgstr ""
 
-#: templates/CRM/Banking/PluginImpl/PostProcessor/AddressUpdate.activity.tpl
-#: templates/CRM/Banking/PluginImpl/PostProcessor/AddressUpdate.note.tpl
+#: templates/CRM/Banking/PluginImpl/PostProcessor/AddressUpdate.activity.tpl templates/CRM/Banking/PluginImpl/PostProcessor/AddressUpdate.note.tpl
 msgid "Postal Code"
 msgstr ""
 
-#: templates/CRM/Banking/PluginImpl/PostProcessor/AddressUpdate.activity.tpl
-#: templates/CRM/Banking/PluginImpl/PostProcessor/AddressUpdate.note.tpl
+#: templates/CRM/Banking/PluginImpl/PostProcessor/AddressUpdate.activity.tpl templates/CRM/Banking/PluginImpl/PostProcessor/AddressUpdate.note.tpl
 msgid "City"
 msgstr ""
 
-#: templates/CRM/Banking/PluginImpl/PostProcessor/AddressUpdate.activity.tpl
-#: templates/CRM/Banking/PluginImpl/PostProcessor/AddressUpdate.note.tpl
+#: templates/CRM/Banking/PluginImpl/PostProcessor/AddressUpdate.activity.tpl templates/CRM/Banking/PluginImpl/PostProcessor/AddressUpdate.note.tpl
 msgid "Which differs from the existing one:"
 msgstr ""
 
@@ -3256,51 +3015,6 @@ msgid "Supplemental Address 2"
 msgstr ""
 
 #: templates/ang/banking/Main.hlp templates/ang/banking/Rules.hlp
-msgid ""
-"The contact name  should be divided in two parts, the first name and last "
-"name."
+msgid "The contact name  should be divided in two parts, the first name and last name."
 msgstr ""
 
-#: tests/phpunit/CRM/Banking/Analyser/RegexAnalyserTest.php
-msgid "The financial type ID is not correctly set."
-msgstr ""
-
-#: tests/phpunit/CRM/Banking/Analyser/RegexAnalyserTest.php
-msgid "The financial type ID is set but should not."
-msgstr ""
-
-#: tests/phpunit/CRM/Banking/Analyser/RegexAnalyserTest.php
-msgid "The payment instrument ID is not correctly set."
-msgstr ""
-
-#: tests/phpunit/CRM/Banking/Matcher/CreateContributionMatcherLegacyTest.php
-msgid "The contact ID is not correct."
-msgstr ""
-
-#: tests/phpunit/CRM/Banking/Matcher/CreateContributionMatcherLegacyTest.php
-msgid "The payment instrument ID is not correct."
-msgstr ""
-
-#: tests/phpunit/CRM/Banking/Matcher/CreateContributionMatcherLegacyTest.php
-msgid "The financial type ID is not correct."
-msgstr ""
-
-#: tests/phpunit/CRM/Banking/Matcher/MatchersIntegrationLegacyTest.php
-msgid "The transaction's financial type ID is not correct."
-msgstr ""
-
-#: tests/phpunit/CRM/Banking/Matcher/MatchersIntegrationLegacyTest.php
-msgid "The transaction's payment instrument ID is not correct."
-msgstr ""
-
-#: tests/phpunit/CRM/Banking/Matcher/MatchersIntegrationLegacyTest.php
-msgid "The contribution's contact ID is not correct."
-msgstr ""
-
-#: tests/phpunit/CRM/Banking/Matcher/MatchersIntegrationLegacyTest.php
-msgid "The contributions' payment instrument ID is not correct."
-msgstr ""
-
-#: tests/phpunit/CRM/Banking/Matcher/MatchersIntegrationLegacyTest.php
-msgid "The contributions' financial type ID is not correct."
-msgstr ""

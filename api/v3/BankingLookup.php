@@ -247,6 +247,8 @@ function _civicrm_api3_banking_lookup_contactbyname_exact ($name_mutations) {
  * find some contacts via SQL
  */
 function _civicrm_api3_banking_lookup_contactbyname_sql($name_mutations, $params) {
+  $max_contacts_on_lookup = CRM_Banking_Config::getMaxContactsOnLookup();
+
   $contacts_found = array();
   $longest_mutation = 0;
 
@@ -260,7 +262,7 @@ function _civicrm_api3_banking_lookup_contactbyname_sql($name_mutations, $params
   };
 
   $search_term = implode(' OR ', $sql_clauses);
-  $search_query = "SELECT id, sort_name FROM civicrm_contact WHERE is_deleted=0 AND ({$search_term});";
+  $search_query = "SELECT id, sort_name FROM civicrm_contact WHERE is_deleted=0 AND ({$search_term}) LIMIT $max_contacts_on_lookup;";
   // error_log($search_query);
   $search_results = CRM_Core_DAO::executeQuery($search_query);
   while ($search_results->fetch()) {
@@ -298,34 +300,41 @@ function _civicrm_api3_banking_lookup_contactbyname_sql($name_mutations, $params
  * find some contacts via API
  */
 function _civicrm_api3_banking_lookup_contactbyname_api($name_mutations, $params): array {
+  $max_contacts_on_lookup = CRM_Banking_Config::getMaxContactsOnLookup();
+
   $contacts_probability = [];
   $occurrence_count = [];
   // query Contact.autocomplete for each combination
   foreach ($name_mutations as $name_mutation) {
-    $result = Contact::autocomplete()
-      ->setInput($name_mutation)
-      ->execute();
-    /** @phpstan-var array{id: int, label: string, icon: string, description: list<string>} $contact_autocomplete */
-    foreach ($result as $contact_autocomplete) {
-      $contact_id = $contact_autocomplete['id'];
-      $occurrence_count[$contact_id] = ($occurrence_count[$contact_id] ?? 0) + 1;
-      // get the current maximum similarity...
-      $probability = $contacts_probability[$contact_id] ?? 0.0;
+    $page = 1;
+    do {
+      $result = Contact::autocomplete()->setInput($name_mutation)->setPage($page++)->execute();
+      /** @phpstan-var array{id: int, label: string, icon: string, description: list<string>} $contact_autocomplete */
+      foreach ($result as $contact_autocomplete) {
+        $contact_id = $contact_autocomplete['id'];
+        $occurrence_count[$contact_id] = ($occurrence_count[$contact_id] ?? 0) + 1;
+        // get the current maximum similarity...
+        $probability = $contacts_probability[$contact_id] ?? 0.0;
 
-      // now, we'll have to find the maximum similarity with any of the name mutations
-      $contact_name = strtolower($contact_autocomplete['label']);
-      foreach ($name_mutations as $name_mutation) {
-        $new_probability = 0.0;
-        similar_text(strtolower($name_mutation), $contact_name, $new_probability);
-        $new_probability /= 100.0;
-        // square value for better distribution, multiply by 0.999 to avoid 100% match based on name
-        $new_probability = $new_probability * $new_probability * 0.999;
-        if ($new_probability > $probability) {
-          $probability = $new_probability;
+        // now, we'll have to find the maximum similarity with any of the name mutations
+        $contact_name = strtolower($contact_autocomplete['label']);
+        foreach ($name_mutations as $name_mutation) {
+          $new_probability = 0.0;
+          similar_text(strtolower($name_mutation), $contact_name, $new_probability);
+          $new_probability /= 100.0;
+          // square value for better distribution, multiply by 0.999 to avoid 100% match based on name
+          $new_probability = $new_probability * $new_probability * 0.999;
+          if ($new_probability > $probability) {
+            $probability = $new_probability;
+          }
         }
+        $contacts_probability[$contact_id] = $probability;
       }
-      $contacts_probability[$contact_id] = $probability;
-    }
+
+      if (count($contacts_probability) >= $max_contacts_on_lookup) {
+        break 2;
+      }
+    } while ($result->countMatched() > $result->countFetched());
   }
 
   if ([] !== $contacts_probability) {

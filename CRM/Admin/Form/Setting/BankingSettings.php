@@ -25,7 +25,7 @@ use CRM_Banking_ExtensionUtil as E;
 class CRM_Admin_Form_Setting_BankingSettings extends CRM_Core_Form {
 
 
-  function buildQuickForm() {
+  public function buildQuickForm() {
     // add new UI (#200) options
     $ui_options = array(
         '1' => E::ts("Simplified user interface"),
@@ -101,6 +101,19 @@ class CRM_Admin_Form_Setting_BankingSettings extends CRM_Core_Form {
       ['class' => 'huge']
     );
 
+    $this->add(
+      'number',
+      CRM_Banking_Config::SETTING_MAX_CONTACTS_ON_LOOKUP,
+      E::ts('Maximum number of contacts loaded from database on contact lookup'),
+      ['min' => 1],
+      TRUE
+    );
+    $this->addRule(
+      CRM_Banking_Config::SETTING_MAX_CONTACTS_ON_LOOKUP,
+      E::ts('This needs to be a number larger than 0'),
+      'positiveInteger'
+    );
+
     // store bank accounts
     $this->add(
       'checkbox',
@@ -159,18 +172,18 @@ class CRM_Admin_Form_Setting_BankingSettings extends CRM_Core_Form {
     parent::buildQuickForm();
   }
 
-
   /**
    * Overridden parent method to set default values
    * @return array
    */
-  function setDefaultValues() {
+  public function setDefaultValues() {
     $defaults = [];
     $defaults['new_ui']                          = Civi::settings()->get('new_ui');
     $defaults['menu_position']                   = Civi::settings()->get('menu_position');
     $defaults['json_editor_mode']                = Civi::settings()->get('json_editor_mode');
     $defaults['banking_log_level']               = Civi::settings()->get('banking_log_level');
     $defaults['banking_log_file']                = Civi::settings()->get('banking_log_file');
+    $defaults[CRM_Banking_Config::SETTING_MAX_CONTACTS_ON_LOOKUP] = CRM_Banking_Config::getMaxContactsOnLookup();
     $defaults['reference_store_disabled']        = Civi::settings()->get('reference_store_disabled');
     $defaults['reference_normalisation']         = Civi::settings()->get('reference_normalisation');
     $defaults['recently_completed_cutoff']       = Civi::settings()->get('recently_completed_cutoff');
@@ -187,11 +200,10 @@ class CRM_Admin_Form_Setting_BankingSettings extends CRM_Core_Form {
     return $defaults;
   }
 
-
   /**
    * store settings
    */
-  function postProcess() {
+  public function postProcess(): void {
     $values = $this->exportValues();
 
     // process menu relevant entries
@@ -214,6 +226,11 @@ class CRM_Admin_Form_Setting_BankingSettings extends CRM_Core_Form {
     Civi::settings()->set('banking_log_level', $values['banking_log_level']);
     Civi::settings()->set('banking_log_file', $values['banking_log_file']);
 
+    Civi::settings()->set(
+      CRM_Banking_Config::SETTING_MAX_CONTACTS_ON_LOOKUP,
+      (int) $values[CRM_Banking_Config::SETTING_MAX_CONTACTS_ON_LOOKUP]
+    );
+
     // process reference normalisation / validation
     Civi::settings()->set('reference_store_disabled', !empty($values['reference_store_disabled']));
     Civi::settings()->set('reference_normalisation', !empty($values['reference_normalisation']));
@@ -232,4 +249,5 @@ class CRM_Admin_Form_Setting_BankingSettings extends CRM_Core_Form {
 
     parent::postProcess();
   }
+
 }

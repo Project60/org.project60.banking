@@ -1,7 +1,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: \n"
-"POT-Creation-Date: 2023-03-14 11:20+0100\n"
+"POT-Creation-Date: \n"
 "PO-Revision-Date: \n"
 "Last-Translator: Bjoern Endres <Bjoern.Endres@didonai.com>\n"
 "Language-Team: \n"
@@ -9,7 +9,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Generator: Poedit 2.0.6\n"
+"X-Generator: Poedit 3.4.2\n"
 
 #: CRM/Admin/Form/Setting/BankingSettings.php
 msgid "Simplified user interface"
@@ -68,8 +68,42 @@ msgid "Log Level"
 msgstr "Log Level"
 
 #: CRM/Admin/Form/Setting/BankingSettings.php
+msgid "Show Completed Statements (Recent)"
+msgstr ""
+
+#: CRM/Admin/Form/Setting/BankingSettings.php
+msgid "disabled"
+msgstr "deaktiviert"
+
+#: CRM/Admin/Form/Setting/BankingSettings.php
+msgid "last month"
+msgstr ""
+
+#: CRM/Admin/Form/Setting/BankingSettings.php
+msgid "last quarter"
+msgstr "letztes Qurtal"
+
+#: CRM/Admin/Form/Setting/BankingSettings.php
+msgid "last %1 months"
+msgstr "letzte %1 Monate"
+
+#: CRM/Admin/Form/Setting/BankingSettings.php
+msgid "last %1 years"
+msgstr "letzte %1 Jahre"
+
+#: CRM/Admin/Form/Setting/BankingSettings.php
 msgid "Log File"
 msgstr "Logdatei"
+
+#: CRM/Admin/Form/Setting/BankingSettings.php
+msgid "Maximum number of contacts loaded from database on contact lookup"
+msgstr ""
+"Maximale Anzahl an Kontakten, die bei der Kontaktsuche aus der Datenbank "
+"geladen werden"
+
+#: CRM/Admin/Form/Setting/BankingSettings.php
+msgid "This needs to be a number larger than 0"
+msgstr "Dies muss eine Zahl größer 0 sein"
 
 #: CRM/Admin/Form/Setting/BankingSettings.php
 msgid "Don't store bank accounts automatically"
@@ -96,6 +130,10 @@ msgstr "Keine gültige Zahl. Eine gültige Zahl ist 1.0 oder 0.9"
 msgid "Lenient bank account dedupe"
 msgstr "Nicht-strikte Konto-Deduplizierung"
 
+#: CRM/Admin/Form/Setting/BankingSettings.php
+msgid "Transaction limit in view"
+msgstr ""
+
 #: CRM/Admin/Form/Setting/BankingSettings.php CRM/Banking/Form/AccountsTab.php
 #: CRM/Banking/Form/Configure.php ang/banking/Main.html
 msgid "Save"
@@ -121,7 +159,7 @@ msgstr "Updatefehler: Falsche Plugin-Klasse"
 msgid "Cannot update, field %1 differs."
 msgstr "Updatefehler: Feld %1 weicht ab."
 
-#: CRM/Banking/DAO/BankAccount.php hooks.php
+#: CRM/Banking/DAO/BankAccount.php banking.php
 msgid "Bank Accounts"
 msgstr "Konten"
 
@@ -595,7 +633,6 @@ msgstr "Keine Konfigurationsdateien gewählt"
 #: CRM/Banking/PluginImpl/Matcher/ExistingContribution.php
 #: CRM/Banking/PluginImpl/Matcher/Membership.php
 #: CRM/Banking/PluginImpl/Matcher/RecurringContribution.php
-#: CRM/Banking/PluginImpl/Matcher/Rules.php
 #: CRM/Banking/PluginImpl/Matcher/RulesAnalyser.php
 #: CRM/Banking/PluginImpl/Matcher/SepaMandate.php
 #: CRM/Banking/PluginModel/Matcher.php
@@ -646,6 +683,7 @@ msgstr "CiviBanking-Transaktionen"
 #: templates/CRM/Banking/Page/Payments.tpl
 #: templates/CRM/Banking/Page/StatementLine.tpl
 #: templates/CRM/Banking/Page/Statements.tpl
+#: templates/CRM/Banking/PluginImpl/Matcher/CreateCampaignContribution.suggestion.tpl
 #: templates/CRM/Banking/PluginImpl/Matcher/CreateContribution.suggestion.tpl
 #: templates/CRM/Banking/PluginImpl/Matcher/CreateMultipleContributions.suggestion.tpl
 #: templates/CRM/Banking/PluginImpl/Matcher/DefaultOptions.suggestion.tpl
@@ -884,7 +922,7 @@ msgstr ""
 
 #: CRM/Banking/Matcher/Suggestion.php
 msgid ""
-"The following post processors have been executed after processing this "
+"The following post processors have been triggered after processing this "
 "suggestion:"
 msgstr ""
 "Die folgenden Post-Prozessoren wurden nach der Verarbeitung dieses "
@@ -923,7 +961,7 @@ msgstr ""
 msgid "%1 duplicate references successfully deleted."
 msgstr "%1 doppelte Kontonummern gelöscht."
 
-#: CRM/Banking/Page/AccountSearch.php hooks.php
+#: CRM/Banking/Page/AccountSearch.php banking.php
 msgid "Find Accounts"
 msgstr "Konten finden"
 
@@ -1011,6 +1049,10 @@ msgstr "CiviBanking Plugin [%1] gelöscht."
 msgid "Plugin deleted"
 msgstr "Plugin gelöcht"
 
+#: CRM/Banking/Page/Payments.php templates/CRM/Banking/Page/Export.tpl
+msgid "Bank Statements"
+msgstr "Kontoauszüge"
+
 #: CRM/Banking/Page/Payments.php
 msgid "%1 new statements."
 msgstr "%1 neue Auszüge"
@@ -1032,10 +1074,6 @@ msgid "%1 closed statements."
 msgstr "%1 geschlossene Auszüge."
 
 #: CRM/Banking/Page/Payments.php
-msgid "Unnamed"
-msgstr "Ohne Namen"
-
-#: CRM/Banking/Page/Payments.php
 msgid "not yet identified."
 msgstr "noch nicht identifiziert."
 
@@ -1052,14 +1090,15 @@ msgid "%d completed transactions."
 msgstr "%d abgeschlossene Zahlungen."
 
 #: CRM/Banking/Page/Payments.php
-msgid "Internal limit of 2000 transactions hit. Please use smaller statements."
+msgid ""
+"Internal limit (%1) of transactions to show was exceeded. Please use smaller "
+"statements, or adjust the cut-off value in the settings (<a "
+"href=\"%2#transaction_list_cutoff\">here</a>)."
 msgstr ""
-"Internes Limit von 2000 Transaktionen erreicht. Bitte kleinere Auszüge "
-"verwenden."
 
 #: CRM/Banking/Page/Payments.php
-msgid "List incomplete"
-msgstr "Liste unvollständig"
+msgid "Incomplete Transaction List"
+msgstr ""
 
 #: CRM/Banking/Page/Review.php
 msgid "<i>unknown date</i>"
@@ -1098,8 +1137,8 @@ msgid "Review Bank Transaction %1 of %2 (%3 unprocessed ahead)"
 msgstr "Verarbeite Zahlung %1 von %2 (noch %3 nicht verbuchte)"
 
 #: CRM/Banking/Page/Review.php
-msgid "Review Bank Transaction"
-msgstr "Zahlung bestätigen"
+msgid "Review Bank Transaction [%1]"
+msgstr ""
 
 #: CRM/Banking/Page/Review.php
 msgid "The transaction has been analysed again."
@@ -1155,6 +1194,10 @@ msgid "Unknown account"
 msgstr "Unbekanntes Konto"
 
 #: CRM/Banking/PluginImpl/Importer/CSV.php
+msgid "Filtered out %1 lines"
+msgstr ""
+
+#: CRM/Banking/PluginImpl/Importer/CSV.php
 msgid "Rule '%s' failed. Exception was %s"
 msgstr "Regel '%s' ist fehlgeschlagen! Fehler war %s"
 
@@ -1168,6 +1211,10 @@ msgstr "Pattern '%s\" konnte im Eintrag '%s\" nicht gefunden werden."
 #: CRM/Banking/PluginImpl/Importer/XML.php
 msgid "Importing streams not supported by this plugin."
 msgstr "Das Importieren von Streams wird von diesem Plugin nicht unterstützt."
+
+#: CRM/Banking/PluginImpl/Importer/XML.php
+msgid "Starting to read file '%1'..."
+msgstr ""
 
 #: CRM/Banking/PluginImpl/Matcher/Batches.php
 msgid "Settles a contribution batch"
@@ -1239,20 +1286,50 @@ msgid ""
 msgstr ""
 "Diese Zahlung wurde mit <a href=\"%s\">Zuwendungsgruppe #%s</a> verbunden."
 
+#: CRM/Banking/PluginImpl/Matcher/CreateCampaignContribution.php
 #: CRM/Banking/PluginImpl/Matcher/CreateContribution.php
 #: CRM/Banking/PluginImpl/Matcher/CreateMultipleContributions.php
 msgid "Source"
 msgstr "Quelle"
 
-#: CRM/Banking/PluginImpl/Matcher/CreateContribution.php
-msgid "Create a new contribution"
-msgstr "Neue Zuwendung erstellen"
+#: CRM/Banking/PluginImpl/Matcher/CreateCampaignContribution.php
+msgid "n/a"
+msgstr ""
 
+#: CRM/Banking/PluginImpl/Matcher/CreateCampaignContribution.php
+msgid "Create Campaign Contribution"
+msgstr "Neue Kampagnenzuwendung erstellen"
+
+#: CRM/Banking/PluginImpl/Matcher/CreateCampaignContribution.php
+msgid "Error was: %1"
+msgstr "Fehler war: %1"
+
+#: CRM/Banking/PluginImpl/Matcher/CreateCampaignContribution.php
 #: CRM/Banking/PluginImpl/Matcher/CreateContribution.php
 #: CRM/Banking/PluginImpl/Matcher/Membership.php
 #: CRM/Banking/PluginImpl/Matcher/RecurringContribution.php
 msgid "Couldn't create contribution."
 msgstr "Konnte Zuwendung nicht erstellen."
+
+#: CRM/Banking/PluginImpl/Matcher/CreateCampaignContribution.php
+msgid "-no campaign-"
+msgstr "-keine Kampagne-"
+
+#: CRM/Banking/PluginImpl/Matcher/CreateCampaignContribution.php
+msgid "'%1' from the same day"
+msgstr ""
+
+#: CRM/Banking/PluginImpl/Matcher/CreateCampaignContribution.php
+msgid "'%1' from %2 days earlier"
+msgstr "'%1' von %2 Tagen zuvor"
+
+#: CRM/Banking/PluginImpl/Matcher/CreateCampaignContribution.php
+msgid "<a class=\"crm-popup\" href=\"%1\">%2</a>"
+msgstr ""
+
+#: CRM/Banking/PluginImpl/Matcher/CreateContribution.php
+msgid "Create a new contribution"
+msgstr "Neue Zuwendung erstellen"
 
 #: CRM/Banking/PluginImpl/Matcher/CreateContribution.php
 #: CRM/Banking/PluginImpl/Matcher/Membership.php
@@ -1460,10 +1537,6 @@ msgstr "Es wurde bereits eine andere Zuwendung für dieses Intervall erfasst."
 #: CRM/Banking/PluginImpl/Matcher/RecurringContribution.php
 msgid "There are already multiple contributions recorded for this interval: "
 msgstr "Es wurden bereits mehrere Zuwendunge für dieses Interval erfasst:"
-
-#: CRM/Banking/PluginImpl/Matcher/Rules.php
-msgid "You cannot "
-msgstr ""
 
 #: CRM/Banking/PluginImpl/Matcher/RulesAnalyser.php
 msgid "Campaign ID"
@@ -1762,10 +1835,6 @@ msgstr "%1 Zuordnungsregeln"
 msgid "Unnamed Rule [%1]"
 msgstr "Namenlose Regel [%1]"
 
-#: CRM/Banking/Upgrader/Base.php
-msgid "Upgrade %1 to revision %2"
-msgstr "Upgrade von %1 auf %2"
-
 #: Civi/Banking/Actions/AddIban.php
 msgid "IBAN"
 msgstr "IBAN"
@@ -1804,6 +1873,18 @@ msgstr ""
 #: Civi/Banking/CompilerPass.php
 msgid "Find Latest Bank Account for Contact"
 msgstr "Aktuelles (letztes) Bankkonto des Kontakts ermitteln"
+
+#: Civi/Banking/CompilerPass.php
+msgid "IBAN (Banking)"
+msgstr ""
+
+#: Civi/Banking/CompilerPass.php
+msgid "CiviBanking: Bank Account"
+msgstr ""
+
+#: Civi/Banking/DataProcessor/FieldoutputHandler/ContactIBANOutputhandler.php
+msgid "Contact ID Field"
+msgstr ""
 
 #: ang/banking/Main.html
 msgid "About %1"
@@ -1883,6 +1964,34 @@ msgstr "Regeln werden aktualisiert...."
 #: ang/banking/Rules.js
 msgid "Complete"
 msgstr "Fertig"
+
+#: banking.php
+msgid "CiviBanking"
+msgstr "CiviBanking"
+
+#: banking.php
+msgid "Dashboard"
+msgstr "Banking Übersicht"
+
+#: banking.php
+msgid "Import Transactions"
+msgstr "Zahlungen Importieren"
+
+#: banking.php templates/CRM/Banking/Page/Payments.tpl
+msgid "Show Transactions"
+msgstr "Zahlungen anzeigen"
+
+#: banking.php
+msgid "Find Transactions"
+msgstr "Transaktionen finden"
+
+#: banking.php
+msgid "Dedupe Accounts"
+msgstr "Bankkonto Doubletten"
+
+#: banking.php
+msgid "Configuration Manager"
+msgstr "Konfigurationsmanager"
 
 #: banking_options.php
 msgid "International Bank Account Number"
@@ -1997,34 +2106,6 @@ msgstr "Spanishe Kontonummer"
 msgid "Traditional Spanish bank account number"
 msgstr "Traditionelle Spanishe Kontonummer"
 
-#: hooks.php
-msgid "CiviBanking"
-msgstr "CiviBanking"
-
-#: hooks.php
-msgid "Dashboard"
-msgstr "Banking Übersicht"
-
-#: hooks.php
-msgid "Import Transactions"
-msgstr "Zahlungen Importieren"
-
-#: hooks.php templates/CRM/Banking/Page/Payments.tpl
-msgid "Show Transactions"
-msgstr "Zahlungen anzeigen"
-
-#: hooks.php
-msgid "Find Transactions"
-msgstr "Transaktionen finden"
-
-#: hooks.php
-msgid "Dedupe Accounts"
-msgstr "Bankkonto Doubletten"
-
-#: hooks.php
-msgid "Configuration Manager"
-msgstr "Konfigurationsmanager"
-
 #: templates/CRM/Admin/Form/Setting/BankingSettings.tpl
 msgid "General Settings"
 msgstr "Allgemeine Einstellungen"
@@ -2138,6 +2219,7 @@ msgstr "Zusätzliche Kriterien %1"
 #: templates/CRM/Banking/Page/Payments.tpl
 #: templates/CRM/Banking/Page/StatementLine.tpl
 #: templates/CRM/Banking/Page/Statements.tpl
+#: templates/CRM/Banking/PluginImpl/Matcher/CreateCampaignContribution.suggestion.tpl
 #: templates/CRM/Banking/PluginImpl/Matcher/CreateContribution.suggestion.tpl
 #: templates/CRM/Banking/PluginImpl/Matcher/CreateMultipleContributions.suggestion.tpl
 #: templates/CRM/Banking/PluginImpl/Matcher/DefaultOptions.suggestion.tpl
@@ -2310,10 +2392,6 @@ msgid "Export bank transactions"
 msgstr "Zahlungen exportieren"
 
 #: templates/CRM/Banking/Page/Export.tpl
-msgid "Bank Statements"
-msgstr "Kontoauszüge"
-
-#: templates/CRM/Banking/Page/Export.tpl
 msgid "Select Exporter"
 msgstr "Exporter auswählen"
 
@@ -2416,21 +2494,21 @@ msgstr ""
 msgid ""
 "You can get started downloading example plugin configurations from our <a "
 "href=\"%1\" target=\"_blank\">configuration <strong>DATABASE</strong></a> "
-"(using the 'raw' link), and then upload them with our <strong><a href="
-"\"%2\">IMPORTER</a></strong>."
+"(using the 'raw' link), and then upload them with our <strong><a "
+"href=\"%2\">IMPORTER</a></strong>."
 msgstr ""
-"Es können weitere Beispielkonfigurationen aus unserer <a href=\"%1\" target="
-"\"_blank\">Konfigurations-<strong>DATENBANK</strong></a> über den 'raw' Link "
-"heruntergeladen, und mit dem unserem <strong><a href=\"%2\">IMPORTER</a></"
-"strong> eingespielt werden."
+"Es können weitere Beispielkonfigurationen aus unserer <a href=\"%1\" "
+"target=\"_blank\">Konfigurations-<strong>DATENBANK</strong></a> über den "
+"'raw' Link heruntergeladen, und mit dem unserem <strong><a "
+"href=\"%2\">IMPORTER</a></strong> eingespielt werden."
 
 #: templates/CRM/Banking/Page/Manager.tpl
 msgid ""
-"You might also want to have a look at the <a href=\"%1\" target=\"_blank"
-"\">CivBanking <strong>SETTINGS</strong></a>"
+"You might also want to have a look at the <a href=\"%1\" "
+"target=\"_blank\">CiviBanking <strong>SETTINGS</strong></a>"
 msgstr ""
-"Unter Umständen lohnt sich auch ein Blick in die <a href=\"%1\" target="
-"\"_blank\">CivBanking <strong>EINSTELLUNGEN</strong></a>"
+"Unter Umständen lohnt sich auch ein Blick in die <a href=\"%1\" "
+"target=\"_blank\">CivBanking <strong>EINSTELLUNGEN</strong></a>"
 
 #: templates/CRM/Banking/Page/Manager.tpl
 msgid "Importer Plugins"
@@ -2457,6 +2535,7 @@ msgid "Plugin"
 msgstr "Plugin"
 
 #: templates/CRM/Banking/Page/Manager.tpl
+#: templates/CRM/Banking/PluginImpl/Matcher/CreateCampaignContribution.suggestion.tpl
 #: templates/CRM/Banking/PluginImpl/Matcher/CreateContribution.suggestion.tpl
 #: templates/CRM/Banking/PluginImpl/Matcher/CreateMultipleContributions.suggestion.tpl
 #: templates/CRM/Banking/PluginImpl/Matcher/DefaultOptions.suggestion.tpl
@@ -2557,6 +2636,10 @@ msgstr "Neu"
 #: templates/CRM/Banking/Page/Payments.tpl
 msgid "Analysed"
 msgstr "Analysiert"
+
+#: templates/CRM/Banking/Page/Payments.tpl
+msgid "Completed (Recent)"
+msgstr "Abgeschlossen (kürzlich)"
 
 #: templates/CRM/Banking/Page/Payments.tpl
 #: templates/CRM/Banking/PluginImpl/Matcher/DefaultOptions.suggestion.tpl
@@ -2869,12 +2952,15 @@ msgstr "Keine Kontoauszüge gefunden"
 msgid "Do you really want to permanently delete the statement?"
 msgstr "Soll der Kontoauszug wirklich unwiederbringlich gelöscht werden?"
 
-#: templates/CRM/Banking/PluginImpl/Matcher/CreateContribution.execution.tpl
+#: templates/CRM/Banking/PluginImpl/Matcher/CreateCampaignContribution.execution.tpl
 msgid ""
-"This transaction was associated with the new <a href=\"%1\">contribution #"
-"%2</a>."
-msgstr "Diese Zahlung wurde mit <a href=\"%1\">Zuwendung #%2</a> verknüpft."
+"This transaction was associated with the new <a href=\"%1\">campaign "
+"contribution #%2</a>."
+msgstr ""
+"Diese Zahlung wurde mit der neuen <a href=\"%1\">Kampagnenzuwendung #%2</a> "
+"verknüpft."
 
+#: templates/CRM/Banking/PluginImpl/Matcher/CreateCampaignContribution.suggestion.tpl
 #: templates/CRM/Banking/PluginImpl/Matcher/CreateContribution.suggestion.tpl
 #: templates/CRM/Banking/PluginImpl/Matcher/CreateMultipleContributions.suggestion.tpl
 #: templates/CRM/Banking/PluginImpl/Matcher/ExistingContribution.suggestion.tpl
@@ -2883,6 +2969,7 @@ msgstr "Diese Zahlung wurde mit <a href=\"%1\">Zuwendung #%2</a> verknüpft."
 msgid "Address incomplete"
 msgstr "Adresse unvollständig"
 
+#: templates/CRM/Banking/PluginImpl/Matcher/CreateCampaignContribution.suggestion.tpl
 #: templates/CRM/Banking/PluginImpl/Matcher/CreateContribution.suggestion.tpl
 #: templates/CRM/Banking/PluginImpl/Matcher/CreateMultipleContributions.suggestion.tpl
 #: templates/CRM/Banking/PluginImpl/Matcher/ExistingContribution.suggestion.tpl
@@ -2890,6 +2977,7 @@ msgstr "Adresse unvollständig"
 msgid "An error has occurred:"
 msgstr "Ein Fehler ist aufgetreten:"
 
+#: templates/CRM/Banking/PluginImpl/Matcher/CreateCampaignContribution.suggestion.tpl
 #: templates/CRM/Banking/PluginImpl/Matcher/CreateContribution.suggestion.tpl
 #: templates/CRM/Banking/PluginImpl/Matcher/CreateMultipleContributions.suggestion.tpl
 #: templates/CRM/Banking/PluginImpl/Matcher/ExistingContribution.suggestion.tpl
@@ -2901,20 +2989,44 @@ msgstr ""
 "Dieser Vorschlag ist vermutlich nicht mehr aktuell. Bitte analysieren Sie "
 "diese Zahlung erneut."
 
-#: templates/CRM/Banking/PluginImpl/Matcher/CreateContribution.suggestion.tpl
-msgid "The following contribution will be created:"
-msgstr "Folgende Zuwendung wird erstellt:"
+#: templates/CRM/Banking/PluginImpl/Matcher/CreateCampaignContribution.suggestion.tpl
+msgid ""
+"<b>Caution</b>: this contact has one or more <b>active recurring "
+"contribution(s)</b>, so the score of this suggestion has been reduced by %1%."
+msgstr ""
 
+#: templates/CRM/Banking/PluginImpl/Matcher/CreateCampaignContribution.suggestion.tpl
+msgid ""
+"<b>Caution</b>: the activity found has <b>no campaign</b>, so the score of "
+"this suggestion has been reduced by %1%."
+msgstr ""
+
+#: templates/CRM/Banking/PluginImpl/Matcher/CreateCampaignContribution.suggestion.tpl
+msgid "Based on activity '%1', the following contribution will be created:"
+msgstr ""
+
+#: templates/CRM/Banking/PluginImpl/Matcher/CreateCampaignContribution.suggestion.tpl
 #: templates/CRM/Banking/PluginImpl/Matcher/CreateContribution.suggestion.tpl
 #: templates/CRM/Banking/PluginImpl/Matcher/CreateMultipleContributions.suggestion.tpl
 #: templates/CRM/Banking/PluginImpl/Matcher/ExistingContribution.suggestion.tpl
 msgid "Donor"
 msgstr "Spender"
 
+#: templates/CRM/Banking/PluginImpl/Matcher/CreateCampaignContribution.suggestion.tpl
 #: templates/CRM/Banking/PluginImpl/Matcher/CreateContribution.suggestion.tpl
 #: templates/CRM/Banking/PluginImpl/Matcher/CreateMultipleContributions.suggestion.tpl
 msgid "Campaign"
 msgstr "Kampagne"
+
+#: templates/CRM/Banking/PluginImpl/Matcher/CreateContribution.execution.tpl
+msgid ""
+"This transaction was associated with the new <a href=\"%1\">contribution "
+"#%2</a>."
+msgstr "Diese Zahlung wurde mit <a href=\"%1\">Zuwendung #%2</a> verknüpft."
+
+#: templates/CRM/Banking/PluginImpl/Matcher/CreateContribution.suggestion.tpl
+msgid "The following contribution will be created:"
+msgstr "Folgende Zuwendung wird erstellt:"
 
 #: templates/CRM/Banking/PluginImpl/Matcher/CreateMultipleContributions.execution.tpl
 msgid "This transaction was associated with these new contributions:"
@@ -3048,8 +3160,8 @@ msgid ""
 "This transaction was recorded as <a href=\"%1\">membership fee contribution "
 "[%2]</a> for <a href=\"%3\">membership [%4]</a>."
 msgstr ""
-"Diese Zahlung wurde als <a href=\"%1\">Mitgliedsbeitrag [%2]</a> für <a href="
-"\"%3\">Mitgliedschaft [%4]</a> erfasst."
+"Diese Zahlung wurde als <a href=\"%1\">Mitgliedsbeitrag [%2]</a> für <a "
+"href=\"%3\">Mitgliedschaft [%4]</a> erfasst."
 
 #: templates/CRM/Banking/PluginImpl/Matcher/Membership.suggestion.tpl
 #: templates/CRM/Banking/PluginImpl/Matcher/RecurringContribution.suggestion.tpl
@@ -3376,6 +3488,21 @@ msgid ""
 "name."
 msgstr "Der Kontaktname sollte in Vor- und Nachname unterteilt sein."
 
+#~ msgid "Unnamed"
+#~ msgstr "Ohne Namen"
+
+#~ msgid ""
+#~ "Internal limit of 2000 transactions hit. Please use smaller statements."
+#~ msgstr ""
+#~ "Internes Limit von 2000 Transaktionen erreicht. Bitte kleinere Auszüge "
+#~ "verwenden."
+
+#~ msgid "List incomplete"
+#~ msgstr "Liste unvollständig"
+
+#~ msgid "Upgrade %1 to revision %2"
+#~ msgstr "Upgrade von %1 auf %2"
+
 #~ msgid "Legacy user interface"
 #~ msgstr "Traditionelle Benutzeroberfläche"
 
@@ -3387,9 +3514,6 @@ msgstr "Der Kontaktname sollte in Vor- und Nachname unterteilt sein."
 
 #~ msgid "%d analysed statments."
 #~ msgstr "%d analysierte Kontoauszüge."
-
-#~ msgid "%d completed statments."
-#~ msgstr "%d abgeschlossene Kontoauszüge."
 
 #~ msgid "the transaction amount is in the range [ "
 #~ msgstr "Die Summe der Transaktion liegt zwischen ["
@@ -3405,9 +3529,10 @@ msgstr "Der Kontaktname sollte in Vor- und Nachname unterteilt sein."
 #~ "href=\"%1\" target=\"_blank\">configuration database</a> (using the 'raw' "
 #~ "link), and then upload them with our <a href=\"%2\">IMPORTER</a>."
 #~ msgstr ""
-#~ "Es können weitere Plugins von der <a href=\"%1\" target=\"_blank"
-#~ "\">Beispielkonfigurationen</a> (mit dem 'raw' Link) heruntergeladen "
-#~ "werden, und dann mit dem <a href=\"%2\">IMPORTER</a> importiert werden."
+#~ "Es können weitere Plugins von der <a href=\"%1\" "
+#~ "target=\"_blank\">Beispielkonfigurationen</a> (mit dem 'raw' Link) "
+#~ "heruntergeladen werden, und dann mit dem <a href=\"%2\">IMPORTER</a> "
+#~ "importiert werden."
 
 #~ msgid "Add a new one."
 #~ msgstr "Hinzufügen"
@@ -3504,8 +3629,8 @@ msgstr "Der Kontaktname sollte in Vor- und Nachname unterteilt sein."
 #~ "nicht der erste Einzug zu diesem Mandat ist."
 
 #~ msgid ""
-#~ "This SEPA transaction was associated with <a href=\"%s\">contribution #"
-#~ "%s</a>."
+#~ "This SEPA transaction was associated with <a href=\"%s\">contribution "
+#~ "#%s</a>."
 #~ msgstr ""
 #~ "Dieser SEPA-Einzug wird mit <a href=\"%s\">Zuwendung #%s</a> verbunden."
 

@@ -51,6 +51,12 @@
   <div class="clear"></div>
 </div>
 
+<div class="crm-section">
+  <div class="label">{$form.max_contacts_on_lookup.label}</div>
+  <div class="content">{$form.max_contacts_on_lookup.html}</div>
+  <div class="clear"></div>
+</div>
+
 <br/>
 <h3>{ts domain='org.project60.banking'}Bank Account Settings{/ts}</h3>
 

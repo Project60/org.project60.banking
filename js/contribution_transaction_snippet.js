@@ -15,12 +15,12 @@
 
 cj(document).ready(function() {
   // inject stuff
-  // todo: find better selector for the row in the contribution view we want to be injected after
   let previous_row = cj("div.crm-contribution-view-form-block")
       .find("table.crm-info-panel")
       .first()
-      .find("tr")
-      .get(8);
+      .children("tbody")
+      .children("tr")
+      .last();
   cj(previous_row)
       .after(`
         <tr>

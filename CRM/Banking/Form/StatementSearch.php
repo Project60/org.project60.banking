@@ -42,7 +42,7 @@ class CRM_Banking_Form_StatementSearch extends CRM_Core_Form
 
         $this->buildSearchElements();
 
-        CRM_Core_Smarty::singleton()->registerPlugin("modifier", "range", "range");
+        CRM_Core_Smarty::singleton()->registerPlugin('modifier', 'range', 'range');
 
         $this->addButtons(
             [

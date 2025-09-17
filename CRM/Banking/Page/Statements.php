@@ -128,7 +128,7 @@ class CRM_Banking_Page_Statements extends CRM_Core_Page {
     }
 
     $this->assign('statements', $statements);
-    $this->assign_by_ref('pager', $this->_pager);
+    $this->assign('pager', $this->_pager);
     $this->assign('target_accounts', $target_accounts);
     $this->assign('target_ba_id', $target_ba_id);
     $this->assign('include_completed', $include_completed);

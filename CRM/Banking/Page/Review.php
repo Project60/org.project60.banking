@@ -326,7 +326,7 @@ class CRM_Banking_Page_Review extends CRM_Core_Page {
         $vars = $this->getTemplateVars();
       }
       else {
-        $vars = $this->get_template_vars();
+        $vars = $this->getTemplateVars();
       }
 
       $template = CRM_Core_Smarty::singleton();

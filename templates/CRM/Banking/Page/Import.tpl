@@ -110,14 +110,14 @@ DISABLED: Options panel *}
   <div class="crm-submit-buttons">
     {if $page_mode == 'config'}
       <a class="button" onclick="cj(this).closest('form').submit();" >
-        <span><i class="crm-i fa-upload"></i>&nbsp;{ts domain='org.project60.banking'}Import!{/ts}</span>
+        <span><i class="crm-i fa-upload" role="img" aria-hidden="true"></i>&nbsp;{ts domain='org.project60.banking'}Import!{/ts}</span>
       </a>
     {else}
       <a class="button" href="{$url_payments}" >
-        <span><i class="crm-i fa-list"></i>&nbsp;{ts domain='org.project60.banking'}See Results{/ts}</span>
+        <span><i class="crm-i fa-list" role="img" aria-hidden="true"></i>&nbsp;{ts domain='org.project60.banking'}See Results{/ts}</span>
       </a>
       <a class="button" href="{$url_action}" >
-        <span><i class="crm-i fa-plus-circle"></i>&nbsp;{ts domain='org.project60.banking'}Import More{/ts}</span>
+        <span><i class="crm-i fa-plus-circle" role="img" aria-hidden="true"></i>&nbsp;{ts domain='org.project60.banking'}Import More{/ts}</span>
       </a>
     {/if}
   </div>
@@ -146,10 +146,10 @@ DISABLED: Options panel *}
 <div class="crm-submit-buttons">
   {if $page_mode != 'config'}
     <a class="button" href="{$url_payments}" >
-      <span><i class="crm-i fa-list"></i>&nbsp;{ts domain='org.project60.banking'}See Results{/ts}</span>
+      <span><i class="crm-i fa-list" role="img" aria-hidden="true"></i>&nbsp;{ts domain='org.project60.banking'}See Results{/ts}</span>
     </a>
     <a class="button" href="{$url_action}" >
-      <span><i class="crm-i fa-plus-circle"></i>&nbsp;{ts domain='org.project60.banking'}Import More{/ts}</span>
+      <span><i class="crm-i fa-plus-circle" role="img" aria-hidden="true"></i>&nbsp;{ts domain='org.project60.banking'}Import More{/ts}</span>
     </a>
   {/if}
 </div>

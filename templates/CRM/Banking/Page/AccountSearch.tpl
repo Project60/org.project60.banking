@@ -35,7 +35,7 @@
 			<tr>
 				<td>
 					<a class="button" onclick="cj(this).closest('form').submit();" >
-						<span><i class="crm-i fa-search validate form-submit default"></i>&nbsp;{ts domain='org.project60.banking'}Search{/ts}</span>
+						<span><i class="crm-i fa-search validate form-submit default" role="img" aria-hidden="true"></i>&nbsp;{ts domain='org.project60.banking'}Search{/ts}</span>
 					</a>
 	    		</td>
     		</tr>

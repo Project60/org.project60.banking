@@ -25,7 +25,7 @@
           <label for="date">{ts domain='org.project60.banking'}Date{/ts}</label>
           <input formattype="searchDate" startoffset="{$date_attributes.startOffset}" endoffset="{$date_attributes.endOffset}" format="{$date_attributes.format}" value="{$date}" name="date" id="date" class="crm-form-text" type="text">
           <input type="text" name="date_display" id="date_display" class="dateplugin" autocomplete="off"/>
-          <a href="#" class="crm-hover-button crm-clear-link" title="{ts domain='org.project60.banking'}Clear{/ts}"><i class="crm-i fa-times"></i></a>
+          <a href="#" class="crm-hover-button crm-clear-link" title="{ts domain='org.project60.banking'}Clear{/ts}"><i class="crm-i fa-times" role="img" aria-hidden="true"></i></a>
           <script type="text/javascript">
             {literal}
             CRM.$(function($) {

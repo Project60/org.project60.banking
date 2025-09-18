@@ -75,11 +75,11 @@
 
   <div class="crm-submit-buttons">
     <a class="button back" onclick="cj(this).closest('form').submit();" >
-      <span><i class="crm-i fa-download"></i>&nbsp;{ts domain='org.project60.banking'}Export{/ts}</span>
+      <span><i class="crm-i fa-download" role="img" aria-hidden="true"></i>&nbsp;{ts domain='org.project60.banking'}Export{/ts}</span>
     </a>
 
     <a class="button back" onclick="parent.history.back();" >
-      <span><i class="crm-i fa-backward"></i>{ts domain='org.project60.banking'}&nbsp;Back{/ts}</span>
+      <span><i class="crm-i fa-backward" role="img" aria-hidden="true"></i>{ts domain='org.project60.banking'}&nbsp;Back{/ts}</span>
     </a>
   </div>
 </form>

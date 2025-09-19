@@ -42,10 +42,10 @@
             <span title="{$reference.reference_type_label}">{$reference.reference}&nbsp;({$reference.reference_type})</span>
             {/if}
             {if $account.references|@count gt 1}
-            <a onClick="banking_deletereference({$account.id}, {$reference.id});" class="action-item action-item-first" title="{ts domain='org.project60.banking'}delete{/ts}">{ts domain='org.project60.banking'}[-]{/ts}</a>
+            <a onClick="banking_deletereference({$account.id}, {$reference.id});" class="action-item action-item-first" title="{ts escape='htmlattribute' domain='org.project60.banking'}delete{/ts}">{ts domain='org.project60.banking'}[-]{/ts}</a>
             {/if}
             {if $smarty.foreach.account_reference.last}
-            <a onClick="banking_addreference({$account.id});" class="action-item action-item-first" title="{ts domain='org.project60.banking'}add{/ts}">{ts domain='org.project60.banking'}[+]{/ts}</a>
+            <a onClick="banking_addreference({$account.id});" class="action-item action-item-first" title="{ts escape='htmlattribute' domain='org.project60.banking'}add{/ts}">{ts domain='org.project60.banking'}[+]{/ts}</a>
             {/if}
           </td></tr>
           {/foreach}
@@ -70,10 +70,10 @@
         </table>
       </td>
       <td style="vertical-align: middle;">
-        <a title="{ts domain='org.project60.banking'}Delete{/ts}" class="delete button" onClick="banking_deleteaccount({$account.id});">
+        <a title="{ts escape='htmlattribute' domain='org.project60.banking'}Delete{/ts}" class="delete button" onClick="banking_deleteaccount({$account.id});">
           <span><div class="icon delete-icon ui-icon-trash"></div>{ts domain='org.project60.banking'}Delete{/ts}</span>
         </a>
-        <a title="{ts domain='org.project60.banking'}Edit{/ts}" class="edit button" onClick="banking_editaccount({$account.id});">
+        <a title="{ts escape='htmlattribute' domain='org.project60.banking'}Edit{/ts}" class="edit button" onClick="banking_editaccount({$account.id});">
           <span><div class="icon edit-icon ui-icon-pencil"></div>{ts domain='org.project60.banking'}Edit{/ts}</span>
         </a>
       </td>
@@ -86,7 +86,7 @@
 <h3>{ts domain='org.project60.banking'}This contact has no known accounts associated with him/her.{/ts}</h3>
 {/if}
 
-<a id="banking_account_addbtn" title="{ts domain='org.project60.banking'}Add{/ts}" class="add button" onClick="banking_addaccount();">
+<a id="banking_account_addbtn" title="{ts escape='htmlattribute' domain='org.project60.banking'}Add{/ts}" class="add button" onClick="banking_addaccount();">
   <span><div class="icon add-icon ui-icon-add ui-icon-circle-plus"></div>{ts domain='org.project60.banking'}Add{/ts}</span>
 </a>
 
@@ -238,18 +238,18 @@ function banking_deletereference(ba_id, ref_id) {
     CRM.api('BankingAccountReference', 'delete', {'q': 'civicrm/ajax/rest', 'sequential': 1, 'id': ref_id},
     {success: function(data) {
         if (data['is_error'] == 0) {
-          CRM.alert("{/literal}{ts domain='org.project60.banking'}The bank account reference has been deleted{/ts}", "{ts domain='org.project60.banking'}Success{/ts}{literal}", "success");
+          CRM.alert("{/literal}{ts domain='org.project60.banking'}The bank account reference has been deleted{/ts}", "{ts escape='htmlattribute' domain='org.project60.banking'}Success{/ts}{literal}", "success");
           var contentId = cj('#tab_bank_accounts').attr('aria-controls');
           cj('#' + contentId).load(CRM.url('civicrm/banking/accounts_tab', {'reset': 1, 'snippet': 1, 'force': 1, 'cid':{/literal}{$contact_id}{literal}}));
         }else{
-          CRM.alert("{/literal}" + data['error_message'], "{ts domain='org.project60.banking'}Error{/ts}{literal}", "error");
+          CRM.alert("{/literal}" + data['error_message'], "{ts escape='htmlattribute' domain='org.project60.banking'}Error{/ts}{literal}", "error");
         }
       }
     }
   );
   },
   {
-    message: {/literal}"{ts domain='org.project60.banking'}Are you sure you want to delete this bank account reference?{/ts}"{literal}
+    message: {/literal}"{ts escape='htmlattribute' domain='org.project60.banking'}Are you sure you want to delete this bank account reference?{/ts}"{literal}
   });
 }
 

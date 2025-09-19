@@ -23,44 +23,44 @@
   <br/>
 
   <div align="right" class="clearfix" style="width: 100%;">
-    <a href="{$url_skip_back}" class="button {if not $url_skip_back}disabled{/if}  ui-icon-seek-prev"><span title="{ts domain='org.project60.banking'}Back{/ts}"><div class="icon previous-icon ui-icon-seek-prev disabled"></div>{ts domain='org.project60.banking'}Back{/ts}</span></a>
+    <a href="{$url_skip_back}" class="button {if not $url_skip_back}disabled{/if}  ui-icon-seek-prev"><span title="{ts escape='htmlattribute' domain='org.project60.banking'}Back{/ts}"><div class="icon previous-icon ui-icon-seek-prev disabled"></div>{ts domain='org.project60.banking'}Back{/ts}</span></a>
 
     {if $btxstatus.label != 'Processed' AND $btxstatus.label != 'Ignored'}
-      <a id="analyseButton" onClick="analysePayment()" class="button"><span title="{ts domain='org.project60.banking'}Analyse (again){/ts}"><div class="icon preview-icon ui-icon-refresh"></div>{ts domain='org.project60.banking'}Analyse (again){/ts}</span></a>
+      <a id="analyseButton" onClick="analysePayment()" class="button"><span title="{ts escape='htmlattribute' domain='org.project60.banking'}Analyse (again){/ts}"><div class="icon preview-icon ui-icon-refresh"></div>{ts domain='org.project60.banking'}Analyse (again){/ts}</span></a>
       {if isset($url_skip_forward)}
-        <a href="#" onClick="execute_selected()" class="button"><span title="{ts domain='org.project60.banking'}Confirm and Continue{/ts}"><div class="icon next-icon ui-icon-check"></div>{ts domain='org.project60.banking'}Confirm and Continue{/ts}</span></a>
-        <a href="{$url_skip_forward}" class="button"><span title="{ts domain='org.project60.banking'}Skip{/ts}"><div class="icon next-icon ui-icon-seek-next"></div>{ts domain='org.project60.banking'}Skip{/ts}</span></a>
+        <a href="#" onClick="execute_selected()" class="button"><span title="{ts escape='htmlattribute' domain='org.project60.banking'}Confirm and Continue{/ts}"><div class="icon next-icon ui-icon-check"></div>{ts domain='org.project60.banking'}Confirm and Continue{/ts}</span></a>
+        <a href="{$url_skip_forward}" class="button"><span title="{ts escape='htmlattribute' domain='org.project60.banking'}Skip{/ts}"><div class="icon next-icon ui-icon-seek-next"></div>{ts domain='org.project60.banking'}Skip{/ts}</span></a>
         {if $url_skip_processed}
-        <a href="{$url_skip_processed}" class="button"><span title="{ts domain='org.project60.banking'}Skip Processed{/ts}"><div class="icon next-icon ui-icon-seek-next"></div>{ts domain='org.project60.banking'}Skip Processed{/ts}</span></a>
+        <a href="{$url_skip_processed}" class="button"><span title="{ts escape='htmlattribute' domain='org.project60.banking'}Skip Processed{/ts}"><div class="icon next-icon ui-icon-seek-next"></div>{ts domain='org.project60.banking'}Skip Processed{/ts}</span></a>
         {/if}
       {else}
-        <a href="#" onClick="execute_selected()" class="button"><span title="{ts domain='org.project60.banking'}Confirm and Exit{/ts}"><div class="icon next-icon ui-icon-check"></div>{ts domain='org.project60.banking'}Confirm and Exit{/ts}</span></a>
-        <a href="{$url_back}" class="button"><span title="{ts domain='org.project60.banking'}Skip and Exit{/ts}"><div class="icon next-icon ui-icon-seek-next"></div>{ts domain='org.project60.banking'}Skip and Exit{/ts}</span></a>
+        <a href="#" onClick="execute_selected()" class="button"><span title="{ts escape='htmlattribute' domain='org.project60.banking'}Confirm and Exit{/ts}"><div class="icon next-icon ui-icon-check"></div>{ts domain='org.project60.banking'}Confirm and Exit{/ts}</span></a>
+        <a href="{$url_back}" class="button"><span title="{ts escape='htmlattribute' domain='org.project60.banking'}Skip and Exit{/ts}"><div class="icon next-icon ui-icon-seek-next"></div>{ts domain='org.project60.banking'}Skip and Exit{/ts}</span></a>
       {/if}
     {else}
-      <a id="analyseButton" onClick="analysePayment()" class="button disabled"><span title="{ts domain='org.project60.banking'}Analyse (again){/ts}"><div class="icon preview-icon ui-icon-refresh"></div>{ts domain='org.project60.banking'}Analyse (again){/ts}</span></a>
+      <a id="analyseButton" onClick="analysePayment()" class="button disabled"><span title="{ts escape='htmlattribute' domain='org.project60.banking'}Analyse (again){/ts}"><div class="icon preview-icon ui-icon-refresh"></div>{ts domain='org.project60.banking'}Analyse (again){/ts}</span></a>
       {if isset($url_skip_forward)}
-        <a href="" class="button disabled"><span title="{ts domain='org.project60.banking'}Confirm and Continue{/ts}"><div class="icon next-icon ui-icon-check"></div>{ts domain='org.project60.banking'}Confirm and Continue{/ts}</span></a>
-        <a href="{$url_skip_forward}" class="button"><span title="{ts domain='org.project60.banking'}Skip{/ts}"><div class="icon next-icon ui-icon-seek-next"></div>{ts domain='org.project60.banking'}Skip{/ts}</span></a>
+        <a href="" class="button disabled"><span title="{ts escape='htmlattribute' domain='org.project60.banking'}Confirm and Continue{/ts}"><div class="icon next-icon ui-icon-check"></div>{ts domain='org.project60.banking'}Confirm and Continue{/ts}</span></a>
+        <a href="{$url_skip_forward}" class="button"><span title="{ts escape='htmlattribute' domain='org.project60.banking'}Skip{/ts}"><div class="icon next-icon ui-icon-seek-next"></div>{ts domain='org.project60.banking'}Skip{/ts}</span></a>
         {if $url_skip_processed}
-        <a href="{$url_skip_processed}" class="button"><span title="{ts domain='org.project60.banking'}Skip Processed{/ts}"><div class="icon next-icon ui-icon-seek-next"></div>{ts domain='org.project60.banking'}Skip Processed{/ts}</span></a>
+        <a href="{$url_skip_processed}" class="button"><span title="{ts escape='htmlattribute' domain='org.project60.banking'}Skip Processed{/ts}"><div class="icon next-icon ui-icon-seek-next"></div>{ts domain='org.project60.banking'}Skip Processed{/ts}</span></a>
         {/if}
       {else}
-        <a href="" class="button disabled"><span title="{ts domain='org.project60.banking'}Confirm and Exit{/ts}"><div class="icon next-icon ui-icon-check"></div>{ts domain='org.project60.banking'}Confirm and Exit{/ts}</span></a>
-        <a href="{$url_back}" class="button"><span title="{ts domain='org.project60.banking'}Skip and Exit{/ts}"><div class="icon next-icon ui-icon-seek-next"></div>{ts domain='org.project60.banking'}Skip and Exit{/ts}</span></a>
+        <a href="" class="button disabled"><span title="{ts escape='htmlattribute' domain='org.project60.banking'}Confirm and Exit{/ts}"><div class="icon next-icon ui-icon-check"></div>{ts domain='org.project60.banking'}Confirm and Exit{/ts}</span></a>
+        <a href="{$url_back}" class="button"><span title="{ts escape='htmlattribute' domain='org.project60.banking'}Skip and Exit{/ts}"><div class="icon next-icon ui-icon-seek-next"></div>{ts domain='org.project60.banking'}Skip and Exit{/ts}</span></a>
       {/if}
     {/if}
     {if $new_ui_enabled && $back_to_statement_lines}
       <a href="{$url_back}" class="button" style="float:right;">
-        <span title="{ts domain='org.project60.banking'}Back{/ts}"><div class="icon back-icon ui-icon-arrowreturnthick-1-w"></div>{ts domain='org.project60.banking'}Back to statement lines{/ts}</span>
+        <span title="{ts escape='htmlattribute' domain='org.project60.banking'}Back{/ts}"><div class="icon back-icon ui-icon-arrowreturnthick-1-w"></div>{ts domain='org.project60.banking'}Back to statement lines{/ts}</span>
       </a>
     {elseif $new_ui_enabled && !$back_to_statement_lines}
       <a href="{$url_back}" class="button" style="float:right;">
-        <span title="{ts domain='org.project60.banking'}Back{/ts}"><div class="icon back-icon ui-icon-arrowreturnthick-1-w"></div>{ts domain='org.project60.banking'}Back to statements{/ts}</span>
+        <span title="{ts escape='htmlattribute' domain='org.project60.banking'}Back{/ts}"><div class="icon back-icon ui-icon-arrowreturnthick-1-w"></div>{ts domain='org.project60.banking'}Back to statements{/ts}</span>
       </a>
     {else}
       <a href="{$url_back}" class="button" style="float:right;">
-        <span title="{ts domain='org.project60.banking'}Back{/ts}"><div class="icon back-icon ui-icon-arrowreturnthick-1-w"></div>{ts domain='org.project60.banking'}Back to transaction list{/ts}</span>
+        <span title="{ts escape='htmlattribute' domain='org.project60.banking'}Back{/ts}"><div class="icon back-icon ui-icon-arrowreturnthick-1-w"></div>{ts domain='org.project60.banking'}Back to transaction list{/ts}</span>
       </a>
     {/if}
   </div>
@@ -174,7 +174,7 @@ function analysePayment() {
             window.location = newURL;
           }
         } else {
-          cj('<div title="{/literal}{ts domain='org.project60.banking'}Error{/ts}{literal}"><span class="ui-icon ui-icon-alert" style="float:left;"></span>' + data['error_message'] + '</div>').dialog({
+          cj('<div title="{/literal}{ts escape='htmlattribute' domain='org.project60.banking'}Error{/ts}{literal}"><span class="ui-icon ui-icon-alert" style="float:left;"></span>' + data['error_message'] + '</div>').dialog({
             modal: true,
             buttons: {
               Ok: function() {

@@ -240,7 +240,7 @@ function callWithSelected(url, forced) {
     location.href = url.replace("__selected__", selected);
   } else {
     {/literal}
-    var message = "{ts domain='org.project60.banking'}Please select one or more items{/ts}";
+    var message = "{ts escape='htmlattribute' domain='org.project60.banking'}Please select one or more items{/ts}";
     {literal}
     window.alert(message);
   }
@@ -301,7 +301,7 @@ function processSelected() {
             {literal}
             message = message.replace('_1', data.values.payment_count-data.values.processed_count);
             message = message.replace('_2', data.values.payment_count);
-            cj('<div title="{/literal}{ts domain='org.project60.banking'}Process timed out{/ts}{literal}"><span class="ui-icon ui-icon-alert" style="float:left;"></span>' + message + '</div>').dialog({
+            cj('<div title="{/literal}{ts escape='htmlattribute' domain='org.project60.banking'}Process timed out{/ts}{literal}"><span class="ui-icon ui-icon-alert" style="float:left;"></span>' + message + '</div>').dialog({
               modal: true,
               buttons: {
                 Ok: function() { location.reload(); }
@@ -309,7 +309,7 @@ function processSelected() {
             });
           }
         } else {
-          cj('<div title="{/literal}{ts domain='org.project60.banking'}Error{/ts}{literal}"><span class="ui-icon ui-icon-alert" style="float:left;"></span>' + data['error_message'] + '</div>').dialog({
+          cj('<div title="{/literal}{ts escape='htmlattribute' domain='org.project60.banking'}Error{/ts}{literal}"><span class="ui-icon ui-icon-alert" style="float:left;"></span>' + data['error_message'] + '</div>').dialog({
             modal: true,
             buttons: {
               Ok: function() { location.reload(); }
@@ -346,14 +346,14 @@ function deleteSelected() {
           if (!data['is_error']) {
             // perfectly normal result, notify user
             {/literal}
-            var message = "{ts domain='org.project60.banking'}_1 payments in _2 statements have been deleted.{/ts}";
+            var message = "{ts escape='htmlattribute' domain='org.project60.banking'}_1 payments in _2 statements have been deleted.{/ts}";
             {literal}
             message = message.replace('_1', data.values.tx_count);
             message = message.replace('_2', data.values.tx_batch_count);
             CRM.alert(message, "info");
             window.setTimeout("location.reload()", 1500);
           } else {
-            cj('<div title="{/literal}{ts domain='org.project60.banking'}Error{/ts}{literal}"><span class="ui-icon ui-icon-alert" style="float:left;"></span>' + data['error_message'] + '</div>').dialog({
+            cj('<div title="{/literal}{ts escape='htmlattribute' domain='org.project60.banking'}Error{/ts}{literal}"><span class="ui-icon ui-icon-alert" style="float:left;"></span>' + data['error_message'] + '</div>').dialog({
               modal: true,
               buttons: {
                 Ok: function() { location.reload(); }

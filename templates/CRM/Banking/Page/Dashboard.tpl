@@ -53,7 +53,7 @@ td.week_incomplete {
 	{if not $sum}{assign var=sum value=0}{/if}
 
 	{if $sum == 0}
-	<td class="week_none" title="{ts domain='org.project60.banking'}There are no records for this time span.{/ts}"><i>{ts domain='org.project60.banking'}no records{/ts}</i></td>
+	<td class="week_none" title="{ts escape='htmlattribute' domain='org.project60.banking'}There are no records for this time span.{/ts}"><i>{ts domain='org.project60.banking'}no records{/ts}</i></td>
 	{elseif $sum == $done}
 	<td class="week_complete" title="{$done} / {$sum}">100&nbsp;%</td>
 	{else}
@@ -67,7 +67,7 @@ td.week_incomplete {
 	{if not $sum}{assign var=sum value=0}{/if}
 
 	{if $sum == 0}
-	<td class="week_none" title="{ts domain='org.project60.banking'}There are no records for this time span.{/ts}"><i>{ts domain='org.project60.banking'}no records{/ts}</i></td>
+	<td class="week_none" title="{ts escape='htmlattribute' domain='org.project60.banking'}There are no records for this time span.{/ts}"><i>{ts domain='org.project60.banking'}no records{/ts}</i></td>
 	{elseif $sum == $done}
 	<td class="week_complete" title="{$done} / {$sum}">100&nbsp;%</td>
 	{else}

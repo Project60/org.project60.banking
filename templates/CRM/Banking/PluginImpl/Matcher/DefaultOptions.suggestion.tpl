@@ -160,7 +160,7 @@
             if (contact.street_address || contact.city) {
               item_label += " (" + contact.street_address + ", " + contact.city + ")";
             } else {
-              item_label += " ({/literal}{ts domain='org.project60.banking'}unknown address{/ts}{literal})";
+              item_label += " ({/literal}{ts escape='htmlattribute' domain='org.project60.banking'}unknown address{/ts}{literal})";
             }
             hook_label = cj(document).triggerHandler('banking_contact_option_element', [item_label, contact]);
             if (typeof hook_label != 'undefined') {

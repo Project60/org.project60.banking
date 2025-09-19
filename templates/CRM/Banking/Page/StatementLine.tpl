@@ -18,7 +18,7 @@
     </table>
     
     <div class="crm-submit-buttons">
-    <input type="submit" class="crm-form-submit" value="{ts domain='org.project60.banking'}Filter{/ts}">
+    <input type="submit" class="crm-form-submit" value="{ts escape='htmlattribute' domain='org.project60.banking'}Filter{/ts}">
     </div>
   </div>
 </form>
@@ -65,7 +65,7 @@
         {/if}
       </td>
       <td><span>
-        <a class="action-item crm-hover-button" href="{crmURL p="civicrm/banking/review" q="list=`$list`&id=`$line.id`"}" title="{ts domain='org.project60.banking'}Walk through the payments and will show the suggestions and will give you the possibility to manually process the suggestions{/ts}">{ts domain='org.project60.banking'}Review transaction{/ts}</a>
+        <a class="action-item crm-hover-button" href="{crmURL p="civicrm/banking/review" q="list=`$list`&id=`$line.id`"}" title="{ts escape='htmlattribute' domain='org.project60.banking'}Walk through the payments and will show the suggestions and will give you the possibility to manually process the suggestions{/ts}">{ts domain='org.project60.banking'}Review transaction{/ts}</a>
         {if $can_delete}<a class="action-item crm-hover-button" onClick="deleteLine({$line.id});">{ts domain='org.project60.banking'}Delete line{/ts}</a>{/if}
       </span></td>
     </tr>
@@ -156,7 +156,7 @@ function processSelected() {
             {literal}
             message = message.replace('_1', data.values.payment_count-data.values.processed_count);
             message = message.replace('_2', data.values.payment_count);
-            cj('<div title="{/literal}{ts domain='org.project60.banking'}Process timed out{/ts}{literal}"><span class="ui-icon ui-icon-alert" style="float:left;"></span>' + message + '</div>').dialog({
+            cj('<div title="{/literal}{ts escape='htmlattribute' domain='org.project60.banking'}Process timed out{/ts}{literal}"><span class="ui-icon ui-icon-alert" style="float:left;"></span>' + message + '</div>').dialog({
               modal: true,
               buttons: {
                 Ok: function() { location.reload(); }
@@ -164,7 +164,7 @@ function processSelected() {
             });
           }
         } else {
-          cj('<div title="{/literal}{ts domain='org.project60.banking'}Error{/ts}{literal}"><span class="ui-icon ui-icon-alert" style="float:left;"></span>' + data['error_message'] + '</div>').dialog({
+          cj('<div title="{/literal}{ts escape='htmlattribute' domain='org.project60.banking'}Error{/ts}{literal}"><span class="ui-icon ui-icon-alert" style="float:left;"></span>' + data['error_message'] + '</div>').dialog({
             modal: true,
             buttons: {
               Ok: function() { location.reload(); }
@@ -200,7 +200,7 @@ function deleteLine(line_id) {
             CRM.alert(message, "info");
             window.setTimeout("location.reload()", 1500);
           } else {
-            cj('<div title="{/literal}{ts domain='org.project60.banking'}Error{/ts}{literal}"><span class="ui-icon ui-icon-alert" style="float:left;"></span>' + data['error_message'] + '</div>').dialog({
+            cj('<div title="{/literal}{ts escape='htmlattribute' domain='org.project60.banking'}Error{/ts}{literal}"><span class="ui-icon ui-icon-alert" style="float:left;"></span>' + data['error_message'] + '</div>').dialog({
               modal: true,
               buttons: {
                 Ok: function() { location.reload(); }

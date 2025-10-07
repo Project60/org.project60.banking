@@ -25,7 +25,7 @@
           <label for="date">{ts domain='org.project60.banking'}Date{/ts}</label>
           <input formattype="searchDate" startoffset="{$date_attributes.startOffset}" endoffset="{$date_attributes.endOffset}" format="{$date_attributes.format}" value="{$date}" name="date" id="date" class="crm-form-text" type="text">
           <input type="text" name="date_display" id="date_display" class="dateplugin" autocomplete="off"/>
-          <a href="#" class="crm-hover-button crm-clear-link" title="{ts domain='org.project60.banking'}Clear{/ts}"><i class="crm-i fa-times" role="img" aria-hidden="true"></i></a>
+          <a href="#" class="crm-hover-button crm-clear-link" title="{ts escape='htmlattribute' domain='org.project60.banking'}Clear{/ts}"><i class="crm-i fa-times" role="img" aria-hidden="true"></i></a>
           <script type="text/javascript">
             {literal}
             CRM.$(function($) {
@@ -82,7 +82,7 @@
     </table>
 
     <div class="crm-submit-buttons">
-    <input type="submit" class="crm-form-submit" value="{ts domain='org.project60.banking'}Filter{/ts}">
+    <input type="submit" class="crm-form-submit" value="{ts escape='htmlattribute' domain='org.project60.banking'}Filter{/ts}">
     </div>
   </div>
 </form>
@@ -98,7 +98,7 @@
     <th class="sorting_disabled">{ts domain='org.project60.banking'}Amount{/ts}</th>
     <th class="sorting_disabled">{ts domain='org.project60.banking'}Reference{/ts}</th>
     <th class="sorting_disabled">{ts domain='org.project60.banking'}Sequence{/ts}</th>
-    <th class="sorting_disabled" title="{ts domain='org.project60.banking'}(new / suggestions / processed / ignored){/ts}">{ts domain='org.project60.banking'}Transactions{/ts}</th>
+    <th class="sorting_disabled" title="{ts escape='htmlattribute' domain='org.project60.banking'}(new / suggestions / processed / ignored){/ts}">{ts domain='org.project60.banking'}Transactions{/ts}</th>
     <th class="sorting_disabled"></th>
   </tr>
 </thead>
@@ -117,11 +117,11 @@
       <td>{$statement.total|crmMoney:$statement.currency}</td>
       <td>{$statement.reference}</td>
       <td>{$statement.sequence}</td>
-      <td title="{ts domain='org.project60.banking'}(new / suggestions / processed / ignored){/ts}">{$statement.count}<br>
+      <td title="{ts escape='htmlattribute' domain='org.project60.banking'}(new / suggestions / processed / ignored){/ts}">{$statement.count}<br>
         ({$statement.status.new} / {$statement.status.suggestions} / {$statement.status.processed} / {$statement.status.ignored})
       </td>
       <td><span>
-        <a class="action-item crm-hover-button" href="{crmURL p="civicrm/banking/review" q="s_list=`$statement.id`"}" title="{ts domain='org.project60.banking'}Walk through the payments and will show the suggestions and will give you the possibility to manually process the suggestions{/ts}">{ts domain='org.project60.banking'}Review statements{/ts}</a>
+        <a class="action-item crm-hover-button" href="{crmURL p="civicrm/banking/review" q="s_list=`$statement.id`"}" title="{ts escape='htmlattribute' domain='org.project60.banking'}Walk through the payments and will show the suggestions and will give you the possibility to manually process the suggestions{/ts}">{ts domain='org.project60.banking'}Review statements{/ts}</a>
         <a class="action-item crm-hover-button" href="{crmURL p="civicrm/banking/statements/lines" q="s_id=`$statement.id`"}&reset=1">{ts domain='org.project60.banking'}List lines{/ts}</a>
         {if $can_delete}<a class="action-item crm-hover-button" onClick="deleteStatement({$statement.id});">{ts domain='org.project60.banking'}Delete statement{/ts}</a>{/if}
       </span></td>
@@ -173,7 +173,7 @@ function callWithSelected(url, forced) {
     location.href = url.replace("__selected__", selected);
   } else {
     {/literal}
-    var message = "{ts domain='org.project60.banking'}Please select one or more items{/ts}";
+    var message = "{ts escape='htmlattribute' domain='org.project60.banking'}Please select one or more items{/ts}";
     {literal}
     window.alert(message);
   }
@@ -228,7 +228,7 @@ function processSelected() {
             {literal}
             message = message.replace('_1', data.values.payment_count-data.values.processed_count);
             message = message.replace('_2', data.values.payment_count);
-            cj('<div title="{/literal}{ts domain='org.project60.banking'}Process timed out{/ts}{literal}"><span class="ui-icon ui-icon-alert" style="float:left;"></span>' + message + '</div>').dialog({
+            cj('<div title="{/literal}{ts escape='htmlattribute' domain='org.project60.banking'}Process timed out{/ts}{literal}"><span class="ui-icon ui-icon-alert" style="float:left;"></span>' + message + '</div>').dialog({
               modal: true,
               buttons: {
                 Ok: function() { location.reload(); }
@@ -236,7 +236,7 @@ function processSelected() {
             });
           }
         } else {
-          cj('<div title="{/literal}{ts domain='org.project60.banking'}Error{/ts}{literal}"><span class="ui-icon ui-icon-alert" style="float:left;"></span>' + data['error_message'] + '</div>').dialog({
+          cj('<div title="{/literal}{ts escape='htmlattribute' domain='org.project60.banking'}Error{/ts}{literal}"><span class="ui-icon ui-icon-alert" style="float:left;"></span>' + data['error_message'] + '</div>').dialog({
             modal: true,
             buttons: {
               Ok: function() { location.reload(); }
@@ -272,7 +272,7 @@ function deleteStatement(statement_id) {
             CRM.alert(message, "info");
             window.setTimeout("location.reload()", 1500);
           } else {
-            cj('<div title="{/literal}{ts domain='org.project60.banking'}Error{/ts}{literal}"><span class="ui-icon ui-icon-alert" style="float:left;"></span>' + data['error_message'] + '</div>').dialog({
+            cj('<div title="{/literal}{ts escape='htmlattribute' domain='org.project60.banking'}Error{/ts}{literal}"><span class="ui-icon ui-icon-alert" style="float:left;"></span>' + data['error_message'] + '</div>').dialog({
               modal: true,
               buttons: {
                 Ok: function() { location.reload(); }

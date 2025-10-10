@@ -82,7 +82,7 @@ class CRM_Banking_Helpers_Smarty {
    * @see popScope
    */
   public function pushScope($vars) {
-    $oldVars = $this->smarty->get_template_vars();
+    $oldVars = $this->smarty->getTemplateVars();
     $backupFrame = array();
     foreach ($vars as $key => $value) {
       $backupFrame[$key] = isset($oldVars[$key]) ? $oldVars[$key] : NULL;

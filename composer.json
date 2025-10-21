@@ -1,17 +1,70 @@
 {
-    "name": "civicrm/banking",
-    "type": "civicrm-ext",
+    "name": "project60/org.project60.banking",
     "description": "Automatic and semi-automatic processing of bank statements and other payment files.",
-    "license": "GNU AGPL v3 or later",
+    "type": "civicrm-ext",
+    "license": "AGPL-3.0-or-later",
     "authors": [
         {
-            "name": "Bj&#xF6;rn Endres",
-            "email": "endres@systopia.de"
+            "name": "SYSTOPIA GmbH",
+            "email": "info@systopia.de",
+            "homepage": "https://www.systopia.de"
         }
     ],
+    "minimum-stability": "dev",
+    "prefer-stable": true,
+    "config": {
+        "prepend-autoloader": false,
+        "sort-packages": true,
+        "platform": {
+        }
+    },
+    "require": {
+        "php": "^8.1",
+        "civicrm/civicrm-core": ">=5.76",
+        "civicrm/civicrm-packages": ">=5.76"
+    },
+    "autoload": {
+        "classmap": ["ComposerHelper.php"]
+    },
+    "scripts": {
+        "pre-update-cmd": [
+            "Banking\\ComposerHelper::preUpdate"
+        ],
+        "composer-phpcs": [
+            "@composer --working-dir=tools/phpcs"
+        ],
+        "composer-phpstan": [
+            "@composer --working-dir=tools/phpstan"
+        ],
+        "composer-phpunit": [
+            "@composer --working-dir=tools/phpunit"
+        ],
+        "composer-tools": [
+            "@composer-phpcs",
+            "@composer-phpstan",
+            "@composer-phpunit"
+        ],
+        "phpcs": [
+            "@php tools/phpcs/vendor/bin/phpcs"
+        ],
+        "phpcbf": [
+            "@php tools/phpcs/vendor/bin/phpcbf"
+        ],
+        "phpstan": [
+            "@php tools/phpstan/vendor/bin/phpstan -v"
+        ],
+        "phpunit": [
+            "@php tools/phpunit/vendor/bin/simple-phpunit --coverage-text"
+        ],
+        "test": [
+            "@phpcs",
+            "@phpstan",
+            "@phpunit"
+        ]
+    },
     "extra": {
         "branch-alias": {
-            "dev-master": "1.3.x-dev"
+            "dev-master": "1.4.x-dev"
         }
     }
 }

@@ -18,7 +18,7 @@
 use CRM_Banking_ExtensionUtil as E;
 
 /**
- * @covers \Civi\ActionProvider\Action\Contribution\CreateContribution
+ * @covers CRM_Banking_PluginImpl_Matcher_CreateContribution
  *
  * @group headless
  */

@@ -1,0 +1,116 @@
+name: PHPUnit
+
+on:
+  workflow_dispatch:
+    inputs:
+      civicrm-version:
+        description: 'CiviCRM version constraint'
+        required: false
+        type: string
+  pull_request:
+    paths:
+      - '**.php'
+      - composer.json
+      - tools/phpunit/composer.json
+      - phpunit.xml.dist
+      - .github/workflows/phpunit.yml
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}-${{ inputs.civicrm-version }}
+  cancel-in-progress: true
+
+jobs:
+  phpunit:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: true
+      matrix:
+        php-versions: ['8.1', '8.4']
+        prefer: ['prefer-stable', 'prefer-lowest']
+    name: PHPUnit with PHP ${{ matrix.php-versions }} ${{ matrix.prefer }}
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Setup PHP
+      uses: shivammathur/setup-php@v2
+      with:
+        php-version: ${{ matrix.php-versions }}
+        extensions: bcmath, curl, fileinfo, gd, intl, mbstring, mysqli, xml, zip
+        coverage: pcov
+      env:
+        fail-fast: true
+
+    - name: Get composer cache directory
+      id: composer-cache
+      run: echo "dir=$(composer config cache-files-dir)" >> $GITHUB_OUTPUT
+
+    - name: Cache dependencies
+      uses: actions/cache@v4
+      with:
+        path: ${{ steps.composer-cache.outputs.dir }}
+        key: ${{ runner.os }}-composer-${{ matrix.prefer }}-${{ hashFiles('**/composer.json') }}
+        restore-keys: ${{ runner.os }}-composer-${{ matrix.prefer }}-
+
+    - name: Set up MySQL
+      run: |
+        # MySQL is installed by default.
+        # https://github.com/actions/runner-images/blob/main/images/ubuntu/Ubuntu2404-Readme.md#mysql
+        sudo systemctl start mysql.service
+        until sudo mysqladmin ping --silent; do sleep 1; done
+        sudo mysql -e 'CREATE DATABASE civicrm;' --user=root --password=root
+        sudo mysql -e 'CREATE USER "user"@"localhost" IDENTIFIED BY "password";' --user=root --password=root
+        sudo mysql -e 'GRANT ALL ON *.* TO "user"@"localhost";' --user=root --password=root
+        sudo mysql -e 'GRANT SUPER ON *.* TO "user"@"localhost";' --user=root --password=root
+        sudo mysql -e 'FLUSH PRIVILEGES;' --user=root --password=root
+
+    - name: Install dependencies
+      env:
+        COMPOSER_COMPILE: all
+      run: |
+        # Prevent this git error: The repository does not have the correct ownership and git refuses to use it
+        git config --global --add safe.directory "$PWD"
+        EXT_DIR=$PWD
+        EXT_COMPOSER_NAME=$(composer show --self --name-only)
+        composer composer-phpunit -- update --no-progress --prefer-dist --optimize-autoloader
+        cd ..
+        git clone https://github.com/civicrm/civicrm-standalone.git
+        cd civicrm-standalone
+        composer config --no-plugins allow-plugins.composer/installers true
+        composer config --no-plugins allow-plugins.cweagans/composer-patches true
+        composer config --json 'extra.installer-paths.ext/{$name}' '["type:civicrm-ext"]'
+        composer config repositories.test path $EXT_DIR
+        # Use civicrm-core and civicrm-packages defined in extension's composer.json.
+        composer remove --no-update civicrm/civicrm-core civicrm/civicrm-packages
+        composer require composer/installers civicrm/cli-tools
+        if [ -n "${{ inputs.civicrm-version }}" ]; then
+          composer require --no-update "civicrm/civicrm-core:${{ inputs.civicrm-version }}" \
+            "civicrm/civicrm-packages:${{ inputs.civicrm-version }}"
+        fi
+        # \PEAR_ErrorStack::singleton() is static since pear/pear-core v1.10.16
+        composer require --no-progress --prefer-dist --${{ matrix.prefer }} --optimize-autoloader \
+          $EXT_COMPOSER_NAME 'pear/pear-core-minimal:>=1.10.16'
+
+    - name: Set up CiviCRM
+      env:
+        # Comma-separated list of CiviCRM components to enable, e.g.
+        # CiviEvent,CiviContribute. Components are mapped to extensions. If
+        # empty, all components are enabled. Enabling the dependent extensions
+        # should be actually triggered in the test class. Not enabling any
+        # component isn't possible.
+        CIVICRM_COMPONENTS: "CiviReport"
+        DATABASE_URL: mysql://user:password@127.0.0.1:3306/civicrm?new_link=true
+      run: |
+        cd ../civicrm-standalone
+        export PATH="$(realpath vendor/bin):$PATH"
+        cv core:install --db="$DATABASE_URL" --comp="$CIVICRM_COMPONENTS"
+        export CV_CONFIG="$HOME/.cv.json"
+        cv vars:fill --quiet
+        sed -i "s#\"TEST_DB_DSN\": \".*\"#\"TEST_DB_DSN\": \"$DATABASE_URL\"#g" "$CV_CONFIG"
+
+    - name: Run PHPUnit
+      run: |
+        export PATH="$(realpath ../civicrm-standalone/vendor/bin):$PATH"
+        export CV_CONFIG="$HOME/.cv.json"
+        cd ../civicrm-standalone/ext/$(basename "$PWD")
+        composer phpunit

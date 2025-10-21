@@ -15,31 +15,16 @@
 | written permission from the original author(s).        |
 +--------------------------------------------------------*/
 
-use CRM_Banking_ExtensionUtil as E;
-
-use Civi\Test\HeadlessInterface;
-use Civi\Test\HookInterface;
-use Civi\Test\TransactionalInterface;
-use Civi\Test\CiviEnvBuilder;
-
 /**
- * Tests for the RegexAnalyser class.
- *
- * Tips:
- *  - With HookInterface, you may implement CiviCRM hooks directly in the test class.
- *  Simply create corresponding functions (e.g. "hook_civicrm_post(...)" or similar).
- *  - With TransactionalInterface, any data changes made by setUp() or test****() functions will
- *  rollback automatically -- as long as you don't manipulate schema or truncate tables.
- *  If this test needs to manipulate schema or truncate tables, then either:
- *     a. Do all that using setupHeadless() and Civi\Test.
- *     b. Disable TransactionalInterface, and handle all setup/teardown yourself.
- *
  * @group headless
  *
- * Mainly tests the regex extraction
- *  and the actions: copy, copy_append, copy_ltrim_zeros, set(ok), align_date, unset, strtolower, sha1, preg_replace, calculate, map(ok)
+ * Mainly tests the regex extraction and the actions: copy, copy_append,
+ * copy_ltrim_zeros, set(ok), align_date, unset, strtolower, sha1, preg_replace,
+ * calculate, map(ok)
+ *
+ * @covers CRM_Banking_PluginImpl_Matcher_RegexAnalyser
  */
-class CRM_Banking_RegexAnalyserTest  extends CRM_Banking_TestBase implements HeadlessInterface, HookInterface, TransactionalInterface
+class CRM_Banking_RegexAnalyserTest  extends CRM_Banking_TestBase
 {
     /**
      * Test the 'set' action.
@@ -74,12 +59,7 @@ class CRM_Banking_RegexAnalyserTest  extends CRM_Banking_TestBase implements Hea
 
         $parsedDataAfter = json_decode($transactionAfterRun['data_parsed']);
 
-        $this->assertAttributeEquals(
-            '1',
-            'financial_type_id',
-            $parsedDataAfter,
-            E::ts("The financial type ID is not correctly set.")
-        );
+        static::assertSame(1, $parsedDataAfter->financial_type_id, 'The financial type ID is not correctly set.');
     }
 
     /**
@@ -115,10 +95,10 @@ class CRM_Banking_RegexAnalyserTest  extends CRM_Banking_TestBase implements Hea
 
         $parsedDataAfter = json_decode($transactionAfterRun['data_parsed']);
 
-        $this->assertObjectNotHasAttribute(
+        static::assertObjectNotHasProperty(
             'financial_type_id',
             $parsedDataAfter,
-            E::ts("The financial type ID is set but should not.")
+            'The financial type ID is set but should not.'
         );
     }
 
@@ -161,12 +141,7 @@ class CRM_Banking_RegexAnalyserTest  extends CRM_Banking_TestBase implements Hea
 
         $parsedDataAfter = json_decode($transactionAfterRun['data_parsed']);
 
-        $this->assertAttributeEquals(
-            '1',
-            'payment_instrument_id',
-            $parsedDataAfter,
-            E::ts('The payment instrument ID is not correctly set.')
-        );
+        static::assertSame(1, $parsedDataAfter->payment_instrument_id, 'The payment instrument ID is not correctly set.');
     }
 
     /**

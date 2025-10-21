@@ -14,43 +14,16 @@
 | written permission from the original author(s).        |
 +--------------------------------------------------------*/
 
-use CRM_Banking_ExtensionUtil as E;
-use Civi\Test\HeadlessInterface;
-use Civi\Test\HookInterface;
-use Civi\Test\TransactionalInterface;
-use Civi\Test\CiviEnvBuilder;
-
 /**
  * Tests for the new CampaignContributionMatcher
  *
  * @see https://github.com/Project60/org.project60.banking/issues/296
  *
+ * @covers CRM_Banking_PluginImpl_Matcher_CreateCampaignContribution
+ *
  * @group headless
  */
-class CRM_Banking_Matcher_CreateCampaignContributionMatcherTest extends CRM_Banking_TestBase implements HeadlessInterface, HookInterface, TransactionalInterface {
-
-  /**
-   * Setup used when HeadlessInterface is implemented.
-   *
-   * Civi\Test has many helpers, like install(), uninstall(), sql(), and sqlFile().
-   *
-   * @link https://github.com/civicrm/org.civicrm.testapalooza/blob/master/civi-test.md
-   *
-   * @return \Civi\Test\CiviEnvBuilder
-   *
-   * @throws \CRM_Extension_Exception_ParseException
-   */
-  public function setUpHeadless(): CiviEnvBuilder {
-    return parent::setUpHeadless();
-  }
-
-  public function setUp():void {
-    parent::setUp();
-  }
-
-  public function tearDown():void {
-    parent::tearDown();
-  }
+class CRM_Banking_Matcher_CreateCampaignContributionMatcherTest extends CRM_Banking_TestBase {
 
   /**
    * Basic test to see if the contribution matcher fires
@@ -80,8 +53,9 @@ class CRM_Banking_Matcher_CreateCampaignContributionMatcherTest extends CRM_Bank
     $this->assertNotNull($activity_id, "Test activity not created!");
 
     // step 2: configure a simple campaign matcher
-    $this->configureCiviBankingModule(
-      $this->getTestResourcePath('matcher/configuration/CampaignMatcher-01.civibanking'));
+    $config = json_decode(file_get_contents($this->getTestResourcePath('matcher/configuration/CampaignMatcher-01.civibanking')), TRUE, flags:  JSON_THROW_ON_ERROR);
+    $config['config']['campaign_id'] = $campaign_id;
+    $this->configureCiviBankingModuleWithConfig(json_encode($config, JSON_THROW_ON_ERROR));
 
     // step 3: create a transaction
     $transaction1_id = $this->createTransaction([

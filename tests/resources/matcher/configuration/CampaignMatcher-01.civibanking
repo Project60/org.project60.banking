@@ -5,9 +5,9 @@
   "description": "Test",
   "weight": "130",
   "config": {
-    "activity_type_id": "113",
-    "campaign_id": "3",
-    "auto_exec": 0,
+    "activity_type_id": "4",
+    "campaign_id": "1",
+    "auto_exec": 1,
     "required_values": [
       "btx.financial_type_id",
       "btx.payment_instrument_id"

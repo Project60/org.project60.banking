@@ -14,26 +14,12 @@
 | written permission from the original author(s).        |
 +--------------------------------------------------------*/
 
-use CRM_Banking_ExtensionUtil as E;
-use Civi\Test\HeadlessInterface;
-use Civi\Test\HookInterface;
-use Civi\Test\TransactionalInterface;
-use Civi\Test\CiviEnvBuilder;
-
 /**
- * Test CreateContributionMatcher module
+ * @covers CRM_Banking_PluginImpl_PostProcessor_API
  *
  * @group headless
  */
-class CRM_Banking_PostProcessor_ApiPostProcessorTest extends CRM_Banking_TestBase implements HeadlessInterface, HookInterface, TransactionalInterface {
-
-  public function setUp():void {
-    parent::setUp();
-  }
-
-  public function tearDown():void {
-    parent::tearDown();
-  }
+class CRM_Banking_PostProcessor_ApiPostProcessorTest extends CRM_Banking_TestBase {
 
   /**
    * Basic test see if postprocessing works. It consists

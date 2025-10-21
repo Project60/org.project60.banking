@@ -14,20 +14,18 @@
 | written permission from the original author(s).        |
 +--------------------------------------------------------*/
 
-use CRM_Banking_ExtensionUtil as E;
-use Civi\Test\HeadlessInterface;
-use Civi\Test\HookInterface;
-use Civi\Test\TransactionalInterface;
 use Civi\Test\CiviEnvBuilder;
+use Civi\Test\HeadlessInterface;
+use Civi\Test\TransactionalInterface;
+use CRM_Banking_ExtensionUtil as E;
+use PHPUnit\Framework\TestCase;
 
 include_once "CRM/Banking/Helpers/OptionValue.php";
 
 /**
  * Base class for all CiviBanking tests
- *
- * @group headless
  */
-class CRM_Banking_TestBase extends \PHPUnit\Framework\TestCase implements HeadlessInterface, HookInterface, TransactionalInterface
+abstract class CRM_Banking_TestBase extends TestCase implements HeadlessInterface, TransactionalInterface
 {
   use \Civi\Test\Api3TestTrait {
     callAPISuccess as protected traitCallAPISuccess;
@@ -51,6 +49,7 @@ class CRM_Banking_TestBase extends \PHPUnit\Framework\TestCase implements Headle
   {
     $this->setUp();
     return \Civi\Test::headless()
+      ->install('civi_campaign')
       ->installMe(__DIR__)
       ->apply();
   }
@@ -80,12 +79,19 @@ class CRM_Banking_TestBase extends \PHPUnit\Framework\TestCase implements Headle
   {
     $this->assertTrue(file_exists($configuration_file), "Configuration file '{$configuration_file}' not found.");
     $this->assertTrue(is_readable($configuration_file), "Configuration file '{$configuration_file}' cannot be opened.");
-    $data          = file_get_contents($configuration_file);
-    $decoding_test = json_decode($data, true);
-    $this->assertTrue(is_array($decoding_test), "Configuration file '{$configuration_file}' didn't contain json.");
+    $data = file_get_contents($configuration_file);
+
+    return $this->configureCiviBankingModuleWithConfig($data);
+  }
+
+  /**
+   * @param array<string, mixed> $config
+   */
+  public function configureCiviBankingModuleWithConfig(string $config): int
+  {
     $plugin_bao = new CRM_Banking_BAO_PluginInstance();
-    $plugin_bao->updateWithSerialisedData($data);
-    $this->assertNotEmpty($plugin_bao->id, "Configuration from file '{$configuration_file}' couldn't be stored.");
+    $plugin_bao->updateWithSerialisedData($config);
+    static::assertNotEmpty($plugin_bao->id, "Configuration couldn't be stored.");
     return $plugin_bao->id;
   }
 

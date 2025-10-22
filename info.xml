@@ -20,6 +20,9 @@
   <compatibility>
     <ver>5.76</ver>
   </compatibility>
+  <requires>
+    <ext>civi_contribute</ext>
+  </requires>
   <classloader>
     <psr4 prefix="Civi\" path="Civi"/>
     <psr0 prefix="CRM_" path="."/>

@@ -16,6 +16,7 @@
 
 declare(strict_types = 1);
 
+use Civi\Api4\OptionGroup;
 use CRM_Banking_ExtensionUtil as E;
 
 /**
@@ -326,22 +327,18 @@ function _banking_options() {
 function banking_civicrm_install_options($data) {
   foreach ($data as $groupName => $group) {
     // check group existence
-    $result = civicrm_api3('option_group', 'getsingle', ['name' => $groupName]);
-    if (isset($result['is_error']) && $result['is_error']) {
+    $result = OptionGroup::get(FALSE)->addWhere('name', '=', $groupName)->execute()->first();
+    if (NULL === $result) {
       $params = [
-        'sequential' => 1,
         'name' => $groupName,
-        'is_reserved' => 1,
-        'is_active' => 1,
+        'is_reserved' => TRUE,
+        'is_active' => TRUE,
         'title' => $group['title'],
         'description' => $group['description'],
       ];
-      $result = civicrm_api3('option_group', 'create', $params);
-      $group_id = $result['values'][0]['id'];
+      $result = OptionGroup::create(FALSE)->setValues($params)->execute()->single();
     }
-    else {
-      $group_id = $result['id'];
-    }
+    $group_id = $result['id'];
 
     if (is_array($group['values'])) {
       $groupValues = $group['values'];

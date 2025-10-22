@@ -57,7 +57,7 @@ function banking_civicrm_install() {
   // Set the bank account reference probability to 100%.
   Civi::settings()->set('reference_matching_probability', 1.0);
 
-  return _banking_civix_civicrm_install();
+  _banking_civix_civicrm_install();
 }
 
 /**

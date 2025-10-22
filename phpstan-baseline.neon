@@ -6562,12 +6562,6 @@ parameters:
 			path: CRM/Banking/PluginImpl/Matcher/CreateMultipleContributions.php
 
 		-
-			message: '#^Cannot access offset mixed on array\|bool\.$#'
-			identifier: offsetAccess.nonOffsetAccessible
-			count: 1
-			path: CRM/Banking/PluginImpl/Matcher/CreateMultipleContributions.php
-
-		-
 			message: '#^Construct empty\(\) is not allowed\. Use more strict comparison\.$#'
 			identifier: empty.notAllowed
 			count: 12
@@ -13612,15 +13606,9 @@ parameters:
 			path: banking_options.php
 
 		-
-			message: '#^Cannot access offset ''id'' on array\|int\.$#'
-			identifier: offsetAccess.nonOffsetAccessible
-			count: 1
-			path: banking_options.php
-
-		-
 			message: '#^Cannot access offset ''values'' on array\|int\.$#'
 			identifier: offsetAccess.nonOffsetAccessible
-			count: 2
+			count: 1
 			path: banking_options.php
 
 		-

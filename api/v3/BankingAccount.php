@@ -80,8 +80,11 @@ function civicrm_api3_banking_account_delete($params) {
  * Get or create a bank account for a given contact
  * @return array (reference )
  * @access public
+ *
+ * phpcs:disable Generic.Metrics.CyclomaticComplexity.TooHigh
  */
 function civicrm_api3_banking_account_getorcreate($params) {
+// phpcs:enable
   // sort out the reference type
   if (is_numeric($params['reference_type'])) {
     $reference_type_id = (int) $params['reference_type'];

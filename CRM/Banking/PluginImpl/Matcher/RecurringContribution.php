@@ -218,8 +218,11 @@ class CRM_Banking_PluginImpl_Matcher_RecurringContribution extends CRM_Banking_P
    *
    * @param CRM_Banking_BAO_BankTransaction $btx
    *   the bank transaction this is related to
+   *
+   * phpcs:disable Generic.Metrics.CyclomaticComplexity.TooHigh
    */
   public function execute($suggestion, $btx) {
+  // phpcs:enable
     $config      = $this->_plugin_config;
     $smarty_vars = [];
 

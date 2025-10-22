@@ -186,7 +186,7 @@ class CRM_Banking_PluginImpl_PostProcessor_AddressUpdate extends CRM_Banking_Plu
       $this->addCountryName($existing_address);
       $diff = array();
       foreach ($address_data as $key => $value) {
-        $existing_value = CRM_Utils_Array::value($key, $existing_address);
+        $existing_value = $existing_address[$key] ?? NULL;
         if ($value != $existing_value) {
           $diff[$key] = array($existing_value, $value);
         }

@@ -786,7 +786,7 @@ class CRM_Banking_PluginImpl_PostProcessor_MembershipExtension extends CRM_Banki
       }
     }
 
-    return CRM_Utils_Array::value($membership_type_id, self::$_membership_types, NULL);
+    return self::$_membership_types[$membership_type_id] ?? NULL;
   }
 
   protected function getMembershipExtensionAttribute($attribute, $params) {

@@ -143,7 +143,7 @@ function civicrm_api3_banking_account_getorcreate($params) {
     // and then create!
     $new_bank_account = civicrm_api3('BankingAccount', 'create', array(
       'contact_id'  => $params['contact_id'],
-      'description' => CRM_Utils_Array::value('description', $params),
+      'description' => $params['description'] ?? NULL,
       'data_parsed' => json_encode($bank_account_data)));
 
     $bank_account_reference = civicrm_api3('BankingAccountReference', 'create', array(

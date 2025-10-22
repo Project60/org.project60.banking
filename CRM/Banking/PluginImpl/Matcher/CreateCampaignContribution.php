@@ -372,7 +372,7 @@ class CRM_Banking_PluginImpl_Matcher_CreateCampaignContribution extends CRM_Bank
     $contribution['financial_type'] = $financial_types[$contribution['financial_type_id']];
 
     // assign source
-    $smarty_vars['source']       = CRM_Utils_Array::value('source', $contribution);
+    $smarty_vars['source']       = $contribution['source'] ?? NULL;
     $smarty_vars['source_label'] = $this->_plugin_config->source_label;
 
     // assign to smarty and compile HTML

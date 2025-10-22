@@ -38,7 +38,7 @@ class CRM_Banking_BAO_BankTransactionBatch extends CRM_Banking_DAO_BankTransacti
       $params['tx_count'] = 0;
 
     $hook = empty($params['id']) ? 'create' : 'edit';
-    CRM_Utils_Hook::pre($hook, 'BankTransactionBatch', CRM_Utils_Array::value('id', $params), $params);
+    CRM_Utils_Hook::pre($hook, 'BankTransactionBatch', $params['id'] ?? NULL, $params);
 
     // TODO: convert the arrays (suggestions, data_parsed) back into JSON
     $dao = new CRM_Banking_DAO_BankTransactionBatch();

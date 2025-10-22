@@ -91,7 +91,7 @@ class CRM_Banking_Page_Statements extends CRM_Core_Page {
     while ($stmt->fetch()) {
       // look up the target account
       $target_name = '';
-      $target_info = json_decode($stmt->data_parsed);
+      $target_info = json_decode($stmt->data_parsed ?? '');
       if (isset($target_info->name)) {
         $target_name = $target_info->name;
       }

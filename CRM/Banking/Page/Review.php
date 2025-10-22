@@ -104,9 +104,9 @@ class CRM_Banking_Page_Review extends CRM_Core_Page {
     // parse structured data
     $this->assign('btxstatus', $choices[$btx_bao->status_id]);
     $this->assign('payment', $btx_bao);
-    $this->assign('payment_data_raw', json_decode($btx_bao->data_raw, TRUE));
+    $this->assign('payment_data_raw', json_decode($btx_bao->data_raw ?? '', TRUE));
 
-    $data_parsed = json_decode($btx_bao->data_parsed, TRUE);
+    $data_parsed = json_decode($btx_bao->data_parsed ?? '', TRUE);
     $this->assign('payment_data_parsed', $data_parsed);
     if (!empty($data_parsed['iban'])) {
       // @phpstan-ignore staticMethod.deprecated
@@ -119,7 +119,7 @@ class CRM_Banking_Page_Review extends CRM_Core_Page {
     }
 
     $extra_data = [];
-    $_data_raw = json_decode($btx_bao->data_raw, TRUE);
+    $_data_raw = json_decode($btx_bao->data_raw ?? '', TRUE);
     if (is_array($_data_raw)) {
       $extra_data = $_data_raw;
     }
@@ -142,7 +142,7 @@ class CRM_Banking_Page_Review extends CRM_Core_Page {
       $ba_bao->get('id', $btx_bao->party_ba_id);
 
       $this->assign('party_ba', $ba_bao);
-      $this->assign('party_ba_data_parsed', json_decode($ba_bao->data_parsed, TRUE));
+      $this->assign('party_ba_data_parsed', json_decode($ba_bao->data_parsed ?? '', TRUE));
       $party_ba_references = $ba_bao->getReferences();
       foreach ($party_ba_references as $_idx => $_party_ba_reference) {
         if ($_party_ba_reference['probability'] >= 1.0 && empty($contact)) {

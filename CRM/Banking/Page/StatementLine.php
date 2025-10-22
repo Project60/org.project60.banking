@@ -59,8 +59,8 @@ class CRM_Banking_Page_StatementLine extends CRM_Core_Page {
       $line['date'] = $lineDao->date;
       $line['amount'] = $lineDao->amount;
       $line['currency'] = $lineDao->currency;
-      $line['data_parsed'] = json_decode($lineDao->data_parsed, TRUE);
-      $line['suggestions'] = json_decode($lineDao->suggestions, TRUE) ?: [];
+      $line['data_parsed'] = json_decode($lineDao->data_parsed ?? '', TRUE);
+      $line['suggestions'] = json_decode($lineDao->suggestions ?? '', TRUE) ?: [];
       $line['suggestion_count'] = count($line['suggestions']);
       $line['status'] = $lineDao->status_label;
       $line['status_name'] = $lineDao->status_name;

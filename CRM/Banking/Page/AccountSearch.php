@@ -55,9 +55,8 @@ class CRM_Banking_Page_AccountSearch extends CRM_Core_Page {
                 contact.id,
                 ref.reference,
                 ref.reference_type_id,
-                ba.data_parsed;
-// add LIMIT 0, 50;
-            ";
+                ba.data_parsed;";
+      // add LIMIT 0, 50;
       $dao = CRM_Core_DAO::executeQuery($query);
 
       $types = [];
@@ -70,7 +69,7 @@ class CRM_Banking_Page_AccountSearch extends CRM_Core_Page {
               'contact_link'   => CRM_Utils_System::url('civicrm/contact/view', 'reset=1&cid=' . $dao->id),
               'reference'      => $dao->reference,
               'reference_type' => $this->lookup_type($types, $dao->reference_type_id),
-              'data_parsed'    => json_decode($dao->data_parsed, TRUE),
+              'data_parsed'    => json_decode($dao->data_parsed ?? '', TRUE),
             ]);
       }
       $this->assign('results', $results);

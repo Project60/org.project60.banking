@@ -253,7 +253,7 @@ class CRM_Banking_Page_Payments extends CRM_Core_Page {
 
       // look up the target account
       $target_name = E::ts('Unknown');
-      $target_info = json_decode($stmt->data_parsed);
+      $target_info = json_decode($stmt->data_parsed ?? '');
       if (isset($target_info->name)) {
         $target_name = $target_info->name;
       }
@@ -295,7 +295,7 @@ class CRM_Banking_Page_Payments extends CRM_Core_Page {
     $payment_rows = [];
     foreach ($btxs as $entry) {
       $status = $payment_states[$entry['status_id']]['label'];
-      $data_parsed = json_decode($entry['data_parsed'], TRUE);
+      $data_parsed = json_decode($entry['data_parsed'] ?? '', TRUE);
 
       // load the bank accounts and associated contact...
       if (empty($entry['ba_id'])) {
@@ -337,7 +337,7 @@ class CRM_Banking_Page_Payments extends CRM_Core_Page {
       // get the highest probability rating for the suggestions
       $probability = 0.0;
       if ('suggestions' == $payment_states[$entry['status_id']]['name']) {
-        $suggestions = json_decode($entry['suggestions'], TRUE);
+        $suggestions = json_decode($entry['suggestions'] ?? '', TRUE);
 
         if (is_array($suggestions)) {
           foreach ($suggestions as $suggestion) {

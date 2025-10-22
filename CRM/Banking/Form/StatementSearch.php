@@ -242,7 +242,7 @@ class CRM_Banking_Form_StatementSearch extends CRM_Core_Form {
     $ajaxParameters = CRM_Core_Page_AJAX::defaultSortAndPagerParams();
     $ajaxParameters += CRM_Core_Page_AJAX::validateParams([], $optionalAjaxParameters);
 
-    $sortByComponents = explode(' ', $ajaxParameters['sortBy'], 3);
+    $sortByComponents = explode(' ', $ajaxParameters['sortBy'] ?? '', 3);
 
     $sortBy = '';
     switch ($sortByComponents[0]) {
@@ -550,7 +550,7 @@ class CRM_Banking_Form_StatementSearch extends CRM_Core_Form {
 
         // parse the references
         $linked_accounts = [];
-        $account_reference_list = explode(',', $account_references);
+        $account_reference_list = explode(',', $account_references ?? '');
         $accountReferenceListCount = count($account_reference_list);
         for ($i = 1; $i < $accountReferenceListCount; $i += 2) {
           $reference = $account_reference_list[$i - 1];

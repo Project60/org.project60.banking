@@ -100,7 +100,7 @@ class CRM_Banking_Rules_Rule {
   public static function get($rule_id) {
     $rule_id = (int) $rule_id;
     if ($rule_id < 1) {
-      throw \InvalidArgumentException('Rule ID must be a positive integer');
+      throw new \InvalidArgumentException('Rule ID must be a positive integer');
     }
 
     $dao = CRM_Core_DAO::executeQuery('SELECT * FROM civicrm_bank_rules WHERE ID = %1', [1 => [$rule_id, 'Integer']]);
@@ -232,7 +232,7 @@ class CRM_Banking_Rules_Rule {
     else {
       // Minimal parsing of conditions.
       if (!is_array($params['conditions'])) {
-        throw new API_Exception('Expect conditions parameter to be an object.');
+        throw new CRM_Core_Exception('Expect conditions parameter to be an object.');
       }
       $conditions = $params['conditions'];
     }
@@ -242,7 +242,7 @@ class CRM_Banking_Rules_Rule {
     else {
       // Minimal parsing of execution.
       if (!is_array($params['execution'])) {
-        throw new API_Exception('Expect execution parameter to be an object.');
+        throw new CRM_Core_Exception('Expect execution parameter to be an object.');
       }
       $executions = $params['execution'];
     }

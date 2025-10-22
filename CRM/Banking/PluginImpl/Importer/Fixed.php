@@ -39,7 +39,7 @@ class CRM_Banking_PluginImpl_Importer_Fixed extends CRM_Banking_PluginModel_Impo
   /**
    * will be used to avoid multiple account lookups
    */
-  protected $account_cache = [];
+  protected array $account_cache = [];
 
   /**
    * This will be used to suppress duplicates within the same statement
@@ -182,23 +182,7 @@ class CRM_Banking_PluginImpl_Importer_Fixed extends CRM_Banking_PluginModel_Impo
 
     // finish statement object
     if ($this->getCurrentTransactionBatch()->tx_count) {
-      // copy all data entries starting with tx.batch into the batch
-      if (!empty($data['tx_batch.reference'])) {
-        $this->getCurrentTransactionBatch()->reference = $data['tx_batch.reference'];
-      }
-      else {
-        $this->getCurrentTransactionBatch()->reference = 'TXT-File {md5}';
-      }
-
-      if (!empty($data['tx_batch.sequence'])) {
-        $this->getCurrentTransactionBatch()->sequence = $data['tx_batch.sequence'];
-      }
-      if (!empty($data['tx_batch.starting_date'])) {
-        $this->getCurrentTransactionBatch()->starting_date = $data['tx_batch.starting_date'];
-      }
-      if (!empty($data['tx_batch.ending_date'])) {
-        $this->getCurrentTransactionBatch()->ending_date = $data['tx_batch.ending_date'];
-      }
+      $this->getCurrentTransactionBatch()->reference = 'TXT-File {md5}';
 
       $this->closeTransactionBatch(TRUE);
     }
@@ -405,27 +389,6 @@ class CRM_Banking_PluginImpl_Importer_Fixed extends CRM_Banking_PluginModel_Impo
 
     // look up the bank accounts
     $this->lookupBankAccounts($btx);
-
-    // do some post processing
-    if (!isset($config->bank_reference)) {
-      // set SHA1 hash as unique reference
-      $btx['bank_reference'] = sha1($btx['data_raw']);
-    }
-    else {
-      // we have a template
-      $bank_reference = $config->bank_reference;
-      $tokens = [];
-      preg_match('/\{([^\}]+)\}/', $bank_reference, $tokens);
-      foreach ($tokens as $key => $token_name) {
-        // match#0 is not relevant
-        if (!$key) {
-          continue;
-        }
-        $token_value = isset($btx[$token_name]) ? $btx[$token_name] : '';
-        $bank_reference = str_replace("{{$token_name}}", $token_value, $bank_reference);
-      }
-      $btx['bank_reference'] = $bank_reference;
-    }
 
     // prepare $btx: put all entries, that are not for the basic object, into parsed data
     $btx_parsed_data = [];

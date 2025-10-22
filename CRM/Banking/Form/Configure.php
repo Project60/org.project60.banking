@@ -113,6 +113,8 @@ class CRM_Banking_Form_Configure extends CRM_Core_Form {
         'plugin_class_id' => $this->plugin['plugin_class_id'],
       ];
     }
+
+    return [];
   }
 
   public function postProcess() {

@@ -16,6 +16,8 @@
 
 declare(strict_types = 1);
 
+use CRM_Banking_ExtensionUtil as E;
+
 /**
  * Class contains functions for CiviBanking bank account references
  *
@@ -89,9 +91,9 @@ class CRM_Banking_BAO_BankAccountReference extends CRM_Banking_DAO_BankAccountRe
   /**
    * Normalise a reference (if a normalisation is available)
    *
-   * @param $reference_type_name the name of the type, e.g. IBAN, NBAN_DE, ...
+   * @param string $reference_type_name the name of the type, e.g. IBAN, NBAN_DE, ...
    *
-   * @return  FALSE if no normalisation is possible (not implemented)
+   * @return false|int FALSE if no normalisation is possible (not implemented)
    *   0     if doesn't comply with standard
    *          1     if reference is already normalised
    *          2     if reference was normalised
@@ -107,23 +109,14 @@ class CRM_Banking_BAO_BankAccountReference extends CRM_Banking_DAO_BankAccountRe
         }
         else {
           // structure correct, check the checksum...
-          if ((TRUE == include 'packages/php-iban-1.4.0/php-iban.php')
-                 && function_exists('verify_iban')) {
-            if (verify_iban($reference)) {
-              return $structure_correct;
-            }
-            else {
-              return 0;
-            }
-          }
-          else {
-            // this means we cannot check beyond structural compliance...
-            //   ...but what can we do?
+          include_once 'packages/php-iban-1.4.0/php-iban.php';
+          if (verify_iban($reference)) {
             return $structure_correct;
           }
+          else {
+            return 0;
+          }
         }
-        // we shouldn't get here
-        return FALSE;
 
       case 'NBAN_DE':
         return self::std_normalisation($reference_type_name, $reference,

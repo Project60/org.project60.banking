@@ -491,7 +491,7 @@ class CRM_Banking_PluginImpl_PostProcessor_MembershipExtension extends CRM_Banki
    * Create a new membership
    *
    * @param $contribution array contribution data
-   * @throws CiviCRM_API3_Exception
+   * @throws CRM_Core_Exception
    */
   protected function createMembership($contribution, $membership_type_id = NULL) {
     $config = $this->_plugin_config;
@@ -652,7 +652,7 @@ class CRM_Banking_PluginImpl_PostProcessor_MembershipExtension extends CRM_Banki
    * @param CRM_Banking_Matcher_Suggestion $match         the executed match
    * @param CRM_Banking_Matcher_Context $context
    * @return array memberships
-   * @throws CiviCRM_API3_Exception
+   * @throws CRM_Core_Exception
    *
    * phpcs:disable Generic.Metrics.CyclomaticComplexity.MaxExceeded
    */
@@ -786,7 +786,7 @@ class CRM_Banking_PluginImpl_PostProcessor_MembershipExtension extends CRM_Banki
    *
    * @param CRM_Banking_Matcher_Context $context
    * @return array contributions
-   * @throws CiviCRM_API3_Exception
+   * @throws CRM_Core_Exception
    */
   protected function getEligibleContributions($context) {
     $cache_key = "{$this->_plugin_id}_eligiblecontributions_{$context->btx->id}";

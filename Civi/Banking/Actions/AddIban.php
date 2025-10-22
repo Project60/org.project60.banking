@@ -68,7 +68,7 @@ class AddIban extends AbstractAction {
           'ba_id' => $ba['id'],
         ]);
       }
-      catch (\CiviCRM_API3_Exception $ex) {
+      catch (\CRM_Core_Exception $ex) {
         throw new ExecutionException(E::ts('Could not add bank account') . $iban . E::ts(' to contact ID ') . $contactId
           . E::ts(', error message from API3 BankingAccount or BankingAccountReference create: ') . $ex->getMessage());
       }
@@ -114,7 +114,7 @@ class AddIban extends AbstractAction {
           return $optionValue['id'];
         }
       }
-      catch (\API_Exception $ex) {
+      catch (\CRM_Core_Exception $ex) {
       }
     }
     else {
@@ -128,7 +128,7 @@ class AddIban extends AbstractAction {
           return $accRef;
         }
       }
-      catch (\CiviCRM_API3_Exception $ex) {
+      catch (\CRM_Core_Exception $ex) {
       }
     }
     return FALSE;

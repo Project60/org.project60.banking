@@ -43,6 +43,8 @@ abstract class CRM_Banking_PluginModel_Base {
   protected $_progress_callback;
   protected $_progress_log = [];
 
+  protected CRM_Banking_Helpers_Logger $logger;
+
   /**
    * the plugin's user readable name
    *
@@ -136,8 +138,13 @@ abstract class CRM_Banking_PluginModel_Base {
       $progress = 1;
     }
 
-    if (isset($_progress_callback)) {
-      $_progress_callback->reportProgress($progress, $message, $level);
+    // phpcs:disable Generic.CodeAnalysis.EmptyStatement.DetectedIf
+    if (isset($this->_progress_callback)) {
+    // phpcs:enable
+      // @todo Commented out because the if condition previously always was
+      // false because $this was missing. It's never specified that
+      // _progress_callback is an object with method reportProgress().
+      // $this->_progress_callback->reportProgress($progress, $message, $level);
     }
     // log internally
     $this->_progress_log[] = [date('Y-m-d H:i:s'), $progress, $message, $level];

@@ -69,7 +69,7 @@ class CRM_Bankingcustom_TransactionSummary {
   /**
    * Fetch the birth_date of the contact matching this transaction
    *
-   * @throws \CiviCRM_API3_Exception
+   * @throws \CRM_Core_Exception
    */
   public function modify() {
     $template = CRM_Core_Smarty::singleton();

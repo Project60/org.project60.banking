@@ -43,7 +43,7 @@ function _civicrm_api3_banking_plugin_instance_import_spec(&$spec) {
  *
  * @see civicrm_api3_create_success
  *
- * @throws API_Exception
+ * @throws CRM_Core_Exception
  *
  * phpcs:disable Generic.Metrics.CyclomaticComplexity.TooHigh
  */
@@ -55,7 +55,7 @@ function civicrm_api3_banking_plugin_instance_import($params) {
   // with check_permissions != 0. This is roughly the same security barrier
   // implemented for options.move-file in the Attachment.create API3
   if (!empty($params['check_permissions'])) {
-    throw new API_Exception('API only supported on secure calls');
+    throw new CRM_Core_Exception('API only supported on secure calls');
   }
   $plugin_list = CRM_Banking_BAO_PluginInstance::listInstances('import');
   /**
@@ -68,13 +68,13 @@ function civicrm_api3_banking_plugin_instance_import($params) {
     }
   }
   if (NULL === $plugin_instance) {
-    throw new API_Exception('Unknown plugin id ' . $params['plugin_id']);
+    throw new CRM_Core_Exception('Unknown plugin id ' . $params['plugin_id']);
   }
   if (!$plugin_instance::does_import_files()) {
-    throw new API_Exception('Plugin does not support import files');
+    throw new CRM_Core_Exception('Plugin does not support import files');
   }
   if (!is_readable($params['file_path'])) {
-    throw new API_Exception('file_path is not readable');
+    throw new CRM_Core_Exception('file_path is not readable');
   }
   $import_parameters = [
     'dry_run' => !empty($params['dry_run']) ? 'on' : 'off',
@@ -85,7 +85,7 @@ function civicrm_api3_banking_plugin_instance_import($params) {
     $plugin_instance->import_file($params['file_path'], $import_parameters);
   }
   else {
-    throw new API_Exception('File rejected by importer!');
+    throw new CRM_Core_Exception('File rejected by importer!');
   }
 
   $warnings = [];

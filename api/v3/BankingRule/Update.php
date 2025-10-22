@@ -42,7 +42,7 @@ function _civicrm_api3_banking_rule_Update_spec(&$spec) {
  * @return array API result descriptor
  * @see civicrm_api3_create_success
  * @see civicrm_api3_create_error
- * @throws API_Exception
+ * @throws CRM_Core_Exception
  */
 function civicrm_api3_banking_rule_Update($params) {
   try {
@@ -73,7 +73,7 @@ function civicrm_api3_banking_rule_Update($params) {
     return civicrm_api3_create_success($result, $params, 'BankingRule', 'Update');
   }
   catch (Exception $e) {
-    throw new API_Exception($e->getMessage());
+    throw new CRM_Core_Exception($e->getMessage());
   }
 
 }

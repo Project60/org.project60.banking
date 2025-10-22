@@ -41,7 +41,7 @@ class CRM_Banking_PluginImpl_Matcher_Yes extends CRM_Banking_PluginModel_Matcher
    * @param type $btx
    */
   public function execute($match, $btx) {
-
+    return TRUE;
   }
 
   public function visualize_match(CRM_Banking_Matcher_Suggestion $match, $btx) {

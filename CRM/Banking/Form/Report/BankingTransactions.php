@@ -1,7 +1,8 @@
 <?php
-use CRM_Banking_ExtensionUtil as E;
 
 declare(strict_types = 1);
+
+use CRM_Banking_ExtensionUtil as E;
 
 class CRM_Banking_Form_Report_BankingTransactions extends CRM_Report_Form {
 

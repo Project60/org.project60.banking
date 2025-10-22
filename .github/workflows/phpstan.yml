@@ -54,6 +54,10 @@ jobs:
         composer update --no-scripts --no-progress --prefer-dist --${{ matrix.prefer }} --optimize-autoloader --ignore-platform-reqs
         composer composer-phpunit -- update --no-progress --prefer-dist --optimize-autoloader
         composer composer-phpstan -- update --no-progress --prefer-dist --optimize-autoloader
+        cd ..
+        git clone --depth=1 https://lab.civicrm.org/extensions/action-provider.git
+        git clone --depth=1 https://lab.civicrm.org/extensions/dataprocessor.git
+        git clone --depth=1 https://github.com/Project60/org.project60.sepa.git
 
     - name: Run PHPStan
       run: composer phpstan -- analyse -c phpstan.ci.neon

@@ -67,7 +67,7 @@ function banking_civicrm_enable() {
   //add the required option groups
   banking_civicrm_install_options(_banking_options());
 
-  return _banking_civix_civicrm_enable();
+  _banking_civix_civicrm_enable();
 }
 
 function banking_civicrm_angularModules(&$angularModules) {

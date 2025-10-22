@@ -140,9 +140,10 @@ class CRM_Banking_Rules_Match {
 
   /**
    * constructor for a $rule|$btx match object
-   * @param $rule       CRM_Banking_Rules_Rule     matching context, can be used for caching
-   * @param $btx        CRM_Banking_BAO_BankTransaction to be analysed
-   * @param $confidence float  discard any matches with a confidence below this value
+   * @param CRM_Banking_Rules_Rule $rule matching context, can be used for caching
+   * @param CRM_Banking_BAO_BankTransaction $btx transaction to be analysed
+   * @param array $mapping
+   * @param double $confidence discard any matches with a confidence below this value
    */
   public function __construct($rule, $btx, $mapping, $confidence = 1.0) {
     $this->rule       = $rule;

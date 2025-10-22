@@ -215,7 +215,7 @@ class CRM_Banking_Matcher_Suggestion {
     elseif ($this->_plugin == NULL) {
       // load BTX
       if ($this->_blob != NULL && isset($this->_blob['matcher_id'])) {
-        $plugin_instance = CRM_Banking_BAO_PluginInstance();
+        $plugin_instance = new CRM_Banking_BAO_PluginInstance();
         $plugin_instance->get('id', $this->_blob['matcher_id']);
         $this->_plugin = $plugin_instance->getInstance();
       }

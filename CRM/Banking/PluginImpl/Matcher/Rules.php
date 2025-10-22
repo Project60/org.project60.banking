@@ -97,7 +97,7 @@ class CRM_Banking_PluginImpl_Matcher_Rules extends CRM_Banking_PluginModel_Match
     $rule = CRM_Banking_Rules_Rule::get($rule_id);
 
     // execute rule
-    $rule_match = new CRM_Banking_Rules_Match($rule, $btx);
+    $rule_match = new CRM_Banking_Rules_Match($rule, $btx, []);
     $rule_match->execute($match);
 
     // update status

@@ -153,6 +153,9 @@ abstract class CRM_Banking_PluginModel_PostProcessor extends CRM_Banking_PluginM
 
   /**
    * Fetch a named propagation object.
+   *
+   * @param string $name
+   *
    * @see CRM_Banking_PluginModel_BtxBase::getPropagationValue
    */
   public function getPropagationObject($name, $btx) {
@@ -166,7 +169,7 @@ abstract class CRM_Banking_PluginModel_PostProcessor extends CRM_Banking_PluginM
         return $this->getFirstMembership($btx->context);
 
       case 'contact':
-        return $this->getSoleContact();
+        return $this->getSoleContact($btx->context);
 
       default:
         // nothing to do here

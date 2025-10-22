@@ -201,7 +201,7 @@ class CRM_Banking_PluginImpl_PostProcessor_RecurringFails extends CRM_Banking_Pl
    * @param $context
    * @param $match
    *
-   * @throws CiviCRM_API3_Exception
+   * @throws CRM_Core_Exception
    *
    *  phpcs:disable Generic.Metrics.CyclomaticComplexity.TooHigh
    */
@@ -412,9 +412,9 @@ class CRM_Banking_PluginImpl_PostProcessor_RecurringFails extends CRM_Banking_Pl
       else {
         $stats['sequential_successful_collections'] = 0;
       }
-
-      return $stats;
     }
+
+    return $stats;
   }
 
   /**

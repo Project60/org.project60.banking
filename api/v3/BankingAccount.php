@@ -162,7 +162,6 @@ function civicrm_api3_banking_account_getorcreate($params) {
 
 /**
  * Get or create a bank account for a given contact
- * @return array (reference )
  * @access public
  */
 function _civicrm_api3_banking_account_getorcreate_spec(&$params) {

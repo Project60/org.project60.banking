@@ -198,10 +198,8 @@ class CRM_Banking_Page_Manager extends CRM_Core_Page {
 
   /**
    * Will update the plugin's weights so it reflects the given order
-   *
-   * @return list of plugin IDs in order of weight
    */
-  protected function storePluginOrder($plugin_order) {
+  protected function storePluginOrder($plugin_order): void {
     $weight = 10;
     foreach ($plugin_order as $plugin_id) {
       CRM_Core_DAO::executeQuery("UPDATE civicrm_bank_plugin_instance SET weight={$weight} WHERE id = {$plugin_id}");

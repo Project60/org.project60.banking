@@ -63,7 +63,7 @@ class FindLatestAccount extends AbstractAction {
           }
         }
       }
-      catch (\CiviCRM_API3_Exception $ex) {
+      catch (\CRM_Core_Exception $ex) {
         throw new ExecutionException(E::ts('Could not find a bank account for contact') . $contactId
           . E::ts(', error message from API3 BankingAccount or BankingAccountReference getvalue: ') . $ex->getMessage());
       }

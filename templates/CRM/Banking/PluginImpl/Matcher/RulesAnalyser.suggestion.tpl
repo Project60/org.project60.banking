@@ -46,7 +46,7 @@
           </td>
           <td>
             {capture assign=rule_id}{$rule.id}{/capture}
-            <a href="{crmURL p="civicrm/a/#/banking/rules/$rule_id}" target="_blank">Edit Rule</a>
+            <a href="{crmURL p="civicrm/a/#/banking/rules/$rule_id"}" target="_blank">Edit Rule</a>
           </td>
           </tr>
           {/if}

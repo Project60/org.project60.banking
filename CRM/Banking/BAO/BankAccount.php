@@ -44,7 +44,7 @@ class CRM_Banking_BAO_BankAccount extends CRM_Banking_DAO_BankAccount {
     }
 
     $hook = empty($params['id']) ? 'create' : 'edit';
-    CRM_Utils_Hook::pre($hook, 'BankAccount', CRM_Utils_Array::value('id', $params), $params);
+    CRM_Utils_Hook::pre($hook, 'BankAccount', $params['id'] ?? NULL, $params);
 
     $dao = new CRM_Banking_DAO_BankAccount();
     $dao->copyValues($params);

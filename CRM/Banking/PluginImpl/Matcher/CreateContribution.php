@@ -102,8 +102,7 @@ class CRM_Banking_PluginImpl_Matcher_CreateContribution extends CRM_Banking_Plug
   public function execute($suggestion, $btx) {
     // create contribution
     $query = $this->get_contribution_data($btx, $suggestion, $suggestion->getParameter('contact_id'));
-    $query['version'] = 3;
-    $result = civicrm_api('Contribution', 'create', $query);
+    $result = civicrm_api3('Contribution', 'create', $query);
     if (isset($result['is_error']) && $result['is_error']) {
       CRM_Core_Session::setStatus(E::ts("Couldn't create contribution.") . '<br/>' . E::ts('Error was: ') . $result['error_message'], E::ts('Error'), 'error');
       return TRUE;
@@ -149,18 +148,18 @@ class CRM_Banking_PluginImpl_Matcher_CreateContribution extends CRM_Banking_Plug
     $contribution = $this->get_contribution_data($btx, $match, $contact_id);
 
     // load contact
-    $contact = civicrm_api('Contact', 'getsingle', ['id' => $contact_id, 'version' => 3]);
+    $contact = civicrm_api3('Contact', 'getsingle', ['id' => $contact_id]);
     if (!empty($contact['is_error'])) {
       $smarty_vars['error'] = $contact['error_message'];
     }
 
     // look up financial type
-    $financial_types = CRM_Contribute_PseudoConstant::financialType();
+    $financial_types = CRM_Financial_BAO_FinancialType::getAvailableFinancialTypes();
     $contribution['financial_type'] = $financial_types[$contribution['financial_type_id']];
 
     // look up campaign
     if (!empty($contribution['campaign_id'])) {
-      $campaign = civicrm_api('Campaign', 'getsingle', ['id' => $contribution['campaign_id'], 'version' => 3]);
+      $campaign = civicrm_api3('Campaign', 'getsingle', ['id' => $contribution['campaign_id']]);
       if (!empty($contact['is_error'])) {
         $smarty_vars['error'] = $campaign['error_message'];
       }
@@ -170,7 +169,7 @@ class CRM_Banking_PluginImpl_Matcher_CreateContribution extends CRM_Banking_Plug
     }
 
     // assign source
-    $smarty_vars['source']       = CRM_Utils_Array::value('source', $contribution);
+    $smarty_vars['source']       = $contribution['source'] ?? NULL;
     $smarty_vars['source_label'] = $this->_plugin_config->source_label;
 
     // assign to smarty and compile HTML

@@ -426,7 +426,7 @@ function _civicrm_api3_banking_lookup_contactbyname_penalties(&$contactID2probab
       }
       elseif ($penalty->type == 'individual_single_name') {
         // check if contact is an individual...
-        $info = CRM_Utils_Array::value($contact_id, $contact2info, []);
+        $info = $contact2info[$contact_id] ?? [];
         if (!empty($info['contact_type']) && $info['contact_type'] == 'Individual') {
           // ...and has only one name
           if (empty($info['first_name']) || empty($info['last_name'])) {

@@ -417,7 +417,7 @@ class CRM_Banking_PluginImpl_Importer_CSV extends CRM_Banking_PluginModel_Import
     }
     elseif ($this->startsWith($key, '_params:')) {
       $param_name = substr($key, 8);
-      return CRM_Utils_Array::value($param_name, $params, '');
+      return $params[$param_name] ?? '';
     }
     elseif ($line && is_int($key)) {
       return $line[$key];

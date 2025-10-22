@@ -201,7 +201,7 @@ class CRM_Banking_PluginImpl_Matcher_SepaMandate extends CRM_Banking_PluginModel
 
     // now load the mandate
     $mandate_reference = $data_parsed['sepa_mandate'];
-    $mandate = civicrm_api('SepaMandate', 'getsingle', ['version' => 3, 'reference' => $mandate_reference]);
+    $mandate = civicrm_api3('SepaMandate', 'getsingle', ['reference' => $mandate_reference]);
     if (!empty($mandate['is_error'])) {
       CRM_Core_Session::setStatus(sprintf(E::ts("Couldn't load SEPA mandate for reference %s"), $mandate_reference), E::ts('Error'), 'error');
       return NULL;
@@ -280,12 +280,12 @@ class CRM_Banking_PluginImpl_Matcher_SepaMandate extends CRM_Banking_PluginModel
     }
 
     // now, let's have a look at this contribution and its contact...
-    $contribution = civicrm_api('Contribution', 'getsingle', ['id' => $contribution_id, 'version' => 3]);
+    $contribution = civicrm_api3('Contribution', 'getsingle', ['id' => $contribution_id]);
     if (!empty($contribution['is_error'])) {
       CRM_Core_Session::setStatus(E::ts('The contribution connected to this mandate could not be read.'), E::ts('Error'), 'error');
       return NULL;
     }
-    $contact = civicrm_api('Contact', 'getsingle', ['id' => $contribution['contact_id'], 'version' => 3]);
+    $contact = civicrm_api3('Contact', 'getsingle', ['id' => $contribution['contact_id']]);
     if (!empty($contact['is_error'])) {
       CRM_Core_Session::setStatus(E::ts('The contact connected to this mandate could not be read.'), E::ts('Error'), 'error');
       return NULL;
@@ -448,7 +448,7 @@ class CRM_Banking_PluginImpl_Matcher_SepaMandate extends CRM_Banking_PluginModel
     }
 
     // look up the txgroup
-    $txgroup_query = civicrm_api('SepaContributionGroup', 'getsingle', ['contribution_id' => $contribution_id, 'version' => 3]);
+    $txgroup_query = civicrm_api3('SepaContributionGroup', 'getsingle', ['contribution_id' => $contribution_id]);
     if (!empty($txgroup_query['is_error'])) {
       CRM_Core_Session::setStatus(E::ts('Contribution is NOT member in exactly one SEPA transaction group!'), E::ts('Error'), 'error');
       return;
@@ -456,13 +456,13 @@ class CRM_Banking_PluginImpl_Matcher_SepaMandate extends CRM_Banking_PluginModel
     $txgroup_id = $txgroup_query['txgroup_id'];
 
     // now we can set the status to 'Completed'
-    $query = ['version' => 3, 'id' => $contribution_id];
+    $query = ['id' => $contribution_id];
     $query['contribution_status_id'] = $status_completed;
     $query['receive_date'] = date('Ymdhis', strtotime($btx->value_date));
     // add propagated values
     $query = array_merge($query, $this->getPropagationSet($btx, $match, 'contribution'));
     CRM_Banking_Helpers_IssueMitigation::mitigate358($query);
-    $result = civicrm_api('Contribution', 'create', $query);
+    $result = civicrm_api3('Contribution', 'create', $query);
 
     if (isset($result['is_error']) && $result['is_error']) {
       $this->logMessage("Couldn't modify contribution, error was: " . $result['error_message'], 'error');
@@ -497,13 +497,13 @@ class CRM_Banking_PluginImpl_Matcher_SepaMandate extends CRM_Banking_PluginModel
         // set this group's status to 'received'
         $group_status_id_received = banking_helper_optionvalue_by_groupname_and_name('batch_status', 'Received');
         if ($group_status_id_received) {
-          $txgroup_query = ['id' => $txgroup_id, 'status_id' => $group_status_id_received, 'version' => 3];
-          $close_result = civicrm_api('SepaTransactionGroup', 'create', $txgroup_query);
+          $txgroup_query = ['id' => $txgroup_id, 'status_id' => $group_status_id_received];
+          $close_result = civicrm_api3('SepaTransactionGroup', 'create', $txgroup_query);
           if (!empty($close_result['is_error'])) {
             CRM_Core_Session::setStatus(sprintf('Cannot mark transaction group [%s] received. Error: %s', $txgroup_id, $close_result['error_message']), E::ts('Error'), 'error');
             return;
           }
-          $txgroup = civicrm_api('SepaTransactionGroup', 'getsingle', $txgroup_query);
+          $txgroup = civicrm_api3('SepaTransactionGroup', 'getsingle', $txgroup_query);
           if (!empty($txgroup['is_error'])) {
             CRM_Core_Session::setStatus(sprintf('Cannot mark transaction group [%s] received. Error: %s', $txgroup_id, $txgroup['error_message']), E::ts('Error'), 'error');
             return;
@@ -558,7 +558,7 @@ class CRM_Banking_PluginImpl_Matcher_SepaMandate extends CRM_Banking_PluginModel
     }
 
     $this->logger->setTimer('sepa_mandate_cancel_contribution');
-    $query = ['version' => 3, 'id' => $contribution_id];
+    $query = ['id' => $contribution_id];
     $query['contribution_status_id'] = $status_cancelled;
     $query['cancel_date'] = date('Ymdhis', strtotime($btx->value_date));
     $query['currency'] = $contribution['currency'];
@@ -573,7 +573,7 @@ class CRM_Banking_PluginImpl_Matcher_SepaMandate extends CRM_Banking_PluginModel
     }
     $this->logMessage('SepaMandate matcher calling Contribution.create: ' . json_encode($query), 'debug');
     CRM_Banking_Helpers_IssueMitigation::mitigate358($query);
-    $result = civicrm_api('Contribution', 'create', $query);
+    $result = civicrm_api3('Contribution', 'create', $query);
     $this->logTime('Cancel Contribution', 'sepa_mandate_cancel_contribution');
 
     if (isset($result['is_error']) && $result['is_error']) {
@@ -584,7 +584,7 @@ class CRM_Banking_PluginImpl_Matcher_SepaMandate extends CRM_Banking_PluginModel
     }
     else {
       // now for the mandate...
-      $contribution = civicrm_api('Contribution', 'getsingle', ['version' => 3, 'id' => $contribution_id]);
+      $contribution = civicrm_api3('Contribution', 'getsingle', ['id' => $contribution_id]);
       if (!empty($contribution['is_error'])) {
         $this->logMessage("Couldn't load contribution, error was: " . $result['error_message'], 'error');
         CRM_Core_Session::setStatus(E::ts("Couldn't modify contribution."), E::ts('Error'), 'error');
@@ -599,11 +599,11 @@ class CRM_Banking_PluginImpl_Matcher_SepaMandate extends CRM_Banking_PluginModel
         if ('OOFF' == $contribution['contribution_payment_instrument']
             && !empty($config->cancellation_update_mandate_status_OOFF)) {
           // everything seems fine, adjust the mandate's status
-          $query = ['version' => 3, 'id' => $mandate_id];
+          $query = ['id' => $mandate_id];
           $query['status'] = $config->cancellation_update_mandate_status_OOFF;
           // add propagated values
           $query = array_merge($query, $this->getPropagationSet($btx, $match, 'mandate'));
-          $result = civicrm_api('SepaMandate', 'create', $query);
+          $result = civicrm_api3('SepaMandate', 'create', $query);
           if (!empty($result['is_error'])) {
             $this->logMessage("Couldn't modify mandate, error was: " . $result['error_message'], 'error');
             CRM_Core_Session::setStatus(E::ts("Couldn't modify mandate."), E::ts('Error'), 'error');
@@ -613,11 +613,11 @@ class CRM_Banking_PluginImpl_Matcher_SepaMandate extends CRM_Banking_PluginModel
         elseif ('RCUR' == $contribution['contribution_payment_instrument']
                   && !empty($config->cancellation_update_mandate_status_RCUR)) {
           // everything seems fine, adjust the mandate's status
-          $query = ['version' => 3, 'id' => $mandate_id];
+          $query = ['id' => $mandate_id];
           $query['status'] = $config->cancellation_update_mandate_status_RCUR;
           // add propagated values
           $query = array_merge($query, $this->getPropagationSet($btx, $match, 'mandate'));
-          $result = civicrm_api('SepaMandate', 'create', $query);
+          $result = civicrm_api3('SepaMandate', 'create', $query);
           if (!empty($result['is_error'])) {
             $this->logMessage("Couldn't modify mandate, error was: " . $result['error_message'], 'error');
             CRM_Core_Session::setStatus(E::ts("Couldn't modify mandate."), E::ts('Error'), 'error');
@@ -636,7 +636,7 @@ class CRM_Banking_PluginImpl_Matcher_SepaMandate extends CRM_Banking_PluginModel
       $smarty_vars['cancel_reason'] = $match->getParameter('cancel_reason');
 
       // load the mandate
-      $mandate = civicrm_api('SepaMandate', 'getsingle', ['id' => $mandate_id, 'version' => 3]);
+      $mandate = civicrm_api3('SepaMandate', 'getsingle', ['id' => $mandate_id]);
       if ($mandate['type'] == 'RCUR' && $mandate['entity_table'] == 'civicrm_contribution_recur') {
         // add some additional parameters for RCUR (see #256)
         $rcur = civicrm_api3('ContributionRecur', 'getsingle', ['id' => $mandate['entity_id']]);
@@ -679,7 +679,7 @@ class CRM_Banking_PluginImpl_Matcher_SepaMandate extends CRM_Banking_PluginModel
       $smarty_vars['mandate'] = $mandate;
 
       // load the contact
-      $contact = civicrm_api('Contact', 'getsingle', ['id' => $contribution['contact_id'], 'version' => 3]);
+      $contact = civicrm_api3('Contact', 'getsingle', ['id' => $contribution['contact_id']]);
       $smarty_vars['contact'] = $contact;
 
       // count the cancelled contributions connected to this mandate
@@ -826,7 +826,7 @@ class CRM_Banking_PluginImpl_Matcher_SepaMandate extends CRM_Banking_PluginModel
     $smarty_vars['mandate_reference'] = $mandate_reference;
     $smarty_vars['cancellation_mode'] = $cancellation_mode;
 
-    $result = civicrm_api('Contribution', 'get', ['version' => 3, 'id' => $contribution_id]);
+    $result = civicrm_api3('Contribution', 'get', ['id' => $contribution_id]);
     if (isset($result['id'])) {
       // gather information
       $contribution = $result['values'][$result['id']];
@@ -883,7 +883,7 @@ class CRM_Banking_PluginImpl_Matcher_SepaMandate extends CRM_Banking_PluginModel
     $contact_id = $match->getParameter('contact_id');
     if (empty($contact_id)) {
       // this information has not been stored (old matcher version)
-      $result = civicrm_api('Contribution', 'get', ['version' => 3, 'id' => $match->getParameter('contribution_id')]);
+      $result = civicrm_api3('Contribution', 'get', ['id' => $match->getParameter('contribution_id')]);
       if (isset($result['id'])) {
         $contribution = $result['values'][$result['id']];
         $contact_id   = $contribution['contact_id'];

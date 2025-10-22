@@ -5,6 +5,7 @@ parameters:
 		- CRM
 		- tests
 		- banking.php
+		- banking_options.php
 	excludePaths:
 		analyse:
 			- CRM/Banking/DAO/*

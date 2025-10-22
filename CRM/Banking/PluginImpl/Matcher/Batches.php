@@ -132,7 +132,7 @@ class CRM_Banking_PluginImpl_Matcher_Batches extends CRM_Banking_PluginModel_Mat
   public function execute($suggestion, $btx) {
     // load the batch
     $batch_id = $suggestion->getParameter('batch_id');
-    $result = civicrm_api('Batch', 'getsingle', ['version' => 3, 'id' => $batch_id]);
+    $result = civicrm_api3('Batch', 'getsingle', ['id' => $batch_id]);
     if ($result['is_error']) {
       CRM_Core_Session::setStatus(sprintf(E::ts('Internal error! Cannot find batch %s'), $batch_id), E::ts('Error'), 'error');
     }
@@ -155,7 +155,7 @@ class CRM_Banking_PluginImpl_Matcher_Batches extends CRM_Banking_PluginModel_Mat
 
       // now, set them all to completed:
       foreach ($contributionIDs as $contribution_id) {
-        $result = civicrm_api('Contribution', 'create', ['version' => 3, 'id' => $contribution_id, 'contribution_status_id' => $contribution_status_completed, 'pay_later' => 0]);
+        $result = civicrm_api3('Contribution', 'create', ['id' => $contribution_id, 'contribution_status_id' => $contribution_status_completed, 'pay_later' => 0]);
         if ($result['is_error']) {
           CRM_Core_Session::setStatus(sprintf(E::ts("Internal error! Cannot complete contribution %s. Error message was: '%s'"), $contribution_id, $result['error_message']), E::ts('Error'), 'error');
         }
@@ -163,8 +163,8 @@ class CRM_Banking_PluginImpl_Matcher_Batches extends CRM_Banking_PluginModel_Mat
 
       // update the batch
       $batch_status_received = banking_helper_optionvalue_by_groupname_and_name('batch_status', 'Received');
-      $update_batch_query = ['version' => 3, 'id' => $batch_id, 'modified_date' => date('YmdHis'), 'status_id' => $batch_status_received];
-      $result = civicrm_api('Batch', 'create', $update_batch_query);
+      $update_batch_query = ['id' => $batch_id, 'modified_date' => date('YmdHis'), 'status_id' => $batch_status_received];
+      $result = civicrm_api3('Batch', 'create', $update_batch_query);
       if ($result['is_error']) {
         CRM_Core_Session::setStatus(sprintf(E::ts('Internal error! Cannot find batch %s'), $suggestion->getParameter('batch_id')), E::ts('Error'), 'error');
       }
@@ -214,7 +214,7 @@ class CRM_Banking_PluginImpl_Matcher_Batches extends CRM_Banking_PluginModel_Mat
   public function visualize_match(CRM_Banking_Matcher_Suggestion $match, $btx) {
     // load the batch
     $batch_id = $match->getParameter('batch_id');
-    $result = civicrm_api('Batch', 'getsingle', ['version' => 3, 'id' => $batch_id]);
+    $result = civicrm_api3('Batch', 'getsingle', ['id' => $batch_id]);
     if ($result['is_error']) {
       return E::ts('Internal error! Cannot find batch #') . $match->getParameter('batch_id');
     }

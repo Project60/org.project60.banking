@@ -527,12 +527,12 @@ class CRM_Banking_PluginImpl_Matcher_ExistingContribution extends CRM_Banking_Pl
   public function execute($suggestion, $btx) {
     $config = $this->_plugin_config;
     $contribution_id = $suggestion->getParameter('contribution_id');
-    $query = ['version' => 3, 'id' => $contribution_id];
+    $query = ['id' => $contribution_id];
     // add propagated values
     $query = array_merge($query, $this->getPropagationSet($btx, $suggestion, 'contribution'));
 
     // double check contribution (see https://github.com/Project60/CiviBanking/issues/61)
-    $contribution = civicrm_api('Contribution', 'getsingle', ['id' => $contribution_id, 'version' => 3]);
+    $contribution = civicrm_api3('Contribution', 'getsingle', ['id' => $contribution_id]);
     if (!empty($contribution['is_error'])) {
       CRM_Core_Session::setStatus(E::ts('Contribution has disappeared.') . ' ' . E::ts('Error was:') . ' ' . $contribution['error_message'], E::ts('Execution Failure'), 'alert');
       return FALSE;
@@ -560,7 +560,7 @@ class CRM_Banking_PluginImpl_Matcher_ExistingContribution extends CRM_Banking_Pl
 
     CRM_Banking_Helpers_IssueMitigation::mitigate358($query);
 
-    $result = civicrm_api('Contribution', 'create', $query);
+    $result = civicrm_api3('Contribution', 'create', $query);
     if (isset($result['is_error']) && $result['is_error']) {
       CRM_Core_Session::setStatus(E::ts("Couldn't modify contribution.") . '<br/>' . $result['error_message'], E::ts('Error'), 'error');
       return FALSE;
@@ -619,11 +619,11 @@ class CRM_Banking_PluginImpl_Matcher_ExistingContribution extends CRM_Banking_Pl
     $contribution_id = $match->getParameter('contribution_id');
     $smarty_vars['contribution_id'] = $contribution_id;
 
-    $contribution = civicrm_api('Contribution', 'getsingle', ['id' => $contribution_id, 'version' => 3]);
+    $contribution = civicrm_api3('Contribution', 'getsingle', ['id' => $contribution_id]);
     if (empty($contribution['is_error'])) {
       $smarty_vars['contribution'] = $contribution;
 
-      $contact = civicrm_api('Contact', 'getsingle', ['id' => $contribution['contact_id'], 'version' => 3]);
+      $contact = civicrm_api3('Contact', 'getsingle', ['id' => $contribution['contact_id']]);
       if (empty($contact['is_error'])) {
         $smarty_vars['contact'] = $contact;
       }

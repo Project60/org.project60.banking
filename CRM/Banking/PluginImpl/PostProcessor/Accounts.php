@@ -170,7 +170,7 @@ class CRM_Banking_PluginImpl_PostProcessor_Accounts extends CRM_Banking_PluginMo
   protected function getAccountData($context, $contact_id, $prefix, $cache = FALSE) {
     $config = $this->_plugin_config;
     $data   = $context->btx->getDataParsed();
-    $value  = CRM_Utils_Array::value("{$prefix}{$config->ref_type}", $data);
+    $value  = $data["{$prefix}{$config->ref_type}"] ?? NULL;
     if (empty($value)) {
       // no account reference given
       return NULL;

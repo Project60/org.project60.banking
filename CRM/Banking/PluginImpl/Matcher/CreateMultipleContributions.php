@@ -435,10 +435,10 @@ class CRM_Banking_PluginImpl_Matcher_CreateMultipleContributions extends CRM_Ban
     $smarty_vars['notes'] = $match->getParameter('notes');
 
     $contact_id = $match->getParameter('contact_id');
-    $contact = civicrm_api(
+    $contact = civicrm_api3(
       'Contact',
       'getsingle',
-      ['id' => $contact_id, 'version' => 3]
+      ['id' => $contact_id]
     );
     if (!empty($contact['is_error'])) {
       $smarty_vars['error'] = $contact['error_message'];
@@ -455,12 +455,11 @@ class CRM_Banking_PluginImpl_Matcher_CreateMultipleContributions extends CRM_Ban
 
       // look up campaign
       if (!empty($contribution['campaign_id'])) {
-        $campaign = civicrm_api(
+        $campaign = civicrm_api3(
           'Campaign',
           'getsingle',
           [
             'id' => $contribution['campaign_id'],
-            'version' => 3,
           ]
         );
         if (!empty($contact['is_error'])) {

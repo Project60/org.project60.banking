@@ -32,7 +32,7 @@ class CRM_Banking_BAO_PluginInstance extends CRM_Banking_DAO_PluginInstance {
    */
   public static function add(&$params) {
     $hook = empty($params['id']) ? 'create' : 'edit';
-    CRM_Utils_Hook::pre($hook, 'PluginInstance', CRM_Utils_Array::value('id', $params), $params);
+    CRM_Utils_Hook::pre($hook, 'PluginInstance', $params['id'] ?? NULL, $params);
 
     $dao = new CRM_Banking_DAO_PluginInstance();
     $dao->copyValues($params);

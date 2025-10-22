@@ -48,7 +48,7 @@ class CRM_Banking_Page_Statements extends CRM_Core_Page {
     $statementsWhereClauses = [];
     $statementsWhereClauses[] = '1';
 
-    $target_ba_id = CRM_Utils_Request::retrieve('target_ba_id', 'Integer', CRM_Core_DAO::$_nullObject, FALSE, -1);
+    $target_ba_id = CRM_Utils_Request::retrieve('target_ba_id', 'Integer', NULL, FALSE, -1);
     if ($target_ba_id > 0) {
       $paramCount++;
       $statementsWhereClauses[] = "ba_id = %{$paramCount}";
@@ -78,7 +78,7 @@ class CRM_Banking_Page_Statements extends CRM_Core_Page {
 
     $params['total'] = $count;
     $params['currentPage'] = $this->get(CRM_Utils_Pager::PAGE_ID);
-    $params['rowCount'] = CRM_Utils_Pager::ROWCOUNT;
+    $params['rowCount'] = 50;
     $params['status'] = E::ts('Statements %%StatusMessage%%');
     $this->_pager = new CRM_Utils_Pager($params);
 

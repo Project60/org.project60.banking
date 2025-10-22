@@ -48,7 +48,7 @@ class CRM_Banking_BAO_BankTransaction extends CRM_Banking_DAO_BankTransaction {
    */
   public static function add(&$params) {
     $hook = empty($params['id']) ? 'create' : 'edit';
-    CRM_Utils_Hook::pre($hook, 'BankTransaction', CRM_Utils_Array::value('id', $params), $params);
+    CRM_Utils_Hook::pre($hook, 'BankTransaction', $params['id'] ?? NULL, $params);
 
     // TODO: convert the arrays (suggestions, data_parsed) back into JSON
     $dao = new CRM_Banking_DAO_BankTransaction();

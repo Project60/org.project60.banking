@@ -56,12 +56,12 @@ class CRM_Banking_Rules_Match {
     $data_parsed = self::getMappedData($btx, $mapping);
 
     $params = [
-      'btx_amount'       => CRM_Utils_Array::value('amount', $data_parsed, 0.00),
-      'btx_party_ba_ref' => CRM_Utils_Array::value('_party_IBAN', $data_parsed, ''),
-      'btx_ba_ref'       => CRM_Utils_Array::value('_IBAN', $data_parsed, ''),
-      'btx_party_name'   => CRM_Utils_Array::value('name', $data_parsed, ''),
-      'btx_tx_reference' => CRM_Utils_Array::value('reference', $data_parsed, ''),
-      'btx_tx_purpose'   => CRM_Utils_Array::value('purpose', $data_parsed, ''),
+      'btx_amount'       => $data_parsed['amount'] ?? 0.00,
+      'btx_party_ba_ref' => $data_parsed['_party_IBAN'] ?? '',
+      'btx_ba_ref'       => $data_parsed['_IBAN'] ?? '',
+      'btx_party_name'   => $data_parsed['name'] ?? '',
+      'btx_tx_reference' => $data_parsed['reference'] ?? '',
+      'btx_tx_purpose'   => $data_parsed['purpose'] ?? '',
     ];
 
     // truncate key fields to DB lengths

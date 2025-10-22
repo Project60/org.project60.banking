@@ -180,7 +180,7 @@ class CRM_Banking_PluginImpl_Matcher_RegexAnalyser extends CRM_Banking_PluginMod
         //   parameters are in format: "EntityName,result_field,lookup_field"
         $params = explode(',', substr($action->action, 7));
         $value = $this->getValue($action->from, $match_data, $match_index, $data_parsed, $btx);
-        $query = [$params[2] => $value, 'version' => 3, 'return' => $params[1]];
+        $query = [$params[2] => $value, 'return' => $params[1]];
         if (!empty($action->parameters)) {
           foreach ($action->parameters as $key => $value) {
             $query[$key] = $value;
@@ -325,8 +325,7 @@ class CRM_Banking_PluginImpl_Matcher_RegexAnalyser extends CRM_Banking_PluginMod
     $command = strtolower($command);
     if (empty($action->sql) || !$action->sql || !in_array($command, ['get', 'getsingle'])) {
       // execute via API
-      $query['version'] = 3;
-      return civicrm_api($entity, $command, $query);
+      return civicrm_api3($entity, $command, $query);
 
     }
     else {
@@ -346,7 +345,7 @@ class CRM_Banking_PluginImpl_Matcher_RegexAnalyser extends CRM_Banking_PluginMod
       $where_clauses = [];
       $query_params = [];
       foreach ($query as $key => $value) {
-        if (!in_array($key, ['return', 'sort', 'limit', 'option', 'version'], TRUE)) {
+        if (!in_array($key, ['return', 'sort', 'limit', 'option'], TRUE)) {
           // TODO: support for sort, limit, etc.
           // phpcs:disable Generic.CodeAnalysis.EmptyStatement.DetectedIf
           if (is_array($value)) {

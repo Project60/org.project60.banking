@@ -138,7 +138,7 @@ class CRM_Banking_Page_AccountDedupe extends CRM_Core_Page {
             WHERE reference = '{$duplicate['reference']}' AND reference_type_id = {$duplicate['reference_type_id']};";
     $contact_query = CRM_Core_DAO::executeQuery($sql);
     while ($contact_query->fetch()) {
-      $contact = civicrm_api('Contact', 'getsingle', ['version' => 3, 'id' => $contact_query->contact_id]);
+      $contact = civicrm_api3('Contact', 'getsingle', ['id' => $contact_query->contact_id]);
       if (empty($contact['is_error'])) {
         $contacts[] = $contact;
       }
@@ -398,7 +398,7 @@ class CRM_Banking_Page_AccountDedupe extends CRM_Core_Page {
                   AND ref_keep.id != ref_delete.id;";
         $reference_to_delete = CRM_Core_DAO::executeQuery($sql);
         while ($reference_to_delete->fetch()) {
-          $result = civicrm_api('BankingAccountReference', 'delete', ['id' => $reference_to_delete->reference_id, 'version' => 3]);
+          $result = civicrm_api3('BankingAccountReference', 'delete', ['id' => $reference_to_delete->reference_id]);
           if (empty($result['is_error'])) {
             $refs_fixed += 1;
           }

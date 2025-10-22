@@ -264,14 +264,13 @@ class CRM_Banking_PluginImpl_Matcher_RecurringContribution extends CRM_Banking_P
       $contribution['total_amount']               = $btx->amount;
       $contribution['receive_date']               = $btx->booking_date;
       $contribution['currency']                   = $btx->currency;
-      $contribution['financial_type_id']          = CRM_Utils_Array::value('financial_type_id', $rcontribution);
-      $contribution['payment_instrument_id']      = CRM_Utils_Array::value('payment_instrument_id', $rcontribution);
-      $contribution['campaign_id']                = CRM_Utils_Array::value('campaign_id', $rcontribution);
+      $contribution['financial_type_id']          = $rcontribution['financial_type_id'] ?? NULL;
+      $contribution['payment_instrument_id']      = $rcontribution['payment_instrument_id'] ?? NULL;
+      $contribution['campaign_id']                = $rcontribution['campaign_id'] ?? NULL;
       $contribution['contribution_recur_id']      = $rcontribution_id;
       $contribution['contribution_status_id']     = banking_helper_optionvalue_by_groupname_and_name('contribution_status', $config->created_contribution_status);
       $contribution = array_merge($contribution, $this->getPropagationSet($btx, $suggestion, 'contribution'));
-      $contribution['version'] = 3;
-      $result = civicrm_api('Contribution', 'create', $contribution);
+      $result = civicrm_api3('Contribution', 'create', $contribution);
       if (isset($result['is_error']) && $result['is_error']) {
         CRM_Core_Session::setStatus(E::ts("Couldn't create contribution.") . '<br/>' . E::ts('Error was: ') . $result['error_message'], E::ts('Error'), 'error');
         return FALSE;
@@ -286,14 +285,13 @@ class CRM_Banking_PluginImpl_Matcher_RecurringContribution extends CRM_Banking_P
         $contribution['total_amount']               = $rcontribution['amount'];
         $contribution['receive_date']               = $btx->booking_date;
         $contribution['currency']                   = $rcontribution['currency'];
-        $contribution['financial_type_id']          = CRM_Utils_Array::value('financial_type_id', $rcontribution);
-        $contribution['payment_instrument_id']      = CRM_Utils_Array::value('payment_instrument_id', $rcontribution);
-        $contribution['campaign_id']                = CRM_Utils_Array::value('campaign_id', $rcontribution);
+        $contribution['financial_type_id']          = $rcontribution['financial_type_id'] ?? NULL;
+        $contribution['payment_instrument_id']      = $rcontribution['payment_instrument_id'] ?? NULL;
+        $contribution['campaign_id']                = $rcontribution['campaign_id'] ?? NULL;
         $contribution['contribution_recur_id']      = $rcontribution['id'];
         $contribution['contribution_status_id']     = banking_helper_optionvalue_by_groupname_and_name('contribution_status', $config->created_contribution_status);
         $contribution = array_merge($contribution, $this->getPropagationSet($btx, $suggestion, 'contribution'));
-        $contribution['version'] = 3;
-        $result = civicrm_api('Contribution', 'create', $contribution);
+        $result = civicrm_api3('Contribution', 'create', $contribution);
         if (isset($result['is_error']) && $result['is_error']) {
           CRM_Core_Session::setStatus(E::ts("Couldn't create contribution.") . '<br/>' . E::ts('Error was: ') . $result['error_message'], E::ts('Error'), 'error');
           return FALSE;
@@ -840,7 +838,7 @@ class CRM_Banking_PluginImpl_Matcher_RecurringContribution extends CRM_Banking_P
 
           }
           else {
-            if ($rcur2merge[$key] != CRM_Utils_Array::value($key, $virtual_rcur)) {
+            if ($rcur2merge[$key] != $virtual_rcur[$key] ?? NULL) {
               $virtual_rcur[$key] = '';
             }
           }

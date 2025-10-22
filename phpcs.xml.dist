@@ -8,6 +8,7 @@
     <file>CRM</file>
     <file>tests</file>
     <file>banking.php</file>
+    <file>banking_options.php</file>
 
     <exclude-pattern>/CRM/Banking/DAO/.*\.php$</exclude-pattern>
 

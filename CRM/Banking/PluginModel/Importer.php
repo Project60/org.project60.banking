@@ -440,12 +440,9 @@ abstract class CRM_Banking_PluginModel_Importer extends CRM_Banking_PluginModel_
    * @return bool TRUE, if successful, FALSE if not, or a duplicate existing BTX as property array
    */
   public function checkAndStoreBTX($btx, $progress, $params = []) {
-    // make sure the version is set
-    $btx['version'] = 3;
-
     // first, test for duplicates:
     $duplicate_test = array_intersect_key($btx, $this->_compare_btx_fields);
-    $result = civicrm_api('BankingTransaction', 'get', $duplicate_test);
+    $result = civicrm_api3('BankingTransaction', 'get', $duplicate_test);
     if (isset($result['is_error']) && $result['is_error']) {
       $this->reportProgress($progress, E::ts('Failed to query BTX.'), CRM_Banking_PluginModel_Base::REPORT_LEVEL_ERROR);
       return FALSE;
@@ -505,7 +502,7 @@ abstract class CRM_Banking_PluginModel_Importer extends CRM_Banking_PluginModel_
         $btx['tx_batch_id'] = $this->_current_transaction_batch->id;
       }
 
-      $result = civicrm_api('BankingTransaction', 'create', $btx);
+      $result = civicrm_api3('BankingTransaction', 'create', $btx);
       if ($result['is_error']) {
         $this->reportProgress(
                 $progress,

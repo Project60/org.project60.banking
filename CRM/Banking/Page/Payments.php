@@ -303,8 +303,8 @@ class CRM_Banking_Page_Payments extends CRM_Core_Page {
       }
       else {
         $ba_id = $entry['ba_id'];
-        $params = ['version' => 3, 'id' => $ba_id];
-        $bank_account = civicrm_api('BankingAccount', 'getsingle', $params);
+        $params = ['id' => $ba_id];
+        $bank_account = civicrm_api3('BankingAccount', 'getsingle', $params);
       }
 
       $contact = NULL;
@@ -312,14 +312,14 @@ class CRM_Banking_Page_Payments extends CRM_Core_Page {
       $party = NULL;
       if (!empty($entry['party_ba_id'])) {
         $pba_id = $entry['party_ba_id'];
-        $params = ['version' => 3, 'id' => $pba_id];
-        $attached_ba = civicrm_api('BankingAccount', 'getsingle', $params);
+        $params = ['id' => $pba_id];
+        $attached_ba = civicrm_api3('BankingAccount', 'getsingle', $params);
       }
 
       $cid = isset($attached_ba['contact_id']) ? $attached_ba['contact_id'] : NULL;
       if ($cid) {
-        $params = ['version' => 3, 'id' => $cid];
-        $contact = civicrm_api('Contact', 'getsingle', $params);
+        $params = ['id' => $cid];
+        $contact = civicrm_api3('Contact', 'getsingle', $params);
       }
 
       if (isset($attached_ba['description'])) {
@@ -356,7 +356,7 @@ class CRM_Banking_Page_Payments extends CRM_Core_Page {
         'sequence'      => $entry['sequence'],
         'currency'      => $entry['currency'],
         'amount'        => (isset($entry['amount']) ? $entry['amount'] : 'unknown'),
-        'account_owner' => CRM_Utils_Array::value('description', $bank_account),
+        'account_owner' => $bank_account['description'] ?? NULL,
         'party'         => $party,
         'party_contact' => $contact,
         'state'         => $status,

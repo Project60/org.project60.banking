@@ -159,12 +159,11 @@ class CRM_Banking_Matcher_Context {
     }
 
     // call the lookup function (API)
-    $parameters['version'] = 3;
     $parameters['name'] = $name;
     if (isset($parameters['modifiers'])) {
       $parameters['modifiers'] = json_encode($parameters['modifiers']);
     }
-    $result = civicrm_api('BankingLookup', 'contactbyname', $parameters);
+    $result = civicrm_api3('BankingLookup', 'contactbyname', $parameters);
     if (isset($result['is_error']) && $result['is_error']) {
       // TODO: more error handling?
       error_log('org.project60.banking: BankingLookup:contactbyname failed with: ' . $result['error_message']);
@@ -189,6 +188,7 @@ class CRM_Banking_Matcher_Context {
     if ($contact_ids === NULL) {
       // first, get the account contact
       $contact_ids = [];
+      // @phpstan-ignore method.deprecated
       $btx_account_contact = $this->getAccountContact();
       if ($btx_account_contact) {
         array_push($contact_ids, $btx_account_contact);
@@ -198,11 +198,11 @@ class CRM_Banking_Matcher_Context {
       $data_parsed = $this->btx->getDataParsed();
       if (!empty($data_parsed['party_ba_reference'])) {
         // find all accounts references matching the parsed data
-        $account_references = civicrm_api('BankingAccountReference', 'get', ['reference' => $data_parsed['party_ba_reference'], 'version' => 3]);
+        $account_references = civicrm_api3('BankingAccountReference', 'get', ['reference' => $data_parsed['party_ba_reference']]);
         if (empty($account_references['is_error'])) {
           foreach ($account_references['values'] as $account_reference) {
             // then load the respective accounts
-            $account = civicrm_api('BankingAccount', 'getsingle', ['id' => $account_reference['ba_id'], 'version' => 3]);
+            $account = civicrm_api3('BankingAccount', 'getsingle', ['id' => $account_reference['ba_id']]);
             if (empty($account['is_error'])) {
               // and add the owner
               array_push($contact_ids, $account['contact_id']);

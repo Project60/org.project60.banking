@@ -146,7 +146,7 @@ class CRM_Banking_PluginImpl_Exporter_CSV extends CRM_Banking_PluginModel_Export
         }
         else {
           // set? then it's one line per contribution ID
-          $line_count = max(1, (int) CRM_Utils_Array::value('exec_contribution_count', $main_data_blob));
+          $line_count = max(1, (int) $main_data_blob['exec_contribution_count'] ?? NULL);
         }
 
         for ($index = 1; $index <= $line_count; $index++) {

@@ -396,7 +396,7 @@ class CRM_Banking_PluginImpl_Matcher_CreateCampaignContribution extends CRM_Bank
     $contribution = $this->get_contribution_data($btx, $match, $contact_id);
 
     // load contact
-    $contact = civicrm_api('Contact', 'getsingle', ['id' => $contact_id, 'version' => 3]);
+    $contact = civicrm_api3('Contact', 'getsingle', ['id' => $contact_id]);
     if (!empty($contact['is_error'])) {
       $smarty_vars['error'] = $contact['error_message'];
     }
@@ -415,11 +415,11 @@ class CRM_Banking_PluginImpl_Matcher_CreateCampaignContribution extends CRM_Bank
     $smarty_vars['campaign'] = $campaign;
 
     // look up financial type
-    $financial_types = CRM_Contribute_PseudoConstant::financialType();
+    $financial_types = CRM_Financial_BAO_FinancialType::getAvailableFinancialTypes();
     $contribution['financial_type'] = $financial_types[$contribution['financial_type_id']];
 
     // assign source
-    $smarty_vars['source']       = CRM_Utils_Array::value('source', $contribution);
+    $smarty_vars['source']       = $contribution['source'] ?? NULL;
     $smarty_vars['source_label'] = $this->_plugin_config->source_label;
 
     // assign to smarty and compile HTML

@@ -192,7 +192,7 @@ class CRM_Banking_PluginImpl_PostProcessor_MembershipPayment extends CRM_Banking
         }
         elseif ($config->set_contribution_recur == 'fill') {
           // only fill:
-          $current_value = civicrm_api('Membership', 'getvalue', [
+          $current_value = civicrm_api3('Membership', 'getvalue', [
             'id'     => $membership_id,
             'return' => $config->membership_rcur_field,
           ]);

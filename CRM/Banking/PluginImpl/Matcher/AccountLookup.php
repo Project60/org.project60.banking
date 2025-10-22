@@ -121,8 +121,7 @@ class CRM_Banking_PluginImpl_Matcher_AccountLookup extends CRM_Banking_PluginMod
 
     if (!isset($account_cache[$type_id][$reference])) {
       // look up the account
-      $result = civicrm_api('BankingAccountReference', 'getsingle', [
-        'version'           => 3,
+      $result = civicrm_api3('BankingAccountReference', 'getsingle', [
         'reference'         => $reference,
         'reference_type_id' => $type_id,
       ]);

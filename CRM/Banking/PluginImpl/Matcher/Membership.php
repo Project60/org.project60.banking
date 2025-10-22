@@ -109,10 +109,9 @@ class CRM_Banking_PluginImpl_Matcher_Membership extends CRM_Banking_PluginModel_
       'currency'          => $btx->currency,
       'receive_date'      => $btx->value_date,
       'financial_type_id' => $this->getMembershipOption($membership_type['id'], 'financial_type_id', $membership_type['financial_type_id']),
-      'version'           => 3,
     ];
     $contribution_parameters = array_merge($contribution_parameters, $this->getPropagationSet($btx, $suggestion, 'contribution'));
-    $contribution = civicrm_api('Contribution', 'create', $contribution_parameters);
+    $contribution = civicrm_api3('Contribution', 'create', $contribution_parameters);
     if (!empty($contribution['is_error'])) {
       CRM_Core_Session::setStatus(E::ts("Couldn't create contribution.") . '<br/>' . E::ts('Error was: ') . $contribution['error_message'], E::ts('Error'), 'error');
       return TRUE;
@@ -164,14 +163,14 @@ class CRM_Banking_PluginImpl_Matcher_Membership extends CRM_Banking_PluginModel_
 
     // LOAD entities
     // TODO: error handling
-    $membership        = civicrm_api('Membership', 'getsingle', ['id' => $membership_id, 'version' => 3]);
-    $membership_type   = civicrm_api('MembershipType', 'getsingle', ['id' => $membership['membership_type_id'], 'version' => 3]);
-    $membership_status = civicrm_api('MembershipStatus', 'getsingle', ['id' => $membership['status_id'], 'version' => 3]);
-    $contact           = civicrm_api('Contact', 'getsingle', ['id' => $membership['contact_id'], 'version' => 3]);
+    $membership        = civicrm_api3('Membership', 'getsingle', ['id' => $membership_id]);
+    $membership_type   = civicrm_api3('MembershipType', 'getsingle', ['id' => $membership['membership_type_id']]);
+    $membership_status = civicrm_api3('MembershipStatus', 'getsingle', ['id' => $membership['status_id']]);
+    $contact           = civicrm_api3('Contact', 'getsingle', ['id' => $membership['contact_id']]);
 
     // load last fee
     if (!empty($last_fee_id)) {
-      $last_fee                = civicrm_api('Contribution', 'getsingle', ['id' => $last_fee_id, 'version' => 3]);
+      $last_fee                = civicrm_api3('Contribution', 'getsingle', ['id' => $last_fee_id]);
       $last_fee['days']        = round((strtotime($btx->booking_date) - (int) strtotime($last_fee['receive_date'])) / (60 * 60 * 24));
       $smarty_vars['last_fee'] = $last_fee;
     }

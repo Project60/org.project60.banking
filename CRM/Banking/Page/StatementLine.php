@@ -43,7 +43,7 @@ class CRM_Banking_Page_StatementLine extends CRM_Core_Page {
     }
     $this->assign('selectedStatuses', $selectedStatuses);
 
-    $statement_id = CRM_Utils_Request::retrieve('s_id', 'Positive', CRM_Core_DAO::$_nullObject, TRUE);
+    $statement_id = CRM_Utils_Request::retrieve('s_id', 'Positive', NULL, TRUE);
 
     $sql = "SELECT tx.*, DATE(value_date) AS date, status.name as status_name, status.label as status_label
       FROM civicrm_bank_tx tx LEFT JOIN civicrm_option_value status ON status.id = tx.status_id

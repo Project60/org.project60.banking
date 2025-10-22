@@ -233,7 +233,7 @@ class CRM_Banking_Form_StatementSearch extends CRM_Core_Form {
     ];
 
     // Custom search data elements:
-    $custom_parameter_list = CRM_Utils_Array::value('custom_parameters', $_REQUEST, '');
+    $custom_parameter_list = $_REQUEST['custom_parameters'] ?? '';
     $custom_parameter_list = explode(',', $custom_parameter_list);
     foreach ($custom_parameter_list as $custom_parameter) {
       $optionalAjaxParameters[$custom_parameter] = 'String';
@@ -473,7 +473,7 @@ class CRM_Banking_Form_StatementSearch extends CRM_Core_Form {
       //            $our_account = empty($our_account_data['name']) ? $transactionDao->our_account_reference : $our_account_data['name'];
       // phpcs:enable
       $data_parsed = json_decode($transactionDao->data_parsed, TRUE);
-      $purpose = trim(CRM_Utils_Array::value('purpose', $data_parsed, ''));
+      $purpose = trim($data_parsed['purpose'] ?? '');
       $review_link = CRM_Utils_System::url('civicrm/banking/review', "id={$transactionDao->id}");
 
       $results[] = [

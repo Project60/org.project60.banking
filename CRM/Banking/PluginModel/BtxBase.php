@@ -312,7 +312,7 @@ abstract class CRM_Banking_PluginModel_BtxBase extends CRM_Banking_PluginModel_B
     else {
       $object = $this->getPropagationObject($key_bits[0], $btx);
       if ($object) {
-        return CRM_Utils_Array::value($key_bits[1], $object);
+        return $object[$key_bits[1]] ?? NULL;
       }
     }
 
@@ -452,12 +452,12 @@ abstract class CRM_Banking_PluginModel_BtxBase extends CRM_Banking_PluginModel_B
     }
 
     // let's get the values
-    $left_value  = CRM_Utils_Array::value($condition[0], $data);
+    $left_value  = $data[$condition[0]] ?? NULL;
     $right_value = $condition[2];
     if (is_string($right_value) && strlen($right_value) > 0 && $right_value[0] == '$') {
       // if it starts with '$' it will be used as a key for data, otherwise literally
       $key = substr($right_value, 1);
-      $right_value = CRM_Utils_Array::value($key, $data);
+      $right_value = $data[$key] ?? NULL;
     }
     if (is_object($right_value)) {
       $condition_text = json_encode($condition);

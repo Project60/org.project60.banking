@@ -226,7 +226,7 @@ abstract class CRM_Banking_PluginModel_Exporter extends CRM_Banking_PluginModel_
         $total_currency       = '';
         $total_non_deductible = 0.0;
         foreach ($contribution_ids as $contribution_id) {
-          $contribution = civicrm_api('Contribution', 'getsingle', ['id' => $contribution_id, 'version' => 3]);
+          $contribution = civicrm_api3('Contribution', 'getsingle', ['id' => $contribution_id]);
           if (!empty($contribtion['is_error'])) {
             error_log("org.project60.banking.exporter.csv: error while reading contribution [$contribution_id]: " . $contribution['error_message']);
           }

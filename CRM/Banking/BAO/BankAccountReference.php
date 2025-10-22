@@ -40,7 +40,7 @@ class CRM_Banking_BAO_BankAccountReference extends CRM_Banking_DAO_BankAccountRe
    */
   public static function add(&$params) {
     $hook = empty($params['id']) ? 'create' : 'edit';
-    CRM_Utils_Hook::pre($hook, 'BankAccountReference', CRM_Utils_Array::value('id', $params), $params);
+    CRM_Utils_Hook::pre($hook, 'BankAccountReference', $params['id'] ?? NULL, $params);
 
     $dao = new CRM_Banking_DAO_BankAccountReference();
     $dao->copyValues($params);
@@ -161,7 +161,7 @@ class CRM_Banking_BAO_BankAccountReference extends CRM_Banking_DAO_BankAccountRe
     $normalised_reference = preg_replace('#\\s#', '', $normalised_reference);
 
     if (preg_match($pattern, $normalised_reference, $match)) {
-      $normalised_reference = sprintf($format, CRM_Utils_Array::value(1, $match), CRM_Utils_Array::value(2, $match), CRM_Utils_Array::value(3, $match), CRM_Utils_Array::value(4, $match), CRM_Utils_Array::value(5, $match));
+      $normalised_reference = sprintf($format, $match[1] ?? NULL, $match[2] ?? NULL, $match[3] ?? NULL, $match[4] ?? NULL, $match[5] ?? NULL);
       if ($reference === $normalised_reference) {
         return 1;
       }

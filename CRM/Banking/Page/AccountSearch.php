@@ -84,7 +84,7 @@ class CRM_Banking_Page_AccountSearch extends CRM_Core_Page {
   public function lookup_type($types, $type_id) {
     if (!isset($types[$type_id])) {
       // use the api to look up the $type ID
-      $result = civicrm_api('OptionValue', 'get', ['version' => 3, 'id' => $type_id]);
+      $result = civicrm_api3('OptionValue', 'get', ['id' => $type_id]);
       if (isset($result['is_error']) && $result['is_error'] || $result['count'] == 0) {
         $types[$type_id] = 'Error';
       }

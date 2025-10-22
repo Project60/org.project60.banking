@@ -69,10 +69,10 @@ class CRM_Banking_Page_Manager extends CRM_Core_Page {
     }
 
     // assign lists to template
-    $this->assign('importers', CRM_Utils_Array::value('Import plugin', $plugin_type_to_instance, []));
-    $this->assign('matchers', CRM_Utils_Array::value('Match plugin', $plugin_type_to_instance, []));
-    $this->assign('postprocessors', CRM_Utils_Array::value('Post Processor', $plugin_type_to_instance, []));
-    $this->assign('exporters', CRM_Utils_Array::value('Export plugin', $plugin_type_to_instance, []));
+    $this->assign('importers', $plugin_type_to_instance['Import plugin'] ?? []);
+    $this->assign('matchers', $plugin_type_to_instance['Match plugin'] ?? []);
+    $this->assign('postprocessors', $plugin_type_to_instance['Post Processor'] ?? []);
+    $this->assign('exporters', $plugin_type_to_instance['Export plugin'] ?? []);
     $this->assign('baseurl', CRM_Utils_System::url('civicrm/banking/manager'));
 
     parent::run();

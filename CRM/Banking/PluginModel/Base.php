@@ -68,7 +68,7 @@ abstract class CRM_Banking_PluginModel_Base {
     $this->_plugin_name   = $plugin_dao->name;
     $this->_plugin_config = json_decode($plugin_dao->config);
     if ($this->_plugin_config == FALSE) {
-      CRM_Core_Error::fatal('Configuration for CiviBanking plugin (id: ' . $plugin_dao->id . ') is not a valid JSON string.');
+      CRM_Core_Error::statusBounce('Configuration for CiviBanking plugin (id: ' . $plugin_dao->id . ') is not a valid JSON string.');
       $this->_plugin_config = [];
     }
   }

@@ -300,8 +300,8 @@ abstract class CRM_Banking_PluginModel_Matcher extends CRM_Banking_PluginModel_B
     $reference2instances = [];
     foreach ($references as $reference_type => $reference) {
       $reference2instances[$reference] = [];
-      $query = ['version' => 3, 'reference' => $reference, 'reference_type_id' => $reference_type];
-      $existing = civicrm_api('BankingAccountReference', 'get', $query);
+      $query = ['reference' => $reference, 'reference_type_id' => $reference_type];
+      $existing = civicrm_api3('BankingAccountReference', 'get', $query);
       if (empty($existing['is_error'])) {
         foreach ($existing['values'] as $account_reference) {
           array_push($reference2instances[$reference], $account_reference);
@@ -360,12 +360,11 @@ abstract class CRM_Banking_PluginModel_Matcher extends CRM_Banking_PluginModel_B
       if (!$reference_already_there) {
         // there was no reference to 'our' bank account -> create!
         $query = [
-          'version'           => 3,
           'reference'         => $reference,
           'reference_type_id' => $reference_type,
           'ba_id'             => $contact_bank_account_id,
         ];
-        $result = civicrm_api('BankingAccountReference', 'create', $query);
+        $result = civicrm_api3('BankingAccountReference', 'create', $query);
         if (!empty($result['is_error'])) {
           CRM_Core_Session::setStatus(
             E::ts("Couldn't create reference. Error was: '%1'", [1 => $result['error_message']]),
@@ -390,7 +389,7 @@ abstract class CRM_Banking_PluginModel_Matcher extends CRM_Banking_PluginModel_B
           if ($ba_id == $contact_bank_account_id) {
             continue;
           }
-          $contact = civicrm_api('Contact', 'getsingle', ['version' => 3, 'id' => $ba_bao->contact_id]);
+          $contact = civicrm_api3('Contact', 'getsingle', ['id' => $ba_bao->contact_id]);
           if (empty($contact['is_error'])) {
             $url = CRM_Utils_System::url('civicrm/contact/view', 'cid=' . $ba_bao->contact_id);
             $contacts .= "<li><a href='$url'>" . $contact['display_name'] . '</a></li>';

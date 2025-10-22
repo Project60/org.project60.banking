@@ -73,7 +73,7 @@ class CRM_Banking_Form_Configure extends CRM_Core_Form {
     $this->addElement('select',
                       'plugin_class_id',
                       E::ts('Implementation'),
-                      CRM_Utils_Array::value($this->plugin['plugin_type_id'], $type_map),
+                      $type_map[$this->plugin['plugin_type_id']] ?? NULL,
                       ['class' => 'crm-select2 huge']);
 
     $this->addElement('textarea',

@@ -71,8 +71,8 @@ class CRM_Banking_Matcher_Engine {
     if ($this->matchers === NULL) {
       $this->matchers = [];
       $matcher_type_id = banking_helper_optionvalueid_by_groupname_and_name('civicrm_banking.plugin_classes', 'match');
-      $params = ['version' => 3, 'plugin_type_id' => $matcher_type_id, 'enabled' => 1];
-      $result = civicrm_api('BankingPluginInstance', 'get', $params);
+      $params = ['plugin_type_id' => $matcher_type_id, 'enabled' => 1];
+      $result = civicrm_api3('BankingPluginInstance', 'get', $params);
       if (isset($result['is_error']) && $result['is_error']) {
         CRM_Core_Session::setStatus(E::ts('Error while trying to query database for matcher plugins!'), E::ts('No processors'), 'alert');
       }
@@ -105,8 +105,8 @@ class CRM_Banking_Matcher_Engine {
       $this->postprocessors = [];
 
       $postprocessor_type_id = banking_helper_optionvalueid_by_groupname_and_name('civicrm_banking.plugin_classes', 'postprocess');
-      $params = ['version' => 3, 'plugin_type_id' => $postprocessor_type_id, 'enabled' => 1];
-      $result = civicrm_api('BankingPluginInstance', 'get', $params);
+      $params = ['plugin_type_id' => $postprocessor_type_id, 'enabled' => 1];
+      $result = civicrm_api3('BankingPluginInstance', 'get', $params);
       if (isset($result['is_error']) && $result['is_error']) {
         CRM_Core_Session::setStatus(E::ts('Error while trying to query database for postprocessor plugins!'), E::ts('No processors'), 'alert');
       }

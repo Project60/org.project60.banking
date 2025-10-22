@@ -109,6 +109,7 @@ class CRM_Banking_Page_Review extends CRM_Core_Page {
     $data_parsed = json_decode($btx_bao->data_parsed, TRUE);
     $this->assign('payment_data_parsed', $data_parsed);
     if (!empty($data_parsed['iban'])) {
+      // @phpstan-ignore staticMethod.deprecated
       $data_parsed['iban'] = CRM_Banking_BAO_BankAccountReference::format('iban', $data_parsed['iban']);
     }
 
@@ -215,7 +216,7 @@ class CRM_Banking_Page_Review extends CRM_Core_Page {
         // visualize more info, see https://github.com/Project60/CiviBanking/issues/71
         // try to load contact
         $user_id = $execution_info['executed_by'];
-        $user = civicrm_api('Contact', 'getsingle', ['id' => $user_id, 'version' => 3]);
+        $user = civicrm_api3('Contact', 'getsingle', ['id' => $user_id]);
         if (empty($user['is_error'])) {
           $user_link = CRM_Utils_System::url('civicrm/contact/view', "&reset=1&cid=$user_id");
           $user_string = "<a href='$user_link'>" . $user['display_name'] . '</a>';
@@ -362,14 +363,15 @@ class CRM_Banking_Page_Review extends CRM_Core_Page {
       "CRM/Banking/Page/{$summaryTemplate}.tpl"
       );
     }
+    $null = NULL;
     CRM_Utils_Hook::singleton()->invoke(
         ['banking_transaction', 'summary_blocks'],
         $btx_bao,
         $summary_blocks,
-        CRM_Utils_Hook::$_nullObject,
-        CRM_Utils_Hook::$_nullObject,
-        CRM_Utils_Hook::$_nullObject,
-        CRM_Utils_Hook::$_nullObject,
+        $null,
+      $null,
+      $null,
+      $null,
         'civicrm_banking_transaction_summary'
       );
     $this->assign('summary_blocks', $summary_blocks);

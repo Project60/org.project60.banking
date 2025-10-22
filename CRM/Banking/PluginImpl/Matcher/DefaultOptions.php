@@ -185,7 +185,7 @@ class CRM_Banking_PluginImpl_Matcher_DefaultOptions extends CRM_Banking_PluginMo
 
         foreach ($cids as $cid) {
           if ($cid) {
-            $contribution = civicrm_api('Contribution', 'getsingle', ['version' => 3, 'id' => $cid]);
+            $contribution = civicrm_api3('Contribution', 'getsingle', ['id' => $cid]);
             if (!empty($contribution['is_error'])) {
               CRM_Core_Session::setStatus(sprintf(E::ts("Couldn't find contribution #%s"), $cid), E::ts('Error'), 'error');
               continue;
@@ -196,7 +196,7 @@ class CRM_Banking_PluginImpl_Matcher_DefaultOptions extends CRM_Banking_PluginMo
               $this->storeAccountWithContact($btx, $contribution['contact_id']);
             }
 
-            $query = ['version' => 3, 'id' => $cid];
+            $query = ['id' => $cid];
             $query['is_test'] = 0;
             // add propagated values
             $query = array_merge($query, $this->getPropagationSet($btx, $suggestion, 'contribution'));
@@ -216,7 +216,7 @@ class CRM_Banking_PluginImpl_Matcher_DefaultOptions extends CRM_Banking_PluginMo
             }
 
             CRM_Banking_Helpers_IssueMitigation::mitigate358($query);
-            $result = civicrm_api('Contribution', 'create', $query);
+            $result = civicrm_api3('Contribution', 'create', $query);
             if (isset($result['is_error']) && $result['is_error']) {
               CRM_Core_Session::setStatus(sprintf(E::ts("Couldn't modify contribution #%s"), $cid), E::ts('Error'), 'error');
               return NULL;

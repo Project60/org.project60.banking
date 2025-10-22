@@ -16,8 +16,6 @@
 
 declare(strict_types = 1);
 
-use CRM_Banking_ExtensionUtil as E;
-
 /**
  * Tests for the RegexAnalyser class.
  *
@@ -96,17 +94,17 @@ class CRM_Banking_MatchersIntegrationLegacyTest extends CRM_Banking_TestBase {
     $this->assertEquals(
         $contactId,
         $contribution['contact_id'],
-        E::ts("The contribution's contact ID is not correct.")
+        "The contribution's contact ID is not correct."
     );
     $this->assertEquals(
         1,
         $contribution['payment_instrument_id'],
-        E::ts("The contributions' payment instrument ID is not correct.")
+        "The contributions' payment instrument ID is not correct."
     );
     $this->assertEquals(
         1,
         $contribution['financial_type_id'],
-        E::ts("The contributions' financial type ID is not correct.")
+        "The contributions' financial type ID is not correct."
     );
   }
 

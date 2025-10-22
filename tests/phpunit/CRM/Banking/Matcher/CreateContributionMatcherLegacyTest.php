@@ -17,8 +17,6 @@
 
 declare(strict_types = 1);
 
-use CRM_Banking_ExtensionUtil as E;
-
 /**
  * @covers CRM_Banking_PluginImpl_Matcher_CreateContribution
  *
@@ -46,17 +44,17 @@ class CRM_Banking_CreateContributionLegacyTest extends CRM_Banking_TestBase {
     $this->assertEquals(
         $contactId,
         $contribution['contact_id'],
-        E::ts('The contact ID is not correct.')
+        'The contact ID is not correct.'
     );
     $this->assertEquals(
         1,
         $contribution['payment_instrument_id'],
-        E::ts('The payment instrument ID is not correct.')
+        'The payment instrument ID is not correct.'
     );
     $this->assertEquals(
         1,
         $contribution['financial_type_id'],
-        E::ts('The financial type ID is not correct.')
+        'The financial type ID is not correct.'
     );
   }
 

@@ -80,7 +80,16 @@ class CRM_Banking_Upgrader extends CRM_Extension_Upgrader_Base {
     ]);
 
     // make sure the new menu is registered with the CMS
-    CRM_Core_Invoke::rebuildMenuAndCaches();
+    if (version_compare(CRM_Utils_System::version(), '6.9.0', '>=')) {
+      Civi::rebuild('navigation');
+    }
+    elseif (version_compare(CRM_Utils_System::version(), '6.1.0', '>=')) {
+      Civi::rebuild('menu');
+    }
+    else {
+      // @phpstan-ignore staticMethod.deprecated
+      CRM_Core_Invoke::rebuildMenuAndCaches();
+    }
 
     return TRUE;
   }
@@ -183,7 +192,18 @@ class CRM_Banking_Upgrader extends CRM_Extension_Upgrader_Base {
    */
   public function upgrade_0704() {
     // rebuild menu, in particular for the UI
-    CRM_Core_Invoke::rebuildMenuAndCaches();
+    // make sure the new menu is registered with the CMS
+    if (version_compare(CRM_Utils_System::version(), '6.9.0', '>=')) {
+      Civi::rebuild('navigation');
+    }
+    elseif (version_compare(CRM_Utils_System::version(), '6.1.0', '>=')) {
+      Civi::rebuild('menu');
+    }
+    else {
+      // @phpstan-ignore staticMethod.deprecated
+      CRM_Core_Invoke::rebuildMenuAndCaches();
+    }
+
     Civi::settings()->set('reference_matching_probability', 1.0);
     return TRUE;
   }

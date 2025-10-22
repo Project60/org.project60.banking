@@ -179,7 +179,7 @@ class CRM_Banking_Matcher_Suggestion {
    *
    * phpcs:disable Generic.Metrics.CyclomaticComplexity.TooHigh
    */
-  private function _updateObjects(CRM_Banking_BAO_BankTransaction $btx = NULL, CRM_Banking_PluginModel_Matcher $plugin = NULL) {
+  private function _updateObjects(?CRM_Banking_BAO_BankTransaction $btx = NULL, ?CRM_Banking_PluginModel_Matcher $plugin = NULL) {
   // phpcs:enable
     // provide BTX
     if ($btx != NULL) {
@@ -295,7 +295,7 @@ class CRM_Banking_Matcher_Suggestion {
   /**
    * Visualize this suggestion
    */
-  public function visualize(CRM_Banking_BAO_BankTransaction $btx = NULL, CRM_Banking_PluginModel_Matcher $plugin = NULL) {
+  public function visualize(?CRM_Banking_BAO_BankTransaction $btx = NULL, ?CRM_Banking_PluginModel_Matcher $plugin = NULL) {
     // if btx/plugin is not supplied (by the matcher engine), recreate it
     $this->_updateObjects($btx, $plugin);
     $visualisation = $this->_plugin->visualize_match($this, $btx);
@@ -328,7 +328,7 @@ class CRM_Banking_Matcher_Suggestion {
   /**
    * Visualize this execution
    */
-  public function visualize_execution(CRM_Banking_BAO_BankTransaction $btx = NULL, CRM_Banking_PluginModel_Matcher $plugin = NULL) {
+  public function visualize_execution(?CRM_Banking_BAO_BankTransaction $btx = NULL, ?CRM_Banking_PluginModel_Matcher $plugin = NULL) {
     // if btx/plugin is not supplied (by the matcher engine), recreate it
     $this->_updateObjects($btx, $plugin);
     $visualisation = $this->_plugin->visualize_execution_info($this, $btx);

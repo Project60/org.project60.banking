@@ -445,8 +445,10 @@ class CRM_Banking_PluginImpl_Matcher_CreateMultipleContributions extends CRM_Ban
     }
     $smarty_vars['contact'] = $contact;
 
-    $financial_types = CRM_Contribute_BAO_Contribution::buildOptions(
-      'financial_type_id'
+    $financial_types = array_column(
+      Civi::entity('Contribution')->getOptions('financial_type_id') ?? [],
+      'name',
+      'id'
     );
     $contributions = $match->getParameter('contributions');
     foreach ($contributions as &$contribution) {

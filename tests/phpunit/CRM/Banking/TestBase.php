@@ -64,9 +64,7 @@ abstract class CRM_Banking_TestBase extends TestCase implements HeadlessInterfac
    * @throws \CRM_Extension_Exception_ParseException
    */
   public function setUpHeadless(): CiviEnvBuilder {
-    $this->setUp();
     return \Civi\Test::headless()
-      ->install('civi_campaign')
       ->installMe(__DIR__)
       ->apply();
   }
@@ -519,7 +517,7 @@ abstract class CRM_Banking_TestBase extends TestCase implements HeadlessInterfac
    * @param array|null $transactionIds
    *  Will be used instead of all created transactions if not null.
    */
-  public function runMatchers(array $transactionIds = NULL): void {
+  public function runMatchers(?array $transactionIds = NULL): void {
     $transactionIdsForMatching = $transactionIds === NULL
       ? $this->getAllTransactionIDs(['new', 'suggestions']) : $transactionIds;
     $engine = new CRM_Banking_Matcher_Engine();
@@ -644,7 +642,7 @@ abstract class CRM_Banking_TestBase extends TestCase implements HeadlessInterfac
    *
    * @author B. Zschiedrich (zschiedrich@systopia.de)
    */
-  public function createRegexAnalyser(array $rules = NULL, array $configuration = []): int {
+  public function createRegexAnalyser(?array $rules = NULL, array $configuration = []): int {
     $defaultRules = [
       [
         'comment' => 'Austrian address type 1',

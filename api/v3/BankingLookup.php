@@ -323,7 +323,17 @@ function _civicrm_api3_banking_lookup_contactbyname_api($name_mutations, $params
   foreach ($name_mutations as $name_mutation) {
     $page = 1;
     do {
-      $result = Contact::autocomplete()->setInput($name_mutation)->setPage($page++)->execute();
+      if (version_compare(CRM_Utils_System::version(), '6.6.0', '>=')) {
+        $result = Contact::autocomplete()
+          ->setSearchField('sort_name')
+          ->setInput($name_mutation)
+          ->setExclude(array_keys($occurrence_count))
+          ->execute();
+      }
+      else {
+        // @phpstan-ignore-next-line
+        $result = Contact::autocomplete()->setInput($name_mutation)->setPage($page++)->execute();
+      }
       /** @phpstan-var array{id: int, label: string, icon: string, description: list<string>} $contact_autocomplete */
       foreach ($result as $contact_autocomplete) {
         $contact_id = $contact_autocomplete['id'];

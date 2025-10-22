@@ -14,6 +14,8 @@
 | written permission from the original author(s).        |
 +--------------------------------------------------------*/
 
+declare(strict_types = 1);
+
 use CRM_Banking_ExtensionUtil as E;
 
 /**
@@ -22,14 +24,14 @@ use CRM_Banking_ExtensionUtil as E;
 class CRM_Banking_BAO_BankTransactionContribution extends CRM_Banking_DAO_BankTransactionContribution {
 
   /**
-   * @param array  $params
+   * @param array $params
    *  (reference ) an assoc array of name/value pairs
    *
    * @return object CRM_Banking_DAO_BankTransactionContribution object on success, null otherwise
    * @access public
    * @static
    */
-  static function add(&$params) {
+  public static function add(&$params) {
     $hook = empty($params['id']) ? 'create' : 'edit';
     CRM_Utils_Hook::pre($hook, 'BankTransactionContribution', CRM_Utils_Array::value('id', $params), $params);
 
@@ -47,11 +49,10 @@ class CRM_Banking_BAO_BankTransactionContribution extends CRM_Banking_DAO_BankTr
    * @param integer $bank_tx_id
    * @param integer $contribution_id
    */
-  public static function linkContribution($bank_tx_id, $contribution_id)
-  {
+  public static function linkContribution($bank_tx_id, $contribution_id) {
     // don't check whether already linked, let the DB do that...
     CRM_Core_DAO::executeQuery(
-        "INSERT IGNORE INTO civicrm_bank_tx_contribution (bank_tx_id,contribution_id) VALUES (%1, %2);",
+        'INSERT IGNORE INTO civicrm_bank_tx_contribution (bank_tx_id,contribution_id) VALUES (%1, %2);',
         [
           1 => [$bank_tx_id, 'Integer'],
           2 => [$contribution_id, 'Integer'],
@@ -68,12 +69,11 @@ class CRM_Banking_BAO_BankTransactionContribution extends CRM_Banking_DAO_BankTr
    * @return array
    *   list of bank transaction IDs
    */
-  public static function getLinkedTransactions($contribution_id)
-  {
+  public static function getLinkedTransactions($contribution_id) {
     $tx_ids = [];
     $contribution_id = (int) $contribution_id;
     $linked_btx = CRM_Core_DAO::executeQuery(
-        "SELECT bank_tx_id FROM civicrm_bank_tx_contribution WHERE contribution_id = %1;",
+        'SELECT bank_tx_id FROM civicrm_bank_tx_contribution WHERE contribution_id = %1;',
         [1 => [$contribution_id, 'Integer']]
     );
     while ($linked_btx->fetch()) {
@@ -87,33 +87,33 @@ class CRM_Banking_BAO_BankTransactionContribution extends CRM_Banking_DAO_BankTr
    *
    * @param CRM_Contribute_Page_Tab $page
    */
-  public static function injectLinkedTransactions($page)
-  {
+  public static function injectLinkedTransactions($page) {
     $contribution_id = $page->getVar('_id');
     if (!empty($contribution_id) && ($page instanceof CRM_Contribute_Page_Tab)) {
       try {
         $contribution_id = (int) $contribution_id;
-        $link_title = E::ts("CiviBanking Transaction");
+        $link_title = E::ts('CiviBanking Transaction');
         $tx_ids = self::getLinkedTransactions($contribution_id);
         if (!empty($tx_ids)) {
           // generate links
           $tx_links = [];
           foreach ($tx_ids as $tx_id) {
-            $tx_url = CRM_Utils_System::url('civicrm/banking/review',  "id={$tx_id}");
+            $tx_url = CRM_Utils_System::url('civicrm/banking/review', "id={$tx_id}");
             $tx_links[] = "<a href=\"{$tx_url}\" title=\"{$link_title}\" class=\"crm-popup\">[{$tx_id}]</a>";
           }
 
           // inject tx_ids:
           Civi::resources()->addVars('contribution_transactions', [
-            'label'         => E::ts("%1 Bank Transaction(s)", [1 => count($tx_ids)]),
+            'label'         => E::ts('%1 Bank Transaction(s)', [1 => count($tx_ids)]),
             'links'         => implode(' ', $tx_links),
           ]);
           Civi::resources()->addScriptUrl(E::url('js/contribution_transaction_snippet.js'));
         }
-      } catch (Exception $ex) {
-        Civi::log()->debug("Error while checking for linked bank transactions: " . $ex->getMessage());
+      }
+      catch (Exception $ex) {
+        Civi::log()->debug('Error while checking for linked bank transactions: ' . $ex->getMessage());
       }
     }
   }
-}
 
+}

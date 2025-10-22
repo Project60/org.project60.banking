@@ -14,32 +14,28 @@
 | written permission from the original author(s).        |
 +--------------------------------------------------------*/
 
+declare(strict_types = 1);
+
 use CRM_Banking_ExtensionUtil as E;
-
-/**
- *
- * @package org.project60.banking
- * @copyright GNU Affero General Public License
- * $Id$
- *
- */
-
-require_once 'CRM/Banking/Helpers/OptionValue.php';
 
 class CRM_Banking_Matcher_Engine {
 
   // PROPERTIES
-  /** @var array list of matcher instances, ordered by weight */
+  /**
+   * @var array list of matcher instances, ordered by weight */
   private $matchers = NULL;
 
-  /** @var array list of post-processor instances, ordered by weight */
+  /**
+   * @var array list of post-processor instances, ordered by weight */
   private $postprocessors = NULL;
 
-  /** @var CRM_Banking_Matcher_Engine  */
-  static private $singleton = null;
+  /**
+   * @var CRM_Banking_Matcher_Engine  */
+  static private $singleton = NULL;
 
 
   // CLASS METHODS
+
   /**
    * Get an instance of the current matching engine.
    *  This instance is kept for the whole process for performance
@@ -48,7 +44,7 @@ class CRM_Banking_Matcher_Engine {
    * @return CRM_Banking_Matcher_Engine
    */
   public static function getInstance() {
-    if (self::$singleton === null) {
+    if (self::$singleton === NULL) {
       self::$singleton = new CRM_Banking_Matcher_Engine();
     }
     return self::$singleton;
@@ -61,7 +57,7 @@ class CRM_Banking_Matcher_Engine {
    * @return void
    */
   public static function clearCachedInstance() {
-    self::$singleton = null;
+    self::$singleton = NULL;
   }
 
   //----------------------------------------------------------------------------
@@ -73,19 +69,22 @@ class CRM_Banking_Matcher_Engine {
    */
   private function getMatchers() {
     if ($this->matchers === NULL) {
-      $this->matchers = array();
+      $this->matchers = [];
       $matcher_type_id = banking_helper_optionvalueid_by_groupname_and_name('civicrm_banking.plugin_classes', 'match');
-      $params = array('version' => 3, 'plugin_type_id' => $matcher_type_id, 'enabled' => 1);
+      $params = ['version' => 3, 'plugin_type_id' => $matcher_type_id, 'enabled' => 1];
       $result = civicrm_api('BankingPluginInstance', 'get', $params);
       if (isset($result['is_error']) && $result['is_error']) {
-        CRM_Core_Session::setStatus(E::ts("Error while trying to query database for matcher plugins!"), E::ts('No processors'), 'alert');
-      } else {
+        CRM_Core_Session::setStatus(E::ts('Error while trying to query database for matcher plugins!'), E::ts('No processors'), 'alert');
+      }
+      else {
         foreach ($result['values'] as $instance) {
           $pi_bao = new CRM_Banking_BAO_PluginInstance();
           $pi_bao->get('id', $instance['id']);
 
           // add to array wrt the weight
-          if (!isset($this->matchers[$pi_bao->weight])) $this->matchers[$pi_bao->weight] = array();
+          if (!isset($this->matchers[$pi_bao->weight])) {
+            $this->matchers[$pi_bao->weight] = [];
+          }
           array_push($this->matchers[$pi_bao->weight], $pi_bao->getInstance());
         }
       }
@@ -96,28 +95,30 @@ class CRM_Banking_Matcher_Engine {
     return $this->matchers;
   }
 
-
-
-
   /**
    * read the list of currently active postprocessors in the right execution order
+   *
+   * @return array<int, list<\CRM_Banking_PluginModel_PostProcessor>>
    */
   private function getPostprocessors() {
     if ($this->postprocessors == NULL) {
-      $this->postprocessors = array();
+      $this->postprocessors = [];
 
       $postprocessor_type_id = banking_helper_optionvalueid_by_groupname_and_name('civicrm_banking.plugin_classes', 'postprocess');
-      $params = array('version' => 3, 'plugin_type_id' => $postprocessor_type_id, 'enabled' => 1);
+      $params = ['version' => 3, 'plugin_type_id' => $postprocessor_type_id, 'enabled' => 1];
       $result = civicrm_api('BankingPluginInstance', 'get', $params);
       if (isset($result['is_error']) && $result['is_error']) {
-        CRM_Core_Session::setStatus(E::ts("Error while trying to query database for postprocessor plugins!"), E::ts('No processors'), 'alert');
-      } else {
+        CRM_Core_Session::setStatus(E::ts('Error while trying to query database for postprocessor plugins!'), E::ts('No processors'), 'alert');
+      }
+      else {
         foreach ($result['values'] as $instance) {
           $pi_bao = new CRM_Banking_BAO_PluginInstance();
           $pi_bao->get('id', $instance['id']);
 
           // add to array wrt the weight
-          if (!isset($this->postprocessors[$pi_bao->weight])) $this->postprocessors[$pi_bao->weight] = array();
+          if (!isset($this->postprocessors[$pi_bao->weight])) {
+            $this->postprocessors[$pi_bao->weight] = [];
+          }
           array_push($this->postprocessors[$pi_bao->weight], $pi_bao->getInstance());
         }
       }
@@ -129,27 +130,26 @@ class CRM_Banking_Matcher_Engine {
     return $this->postprocessors;
   }
 
-
   /**
    * Run this BTX through the matchers
    *
-   * @param CRM_Banking_BAO_BankTransaction $btx
-   * @param bool $override_processed   Set this to TRUE if you want to re-match processed transactions.
-   *                                    This will destroy all records of the execution!
+   * @param int $btx_id
+   * @param bool $override_processed
+   *   Set this to TRUE if you want to re-match processed transactions. This
+   *   will destroy all records of the execution!
    */
-  public function match( $btx_id, $override_processed = FALSE ) {
+  public function match($btx_id, $override_processed = FALSE) {
     // TODO: timeout is 30s - do we need a setting here?
     $lock_timeout = 30.0;
-    $lock = CRM_Utils_BankingSafeLock::acquireLock('org.project60.banking.tx'.'-'.$btx_id, $lock_timeout);
+    $lock = CRM_Utils_BankingSafeLock::acquireLock('org.project60.banking.tx' . '-' . $btx_id, $lock_timeout);
     if (empty($lock)) {
       error_log("org.project60.banking - couldn't acquire lock. Timeout is $lock_timeout.");
-      return false;
+      return FALSE;
     }
 
     // load btx
     $btx = new CRM_Banking_BAO_BankTransaction();
     $btx->get('id', $btx_id);
-
 
     if (!$override_processed) {
       // don't match already executed transactions...
@@ -158,7 +158,7 @@ class CRM_Banking_Matcher_Engine {
       if ($btx->status_id == $processed_status_id || $btx->status_id == $ignored_status_id) {
         // will not match already executed transactions
         $lock->release();
-        return true;
+        return TRUE;
       }
     }
 
@@ -166,7 +166,7 @@ class CRM_Banking_Matcher_Engine {
     $btx->resetSuggestions();
 
     // reset the cache / context object
-    $context = new CRM_Banking_Matcher_Context( $btx );
+    $context = new CRM_Banking_Matcher_Context($btx);
     $logger = CRM_Banking_Helpers_Logger::getLogger();
 
     // run through the list of matchers
@@ -174,20 +174,21 @@ class CRM_Banking_Matcher_Engine {
     // run through the list of matchers
     $all_matchers = $this->getMatchers();
     if (empty($all_matchers)) {
-      CRM_Core_Session::setStatus(E::ts("No matcher plugins configured!"), E::ts('No processors'), 'alert');
-    } else {
+      CRM_Core_Session::setStatus(E::ts('No matcher plugins configured!'), E::ts('No processors'), 'alert');
+    }
+    else {
       foreach ($all_matchers as $weight => $matchers) {
         foreach ($matchers as $matcher) {
           try {
             // run matchers to generate suggestions
             $logger->setTimer('matcher');
-            $continue = $this->matchPlugin( $matcher, $context );
+            $continue = $this->matchPlugin($matcher, $context);
             $logger->logTime("Matcher [{$matcher->getPluginID()}]", 'matcher');
 
             if (!$continue) {
               $lock->release();
               $logger->logTime("Matching of btx [{$btx_id}]", 'matcher');
-              return true;
+              return TRUE;
             }
 
             // check if we can execute the suggestion right aways
@@ -196,13 +197,14 @@ class CRM_Banking_Matcher_Engine {
               $logger->logDebug("Matcher [{$matcher->getPluginID()}] executed automatically.");
               $lock->release();
               $logger->logTime("Matching of btx [{$btx_id}]", 'matcher');
-              return false;
+              return FALSE;
             }
-          } catch (Exception $e) {
+          }
+          catch (Exception $e) {
             $matcher_id = $matcher->getPluginID();
-            error_log("org.project60.banking - Exception during the execution of matcher [$matcher_id], error was: ".$e->getMessage());
+            error_log("org.project60.banking - Exception during the execution of matcher [$matcher_id], error was: " . $e->getMessage());
             $lock->release();
-            return false;
+            return FALSE;
           }
         }
       }
@@ -217,7 +219,7 @@ class CRM_Banking_Matcher_Engine {
     $lock->release();
     $context->destroy();
     $logger->logTime("Matching of btx [{$btx_id}]", 'matcher');
-    return false;
+    return FALSE;
   }
 
   /**
@@ -233,19 +235,19 @@ class CRM_Banking_Matcher_Engine {
     $previews = [];
     foreach ($all_postprocessors as $weight => $postprocessors) {
       foreach ($postprocessors as $postprocessor) {
-        /* @var CRM_Banking_PluginModel_PostProcessor $postprocessor */
         try {
           // Check for NULL. An empty string is considered a valid preview.
-          if (!is_null($preview = $postprocessor->previewMatch(
+          if (NULL !== ($preview = $postprocessor->previewMatch(
             $suggestion,
             $matcher,
             $context
           ))) {
             $previews[$postprocessor->getName()] = $preview;
           }
-        } catch (Exception $e) {
+        }
+        catch (Exception $e) {
           $matcher_id = $matcher->getPluginID();
-          error_log("org.project60.banking - Exception during the preview of postprocessor [$matcher_id], error was: ".$e->getMessage());
+          error_log("org.project60.banking - Exception during the preview of postprocessor [$matcher_id], error was: " . $e->getMessage());
         }
       }
     }
@@ -262,12 +264,11 @@ class CRM_Banking_Matcher_Engine {
     $logger = CRM_Banking_Helpers_Logger::getLogger();
     $logger->setTimer('postprocessing');
 
-    $context = new CRM_Banking_Matcher_Context( $btx );
+    $context = new CRM_Banking_Matcher_Context($btx);
     $context->setExecutedSuggestion($suggestion);
     $all_postprocessors = $this->getPostprocessors();
     foreach ($all_postprocessors as $weight => $postprocessors) {
       foreach ($postprocessors as $postprocessor) {
-        /* @var CRM_Banking_PluginModel_PostProcessor $postprocessor */
         try {
           $logger->setTimer('postprocessor');
           $logger->logDebug("Calling PostProcessor [{$postprocessor->getName()}]...");
@@ -278,9 +279,10 @@ class CRM_Banking_Matcher_Engine {
           }
           $logger->logTime("Postprocessor [{$postprocessor->getPluginID()}]", 'postprocessor');
 
-        } catch (Exception $e) {
+        }
+        catch (Exception $e) {
           $matcher_id = $matcher->getPluginID();
-          error_log("org.project60.banking - Exception during the execution of postprocessor [$matcher_id], error was: ".$e->getMessage());
+          error_log("org.project60.banking - Exception during the execution of postprocessor [$matcher_id], error was: " . $e->getMessage());
         }
       }
     }
@@ -303,16 +305,16 @@ class CRM_Banking_Matcher_Engine {
     $executed_postprocessors = $suggestion->getExecutedPostprocessors() ?: [];
     foreach ($all_postprocessors as $weight => $postprocessors) {
       foreach ($postprocessors as $postprocessor) {
-        /* @var CRM_Banking_PluginModel_PostProcessor $postprocessor */
-        if (array_key_exists($plugin_id = $postprocessor->getPluginId(), $executed_postprocessors)) {
+        if (array_key_exists($plugin_id = $postprocessor->getPluginID(), $executed_postprocessors)) {
           $result = $executed_postprocessors[$plugin_id];
           try {
             if (!empty($result = $postprocessor->visualizeExecutedMatch($suggestion, $matcher, $context, $result))) {
               $results[] = $result;
             }
-          } catch (Exception $e) {
+          }
+          catch (Exception $e) {
             $matcher_id = $matcher->getPluginID();
-            error_log("org.project60.banking - Exception during the visualization of results of postprocessor [$matcher_id], error was: ".$e->getMessage());
+            error_log("org.project60.banking - Exception during the visualization of results of postprocessor [$matcher_id], error was: " . $e->getMessage());
           }
         }
       }
@@ -328,10 +330,11 @@ class CRM_Banking_Matcher_Engine {
    * @return true iff the plugin was executed and the payment is fully processed
    */
   protected function checkAutoExecute($plugin, $btx) {
-    if (!$plugin->autoExecute()) return false;
-    foreach ($btx->getSuggestions() as $suggestions ) {
+    if (!$plugin->autoExecute()) {
+      return FALSE;
+    }
+    foreach ($btx->getSuggestions() as $suggestions) {
       foreach ($suggestions as $suggestion) {
-        /* @var $suggestion CRM_Banking_Matcher_Suggestion */
         if ($suggestion->getPluginID() == $plugin->getPluginID()) {
 
           // check if the suggestion requires user confirmation
@@ -355,29 +358,26 @@ class CRM_Banking_Matcher_Engine {
         }
       }
     }
-    return false;
+    return FALSE;
   }
 
   /**
-   * Run a single plugin to check for a match
-   *
-   * @param type $plugin
-   * @param type $btx
-   * @param type $context
+   * Run a single plugin to check for a match.
    */
-   protected function matchPlugin( CRM_Banking_PluginModel_Matcher $plugin, CRM_Banking_Matcher_Context $context ) {
+  protected function matchPlugin(CRM_Banking_PluginModel_Matcher $plugin, CRM_Banking_Matcher_Context $context) {
 
     $btx = $context->btx;
 
     // match() returns an instance of CRM_Banking_Matcher_Suggestion
-    $suggestions = $plugin->match( $btx, $context );
-    if ($suggestions !== null) {
+    $suggestions = $plugin->match($btx, $context);
+    if ($suggestions !== NULL) {
       // handle the possibility to get multiple matches in return
-      if (!is_array($suggestions)) $suggestions = array( $suggestions->probability => $suggestions );
+      if (!is_array($suggestions)) {
+        $suggestions = [$suggestions->probability => $suggestions];
+      }
     }
-    return true;
+    return TRUE;
   }
-
 
   /**
    * Bulk-run a set of <n> unprocessed items
@@ -395,4 +395,5 @@ class CRM_Banking_Matcher_Engine {
     }
     return count($unprocessed_ids);
   }
+
 }

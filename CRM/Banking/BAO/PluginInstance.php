@@ -14,20 +14,23 @@
 | written permission from the original author(s).        |
 +--------------------------------------------------------*/
 
+declare(strict_types = 1);
+
 use CRM_Banking_ExtensionUtil as E;
+
 /**
  * Class contains functions for CiviBanking plugin instances
  */
 class CRM_Banking_BAO_PluginInstance extends CRM_Banking_DAO_PluginInstance {
 
   /**
-   * @param array  $params         (reference ) an assoc array of name/value pairs
+   * @param array $params
    *
    * @return object       CRM_Banking_BAO_BankAccount object on success, null otherwise
    * @access public
    * @static
    */
-  static function add(&$params) {
+  public static function add(&$params) {
     $hook = empty($params['id']) ? 'create' : 'edit';
     CRM_Utils_Hook::pre($hook, 'PluginInstance', CRM_Utils_Array::value('id', $params), $params);
 
@@ -46,20 +49,23 @@ class CRM_Banking_BAO_PluginInstance extends CRM_Banking_DAO_PluginInstance {
    *
    * @return array CRM_Banking_BAO_PluginInstances
    */
-  static function listInstances($type_name, $enabled_only=TRUE) {
+  public static function listInstances($type_name, $enabled_only = TRUE) {
     // find the correct plugin type
-    $import_plugin_type = civicrm_api3('OptionValue', 'get', array(
-        'name'     => $type_name,
-        'option_group_id' => 'civicrm_banking.plugin_classes',
-        'option.limit' => 0));
+    $import_plugin_type = civicrm_api3('OptionValue', 'get', [
+      'name'     => $type_name,
+      'option_group_id' => 'civicrm_banking.plugin_classes',
+      'option.limit' => 0,
+    ]);
 
     // then, get the list of plugins matching this criteria
-    $params = array('plugin_type_id' => $import_plugin_type['id']);
-    if ($enabled_only) { $params['enabled'] = 1; }
+    $params = ['plugin_type_id' => $import_plugin_type['id']];
+    if ($enabled_only) {
+      $params['enabled'] = 1;
+    }
     $instance_results = civicrm_api3('BankingPluginInstance', 'get', $params);
 
     // create list of plugin instance BAOs
-    $plugin_list = array();
+    $plugin_list = [];
     foreach ($instance_results['values'] as $plugin_info) {
       $plugin = new CRM_Banking_BAO_PluginInstance();
       $plugin->get('id', $plugin_info['id']);
@@ -67,14 +73,16 @@ class CRM_Banking_BAO_PluginInstance extends CRM_Banking_DAO_PluginInstance {
       // insert with ascending weight
       // PD: I think this code is really complex - are you trying to sort on weight ? we can do that with a usort call
       //  BE: go ahead and replace it! But if you just comment it out, it stops working, and I get warnings (Undefined variable, below)
-      for ($index=0; $index < count($plugin_list); $index++) {
+      $pluginListCount = count($plugin_list);
+      for ($index = 0; $index < $pluginListCount; $index++) {
         if ($plugin->weight > $plugin_list[$index]->weight) {
-          array_splice($plugin_list, $index, 0, array($plugin));
-          $index = count($plugin_list)-1; // for the after-loop condition
+          array_splice($plugin_list, $index, 0, [$plugin]);
+          // for the after-loop condition
+          $index = count($plugin_list) - 1;
           break;
         }
       }
-      if ($index==count($plugin_list)) {
+      if ($index == count($plugin_list)) {
         // i.e. it was not added during the loop
         array_push($plugin_list, $plugin);
       }
@@ -86,9 +94,9 @@ class CRM_Banking_BAO_PluginInstance extends CRM_Banking_DAO_PluginInstance {
   /**
    * getInstance returns the class that implements this plugin's functionality
    */
-  function getClass() {
+  public function getClass() {
     $classNameId = $this->plugin_class_id;
-    $className = civicrm_api3( 'OptionValue','getsingle', array('id' => $classNameId));
+    $className = civicrm_api3('OptionValue', 'getsingle', ['id' => $classNameId]);
 
     $class = $className['value'];
     if (!class_exists($class)) {
@@ -100,16 +108,16 @@ class CRM_Banking_BAO_PluginInstance extends CRM_Banking_DAO_PluginInstance {
   /**
    * getInstance returns an instance of the class implementing this plugin's functionality
    */
-  function getInstance() {
+  public function getInstance() {
     $class = $this->getClass();
-    return new $class( $this );
+    return new $class($this);
   }
 
   /**
    * Serialise this entire plugin for export
    */
   public function serialise() {
-    $data = array();
+    $data = [];
 
     // load class id
     $data['plugin_type_name']  = civicrm_api3('OptionValue', 'getvalue', ['return' => 'name', 'id' => $this->plugin_type_id]);
@@ -125,31 +133,36 @@ class CRM_Banking_BAO_PluginInstance extends CRM_Banking_DAO_PluginInstance {
 
   /**
    * Serialise this entire plugin for export
+   *
+   * phpcs:disable Generic.Metrics.CyclomaticComplexity.TooHigh
    */
   public function updateWithSerialisedData($serialised_data, $skip_fields = [], $verify_fields = []) {
+  // phpcs:enable
     try {
-      $data = json_decode($serialised_data, true);
+      $data = json_decode($serialised_data, TRUE);
 
       // note: sadly, type and class are inversely used!
       $plugin_type_id = civicrm_api3('OptionValue', 'getvalue', [
-              'return'          => 'id',
-              'option_group_id' => 'civicrm_banking.plugin_classes',
-              'name'            => $data['plugin_type_name']]);
+        'return'          => 'id',
+        'option_group_id' => 'civicrm_banking.plugin_classes',
+        'name'            => $data['plugin_type_name'],
+      ]);
       if (in_array('plugin_type_name', $verify_fields)) {
         if ($this->plugin_type_id != $plugin_type_id) {
-          throw new Exception(E::ts("Cannot update, wrong plugin type!"));
+          throw new Exception(E::ts('Cannot update, wrong plugin type!'));
         }
       }
       $this->plugin_type_id = $plugin_type_id;
 
       $plugin_class_id = civicrm_api3('OptionValue', 'getvalue', [
-              'return'          => 'id',
-              'option_group_id' => 'civicrm_banking.plugin_types',
-              'name'            => $data['plugin_class_name']]
+        'return'          => 'id',
+        'option_group_id' => 'civicrm_banking.plugin_types',
+        'name'            => $data['plugin_class_name'],
+      ]
       );
       if (in_array('plugin_class_name', $verify_fields)) {
         if ($this->plugin_class_id != $plugin_class_id) {
-          throw new Exception(E::ts("Cannot update, wrong plugin class!"));
+          throw new Exception(E::ts('Cannot update, wrong plugin class!'));
         }
       }
       $this->plugin_class_id = $plugin_class_id;
@@ -164,7 +177,7 @@ class CRM_Banking_BAO_PluginInstance extends CRM_Banking_DAO_PluginInstance {
         // if requested, make sure it's the same
         if (in_array($field, $verify_fields)) {
           if ($value != $this->$field) {
-            throw new Exception(E::ts("Cannot update, field %1 differs.", [1 => $field]));
+            throw new Exception(E::ts('Cannot update, field %1 differs.', [1 => $field]));
           }
         }
 
@@ -174,9 +187,10 @@ class CRM_Banking_BAO_PluginInstance extends CRM_Banking_DAO_PluginInstance {
       }
 
       $this->save();
-    } catch (Exception $ex) {
-      throw new Exception("Import failed: " . $ex->getMessage());
+    }
+    catch (Exception $ex) {
+      throw new Exception('Import failed: ' . $ex->getMessage());
     }
   }
-}
 
+}

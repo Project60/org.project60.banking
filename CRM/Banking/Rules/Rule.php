@@ -15,6 +15,8 @@
 | written permission from the original author(s).        |
 +--------------------------------------------------------*/
 
+declare(strict_types = 1);
+
 use CRM_Banking_ExtensionUtil as E;
 
 /**
@@ -32,21 +34,28 @@ class CRM_Banking_Rules_Rule {
   protected $party_name;
   protected $tx_reference;
   protected $tx_purpose;
-  /** This is serialized on save() and unserialized on load. */
+  /**
+   * This is serialized on save() and unserialized on load. */
   protected $conditions;
-  /** This is serialized on save() and unserialized on load. */
+  /**
+   * This is serialized on save() and unserialized on load. */
   protected $execution;
   protected $name;
-  /** FIXME documentation needed for type */
+  /**
+   * FIXME documentation needed for type */
   protected $type = 1;
-  /** Should the rule be used? */
+  /**
+   * Should the rule be used? */
   protected $is_enabled = 1;
-  /** Rule should not be used on or after this date */
+  /**
+   * Rule should not be used on or after this date */
   protected $valid_until;
-  /** CiviCRM Contact ID */
+  /**
+   * CiviCRM Contact ID */
   protected $created_by;
   protected $match_counter = 0;
-  /** Date */
+  /**
+   * Date */
   protected $last_match;
 
   protected $props = [
@@ -68,13 +77,16 @@ class CRM_Banking_Rules_Rule {
     'last_match'    => TRUE,
   ];
 
-  const SEARCH_COLUMNS = ['name', 'party_ba_ref', 'ba_ref', 'party_name', 'tx_reference', 'tx_purpose'];
+  // @todo Can this be private?
+  public const SEARCH_COLUMNS = ['name', 'party_ba_ref', 'ba_ref', 'party_name', 'tx_reference', 'tx_purpose'];
 
   protected $dirty_props = [];
 
-  /** For testing: NULL or callback to mock CRM_Core_DAO::executeQuery */
+  /**
+   * For testing: NULL or callback to mock CRM_Core_DAO::executeQuery */
   public $db_execute_method;
-  /** For testing: NULL or callback to mock CRM_Core_DAO::singleValueQuery */
+  /**
+   * For testing: NULL or callback to mock CRM_Core_DAO::singleValueQuery */
   public $db_single_value_query_method;
 
   /**
@@ -88,10 +100,10 @@ class CRM_Banking_Rules_Rule {
   public static function get($rule_id) {
     $rule_id = (int) $rule_id;
     if ($rule_id < 1) {
-      throw \InvalidArgumentException("Rule ID must be a positive integer");
+      throw \InvalidArgumentException('Rule ID must be a positive integer');
     }
 
-    $dao = CRM_Core_DAO::executeQuery("SELECT * FROM civicrm_bank_rules WHERE ID = %1", [ 1 => [ $rule_id, 'Integer' ] ]);
+    $dao = CRM_Core_DAO::executeQuery('SELECT * FROM civicrm_bank_rules WHERE ID = %1', [1 => [$rule_id, 'Integer']]);
     if ($dao->fetch()) {
 
       // Nb. we cannot use $rule_data = $dao->toArray()
@@ -102,13 +114,13 @@ class CRM_Banking_Rules_Rule {
       $dao->free();
       return $obj;
     }
-    throw new \InvalidArgumentException("Rule not found.");
+    throw new \InvalidArgumentException('Rule not found.');
   }
 
   /**
    * Create rule.
    *
-   * @param array $params. Map of column name to value.
+   * @param array $params
    * @return CRM_Banking_Rules_Rule
    */
   public static function createRule($params) {
@@ -119,7 +131,7 @@ class CRM_Banking_Rules_Rule {
     // truncate key fields to DB lengths
     self::truncateKeyData($params);
 
-    // finally, create
+    // finally, create rule.
     $obj = new static();
     $obj->setFromArray($params, FALSE);
     $obj->save();
@@ -128,8 +140,11 @@ class CRM_Banking_Rules_Rule {
 
   /**
    * Take search parameters and return an array of rule objects.
+   *
+   * phpcs:disable Generic.Metrics.CyclomaticComplexity.MaxExceeded
    */
   public static function search($params) {
+  // phpcs:enable
     $sql = [];
     $sql_params = [];
     $c = 1;
@@ -152,7 +167,7 @@ class CRM_Banking_Rules_Rule {
     // Integers
     if (!empty($params['created_by'])) {
       $sql_params[$c] = [$params['created_by'], 'String'];
-      $sql[] = "created_by = %" . ($c++);
+      $sql[] = 'created_by = %' . ($c++);
     }
     foreach (self::SEARCH_COLUMNS as $_) {
 
@@ -169,7 +184,7 @@ class CRM_Banking_Rules_Rule {
       }
     }
     if (isset($params['is_enabled'])) {
-      $sql[] = "is_enabled = " . ( $params['is_enabled'] ? '1' : '0');
+      $sql[] = 'is_enabled = ' . ($params['is_enabled'] ? '1' : '0');
     }
 
     if (!empty($params['last_match_min'])) {
@@ -190,8 +205,8 @@ class CRM_Banking_Rules_Rule {
     }
 
     if (!empty($params['conds_like'])) {
-      $sql_params[$c] = ["%" . trim($params['conds_like'], '%'). "%", 'String', CRM_Core_DAO::QUERY_FORMAT_WILDCARD];
-      $sql[] = "conditions LIKE %" . ($c++);
+      $sql_params[$c] = ['%' . trim($params['conds_like'], '%') . '%', 'String', CRM_Core_DAO::QUERY_FORMAT_WILDCARD];
+      $sql[] = 'conditions LIKE %' . ($c++);
     }
 
     $where = $sql ? 'WHERE ' . implode(' AND ', $sql) : '';
@@ -199,7 +214,7 @@ class CRM_Banking_Rules_Rule {
     // parse sort.
     $sort = '';
     if (!empty($params['options']['sort'])
-      && preg_match('/^(last_match|match_counter) (DE|A)SC$/', $params['options']['sort']  )) {
+      && preg_match('/^(last_match|match_counter) (DE|A)SC$/', $params['options']['sort'])) {
 
       $sort = 'ORDER BY ' . $params['options']['sort'];
     }
@@ -207,7 +222,6 @@ class CRM_Banking_Rules_Rule {
     // Get results from SQL.
     $sql = "SELECT * FROM civicrm_bank_rules $where $sort";
     $dao = CRM_Core_DAO::executeQuery($sql, $sql_params);
-
 
     //
     // Now loop and test conditions and execution criteria.
@@ -218,7 +232,7 @@ class CRM_Banking_Rules_Rule {
     else {
       // Minimal parsing of conditions.
       if (!is_array($params['conditions'])) {
-        throw new API_Exception("Expect conditions parameter to be an object.");
+        throw new API_Exception('Expect conditions parameter to be an object.');
       }
       $conditions = $params['conditions'];
     }
@@ -228,7 +242,7 @@ class CRM_Banking_Rules_Rule {
     else {
       // Minimal parsing of execution.
       if (!is_array($params['execution'])) {
-        throw new API_Exception("Expect execution parameter to be an object.");
+        throw new API_Exception('Expect execution parameter to be an object.');
       }
       $executions = $params['execution'];
     }
@@ -236,8 +250,8 @@ class CRM_Banking_Rules_Rule {
     // Unpack data and run other tests on conditions, execution.
     $found = 0;
     // Default to returning 10 rules at a time.
-    $offset = (empty($params['options']['offset']) ? 0 : (int)$params['options']['offset']);
-    $limit  = (!isset($params['options']['limit']) ? 10 : (int)$params['options']['limit']);
+    $offset = (empty($params['options']['offset']) ? 0 : (int) $params['options']['offset']);
+    $limit  = (!isset($params['options']['limit']) ? 10 : (int) $params['options']['limit']);
     $results = [];
 
     // Prepare expressions for condition and execution matches to work as LIKE does.
@@ -282,7 +296,7 @@ class CRM_Banking_Rules_Rule {
       }
 
       $found++;
-      if ($found > $offset && (!$limit || ($found <= $offset+$limit))) {
+      if ($found > $offset && (!$limit || ($found <= $offset + $limit))) {
         $results[] = $obj;
       }
       unset($obj);
@@ -290,7 +304,6 @@ class CRM_Banking_Rules_Rule {
     $dao->free();
 
     $results = [
-      //'sql'         => $where,
       'total_count' => $found,
       'offset'      => $offset,
       'limit'       => $limit,
@@ -303,8 +316,11 @@ class CRM_Banking_Rules_Rule {
    * Save rule to database.
    *
    * @return CRM_Banking_Rules_Rule $this
+   *
+   * phpcs:disable Generic.Metrics.CyclomaticComplexity.TooHigh, Generic.Metrics.NestingLevel.TooHigh
    */
   public function save() {
+  // phpcs:enable
     if ($this->id) {
       // Update.
       if ($this->dirty_props) {
@@ -317,7 +333,7 @@ class CRM_Banking_Rules_Rule {
           }
           else {
             $to_set[] = "`$prop` = %$param_id";
-            switch($prop) {
+            switch ($prop) {
               case 'type':
               case 'is_enabled':
               case 'created_by':
@@ -363,6 +379,7 @@ class CRM_Banking_Rules_Rule {
 
     return $this;
   }
+
   /**
    * Delete rule from database.
    *
@@ -370,11 +387,11 @@ class CRM_Banking_Rules_Rule {
    */
   public function delete() {
     if (!$this->id) {
-      throw new Exception("Attempt to delete a rule that has no ID.");
+      throw new Exception('Attempt to delete a rule that has no ID.');
     }
 
     $sql = 'DELETE FROM civicrm_bank_rules WHERE id = %1';
-    $params = [ 1 => [ $this->id, 'Integer'] ];
+    $params = [1 => [$this->id, 'Integer']];
     $this->executeQuery($sql, $params);
 
     // Unset our ID.
@@ -382,17 +399,18 @@ class CRM_Banking_Rules_Rule {
 
     return $this;
   }
+
   /**
    * Set all params from the data array.
    *
-   * @param array $data.
-   * @param bool $form_database Set TRUE if the data being passed in is direct
+   * @param array $data
+   * @param bool $from_database Set TRUE if the data being passed in is direct
    * from the database. This will unserialize() the conditions and execution
    * fields.
    * @return CRM_Banking_Rules_Rule $this.
    */
-  public function setFromArray($data, $from_database=TRUE) {
-    foreach ($data as $prop=>$value) {
+  public function setFromArray($data, $from_database = TRUE) {
+    foreach ($data as $prop => $value) {
       if ($from_database && ($prop == 'execution' || $prop == 'conditions')) {
         $value = empty($value) ? NULL : unserialize($value);
       }
@@ -405,10 +423,11 @@ class CRM_Banking_Rules_Rule {
 
     return $this;
   }
+
   /**
    * Set all params from the DAO Object.
    *
-   * @param CRM_Core_DAO $dao.
+   * @param CRM_Core_DAO $dao
    * @return CRM_Banking_Rules_Rule $this.
    */
   public function setFromDao($dao) {
@@ -426,6 +445,7 @@ class CRM_Banking_Rules_Rule {
 
     return $this;
   }
+
   /**
    * get rule's ID
    */
@@ -462,10 +482,10 @@ class CRM_Banking_Rules_Rule {
       }
       // Setter.
       if ($prop == 'id') {
-        throw new InvalidArgumentException("Setting ID is not permitted.");
+        throw new InvalidArgumentException('Setting ID is not permitted.');
       }
       if (count($args) != 1) {
-        throw new InvalidArgumentException("Call set with one parameter.");
+        throw new InvalidArgumentException('Call set with one parameter.');
       }
       $this->genericSetter($prop, $args[0]);
       return $this;
@@ -481,8 +501,9 @@ class CRM_Banking_Rules_Rule {
   public function get_Name() {
     $name = $this->getName();
     if (empty($name)) {
-      return E::ts("Unnamed Rule [%1]", array(1 => $this->getID()));
-    } else {
+      return E::ts('Unnamed Rule [%1]', [1 => $this->getID()]);
+    }
+    else {
       return $name;
     }
   }
@@ -493,7 +514,8 @@ class CRM_Banking_Rules_Rule {
    *  'matcher rules'  will actually go ahead and create contributions
    */
   public function isAnalyserRule() {
-    return TRUE; // for now we'll only implement these
+    // for now we'll only implement these
+    return TRUE;
   }
 
   /**
@@ -515,12 +537,12 @@ class CRM_Banking_Rules_Rule {
     // Create summary of fields the rule matches on.
     $criteria = [];
     foreach ([
-        'party_ba_ref',
-        'ba_ref',
-        'party_name',
-        'tx_reference',
-        'tx_purpose',
-      ] as $field) {
+      'party_ba_ref',
+      'ba_ref',
+      'party_name',
+      'tx_reference',
+      'tx_purpose',
+    ] as $field) {
 
       if ($this->$field !== NULL) {
         $criteria[] = $field;
@@ -536,8 +558,8 @@ class CRM_Banking_Rules_Rule {
         $fields_provided[] = $e['set_param_name'];
       }
     }
-    $execution_info[] = "Matches on: " . implode(', ', $criteria)
-      . " | provides: " . implode(', ', $fields_provided) . '.';
+    $execution_info[] = 'Matches on: ' . implode(', ', $criteria)
+      . ' | provides: ' . implode(', ', $fields_provided) . '.';
 
     $variables['execution'] = $execution_info;
   }
@@ -553,6 +575,7 @@ class CRM_Banking_Rules_Rule {
     $this->save();
     return $this;
   }
+
   /**
    * Used by the editor.
    */
@@ -563,14 +586,17 @@ class CRM_Banking_Rules_Rule {
     }
     return $data;
   }
+
   /**
    * Handles validation and casting when setting properties.
    *
    * @param string $prop
    * @param mixed $value
+   *
+   * phpcs:disable Generic.Metrics.CyclomaticComplexity.TooHigh
    */
   protected function genericSetter($prop, $value) {
-
+  // phpcs:enable
     $this->dirty_props[$prop] = TRUE;
 
     if ($value === NULL) {
@@ -580,38 +606,42 @@ class CRM_Banking_Rules_Rule {
     }
 
     // Deal with casting types.
-    switch($prop) {
-    case 'type':
-    case 'created_by':
-    case 'match_counter':
-      // Positive Integers
-      $_ = (int) $value;
-      if ($_ < 0) {
-        throw new InvalidArgumentException("$prop cannot be negative");
-      }
-      $this->$prop = $_;
-      break;
+    switch ($prop) {
+      case 'type':
+      case 'created_by':
+      case 'match_counter':
+        // Positive Integers
+        $_ = (int) $value;
+        if ($_ < 0) {
+          throw new InvalidArgumentException("$prop cannot be negative");
+        }
+        $this->$prop = $_;
+        break;
 
-    case 'is_enabled':
-      // Bool.
-      $this->$prop = $value ? 1 : 0;
-      break;
+      case 'is_enabled':
+        // Bool.
+        $this->$prop = $value ? 1 : 0;
+        break;
 
-    case 'valid_until':
-    case 'last_match':
-      // Dates.
-      $this->$prop = date('Y-m-d H:i:s', strtotime($value));
-      break;
+      case 'valid_until':
+      case 'last_match':
+        // Dates.
+        $time = strtotime($value);
+        if (FALSE === $time) {
+          // @todo This is added to have the same behavior as without strict_types. Might be reconsidered.
+          $time = 0;
+        }
+        $this->$prop = date('Y-m-d H:i:s', $time);
+        break;
 
-    case 'amount_min':
-    case 'amount_max':
-      // Floats
-      $this->$prop = (double) $value;
-      break;
+      case 'amount_min':
+      case 'amount_max':
+        // Floats
+        $this->$prop = (double) $value;
+        break;
 
-    default:
-      // Default (strings)
-      $this->$prop = $value;
+      default:
+        $this->$prop = $value;
     }
   }
 
@@ -619,9 +649,9 @@ class CRM_Banking_Rules_Rule {
    * Allows mocking CRM_Core_DAO::executeQuery.
    *
    * @param string $sql
-   * @param array $params.
+   * @param array $params
    */
-  protected function executeQuery($sql, $params=[]) {
+  protected function executeQuery($sql, $params = []) {
     if ($this->db_execute_method) {
       $callable = $this->db_execute_method;
       return $callable($sql, $params);
@@ -630,13 +660,14 @@ class CRM_Banking_Rules_Rule {
       return CRM_Core_DAO::executeQuery($sql, $params);
     }
   }
+
   /**
    * Allows mocking CRM_Core_DAO::singleValueQuery.
    *
    * @param string $sql
-   * @param array $params.
+   * @param array $params
    */
-  protected function singleValueQuery($sql, $params=[]) {
+  protected function singleValueQuery($sql, $params = []) {
     if ($this->db_single_value_query_method) {
       $callable = $this->db_single_value_query_method;
       return $callable($sql, $params);
@@ -652,15 +683,16 @@ class CRM_Banking_Rules_Rule {
    * @param $prefix string set, if there is a prefix to the
    */
   public static function truncateKeyData(&$params, $prefix = '') {
-    $length_restrictions = array(
-        'party_ba_ref' => 64,
-        'ba_ref'       => 64,
-        'party_name'   => 128,
-        'tx_reference' => 128,
-        'tx_purpose'   => 255);
+    $length_restrictions = [
+      'party_ba_ref' => 64,
+      'ba_ref'       => 64,
+      'party_name'   => 128,
+      'tx_reference' => 128,
+      'tx_purpose'   => 255,
+    ];
     foreach ($length_restrictions as $raw_field_name => $max_length) {
       $field_name = $prefix . $raw_field_name;
-      if (isset($params[$field_name]) && (strlen($params[$field_name]) > $max_length)) {
+      if (is_string($params[$field_name] ?? NULL) && (strlen($params[$field_name]) > $max_length)) {
         $params[$field_name] = substr($params[$field_name], 0, $max_length);
         Civi::log()->debug("Field '{$field_name}' was too long and had to be truncated.");
       }
@@ -684,8 +716,7 @@ class CRM_Banking_Rules_Rule {
    * @return integer
    *   ID of the new rule
    */
-  public static function addRule($conditions = [], $execution = [])
-  {
+  public static function addRule($conditions = [], $execution = []) {
     $rule_data = [
       'execution' => $execution,
       'conditions' => [],
@@ -707,4 +738,5 @@ class CRM_Banking_Rules_Rule {
     $result = self::createRule($rule_data);
     return $result->id;
   }
+
 }

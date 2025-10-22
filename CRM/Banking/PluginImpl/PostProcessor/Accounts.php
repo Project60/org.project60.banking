@@ -14,6 +14,7 @@
 | written permission from the original author(s).        |
 +--------------------------------------------------------*/
 
+declare(strict_types = 1);
 
 /**
  * This PostProcessor will store account information after the match
@@ -21,23 +22,46 @@
 class CRM_Banking_PluginImpl_PostProcessor_Accounts extends CRM_Banking_PluginModel_PostProcessor {
 
   // caches the account values
-  public static $_account_cache = array();
+  public static $_account_cache = [];
 
   /**
    * class constructor
    */
-  function __construct($config_name) {
+  public function __construct($config_name) {
     parent::__construct($config_name);
 
     // read config, set defaults
     $config = $this->_plugin_config;
-    if (!isset($config->mode))           $config->mode           = 'both'; // or 'debit' or 'credit'
-    if (!isset($config->type))           $config->type           = 'reference'; // or 'ba_id'
-    if (!isset($config->ref_type))       $config->ref_type       = 'IBAN'; // or any other reference type name
-    if (!isset($config->target))         $config->target         = 'contribution'; // or 'contact', or 'createonly'
-    if (!isset($config->own_contact_id)) $config->own_contact_id = 1; // TODO: use domain default contact?
-    if (!isset($config->own_account))    $config->own_account    = NULL;
-    if (!isset($config->party_account))  $config->party_account  = NULL;
+    // phpcs:disable Squiz.PHP.CommentedOutCode.Found
+    // or 'debit' or 'credit'
+    // phpcs:enable
+    if (!isset($config->mode)) {
+      $config->mode = 'both';
+    }
+    // or 'ba_id'
+    if (!isset($config->type)) {
+      $config->type = 'reference';
+    }
+    // or any other reference type name
+    if (!isset($config->ref_type)) {
+      $config->ref_type = 'IBAN';
+    }
+    // phpcs:disable Squiz.PHP.CommentedOutCode.Found
+    // Or 'contact', or 'createonly'.
+    // phpcs:enable
+    if (!isset($config->target)) {
+      $config->target = 'contribution';
+    }
+    // TODO: use domain default contact?
+    if (!isset($config->own_contact_id)) {
+      $config->own_contact_id = 1;
+    }
+    if (!isset($config->own_account)) {
+      $config->own_account = NULL;
+    }
+    if (!isset($config->party_account)) {
+      $config->party_account = NULL;
+    }
   }
 
   /**
@@ -54,7 +78,7 @@ class CRM_Banking_PluginImpl_PostProcessor_Accounts extends CRM_Banking_PluginMo
 
     // only be active if there are fields to be written into...
     if (empty($config->own_account) && empty($config->party_account)) {
-      error_log("No target variables set. Please configure.");
+      error_log('No target variables set. Please configure.');
       return FALSE;
     }
 
@@ -82,7 +106,6 @@ class CRM_Banking_PluginImpl_PostProcessor_Accounts extends CRM_Banking_PluginMo
     return parent::shouldExecute($match, $matcher, $context, $preview);
   }
 
-
   /**
    * Postprocess the (already executed) match
    *
@@ -93,13 +116,13 @@ class CRM_Banking_PluginImpl_PostProcessor_Accounts extends CRM_Banking_PluginMo
    */
   public function processExecutedMatch(CRM_Banking_Matcher_Suggestion $match, CRM_Banking_PluginModel_Matcher $matcher, CRM_Banking_Matcher_Context $context) {
     if (!$this->shouldExecute($match, $matcher, $context)) {
-      $this->logMessage("Accounts PostProcessor not executing", 'info');
+      $this->logMessage('Accounts PostProcessor not executing', 'info');
       return;
     }
 
     // compile update
     $config = $this->_plugin_config;
-    $update = array();
+    $update = [];
 
     if (!empty($config->own_account)) {
       $own_account_reference = $this->getAccountData($context, $config->own_contact_id, '_', TRUE);
@@ -122,17 +145,16 @@ class CRM_Banking_PluginImpl_PostProcessor_Accounts extends CRM_Banking_PluginMo
     }
 
     // get the entity ID
-    if ($config->target == 'createonly') {
-      // 'createonly' means: just store the BA with the contact,
-      //   which is already done by the getAccountData() calls
-      //   => nothing to do here
-    } else {
+    // 'createonly' means: just store the BA with the contact,
+    // which is already done by the getAccountData() calls.
+    if ($config->target !== 'createonly') {
       // now if this is a proper entity, we'll have to store it
       $object = $this->getPropagationObject($config->target, $context->btx);
       if (empty($object['id'])) {
         $this->logMessage("Related object '{$config->target}' could not be (uniquely) identified.", 'warn');
         return;
-      } else {
+      }
+      else {
         $update['id'] = $object['id'];
       }
 
@@ -158,19 +180,21 @@ class CRM_Banking_PluginImpl_PostProcessor_Accounts extends CRM_Banking_PluginMo
       // this means we want the account ID, not just the reference
       if (empty($contact_id)) {
         // we cannot create/find the bank account if there is no contact
-        $this->logMessage("No (single) contact associated.", 'warn');
+        $this->logMessage('No (single) contact associated.', 'warn');
         return NULL;
       }
 
       $cache_key = "{$contact_id}-#-{$value}";
       if ($cache && isset(self::$_account_cache[$cache_key])) {
         $value = self::$_account_cache[$cache_key];
-      } else {
+      }
+      else {
         // compile get-or-create
-        $bank_account_data = array(
+        $bank_account_data = [
           'reference_type' => $config->ref_type,
           'reference'      => $value,
-          'contact_id'     => $contact_id);
+          'contact_id'     => $contact_id,
+        ];
 
         // special treatment for IBANs
         if ($config->ref_type == 'IBAN' && !empty($data["{$prefix}BIC"])) {
@@ -188,4 +212,5 @@ class CRM_Banking_PluginImpl_PostProcessor_Accounts extends CRM_Banking_PluginMo
 
     return $value;
   }
+
 }

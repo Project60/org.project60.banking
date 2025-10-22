@@ -14,12 +14,17 @@
 | written permission from the original author(s).        |
 +--------------------------------------------------------*/
 
+declare(strict_types = 1);
+
 use CRM_Banking_ExtensionUtil as E;
 
-require_once 'CRM/Core/Page.php';
-
 class CRM_Banking_Page_Export extends CRM_Core_Page {
-  function run() {
+
+  /**
+   * phpcs:disable Generic.Metrics.CyclomaticComplexity.TooHigh
+   */
+  public function run() {
+  // phpcs:enable
     CRM_Utils_System::setTitle(E::ts('Bank Transaction Exporter'));
 
     // get the plugins
@@ -35,8 +40,12 @@ class CRM_Banking_Page_Export extends CRM_Core_Page {
     $this->assign('txbatch_count', count($txbatch2ids));
     $this->assign('tx_count', $txcount);
 
-    if (!empty($_REQUEST['list']))   $this->assign('list',   $_REQUEST['list']);
-    if (!empty($_REQUEST['s_list'])) $this->assign('s_list', $_REQUEST['s_list']);
+    if (!empty($_REQUEST['list'])) {
+      $this->assign('list', $_REQUEST['list']);
+    }
+    if (!empty($_REQUEST['s_list'])) {
+      $this->assign('s_list', $_REQUEST['s_list']);
+    }
 
     // check for the page mode
     if (isset($_REQUEST['exporter-plugin'])) {
@@ -47,29 +56,34 @@ class CRM_Banking_Page_Export extends CRM_Core_Page {
       foreach ($plugin_list as $plugin) {
         if ($plugin->id == $plugin_id) {
           break;
-        } 
+        }
       }
       $plugin_instance = $plugin->getInstance();
 
       // TODO: select WHICH mode (this is only file mode)
-      
+
       // start exporting
       $file_data = $plugin_instance->export_file($txbatch2ids, $_REQUEST);
 
-      // process result (redirect, ...)
+      // process result (e.g. redirect)
       if (empty($file_data['is_error'])) {
         $buffer = file_get_contents($file_data['path']);
         CRM_Utils_System::download($file_data['file_name'], $file_data['mime_type'], $buffer, $file_data['file_extension']);
       }
 
-    } else {
+    }
+    else {
       // CONFIGURATION MODE:
-      $plugin_capabilities = array();
+      $plugin_capabilities = [];
       foreach ($plugin_list as $plugin) {
         $capability = '';
         $instance = $plugin->getInstance();
-        if ($instance->does_export_files())  $capability .= 'F';
-        if ($instance->does_export_stream()) $capability .= 'S';
+        if ($instance->does_export_files()) {
+          $capability .= 'F';
+        }
+        if ($instance->does_export_stream()) {
+          $capability .= 'S';
+        }
         $plugin_capabilities[$plugin->id] = $capability;
       }
       $this->assign('plugin_capabilities', $plugin_capabilities);
@@ -80,4 +94,5 @@ class CRM_Banking_Page_Export extends CRM_Core_Page {
 
     parent::run();
   }
+
 }

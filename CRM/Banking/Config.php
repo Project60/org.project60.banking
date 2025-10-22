@@ -14,6 +14,8 @@
 | written permission from the original author(s).        |
 +--------------------------------------------------------*/
 
+declare(strict_types = 1);
+
 /**
  * CiviBanking configuration options
  */
@@ -39,7 +41,8 @@ class CRM_Banking_Config {
     $value = CRM_Core_BAO_Setting::getItem('CiviBanking', 'lenient_dedupe');
     if (empty($value)) {
       return FALSE;
-    } else {
+    }
+    else {
       return TRUE;
     }
   }
@@ -67,7 +70,8 @@ class CRM_Banking_Config {
     $config_setting = (int) Civi::settings()->get('recently_completed_cutoff');
     if (!empty($config_setting)) {
       return "INTERVAL {$config_setting} MONTH";
-    } else {
+    }
+    else {
       return '';
     }
   }

@@ -14,23 +14,20 @@
 | written permission from the original author(s).        |
 +--------------------------------------------------------*/
 
+declare(strict_types = 1);
+
 /**
  * Abstract base class for importer and exporter plugins
  *
- * @package org.project60.banking
- * @copyright GNU Affero General Public License
- * $Id$
- *
+ * phpcs:disable Generic.NamingConventions.AbstractClassNamePrefix.Missing
  */
 abstract class CRM_Banking_PluginModel_IOPlugin extends CRM_Banking_PluginModel_Base {
 
   /**
    * class constructor
    */
-  function __construct($plugin_dao) {
+  public function __construct($plugin_dao) {
     parent::__construct($plugin_dao);
   }
 
-
 }
-

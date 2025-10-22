@@ -1,5 +1,6 @@
 <?php
-use CRM_Banking_ExtensionUtil as E;
+
+declare(strict_types = 1);
 
 /**
  * BankingPluginInstance.import API specification (optional)
@@ -21,14 +22,14 @@ function _civicrm_api3_banking_plugin_instance_import_spec(&$spec) {
     'api.required' => 1,
     'type'         => CRM_Utils_Type::T_STRING,
     'title'        => 'File Path',
-    'description'  => 'Path to file that should be imported'
+    'description'  => 'Path to file that should be imported',
   ];
   $spec['dry_run'] = [
     'name'         => 'dry_run',
     'api.default'  => FALSE,
     'type'         => CRM_Utils_Type::T_BOOLEAN,
     'title'        => 'Dry Run?',
-    'description'  => 'Perform a dry run of the import?'
+    'description'  => 'Perform a dry run of the import?',
   ];
 }
 
@@ -43,8 +44,11 @@ function _civicrm_api3_banking_plugin_instance_import_spec(&$spec) {
  * @see civicrm_api3_create_success
  *
  * @throws API_Exception
+ *
+ * phpcs:disable Generic.Metrics.CyclomaticComplexity.TooHigh
  */
 function civicrm_api3_banking_plugin_instance_import($params) {
+// phpcs:enable
   // Security analysis: This API accepts arbitrary file paths and could (indirectly)
   // leak their content e.g. through logs or specially-crafted import plugins.
   // To avoid scenarios in which untrusted calls use this API, we reject all requests
@@ -63,7 +67,7 @@ function civicrm_api3_banking_plugin_instance_import($params) {
       $plugin_instance = $plugin->getInstance();
     }
   }
-  if (is_null($plugin_instance)) {
+  if (NULL === $plugin_instance) {
     throw new API_Exception('Unknown plugin id ' . $params['plugin_id']);
   }
   if (!$plugin_instance::does_import_files()) {
@@ -89,7 +93,8 @@ function civicrm_api3_banking_plugin_instance_import($params) {
   foreach ($plugin_instance->getLog() as $log_entry) {
     if ($log_entry[3] == CRM_Banking_PluginModel_Base::REPORT_LEVEL_WARN) {
       $warnings[] = $log_entry[2];
-    } elseif ($log_entry[3] == CRM_Banking_PluginModel_Base::REPORT_LEVEL_ERROR) {
+    }
+    elseif ($log_entry[3] == CRM_Banking_PluginModel_Base::REPORT_LEVEL_ERROR) {
       $errors[] = $log_entry[2];
     }
   }

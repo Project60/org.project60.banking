@@ -14,9 +14,7 @@
 | written permission from the original author(s).        |
 +--------------------------------------------------------*/
 
-use CRM_Banking_ExtensionUtil as E;
-
-require_once 'CRM/Banking/Helpers/OptionValue.php';
+declare(strict_types = 1);
 
 /**
  * This matcher use regular expressions to extract information from the payment meta information
@@ -26,28 +24,34 @@ class CRM_Banking_PluginImpl_Matcher_RegexAnalyser extends CRM_Banking_PluginMod
   /**
    * class constructor
    */
-  function __construct($config_name) {
+  public function __construct($config_name) {
     parent::__construct($config_name);
 
     // read config, set defaults
     $config = $this->_plugin_config;
-    if (!isset($config->rules)) $config->rules = array();
+    if (!isset($config->rules)) {
+      $config->rules = [];
+    }
 
     // see https://github.com/Project60/org.project60.banking/issues/111
-    if (!isset($config->variable_lookup_compatibility))   $config->variable_lookup_compatibility = FALSE;
+    if (!isset($config->variable_lookup_compatibility)) {
+      $config->variable_lookup_compatibility = FALSE;
+    }
   }
 
   /**
    * this matcher does not really create suggestions, but rather enriches the parsed data
    */
-  public function analyse(CRM_Banking_BAO_BankTransaction $btx, CRM_Banking_Matcher_Context $context) {    $config = $this->_plugin_config;
+  public function analyse(CRM_Banking_BAO_BankTransaction $btx, CRM_Banking_Matcher_Context $context) {
+    $config = $this->_plugin_config;
     $data_parsed = $btx->getDataParsed();
 
     // iterate through all rules
     foreach ($this->_plugin_config->rules as $rule) {
       if (empty($rule->fields)) {
-        $fields = array('purpose');
-      } else {
+        $fields = ['purpose'];
+      }
+      else {
         $fields = $rule->fields;
       }
 
@@ -57,20 +61,20 @@ class CRM_Banking_PluginImpl_Matcher_RegexAnalyser extends CRM_Banking_PluginMod
       foreach ($variables as $variable) {
         if (preg_match("#\[\[$variable\]\]#", $pattern)) {
           $value = $this->getVariable($variable);
-          $pattern = preg_replace("#\[\[$variable\]\]#", print_r($value,1), $pattern);
+          $pattern = preg_replace("#\[\[$variable\]\]#", print_r($value, 1), $pattern);
         }
       }
 
       // appy rule to all the fields listed...
       foreach ($fields as $field) {
-        $matches = array();
+        $matches = [];
         $field_data = $this->getValue($field, NULL, NULL, $data_parsed, $btx);
 
         // match the pattern on the given field data
         $match_count = preg_match_all($pattern, $field_data, $matches);
 
         // and execute the actions for each match...
-        for ($i=0; $i < $match_count; $i++) {
+        for ($i = 0; $i < $match_count; $i++) {
           $this->logMessage("Rule '{$rule->pattern}' matched.", 'debug');
           $this->processMatch($matches, $i, $data_parsed, $rule, $btx);
         }
@@ -83,86 +87,102 @@ class CRM_Banking_PluginImpl_Matcher_RegexAnalyser extends CRM_Banking_PluginMod
 
   /**
    * execute all the action defined by the rule to the given match
+   *
+   * phpcs:disable Generic.Metrics.CyclomaticComplexity.MaxExceeded
    */
-  function processMatch($match_data, $match_index, &$data_parsed, $rule, $btx) {
+  public function processMatch($match_data, $match_index, &$data_parsed, $rule, $btx) {
+  // phpcs:enable
     foreach ($rule->actions as $action) {
-      if ($action->action=='copy') {
+      if ($action->action == 'copy') {
         // COPY value from match group to parsed data
         $data_parsed[$action->to] = $this->getValue($action->from, $match_data, $match_index, $data_parsed, $btx);
 
-      } elseif ($action->action=='copy_append') {
+      }
+      elseif ($action->action == 'copy_append') {
         // COPY value, but append to the target
         $data_parsed[$action->to] .= $this->getValue($action->from, $match_data, $match_index, $data_parsed, $btx);
 
-      } elseif ($action->action=='copy_ltrim_zeros') {
+      }
+      elseif ($action->action == 'copy_ltrim_zeros') {
         // COPY value, but remove leading zeros
         $data_parsed[$action->to] = ltrim($this->getValue($action->from, $match_data, $match_index, $data_parsed, $btx), '0');
 
-      } elseif ($action->action=='set') {
+      }
+      elseif ($action->action == 'set') {
         // SET value regardless of the match context
         $data_parsed[$action->to] = $action->value;
 
-      } elseif ($action->action=='align_date') {
+      }
+      elseif ($action->action == 'align_date') {
         // ALIGN a date forwards or backwards
         $value = $this->getValue($action->from, $match_data, $match_index, $data_parsed, $btx);
         $data_parsed[$action->to] = CRM_Utils_BankingToolbox::alignDateTime($value, $rule->offset, $rule->skip);
 
-      } elseif ($action->action=='unset') {
+      }
+      elseif ($action->action == 'unset') {
         // UNSET a certain value
         unset($data_parsed[$action->to]);
 
-      } elseif ($action->action=='strtolower') {
+      }
+      elseif ($action->action == 'strtolower') {
         // data to lowercase
         $data_parsed[$action->to] = strtolower($this->getValue($action->from, $match_data, $match_index, $data_parsed, $btx));
 
-      } elseif ($action->action=='sha1') {
+      }
+      elseif ($action->action == 'sha1') {
         // reduce to SHA1 checksum
         $data_parsed[$action->to] = sha1($this->getValue($action->from, $match_data, $match_index, $data_parsed, $btx));
 
-      } elseif (substr($action->action, 0, 7) =='sprint:') {
+      }
+      elseif (substr($action->action, 0, 7) == 'sprint:') {
         // format data
         $data   = $this->getValue($action->from, $match_data, $match_index, $data_parsed, $btx);
         $format = substr($action->action, 7);
         $data_parsed[$action->to] = sprintf($format, $data);
 
-      } elseif ($action->action=='preg_replace') {
+      }
+      elseif ($action->action == 'preg_replace') {
         // perform preg_replace
         if (empty($action->search_pattern) || !isset($action->replace)) {
           error_log("org.project60.banking bad 'preg_replace' spec in plugin {$this->_plugin_id}.");
-        } else {
+        }
+        else {
           $subject = $this->getValue($action->from, $match_data, $match_index, $data_parsed, $btx);
           $data_parsed[$action->to] = preg_replace($action->search_pattern, $action->replace, $subject);
         }
 
-      } elseif ($action->action=='calculate') {
+      }
+      elseif ($action->action == 'calculate') {
         // CALCULATE the new value with an php expression, using {}-based tokens
         $expression = $action->from;
-        $matches = array();
+        $matches = [];
         while (preg_match('#(?P<variable>{[^}]+})#', $expression, $matches)) {
           // replace variable with value
           $token = trim($matches[0], '{}');
           $value = $this->getValue($token, $match_data, $match_index, $data_parsed, $btx);
           $expression = preg_replace('#(?P<variable>{[^}]+})#', $value, $expression, 1);
         }
+        // phpcs:disable Drupal.Functions.DiscouragedFunctions.Discouraged
         $data_parsed[$action->to] = eval("return $expression;");
+        // phpcs:enable
 
-      } elseif ($action->action=='map') {
+      }
+      elseif ($action->action == 'map') {
         // MAP a value given a list of replacements
         $value = $this->getValue($action->from, $match_data, $match_index, $data_parsed, $btx);
         if (isset($action->mapping->$value)) {
           $data_parsed[$action->to] = $action->mapping->$value;
-        // DISABLED WARNINGS } else {
-        //  error_log("org.project60.banking: RegexAnalyser - incomplete mapping: '".$action->action."'");
         }
 
-      } elseif (substr($action->action, 0, 7) =='lookup:') {
+      }
+      elseif (substr($action->action, 0, 7) == 'lookup:') {
         // LOOK UP values via API::getsingle
         //   parameters are in format: "EntityName,result_field,lookup_field"
         $params = explode(',', substr($action->action, 7));
         $value = $this->getValue($action->from, $match_data, $match_index, $data_parsed, $btx);
-        $query = array($params[2] => $value, 'version' => 3, 'return' => $params[1]);
+        $query = [$params[2] => $value, 'version' => 3, 'return' => $params[1]];
         if (!empty($action->parameters)) {
-          foreach($action->parameters as $key => $value) {
+          foreach ($action->parameters as $key => $value) {
             $query[$key] = $value;
           }
         }
@@ -172,7 +192,7 @@ class CRM_Banking_PluginImpl_Matcher_RegexAnalyser extends CRM_Banking_PluginMod
 
         $this->logMessage("Calling API {$params[0]}.getsingle: " . json_encode($query), 'debug');
         $result = $this->executeAPIQuery($params[0], 'getsingle', $query, $action);
-        $this->logMessage("API result: " . json_encode($result), 'debug');
+        $this->logMessage('API result: ' . json_encode($result), 'debug');
         $this->logTime("API {$params[0]}.getsingle", 'regex:lookup');
 
         if (empty($result['is_error'])) {
@@ -180,7 +200,8 @@ class CRM_Banking_PluginImpl_Matcher_RegexAnalyser extends CRM_Banking_PluginMod
           $data_parsed[$action->to] = $result[$params[1]];
         }
 
-      } elseif (substr($action->action, 0, 4) =='api:') {
+      }
+      elseif (substr($action->action, 0, 4) == 'api:') {
         /**
          * Look up parameters via API call
          *  the 'action' format is: "<entity>:<action>:<result_field>[:multiple]"
@@ -196,15 +217,18 @@ class CRM_Banking_PluginImpl_Matcher_RegexAnalyser extends CRM_Banking_PluginMod
          */
         // compile query
         $params = explode(':', substr($action->action, 4));
-        $query = array('return' => $params[2]);
+        $query = ['return' => $params[2]];
         foreach ($action as $key => $value) {
-          if (substr($key, 0, 6) =='const_') {
+          if (substr($key, 0, 6) == 'const_') {
             $query[substr($key, 6)] = $value;
-          } elseif (substr($key, 0, 6) =='param_') {
+          }
+          elseif (substr($key, 0, 6) == 'param_') {
             $query[substr($key, 6)] = $this->getValue($value, $match_data, $match_index, $data_parsed, $btx);
-          } elseif (substr($key, 0, 10) =='jsonparam_') {
+          }
+          elseif (substr($key, 0, 10) == 'jsonparam_') {
             $query[substr($key, 10)] = json_decode($this->getValue($value, $match_data, $match_index, $data_parsed, $btx), TRUE);
-          } elseif (substr($key, 0, 10) =='jsonconst_') {
+          }
+          elseif (substr($key, 0, 10) == 'jsonconst_') {
             $query[substr($key, 10)] = json_decode($value, TRUE);
           }
         }
@@ -214,31 +238,34 @@ class CRM_Banking_PluginImpl_Matcher_RegexAnalyser extends CRM_Banking_PluginMod
           $this->logger->setTimer('regex:api');
           $this->logMessage("Calling API {$params[0]}.{$params[1]}: " . json_encode($query), 'debug');
           $result = $this->executeAPIQuery($params[0], $params[1], $query, $action);
-          $this->logMessage("API result: " . json_encode($result), 'debug');
+          $this->logMessage('API result: ' . json_encode($result), 'debug');
           $this->logTime("API {$params[0]}.{$params[1]}", 'regex:api');
 
-          if (isset($params[3]) && $params[3]=='multiple') {
+          if (isset($params[3]) && $params[3] == 'multiple') {
             // multiple values allowed
-            $results = array();
+            $results = [];
             foreach ($result['values'] as $entity) {
               $results[] = $entity[$params[2]];
             }
             $data_parsed[$action->to] = implode(',', $results);
 
-          } else {
+          }
+          else {
             // only valid if it's the only value
             if ($result['count'] == 1) {
               $entity = reset($result['values']);
               $data_parsed[$action->to] = $entity[$params[2]];
             }
           }
-        } catch (Exception $e) {
+        }
+        catch (Exception $e) {
           // TODO: this didn't work... how can we do this?
           $this->logMessage("Exception in API {$params[0]}.{$params[1]}: " . $e->getMessage(), 'debug');
         }
 
-      } else {
-        error_log("org.project60.banking: RegexAnalyser - bad action: '".$action->action."'");
+      }
+      else {
+        error_log("org.project60.banking: RegexAnalyser - bad action: '" . $action->action . "'");
       }
     }
   }
@@ -251,29 +278,36 @@ class CRM_Banking_PluginImpl_Matcher_RegexAnalyser extends CRM_Banking_PluginMod
     if ($this->_plugin_config->variable_lookup_compatibility) {
       if (!empty($match_data[$key][$match_index])) {
         return $match_data[$key][$match_index];
-      } else if (!empty($data_parsed[$key])) {
+      }
+      elseif (!empty($data_parsed[$key])) {
         return $data_parsed[$key];
-      } else {
+      }
+      else {
         // try value propagation
         $value = $this->getPropagationValue($btx, NULL, $key);
         if ($value) {
           return $value;
-        } else {
+        }
+        else {
           $this->logMessage("RexgexAnalyser - Cannot find source '$key' for rule or filter.", 'debug');
           return '';
         }
       }
-    } else {
+    }
+    else {
       if (isset($match_data[$key][$match_index])) {
         return $match_data[$key][$match_index];
-      } else if (isset($data_parsed[$key])) {
+      }
+      elseif (isset($data_parsed[$key])) {
         return $data_parsed[$key];
-      } else {
+      }
+      else {
         // try value propagation
         $value = $this->getPropagationValue($btx, NULL, $key);
         if ($value) {
           return $value;
-        } else {
+        }
+        else {
           $this->logMessage("RexgexAnalyser - Cannot find source '$key' for rule or filter.", 'debug');
           return '';
         }
@@ -283,20 +317,25 @@ class CRM_Banking_PluginImpl_Matcher_RegexAnalyser extends CRM_Banking_PluginMod
 
   /**
    * execute API Query
+   *
+   * phpcs:disable Generic.Metrics.CyclomaticComplexity.TooHigh
    */
   protected function executeAPIQuery($entity, $command, $query, $action) {
+  // phpcs:enable
     $command = strtolower($command);
-    if (empty($action->sql) || !$action->sql || !in_array($command, array('get', 'getsingle'))) {
+    if (empty($action->sql) || !$action->sql || !in_array($command, ['get', 'getsingle'])) {
       // execute via API
       $query['version'] = 3;
       return civicrm_api($entity, $command, $query);
 
-    } else  {
+    }
+    else {
       // execute via SQL
       // compile select
       if (empty($query['return'])) {
         $select_clause = '*';
-      } else {
+      }
+      else {
         $select_clause = $query['return'];
       }
 
@@ -304,32 +343,38 @@ class CRM_Banking_PluginImpl_Matcher_RegexAnalyser extends CRM_Banking_PluginMod
       $from = $this->getTableName($entity);
 
       // compile where
-      $where_clauses = array();
-      $query_params = array();
+      $where_clauses = [];
+      $query_params = [];
       foreach ($query as $key => $value) {
-        if (!in_array($key, array('return', 'sort', 'limit', 'option', 'version'))) {
+        if (!in_array($key, ['return', 'sort', 'limit', 'option', 'version'], TRUE)) {
           // TODO: support for sort, limit, etc.
+          // phpcs:disable Generic.CodeAnalysis.EmptyStatement.DetectedIf
           if (is_array($value)) {
             // TODO: support for LIKE, IN, etc.
-          } else {
+          }
+          // phpcs:enable
+          else {
             $index = count($query_params) + 1;
             $where_clauses[] = "`$key` = %$index";
-            $query_params[$index] = array($value, 'String');
+            $query_params[$index] = [$value, 'String'];
           }
         }
       }
       if (empty($where_clauses)) {
         $where_clause = 'TRUE';
-      } else {
+      }
+      else {
         $where_clause = '(' . implode(') AND (', $where_clauses) . ')';
       }
 
       // should there be a limit
       if ($command == 'getsingle') {
         $limit = 'LIMIT 1';
-      } elseif (!empty($query['limit'])) {
+      }
+      elseif (!empty($query['limit'])) {
         $limit = "LIMIT {$query['limit']}";
-      } else {
+      }
+      else {
         $limit = '';
       }
 
@@ -338,11 +383,16 @@ class CRM_Banking_PluginImpl_Matcher_RegexAnalyser extends CRM_Banking_PluginMod
       if ($command == 'getsingle') {
         if ($dao_query->fetch()) {
           return $dao_query->toArray();
-        } else {
-          return civicrm_api3_create_error("Not found");
         }
-      } else { // $command == 'get'
-        $results = array();
+        else {
+          return civicrm_api3_create_error('Not found');
+        }
+      }
+      // phpcs:disable Squiz.PHP.CommentedOutCode.Found
+      // $command == 'get'
+      // phpcs:enable
+      else {
+        $results = [];
         while ($dao_query->fetch()) {
           $results[] = $dao_query->toArray();
         }

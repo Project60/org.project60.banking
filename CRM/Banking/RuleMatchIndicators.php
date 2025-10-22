@@ -15,46 +15,45 @@
 | written permission from the original author(s).        |
 +--------------------------------------------------------*/
 
+declare(strict_types = 1);
+
 use CRM_Banking_ExtensionUtil as E;
 
 /**
  * Shows an indicator if there is a rule match in the transaction summary.
  * This uses the hook "hook_civicrm_banking_transaction_summary".
  */
-class CRM_Banking_RuleMatchIndicators
-{
-    /**
-     * @var CRM_Banking_BAO_BankTransaction
-     */
-    private $transaction;
+class CRM_Banking_RuleMatchIndicators {
+  /**
+   * @var CRM_Banking_BAO_BankTransaction
+   */
+  private $transaction;
 
-    /**
-     * @var array
-     */
-    private $blocks;
+  /**
+   * @var array
+   */
+  private $blocks;
 
-    /**
-     * @param CRM_Banking_BAO_BankTransaction $transaction
-     * @param array $blocks
-     */
-    public function __construct($transaction, &$blocks)
-    {
-        $this->transaction = $transaction;
-        $this->blocks = &$blocks;
+  /**
+   * @param CRM_Banking_BAO_BankTransaction $transaction
+   * @param array $blocks
+   */
+  public function __construct($transaction, &$blocks) {
+    $this->transaction = $transaction;
+    $this->blocks = &$blocks;
+  }
+
+  /**
+   *  add a matching indicator for the name
+   */
+  public function addContactMatchIndicator() {
+    $contactName = $this->transaction->getDataParsed()['name'] ?? NULL;
+    if (empty($contactName)) {
+      return;
     }
 
-    /**
-     *  add a matching indicator for the name
-     */
-    public function addContactMatchIndicator()
-    {
-        $contactName = $this->transaction->getDataParsed()['name'] ?? null;
-        if (empty($contactName)) {
-          return;
-        }
-
-        $sql =
-        "SELECT
+    $sql =
+        'SELECT
             id
         FROM
             civicrm_bank_rules
@@ -62,46 +61,47 @@ class CRM_Banking_RuleMatchIndicators
             party_name = %1
         AND
             is_enabled = 1
-        ";
+        ';
 
-        $parameters = [
-            1 => [$contactName, 'String'],
-        ];
+    $parameters = [
+      1 => [$contactName, 'String'],
+    ];
 
-        $ruleDao = CRM_Core_DAO::executeQuery($sql, $parameters);
+    $ruleDao = CRM_Core_DAO::executeQuery($sql, $parameters);
 
-        $result = $ruleDao->fetchAll();
+    $result = $ruleDao->fetchAll();
 
-        if (!empty($result)) {
+    if (!empty($result)) {
 
-          if (count($result) == 1) {
-            $title = E::ts('Matching Rule');
-          } else {
-            $title = E::ts('%1 Matching Rules', [1 => count($result)]);
-          }
-          $url = CRM_Utils_System::url('civicrm/a/#/banking/rules/' . $result[0]['id']);
-          $contactMatchIndicator = "&nbsp;<a target=\"_blank\" href=\"{$url}\"><i title=\"{$title}\" class=\"crm-i fa-info-circle\" aria-hidden=\"true\"></i></a>";
+      if (count($result) == 1) {
+        $title = E::ts('Matching Rule');
+      }
+      else {
+        $title = E::ts('%1 Matching Rules', [1 => count($result)]);
+      }
+      $url = CRM_Utils_System::url('civicrm/a/#/banking/rules/' . $result[0]['id']);
+      $contactMatchIndicator = "&nbsp;<a target=\"_blank\" href=\"{$url}\">" .
+        "<i title=\"{$title}\" class=\"crm-i fa-info-circle\" aria-hidden=\"true\"></i></a>";
 
-          $this->blocks['ReviewDebtor'] = str_replace(
-                $contactName,
-                $contactName . $contactMatchIndicator,
-                $this->blocks['ReviewDebtor']
-            );
-        }
+      $this->blocks['ReviewDebtor'] = str_replace(
+        $contactName,
+        $contactName . $contactMatchIndicator,
+        $this->blocks['ReviewDebtor']
+      );
+    }
+  }
+
+  /**
+   * Inject the bank reference matching indicator
+   */
+  public function addIbanMatchIndicator() {
+    $party_ba_reference = $this->getPartyBankAccountReference($this->transaction->getDataParsed());
+    if (empty($party_ba_reference)) {
+      return;
     }
 
-    /**
-     * Inject the bank reference matching indicator
-     */
-    public function addIbanMatchIndicator()
-    {
-        $party_ba_reference = $this->getPartyBankAccountReference($this->transaction->getDataParsed());
-        if (empty($party_ba_reference)) {
-            return;
-        }
-
-        $rules_search =
-        "SELECT
+    $rules_search =
+        'SELECT
             id
         FROM
             civicrm_bank_rules
@@ -109,59 +109,61 @@ class CRM_Banking_RuleMatchIndicators
             party_ba_ref = %1
         AND
             is_enabled = 1
-        ";
+        ';
 
-        $parameters = [
-            1 => [$party_ba_reference, 'String'],
-        ];
+    $parameters = [
+      1 => [$party_ba_reference, 'String'],
+    ];
 
-        $ruleDao = CRM_Core_DAO::executeQuery($rules_search, $parameters);
+    $ruleDao = CRM_Core_DAO::executeQuery($rules_search, $parameters);
 
-        $result = $ruleDao->fetchAll();
+    $result = $ruleDao->fetchAll();
 
-        if (!empty($result)) {
-            // Find the position after the IBAN to safely insert the indicator:
-            $position = strpos($this->blocks['ReviewDebtor'], $party_ba_reference);
-            $position = strpos($this->blocks['ReviewDebtor'], '</div>', $position) - 1;
+    if (!empty($result)) {
+      // Find the position after the IBAN to safely insert the indicator:
+      $position = strpos($this->blocks['ReviewDebtor'], $party_ba_reference);
+      $position = strpos($this->blocks['ReviewDebtor'], '</div>', $position) - 1;
 
-            if (count($result) == 1) {
-              $title = E::ts('Matching Rule');
-            } else {
-              $title = E::ts('%1 Matching Rules', [1 => count($result)]);
-            }
-            $url = CRM_Utils_System::url('civicrm/a/#/banking/rules/' . $result[0]['id']);
-            $ibanMatchIndicator = "&nbsp;<a target=\"_blank\" href=\"{$url}\"><i title=\"{$title}\" class=\"crm-i fa-info-circle\" aria-hidden=\"true\"></i></a>";
+      if (count($result) == 1) {
+        $title = E::ts('Matching Rule');
+      }
+      else {
+        $title = E::ts('%1 Matching Rules', [1 => count($result)]);
+      }
+      $url = CRM_Utils_System::url('civicrm/a/#/banking/rules/' . $result[0]['id']);
+      $ibanMatchIndicator = "&nbsp;<a target=\"_blank\" href=\"{$url}\">" .
+        "<i title=\"{$title}\" class=\"crm-i fa-info-circle\" aria-hidden=\"true\"></i></a>";
 
-            $this->blocks['ReviewDebtor'] =
+      $this->blocks['ReviewDebtor'] =
                 substr($this->blocks['ReviewDebtor'], 0, $position) .
                 $ibanMatchIndicator .
                 substr($this->blocks['ReviewDebtor'], $position);
-        }
+    }
+  }
+
+  /**
+   * Return the bank reference from the party,
+   *   preferring IBAN
+   *
+   * @param array $data_parsed
+   *   the transactions data
+   *
+   * @return string
+   *   the reference
+   */
+  protected function getPartyBankAccountReference($data_parsed) {
+    if (!empty($data_parsed['_party_IBAN'])) {
+      return $data_parsed['_party_IBAN'];
     }
 
-    /**
-     * Return the bank reference from the party,
-     *   preferring IBAN
-     *
-     * @param array $data_parsed
-     *   the transactions data
-     *
-     * @return string
-     *   the reference
-     */
-    protected function getPartyBankAccountReference($data_parsed)
-    {
-        if (!empty($data_parsed['_party_IBAN'])) {
-            return $data_parsed['_party_IBAN'];
-        }
-
-        foreach ($data_parsed as $parameter => $value) {
-            if (!empty($value) && preg_match('/^party_NBAN_[A-Z]{2}^/', $parameter)) {
-                return $value;
-            }
-        }
-
-        // no reference found
-        return null;
+    foreach ($data_parsed as $parameter => $value) {
+      if (!empty($value) && preg_match('/^party_NBAN_[A-Z]{2}^/', $parameter)) {
+        return $value;
+      }
     }
+
+    // no reference found
+    return NULL;
+  }
+
 }

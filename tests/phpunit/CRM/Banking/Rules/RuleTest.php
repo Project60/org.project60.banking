@@ -1,11 +1,14 @@
 <?php
 
+declare(strict_types = 1);
+
 /**
  * @covers CRM_Banking_Rules_Rule
  *
  * @group headless
  */
 class CRM_Banking_Rules_RuleTest extends CRM_Banking_TestBase {
+
   public function testDatabaseArrayCasting() {
     $x = new CRM_Banking_Rules_Rule();
     $x->setFromArray([
@@ -23,6 +26,7 @@ class CRM_Banking_Rules_RuleTest extends CRM_Banking_TestBase {
     $this->assertEquals(['foo' => 'bar'], $x->getConditions());
     $this->assertEquals(['bax' => 'bim'], $x->getExecution());
   }
+
   public function testCasting() {
     $x = new CRM_Banking_Rules_Rule();
 
@@ -40,10 +44,12 @@ class CRM_Banking_Rules_RuleTest extends CRM_Banking_TestBase {
     // NULLs
     $this->assertNull($x->setAmount_min(NULL)->getAmount_min());
   }
+
   public function testCastingNull() {
     $x = new CRM_Banking_Rules_Rule();
     $this->assertNull($x->setAmount_min(NULL)->getAmount_min());
   }
+
   public function testInsert() {
     $rule = new CRM_Banking_Rules_Rule();
     $test = $this;
@@ -53,11 +59,13 @@ class CRM_Banking_Rules_RuleTest extends CRM_Banking_TestBase {
       function($sql, $params) use ($test) {
         $test->assertStringStartsWith('INSERT', $sql);
         return NULL;
-      }
+      },
     ]);
     // Mock the get last insert id and return 123.
     $this->mock($rule, 'db_single_value_query_method', [
-      function($sql, $params) use ($test) { return 123; }
+      function($sql, $params) use ($test) {
+        return 123;
+      },
     ]);
 
     $rule->setName('rule test')
@@ -67,6 +75,7 @@ class CRM_Banking_Rules_RuleTest extends CRM_Banking_TestBase {
 
     return $rule;
   }
+
   /**
    * @depends testInsert
    */
@@ -77,26 +86,28 @@ class CRM_Banking_Rules_RuleTest extends CRM_Banking_TestBase {
       function($sql, $params) use ($test) {
         $test->assertStringStartsWith('UPDATE', $sql);
         return NULL;
-      }
+      },
     ]);
 
     $rule->setName('a different name')
       ->save();
   }
+
   /**
    * @param CRM_Banking_Rules_Rule $rule
    * @param string $method either db_execute_method or db_single_value_query_method
-   * @param array $handlers. Array of callbacks that mock the behaviour.
+   * @param array $handlers
    * @return $this.
    */
   protected function mock($rule, $method, $handlers) {
     $rule->$method = function() use (&$handlers) {
       if (count($handlers) == 0) {
-        throw new \Exception("executeQuery called more times than given handlers values.");
+        throw new \Exception('executeQuery called more times than given handlers values.');
       }
       $handler = array_shift($handlers);
       return call_user_func_array($handler, func_get_args());
     };
     return $this;
   }
+
 }

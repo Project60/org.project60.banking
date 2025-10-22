@@ -15,45 +15,57 @@
 | written permission from the original author(s).        |
 +--------------------------------------------------------*/
 
+declare(strict_types = 1);
+
 /**
  * This class represents the match of a rule (see )
  *  to a banking transaction
  */
 class CRM_Banking_Rules_Match {
 
-  protected $rule;        // CRM_Banking_Rules_Rule
-  protected $btx;         // CRM_Banking_BAO_BankTransaction
-  protected $mapping;     // parameter mapping
-  protected $confidence;  // float 0...1
+  // CRM_Banking_Rules_Rule
+  protected $rule;
+  // CRM_Banking_BAO_BankTransaction
+  protected $btx;
+  // parameter mapping
+  protected $mapping;
+  // float 0...1
+  protected $confidence;
 
   /**
    * try to match the given bank transaction (btx) against
    * the rule database
    *
-   * @param $btx        CRM_Banking_BAO_BankTransaction to be analysed
-   * @param $mapping    a value mapping to be applied to the btx data
-   * @param $context    CRM_Banking_Matcher_Context     matching context, can be used for caching
-   * @param $type       int    rule type to be matched: 1=analyser, 2=matcher
-   * @param $confidence float  discard any matches with a confidence below this value
-   * @param $rule_id    NULL|int If given, will test a single rule against the btx.
+   * @param CRM_Banking_BAO_BankTransaction $btx Bank transaction to be analysed
+   * @param array $mapping Value mapping to be applied to the btx data
+   * @param CRM_Banking_Matcher_Context $context Matching context, can be used for caching
+   * @param int $type Rule type to be matched: 1=analyser, 2=matcher
+   * @param float $threshold discard any matches with a confidence below this value
+   * @param NULL|int $rule_id If given, will test a single rule against the btx.
    *
    * @return array a list of CRM_Banking_Rules_Match objects
    */
-  public static function matchTransaction($btx, $mapping, $context, $type = 1, $threshold = 0.0, $rule_id=NULL) {
+  public static function matchTransaction(
+    CRM_Banking_BAO_BankTransaction $btx,
+    array $mapping,
+    CRM_Banking_Matcher_Context $context,
+    int $type = 1,
+    float $threshold = 0.0,
+    ?int $rule_id = NULL
+  ) {
     $data_parsed = self::getMappedData($btx, $mapping);
 
     $params = [
-        'btx_amount'       => CRM_Utils_Array::value('amount',      $data_parsed, 0.00),
-        'btx_party_ba_ref' => CRM_Utils_Array::value('_party_IBAN', $data_parsed, ''),
-        'btx_ba_ref'       => CRM_Utils_Array::value('_IBAN',       $data_parsed, ''),
-        'btx_party_name'   => CRM_Utils_Array::value('name',        $data_parsed, ''),
-        'btx_tx_reference' => CRM_Utils_Array::value('reference',   $data_parsed, ''),
-        'btx_tx_purpose'   => CRM_Utils_Array::value('purpose',     $data_parsed, ''),
-      ];
+      'btx_amount'       => CRM_Utils_Array::value('amount', $data_parsed, 0.00),
+      'btx_party_ba_ref' => CRM_Utils_Array::value('_party_IBAN', $data_parsed, ''),
+      'btx_ba_ref'       => CRM_Utils_Array::value('_IBAN', $data_parsed, ''),
+      'btx_party_name'   => CRM_Utils_Array::value('name', $data_parsed, ''),
+      'btx_tx_reference' => CRM_Utils_Array::value('reference', $data_parsed, ''),
+      'btx_tx_purpose'   => CRM_Utils_Array::value('purpose', $data_parsed, ''),
+    ];
 
     // truncate key fields to DB lengths
     CRM_Banking_Rules_Rule::truncateKeyData($params, 'btx_');
-
 
     $sql = CRM_Utils_SQL_Select::from('civicrm_bank_rules');
     if ($rule_id === NULL) {
@@ -97,7 +109,6 @@ class CRM_Banking_Rules_Match {
     return $rule_matches;
   }
 
-
   /**
    * Do the rule's conditions match?
    *
@@ -109,7 +120,7 @@ class CRM_Banking_Rules_Match {
     foreach ($this->rule->getConditions() as $field => $match_conditions) {
 
       if (!isset($match_conditions['full_match'])) {
-        throw new Exception("Invalid match condition. Only full_match is implemented at present.");
+        throw new Exception('Invalid match condition. Only full_match is implemented at present.');
       }
 
       // Full string match on data_parsed[$field].
@@ -128,7 +139,7 @@ class CRM_Banking_Rules_Match {
   }
 
   /**
-  * constructor for a $rule|$btx match object
+   * constructor for a $rule|$btx match object
    * @param $rule       CRM_Banking_Rules_Rule     matching context, can be used for caching
    * @param $btx        CRM_Banking_BAO_BankTransaction to be analysed
    * @param $confidence float  discard any matches with a confidence below this value
@@ -181,7 +192,10 @@ class CRM_Banking_Rules_Match {
 
     foreach ($this->rule->getExecution() as $execution) {
       if (!isset($execution['set_param_name'])) {
-        throw new Exception("Only set_param_name type execution rules are implemented currently. Missing from rule " . $this->rule->getId());
+        throw new \RuntimeException(
+          'Only set_param_name type execution rules are implemented currently. Missing from rule '
+          . $this->rule->getId()
+        );
       }
       // Store the value in the param.
       $data_parsed[$execution['set_param_name']] = $execution['set_param_value'];
@@ -242,4 +256,5 @@ class CRM_Banking_Rules_Match {
     // write to BTX
     $btx->setDataParsed($data_parsed);
   }
+
 }

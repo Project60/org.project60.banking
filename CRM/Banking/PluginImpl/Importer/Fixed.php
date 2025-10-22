@@ -14,40 +14,38 @@
 | written permission from the original author(s).        |
 +--------------------------------------------------------*/
 
+declare(strict_types = 1);
+
 use CRM_Banking_ExtensionUtil as E;
 
-
-/**
- *
- * @package org.project60.banking
- * @copyright GNU Affero General Public License
- * $Id$
- *
- */
 class CRM_Banking_PluginImpl_Importer_Fixed extends CRM_Banking_PluginModel_Importer {
 
   /**
    * class constructor
    */
-  function __construct($config_name) {
+  public function __construct($config_name) {
     parent::__construct($config_name);
 
     // read config, set defaults
     $config = $this->_plugin_config;
-    if (!isset($config->defaults))      $config->defaults      = array();
-    if (!isset($config->generic_rules)) $config->generic_rules = array();
+    if (!isset($config->defaults)) {
+      $config->defaults = [];
+    }
+    if (!isset($config->generic_rules)) {
+      $config->generic_rules = [];
+    }
   }
 
   /**
    * will be used to avoid multiple account lookups
    */
-  protected $account_cache = array();
+  protected $account_cache = [];
 
   /**
    * This will be used to suppress duplicates within the same statement
    *  when automatically generating references
    */
-  protected $bank_reference_cache = array();
+  protected $bank_reference_cache = [];
 
   /**
    * file handle to the file to be imported (opened read-only)
@@ -76,15 +74,12 @@ class CRM_Banking_PluginImpl_Importer_Fixed extends CRM_Banking_PluginModel_Impo
    */
   protected $line_nr = 0;
 
-
-
   /**
    * the plugin's user readable name
    *
    * @return string
    */
-  static function displayName()
-  {
+  public static function displayName() {
     return 'Fixed Width TXT Importer';
   }
 
@@ -93,9 +88,8 @@ class CRM_Banking_PluginImpl_Importer_Fixed extends CRM_Banking_PluginModel_Impo
    *
    * @return bool
    */
-  static function does_import_files()
-  {
-    return true;
+  public static function does_import_files() {
+    return TRUE;
   }
 
   /**
@@ -103,9 +97,8 @@ class CRM_Banking_PluginImpl_Importer_Fixed extends CRM_Banking_PluginModel_Impo
    *
    * @return bool
    */
-  static function does_import_stream()
-  {
-    return false;
+  public static function does_import_stream() {
+    return FALSE;
   }
 
   /**
@@ -114,9 +107,8 @@ class CRM_Banking_PluginImpl_Importer_Fixed extends CRM_Banking_PluginModel_Impo
    * @var
    * @return TODO: data format?
    */
-  function probe_stream( $params )
-  {
-    return false;
+  public function probe_stream($params) {
+    return FALSE;
   }
 
   /**
@@ -124,9 +116,8 @@ class CRM_Banking_PluginImpl_Importer_Fixed extends CRM_Banking_PluginModel_Impo
    *
    * @return TODO: data format?
    */
-  function import_stream( $params )
-  {
-    $this->reportDone(E::ts("Importing streams not supported by this plugin."));
+  public function import_stream($params) {
+    $this->reportDone(E::ts('Importing streams not supported by this plugin.'));
   }
 
   /**
@@ -135,19 +126,18 @@ class CRM_Banking_PluginImpl_Importer_Fixed extends CRM_Banking_PluginModel_Impo
    * @var
    * @return TODO: data format?
    */
-  function probe_file( $file_path, $params )
-  {
+  public function probe_file($file_path, $params) {
     // TODO: use sentinel if exists
-    return true;
+    return TRUE;
   }
-
 
   /**
    * Imports the given TXT file
    *
+   * phpcs:disable Generic.Metrics.CyclomaticComplexity.TooHigh
    */
-  function import_file( $file_path, $params )
-  {
+  public function import_file($file_path, $params) {
+  // phpcs:disable
     // Init
     $config = $this->_plugin_config;
     $this->reportProgress(0.0, sprintf("Starting to read file '%s'...", $params['source']));
@@ -157,7 +147,7 @@ class CRM_Banking_PluginImpl_Importer_Fixed extends CRM_Banking_PluginModel_Impo
 
     // all good -> start creating stament
     $this->line_nr = 0;
-    $this->data = array();
+    $this->data = [];
     foreach ($config->defaults as $key => $value) {
       $this->data[$key] = $value;
     }
@@ -165,16 +155,18 @@ class CRM_Banking_PluginImpl_Importer_Fixed extends CRM_Banking_PluginModel_Impo
     $batch = $this->openTransactionBatch();
     $line = NULL;
 
-    while ( ($line = fgets($this->file_handle)) !== FALSE ) {
+    while (($line = fgets($this->file_handle)) !== FALSE) {
       $this->line_nr += 1;
 
       // check encoding if necessary
       if (isset($config->encoding)) {
         if (in_array($config->encoding, mb_list_encodings())) {
           $line = mb_convert_encoding($line, mb_internal_encoding(), $config->encoding);
-        } else if (extension_loaded('iconv')) {
+        }
+        elseif (extension_loaded('iconv')) {
           $line = iconv($config->encoding, mb_internal_encoding(), $line);
-        } else {
+        }
+        else {
           trigger_error("Unknown encoding {$config->encoding}, try enabling the iconv PHP extension", E_USER_ERROR);
         }
       }
@@ -193,19 +185,24 @@ class CRM_Banking_PluginImpl_Importer_Fixed extends CRM_Banking_PluginModel_Impo
       // copy all data entries starting with tx.batch into the batch
       if (!empty($data['tx_batch.reference'])) {
         $this->getCurrentTransactionBatch()->reference = $data['tx_batch.reference'];
-      } else {
-        $this->getCurrentTransactionBatch()->reference = "TXT-File {md5}";
+      }
+      else {
+        $this->getCurrentTransactionBatch()->reference = 'TXT-File {md5}';
       }
 
-      if (!empty($data['tx_batch.sequence']))
+      if (!empty($data['tx_batch.sequence'])) {
         $this->getCurrentTransactionBatch()->sequence = $data['tx_batch.sequence'];
-      if (!empty($data['tx_batch.starting_date']))
+      }
+      if (!empty($data['tx_batch.starting_date'])) {
         $this->getCurrentTransactionBatch()->starting_date = $data['tx_batch.starting_date'];
-      if (!empty($data['tx_batch.ending_date']))
+      }
+      if (!empty($data['tx_batch.ending_date'])) {
         $this->getCurrentTransactionBatch()->ending_date = $data['tx_batch.ending_date'];
+      }
 
       $this->closeTransactionBatch(TRUE);
-    } else {
+    }
+    else {
       $this->closeTransactionBatch(FALSE);
     }
     $this->reportDone();
@@ -227,24 +224,25 @@ class CRM_Banking_PluginImpl_Importer_Fixed extends CRM_Banking_PluginModel_Impo
     }
   }
 
-
-
   /**
    * executes ONE import rule
+   *
+   * phpcs:disable Generic.Metrics.CyclomaticComplexity.TooHigh
    */
   protected function apply_rule($rule, &$line, &$params) {
+  // phpcs:enable
     switch ($rule->type) {
       case 'extract':
         if (strpos($rule->position, '-') !== FALSE) {
           list($pos_from, $pos_to) = explode('-', $rule->position);
           $length = $pos_to - $pos_from + 1;
-        } elseif (strpos($rule->position, '+') !== FALSE) {
-          list($pos_from, $length) = explode('+', $rule->position);
-        } else {
-          // TODO: error handling
         }
+        elseif (strpos($rule->position, '+') !== FALSE) {
+          list($pos_from, $length) = explode('+', $rule->position);
+        }
+        // else: TODO: error handling
 
-        $value = mb_substr($line, $pos_from-1, $length);
+        $value = mb_substr($line, $pos_from - 1, $length);
         $this->storeValue($rule->to, $value);
         break;
 
@@ -307,13 +305,13 @@ class CRM_Banking_PluginImpl_Importer_Fixed extends CRM_Banking_PluginModel_Impo
         if ($datetime) {
           if (isset($rule->store_format)) {
             $date_value = $datetime->format($rule->store_format);
-          } else {
+          }
+          else {
             $date_value = $datetime->format('YmdHis');
           }
           $this->storeValue($rule->to, $date_value);
-        } else {
-          // TODO: error handling date format wrong
         }
+        // else: TODO: error handling date format wrong
         break;
 
       case 'append':
@@ -346,7 +344,6 @@ class CRM_Banking_PluginImpl_Importer_Fixed extends CRM_Banking_PluginModel_Impo
     }
   }
 
-
   /**
    * @TODO: document
    */
@@ -354,12 +351,14 @@ class CRM_Banking_PluginImpl_Importer_Fixed extends CRM_Banking_PluginModel_Impo
     if (substr($name, 0, 3) == 'tx.') {
       return $this->tx_data[substr($name, 3)];
 
-    } elseif (substr($name, 0, 9) == 'tx_batch.') {
+    }
+    elseif (substr($name, 0, 9) == 'tx_batch.') {
       return $this->data[substr($name, 9)];
 
-    } else {
-      // TODO: error handling
     }
+    // else: TODO: error handling
+
+    return NULL;
   }
 
   /**
@@ -368,7 +367,8 @@ class CRM_Banking_PluginImpl_Importer_Fixed extends CRM_Banking_PluginModel_Impo
   protected function storeValue($name, $value) {
     if (substr($name, 0, 3) == 'tx.') {
       $this->tx_data[substr($name, 3)] = $value;
-    } else {
+    }
+    else {
       // TODO: remove prefix? other prefixes?
       $this->data[$name] = $value;
     }
@@ -378,8 +378,8 @@ class CRM_Banking_PluginImpl_Importer_Fixed extends CRM_Banking_PluginModel_Impo
    * @TODO: document
    */
   protected function openTransaction(&$line) {
-    $this->tx_data = array();
-    $this->tx_raw_lines = array($line);
+    $this->tx_data = [];
+    $this->tx_raw_lines = [$line];
 
     // copy all tx.* fields from general data
     foreach ($this->data as $key => $value) {
@@ -393,10 +393,12 @@ class CRM_Banking_PluginImpl_Importer_Fixed extends CRM_Banking_PluginModel_Impo
    * @TODO: document
    */
   protected function closeTransaction(&$line, &$params) {
-    if (empty($this->tx_data)) return;
+    if (empty($this->tx_data)) {
+      return;
+    }
 
     $btx = $this->tx_data;
-    $btx['data_raw'] = implode("||", $this->tx_raw_lines);
+    $btx['data_raw'] = implode('||', $this->tx_raw_lines);
 
     // TODO: progress
     $progress = 0.0;
@@ -408,21 +410,25 @@ class CRM_Banking_PluginImpl_Importer_Fixed extends CRM_Banking_PluginModel_Impo
     if (!isset($config->bank_reference)) {
       // set SHA1 hash as unique reference
       $btx['bank_reference'] = sha1($btx['data_raw']);
-    } else {
+    }
+    else {
       // we have a template
       $bank_reference = $config->bank_reference;
-      $tokens = array();
+      $tokens = [];
       preg_match('/\{([^\}]+)\}/', $bank_reference, $tokens);
       foreach ($tokens as $key => $token_name) {
-        if (!$key) continue;  // match#0 is not relevant
-        $token_value = isset($btx[$token_name])?$btx[$token_name]:'';
+        // match#0 is not relevant
+        if (!$key) {
+          continue;
+        }
+        $token_value = isset($btx[$token_name]) ? $btx[$token_name] : '';
         $bank_reference = str_replace("{{$token_name}}", $token_value, $bank_reference);
       }
       $btx['bank_reference'] = $bank_reference;
     }
 
     // prepare $btx: put all entries, that are not for the basic object, into parsed data
-    $btx_parsed_data = array();
+    $btx_parsed_data = [];
     foreach ($btx as $key => $value) {
       if (!in_array($key, $this->_primary_btx_fields)) {
         // this entry has to be moved to the $btx_parsed_data records
@@ -438,4 +444,5 @@ class CRM_Banking_PluginImpl_Importer_Fixed extends CRM_Banking_PluginModel_Impo
     $this->tx_data = NULL;
     $this->tx_raw_lines = NULL;
   }
+
 }

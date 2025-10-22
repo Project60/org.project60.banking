@@ -14,7 +14,7 @@
 | written permission from the original author(s).        |
 +--------------------------------------------------------*/
 
-use CRM_Banking_ExtensionUtil as E;
+declare(strict_types = 1);
 
 /**
  * This PostProcessor will mark the matched contact as 'deceased'
@@ -24,15 +24,21 @@ class CRM_Banking_PluginImpl_PostProcessor_ContactDeceased extends CRM_Banking_P
   /**
    * class constructor
    */
-  function __construct($config_name) {
+  public function __construct($config_name) {
     parent::__construct($config_name);
 
     // read config, set defaults
     $config = $this->_plugin_config;
 
-    if (!isset($config->set_deceased_date))            $config->set_deceased_date            = 'btx.booking_date';
-    if (!isset($config->tag_contact))                  $config->tag_contact                  = array();
-    if (!isset($config->contribution_fields_required)) $config->contribution_fields_required = 'contact_id';
+    if (!isset($config->set_deceased_date)) {
+      $config->set_deceased_date = 'btx.booking_date';
+    }
+    if (!isset($config->tag_contact)) {
+      $config->tag_contact = [];
+    }
+    if (!isset($config->contribution_fields_required)) {
+      $config->contribution_fields_required = 'contact_id';
+    }
   }
 
   /**
@@ -53,28 +59,29 @@ class CRM_Banking_PluginImpl_PostProcessor_ContactDeceased extends CRM_Banking_P
       foreach ($contributions as $contribution) {
         if ($contact_id == NULL) {
           $contact_id = $contribution['contact_id'];
-        } elseif ($contact_id != $contribution['contact_id']) {
+        }
+        elseif ($contact_id != $contribution['contact_id']) {
           // there are multiple contacts connected to this match
-          $this->logMessage("Multiple contacts connected to this match, cannot proceed", 'error');
+          $this->logMessage('Multiple contacts connected to this match, cannot proceed', 'error');
           return;
         }
       }
 
       // if we have a contact:
       if ($contact_id) {
-        $contact_lookup = civicrm_api3('Contact', 'get', array(
+        $contact_lookup = civicrm_api3('Contact', 'get', [
           'id'     => $contact_id,
           'return' => 'is_deceased,is_deleted,deceased_date,id',
-          ));
+        ]);
         if ($contact_lookup['id']) {
 
           // mark contact as deceased
           $contact = reset($contact_lookup['values']);
           if (!$contact['is_deceased']) {
-            $contact_update = array(
+            $contact_update = [
               'id'            => $contact['id'],
-              'is_deceased'   => 1
-              );
+              'is_deceased'   => 1,
+            ];
 
             // calculate the deceased date
             $deceased_date = $this->getPropagationValue($context->btx, $match, $config->set_deceased_date);
@@ -93,5 +100,5 @@ class CRM_Banking_PluginImpl_PostProcessor_ContactDeceased extends CRM_Banking_P
       }
     }
   }
-}
 
+}

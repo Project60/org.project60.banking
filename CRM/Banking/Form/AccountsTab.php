@@ -14,9 +14,9 @@
 | written permission from the original author(s).        |
 +--------------------------------------------------------*/
 
-use CRM_Banking_ExtensionUtil as E;
+declare(strict_types = 1);
 
-require_once 'CRM/Core/Form.php';
+use CRM_Banking_ExtensionUtil as E;
 
 /**
  * Form controller class
@@ -25,9 +25,9 @@ require_once 'CRM/Core/Form.php';
  */
 class CRM_Banking_Form_AccountsTab extends CRM_Core_Form {
 
-  function buildQuickForm() {
+  public function buildQuickForm() {
     $contact_id = 0;
-    $bank_accounts = array();
+    $bank_accounts = [];
     $bic_extension_installed = FALSE;
 
     // Check if the BIC extension is being installed
@@ -37,7 +37,7 @@ class CRM_Banking_Form_AccountsTab extends CRM_Core_Form {
       ->setLimit(1)
       ->addSelect('status')
       ->execute()->first();
-    if (!is_null($bicExtensionStatus) && $bicExtensionStatus['status'] == 'installed') {
+    if (NULL !== $bicExtensionStatus && $bicExtensionStatus['status'] === 'installed') {
       $bic_extension_installed = TRUE;
     }
     // Pass the variable to the template
@@ -53,7 +53,7 @@ class CRM_Banking_Form_AccountsTab extends CRM_Core_Form {
       while ($bank_account->fetch()) {
         $bank_account_data = $bank_account->toArray();
         $bank_account_data['references']  = $bank_account->getReferences();
-        $bank_account_data['data_parsed'] = json_decode($bank_account->data_parsed, true);
+        $bank_account_data['data_parsed'] = json_decode($bank_account->data_parsed, TRUE);
         $bank_accounts[$bank_account->id] = $bank_account_data;
       }
     }
@@ -63,10 +63,10 @@ class CRM_Banking_Form_AccountsTab extends CRM_Core_Form {
     $this->assign('contact_id', $contact_id);
 
     // load all account types
-    $option_group    = civicrm_api3('OptionGroup', 'getsingle', array('name' => 'civicrm_banking.reference_types'));
-    $reference_types = civicrm_api3('OptionValue', 'get', array('option_group_id' => $option_group['id'], 'is_reserved' => 0));
+    $option_group    = civicrm_api3('OptionGroup', 'getsingle', ['name' => 'civicrm_banking.reference_types']);
+    $reference_types = civicrm_api3('OptionValue', 'get', ['option_group_id' => $option_group['id'], 'is_reserved' => 0]);
     $this->assign('reference_types_json', json_encode($reference_types['values']));
-    $reference_type_list = array();
+    $reference_type_list = [];
     $this->assign('reference_types', $reference_types['values']);
     foreach ($reference_types['values'] as $reference_type_id => $reference_type) {
       $reference_type_list[$reference_type_id] = "{$reference_type['label']} ({$reference_type['name']})";
@@ -76,16 +76,16 @@ class CRM_Banking_Form_AccountsTab extends CRM_Core_Form {
     $country_id2iso  = CRM_Core_PseudoConstant::countryIsoCode();
     $country_iso2id  = array_flip($country_id2iso);
     $country_id2name = CRM_Core_PseudoConstant::country();
-    $countries = array('' => E::ts("Unknown"));
+    $countries = ['' => E::ts('Unknown')];
     foreach ($country_iso2id as $iso => $id) {
-        if (!empty($country_id2name[$id])) {
-            $countries[$iso] = $country_id2name[$id];
-        }
+      if (!empty($country_id2name[$id])) {
+        $countries[$iso] = $country_id2name[$id];
+      }
     }
 
     // load settings
     $this->assign('reference_normalisation', (int) CRM_Core_BAO_Setting::getItem('CiviBanking', 'reference_normalisation'));
-    $this->assign('reference_validation',    (int) CRM_Core_BAO_Setting::getItem('CiviBanking', 'reference_validation'));
+    $this->assign('reference_validation', (int) CRM_Core_BAO_Setting::getItem('CiviBanking', 'reference_validation'));
 
     // ACCOUNT REFRENCE ITEMS
     $this->add('hidden', 'contact_id', $contact_id);
@@ -94,9 +94,10 @@ class CRM_Banking_Form_AccountsTab extends CRM_Core_Form {
     $reference_type = $this->add(
         'select',
         'reference_type',
-        E::ts("Bank Account Type"),
+        E::ts('Bank Account Type'),
         $reference_type_list,
-        true // is required
+    // is required
+        TRUE
     );
     // set last value
     $reference_type->setSelected(CRM_Core_BAO_Setting::getItem('CiviBanking', 'account.default_reference_id'));
@@ -104,11 +105,10 @@ class CRM_Banking_Form_AccountsTab extends CRM_Core_Form {
     $reference_type = $this->add(
         'text',
         'reference',
-        E::ts("Bank Account Number"),
-        array('size' => 40),
-        true
+        E::ts('Bank Account Number'),
+        ['size' => 40],
+        TRUE
     );
-
 
     // BANK ITEMS
     $this->add('hidden', 'ba_id');
@@ -116,42 +116,41 @@ class CRM_Banking_Form_AccountsTab extends CRM_Core_Form {
     $this->addElement(
         'text',
         'bic',
-        E::ts("BIC"),
-        array('size' => 40),
-        false
+        E::ts('BIC'),
+        ['size' => 40],
+        FALSE
     );
 
     $this->addElement(
         'text',
         'bank_name',
-        E::ts("Account Name"),
-        array('size' => 40),
-        false
+        E::ts('Account Name'),
+        ['size' => 40],
+        FALSE
     );
 
     $country = $this->add(
         'select',
         'country',
-        E::ts("Country"),
+        E::ts('Country'),
         $countries,
-        false
+        FALSE
     );
     // set last value
     $country->setSelected(CRM_Core_BAO_Setting::getItem('CiviBanking', 'account.default_country'));
 
-
-    $this->addButtons(array(
-      array(
+    $this->addButtons([
+      [
         'type' => 'submit',
         'name' => E::ts('Save'),
         'isDefault' => TRUE,
-      ),
-      array(
+      ],
+      [
         'type' => 'cancel',
         'name' => E::ts('Cancel'),
         'isDefault' => FALSE,
-      )
-    ));
+      ],
+    ]);
 
     parent::buildQuickForm();
   }
@@ -166,92 +165,97 @@ class CRM_Banking_Form_AccountsTab extends CRM_Core_Form {
     $validate  = CRM_Core_BAO_Setting::getItem('CiviBanking', 'reference_validation');
 
     if (!empty($values['reference_type']) && !empty($values['reference'])) {
-        if ($validate || $normalise) {
-            // verify/normalise reference
-            $query = civicrm_api3('BankingAccountReference', 'check', array(
-                'reference_type' => (int) $values['reference_type'],
-                'reference'      => $values['reference']));
-            $result = $query['values'];
-            if ($validate && $result['checked'] && !$result['is_valid']) {
-                $this->_errors['reference'] = E::ts("Invalid reference.");
-                CRM_Core_Session::setStatus(E::ts("Invalid reference '%1'", array(1=>$values['reference'])), E::ts('Failure'));
-            } elseif ($normalise && $result['normalised'] ) {
-                $values['reference'] = $result['reference'];
-                $this->set('reference', $result['reference']);
-            }
+      if ($validate || $normalise) {
+        // verify/normalise reference
+        $query = civicrm_api3('BankingAccountReference', 'check', [
+          'reference_type' => (int) $values['reference_type'],
+          'reference'      => $values['reference'],
+        ]);
+        $result = $query['values'];
+        if ($validate && $result['checked'] && !$result['is_valid']) {
+          $this->_errors['reference'] = E::ts('Invalid reference.');
+          CRM_Core_Session::setStatus(E::ts("Invalid reference '%1'", [1 => $values['reference']]), E::ts('Failure'));
         }
+        elseif ($normalise && $result['normalised']) {
+          $values['reference'] = $result['reference'];
+          $this->set('reference', $result['reference']);
+        }
+      }
     }
 
     if (0 == count($this->_errors)) {
-        return TRUE;
-    } else {
-        CRM_Utils_System::redirect(CRM_Utils_System::url('civicrm/contact/view', "reset=1&cid=2&selectedChild=bank_accounts"));
-        return FALSE;
+      return TRUE;
+    }
+    else {
+      CRM_Utils_System::redirect(CRM_Utils_System::url('civicrm/contact/view', 'reset=1&cid=2&selectedChild=bank_accounts'));
+      return FALSE;
     }
   }
 
   /**
    * Save presets and create/update account/reference
    */
-  function postProcess() {
+  public function postProcess() {
     $values = $this->exportValues();
     $was_created = FALSE;
 
     // save presets
     if (!empty($values['reference_type'])) {
-        Civi::settings()->set('account.default_reference_id', $values['reference_type']);
+      Civi::settings()->set('account.default_reference_id', $values['reference_type']);
     }
     if (!empty($values['country'])) {
-        Civi::settings()->set('account.default_country', $values['country']);
+      Civi::settings()->set('account.default_country', $values['country']);
     }
 
     // create bank account
     $ba_id = $values['ba_id'];
     if (empty($ba_id)) {
-        $bank_account = civicrm_api3('BankingAccount', 'create', array(
-            'contact_id'  => $values['contact_id'],
-            'data_parsed' => '{}',
-            ));
-        $was_created = TRUE;
-        $ba_id = $bank_account['id'];
+      $bank_account = civicrm_api3('BankingAccount', 'create', [
+        'contact_id'  => $values['contact_id'],
+        'data_parsed' => '{}',
+      ]);
+      $was_created = TRUE;
+      $ba_id = $bank_account['id'];
     }
 
     // update bank account data
-    $bank_data_attributes = array('bic' => 'BIC', 'bank_name' => 'name', 'country' => 'country');
+    $bank_data_attributes = ['bic' => 'BIC', 'bank_name' => 'name', 'country' => 'country'];
     $bank_bao = new CRM_Banking_BAO_BankAccount();
     $bank_bao->get('id', $ba_id);
     $bank_data = $bank_bao->getDataParsed();
     foreach ($bank_data_attributes as $form_attribute => $bank_data_attribute) {
-        if (empty($values[$form_attribute])) {
-            unset($bank_data[$bank_data_attribute]);
-        } else {
-            $bank_data[$bank_data_attribute] = $values[$form_attribute];
-        }
+      if (empty($values[$form_attribute])) {
+        unset($bank_data[$bank_data_attribute]);
+      }
+      else {
+        $bank_data[$bank_data_attribute] = $values[$form_attribute];
+      }
     }
     $bank_bao->setDataParsed($bank_data);
     $bank_bao->save();
 
     // update/create bank reference
-    $reference_update = array(
-        'reference'         => $values['reference'],
-        'reference_type_id' => $values['reference_type'],
-        'ba_id'             => $ba_id,
-        );
+    $reference_update = [
+      'reference'         => $values['reference'],
+      'reference_type_id' => $values['reference_type'],
+      'ba_id'             => $ba_id,
+    ];
     if (!empty($values['reference_id'])) {
-        $reference_update['id'] = $values['reference_id'];
+      $reference_update['id'] = $values['reference_id'];
     }
 
     civicrm_api3('BankingAccountReference', 'create', $reference_update);
 
     if ($was_created) {
-        CRM_Core_Session::setStatus(E::ts("Bank account '%1' was created.", array(1=>$values['reference'])), E::ts('Success'));
-    } else {
-        CRM_Core_Session::setStatus(E::ts("Bank account '%1' was updated.", array(1=>$values['reference'])), E::ts('Success'));
+      CRM_Core_Session::setStatus(E::ts("Bank account '%1' was created.", [1 => $values['reference']]), E::ts('Success'));
+    }
+    else {
+      CRM_Core_Session::setStatus(E::ts("Bank account '%1' was updated.", [1 => $values['reference']]), E::ts('Success'));
     }
 
     // return to accounts tab
     if (!empty($values['contact_id'])) {
-        CRM_Utils_System::redirect(CRM_Utils_System::url('civicrm/contact/view', "reset=1&cid={$values['contact_id']}&selectedChild=bank_accounts"));
+      CRM_Utils_System::redirect(CRM_Utils_System::url('civicrm/contact/view', "reset=1&cid={$values['contact_id']}&selectedChild=bank_accounts"));
     }
     parent::postProcess();
   }

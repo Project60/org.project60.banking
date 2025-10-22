@@ -14,50 +14,23 @@
 | written permission from the original author(s).        |
 +--------------------------------------------------------*/
 
-use CRM_Banking_ExtensionUtil as E;
+declare(strict_types = 1);
 
 /**
  * looks up an option group ID
  *
  * the implementation is probably not optimal, but it'll do for the moment
  *
- * @package org.project60.banking
- * @copyright GNU Affero General Public License
- * $Id$
- *
  */
-function banking_helper_optiongroupid_by_name($group_name) {
-    $result = civicrm_api3('OptionGroup', 'get', array('name' => $group_name));
-
-    if (empty($result['id'])) {
-      Civi::log()->debug("org.project60.banking: Couldn't find option group '{$group_name}'!");
-      return 0;
-    } else {
-      return $result['id'];
-    }
-}
-
-
-/**
- * looks up an option value
- *
- * the implementation is probably not optimal, but it'll do for the moment
- *
- * @package org.project60.banking
- * @copyright GNU Affero General Public License
- * $Id$
- *
- */
-function banking_helper_optionvalueid_by_name($group_id, $value_name) {
-    $result = civicrm_api3('OptionValue', 'get', array(
-        'name'            => $value_name,
-        'option_group_id' => $group_id));
+function banking_helper_optiongroupid_by_name($group_name): int {
+  $result = civicrm_api3('OptionGroup', 'get', ['name' => $group_name]);
 
   if (empty($result['id'])) {
-    Civi::log()->debug("org.project60.banking: Couldn't find option value '{$value_name}'!");
+    Civi::log()->debug("org.project60.banking: Couldn't find option group '{$group_name}'!");
     return 0;
-  } else {
-    return $result['id'];
+  }
+  else {
+    return (int) $result['id'];
   }
 }
 
@@ -66,22 +39,42 @@ function banking_helper_optionvalueid_by_name($group_id, $value_name) {
  *
  * the implementation is probably not optimal, but it'll do for the moment
  *
- * @package org.project60.banking
- * @copyright GNU Affero General Public License
- * $Id$
- *
  */
-function banking_helper_optionvalue_by_name($group_id, $value_name) {
-    $result = civicrm_api3('OptionValue', 'get', array(
-        'name'            => $value_name,
-        'option_group_id' => $group_id));
+function banking_helper_optionvalueid_by_name($group_id, $value_name): int {
+  $result = civicrm_api3('OptionValue', 'get', [
+    'name'            => $value_name,
+    'option_group_id' => $group_id,
+  ]);
 
-    if (empty($result['id'])) {
-      Civi::log()->debug("org.project60.banking: Couldn't find option value '{$value_name}'!");
-      return 0;
-    } else {
-      return $result['values'][$result['id']]['value'];
-    }
+  if (empty($result['id'])) {
+    Civi::log()->debug("org.project60.banking: Couldn't find option value '{$value_name}'!");
+    return 0;
+  }
+  else {
+    return (int) $result['id'];
+  }
+}
+
+/**
+ * looks up an option value
+ *
+ * the implementation is probably not optimal, but it'll do for the moment
+ *
+ * @return string|0
+ */
+function banking_helper_optionvalue_by_name($group_id, $value_name): string|int {
+  $result = civicrm_api3('OptionValue', 'get', [
+    'name'            => $value_name,
+    'option_group_id' => $group_id,
+  ]);
+
+  if (empty($result['id'])) {
+    Civi::log()->debug("org.project60.banking: Couldn't find option value '{$value_name}'!");
+    return 0;
+  }
+  else {
+    return $result['values'][$result['id']]['value'];
+  }
 }
 
 /**
@@ -89,18 +82,15 @@ function banking_helper_optionvalue_by_name($group_id, $value_name) {
  *
  * the implementation is probably not optimal, but it'll do for the moment
  *
- * @package org.project60.banking
- * @copyright GNU Affero General Public License
- * $Id$
- *
  */
-function banking_helper_optionvalueid_by_groupname_and_name($group_name, $value_name) {
-    $group_id = banking_helper_optiongroupid_by_name($group_name);
-    if ($group_id) {
-        return banking_helper_optionvalueid_by_name($group_id, $value_name);
-    } else {
-        return 0;
-    }
+function banking_helper_optionvalueid_by_groupname_and_name($group_name, $value_name): int {
+  $group_id = banking_helper_optiongroupid_by_name($group_name);
+  if ($group_id) {
+    return banking_helper_optionvalueid_by_name($group_id, $value_name);
+  }
+  else {
+    return 0;
+  }
 }
 
 /**
@@ -108,18 +98,16 @@ function banking_helper_optionvalueid_by_groupname_and_name($group_name, $value_
  *
  * the implementation is probably not optimal, but it'll do for the moment
  *
- * @package org.project60.banking
- * @copyright GNU Affero General Public License
- * $Id$
- *
+ * @return string|0
  */
-function banking_helper_optionvalue_by_groupname_and_name($group_name, $value_name) {
-    $group_id = banking_helper_optiongroupid_by_name($group_name);
-    if ($group_id) {
-        return banking_helper_optionvalue_by_name($group_id, $value_name);
-    } else {
-        return 0;
-    }
+function banking_helper_optionvalue_by_groupname_and_name($group_name, $value_name): string|int {
+  $group_id = banking_helper_optiongroupid_by_name($group_name);
+  if ($group_id) {
+    return banking_helper_optionvalue_by_name($group_id, $value_name);
+  }
+  else {
+    return 0;
+  }
 }
 
 /**
@@ -133,24 +121,25 @@ function banking_helper_optionvalue_by_groupname_and_name($group_name, $value_na
  *
  */
 function banking_helper_optiongroup_id_name_mapping($group_name) {
-    $group_id = banking_helper_optiongroupid_by_name($group_name);
+  $group_id = banking_helper_optiongroupid_by_name($group_name);
 
-    if ($group_id) {
-        $result = civicrm_api3('OptionValue', 'get', array('option_group_id' => $group_id));
-        $mapping = array();
-        foreach ($result['values'] as $entry) {
-            $mapping[$entry['id']] = $entry;
-            $mapping[$entry['name']] = $entry;
-        }
-
-        // inject 'new' value as id 0 for convenience
-        $mapping[0] = $mapping['new'];
-
-        return $mapping;
-
-    } else {
-        return array();
+  if ($group_id) {
+    $result = civicrm_api3('OptionValue', 'get', ['option_group_id' => $group_id]);
+    $mapping = [];
+    foreach ($result['values'] as $entry) {
+      $mapping[$entry['id']] = $entry;
+      $mapping[$entry['name']] = $entry;
     }
+
+    // inject 'new' value as id 0 for convenience
+    $mapping[0] = $mapping['new'];
+
+    return $mapping;
+
+  }
+  else {
+    return [];
+  }
 }
 
 /**
@@ -160,7 +149,7 @@ function banking_helper_optiongroup_id_name_mapping($group_name) {
  * @return TRUE if closed, FALSE otherwise
  */
 function banking_helper_tx_status_closed($tx_status_id) {
-    $status = banking_helper_optiongroup_id_name_mapping('civicrm_banking.bank_tx_status');
-    return $status[$tx_status_id]['name']=='processed'
-        || $status[$tx_status_id]['name']=='ignored';
+  $status = banking_helper_optiongroup_id_name_mapping('civicrm_banking.bank_tx_status');
+  return $status[$tx_status_id]['name'] == 'processed'
+        || $status[$tx_status_id]['name'] == 'ignored';
 }

@@ -14,6 +14,8 @@
 | written permission from the original author(s).        |
 +--------------------------------------------------------*/
 
+declare(strict_types = 1);
+
 /**
  * @covers CRM_Banking_PluginImpl_PostProcessor_API
  *
@@ -26,7 +28,8 @@ class CRM_Banking_PostProcessor_ApiPostProcessorTest extends CRM_Banking_TestBas
    *  of a create contribution matcher and a postprocessor
    */
   public function testTagPostprocessor():void {
-    $TAG_NAME = 'Tagged'; // as used in config file
+    // as used in config file
+    $TAG_NAME = 'Tagged';
     $this->getOrCreateTag($TAG_NAME, ['used_for' => 'civicrm_contact']);
 
     $contribution = $this->createContribution([
@@ -47,7 +50,7 @@ class CRM_Banking_PostProcessor_ApiPostProcessorTest extends CRM_Banking_TestBas
         'booking_date'  => date('Y-m-d', strtotime($contribution['receive_date'])),
         'value_date'    => date('Y-m-d', strtotime($contribution['receive_date'])),
         'currency'      => $contribution['currency'],
-        'cancel_reason' => 'MD07'
+        'cancel_reason' => 'MD07',
       ]
     );
 
@@ -64,7 +67,7 @@ class CRM_Banking_PostProcessor_ApiPostProcessorTest extends CRM_Banking_TestBas
 
     // now verify that the contact was tagged
     $this->assertEntityTagged($TAG_NAME, $contact_id, 'civicrm_contact',
-                              "Contact was _NOT_ tagged, postprocessor not working");
+                              'Contact was _NOT_ tagged, postprocessor not working');
   }
 
   /**
@@ -78,8 +81,8 @@ class CRM_Banking_PostProcessor_ApiPostProcessorTest extends CRM_Banking_TestBas
     //  3) run postprocessor to set contact to deceased if cancel_reason = MD07
 
     $contribution = $this->createContribution([
-        'contribution_status_id' => 'Completed',
-      ]);
+      'contribution_status_id' => 'Completed',
+    ]);
 
     // create a transaction to process
     $this->createTransaction(
@@ -91,7 +94,7 @@ class CRM_Banking_PostProcessor_ApiPostProcessorTest extends CRM_Banking_TestBas
         'booking_date'  => date('Y-m-d', strtotime($contribution['receive_date'])),
         'value_date'    => date('Y-m-d', strtotime($contribution['receive_date'])),
         'currency'      => $contribution['currency'],
-        'cancel_reason' => 'MD07'
+        'cancel_reason' => 'MD07',
       ]
     );
 
@@ -113,6 +116,7 @@ class CRM_Banking_PostProcessor_ApiPostProcessorTest extends CRM_Banking_TestBas
     // check if the postprocessor worked
     $contact = $this->callAPISuccess(
       'Contact', 'getsingle', ['id' => $cancelled_contribution['contact_id']]);
-    $this->assertEquals(1, $contact['is_deceased'], "Contact was not marked as deceased");
+    $this->assertEquals(1, $contact['is_deceased'], 'Contact was not marked as deceased');
   }
+
 }

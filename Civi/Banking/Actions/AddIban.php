@@ -1,15 +1,15 @@
 <?php
+
+declare(strict_types = 1);
+
 namespace Civi\Banking\Actions;
 
-use \Civi\ActionProvider\Action\AbstractAction;
+use Civi\ActionProvider\Action\AbstractAction;
 use Civi\ActionProvider\Exception\ExecutionException;
-use \Civi\ActionProvider\Exception\InvalidParameterException;
-use Civi\ActionProvider\Parameter\OptionGroupByNameSpecification;
-use \Civi\ActionProvider\Parameter\ParameterBagInterface;
-use \Civi\ActionProvider\Parameter\SpecificationBag;
-use \Civi\ActionProvider\Parameter\Specification;
+use Civi\ActionProvider\Parameter\ParameterBagInterface;
+use Civi\ActionProvider\Parameter\SpecificationBag;
+use Civi\ActionProvider\Parameter\Specification;
 
-use Civi\Core\Lock\NullLock;
 use CRM_Banking_ExtensionUtil as E;
 
 /**
@@ -22,20 +22,20 @@ use CRM_Banking_ExtensionUtil as E;
 class AddIban extends AbstractAction {
 
   /**
-   * @return SpecificationBag
+   * @return \Civi\ActionProvider\Parameter\SpecificationBag
    */
   public function getParameterSpecification() {
     $specs = new SpecificationBag();
     $specs->addSpecification(new Specification('contact_id', 'Integer', E::ts('Contact ID'), TRUE, NULL));
     $specs->addSpecification(new Specification('iban', 'String', E::ts('IBAN'), TRUE, NULL));
-    $specs->addSpecification(new Specification('bic', 'String', E::ts("BIC"), FALSE, NULL));
-    $specs->addSpecification(new Specification('account_name', 'String', E::ts("Account Name"), FALSE, NULL));
+    $specs->addSpecification(new Specification('bic', 'String', E::ts('BIC'), FALSE, NULL));
+    $specs->addSpecification(new Specification('account_name', 'String', E::ts('Account Name'), FALSE, NULL));
     $specs->addSpecification(new Specification('country_iso', 'String', E::ts('Country ISO Code'), FALSE, NULL));
     return $specs;
   }
 
   /**
-   * @return SpecificationBag
+   * @return \Civi\ActionProvider\Parameter\SpecificationBag
    */
   public function getConfigurationSpecification() {
     return new SpecificationBag();
@@ -44,8 +44,8 @@ class AddIban extends AbstractAction {
   /**
    * Do the actual action - add IBAN to contact
    *
-   * @param ParameterBagInterface $parameters
-   * @param ParameterBagInterface $output
+   * @param \Civi\ActionProvider\Parameter\ParameterBagInterface $parameters
+   * @param \Civi\ActionProvider\Parameter\ParameterBagInterface $output
    * @throws ExecutionException
    */
   public function doAction(ParameterBagInterface $parameters, ParameterBagInterface $output) {
@@ -67,7 +67,8 @@ class AddIban extends AbstractAction {
           'reference_type_id' => $ibanAccountReference,
           'ba_id' => $ba['id'],
         ]);
-      } catch (\CiviCRM_API3_Exception $ex) {
+      }
+      catch (\CiviCRM_API3_Exception $ex) {
         throw new ExecutionException(E::ts('Could not add bank account') . $iban . E::ts(' to contact ID ') . $contactId
           . E::ts(', error message from API3 BankingAccount or BankingAccountReference create: ') . $ex->getMessage());
       }
@@ -82,12 +83,12 @@ class AddIban extends AbstractAction {
    * @return bool
    */
   private function exists(int $contactId, string $iban) {
-    $query = "SELECT COUNT(*)
+    $query = 'SELECT COUNT(*)
         FROM civicrm_bank_account cba JOIN civicrm_bank_account_reference cbar ON cba.id = cbar.ba_id
-        WHERE cba.contact_id = %1 AND cbar.reference = %2";
-    $count = \CRM_Core_DAO::singleValueQuery($query,[
-      1 => [$contactId, "Integer"],
-      2 => [$iban, "String"],
+        WHERE cba.contact_id = %1 AND cbar.reference = %2';
+    $count = \CRM_Core_DAO::singleValueQuery($query, [
+      1 => [$contactId, 'Integer'],
+      2 => [$iban, 'String'],
     ]);
     if ($count > 0) {
       return TRUE;
@@ -119,9 +120,9 @@ class AddIban extends AbstractAction {
     else {
       try {
         $accRef = civicrm_api3('OptionValue', 'getvalue', [
-          'return' => "id",
-          'option_group_id' => "civicrm_banking.reference_types",
-          'name' => "IBAN",
+          'return' => 'id',
+          'option_group_id' => 'civicrm_banking.reference_types',
+          'name' => 'IBAN',
         ]);
         if ($accRef) {
           return $accRef;
@@ -136,18 +137,18 @@ class AddIban extends AbstractAction {
   /**
    * Method to parse the data for the bank account
    *
-   * @param ParameterBagInterface $parameters
+   * @param \Civi\ActionProvider\Parameter\ParameterBagInterface $parameters
    * @return false|int|string
    */
   private function parseBankAccountData(ParameterBagInterface $parameters) {
     $data = [];
     $bic = $parameters->getParameter('bic');
     if ($bic) {
-      $data["BIC"] = $bic;
+      $data['BIC'] = $bic;
     }
     $accountName = $parameters->getParameter('account_name');
     if ($accountName) {
-      $data["name"] = $accountName;
+      $data['name'] = $accountName;
     }
     $country = $parameters->getParameter('country_iso');
     if ($country) {
@@ -161,7 +162,7 @@ class AddIban extends AbstractAction {
    *
    * This function could be overriden by child classes.
    *
-   * @return SpecificationBag
+   * @return \Civi\ActionProvider\Parameter\SpecificationBag
    */
   public function getOutputSpecification() {
     return new SpecificationBag();

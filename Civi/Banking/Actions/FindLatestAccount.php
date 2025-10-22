@@ -1,15 +1,15 @@
 <?php
+
+declare(strict_types = 1);
+
 namespace Civi\Banking\Actions;
 
-use \Civi\ActionProvider\Action\AbstractAction;
+use Civi\ActionProvider\Action\AbstractAction;
 use Civi\ActionProvider\Exception\ExecutionException;
-use \Civi\ActionProvider\Exception\InvalidParameterException;
-use Civi\ActionProvider\Parameter\OptionGroupByNameSpecification;
-use \Civi\ActionProvider\Parameter\ParameterBagInterface;
-use \Civi\ActionProvider\Parameter\SpecificationBag;
-use \Civi\ActionProvider\Parameter\Specification;
+use Civi\ActionProvider\Parameter\ParameterBagInterface;
+use Civi\ActionProvider\Parameter\SpecificationBag;
+use Civi\ActionProvider\Parameter\Specification;
 
-use Civi\Core\Lock\NullLock;
 use CRM_Banking_ExtensionUtil as E;
 
 /**
@@ -22,7 +22,7 @@ use CRM_Banking_ExtensionUtil as E;
 class FindLatestAccount extends AbstractAction {
 
   /**
-   * @return SpecificationBag
+   * @return \Civi\ActionProvider\Parameter\SpecificationBag
    */
   public function getParameterSpecification() {
     $specs = new SpecificationBag();
@@ -31,7 +31,7 @@ class FindLatestAccount extends AbstractAction {
   }
 
   /**
-   * @return SpecificationBag
+   * @return \Civi\ActionProvider\Parameter\SpecificationBag
    */
   public function getConfigurationSpecification() {
     return new SpecificationBag();
@@ -40,8 +40,8 @@ class FindLatestAccount extends AbstractAction {
   /**
    * Do the actual action - find the latest bank account ID for contact and with that ID find account
    *
-   * @param ParameterBagInterface $parameters
-   * @param ParameterBagInterface $output
+   * @param \Civi\ActionProvider\Parameter\ParameterBagInterface $parameters
+   * @param \Civi\ActionProvider\Parameter\ParameterBagInterface $output
    * @throws ExecutionException
    */
   public function doAction(ParameterBagInterface $parameters, ParameterBagInterface $output) {
@@ -49,20 +49,21 @@ class FindLatestAccount extends AbstractAction {
     if (!empty($contactId)) {
       try {
         $baId = civicrm_api3('BankingAccount', 'getvalue', [
-          'return' => "id",
+          'return' => 'id',
           'contact_id' => $contactId,
-          'options' => ['sort' => "id DESC", 'limit' => 1],
+          'options' => ['sort' => 'id DESC', 'limit' => 1],
         ]);
         if ($baId) {
           $bankAccount = civicrm_api3('BankingAccountReference', 'getvalue', [
-            'return' => "reference",
+            'return' => 'reference',
             'ba_id' => $baId,
           ]);
           if ($bankAccount) {
             $output->setParameter('bank_account', $bankAccount);
           }
         }
-      } catch (\CiviCRM_API3_Exception $ex) {
+      }
+      catch (\CiviCRM_API3_Exception $ex) {
         throw new ExecutionException(E::ts('Could not find a bank account for contact') . $contactId
           . E::ts(', error message from API3 BankingAccount or BankingAccountReference getvalue: ') . $ex->getMessage());
       }
@@ -74,11 +75,11 @@ class FindLatestAccount extends AbstractAction {
    *
    * This function could be overriden by child classes.
    *
-   * @return SpecificationBag
+   * @return \Civi\ActionProvider\Parameter\SpecificationBag
    */
   public function getOutputSpecification() {
     return new SpecificationBag([
-      new Specification("bank_account", "String", E::ts("Bank Account"), FALSE),
+      new Specification('bank_account', 'String', E::ts('Bank Account'), FALSE),
     ]);
   }
 

@@ -16,15 +16,15 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+declare(strict_types = 1);
+
 namespace Civi\Banking\DataProcessor\Source;
 
 use Civi\DataProcessor\DataFlow\MultipleDataFlows\DataFlowDescription;
 use Civi\DataProcessor\DataFlow\MultipleDataFlows\SimpleJoin;
-use Civi\DataProcessor\DataFlow\MultipleDataFlows\SqlJoinInterface;
 use Civi\DataProcessor\DataFlow\SqlDataFlow\MultiValueFieldWhereClause;
 use Civi\DataProcessor\DataFlow\SqlDataFlow\SimpleWhereClause;
 use Civi\DataProcessor\DataFlow\SqlTableDataFlow;
-use Civi\DataProcessor\DataSpecification\CustomFieldSpecification;
 use Civi\DataProcessor\DataSpecification\DataSpecification;
 use Civi\DataProcessor\DataSpecification\FieldSpecification;
 use Civi\DataProcessor\DataSpecification\Utils as DataSpecificationUtils;
@@ -35,15 +35,14 @@ class BankAccount extends AbstractCivicrmEntitySource {
   /**
    * @var null|SqlTableDataFlow
    */
-  protected $baReferenceFlow = null;
+  protected $baReferenceFlow = NULL;
 
   /**
    * Returns the entity name
    *
    * @return String
    */
-  protected function getEntity()
-  {
+  protected function getEntity() {
     return 'BankAccount';
   }
 
@@ -52,8 +51,7 @@ class BankAccount extends AbstractCivicrmEntitySource {
    *
    * @return String
    */
-  protected function getTable()
-  {
+  protected function getTable() {
     return 'civicrm_bank_account';
   }
 
@@ -63,8 +61,7 @@ class BankAccount extends AbstractCivicrmEntitySource {
    * @return \Civi\DataProcessor\DataFlow\AbstractDataFlow
    * @throws \Exception
    */
-  protected function ensureEntity()
-  {
+  protected function ensureEntity() {
     if (empty($this->baReferenceFlow)) {
       $aliasPrefix = '_ba_reference';
       if ($this->getSourceName()) {
@@ -79,20 +76,18 @@ class BankAccount extends AbstractCivicrmEntitySource {
     return parent::ensureEntity();
   }
 
-  protected function reset()
-  {
+  protected function reset() {
     parent::reset();
-    $this->baReferenceFlow = null;
+    $this->baReferenceFlow = NULL;
   }
-
 
   /**
    * Load the fields from this entity.
    *
-   * @param DataSpecification $dataSpecification
+   * @param \Civi\DataProcessor\DataSpecification\DataSpecification $dataSpecification
    * @throws \Civi\DataProcessor\DataSpecification\FieldExistsException
    */
-  protected function loadFields(DataSpecification $dataSpecification, $fieldsToSkip=array()) {
+  protected function loadFields(DataSpecification $dataSpecification, $fieldsToSkip = []) {
     parent::loadFields($dataSpecification, $fieldsToSkip);
     $daoClass = \CRM_Dataprocessor_Utils_Tables::getDAONameForEntity('BankAccountReference');
     $aliasPrefix = '_ba_reference';
@@ -105,7 +100,7 @@ class BankAccount extends AbstractCivicrmEntitySource {
   /**
    * Ensure that filter or aggregate field is accesible in the query
    *
-   * @param FieldSpecification $field
+   * @param \Civi\DataProcessor\DataSpecification\FieldSpecification $field
    * @return \Civi\DataProcessor\DataFlow\AbstractDataFlow|null
    * @throws \Exception
    */
@@ -116,13 +111,15 @@ class BankAccount extends AbstractCivicrmEntitySource {
     }
     if ($this->getAvailableFilterFields()->doesAliasExists($field->alias)) {
       $spec = $this->getAvailableFilterFields()->getFieldSpecificationByAlias($field->alias);
-    } elseif ($this->getAvailableFilterFields()->doesFieldExist($field->name)) {
+    }
+    elseif ($this->getAvailableFilterFields()->doesFieldExist($field->name)) {
       $spec = $this->getAvailableFilterFields()->getFieldSpecificationByName($field->name);
     }
     if ($spec && stripos($spec->alias, $aliasPrefix) === 0) {
       $this->ensureEntity();
       return $this->baReferenceFlow;
-    } else {
+    }
+    else {
       $return = parent::ensureField($field);
     }
     return $return;
@@ -135,10 +132,11 @@ class BankAccount extends AbstractCivicrmEntitySource {
    * @throws \Exception
    */
   public function ensureFieldInSource(FieldSpecification $fieldSpecification) {
-    $originalFieldSpecification = null;
+    $originalFieldSpecification = NULL;
     if ($this->getAvailableFields()->doesAliasExists($fieldSpecification->alias)) {
       $originalFieldSpecification = $this->getAvailableFields()->getFieldSpecificationByAlias($fieldSpecification->alias);
-    } elseif ($this->getAvailableFields()->doesFieldExist($fieldSpecification->name)) {
+    }
+    elseif ($this->getAvailableFields()->doesFieldExist($fieldSpecification->name)) {
       $originalFieldSpecification = $this->getAvailableFields()
         ->getFieldSpecificationByName($fieldSpecification->name);
     }
@@ -151,7 +149,8 @@ class BankAccount extends AbstractCivicrmEntitySource {
         $this->ensureEntity();
         $this->baReferenceFlow->getDataSpecification()->addFieldSpecification($fieldSpecification->alias, $fieldSpecification);
       }
-    } else {
+    }
+    else {
       parent::ensureFieldInSource($fieldSpecification);
     }
   }
@@ -166,10 +165,11 @@ class BankAccount extends AbstractCivicrmEntitySource {
    * @throws \Exception
    */
   protected function addFilter($filter_field_alias, $op, $values) {
-    $spec = null;
+    $spec = NULL;
     if ($this->getAvailableFields()->doesAliasExists($filter_field_alias)) {
       $spec = $this->getAvailableFields()->getFieldSpecificationByAlias($filter_field_alias);
-    } elseif ($this->getAvailableFields()->doesFieldExist($filter_field_alias)) {
+    }
+    elseif ($this->getAvailableFields()->doesFieldExist($filter_field_alias)) {
       $spec = $this->getAvailableFields()->getFieldSpecificationByName($filter_field_alias);
     }
     $aliasPrefix = '_ba_reference';
@@ -181,15 +181,16 @@ class BankAccount extends AbstractCivicrmEntitySource {
       $tableAlias = $this->baReferenceFlow->getTableAlias();
       if ($spec->isMultiValueField()) {
         $clause = new MultiValueFieldWhereClause($tableAlias, $spec->name, $op, $values, $spec->type, TRUE);
-      } else {
-        $clause = new SimpleWhereClause($tableAlias, $spec->name,$op, $values, $spec->type, TRUE);
+      }
+      else {
+        $clause = new SimpleWhereClause($tableAlias, $spec->name, $op, $values, $spec->type, TRUE);
       }
       $this->baReferenceFlow->addWhereClause($clause);
       $this->addFilterToAggregationDataFlow($spec, $op, $values);
-    } else {
+    }
+    else {
       parent::addFilter($filter_field_alias, $op, $values);
     }
   }
-
 
 }

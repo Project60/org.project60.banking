@@ -14,6 +14,7 @@
 | written permission from the original author(s).        |
 +--------------------------------------------------------*/
 
+declare(strict_types = 1);
 
 use CRM_Banking_ExtensionUtil as E;
 
@@ -24,16 +25,15 @@ use CRM_Banking_ExtensionUtil as E;
  */
 class CRM_Banking_Form_PluginUpload extends CRM_Core_Form {
 
-
   public function buildQuickForm() {
     $pid = CRM_Utils_Request::retrieve('pid', 'Integer');
     $this->addElement('hidden', 'pid', $pid);
     if ($pid) {
       // this is a update
-      $plugin = civicrm_api3('BankingPluginInstance', 'getsingle', array('id' => $pid));
+      $plugin = civicrm_api3('BankingPluginInstance', 'getsingle', ['id' => $pid]);
 
       CRM_Utils_System::setTitle(E::ts("Update plugin '%1' with configuration file.", [1 => $plugin['name']]));
-      $this->assign("is_import", 0);
+      $this->assign('is_import', 0);
 
       $this->addElement(
           'file',
@@ -41,18 +41,19 @@ class CRM_Banking_Form_PluginUpload extends CRM_Core_Form {
           E::ts('Select configuration file'),
           'accept=banking');
 
-      $this->addButtons(array(
-          array(
-              'type' => 'submit',
-              'name' => E::ts('Update'),
-              'isDefault' => TRUE,
-          ),
-      ));
+      $this->addButtons([
+          [
+            'type' => 'submit',
+            'name' => E::ts('Update'),
+            'isDefault' => TRUE,
+          ],
+      ]);
 
-    } else {
+    }
+    else {
       // this is an import
-      CRM_Utils_System::setTitle(E::ts("Import CiviBanking Plugins"));
-      $this->assign("is_import", 1);
+      CRM_Utils_System::setTitle(E::ts('Import CiviBanking Plugins'));
+      $this->assign('is_import', 1);
 
       $this->addElement(
           'file',
@@ -60,15 +61,14 @@ class CRM_Banking_Form_PluginUpload extends CRM_Core_Form {
           E::ts('Select files to import'),
           'multiple accept=banking');
 
-      $this->addButtons(array(
-          array(
-              'type' => 'submit',
-              'name' => E::ts('Import'),
-              'isDefault' => TRUE,
-          ),
-      ));
+      $this->addButtons([
+          [
+            'type' => 'submit',
+            'name' => E::ts('Import'),
+            'isDefault' => TRUE,
+          ],
+      ]);
     }
-
 
     // export form elements
     parent::buildQuickForm();
@@ -88,7 +88,8 @@ class CRM_Banking_Form_PluginUpload extends CRM_Core_Form {
 
           CRM_Core_Session::setStatus(E::ts('%1 new plugins imported', [1 => count($_FILES['config_files']['tmp_name'])]), E::ts('Success'));
 
-        } else {
+        }
+        else {
           // UPDATE the given plugin
           $data = file_get_contents($_FILES['config_files']['tmp_name']);
           $plugin_bao = new CRM_Banking_BAO_PluginInstance();
@@ -97,15 +98,17 @@ class CRM_Banking_Form_PluginUpload extends CRM_Core_Form {
 
           CRM_Core_Session::setStatus(E::ts('Plugin configuration updated'), E::ts('Success'));
         }
-      } else {
+      }
+      else {
         CRM_Core_Session::setStatus(E::ts('No configuration files selected'), E::ts('Error'));
       }
-    } catch (Exception $ex) {
+    }
+    catch (Exception $ex) {
       CRM_Core_Session::setStatus(E::ts('Import/update failed: %1', [1 => $ex->getMessage()]), E::ts('Failed'));
     }
 
     CRM_Utils_System::redirect(CRM_Utils_System::url('civicrm/banking/manager'));
     parent::postProcess();
   }
-}
 
+}

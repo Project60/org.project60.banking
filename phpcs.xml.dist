@@ -20,6 +20,9 @@
     <config name="ignore_warnings_on_exit" value="true"/>
 
     <rule ref="tools/phpcs/vendor/drupal/coder/coder_sniffer/Drupal">
+        <!-- @todo Enable this rule again. Currently there are too many spots to fix. -->
+        <exclude name="Generic.Files.LineLength.TooLong"/>
+
         <!-- Conflicts with PHPStan type hints -->
         <exclude name="Drupal.Commenting.VariableComment.IncorrectVarType"/>
         <exclude name="Drupal.Commenting.FunctionComment.ParamTypeSpaces"/>

@@ -14,11 +14,9 @@
 | written permission from the original author(s).        |
 +--------------------------------------------------------*/
 
+declare(strict_types = 1);
 
 use CRM_Banking_ExtensionUtil as E;
-
-require_once 'CRM/Core/Page.php';
-require_once 'CRM/Banking/Helpers/OptionValue.php';
 
 /**
  * The Dedupe page helps the user to identify and merge/delete duplicate
@@ -26,7 +24,7 @@ require_once 'CRM/Banking/Helpers/OptionValue.php';
  */
 class CRM_Banking_Page_AccountDedupe extends CRM_Core_Page {
 
-  function run() {
+  public function run() {
     CRM_Utils_System::setTitle(E::ts('Dedupe Bank Accounts'));
 
     // execute requested pre-search actions
@@ -41,12 +39,12 @@ class CRM_Banking_Page_AccountDedupe extends CRM_Core_Page {
       $duplicates = $this->findReferences();
     }
 
-    $this->assign('duplicate_references',       $duplicates['reference']);
+    $this->assign('duplicate_references', $duplicates['reference']);
     $this->assign('duplicate_references_count', count($duplicates['reference']));
-    $this->assign('duplicate_accounts',         $duplicates['account']);
-    $this->assign('duplicate_accounts_count',   count($duplicates['account']));
-    $this->assign('account_conflicts',          $duplicates['conflict']);
-    $this->assign('account_conflicts_count',    count($duplicates['conflict']));
+    $this->assign('duplicate_accounts', $duplicates['account']);
+    $this->assign('duplicate_accounts_count', count($duplicates['account']));
+    $this->assign('account_conflicts', $duplicates['conflict']);
+    $this->assign('account_conflicts_count', count($duplicates['conflict']));
 
     parent::run();
   }
@@ -55,18 +53,18 @@ class CRM_Banking_Page_AccountDedupe extends CRM_Core_Page {
    * will scan the database for reference duplicates
    * and returns the findings in three lists
    */
-  function findReferences() {
+  public function findReferences() {
     // look up reference types
     $reference_type_group_id = banking_helper_optiongroupid_by_name('civicrm_banking.reference_types');
-    $reference_types = civicrm_api3('OptionValue', 'get', array('option_group_id' => $reference_type_group_id));
+    $reference_types = civicrm_api3('OptionValue', 'get', ['option_group_id' => $reference_type_group_id]);
     $reference_types = $reference_types['values'];
 
     // then, identify the duplicates
-    $duplicate_references = array();
-    $duplicate_accounts   = array();
-    $account_conflicts    = array();
+    $duplicate_references = [];
+    $duplicate_accounts   = [];
+    $account_conflicts    = [];
 
-    $sql = "SELECT *
+    $sql = 'SELECT *
                 FROM (SELECT
                         MIN(civicrm_bank_account_reference.id) AS reference_id,
                         COUNT(civicrm_bank_account_reference.id) AS dupe_count,
@@ -81,83 +79,96 @@ class CRM_Banking_Page_AccountDedupe extends CRM_Core_Page {
                       GROUP BY reference, reference_type_id
                       ORDER BY last_change DESC
                       ) AS dupequery
-                WHERE dupequery.dupe_count > 1;";
+                WHERE dupequery.dupe_count > 1;';
     $duplicate = CRM_Core_DAO::executeQuery($sql);
     while ($duplicate->fetch()) {
-        $info = array(  'reference'         => $duplicate->reference,
-                        'reference_id'      => $duplicate->reference_id,
-                        'dupe_count'        => $duplicate->dupe_count,
-                        'reference_type_id' => $duplicate->reference_type_id,
-                        'reference_type'    => $reference_types[$duplicate->reference_type_id]);
-        if ($duplicate->ba_count == 1) {
-            $duplicate_references[$duplicate->reference] = $info;
-        } elseif ($duplicate->contact_count == 1) {
-            $duplicate_accounts[$duplicate->reference]   = $info;
-        } else {
-            $account_conflicts[$duplicate->reference]    = $info;
-        }
+      $info = [
+        'reference'         => $duplicate->reference,
+        'reference_id'      => $duplicate->reference_id,
+        'dupe_count'        => $duplicate->dupe_count,
+        'reference_type_id' => $duplicate->reference_type_id,
+        'reference_type'    => $reference_types[$duplicate->reference_type_id],
+      ];
+      if ($duplicate->ba_count == 1) {
+        $duplicate_references[$duplicate->reference] = $info;
+      }
+      elseif ($duplicate->contact_count == 1) {
+        $duplicate_accounts[$duplicate->reference] = $info;
+      }
+      else {
+        $account_conflicts[$duplicate->reference] = $info;
+      }
     }
 
     // add information
-    foreach ($duplicate_references as &$duplicate_reference) $this->addContactInformation($duplicate_reference);
-    foreach ($duplicate_accounts   as &$duplicate_account)   $this->addContactInformation($duplicate_account);
-    foreach ($account_conflicts    as &$account_conflict)    $this->addContactInformation($account_conflict);
+    foreach ($duplicate_references as &$duplicate_reference) {
+      $this->addContactInformation($duplicate_reference);
+    }
+    foreach ($duplicate_accounts as &$duplicate_account) {
+      $this->addContactInformation($duplicate_account);
+    }
+    foreach ($account_conflicts as &$account_conflict) {
+      $this->addContactInformation($account_conflict);
+    }
 
     // filter conflicts
-    $account_conflicts_filtered = array();
+    $account_conflicts_filtered = [];
     foreach ($account_conflicts as $account_conflict) {
       if (empty($account_conflict['exception'])) {
         $account_conflicts_filtered[] = $account_conflict;
       }
     }
 
-    return array(
+    return [
       'reference' => $duplicate_references,
       'account'   => $duplicate_accounts,
-      'conflict'  => $account_conflicts_filtered);
+      'conflict'  => $account_conflicts_filtered,
+    ];
   }
 
   /**
    * Will look up and append the contact information of all contacts involved
    */
-  function addContactInformation(&$duplicate) {
+  public function addContactInformation(&$duplicate) {
     // get contact IDs
-    $contacts = array();
+    $contacts = [];
     $sql = "SELECT DISTINCT(contact_id) AS contact_id
             FROM civicrm_bank_account_reference
             LEFT JOIN civicrm_bank_account ON ba_id = civicrm_bank_account.id
             WHERE reference = '{$duplicate['reference']}' AND reference_type_id = {$duplicate['reference_type_id']};";
     $contact_query = CRM_Core_DAO::executeQuery($sql);
     while ($contact_query->fetch()) {
-        $contact = civicrm_api('Contact', 'getsingle', array('version'=>3, 'id' => $contact_query->contact_id));
-        if (empty($contact['is_error'])) {
-            $contacts[] = $contact;
-        } else {
-            // TODO: error handling
-        }
+      $contact = civicrm_api('Contact', 'getsingle', ['version' => 3, 'id' => $contact_query->contact_id]);
+      if (empty($contact['is_error'])) {
+        $contacts[] = $contact;
+      }
+      // else: TODO: error handling
     }
 
     $duplicate['contacts'] = $contacts;
-    if (count($contacts) == 1) {
-        $duplicate['contact'] = $contacts[0];
-    } elseif (count($contacts) > 1) {
+    $contactsCount = count($contacts);
+    if ($contactsCount === 1) {
+      $duplicate['contact'] = $contacts[0];
+    }
+    elseif ($contactsCount > 1) {
       // check if it's a known duplicate
-      $dupe_exception_clauses = array();
-      for ($i = 0; $i < count($contacts); $i++) {
-        for ($j = $i + 1; $j < count($contacts); $j++) {
+      $dupe_exception_clauses = [];
+      for ($i = 0; $i < $contactsCount; $i++) {
+        for ($j = $i + 1; $j < $contactsCount; $j++) {
           $contactA_id = $contacts[$i]['id'];
           $contactB_id = $contacts[$j]['id'];
           $dupe_exception_clauses[] = "((contact_id1 = {$contactA_id} AND contact_id2 = {$contactB_id}) OR (contact_id2 = {$contactA_id} AND contact_id1 = {$contactB_id}))";
         }
       }
 
-      $match_count = CRM_Core_DAO::singleValueQuery("SELECT COUNT(id) FROM civicrm_dedupe_exception WHERE " . implode(' OR ', $dupe_exception_clauses));
+      $match_count = CRM_Core_DAO::singleValueQuery('SELECT COUNT(id) FROM civicrm_dedupe_exception WHERE ' . implode(' OR ', $dupe_exception_clauses));
       if ($match_count >= count($dupe_exception_clauses)) {
         // all contacts are mutual dedupes
         $duplicate['exception'] = 1;
-      } else {
+      }
+      else {
         // add exclude link
-        $exclued_ids = array();
+        $exclued_ids = [];
         foreach ($contacts as $contact) {
           $exclued_ids[] = $contact['id'];
         }
@@ -166,7 +177,7 @@ class CRM_Banking_Page_AccountDedupe extends CRM_Core_Page {
       }
 
       // add merge link if it's exactly two
-      if (count($contacts) == 2) {
+      if ($contactsCount === 2) {
         $duplicate['merge_link'] = CRM_Utils_System::url('civicrm/contact/merge', "reset=1&cid={$contacts[0]['id']}&oid={$contacts[1]['id']}");
       }
     }
@@ -174,22 +185,27 @@ class CRM_Banking_Page_AccountDedupe extends CRM_Core_Page {
 
   /**
    * excecute some requestet pre-processing
+   *
+   * phpcs:disable Generic.Metrics.NestingLevel.TooHigh
    */
-  function executeRequestsPre() {
+  public function executeRequestsPre() {
+  // phpcs:enable
     // ==========================
     //  ADD DUPLICATE EXCEPTIONS
     // ==========================
     if (!empty($_REQUEST['exclude'])) {
       $exclued_ids = explode(',', $_REQUEST['exclude']);
-      for ($i = 0; $i < count($exclued_ids); $i++) {
+      $excludedIdsCount = count($exclued_ids);
+      for ($i = 0; $i < $excludedIdsCount; $i++) {
         $contact_id1 = (int) $exclued_ids[$i];
         if (!empty($contact_id1)) {
-          for ($j = ($i + 1); $j < count($exclued_ids); $j++) {
+          for ($j = ($i + 1); $j < $excludedIdsCount; $j++) {
             $contact_id2 = (int) $exclued_ids[$j];
             if (!empty($contact_id2)) {
               if ($contact_id1 < $contact_id2) {
                 CRM_Core_DAO::executeQuery("INSERT IGNORE INTO civicrm_dedupe_exception (contact_id1, contact_id2) VALUES ({$contact_id1}, {$contact_id2});");
-              } elseif ($contact_id1 > $contact_id2) {
+              }
+              elseif ($contact_id1 > $contact_id2) {
                 CRM_Core_DAO::executeQuery("INSERT IGNORE INTO civicrm_dedupe_exception (contact_id1, contact_id2) VALUES ({$contact_id2}, {$contact_id1});");
               }
             }
@@ -201,29 +217,34 @@ class CRM_Banking_Page_AccountDedupe extends CRM_Core_Page {
 
   /**
    * Will execute any dedupe/merge requests specified via the REQUEST params
+   *
+   * phpcs:disable Generic.Metrics.CyclomaticComplexity.MaxExceeded, Generic.Metrics.NestingLevel.TooHigh
    */
-  function executeRequests($duplicates) {
+  public function executeRequests($duplicates) {
     $refs_fixed = 0;
     $accounts_fixed = 0;
     $errors_ecountered = 0;
-    $account_reflist = array();
-    $reflist = array();
+    $account_reflist = [];
+    $reflist = [];
     $lenient_dedupe    = CRM_Banking_Config::lenientDedupe();
 
     // =========================
     // MERGE DUPLICATE ACCOUNTS
     // =========================
     if (!empty($_REQUEST['fixdupe'])) {
-      if ($_REQUEST['fixdupe']=='all') {
+      if ($_REQUEST['fixdupe'] == 'all') {
         foreach ($duplicates['account'] as $reference => $info) {
-          if ((int) $info['reference_id'])
+          if ((int) $info['reference_id']) {
             $account_reflist[] = (int) $info['reference_id'];
+          }
         }
-      } else {
+      }
+      else {
         $parm_list = explode(',', $_REQUEST['fixdupe']);
         foreach ($parm_list as $reference_id) {
-          if ((int) $reference_id)
+          if ((int) $reference_id) {
             $account_reflist[] = (int) $reference_id;
+          }
         }
       }
 
@@ -232,11 +253,12 @@ class CRM_Banking_Page_AccountDedupe extends CRM_Core_Page {
         // MERGE ACCOUNTS
 
         // first, find the account IDs to merge
-        $bank_account_ids = array();
+        $bank_account_ids = [];
         $sql = "SELECT ba_id
                 FROM civicrm_bank_account_reference
                 WHERE reference = (SELECT reference FROM civicrm_bank_account_reference WHERE id=$reference_id)
-                ORDER BY ba_id ASC;";  // use the oldest (lowest ID) as merge target
+// use the oldest (lowest ID) as merge target
+                ORDER BY ba_id ASC;";
         $bank_account_query = CRM_Core_DAO::executeQuery($sql);
         while ($bank_account_query->fetch()) {
           $bank_account_ids[] = $bank_account_query->ba_id;
@@ -254,7 +276,8 @@ class CRM_Banking_Page_AccountDedupe extends CRM_Core_Page {
 
         // ...and try to merge the others into it
         $merge_failed = FALSE;
-        for ($i=1; $i<count($bank_account_ids); $i++) {
+        $bankAccountIdsCount = count($bank_account_ids);
+        for ($i = 1; $i < $bankAccountIdsCount; $i++) {
           $merge_ba = new CRM_Banking_BAO_BankAccount();
           $merge_ba->get('id', $bank_account_ids[$i]);
 
@@ -263,15 +286,15 @@ class CRM_Banking_Page_AccountDedupe extends CRM_Core_Page {
             $main_ba->created_date = $merge_ba->created_date;
           }
 
-
           // merge description/data_raw
-          $replace_attributes = array('description', 'data_raw');
+          $replace_attributes = ['description', 'data_raw'];
           foreach ($replace_attributes as $attribute) {
             if (!empty($merge_ba->$attribute)) {
               if (empty($main_ba->$attribute)) {
                 // main_ba.$attribute not set, just overwrite
                 $main_ba->$attribute = $merge_ba->$attribute;
-              } else {
+              }
+              else {
                 // main_ba.$attribute set, check if identical
                 if ($main_ba->$attribute != $merge_ba->$attribute) {
                   if (!$lenient_dedupe) {
@@ -282,14 +305,17 @@ class CRM_Banking_Page_AccountDedupe extends CRM_Core_Page {
               }
             }
           }
-          if ($merge_failed) break;
+          if ($merge_failed) {
+            break;
+          }
 
           // merge data_parsed
           $merge_data_parsed = $merge_ba->getDataParsed();
           foreach ($merge_data_parsed as $key => $value) {
             if (empty($main_data_parsed[$key])) {
               $main_data_parsed[$key] = $value;
-            } else {
+            }
+            else {
               if ($main_data_parsed[$key] != $merge_data_parsed[$key]) {
                 if (!$lenient_dedupe) {
                   $merge_failed = TRUE;
@@ -298,12 +324,15 @@ class CRM_Banking_Page_AccountDedupe extends CRM_Core_Page {
               }
             }
           }
-          if ($merge_failed) break;
+          if ($merge_failed) {
+            break;
+          }
         } // MERGE NEXT ACCOUNT (for same target)
 
         if ($merge_failed) {
           $errors_ecountered += 1;
-        } else {
+        }
+        else {
           // SAVE THE MERGED OBJECT
           $main_ba->setDataParsed($main_data_parsed);
           $main_ba->modified_date = date('YmdHis');
@@ -326,11 +355,12 @@ class CRM_Banking_Page_AccountDedupe extends CRM_Core_Page {
       }
 
       if ($errors_ecountered) {
-        CRM_Core_Session::setStatus(E::ts("%1 errors were encountered when trying to merge duplicate bank accounts, %2/%3 bank accounts were successfully merged.",
-              array(1 => $errors_ecountered, 2 => $accounts_fixed, 3 => ($errors_ecountered+$accounts_fixed))), E::ts('Errors encountered'), 'warn');
+        CRM_Core_Session::setStatus(E::ts('%1 errors were encountered when trying to merge duplicate bank accounts, %2/%3 bank accounts were successfully merged.',
+              [1 => $errors_ecountered, 2 => $accounts_fixed, 3 => ($errors_ecountered + $accounts_fixed)]), E::ts('Errors encountered'), 'warn');
         $errors_ecountered = 0;
-      } else {
-        CRM_Core_Session::setStatus(E::ts("%1 duplicate bank accounts successfully merged.", array(1 => $accounts_fixed)), E::ts('Success'), 'info');
+      }
+      else {
+        CRM_Core_Session::setStatus(E::ts('%1 duplicate bank accounts successfully merged.', [1 => $accounts_fixed]), E::ts('Success'), 'info');
       }
     }
 
@@ -340,16 +370,19 @@ class CRM_Banking_Page_AccountDedupe extends CRM_Core_Page {
     if (!empty($_REQUEST['fixref']) || !empty($reflist)) {
       //  They should be identical and can be safely removed
       if (!empty($_REQUEST['fixref'])) {
-        if ($_REQUEST['fixref']=='all') {
+        if ($_REQUEST['fixref'] == 'all') {
           foreach ($duplicates['reference'] as $reference => $info) {
-            if ((int) $info['reference_id'])
+            if ((int) $info['reference_id']) {
               $reflist[] = (int) $info['reference_id'];
+            }
           }
-        } else {
+        }
+        else {
           $parm_list = explode(',', $_REQUEST['fixref']);
           foreach ($parm_list as $reference_id) {
-            if ((int) $reference_id)
+            if ((int) $reference_id) {
               $reflist[] = (int) $reference_id;
+            }
           }
         }
       }
@@ -365,26 +398,28 @@ class CRM_Banking_Page_AccountDedupe extends CRM_Core_Page {
                   AND ref_keep.id != ref_delete.id;";
         $reference_to_delete = CRM_Core_DAO::executeQuery($sql);
         while ($reference_to_delete->fetch()) {
-          $result = civicrm_api('BankingAccountReference', 'delete', array('id'=>$reference_to_delete->reference_id, 'version'=>3));
+          $result = civicrm_api('BankingAccountReference', 'delete', ['id' => $reference_to_delete->reference_id, 'version' => 3]);
           if (empty($result['is_error'])) {
             $refs_fixed += 1;
-          } else {
-            Civi::log()->debug("org.project60.banking.dedupe: Error while deleting dupe reference: " .$result['error_message']);
+          }
+          else {
+            Civi::log()->debug('org.project60.banking.dedupe: Error while deleting dupe reference: ' . $result['error_message']);
             $errors_ecountered += 1;
           }
         }
       }
 
       if ($errors_ecountered) {
-        CRM_Core_Session::setStatus(E::ts("%1 errors were encountered when trying to delete duplicate references. %2/%3 references were successfully deleted.",
-          array(1 => $errors_ecountered, 2 => $refs_fixed, 3 => ($errors_ecountered+$refs_fixed))), E::ts('Errors encountered'), 'warn');
+        CRM_Core_Session::setStatus(E::ts('%1 errors were encountered when trying to delete duplicate references. %2/%3 references were successfully deleted.',
+          [1 => $errors_ecountered, 2 => $refs_fixed, 3 => ($errors_ecountered + $refs_fixed)]), E::ts('Errors encountered'), 'warn');
         $errors_ecountered = 0;
-      } else {
-        CRM_Core_Session::setStatus(E::ts("%1 duplicate references successfully deleted.", array(1=>$refs_fixed)), E::ts('Success'), 'info');
+      }
+      else {
+        CRM_Core_Session::setStatus(E::ts('%1 duplicate references successfully deleted.', [1 => $refs_fixed]), E::ts('Success'), 'info');
       }
     }
 
-
     return $refs_fixed + $accounts_fixed;
   }
+
 }

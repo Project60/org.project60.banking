@@ -14,6 +14,8 @@
 | written permission from the original author(s).        |
 +--------------------------------------------------------*/
 
+declare(strict_types = 1);
+
 use CRM_Banking_ExtensionUtil as E;
 
 /**
@@ -67,15 +69,18 @@ class CRM_Banking_PluginImpl_Matcher_CreateMultipleContributions extends CRM_Ban
    * class constructor
    *
    * @param $config_name
+   *
+   * phpcs:disable Generic.Metrics.CyclomaticComplexity.TooHigh
    */
   public function __construct($config_name) {
+  // phpcs:enable
     parent::__construct($config_name);
 
     // Read configuration, set default values.
     $config = $this->_plugin_config;
 
     if (!isset($config->title)) {
-      $config->title = "";
+      $config->title = '';
     }
     if (!isset($config->auto_exec)) {
       $config->auto_exec = FALSE;
@@ -93,7 +98,7 @@ class CRM_Banking_PluginImpl_Matcher_CreateMultipleContributions extends CRM_Ban
       $config->source_label = E::ts('Source');
     }
     if (!isset($config->lookup_contact_by_name)) {
-      $config->lookup_contact_by_name = ["hard_cap_probability" => 0.9];
+      $config->lookup_contact_by_name = ['hard_cap_probability' => 0.9];
     }
     if (!isset($config->defaults)) {
       $config->defaults = [];
@@ -130,7 +135,6 @@ class CRM_Banking_PluginImpl_Matcher_CreateMultipleContributions extends CRM_Ban
     }
   }
 
-
   /**
    * Generates a set of suggestions for the given bank transaction.
    *
@@ -141,11 +145,14 @@ class CRM_Banking_PluginImpl_Matcher_CreateMultipleContributions extends CRM_Ban
    *   Match structures.
    *
    * @throws CRM_Core_Exception
+   *
+   * phpcs:disable Generic.Metrics.CyclomaticComplexity.TooHigh
    */
   public function match(
     CRM_Banking_BAO_BankTransaction $btx,
     CRM_Banking_Matcher_Context $context
   ) {
+  // phpcs:enable
     if ($this->requiredValuesPresent($btx)) {
       $config = $this->_plugin_config;
       $threshold = $this->getThreshold();
@@ -304,7 +311,7 @@ class CRM_Banking_PluginImpl_Matcher_CreateMultipleContributions extends CRM_Ban
 
         $suggestion = new CRM_Banking_Matcher_Suggestion($this, $btx);
         $suggestion->setTitle(E::ts(
-          "Create %1 new contributions",
+          'Create %1 new contributions',
           [1 => count($contributions)]
         ));
         $suggestion->setId("create-$contact_id");
@@ -422,7 +429,7 @@ class CRM_Banking_PluginImpl_Matcher_CreateMultipleContributions extends CRM_Ban
    * @return string
    *   HTML markup.
    */
-  function visualize_match(CRM_Banking_Matcher_Suggestion $match, $btx) {
+  public function visualize_match(CRM_Banking_Matcher_Suggestion $match, $btx) {
     $smarty_vars = [];
 
     $smarty_vars['notes'] = $match->getParameter('notes');
@@ -491,7 +498,7 @@ class CRM_Banking_PluginImpl_Matcher_CreateMultipleContributions extends CRM_Ban
    * @return string
    *   HTML markup.
    */
-  function visualize_execution_info(CRM_Banking_Matcher_Suggestion $match, $btx) {
+  public function visualize_execution_info(CRM_Banking_Matcher_Suggestion $match, $btx) {
     // just assign to smarty and compile HTML
     $smarty_vars = [];
     $smarty_vars['contribution_ids'] = $match->getParameter('contribution_ids');
@@ -516,7 +523,7 @@ class CRM_Banking_PluginImpl_Matcher_CreateMultipleContributions extends CRM_Ban
    *
    * @return array
    */
-  function get_contribution_data(
+  public function get_contribution_data(
     CRM_Banking_BAO_BankTransaction $btx,
     $contact_id
   ) {
@@ -549,8 +556,7 @@ class CRM_Banking_PluginImpl_Matcher_CreateMultipleContributions extends CRM_Ban
       'contact_id',
       'financial_type_id',
     ];
-    return
-      (
+    return (
         !empty($contribution['id'])
         || empty(array_diff_key(array_flip($mandatory), $contribution))
       )

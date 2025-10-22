@@ -14,25 +14,43 @@
 | written permission from the original author(s).        |
 +--------------------------------------------------------*/
 
+declare(strict_types = 1);
+
 use Civi\Test\CiviEnvBuilder;
 use Civi\Test\HeadlessInterface;
 use Civi\Test\TransactionalInterface;
 use CRM_Banking_ExtensionUtil as E;
 use PHPUnit\Framework\TestCase;
 
-include_once "CRM/Banking/Helpers/OptionValue.php";
-
 /**
  * Base class for all CiviBanking tests
+ *
+ * phpcs:disable Generic.NamingConventions.AbstractClassNamePrefix.Missing
  */
-abstract class CRM_Banking_TestBase extends TestCase implements HeadlessInterface, TransactionalInterface
-{
+abstract class CRM_Banking_TestBase extends TestCase implements HeadlessInterface, TransactionalInterface {
   use \Civi\Test\Api3TestTrait {
     callAPISuccess as protected traitCallAPISuccess;
   }
 
-  /** The primary fields of the transaction are the fields of its database table. All other fields will be written as JSON to "data_parsed".*/
-  const PRIMARY_TRANSACTION_FIELDS = ['version', 'debug', 'amount', 'bank_reference', 'value_date', 'booking_date', 'currency', 'type_id', 'status_id', 'data_raw', 'data_parsed', 'ba_id', 'party_ba_id', 'tx_batch_id', 'sequence'];
+  /**
+   * The primary fields of the transaction are the fields of its database table. All other fields will be written as JSON to "data_parsed".*/
+  private const PRIMARY_TRANSACTION_FIELDS = [
+    'version',
+    'debug',
+    'amount',
+    'bank_reference',
+    'value_date',
+    'booking_date',
+    'currency',
+    'type_id',
+    'status_id',
+    'data_raw',
+    'data_parsed',
+    'ba_id',
+    'party_ba_id',
+    'tx_batch_id',
+    'sequence',
+  ];
 
   /**
    * Setup used when HeadlessInterface is implemented.
@@ -45,8 +63,7 @@ abstract class CRM_Banking_TestBase extends TestCase implements HeadlessInterfac
    *
    * @throws \CRM_Extension_Exception_ParseException
    */
-  public function setUpHeadless(): CiviEnvBuilder
-  {
+  public function setUpHeadless(): CiviEnvBuilder {
     $this->setUp();
     return \Civi\Test::headless()
       ->install('civi_campaign')
@@ -54,15 +71,13 @@ abstract class CRM_Banking_TestBase extends TestCase implements HeadlessInterfac
       ->apply();
   }
 
-  public function setUp(): void
-  {
+  public function setUp(): void {
     parent::setUp();
     CRM_Utils_StaticCache::clearCache();
     CRM_Banking_Matcher_Engine::clearCachedInstance();
   }
 
-  public function tearDown(): void
-  {
+  public function tearDown(): void {
     parent::tearDown();
   }
 
@@ -73,10 +88,9 @@ abstract class CRM_Banking_TestBase extends TestCase implements HeadlessInterfac
    *   either a configuration file path
    *
    * @return integer
-   *    module ID
+   *   module ID
    */
-  public function configureCiviBankingModule($configuration_file)
-  {
+  public function configureCiviBankingModule($configuration_file) {
     $this->assertTrue(file_exists($configuration_file), "Configuration file '{$configuration_file}' not found.");
     $this->assertTrue(is_readable($configuration_file), "Configuration file '{$configuration_file}' cannot be opened.");
     $data = file_get_contents($configuration_file);
@@ -87,8 +101,7 @@ abstract class CRM_Banking_TestBase extends TestCase implements HeadlessInterfac
   /**
    * @param array<string, mixed> $config
    */
-  public function configureCiviBankingModuleWithConfig(string $config): int
-  {
+  public function configureCiviBankingModuleWithConfig(string $config): int {
     $plugin_bao = new CRM_Banking_BAO_PluginInstance();
     $plugin_bao->updateWithSerialisedData($config);
     static::assertNotEmpty($plugin_bao->id, "Configuration couldn't be stored.");
@@ -105,10 +118,9 @@ abstract class CRM_Banking_TestBase extends TestCase implements HeadlessInterfac
    *   file path to the file to be imported
    *
    * @return integer
-   *    tx_batch ID
+   *   tx_batch ID
    */
-  public function importFile($importer_id, $input_file): int
-  {
+  public function importFile($importer_id, $input_file): int {
     $this->assertTrue(file_exists($input_file), "Configuration file '{$input_file}' not found.");
     $this->assertTrue(is_readable($input_file), "Configuration file '{$input_file}' cannot be opened.");
 
@@ -127,9 +139,8 @@ abstract class CRM_Banking_TestBase extends TestCase implements HeadlessInterfac
    * @return integer
    *   the ID of the latest batch
    */
-  public function getLatestTransactionId(): int
-  {
-    return (int)CRM_Core_DAO::singleValueQuery("SELECT MAX(id) FROM civicrm_bank_tx");
+  public function getLatestTransactionId(): int {
+    return (int) CRM_Core_DAO::singleValueQuery('SELECT MAX(id) FROM civicrm_bank_tx');
   }
 
   /**
@@ -138,13 +149,13 @@ abstract class CRM_Banking_TestBase extends TestCase implements HeadlessInterfac
    * @return CRM_Banking_BAO_BankTransaction|null
    *   the ID of the latest batch
    */
-  public function getLatestTransaction()
-  {
+  public function getLatestTransaction() {
     $latest_tx_id = $this->getLatestTransactionId();
     if ($latest_tx_id) {
       return $this->getTransactionInstance($latest_tx_id);
-    } else {
-      return null;
+    }
+    else {
+      return NULL;
     }
   }
 
@@ -157,22 +168,22 @@ abstract class CRM_Banking_TestBase extends TestCase implements HeadlessInterfac
    * @return CRM_Banking_BAO_BankTransaction|null
    *   the transaction batch
    */
-  public function getTransactionInstance(int $tx_id = 0)
-  {
+  public function getTransactionInstance(int $tx_id = 0) {
     $tx_bao = new CRM_Banking_BAO_BankTransaction();
     if ($tx_id) {
       $tx_bao->id = $tx_id;
-    } else {
+    }
+    else {
       $tx_bao->id = $this->getLatestTransactionId();
     }
     if ($tx_bao->find()) {
       $tx_bao->fetch();
       return $tx_bao;
-    } else {
-      return null;
+    }
+    else {
+      return NULL;
     }
   }
-
 
   /**
    * Get the ID of the latest transaction batch
@@ -180,9 +191,8 @@ abstract class CRM_Banking_TestBase extends TestCase implements HeadlessInterfac
    * @return integer
    *   the ID of the latest batch
    */
-  public function getLatestTransactionBatchId(): int
-  {
-    return (int)CRM_Core_DAO::singleValueQuery("SELECT MAX(id) FROM civicrm_bank_tx_batch");
+  public function getLatestTransactionBatchId(): int {
+    return (int) CRM_Core_DAO::singleValueQuery('SELECT MAX(id) FROM civicrm_bank_tx_batch');
   }
 
   /**
@@ -194,19 +204,20 @@ abstract class CRM_Banking_TestBase extends TestCase implements HeadlessInterfac
    * @return CRM_Banking_BAO_BankTransactionBatch|null
    *   the transaction batch
    */
-  public function getBatch(int $batch_id = 0)
-  {
+  public function getBatch(int $batch_id = 0) {
     $batch_bao = new CRM_Banking_BAO_BankTransactionBatch();
     if ($batch_id) {
       $batch_bao->id = $batch_id;
-    } else {
+    }
+    else {
       $batch_bao->id = $this->getLatestTransactionBatchId();
     }
     if ($batch_bao->find()) {
       $batch_bao->fetch();
       return $batch_bao;
-    } else {
-      return null;
+    }
+    else {
+      return NULL;
     }
   }
 
@@ -219,8 +230,7 @@ abstract class CRM_Banking_TestBase extends TestCase implements HeadlessInterfac
    * @return CRM_Banking_PluginModel_Base
    *   plugin instance
    */
-  public function getPluginInstance($plugin_id)
-  {
+  public function getPluginInstance($plugin_id) {
     // load the Matcher and the mapping
     $pi_bao = new CRM_Banking_BAO_PluginInstance();
     $pi_bao->get('id', $plugin_id);
@@ -236,8 +246,7 @@ abstract class CRM_Banking_TestBase extends TestCase implements HeadlessInterfac
    * @return string
    *   the full path
    */
-  public function getTestResourcePath($internal_path)
-  {
+  public function getTestResourcePath($internal_path) {
     $importer_spec = 'tests/resources/' . $internal_path;
     $full_path     = E::path($importer_spec);
     $this->assertTrue(file_exists($full_path), "Test resource '{$internal_path}' not found.");
@@ -252,20 +261,19 @@ abstract class CRM_Banking_TestBase extends TestCase implements HeadlessInterfac
    *    additional parameters for hte contact
    *
    * @return int
-   *    The ID of the created contact.
+   *   The ID of the created contact.
    *
    * @author B. Zschiedrich (zschiedrich@systopia.de)
    */
-  public function createContact($additional_parameters = []): int
-  {
+  public function createContact($additional_parameters = []): int {
     $defaults = [
       'contact_type' => 'Individual',
       'email'        => 'unittests@banking.project60.org',
     ];
     $contact_parameters = array_merge($defaults, $additional_parameters);
     $contact = $this->callAPISuccess('Contact', 'create', $contact_parameters);
-    $this->assertArrayHasKey('id', $contact, "Contact was not created.");
-    $this->assertNotEmpty($contact['id'], "Contact was not created.");
+    $this->assertArrayHasKey('id', $contact, 'Contact was not created.');
+    $this->assertNotEmpty($contact['id'], 'Contact was not created.');
     return $contact['id'];
   }
 
@@ -276,22 +284,21 @@ abstract class CRM_Banking_TestBase extends TestCase implements HeadlessInterfac
    *    additional parameters for hte contact
    *
    * @return int
-   *    The ID of the created contact.
+   *   The ID of the created contact.
    *
    * @author B. Endres (endres@systopia.de)
    */
-  public function createCampaign($additional_parameters = []): int
-  {
+  public function createCampaign($additional_parameters = []): int {
     $defaults = [
       'title'             => 'Campaign - ' . base64_encode(microtime()),
       'status_id'         => 'In Progress',
       'campaign_type_id'  => 'Direct Mail',
-      'start_date'        => date('Y-m-d H:i:s', strtotime('now - 1 day'))
+      'start_date'        => date('Y-m-d H:i:s', strtotime('now - 1 day')),
     ];
     $campaign_parameters = array_merge($defaults, $additional_parameters);
     $campaign = $this->callAPISuccess('Campaign', 'create', $campaign_parameters);
-    $this->assertArrayHasKey('id', $campaign, "Campaign was not created.");
-    $this->assertNotEmpty($campaign['id'], "Campaign was not created.");
+    $this->assertArrayHasKey('id', $campaign, 'Campaign was not created.');
+    $this->assertNotEmpty($campaign['id'], 'Campaign was not created.');
     return $campaign['id'];
   }
 
@@ -302,12 +309,11 @@ abstract class CRM_Banking_TestBase extends TestCase implements HeadlessInterfac
    *    additional parameters for hte contact
    *
    * @return int
-   *    The ID of the created activity.
+   *   The ID of the created activity.
    *
    * @author B. Endres (endres@systopia.de)
    */
-  public function createActivity($additional_parameters = []): int
-  {
+  public function createActivity($additional_parameters = []): int {
     $defaults = [
       'subject'            => 'Campaign ' . base64_encode(microtime()),
       'activity_status_id' => $this->getRandomOptionValue('activity_status'),
@@ -318,11 +324,10 @@ abstract class CRM_Banking_TestBase extends TestCase implements HeadlessInterfac
     ];
     $activity_parameters = array_merge($defaults, $additional_parameters);
     $activity = $this->callAPISuccess('Activity', 'create', $activity_parameters);
-    $this->assertArrayHasKey('id', $activity, "Activity was not created.");
-    $this->assertNotEmpty($activity['id'], "Activity was not created.");
+    $this->assertArrayHasKey('id', $activity, 'Activity was not created.');
+    $this->assertNotEmpty($activity['id'], 'Activity was not created.');
     return $activity['id'];
   }
-
 
   /**
    * Get a transaction by its ID.
@@ -331,10 +336,9 @@ abstract class CRM_Banking_TestBase extends TestCase implements HeadlessInterfac
    *   the transaction ID
    *
    * @return array
-   *  transaction data
+   *   transaction data
    */
-  protected function getTransaction(int $id): array
-  {
+  protected function getTransaction(int $id): array {
     $transaction = $this->callAPISuccess('BankingTransaction', 'getsingle', ['id' => $id]);
     unset($transaction['is_error']);
     return $transaction;
@@ -351,8 +355,7 @@ abstract class CRM_Banking_TestBase extends TestCase implements HeadlessInterfac
    *
    * @author B. Zschiedrich (zschiedrich@systopia.de)
    */
-  protected function createTransaction(array $parameters = []): int
-  {
+  protected function createTransaction(array $parameters = []): int {
     static $transactionReferenceCounter = 0;
     $transactionReferenceCounter++;
 
@@ -392,20 +395,20 @@ abstract class CRM_Banking_TestBase extends TestCase implements HeadlessInterfac
    *
    * @author B. Zschiedrich (zschiedrich@systopia.de)
    */
-  protected function getLatestContribution()
-  {
+  protected function getLatestContribution() {
     try {
       return $this->callAPISuccessGetSingle(
           'Contribution',
           [
-              'options' => [
-                  'sort'  => 'id DESC',
-                  'limit' => 1,
-              ],
+            'options' => [
+              'sort'  => 'id DESC',
+              'limit' => 1,
+            ],
           ]
       );
-    } catch (Exception $ex) {
-      return null;
+    }
+    catch (Exception $ex) {
+      return NULL;
     }
   }
 
@@ -414,8 +417,8 @@ abstract class CRM_Banking_TestBase extends TestCase implements HeadlessInterfac
    *
    * @param string $type The matcher/analyser type, e.g. "match".
    * @param string $class The matcher/analyser class, e.g. "analyser_regex".
-   * @param string $configuration The configuration for the matcher. Only set values will overwrite defaults.
-   * @param string $parameters The parameters for the matcher. Only set values will overwrite defaults.
+   * @param array $configuration The configuration for the matcher. Only set values will overwrite defaults.
+   * @param array $parameters The parameters for the matcher. Only set values will overwrite defaults.
    *
    * @return int The matcher ID.
    *
@@ -447,17 +450,18 @@ abstract class CRM_Banking_TestBase extends TestCase implements HeadlessInterfac
 
     // Set the config via SQL (API causes issues):
     if (empty($matcher['id'])) {
-      throw new Exception("Matcher could not be created.");
-    } else {
+      throw new Exception('Matcher could not be created.');
+    }
+    else {
       $configurationAsJson = json_encode($mergedConfiguration);
 
       CRM_Core_DAO::executeQuery(
-        "UPDATE civicrm_bank_plugin_instance SET config=%1 WHERE id=%2;",
+        'UPDATE civicrm_bank_plugin_instance SET config=%1 WHERE id=%2;',
         [
           1 => [$configurationAsJson, 'String'],
-          2 => [$matcher['id'], 'Integer']
+          2 => [$matcher['id'], 'Integer'],
         ]
-      );
+          );
     }
 
     return $matcher['id'];
@@ -470,15 +474,14 @@ abstract class CRM_Banking_TestBase extends TestCase implements HeadlessInterfac
    *    The internal name of the type.
    *
    * @return int
-   *    The ID of the type.
+   *   The ID of the type.
    */
-  protected function matcherTypeNameToId(string $typeName): int
-  {
-    return $this->callAPISuccess('OptionValue', 'getsingle', [
+  protected function matcherTypeNameToId(string $typeName): int {
+    return (int) $this->callAPISuccess('OptionValue', 'getsingle', [
         // NOTE: Class and type seem to be flipped in the extension code:
-        'option_group_id' => 'civicrm_banking.plugin_classes',
-        'name' => $typeName,
-      ])['id'];
+      'option_group_id' => 'civicrm_banking.plugin_classes',
+      'name' => $typeName,
+    ])['id'];
   }
 
   /**
@@ -488,11 +491,10 @@ abstract class CRM_Banking_TestBase extends TestCase implements HeadlessInterfac
    *    The internal name of the class.
    *
    * @return int
-   *    The ID of the type.
+   *   The ID of the type.
    */
-  protected function matcherClassNameToId(string $className): int
-  {
-    return $this->callAPISuccess('OptionValue', 'getsingle', [
+  protected function matcherClassNameToId(string $className): int {
+    return (int) $this->callAPISuccess('OptionValue', 'getsingle', [
       // NOTE: Class and type seem to be flipped in the extension code:
       'option_group_id' => 'civicrm_banking.plugin_types',
       'name' => $className,
@@ -505,8 +507,7 @@ abstract class CRM_Banking_TestBase extends TestCase implements HeadlessInterfac
    * @return int
    *   the weight value
    */
-  protected function getNextPluginWeight()
-  {
+  protected function getNextPluginWeight() {
     static $weight = 10;
     $weight += 10;
     return $weight;
@@ -518,9 +519,9 @@ abstract class CRM_Banking_TestBase extends TestCase implements HeadlessInterfac
    * @param array|null $transactionIds
    *  Will be used instead of all created transactions if not null.
    */
-  public function runMatchers(array $transactionIds = null): void
-  {
-    $transactionIdsForMatching = $transactionIds === null ? $this->getAllTransactionIDs(['new', 'suggestions']) : $transactionIds;
+  public function runMatchers(array $transactionIds = NULL): void {
+    $transactionIdsForMatching = $transactionIds === NULL
+      ? $this->getAllTransactionIDs(['new', 'suggestions']) : $transactionIds;
     $engine = new CRM_Banking_Matcher_Engine();
     foreach ($transactionIdsForMatching as $transactionId) {
       $engine->match($transactionId);
@@ -536,17 +537,16 @@ abstract class CRM_Banking_TestBase extends TestCase implements HeadlessInterfac
    * @return array
    *   list of transaction IDs
    */
-  public function getAllTransactionIDs($status_ids = null)
-  {
+  public function getAllTransactionIDs($status_ids = NULL) {
     $transactions = [];
-    if ($status_ids === null) {
+    if ($status_ids === NULL) {
       $status_new = $this->getTxStatusID('new');
       $status_ids = [$status_new];
     }
 
     // make sure they're all resolved
     foreach ($status_ids as &$status_id) {
-      if (!is_integer($status_id)) {
+      if (!is_int($status_id)) {
         $status_id_int = $this->getTxStatusID($status_id);
         $this->assertNotEmpty($status_id_int, "Couldn't resolve transaction status " . $status_id);
         $status_id = $status_id_int;
@@ -554,8 +554,10 @@ abstract class CRM_Banking_TestBase extends TestCase implements HeadlessInterfac
     }
 
     // find the transactions
-    $status_id_list = implode(",", $status_ids);
-    $tx_search = CRM_Core_DAO::executeQuery("SELECT id AS tid FROM civicrm_bank_tx WHERE status_id IN ({$status_id_list})");
+    $status_id_list = implode(',', $status_ids);
+    $tx_search = CRM_Core_DAO::executeQuery(
+      "SELECT id AS tid FROM civicrm_bank_tx WHERE status_id IN ({$status_id_list})"
+    );
     while ($tx_search->fetch()) {
       $transactions[] = $tx_search->tid;
     }
@@ -570,8 +572,7 @@ abstract class CRM_Banking_TestBase extends TestCase implements HeadlessInterfac
    *
    * @return int
    */
-  public function getTxStatusID($status)
-  {
+  public function getTxStatusID($status) {
     static $status_list = [];
     if (!isset($status_list[$status])) {
       $status_entry = banking_helper_optionvalueid_by_groupname_and_name('civicrm_banking.bank_tx_status', $status);
@@ -589,11 +590,10 @@ abstract class CRM_Banking_TestBase extends TestCase implements HeadlessInterfac
    * @return array
    *   (extracted) contents of data_parsed
    */
-  protected function getTransactionDataParsed(int $id): array
-  {
+  protected function getTransactionDataParsed(int $id): array {
     $transaction = $this->getTransaction($id);
     $this->assertArrayHasKey('data_parsed', $transaction, 'No data_parsed set');
-    $parsed_data = json_decode($transaction['data_parsed'], true);
+    $parsed_data = json_decode($transaction['data_parsed'], TRUE);
     $this->assertNotNull($parsed_data, 'Invalid data_parsed blob');
     return $parsed_data;
   }
@@ -611,8 +611,7 @@ abstract class CRM_Banking_TestBase extends TestCase implements HeadlessInterfac
    *
    * @author B. Zschiedrich (zschiedrich@systopia.de)
    */
-  protected function createCreateContributionMatcher(array $configuration = []): int
-  {
+  protected function createCreateContributionMatcher(array $configuration = []): int {
     $defaultConfiguration = [
       'required_values' => [
         'btx.financial_type_id',
@@ -624,8 +623,8 @@ abstract class CRM_Banking_TestBase extends TestCase implements HeadlessInterfac
         'btx.payment_instrument_id' => 'contribution.payment_instrument_id',
       ],
       'lookup_contact_by_name' => [
-        'mode' => 'off'
-      ]
+        'mode' => 'off',
+      ],
     ];
     $mergedConfiguration = array_merge($defaultConfiguration, $configuration);
     $matcherId = $this->createMatcher('match', 'matcher_create', $mergedConfiguration);
@@ -645,60 +644,59 @@ abstract class CRM_Banking_TestBase extends TestCase implements HeadlessInterfac
    *
    * @author B. Zschiedrich (zschiedrich@systopia.de)
    */
-  public function createRegexAnalyser(array $rules = null, array $configuration = []): int
-  {
+  public function createRegexAnalyser(array $rules = NULL, array $configuration = []): int {
     $defaultRules = [
       [
         'comment' => 'Austrian address type 1',
         'fields' => [
-          'address_line'
+          'address_line',
         ],
         'pattern' => '#^(?P<postal_code>[0-9]{4}) (?P<city>[\\w\/]+)[ ,]*(?P<street_address>.*)$#',
         'actions' => [
           [
             'from' => 'street_address',
             'action' => 'copy',
-            'to' => 'street_address'
+            'to' => 'street_address',
           ],
           [
             'from' => 'postal_code',
             'action' => 'copy',
-            'to' => 'postal_code'
+            'to' => 'postal_code',
           ],
           [
             'from' => 'city',
             'action' => 'copy',
-            'to' => 'city'
-          ]
-        ]
+            'to' => 'city',
+          ],
+        ],
       ],
       [
         'comment' => 'Austrian address type 2',
         'fields' => [
-          'address_line'
+          'address_line',
         ],
         'pattern' => '#^(?P<street_address>[^,]+).*(?P<postal_code>[0-9]{4}) +(?P<city>[\\w ]+)$#',
         'actions' => [
           [
             'from' => 'street_address',
             'action' => 'copy',
-            'to' => 'street_address'
+            'to' => 'street_address',
           ],
           [
             'from' => 'postal_code',
             'action' => 'copy',
-            'to' => 'postal_code'
+            'to' => 'postal_code',
           ],
           [
             'from' => 'city',
             'action' => 'copy',
-            'to' => 'city'
-          ]
-        ]
-      ]
+            'to' => 'city',
+          ],
+        ],
+      ],
     ];
 
-    $finalRules = $rules === null ? $defaultRules : $rules;
+    $finalRules = $rules === NULL ? $defaultRules : $rules;
     $defaultConfiguration = ['rules' => $finalRules];
     $mergedConfiguration = array_merge($defaultConfiguration, $configuration);
     return $this->createMatcher('match', 'analyser_regex', $mergedConfiguration);
@@ -710,8 +708,7 @@ abstract class CRM_Banking_TestBase extends TestCase implements HeadlessInterfac
    * @return string
    *   a random string
    */
-  public function getRandomString($length = 32)
-  {
+  public function getRandomString($length = 32) {
     return substr(base64_encode(random_bytes($length)), 0, $length);
   }
 
@@ -721,31 +718,27 @@ abstract class CRM_Banking_TestBase extends TestCase implements HeadlessInterfac
    * @return int
    *   random (valid) financial type ID
    */
-  public function getRandomFinancialTypeID()
-  {
-    return CRM_Core_DAO::singleValueQuery("SELECT id FROM civicrm_financial_type ORDER BY RAND() LIMIT 1;");
+  public function getRandomFinancialTypeID() {
+    return CRM_Core_DAO::singleValueQuery('SELECT id FROM civicrm_financial_type ORDER BY RAND() LIMIT 1;');
   }
-
 
   /**
    * Get a random option value from the given group
    *
-   * @param string|int
-   *   $option_group_id
+   * @param string|int $option_group_id
    *
    * @return string|integer
    *   random option value
    */
-  public function getRandomOptionValue($option_group_id)
-  {
-    $this->assertNotEmpty($option_group_id, "No option group ID/name given");
+  public function getRandomOptionValue($option_group_id) {
+    $this->assertNotEmpty($option_group_id, 'No option group ID/name given');
     if (!is_numeric($option_group_id)) {
       $option_group_id = (int) CRM_Core_DAO::singleValueQuery(
-        "SELECT id FROM civicrm_option_group WHERE name = %1", [1 => [$option_group_id, 'String']]);
-      $this->assertNotEmpty($option_group_id, "Unknown option group");
+        'SELECT id FROM civicrm_option_group WHERE name = %1', [1 => [$option_group_id, 'String']]);
+      $this->assertNotEmpty($option_group_id, 'Unknown option group');
     }
     return CRM_Core_DAO::singleValueQuery(
-      "SELECT value FROM civicrm_option_value WHERE option_group_id = %1 ORDER BY RAND() LIMIT 1;",
+      'SELECT value FROM civicrm_option_value WHERE option_group_id = %1 ORDER BY RAND() LIMIT 1;',
       [1 => [$option_group_id, 'String']]);
   }
 
@@ -758,8 +751,7 @@ abstract class CRM_Banking_TestBase extends TestCase implements HeadlessInterfac
    * @return array
    *   generated contribution data
    */
-  public function createContribution($attributes = [])
-  {
+  public function createContribution($attributes = []) {
     if (empty($attributes['contact_id'])) {
       $attributes['contact_id'] = $this->createContact();
     }
@@ -792,12 +784,12 @@ abstract class CRM_Banking_TestBase extends TestCase implements HeadlessInterfac
    * @param $parameters
    * @return array
    */
-  public function getOrCreateTag($name, $parameters = [])
-  {
+  public function getOrCreateTag($name, $parameters = []) {
     // see if ID given: get-or-create
     try {
       return civicrm_api3('Tag', 'getsingle', ['name' => $name]);
-    } catch (CRM_Core_Exception $ex) {
+    }
+    catch (CRM_Core_Exception $ex) {
       // doesn't exist -> create
       $parameters['name'] = $name;
       $this->callAPISuccess('Tag', 'create', $parameters);
@@ -808,7 +800,7 @@ abstract class CRM_Banking_TestBase extends TestCase implements HeadlessInterfac
   /**
    * Assert the a certain entity is tagged with the given tag ID
    *
-   * @param string $tag_id
+   * @param string $tag_name
    *   the tag ID
    *
    * @param integer $entity_id
@@ -820,15 +812,15 @@ abstract class CRM_Banking_TestBase extends TestCase implements HeadlessInterfac
    * @param string $failure_message
    *   assertion failed message
    */
-  public function assertEntityTagged($tag_name, $entity_id, $entity_table, $failure_message)
-  {
+  public function assertEntityTagged($tag_name, $entity_id, $entity_table, $failure_message) {
     $tagged = $this->callAPISuccess('EntityTag', 'get', [
       'tag_id' => $tag_name,
       'entity_id' => $entity_id,
-      'entity_table' => $entity_table
+      'entity_table' => $entity_table,
     ]);
     if (empty($tagged['count'])) {
       $this->fail($failure_message);
     }
   }
+
 }

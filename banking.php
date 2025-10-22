@@ -14,17 +14,20 @@
 | written permission from the original author(s).        |
 +--------------------------------------------------------*/
 
+declare(strict_types = 1);
+
+// phpcs:disable PSR1.Files.SideEffects.FoundWithSymbols
 require_once 'banking.civix.php';
 require_once 'banking_options.php';
+require_once 'CRM/Banking/Helpers/URLBuilder.php';
+require_once 'CRM/Banking/Helpers/OptionValue.php';
+// phpcs:enable
 
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use CRM_Banking_ExtensionUtil as E;
 
-
 /**
  * Implements hook_civicrm_container().
- *
- * @param ContainerBuilder $container
  */
 function banking_civicrm_container(ContainerBuilder $container) {
   if (class_exists('Civi\Banking\CompilerPass')) {
@@ -33,20 +36,20 @@ function banking_civicrm_container(ContainerBuilder $container) {
 }
 
 /**
- * Implementation of hook_civicrm_config
+ * Implements hook_civicrm_config().
  */
-function banking_civicrm_config(&$config) {
+function banking_civicrm_config(\CRM_Core_Config $config) {
   _banking_civix_civicrm_config($config);
 }
 
 /**
- * Implementation of hook_civicrm_install
+ * Implements hook_civicrm_install().
  */
 function banking_civicrm_install() {
   $config = CRM_Core_Config::singleton();
   //create the tables
   $sqlfile = dirname(__FILE__) . '/sql/banking.sql';
-  CRM_Utils_File::sourceSQLFile($config->dsn, $sqlfile, NULL, false);
+  CRM_Utils_File::sourceSQLFile($config->dsn, $sqlfile, NULL, FALSE);
 
   //add the required option groups
   banking_civicrm_install_options(_banking_options());
@@ -58,7 +61,7 @@ function banking_civicrm_install() {
 }
 
 /**
- * Implementation of hook_civicrm_enable
+ * Implements hook_civicrm_enable().
  */
 function banking_civicrm_enable() {
   //add the required option groups
@@ -87,8 +90,7 @@ function banking_civicrm_pageRun(&$page) {
  * @param CRM_Banking_BAO_BankTransaction $banking_transaction
  * @param array $summary_blocks
  */
-function banking_civicrm_banking_transaction_summary($banking_transaction, &$summary_blocks)
-{
+function banking_civicrm_banking_transaction_summary($banking_transaction, &$summary_blocks) {
   // Add rule match indicators:
   $ruleMatchIndicators = new CRM_Banking_RuleMatchIndicators($banking_transaction, $summary_blocks);
   $ruleMatchIndicators->addContactMatchIndicator();
@@ -98,86 +100,90 @@ function banking_civicrm_banking_transaction_summary($banking_transaction, &$sum
 /**
  * alterAPIPermissions() hook allows you to change the permissions checked when doing API 3 calls.
  */
-function banking_civicrm_alterAPIPermissions($entity, $action, &$params, &$permissions)
-{
-  $permissions['banking_account']['create'] = array('delete contacts');
-  $permissions['banking_account']['delete'] = array('delete contacts');
-  $permissions['banking_account_reference']['create'] = array('delete contacts');
-  $permissions['banking_account_reference']['check'] = array('access CiviCRM');
-  $permissions['banking_transaction']['analyselist'] = array('edit contributions');
+function banking_civicrm_alterAPIPermissions($entity, $action, &$params, &$permissions) {
+  $permissions['banking_account']['create'] = ['delete contacts'];
+  $permissions['banking_account']['delete'] = ['delete contacts'];
+  $permissions['banking_account_reference']['create'] = ['delete contacts'];
+  $permissions['banking_account_reference']['check'] = ['access CiviCRM'];
+  $permissions['banking_transaction']['analyselist'] = ['edit contributions'];
 }
 
-/* bank accounts in merge operations
+/**
+ * bank accounts in merge operations
+ *
  */
-function banking_civicrm_merge ( $type, &$data, $mainId = NULL, $otherId = NULL, $tables = NULL ) {
+function banking_civicrm_merge ($type, &$data, $mainId = NULL, $otherId = NULL, $tables = NULL) {
   switch ($type) {
     case 'relTables':
       // Offer user to merge bank accounts
-      $data['rel_table_bankaccounts'] = array(
+      $data['rel_table_bankaccounts'] = [
         'title'  => E::ts('Bank Accounts'),
-        'tables' => array('civicrm_bank_account'),
-        'url'    => CRM_Utils_System::url('civicrm/contact/view', 'reset=1&cid=$cid&selectedChild=bank_accounts'),  // '$cid' will be automatically replaced
-      );
+        'tables' => ['civicrm_bank_account'],
+      // '$cid' will be automatically replaced
+        'url'    => CRM_Utils_System::url('civicrm/contact/view', 'reset=1&cid=$cid&selectedChild=bank_accounts'),
+      ];
       break;
 
     case 'cidRefs':
       // this is the only field that needs to be modified
-      $data['civicrm_bank_account'] = array('contact_id');
+      $data['civicrm_bank_account'] = ['contact_id'];
       break;
   }
 }
 
 /**
- * Implements hook_civicrm_tabset()
+ * Implements hook_civicrm_tabset().
  *
- * Will inject the "Banking Accounts" tab
+ * Will inject the "Banking Accounts" tab.
  */
 function banking_civicrm_tabset($tabsetName, &$tabs, $context) {
   if ($tabsetName == 'civicrm/contact/view' && !empty($context['contact_id'])) {
     $contactID = (int) $context['contact_id'];
-    $count = CRM_Core_DAO::singleValueQuery("SELECT COUNT(id) FROM civicrm_bank_account WHERE contact_id={$contactID};");
+    $count = CRM_Core_DAO::singleValueQuery(
+      "SELECT COUNT(id) FROM civicrm_bank_account WHERE contact_id={$contactID};"
+    );
     $tabs[] = [
       'id'     => 'bank_accounts',
       'url'    => CRM_Utils_System::url('civicrm/banking/accounts_tab', "snippet=1&amp;cid=$contactID"),
-      'title'  => E::ts("Bank Accounts"),
+      'title'  => E::ts('Bank Accounts'),
       'count'  => $count,
-      'weight' => 95
+      'weight' => 95,
     ];
   }
 }
 
 function banking_civicrm_entityTypes(&$entityTypes) {
   // add my DAO's
-  $entityTypes[] = array(
+  $entityTypes[] = [
     'name' => 'BankAccount',
     'class' => 'CRM_Banking_DAO_BankAccount',
     'table' => 'civicrm_bank_account',
-  );
-  $entityTypes[] = array(
+  ];
+  $entityTypes[] = [
     'name' => 'BankAccountReference',
     'class' => 'CRM_Banking_DAO_BankAccountReference',
     'table' => 'civicrm_bank_account_reference',
-  );
-  $entityTypes[] = array(
+  ];
+  $entityTypes[] = [
     'name' => 'BankTransaction',
     'class' => 'CRM_Banking_DAO_BankTransaction',
     'table' => 'civicrm_bank_tx',
-  );
-  $entityTypes[] = array(
+  ];
+  $entityTypes[] = [
     'name' => 'BankTransactionBatch',
     'class' => 'CRM_Banking_DAO_BankTransactionBatch',
     'table' => 'civicrm_bank_tx_batch',
-  );
-  $entityTypes[] = array(
+  ];
+  $entityTypes[] = [
     'name' => 'BankTransactionContribution',
     'class' => 'CRM_Banking_DAO_BankTransactionContribution',
     'table' => 'civicrm_bank_tx_contribution',
-  );
-  $entityTypes[] = array(
+  ];
+  $entityTypes[] = [
     'name' => 'PluginInstance',
     'class' => 'CRM_Banking_DAO_PluginInstance',
     'table' => 'civicrm_bank_plugin_instance',
-  );
+  ];
 }
 
 /**
@@ -214,66 +220,66 @@ function banking_civicrm_navigationMenu(&$menu) {
     $statementUrl = 'civicrm/banking/payments';
   }
 
-  _banking_civix_insert_navigation_menu($menu, $anchor, array(
+  _banking_civix_insert_navigation_menu($menu, $anchor, [
     'label'      => E::ts('CiviBanking'),
     'name'       => 'CiviBanking',
     'icon'       => (version_compare(CRM_Utils_System::version(), '5.6', '>=')) ? 'crm-i fa-btc' : '',
     'permission' => 'access CiviContribute',
     'operator'   => 'OR',
     'separator'  => $separator,
-  ));
+  ]);
 
-  _banking_civix_insert_navigation_menu($menu, "{$anchor}CiviBanking", array(
+  _banking_civix_insert_navigation_menu($menu, "{$anchor}CiviBanking", [
     'label'      => E::ts('Dashboard'),
     'name'       => 'Dashboard',
     'url'        => 'civicrm/banking/dashboard',
     'permission' => 'access CiviContribute',
-  ));
+  ]);
 
-  _banking_civix_insert_navigation_menu($menu, "{$anchor}CiviBanking", array(
+  _banking_civix_insert_navigation_menu($menu, "{$anchor}CiviBanking", [
     'label'      => E::ts('Import Transactions'),
     'name'       => 'Import Transactions',
     'url'        => 'civicrm/banking/import',
     'permission' => 'access CiviContribute',
     'separator'  => 1,
-  ));
+  ]);
 
-  _banking_civix_insert_navigation_menu($menu, "{$anchor}CiviBanking", array(
+  _banking_civix_insert_navigation_menu($menu, "{$anchor}CiviBanking", [
     'label'      => E::ts('Show Transactions'),
     'name'       => 'Transactions',
     'url'        => $statementUrl,
     'permission' => 'access CiviContribute',
-  ));
+  ]);
 
-  _banking_civix_insert_navigation_menu($menu, "{$anchor}CiviBanking", array(
+  _banking_civix_insert_navigation_menu($menu, "{$anchor}CiviBanking", [
     'label'      => E::ts('Find Transactions'),
     'name'       => 'Find Transactions',
     'url'        => 'civicrm/banking/statements/search',
     'permission' => 'access CiviContribute',
     'separator'  => 1,
-  ));
+  ]);
 
-  _banking_civix_insert_navigation_menu($menu, "{$anchor}CiviBanking", array(
+  _banking_civix_insert_navigation_menu($menu, "{$anchor}CiviBanking", [
     'label'      => E::ts('Find Accounts'),
     'name'       => 'Find Accounts',
     'url'        => 'civicrm/banking/search',
     'permission' => 'access CiviContribute',
-  ));
+  ]);
 
-  _banking_civix_insert_navigation_menu($menu, "{$anchor}CiviBanking", array(
+  _banking_civix_insert_navigation_menu($menu, "{$anchor}CiviBanking", [
     'label'      => E::ts('Dedupe Accounts'),
     'name'       => 'Dedupe Accounts',
     'url'        => 'civicrm/banking/dedupe',
     'permission' => 'access CiviContribute',
     'separator'  => 1,
-  ));
+  ]);
 
-  _banking_civix_insert_navigation_menu($menu, "{$anchor}CiviBanking", array(
+  _banking_civix_insert_navigation_menu($menu, "{$anchor}CiviBanking", [
     'label'      => E::ts('Configuration Manager'),
     'name'       => 'CiviBanking Configuration',
     'url'        => 'civicrm/banking/manager',
     'permission' => 'administer CiviCRM',
-  ));
+  ]);
 
   _banking_civix_navigationMenu($menu);
 }

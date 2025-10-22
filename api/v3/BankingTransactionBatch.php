@@ -13,13 +13,14 @@
 | written permission from the original author(s).        |
 +--------------------------------------------------------*/
 
+declare(strict_types = 1);
+
 /**
  * File for the CiviCRM APIv3 banking_payment_batch functions
  *
  * @package CiviBanking
  *
  */
-
 
 /**
  * Add an BankingTransactionBatch
@@ -29,7 +30,7 @@
  * @example BankingTransactionBatch.php Standard Create Example
  *
  * @return array API result array
- * {@getfields banking_transaction_create}
+ *   {@getfields banking_transaction_create}
  * @access public
  */
 function civicrm_api3_banking_transaction_batch_create($params) {
@@ -38,27 +39,27 @@ function civicrm_api3_banking_transaction_batch_create($params) {
 
 /**
  * Adjust Metadata for Create action
- * 
+ *
  * The metadata is used for setting defaults, documentation & validation
  * @param array $params array or parameters determined by getfields
  */
 function _civicrm_api3_banking_transaction_batch_create_spec(&$params) {
-    // TODO: adjust
-    $params['issue_date']['api.required'] = 1;
-    $params['reference']['api.required'] = 1;
-    $params['sequence']['api.default'] = 0;
-    $params['tx_count']['api.default'] = 0;
+  // TODO: adjust
+  $params['issue_date']['api.required'] = 1;
+  $params['reference']['api.required'] = 1;
+  $params['sequence']['api.default'] = 0;
+  $params['tx_count']['api.default'] = 0;
 }
 
 /**
  * Deletes an existing BankingTransaction
  *
- * @param  array  $params
+ * @param  array $params
  *
  * @example BankingTransaction.php Standard Delete Example
  *
  * @return boolean | error  true if successfull, error otherwise
- * {@getfields banking_transaction_delete}
+ *   {@getfields banking_transaction_delete}
  * @access public
  */
 function civicrm_api3_banking_transaction_batch_delete($params) {
@@ -68,20 +69,14 @@ function civicrm_api3_banking_transaction_batch_delete($params) {
 /**
  * Retrieve one or more BankingTransactions
  *
- * @param  array input parameters
- *
- *
  * @example BankingTransaction.php Standard Get Example
  *
- * @param  array $params  an associative array of name/value pairs.
+ * @param array $params an associative array of name/value pairs.
  *
  * @return  array api result array
- * {@getfields banking_transaction_get}
+ *   {@getfields banking_transaction_get}
  * @access public
  */
 function civicrm_api3_banking_transaction_batch_get($params) {
   return _civicrm_api3_basic_get('CRM_Banking_BAO_BankTransactionBatch', $params);
 }
-
-
-

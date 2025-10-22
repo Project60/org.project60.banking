@@ -14,6 +14,8 @@
 | written permission from the original author(s).        |
 +--------------------------------------------------------*/
 
+declare(strict_types = 1);
+
 /**
  * Tests for the new CampaignContributionMatcher
  *
@@ -35,9 +37,10 @@ class CRM_Banking_Matcher_CreateCampaignContributionMatcherTest extends CRM_Bank
     try {
       civicrm_api3('OptionValue', 'getsingle', [
         'option_group_id' => 'activity_type',
-        'value'           => $activity_type_id_used_in_matcher_config
+        'value'           => $activity_type_id_used_in_matcher_config,
       ]);
-    } catch (Exception $ex) {
+    }
+    catch (Exception $ex) {
       $this->fail("This test requires activity type [{$activity_type_id_used_in_matcher_config}] to exist.");
     }
 
@@ -50,23 +53,29 @@ class CRM_Banking_Matcher_CreateCampaignContributionMatcherTest extends CRM_Bank
       'campaign_id'        => $campaign_id,
       'activity_type_id'   => $activity_type_id_used_in_matcher_config,
     ]);
-    $this->assertNotNull($activity_id, "Test activity not created!");
+    $this->assertNotNull($activity_id, 'Test activity not created!');
 
     // step 2: configure a simple campaign matcher
-    $config = json_decode(file_get_contents($this->getTestResourcePath('matcher/configuration/CampaignMatcher-01.civibanking')), TRUE, flags:  JSON_THROW_ON_ERROR);
+    $config = json_decode(
+      file_get_contents($this->getTestResourcePath('matcher/configuration/CampaignMatcher-01.civibanking')),
+      TRUE,
+      flags:  JSON_THROW_ON_ERROR);
     $config['config']['campaign_id'] = $campaign_id;
     $this->configureCiviBankingModuleWithConfig(json_encode($config, JSON_THROW_ON_ERROR));
 
     // step 3: create a transaction
     $transaction1_id = $this->createTransaction([
-      'purpose' => "This transaction should trigger a campaign-based contribution",
+      'purpose' => 'This transaction should trigger a campaign-based contribution',
       'campaign_id' => $campaign_id,
-      'contact_id' => $contact_id
+      'contact_id' => $contact_id,
     ]);
 
     // get the previous existing contribution
     $previous_contribution = $this->getLatestContribution();
-    $this->assertNull($previous_contribution, "there should NOT be a contribution at this point. Or is this too restrictive?");
+    $this->assertNull(
+      $previous_contribution,
+      'there should NOT be a contribution at this point. Or is this too restrictive?'
+    );
 
     // run the matcher
     $this->runMatchers();
@@ -84,11 +93,11 @@ class CRM_Banking_Matcher_CreateCampaignContributionMatcherTest extends CRM_Bank
     $contact_id = $this->createContact();
     $campaign_id = $this->createCampaign();
     $this->createActivity([
-        'target_id'          => $contact_id,
-        'activity_status_id' => 'Completed',
+      'target_id'          => $contact_id,
+      'activity_status_id' => 'Completed',
         // default is 40 days, so this should fail:
-        'activity_date_time' => date('Y-m-d', strtotime("now -41 days"))
-      ]);
+      'activity_date_time' => date('Y-m-d', strtotime('now -41 days')),
+    ]);
 
     // step 2: configure a simple campaign matcher
     $this->configureCiviBankingModule(
@@ -96,20 +105,27 @@ class CRM_Banking_Matcher_CreateCampaignContributionMatcherTest extends CRM_Bank
 
     // step 3: create a transaction
     $transaction1_id = $this->createTransaction([
-      'purpose' => "This transaction should trigger a campaign-based contribution",
+      'purpose' => 'This transaction should trigger a campaign-based contribution',
       'campaign_id' => $campaign_id,
-      'contact_id' => $contact_id
+      'contact_id' => $contact_id,
     ]);
 
     // get the previous existing contribution
     $last_contribution = $this->getLatestContribution();
-    $this->assertNull($last_contribution, "there should NOT be a contribution at this point. Or is this too restrictive?");
+    $this->assertNull(
+      $last_contribution,
+      'there should NOT be a contribution at this point. Or is this too restrictive?'
+    );
 
     // run the matcher
     $this->runMatchers();
 
     // check the result
     $new_last_contribution = $this->getLatestContribution();
-    $this->assertNull($new_last_contribution, "No contribution should've been generated. Something doesn't work right.");
+    $this->assertNull(
+      $new_last_contribution,
+      "No contribution should've been generated. Something doesn't work right."
+    );
   }
+
 }

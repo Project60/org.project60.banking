@@ -1,5 +1,6 @@
 <?php
-use CRM_Banking_ExtensionUtil as E;
+
+declare(strict_types = 1);
 
 /**
  * BankingRule.Updatesearchresults API specification (optional)
@@ -10,7 +11,7 @@ use CRM_Banking_ExtensionUtil as E;
  * @see http://wiki.civicrm.org/confluence/display/CRMDOC/API+Architecture+Standards
  */
 function _civicrm_api3_banking_rule_Updatesearchresults_spec(&$spec) {
-  include_once( __DIR__ . '/Getsearchresults.php');
+  include_once __DIR__ . '/Getsearchresults.php';
   _civicrm_api3_banking_rule_Getsearchresults_spec($spec);
 
   $spec['update'] = [
@@ -52,12 +53,12 @@ function civicrm_api3_banking_rule_Updatesearchresults($params) {
   }
 
   // Extract the page we need to display.
-  $offset = (empty($params['options']['offset']) ? 0 : (int)$params['options']['offset']);
-  $limit  = (empty($params['options']['limit']) ? 10 : (int)$params['options']['limit']);
+  $offset = (empty($params['options']['offset']) ? 0 : (int) $params['options']['offset']);
+  $limit  = (empty($params['options']['limit']) ? 10 : (int) $params['options']['limit']);
 
   $return = [];
-  foreach ($rules as $i=>$rule) {
-    if ($i >= $offset && $i < $offset+$limit) {
+  foreach ($rules as $i => $rule) {
+    if ($i >= $offset && $i < $offset + $limit) {
       $return[] = $rule->getRuleData();
     }
   }

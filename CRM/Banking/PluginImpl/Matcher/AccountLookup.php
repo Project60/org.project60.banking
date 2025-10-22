@@ -14,8 +14,7 @@
 | written permission from the original author(s).        |
 +--------------------------------------------------------*/
 
-
-require_once 'CRM/Banking/Helpers/OptionValue.php';
+declare(strict_types = 1);
 
 /**
  * This matcher use regular expressions to extract information from the payment meta information
@@ -24,30 +23,47 @@ class CRM_Banking_PluginImpl_Matcher_AccountLookup extends CRM_Banking_PluginMod
 
   /**
    * class constructor
-   */ 
-  function __construct($config_name) {
+   */
+  public function __construct($config_name) {
     parent::__construct($config_name);
 
     // read config, set defaults
     $config = $this->_plugin_config;
 
-    if (!isset($config->lookup_org_account_mode))     $config->lookup_org_account_mode      = 'off'; // one of 'off', 'fill', 'update'
-    if (!isset($config->lookup_org_account_prefix))   $config->lookup_org_account_prefix    = '_'; // '/^(_NBAN_..|_IBAN)$/';
-    if (!isset($config->lookup_donor_account_mode))   $config->lookup_donor_account_mode    = 'update'; // one of 'off', 'fill', 'update'
-    if (!isset($config->lookup_donor_account_prefix)) $config->lookup_donor_account_prefix  = '_party_'; //^(_party_NBAN_..|_party_IBAN)$/';
+    // phpcs:disable Squiz.PHP.CommentedOutCode.Found
+    // one of 'off', 'fill', 'update'
+    // phpcs:enable
+    if (!isset($config->lookup_org_account_mode)) {
+      $config->lookup_org_account_mode = 'off';
+    }
+    // '/^(_NBAN_..|_IBAN)$/';
+    if (!isset($config->lookup_org_account_prefix)) {
+      $config->lookup_org_account_prefix = '_';
+    }
+    // phpcs:disable Squiz.PHP.CommentedOutCode.Found
+    // one of 'off', 'fill', 'update'
+    // phpcs:enable
+    if (!isset($config->lookup_donor_account_mode)) {
+      $config->lookup_donor_account_mode = 'update';
+    }
+    //^(_party_NBAN_..|_party_IBAN)$/';
+    if (!isset($config->lookup_donor_account_prefix)) {
+      $config->lookup_donor_account_prefix = '_party_';
+    }
   }
 
-  /** 
+  /**
    * this matcher does not really create suggestions, but rather enriches the parsed data
    */
   public function analyse(CRM_Banking_BAO_BankTransaction $btx, CRM_Banking_Matcher_Context $context) {
     $config = $this->_plugin_config;
-    $modified = false;
+    $modified = FALSE;
 
     // check own bank account
     if ($config->lookup_org_account_mode == 'update') {
       $modified |= $this->setAccount($btx, 'ba_id', $config->lookup_org_account_prefix, $context);
-    } elseif (   $config->lookup_org_account_mode == 'fill' 
+    }
+    elseif ($config->lookup_org_account_mode == 'fill'
               && empty($btx->ba_id)) {
       $modified |= $this->setAccount($btx, 'ba_id', $config->lookup_org_account_prefix, $context);
     }
@@ -55,7 +71,8 @@ class CRM_Banking_PluginImpl_Matcher_AccountLookup extends CRM_Banking_PluginMod
     // check party bank account
     if ($config->lookup_donor_account_mode == 'update') {
       $modified |= $this->setAccount($btx, 'party_ba_id', $config->lookup_donor_account_prefix, $context);
-    } elseif (   $config->lookup_donor_account_mode == 'fill' 
+    }
+    elseif ($config->lookup_donor_account_mode == 'fill'
               && empty($btx->party_ba_id)) {
       $modified |= $this->setAccount($btx, 'party_ba_id', $config->lookup_donor_account_prefix, $context);
     }
@@ -74,22 +91,23 @@ class CRM_Banking_PluginImpl_Matcher_AccountLookup extends CRM_Banking_PluginMod
     $data = $btx->getDataParsed();
     $types = $this->getReferenceTypes($context);
     foreach ($types as $type_id => $type_name) {
-      if (!empty($data[$prefix.$type_name])) {
+      if (!empty($data[$prefix . $type_name])) {
         // we have an account reference => look it up
-        $ba_id = $this->lookupBankAccount($type_id, $data[$prefix.$type_name], $context);
+        $ba_id = $this->lookupBankAccount($type_id, $data[$prefix . $type_name], $context);
         if ($ba_id) {
           if ($ba_id != $btx->$ba_attribute) {
             // the account differs => set and return
             $btx->$ba_attribute = $ba_id;
-            return true;
-          } else {
+            return TRUE;
+          }
+          else {
             // the account is the same => return unchanged
-            return false;
+            return FALSE;
           }
         }
       }
     }
-    return false;
+    return FALSE;
   }
 
   /**
@@ -97,20 +115,21 @@ class CRM_Banking_PluginImpl_Matcher_AccountLookup extends CRM_Banking_PluginMod
    */
   protected function lookupBankAccount($type_id, $reference, $context) {
     $account_cache = $context->getCachedEntry('analyser_account.cached_references');
-    if ($account_cache===NULL) {
-      $account_cache = array();
+    if ($account_cache === NULL) {
+      $account_cache = [];
     }
 
     if (!isset($account_cache[$type_id][$reference])) {
       // look up the account
-      $result = civicrm_api('BankingAccountReference', 'getsingle', array(
-        'version'           => 3, 
+      $result = civicrm_api('BankingAccountReference', 'getsingle', [
+        'version'           => 3,
         'reference'         => $reference,
         'reference_type_id' => $type_id,
-        ));
+      ]);
       if (!empty($result['is_error']) || empty($result['ba_id'])) {
         $account_cache[$type_id][$reference] = NULL;
-      } else {
+      }
+      else {
         $account_cache[$type_id][$reference] = $result['ba_id'];
       }
       $context->setCachedEntry('analyser_account.cached_references', $account_cache);
@@ -125,13 +144,12 @@ class CRM_Banking_PluginImpl_Matcher_AccountLookup extends CRM_Banking_PluginMod
    */
   protected function getReferenceTypes($context) {
     $types = $context->getCachedEntry('analyser_account.reference_types');
-    if ($types===NULL) {
+    if ($types === NULL) {
       $group_id = banking_helper_optiongroupid_by_name('civicrm_banking.reference_types');
       $types = CRM_Core_OptionGroup::valuesByID($group_id, $flip = TRUE, $grouping = FALSE, $localize = FALSE, $labelColumnName = 'id', $onlyActive = TRUE, $fresh = FALSE);
       $context->setCachedEntry('analyser_account.reference_types', $types);
     }
     return $types;
   }
+
 }
-
-

@@ -15,12 +15,16 @@
 | written permission from the original author(s).        |
 +--------------------------------------------------------*/
 
+declare(strict_types = 1);
+
 use CRM_Banking_ExtensionUtil as E;
 
+// phpcs:disable PSR1.Files.SideEffects.FoundWithSymbols
 require_once 'CRM/Banking/Helpers/OptionValue.php';
+// phpcs:enable
 
 define('BANKING_MATCHER_RULE_TYPE_ANALYSER', 1);
-define('BANKING_MATCHER_RULE_TYPE_MATCHER',  2);
+define('BANKING_MATCHER_RULE_TYPE_MATCHER', 2);
 
 /**
  * This matcher will try to match any transaction
@@ -32,29 +36,51 @@ class CRM_Banking_PluginImpl_Matcher_RulesAnalyser extends CRM_Banking_PluginMod
 
   /**
    * class constructor
+   *
+   * phpcs:disable Generic.Metrics.CyclomaticComplexity.TooHigh
    */
-  function __construct($config_name) {
+  public function __construct($config_name) {
+  // phpcs:enable
     parent::__construct($config_name);
 
     // read config, set defaults
     $config = $this->_plugin_config;
-    if (!isset($config->show_matched_rules))    $config->show_matched_rules = TRUE;
-    if (!isset($config->suggest_create_new))    $config->suggest_create_new = TRUE;
-    if (!isset($config->create_new_confidence)) $config->create_new_confidence = 0.75;
-    if (!isset($config->copy_matching_rule_names_to)) $config->copy_matching_rule_names_to = '';
-    if (!isset($config->copy_matching_rule_ids_to))   $config->copy_matching_rule_ids_to = '';
-    if (!isset($config->fields_to_set))         $config->fields_to_set = array(
-                                                  'campaign_id'           => E::ts('Campaign ID'),
-                                                  'contact_id'            => E::ts('Contact ID'),
-                                                  'membership_id'         => E::ts('Membership ID'),
-                                                  'financial_type_id'     => E::ts('Financial Type ID'),
-                                                  'payment_instrument_id' => E::ts('Payment Instrument ID'));
+    if (!isset($config->show_matched_rules)) {
+      $config->show_matched_rules = TRUE;
+    }
+    if (!isset($config->suggest_create_new)) {
+      $config->suggest_create_new = TRUE;
+    }
+    if (!isset($config->create_new_confidence)) {
+      $config->create_new_confidence = 0.75;
+    }
+    if (!isset($config->copy_matching_rule_names_to)) {
+      $config->copy_matching_rule_names_to = '';
+    }
+    if (!isset($config->copy_matching_rule_ids_to)) {
+      $config->copy_matching_rule_ids_to = '';
+    }
+    if (!isset($config->fields_to_set)) {
+      $config->fields_to_set = [
+        'campaign_id'           => E::ts('Campaign ID'),
+        'contact_id'            => E::ts('Contact ID'),
+        'membership_id'         => E::ts('Membership ID'),
+        'financial_type_id'     => E::ts('Financial Type ID'),
+        'payment_instrument_id' => E::ts('Payment Instrument ID'),
+      ];
+    }
     // caution: field_mapping should not be used, doesn't work properly:
-    if (!isset($config->field_mapping))         $config->field_mapping = array();
+    if (!isset($config->field_mapping)) {
+      $config->field_mapping = [];
+    }
 
     // for documentation: set all matching rule (names/ids) to the given data field
-    if (!isset($config->copy_matching_rule_names_to)) $config->copy_matching_rule_names_to = '';
-    if (!isset($config->copy_matching_rule_ids_to))   $config->copy_matching_rule_ids_to   = '';
+    if (!isset($config->copy_matching_rule_names_to)) {
+      $config->copy_matching_rule_names_to = '';
+    }
+    if (!isset($config->copy_matching_rule_ids_to)) {
+      $config->copy_matching_rule_ids_to = '';
+    }
     if (!isset($config->lookup_contact_by_name)) {
       $config->lookup_contact_by_name = [];
     }
@@ -71,12 +97,13 @@ class CRM_Banking_PluginImpl_Matcher_RulesAnalyser extends CRM_Banking_PluginMod
     $config = $this->_plugin_config;
 
     // TODO: threshold
-    $threshold = 0; // FIXME
+    // FIXME
+    $threshold = 0;
 
     // run the rule matcher
     $rule_matches = CRM_Banking_Rules_Match::matchTransaction($btx, $config->field_mapping, $context, BANKING_MATCHER_RULE_TYPE_ANALYSER, $threshold);
-    $matched_rule_ids = array();
-    $matched_rule_names = array();
+    $matched_rule_ids = [];
+    $matched_rule_names = [];
 
     // Execute the rule matches (which will enrich the parsed data).
     foreach ($rule_matches as $rule_match) {
@@ -102,16 +129,16 @@ class CRM_Banking_PluginImpl_Matcher_RulesAnalyser extends CRM_Banking_PluginMod
     }
 
     // see if we want to create a "suggestion"
-    if (   $config->suggest_create_new
-        || ($config->show_matched_rules && !empty($rule_matches)) ) {
+    if ($config->suggest_create_new
+        || ($config->show_matched_rules && !empty($rule_matches))) {
 
       // create a suggestion
       $suggestion = new CRM_Banking_Matcher_Suggestion($this, $btx);
-      $suggestion->setTitle("BankingRules");
+      $suggestion->setTitle('BankingRules');
       $suggestion->setProbability($config->create_new_confidence);
 
       // add all matches rules to be displayed
-      $rule2confidence = array();
+      $rule2confidence = [];
       foreach ($rule_matches as $rule_match) {
         $rule2confidence[$rule_match->getRule()->getId()] = $rule_match->getConfidence();
       }
@@ -154,15 +181,14 @@ class CRM_Banking_PluginImpl_Matcher_RulesAnalyser extends CRM_Banking_PluginMod
 
     if (empty($input['rules-analyser__create-new-rule'])) {
       // User did not want to create a new rule.
-      CRM_Core_Session::setStatus(E::ts("No new rule was created."), E::ts('Nothing to do'), 'warn');
+      CRM_Core_Session::setStatus(E::ts('No new rule was created.'), E::ts('Nothing to do'), 'warn');
       return 're-run';
     }
-
 
     // User wants to create a rule.
     try {
       $rule = static::createRuleFromRuleMatcherForm($input);
-      CRM_Core_Session::setStatus(E::ts("New rule created."), E::ts('Success'), 'success');
+      CRM_Core_Session::setStatus(E::ts('New rule created.'), E::ts('Success'), 'success');
     }
     catch (InvalidArgumentException $e) {
       CRM_Core_Session::setStatus(E::ts($e->getMessage()), E::ts('Error'), 'error');
@@ -172,6 +198,7 @@ class CRM_Banking_PluginImpl_Matcher_RulesAnalyser extends CRM_Banking_PluginMod
     //  be analysed again
     return 're-run';
   }
+
   /**
    * If the user has modified the input fields provided by the "visualize" html code,
    * the new values will be passed here BEFORE execution
@@ -201,20 +228,20 @@ class CRM_Banking_PluginImpl_Matcher_RulesAnalyser extends CRM_Banking_PluginMod
     return $fields;
   }
 
- /**
+  /**
    * Generate html code to visualize the given match. The visualization may also provide interactive form elements.
    *
    * @val $match    match data as previously generated by this plugin instance
    * @val $btx      the bank transaction the match refers to
    * @return html code snippet
    */
-  function visualize_match( CRM_Banking_Matcher_Suggestion $match, $btx) {
+  public function visualize_match(CRM_Banking_Matcher_Suggestion $match, $btx) {
     $config = $this->_plugin_config;
-    $smarty_vars = array();
+    $smarty_vars = [];
 
     // add rule render information
     $matched_rules = $match->getParameter('matched_rules');
-    $rules_data    = array();
+    $rules_data    = [];
     foreach ($matched_rules as $rule_id => $confidence) {
       try {
         $rule_data = [
@@ -224,7 +251,8 @@ class CRM_Banking_PluginImpl_Matcher_RulesAnalyser extends CRM_Banking_PluginMod
         $rule = CRM_Banking_Rules_Rule::get($rule_id);
         $rule->addRenderParameters($rule_data);
         $rules_data[$rule_id] = $rule_data;
-      } catch (Exception $e) {
+      }
+      catch (Exception $e) {
         // rule probably deleted
         $rule_data['loading_error'] = E::ts('Error: ') . $e->getMessage();
         $rules_data[$rule_id] = $rule_data;
@@ -237,7 +265,7 @@ class CRM_Banking_PluginImpl_Matcher_RulesAnalyser extends CRM_Banking_PluginMod
 
     // read configuration wrt to pre-checked and hidden fields
     $smarty_vars['param_checked'] = $this->getParamStatus('checked', $btx->getDataParsed());
-    $smarty_vars['param_hidden']  = $this->getParamStatus('hidden',  $btx->getDataParsed());
+    $smarty_vars['param_hidden']  = $this->getParamStatus('hidden', $btx->getDataParsed());
 
     // Store the contacts found for use later in the visualize_match function.
     $smarty_vars['contact_id_found'] = $match->getParameter('contact_id_found');
@@ -250,7 +278,6 @@ class CRM_Banking_PluginImpl_Matcher_RulesAnalyser extends CRM_Banking_PluginMod
     return $html_snippet;
   }
 
-
   /**
    * Creates a new rule from user input from UI.
    *
@@ -259,11 +286,11 @@ class CRM_Banking_PluginImpl_Matcher_RulesAnalyser extends CRM_Banking_PluginMod
    * @throw InvalidArgumentException if anything invalid.
    * @param array $input
    * @return CRM_Banking_Rules_Rule object.
+   *
+   * phpcs:disable Generic.Metrics.CyclomaticComplexity.TooHigh
    */
   public static function createRuleFromRuleMatcherForm($input) {
-
-    $i = 1;
-    $params = [];
+  // phpcs:enable
     // Collect data to create rule with in an array.
     $row = [];
 
@@ -297,7 +324,9 @@ class CRM_Banking_PluginImpl_Matcher_RulesAnalyser extends CRM_Banking_PluginMod
         $row['amount_max'] = $input['rules-analyser__amount'];
       }
       else {
+        // phpcs:disable Squiz.PHP.CommentedOutCode.Found
         // 'between' case.
+        // phpcs:enable
         $row['amount_max'] = $input['rules-analyser__amount-2'];
       }
     }
@@ -311,7 +340,7 @@ class CRM_Banking_PluginImpl_Matcher_RulesAnalyser extends CRM_Banking_PluginMod
     // }
     $max = empty($input['rules-analyser__custom-fields-count']) ? 0 : $input['rules-analyser__custom-fields-count'];
     $conditions = [];
-    for ($i=1; $i<=$max; $i++) {
+    for ($i = 1; $i <= $max; $i++) {
       // Only add fields with names(!) silently ignore others.
       if (!empty($input["rules-analyser__custom-name-$i"])) {
 
@@ -356,7 +385,7 @@ class CRM_Banking_PluginImpl_Matcher_RulesAnalyser extends CRM_Banking_PluginMod
     }
     $row['execution'] = $execution;
     if (!$execution) {
-      throw new InvalidArgumentException("Cannot create a rule with no actions.");
+      throw new InvalidArgumentException('Cannot create a rule with no actions.');
       return;
     }
 
@@ -375,8 +404,11 @@ class CRM_Banking_PluginImpl_Matcher_RulesAnalyser extends CRM_Banking_PluginMod
    *  based on the criteria_preset section of the config
    *
    * @see https://github.com/Project60/org.project60.banking/issues/233
+   *
+   * phpcs:disable Generic.Metrics.CyclomaticComplexity.TooHigh
    */
   protected function getParamStatus($mode, $data_parsed) {
+  // phpcs:enable
     $status = [];
     $base_params = ['_party_IBAN', '_IBAN', 'amount', 'name', 'reference', 'purpose'];
     $settings = isset($this->_plugin_config->criteria_preset) ? $this->_plugin_config->criteria_preset : NULL;
@@ -388,16 +420,19 @@ class CRM_Banking_PluginImpl_Matcher_RulesAnalyser extends CRM_Banking_PluginMod
           case 'ON':
             $status[$parameter] = TRUE;
             break;
+
           case 'OFF':
           case 'HIDDEN':
             $status[$parameter] = FALSE;
             break;
+
           default:
           case 'AUTO':
             $status[$parameter] = !empty($data_parsed[$parameter]);
             break;
         }
-      } elseif ($mode == 'hidden') {
+      }
+      elseif ($mode == 'hidden') {
         switch ($preset) {
           default:
           case 'AUTO':
@@ -412,4 +447,5 @@ class CRM_Banking_PluginImpl_Matcher_RulesAnalyser extends CRM_Banking_PluginMod
     }
     return $status;
   }
+
 }

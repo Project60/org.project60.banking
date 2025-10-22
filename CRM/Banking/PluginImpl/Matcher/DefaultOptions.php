@@ -14,6 +14,8 @@
 | written permission from the original author(s).        |
 +--------------------------------------------------------*/
 
+declare(strict_types = 1);
+
 use CRM_Banking_ExtensionUtil as E;
 
 /**
@@ -25,37 +27,81 @@ class CRM_Banking_PluginImpl_Matcher_DefaultOptions extends CRM_Banking_PluginMo
 
   /**
    * class constructor
+   *
+   * phpcs:disable Generic.Metrics.CyclomaticComplexity.TooHigh
    */
-  function __construct($config_name) {
+  public function __construct($config_name) {
+  // phpcs:enable
     parent::__construct($config_name);
 
     // read config, set defaults
     $config = $this->_plugin_config;
-    if (!isset($config->manual_enabled)) $config->manual_enabled = true;
-    if (!isset($config->manual_probability)) $config->manual_probability = 0.1;
-    if (!isset($config->manual_show_always)) $config->manual_show_always = true;
-    if (!isset($config->lookup_contact_by_name)) $config->lookup_contact_by_name = array('soft_cap_probability' => 0.8, 'soft_cap_min' => 10, 'hard_cap_probability' => 0.4);
-    if (!isset($config->manual_title)) $config->manual_title = "Manually processed.";
-    if (!isset($config->manual_message)) $config->manual_message = "Please configure";
-    if (!isset($config->manual_default_source)) $config->manual_default_source = "";
-    if (!isset($config->manual_contribution)) $config->manual_contribution = "Contribution:";
-    if (!isset($config->contribution_id_injection)) $config->contribution_id_injection = '';  // parameter name containing comma separated list to be added to the manually matched contributions
-    if (!isset($config->manual_default_contacts)) $config->manual_default_contacts = array(); // contacts to always be added to the list (contact_id => probability)
-    if (!isset($config->default_financial_type_id)) $config->default_financial_type_id = 1;
-    if (!isset($config->createnew_value_propagation)) $config->createnew_value_propagation = array();
-    if (!isset($config->manual_default_financial_type_id)) $config->manual_default_financial_type_id = NULL;
-    if (!isset($config->preserve_receive_date)) $config->preserve_receive_date = 0; // Set to 1 to preserve the receive_date (instead of overwriting it with the booking_date). See issue #409.
+    if (!isset($config->manual_enabled)) {
+      $config->manual_enabled = TRUE;
+    }
+    if (!isset($config->manual_probability)) {
+      $config->manual_probability = 0.1;
+    }
+    if (!isset($config->manual_show_always)) {
+      $config->manual_show_always = TRUE;
+    }
+    if (!isset($config->lookup_contact_by_name)) {
+      $config->lookup_contact_by_name = ['soft_cap_probability' => 0.8, 'soft_cap_min' => 10, 'hard_cap_probability' => 0.4];
+    }
+    if (!isset($config->manual_title)) {
+      $config->manual_title = 'Manually processed.';
+    }
+    if (!isset($config->manual_message)) {
+      $config->manual_message = 'Please configure';
+    }
+    if (!isset($config->manual_default_source)) {
+      $config->manual_default_source = '';
+    }
+    if (!isset($config->manual_contribution)) {
+      $config->manual_contribution = 'Contribution:';
+    }
+    // parameter name containing comma separated list to be added to the manually matched contributions
+    if (!isset($config->contribution_id_injection)) {
+      $config->contribution_id_injection = '';
+    }
+    // contacts to always be added to the list (contact_id => probability)
+    if (!isset($config->manual_default_contacts)) {
+      $config->manual_default_contacts = [];
+    }
+    if (!isset($config->default_financial_type_id)) {
+      $config->default_financial_type_id = 1;
+    }
+    if (!isset($config->createnew_value_propagation)) {
+      $config->createnew_value_propagation = [];
+    }
+    if (!isset($config->manual_default_financial_type_id)) {
+      $config->manual_default_financial_type_id = NULL;
+    }
+    // Set to 1 to preserve the receive_date (instead of overwriting it with the booking_date). See issue #409.
+    if (!isset($config->preserve_receive_date)) {
+      $config->preserve_receive_date = 0;
+    }
 
-    if (!isset($config->ignore_enabled)) $config->ignore_enabled = true;
-    if (!isset($config->ignore_probability)) $config->ignore_probability = 0.1;
-    if (!isset($config->ignore_show_always)) $config->ignore_show_always = true;
-    if (!isset($config->ignore_title)) $config->ignore_title = "Not Relevant";
-    if (!isset($config->ignore_message)) $config->ignore_message = "Please configure";
+    if (!isset($config->ignore_enabled)) {
+      $config->ignore_enabled = TRUE;
+    }
+    if (!isset($config->ignore_probability)) {
+      $config->ignore_probability = 0.1;
+    }
+    if (!isset($config->ignore_show_always)) {
+      $config->ignore_show_always = TRUE;
+    }
+    if (!isset($config->ignore_title)) {
+      $config->ignore_title = 'Not Relevant';
+    }
+    if (!isset($config->ignore_message)) {
+      $config->ignore_message = 'Please configure';
+    }
   }
 
-  function autoExecute() {
+  public function autoExecute() {
     // NO autoexec for this matcher
-    return false;
+    return FALSE;
   }
 
   public function match(CRM_Banking_BAO_BankTransaction $btx, CRM_Banking_Matcher_Context $context) {
@@ -79,7 +125,8 @@ class CRM_Banking_PluginImpl_Matcher_DefaultOptions extends CRM_Banking_PluginMo
           if (isset($contacts[$contact_id])) {
             // only override probability if it would be improved
             $contacts[$contact_id] = max($probability, $contacts[$contact_id]);
-          } else {
+          }
+          else {
             // not set yet, add to list
             $contacts[$contact_id] = $probability;
           }
@@ -110,7 +157,7 @@ class CRM_Banking_PluginImpl_Matcher_DefaultOptions extends CRM_Banking_PluginMo
     }
 
     // that's it...
-    return empty($this->_suggestions) ? null : $this->_suggestions;
+    return empty($this->_suggestions) ? NULL : $this->_suggestions;
   }
 
   /**
@@ -122,11 +169,14 @@ class CRM_Banking_PluginImpl_Matcher_DefaultOptions extends CRM_Banking_PluginMo
    *
    * @param CRM_Banking_BAO_BankTransaction $btx
    *   the bank transaction this is related to
+   *
+   * phpcs:disable Generic.Metrics.CyclomaticComplexity.TooHigh, Generic.Metrics.NestingLevel.TooHigh
    */
   public function execute($suggestion, $btx) {
+  // phpcs:enable
     $config = $this->_plugin_config;
 
-    if ($suggestion->getId()==="manual") {
+    if ($suggestion->getId() === 'manual') {
       $cids = $suggestion->getParameter('contribution_ids');
       $contribution_count = 0;
       if ($cids) {
@@ -135,7 +185,7 @@ class CRM_Banking_PluginImpl_Matcher_DefaultOptions extends CRM_Banking_PluginMo
 
         foreach ($cids as $cid) {
           if ($cid) {
-            $contribution = civicrm_api('Contribution', 'getsingle', array('version' => 3, 'id' => $cid));
+            $contribution = civicrm_api('Contribution', 'getsingle', ['version' => 3, 'id' => $cid]);
             if (!empty($contribution['is_error'])) {
               CRM_Core_Session::setStatus(sprintf(E::ts("Couldn't find contribution #%s"), $cid), E::ts('Error'), 'error');
               continue;
@@ -146,16 +196,18 @@ class CRM_Banking_PluginImpl_Matcher_DefaultOptions extends CRM_Banking_PluginMo
               $this->storeAccountWithContact($btx, $contribution['contact_id']);
             }
 
-            $query = array('version' => 3, 'id' => $cid);
+            $query = ['version' => 3, 'id' => $cid];
             $query['is_test'] = 0;
-            $query = array_merge($query, $this->getPropagationSet($btx, $suggestion, 'contribution'));   // add propagated values
+            // add propagated values
+            $query = array_merge($query, $this->getPropagationSet($btx, $suggestion, 'contribution'));
 
             // set status to completed, unless it's a negative amount...
             if ($btx->amount < 0) {
               // ...in this case, we want to cancel this
               $query['contribution_status_id'] = $cancelled_status;
               $query['cancel_date'] = date('YmdHis', strtotime($btx->booking_date));
-            } else {
+            }
+            else {
               // ...otherwise, we close it
               $query['contribution_status_id'] = $completed_status;
               if (!$config->preserve_receive_date) {
@@ -168,7 +220,8 @@ class CRM_Banking_PluginImpl_Matcher_DefaultOptions extends CRM_Banking_PluginMo
             if (isset($result['is_error']) && $result['is_error']) {
               CRM_Core_Session::setStatus(sprintf(E::ts("Couldn't modify contribution #%s"), $cid), E::ts('Error'), 'error');
               return NULL;
-            } else {
+            }
+            else {
               $contribution_count += 1;
             }
 
@@ -181,16 +234,19 @@ class CRM_Banking_PluginImpl_Matcher_DefaultOptions extends CRM_Banking_PluginMo
           $newStatus = banking_helper_optionvalueid_by_groupname_and_name('civicrm_banking.bank_tx_status', 'Processed');
           $btx->setStatus($newStatus);
           parent::execute($suggestion, $btx);
-        } else {
-          CRM_Core_Session::setStatus(E::ts("The contribution is not valid. The transaction is NOT completed."), E::ts('Transaction NOT completed.'), 'alert');
+        }
+        else {
+          CRM_Core_Session::setStatus(E::ts('The contribution is not valid. The transaction is NOT completed.'), E::ts('Transaction NOT completed.'), 'alert');
           return NULL;
         }
 
-      } else {
-        CRM_Core_Session::setStatus(E::ts("No contribution given. The transaction is NOT completed."), E::ts('Transaction NOT completed.'), 'alert');
+      }
+      else {
+        CRM_Core_Session::setStatus(E::ts('No contribution given. The transaction is NOT completed.'), E::ts('Transaction NOT completed.'), 'alert');
         return NULL;
       }
-    } else {
+    }
+    else {
       // this is the IGNORE action. Simply set the status to ignored
       $newStatus = banking_helper_optionvalueid_by_groupname_and_name('civicrm_banking.bank_tx_status', 'Ignored');
       $btx->setStatus($newStatus);
@@ -207,46 +263,46 @@ class CRM_Banking_PluginImpl_Matcher_DefaultOptions extends CRM_Banking_PluginMo
    *  'belong' to your suggestion.
    */
   public function update_parameters(CRM_Banking_Matcher_Suggestion $match, $parameters) {
-    if ($match->getId() === "manual") {
-      if (isset($parameters["manual_match_contributions"])) {
-        $contributions = explode(",", $parameters["manual_match_contributions"]);
+    if ($match->getId() === 'manual') {
+      if (isset($parameters['manual_match_contributions'])) {
+        $contributions = explode(',', $parameters['manual_match_contributions']);
         $match->setParameter('contribution_ids', $contributions);
       }
     }
   }
 
-    /**
+  /**
    * Generate html code to visualize the given match. The visualization may also provide interactive form elements.
    *
    * @val $match    match data as previously generated by this plugin instance
    * @val $btx      the bank transaction the match refers to
    * @return html code snippet
    */
-  function visualize_match( CRM_Banking_Matcher_Suggestion $match, $btx) {
+  public function visualize_match(CRM_Banking_Matcher_Suggestion $match, $btx) {
 
-    $smarty_vars = array();
+    $smarty_vars = [];
 
-    $btx_data = array();
+    $btx_data = [];
     CRM_Core_DAO::storeValues($btx, $btx_data);
 
-    $smarty_vars['btx'] =                            $btx_data;
-    $smarty_vars['mode'] =                           $match->getId();
-    $smarty_vars['contact_ids'] =                    $match->getParameter('contact_ids');
-    $smarty_vars['contact_ids2probability'] =       $match->getParameter('contact_ids2probability');
-    $smarty_vars['injected_contribution_ids'] =      $match->getParameter('injected_contribution_ids');
-    $smarty_vars['ignore_message'] =                 $this->_plugin_config->ignore_message;
-    $smarty_vars['booking_date'] =                   date('YmdHis', strtotime($btx->booking_date));
-    $smarty_vars['status_pending'] =                 banking_helper_optionvalue_by_groupname_and_name('contribution_status', 'Pending');
-    $smarty_vars['manual_default_source'] =          $this->_plugin_config->manual_default_source;
-    $smarty_vars['manual_default_financial_type_id']=$this->_plugin_config->manual_default_financial_type_id;
-    $smarty_vars['create_propagation'] =             $this->getPropagationSet($btx, $match, 'contribution', $this->_plugin_config->createnew_value_propagation);
-
+    $smarty_vars['btx'] = $btx_data;
+    $smarty_vars['mode'] = $match->getId();
+    $smarty_vars['contact_ids'] = $match->getParameter('contact_ids');
+    $smarty_vars['contact_ids2probability'] = $match->getParameter('contact_ids2probability');
+    $smarty_vars['injected_contribution_ids'] = $match->getParameter('injected_contribution_ids');
+    $smarty_vars['ignore_message'] = $this->_plugin_config->ignore_message;
+    $smarty_vars['booking_date'] = date('YmdHis', strtotime($btx->booking_date));
+    $smarty_vars['status_pending'] = banking_helper_optionvalue_by_groupname_and_name('contribution_status', 'Pending');
+    $smarty_vars['manual_default_source'] = $this->_plugin_config->manual_default_source;
+    $smarty_vars['manual_default_financial_type_id'] = $this->_plugin_config->manual_default_financial_type_id;
+    $smarty_vars['create_propagation'] = $this->getPropagationSet($btx, $match, 'contribution', $this->_plugin_config->createnew_value_propagation);
 
     // the behaviour for Contribution.get has changed in a weird way with 4.7
     if (version_compare(CRM_Utils_System::version(), '4.7', '>=')) {
-      $smarty_vars['manual_contribution_get_return_params'] = "contact,financial_type";
-    } else {
-      $smarty_vars['manual_contribution_get_return_params'] = "contact_id,financial_type,contact,display_name,receive_date,contribution_status,total_amount,currency";
+      $smarty_vars['manual_contribution_get_return_params'] = 'contact,financial_type';
+    }
+    else {
+      $smarty_vars['manual_contribution_get_return_params'] = 'contact_id,financial_type,contact,display_name,receive_date,contribution_status,total_amount,currency';
     }
 
     // assign to smarty and compile HTML
@@ -265,17 +321,17 @@ class CRM_Banking_PluginImpl_Matcher_DefaultOptions extends CRM_Banking_PluginMo
    * @val $btx      the bank transaction the match refers to
    * @return html code snippet
    */
-  function visualize_execution_info( CRM_Banking_Matcher_Suggestion $match, $btx) {
-    if ($match->getId()==="manual") {
+  public function visualize_execution_info(CRM_Banking_Matcher_Suggestion $match, $btx) {
+    if ($match->getId() === 'manual') {
       $cids = $match->getParameter('contribution_ids');
-      $text = "<p>".E::ts("This transaction was manually matched to the following contributions:")."<ul>";
+      $text = '<p>' . E::ts('This transaction was manually matched to the following contributions:') . '<ul>';
       foreach ($cids as $contribution_id) {
         if ($contribution_id) {
-          $contribution_link = CRM_Utils_System::url("civicrm/contact/view/contribution", "action=view&reset=1&id=$contribution_id&cid=2&context=home");
-          $text .= "<li><a href=\"$contribution_link\">".E::ts("Contribution")." #$contribution_id</a>";
+          $contribution_link = CRM_Utils_System::url('civicrm/contact/view/contribution', "action=view&reset=1&id=$contribution_id&cid=2&context=home");
+          $text .= "<li><a href=\"$contribution_link\">" . E::ts('Contribution') . " #$contribution_id</a>";
         }
       }
-      $text .=  "</ul>";
+      $text .= '</ul>';
       return $text;
     }
   }
@@ -284,28 +340,30 @@ class CRM_Banking_PluginImpl_Matcher_DefaultOptions extends CRM_Banking_PluginMo
    * check if there are more suggestions for this transaction
    */
   private function has_other_suggestions(CRM_Banking_BAO_BankTransaction $btx) {
-    return count($btx->getSuggestions())>0;
+    return count($btx->getSuggestions()) > 0;
   }
 
   /**
    * calculate the absolute probability based on the (possibly) relative value in the config
    */
   private function get_probability($string_value, CRM_Banking_BAO_BankTransaction $btx) {
-    if (substr($string_value, -1) === "%") {
+    if (substr($string_value, -1) === '%') {
       // if the value ends in '%' it's meant to be relative to the least probable suggestion
       $suggestion_list = $btx->getSuggestionList();
       $least_probable = end($suggestion_list);
       if ($least_probable) {
         $least_probable_value = $least_probable->getProbability();
-      } else {
+      }
+      else {
         $least_probable_value = 1;
       }
-      return $least_probable_value * substr($string_value, 0, strlen($string_value)-1) / 100.0;
+      return $least_probable_value * substr($string_value, 0, strlen($string_value) - 1) / 100.0;
 
-    } else {
+    }
+    else {
       // in the default case, we just assume it's an absolute value anyways...
       return $string_value;
     }
   }
-}
 
+}

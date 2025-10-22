@@ -14,26 +14,30 @@
 | written permission from the original author(s).        |
 +--------------------------------------------------------*/
 
+declare(strict_types = 1);
+
 use CRM_Banking_ExtensionUtil as E;
 
 /**
- *
- * @package org.project60.banking
- * @copyright GNU Affero General Public License
- * $Id$
- *
+ * phpcs:disable Generic.NamingConventions.AbstractClassNamePrefix.Missing
  */
 abstract class CRM_Banking_PluginModel_PostProcessor extends CRM_Banking_PluginModel_BtxBase {
 
-  function __construct($plugin_dao) {
+  public function __construct($plugin_dao) {
     parent::__construct($plugin_dao);
 
     // read config, set defaults
     $config = $this->_plugin_config;
 
-    if (!isset($config->require_btx_status_list))      $config->require_btx_status_list = array('processed');
-    if (!isset($config->contribution_fields_required)) $config->contribution_fields_required = '';
-    if (!isset($config->membership_fields_required))   $config->membership_fields_required = '';
+    if (!isset($config->require_btx_status_list)) {
+      $config->require_btx_status_list = ['processed'];
+    }
+    if (!isset($config->contribution_fields_required)) {
+      $config->contribution_fields_required = '';
+    }
+    if (!isset($config->membership_fields_required)) {
+      $config->membership_fields_required = '';
+    }
   }
 
   /**
@@ -48,7 +52,7 @@ abstract class CRM_Banking_PluginModel_PostProcessor extends CRM_Banking_PluginM
    *   The result of the execution, or FALSE when it has not been executed, or
    *   NULL when it might have been executed.
    */
-  public abstract function processExecutedMatch(CRM_Banking_Matcher_Suggestion $match, CRM_Banking_PluginModel_Matcher $matcher, CRM_Banking_Matcher_Context $context);
+  abstract public function processExecutedMatch(CRM_Banking_Matcher_Suggestion $match, CRM_Banking_PluginModel_Matcher $matcher, CRM_Banking_Matcher_Context $context);
 
   /**
    * Visualizes the post processing result for the (already executed) match.
@@ -60,7 +64,7 @@ abstract class CRM_Banking_PluginModel_PostProcessor extends CRM_Banking_PluginM
    *
    * @return mixed
    */
-  public function visualizeExecutedMatch(CRM_Banking_Matcher_Suggestion $match,  CRM_Banking_PluginModel_Matcher $matcher, CRM_Banking_Matcher_Context $context, $result) {
+  public function visualizeExecutedMatch(CRM_Banking_Matcher_Suggestion $match, CRM_Banking_PluginModel_Matcher $matcher, CRM_Banking_Matcher_Context $context, $result) {
     return E::ts('%1 might have been executed.', [1 => $this->getName()]);
   }
 
@@ -70,14 +74,12 @@ abstract class CRM_Banking_PluginModel_PostProcessor extends CRM_Banking_PluginM
    *
    * @param CRM_Banking_Matcher_Suggestion $match
    *   The executed match.
-   * @param CRM_Banking_BAO_BankTransaction $btx
-   *   The related transaction.
    * @param CRM_Banking_PluginModel_Matcher $matcher
    *   The matcher plugin executed.
    * @param CRM_Banking_Matcher_Context $context
    *    The matcher context contains cache data and context information.
    *
-   * @return string | NULL
+   * @return string|NULL
    *   HTML markup describing what this post processor might/will be doing after
    *   executing the selected match, or NULL when the post processor will
    *   certainly not be process the executed match. If unsure whether the post
@@ -105,8 +107,6 @@ abstract class CRM_Banking_PluginModel_PostProcessor extends CRM_Banking_PluginM
    *
    * @param CRM_Banking_Matcher_Suggestion $match
    *   The executed match.
-   * @param CRM_Banking_BAO_BankTransaction $btx
-   *   The related transaction.
    * @param CRM_Banking_Matcher_Context $context
    *   The matcher context contains cache data and context information.
    * @param bool $preview
@@ -137,14 +137,14 @@ abstract class CRM_Banking_PluginModel_PostProcessor extends CRM_Banking_PluginM
       );
       if (!in_array($btx_status_name, $config->require_btx_status_list)) {
         // TODO: log: NOT IN STATUS
-        $this->logMessage("Not executing, not in status " . json_encode($config->require_btx_status_list), 'debug');
+        $this->logMessage('Not executing, not in status ' . json_encode($config->require_btx_status_list), 'debug');
         return FALSE;
       }
     }
 
     // check required values
     if (!$this->requiredValuesPresent($context->btx)) {
-      $this->logMessage("Not executing, required values missing.", 'debug');
+      $this->logMessage('Not executing, required values missing.', 'debug');
       return FALSE;
     }
 
@@ -179,22 +179,26 @@ abstract class CRM_Banking_PluginModel_PostProcessor extends CRM_Banking_PluginM
    * Get the ONE contact this transaction has been associated with. If there are
    *  multiple candidates, NULL is returned
    *
-   * @param $context  the matcher context contains cache data and context information
+   * @param \CRM_Banking_Matcher_Context $context The matcher context contains cache data and context information
    *
-   * @return int      contact_id of the unique contact linked to the transaction, NULL if not exists/unique
+   * @return int contact_id of the unique contact linked to the transaction, NULL if not exists/unique
    */
   protected function getSoleContactID(CRM_Banking_Matcher_Context $context) {
     $contact_id = NULL;
     $contributions = $this->getContributions($context);
     foreach ($contributions as $contribution) {
+      // phpcs:disable Generic.CodeAnalysis.EmptyStatement.DetectedIf
       if (empty($contribution['contact_id'])) {
         // log: problem
       }
+      // phpcs:enable
       if ($contact_id == NULL) {
         $contact_id = $contribution['contact_id'];
-      } elseif ($contact_id == $contribution['contact_id']) {
+      }
+      elseif ($contact_id == $contribution['contact_id']) {
         continue;
-      } else {
+      }
+      else {
         // there is more than one contact:
         return NULL;
       }
@@ -213,8 +217,9 @@ abstract class CRM_Banking_PluginModel_PostProcessor extends CRM_Banking_PluginM
   protected function getSoleContact(CRM_Banking_Matcher_Context $context) {
     $contact_id = $this->getSoleContactID($context);
     if ($contact_id) {
-      return civicrm_api3('Contact', 'getsingle', array('id' => $contact_id));
-    } else {
+      return civicrm_api3('Contact', 'getsingle', ['id' => $contact_id]);
+    }
+    else {
       return NULL;
     }
   }
@@ -227,11 +232,11 @@ abstract class CRM_Banking_PluginModel_PostProcessor extends CRM_Banking_PluginM
     $contributions = $this->getContributions($context);
     if (empty($contributions)) {
       return NULL;
-    } else {
+    }
+    else {
       return reset($contributions);
     }
   }
-
 
   /**
    * Get the list of contributions linked to this trxn ID
@@ -243,19 +248,22 @@ abstract class CRM_Banking_PluginModel_PostProcessor extends CRM_Banking_PluginM
   protected function getContributions(CRM_Banking_Matcher_Context $context) {
     $cache_key = "{$this->_plugin_id}_contributions_{$context->btx->id}";
     $cached_result = $context->getCachedEntry($cache_key);
-    if ($cached_result !== NULL) return $cached_result;
+    if ($cached_result !== NULL) {
+      return $cached_result;
+    }
 
     $connected_contribution_ids = $this->getContributionIDs($context);
     if (empty($connected_contribution_ids)) {
-      return array();
+      return [];
     }
 
     // compile a query
     $config = $this->_plugin_config;
-    $contribution_query = array(
-      'id'           => array('IN' => $connected_contribution_ids),
+    $contribution_query = [
+      'id'           => ['IN' => $connected_contribution_ids],
       'option.limit' => 0,
-      'sequential'   => 1);
+      'sequential'   => 1,
+    ];
 
     // add return clause
     if (!empty($config->contribution_fields_required)) {
@@ -271,7 +279,6 @@ abstract class CRM_Banking_PluginModel_PostProcessor extends CRM_Banking_PluginM
     return $contributions;
   }
 
-
   /**
    * Get the first Membership linked the contribution via MembershipPayments
    *
@@ -283,7 +290,8 @@ abstract class CRM_Banking_PluginModel_PostProcessor extends CRM_Banking_PluginM
     $memberships = $this->getMemberships($context);
     if (empty($memberships)) {
       return NULL;
-    } else {
+    }
+    else {
       return reset($memberships);
     }
   }
@@ -298,32 +306,37 @@ abstract class CRM_Banking_PluginModel_PostProcessor extends CRM_Banking_PluginM
   protected function getMemberships(CRM_Banking_Matcher_Context $context) {
     $cache_key = "{$this->_plugin_id}_memberships_{$context->btx->id}";
     $cached_result = $context->getCachedEntry($cache_key);
-    if ($cached_result !== NULL) return $cached_result;
+    if ($cached_result !== NULL) {
+      return $cached_result;
+    }
 
     $connected_contribution_ids = $this->getContributionIDs($context);
     if (empty($connected_contribution_ids)) {
-      return array();
+      return [];
     }
 
-    $membership_search = civicrm_api3('MembershipPayment', 'get', array(
-      'contribution_id' => array('IN' => $connected_contribution_ids),
+    $membership_search = civicrm_api3('MembershipPayment', 'get', [
+      'contribution_id' => ['IN' => $connected_contribution_ids],
       'option.limit'    => 0,
-      'sequential'      => 1));
-    $membership2contribution = array();
+      'sequential'      => 1,
+    ]);
+    $membership2contribution = [];
     foreach ($membership_search['values'] as $membership_payment) {
       if (isset($membership2contribution[$membership_payment['membership_id']])) {
         $membership2contribution[$membership_payment['membership_id']][] = $membership_payment['contribution_id'];
-      } else {
-        $membership2contribution[$membership_payment['membership_id']] = array($membership_payment['contribution_id']);
+      }
+      else {
+        $membership2contribution[$membership_payment['membership_id']] = [$membership_payment['contribution_id']];
       }
     }
 
     if (!empty($membership2contribution)) {
       $config = $this->_plugin_config;
-      $membership_query = array(
-        'id'           => array('IN' => array_keys($membership2contribution)),
+      $membership_query = [
+        'id'           => ['IN' => array_keys($membership2contribution)],
         'option.limit' => 0,
-        'sequential'   => 1);
+        'sequential'   => 1,
+      ];
 
       // add return clause
       if (!empty($config->membership_fields_required)) {
@@ -334,15 +347,15 @@ abstract class CRM_Banking_PluginModel_PostProcessor extends CRM_Banking_PluginM
       $result = civicrm_api3('Membership', 'get', $membership_query);
       $memberships = $result['values'];
 
-    } else {
-      $memberships = array();
+    }
+    else {
+      $memberships = [];
     }
 
     // cache result
     $context->setCachedEntry($cache_key, $memberships);
     return $memberships;
   }
-
 
   /**
    * Get the list of contributions linked to this trxn ID
@@ -353,7 +366,7 @@ abstract class CRM_Banking_PluginModel_PostProcessor extends CRM_Banking_PluginM
    */
   protected function getContributionIDs(CRM_Banking_Matcher_Context $context) {
     $match = $context->getExecutedSuggestion();
-    $contribution_ids = array();
+    $contribution_ids = [];
 
     if ($match) {
       // get the single-style ('contribution_id')
@@ -381,17 +394,19 @@ abstract class CRM_Banking_PluginModel_PostProcessor extends CRM_Banking_PluginM
    */
   protected function tagContact($contact_id, $tag_names) {
     foreach ($tag_names as $tag_name) {
-      $tag = civicrm_api3('Tag', 'get', array(
+      $tag = civicrm_api3('Tag', 'get', [
         'name'     => $tag_name,
-        'used_for' => 'civicrm_contact'));
+        'used_for' => 'civicrm_contact',
+      ]);
       if (!empty($tag['id'])) {
-        civicrm_api3('EntityTag', 'create', array(
+        civicrm_api3('EntityTag', 'create', [
           'entity_id'    => $contact_id,
           'entity_table' => 'civicrm_contact',
-          'tag_id'       => $tag['id']));
+          'tag_id'       => $tag['id'],
+        ]);
         $this->logMessage("Tagged [{$contact_id}] with '{$tag_name}'.", 'info');
       }
     }
   }
-}
 
+}

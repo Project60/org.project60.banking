@@ -14,9 +14,9 @@
 | written permission from the original author(s).        |
 +--------------------------------------------------------*/
 
-use CRM_Banking_ExtensionUtil as E;
+declare(strict_types = 1);
 
-require_once 'CRM/Banking/Helpers/OptionValue.php';
+use CRM_Banking_ExtensionUtil as E;
 
 /**
  * This matcher tries to reconcile the payments with existing memberships.
@@ -26,18 +26,26 @@ class CRM_Banking_PluginImpl_Matcher_Membership extends CRM_Banking_PluginModel_
   /**
    * class constructor
    */
-  function __construct($config_name) {
+  public function __construct($config_name) {
     parent::__construct($config_name);
 
     // read config, set defaults
     $config = $this->_plugin_config;
-    if (!isset($config->threshold))           $config->threshold = 0.5;
-    if (!isset($config->general_options))     $config->general_options = array();
-    if (!isset($config->membership_options))  $config->membership_options = array();
+    if (!isset($config->threshold)) {
+      $config->threshold = 0.5;
+    }
+    if (!isset($config->general_options)) {
+      $config->general_options = [];
+    }
+    if (!isset($config->membership_options)) {
+      $config->membership_options = [];
+    }
 
     // if TRUE, the start_date will be used to determine the payment cycle,
     //   if FALSE, the join_date will be used.
-    if (!isset($config->based_on_start_date)) $config->based_on_start_date = TRUE;
+    if (!isset($config->based_on_start_date)) {
+      $config->based_on_start_date = TRUE;
+    }
   }
 
   /**
@@ -61,19 +69,20 @@ class CRM_Banking_PluginImpl_Matcher_Membership extends CRM_Banking_PluginModel_
       $suggestion = new CRM_Banking_Matcher_Suggestion($this, $btx);
       if (isset($config->general_options->suggestion_title)) {
         $suggestion->setTitle($config->general_options->suggestion_title);
-      } else {
-        $suggestion->setTitle(E::ts("Record as Membership Fee"));
+      }
+      else {
+        $suggestion->setTitle(E::ts('Record as Membership Fee'));
       }
 
-      $suggestion->setId("membership-".$membership['id']);
+      $suggestion->setId('membership-' . $membership['id']);
       $suggestion->setParameter('membership_id', $membership['id']);
-      $suggestion->setParameter('last_fee_id',   $membership['last_fee_id']);
+      $suggestion->setParameter('last_fee_id', $membership['last_fee_id']);
       $suggestion->setProbability($membership['probability']);
       $btx->addSuggestion($suggestion);
     }
 
     // that's it...
-    return empty($this->_suggestions) ? null : $this->_suggestions;
+    return empty($this->_suggestions) ? NULL : $this->_suggestions;
   }
 
   /**
@@ -88,36 +97,35 @@ class CRM_Banking_PluginImpl_Matcher_Membership extends CRM_Banking_PluginModel_
    */
   public function execute($suggestion, $btx) {
     $membership_id = $suggestion->getParameter('membership_id');
-    $membership = civicrm_api3('Membership', 'getsingle', array('id' => $membership_id));
-    $membership_type = civicrm_api3('MembershipType', 'getsingle', array('id' => $membership['membership_type_id']));
-
+    $membership = civicrm_api3('Membership', 'getsingle', ['id' => $membership_id]);
+    $membership_type = civicrm_api3('MembershipType', 'getsingle', ['id' => $membership['membership_type_id']]);
 
     // TODO: verify validity of suggestion (is outdated?)
 
     // 1. create contribution
-    $contribution_parameters = array(
-        'contact_id'        => $membership['contact_id'],
-        'total_amount'      => $btx->amount,
-        'currency'          => $btx->currency,
-        'receive_date'      => $btx->value_date,
-        'financial_type_id' => $this->getMembershipOption($membership_type['id'], 'financial_type_id', $membership_type['financial_type_id']),
-        'version'           => 3,
-      );
+    $contribution_parameters = [
+      'contact_id'        => $membership['contact_id'],
+      'total_amount'      => $btx->amount,
+      'currency'          => $btx->currency,
+      'receive_date'      => $btx->value_date,
+      'financial_type_id' => $this->getMembershipOption($membership_type['id'], 'financial_type_id', $membership_type['financial_type_id']),
+      'version'           => 3,
+    ];
     $contribution_parameters = array_merge($contribution_parameters, $this->getPropagationSet($btx, $suggestion, 'contribution'));
-    $contribution = civicrm_api('Contribution', 'create',  $contribution_parameters);
+    $contribution = civicrm_api('Contribution', 'create', $contribution_parameters);
     if (!empty($contribution['is_error'])) {
-      CRM_Core_Session::setStatus(E::ts("Couldn't create contribution.")."<br/>".E::ts("Error was: ").$contribution['error_message'], E::ts('Error'), 'error');
-      return true;
+      CRM_Core_Session::setStatus(E::ts("Couldn't create contribution.") . '<br/>' . E::ts('Error was: ') . $contribution['error_message'], E::ts('Error'), 'error');
+      return TRUE;
     }
 
     // 2. connect to membership
-    civicrm_api3('MembershipPayment', 'create',  array(
+    civicrm_api3('MembershipPayment', 'create', [
       'membership_id'   => $membership_id,
-      'contribution_id' => $contribution['id']
-      ));
+      'contribution_id' => $contribution['id'],
+    ]);
 
     // wrap it up
-    $suggestion->setParameter('contact_id',      $membership['contact_id']);
+    $suggestion->setParameter('contact_id', $membership['contact_id']);
     $suggestion->setParameter('contribution_id', $contribution['id']);
     $this->storeAccountWithContact($btx, $membership['contact_id']);
     CRM_Banking_BAO_BankTransactionContribution::linkContribution($btx->id, $contribution['id']);
@@ -125,7 +133,7 @@ class CRM_Banking_PluginImpl_Matcher_Membership extends CRM_Banking_PluginModel_
     $newStatus = banking_helper_optionvalueid_by_groupname_and_name('civicrm_banking.bank_tx_status', 'Processed');
     $btx->setStatus($newStatus);
     parent::execute($suggestion, $btx);
-    return true;
+    return TRUE;
   }
 
   /**
@@ -146,9 +154,9 @@ class CRM_Banking_PluginImpl_Matcher_Membership extends CRM_Banking_PluginModel_
    * @val $btx      the bank transaction the match refers to
    * @return html code snippet
    */
-  function visualize_match( CRM_Banking_Matcher_Suggestion $match, $btx) {
+  public function visualize_match(CRM_Banking_Matcher_Suggestion $match, $btx) {
     $config = $this->_plugin_config;
-    $smarty_vars = array();
+    $smarty_vars = [];
 
     // load the contribution
     $membership_id = $match->getParameter('membership_id');
@@ -156,21 +164,21 @@ class CRM_Banking_PluginImpl_Matcher_Membership extends CRM_Banking_PluginModel_
 
     // LOAD entities
     // TODO: error handling
-    $membership        = civicrm_api('Membership', 'getsingle', array('id' => $membership_id, 'version'=>3));
-    $membership_type   = civicrm_api('MembershipType', 'getsingle', array('id' => $membership['membership_type_id'], 'version'=>3));
-    $membership_status = civicrm_api('MembershipStatus', 'getsingle', array('id' => $membership['status_id'], 'version'=>3));
-    $contact           = civicrm_api('Contact', 'getsingle', array('id' => $membership['contact_id'], 'version'=>3));
+    $membership        = civicrm_api('Membership', 'getsingle', ['id' => $membership_id, 'version' => 3]);
+    $membership_type   = civicrm_api('MembershipType', 'getsingle', ['id' => $membership['membership_type_id'], 'version' => 3]);
+    $membership_status = civicrm_api('MembershipStatus', 'getsingle', ['id' => $membership['status_id'], 'version' => 3]);
+    $contact           = civicrm_api('Contact', 'getsingle', ['id' => $membership['contact_id'], 'version' => 3]);
 
     // load last fee
     if (!empty($last_fee_id)) {
-      $last_fee                = civicrm_api('Contribution', 'getsingle', array('id' => $last_fee_id, 'version'=>3));
-      $last_fee['days']        = round((strtotime($btx->booking_date)-(int) strtotime($last_fee['receive_date'])) / (60 * 60 * 24));
+      $last_fee                = civicrm_api('Contribution', 'getsingle', ['id' => $last_fee_id, 'version' => 3]);
+      $last_fee['days']        = round((strtotime($btx->booking_date) - (int) strtotime($last_fee['receive_date'])) / (60 * 60 * 24));
       $smarty_vars['last_fee'] = $last_fee;
     }
 
     // calculate some stuff
-    $date_field = ($config->based_on_start_date)?'start_date':'join_date';
-    $membership['days'] = round((strtotime($btx->booking_date)-strtotime($membership[$date_field])) / (60 * 60 * 24));
+    $date_field = ($config->based_on_start_date) ? 'start_date' : 'join_date';
+    $membership['days'] = round((strtotime($btx->booking_date) - strtotime($membership[$date_field])) / (60 * 60 * 24));
     $membership['percentage_of_minimum'] = round(($btx->amount / (float) $membership_type['minimum_fee']) * 100);
     $membership['title'] = $this->getMembershipOption($membership['membership_type_id'], 'title', $membership_type['name']);
 
@@ -194,9 +202,9 @@ class CRM_Banking_PluginImpl_Matcher_Membership extends CRM_Banking_PluginModel_
    * @val $btx      the bank transaction the match refers to
    * @return html code snippet
    */
-  function visualize_execution_info( CRM_Banking_Matcher_Suggestion $match, $btx) {
+  public function visualize_execution_info(CRM_Banking_Matcher_Suggestion $match, $btx) {
     // just assign to smarty and compile HTML
-    $smarty_vars = array();
+    $smarty_vars = [];
     $smarty_vars['membership_id']    = $match->getParameter('membership_id');
     $smarty_vars['contribution_id']  = $match->getParameter('contribution_id');
     $smarty_vars['contact_id']       = $match->getParameter('contact_id');
@@ -208,21 +216,22 @@ class CRM_Banking_PluginImpl_Matcher_Membership extends CRM_Banking_PluginModel_
     return $html_snippet;
   }
 
-
   /**
    * This function will use the given parameters to find
    * all potential membership IDs with the contacts found.
    */
   protected function findMemberships($contact2probability, $btx, $context) {
-    if (empty($contact2probability)) return array();
+    if (empty($contact2probability)) {
+      return [];
+    }
 
     $config = $this->_plugin_config;
     $penalty     = $this->getPenalty($btx);
-    $memberships = array();
+    $memberships = [];
     $query_sql = $this->createSQLQuery(array_keys($contact2probability), $btx->amount, $context);
     $query = CRM_Core_DAO::executeQuery($query_sql);
     while ($query->fetch()) {
-      $memberships[] = array(
+      $memberships[] = [
         'id'                           => $query->id,
         'contact_id'                   => $query->contact_id,
         'membership_type_id'           => $query->membership_type_id,
@@ -235,11 +244,11 @@ class CRM_Banking_PluginImpl_Matcher_Membership extends CRM_Banking_PluginModel_
         'membership_duration_interval' => $query->membership_duration_interval,
         'membership_period_type'       => $query->membership_period_type,
         'membership_minimum_fee'       => $query->membership_minimum_fee,
-        );
+      ];
     }
 
     // now rate all the memberships, and cut off the ones under the threshold
-    $result = array();
+    $result = [];
     foreach ($memberships as $membership) {
       $probability = $this->rateMembership($membership, $btx, $context);
       if (isset($contact2probability[$membership['contact_id']])) {
@@ -256,7 +265,6 @@ class CRM_Banking_PluginImpl_Matcher_Membership extends CRM_Banking_PluginModel_
     return $result;
   }
 
-
   /**
    * This function will generate an SQL statement to
    * find all relevant memberships. It should also
@@ -269,12 +277,12 @@ class CRM_Banking_PluginImpl_Matcher_Membership extends CRM_Banking_PluginModel_
    * @return SQL string
    */
   protected function createSQLQuery($contact_ids, $amount, $context) {
-    $cache_key = "matcher_membership_" . $this->_plugin_id . "_query";
+    $cache_key = 'matcher_membership_' . $this->_plugin_id . '_query';
     $query = CRM_Utils_StaticCache::getCachedEntry($cache_key);
     if ($query == NULL) {
       // NOT CACHED, build query
       $config = $this->_plugin_config;
-      $date_field = ($config->based_on_start_date)?'start_date':'join_date';
+      $date_field = ($config->based_on_start_date) ? 'start_date' : 'join_date';
       $base_query = "
       SELECT
         civicrm_membership.id                     AS id,
@@ -304,7 +312,7 @@ class CRM_Banking_PluginImpl_Matcher_Membership extends CRM_Banking_PluginModel_
       ";
 
       // LATEST CONTRIBUTION CRITERIA:
-      $contribution_subquery = "
+      $contribution_subquery = '
       SELECT    last_contribution.id
       FROM      civicrm_contribution AS last_contribution
       LEFT JOIN civicrm_membership_payment
@@ -313,17 +321,17 @@ class CRM_Banking_PluginImpl_Matcher_Membership extends CRM_Banking_PluginModel_
       AND       last_contribution.is_test = 0
       AND       civicrm_membership_payment.membership_id = civicrm_membership.id
       ORDER BY  receive_date DESC
-      LIMIT 1";
+      LIMIT 1';
 
       // load all membership types
-      $membership_types = array();
-      $_membership_types = civicrm_api3('MembershipType', 'get', array('option.limit' => 99999));
+      $membership_types = [];
+      $_membership_types = civicrm_api3('MembershipType', 'get', ['option.limit' => 99999]);
       foreach ($_membership_types['values'] as $membership_type) {
         $membership_types[$membership_type['id']] = $membership_type;
       }
 
       // get $membership_type_id_list
-      $membership_type_ids = array();
+      $membership_type_ids = [];
       if (isset($config->general_options->membership_type_ids)) {
         // if there is a given list, we'll take it
         $membership_type_ids_option = explode(',', $config->general_options->membership_type_ids);
@@ -332,7 +340,8 @@ class CRM_Banking_PluginImpl_Matcher_Membership extends CRM_Banking_PluginModel_
             $membership_type_ids[] = (int) $membership_type_id;
           }
         }
-      } else {
+      }
+      else {
         // if there is no given list, we'll take all active type
         foreach ($membership_types as $membership_type_id => $membership_type) {
           if ($membership_type['is_active']) {
@@ -340,10 +349,9 @@ class CRM_Banking_PluginImpl_Matcher_Membership extends CRM_Banking_PluginModel_
           }
         }
       }
-      //if (empty($membership_type_ids)) throw Exception("matcher_membership: No active membership types found.");
 
       // compile $membership_type_clauses
-      $membership_type_clauses = array();
+      $membership_type_clauses = [];
       foreach ($membership_type_ids as $membership_type_id) {
         $amount_range = $this->getMembershipAmountRange($membership_types[$membership_type_id], $context);
         $membership_type_clauses[] = "(
@@ -356,7 +364,7 @@ class CRM_Banking_PluginImpl_Matcher_Membership extends CRM_Banking_PluginModel_
       }
 
       // compile final query:
-      $membership_type_id_list     = implode(',',    $membership_type_ids);
+      $membership_type_id_list     = implode(',', $membership_type_ids);
       $membership_type_clauses_sql = implode(' OR ', $membership_type_clauses);
       $query = sprintf($base_query, $contribution_subquery,
                                     $membership_type_id_list,
@@ -372,8 +380,7 @@ class CRM_Banking_PluginImpl_Matcher_Membership extends CRM_Banking_PluginModel_
     // insert the contact IDs
     $contact_id_list = implode(',', $contact_ids);
     $final_sql = str_replace('CONTACT_IDS', $contact_id_list, $query);
-    $final_sql = str_replace('BTX_AMOUNT',  $amount,          $final_sql);
-    //error_log($final_sql);
+    $final_sql = str_replace('BTX_AMOUNT', $amount, $final_sql);
     return $final_sql;
   }
 
@@ -387,10 +394,10 @@ class CRM_Banking_PluginImpl_Matcher_Membership extends CRM_Banking_PluginModel_
     $expected_fee = (float) $this->getMembershipOption($membership_type['id'],
                                 'membership_fee', $membership_type['minimum_fee']);
     $min_factor   = (float) $this->getMembershipOption($membership_type['id'],
-                                'amount_min',     1.0);
+                                'amount_min', 1.0);
     $max_factor   = (float) $this->getMembershipOption($membership_type['id'],
-                                'amount_max',     1.0);
-    return array($expected_fee * $min_factor, $expected_fee * $max_factor, $expected_fee);
+                                'amount_max', 1.0);
+    return [$expected_fee * $min_factor, $expected_fee * $max_factor, $expected_fee];
   }
 
   /**
@@ -411,7 +418,8 @@ class CRM_Banking_PluginImpl_Matcher_Membership extends CRM_Banking_PluginModel_
     }
     if ($value === NULL) {
       return $default;
-    } else {
+    }
+    else {
       return $value;
     }
   }
@@ -430,13 +438,14 @@ class CRM_Banking_PluginImpl_Matcher_Membership extends CRM_Banking_PluginModel_
       // expected fee is the last paid amount, or the minimum fee
       if ($membership['last_fee_amount']) {
         $expected_fee = $this->getMembershipOption($membership['membership_type_id'], 'expected_fee', $membership['last_fee_amount']);
-      } else {
+      }
+      else {
         $expected_fee = $this->getMembershipOption($membership['membership_type_id'], 'expected_fee', $membership['membership_minimum_fee']);
       }
 
       $amount_deviation_relative_min = $this->getMembershipOption($membership['membership_type_id'], 'amount_deviation_relative_min', 1.0);
       $amount_deviation_relative_max = $this->getMembershipOption($membership['membership_type_id'], 'amount_deviation_relative_max', 1.0);
-      $relative_deviation = ((float)$btx->amount / (float) $expected_fee);
+      $relative_deviation = ((float) $btx->amount / (float) $expected_fee);
       if ($relative_deviation < $amount_deviation_relative_min || $relative_deviation > $amount_deviation_relative_max) {
         $rating -= $amount_penalty;
       }
@@ -450,26 +459,29 @@ class CRM_Banking_PluginImpl_Matcher_Membership extends CRM_Banking_PluginModel_
       // TODO: get estimated next date (since last payment OR start_date)
       if ($membership['last_fee_date']) {
         $reference_date = strtotime($membership['last_fee_date']);
-      } else {
+      }
+      else {
         $reference_date = strtotime($membership['membership_start_date']);
       }
-      $period_type     = $this->getMembershipOption($membership['membership_type_id'], 'period_type',     $membership['membership_period_type']);
-      $period_unit     = $this->getMembershipOption($membership['membership_type_id'], 'period_unit',     $membership['membership_duration_unit']);
+      $period_type     = $this->getMembershipOption($membership['membership_type_id'], 'period_type', $membership['membership_period_type']);
+      $period_unit     = $this->getMembershipOption($membership['membership_type_id'], 'period_unit', $membership['membership_duration_unit']);
       $period_interval = $this->getMembershipOption($membership['membership_type_id'], 'period_interval', $membership['membership_duration_interval']);
       if ($period_type == 'rolling') {
         // ROLLING: the expected date is one interval after the last payment (or start date)
         $expected_fee_date = strtotime("+$period_interval $period_unit", $reference_date);
-      } else if ($period_type == 'fixed') {
+      }
+      elseif ($period_type == 'fixed') {
         // FIXED: the expected date is one interval after the last payment (or start date)
         // TODO: Implement evaluating fixed_period dates...until then: use same as ROLLING
         $expected_fee_date = strtotime("+$period_interval $period_unit", $reference_date);
-      } else {
+      }
+      else {
         // OTHER: no expected date, set to the booking date of the payment
         $expected_fee_date = strtotime($btx->booking_date);
       }
 
       $date_deviation = strtotime($btx->booking_date) - $expected_fee_date;
-      $period_length  = strtotime("+$period_interval $period_unit") - strtotime("now");
+      $period_length  = strtotime("+$period_interval $period_unit") - strtotime('now');
       $date_deviation_relative = $date_deviation / $period_length;
 
       if ($date_deviation_relative < $date_deviation_relative_min || $date_deviation_relative > $date_deviation_relative_max) {
@@ -479,5 +491,5 @@ class CRM_Banking_PluginImpl_Matcher_Membership extends CRM_Banking_PluginModel_
 
     return $rating;
   }
-}
 
+}

@@ -14,7 +14,7 @@
 | written permission from the original author(s).        |
 +--------------------------------------------------------*/
 
-use CRM_Banking_ExtensionUtil as E;
+declare(strict_types = 1);
 
 /**
  * This PostProcessor call an API action if triggered
@@ -24,17 +24,27 @@ class CRM_Banking_PluginImpl_PostProcessor_API extends CRM_Banking_PluginModel_P
   /**
    * class constructor
    */
-  function __construct($config_name) {
+  public function __construct($config_name) {
     parent::__construct($config_name);
 
     // read config, set defaults
     $config = $this->_plugin_config;
 
-    if (!isset($config->entity))            $config->entity = NULL;
-    if (!isset($config->action))            $config->action = NULL;
-    if (!isset($config->params))            $config->params = array();
-    if (!isset($config->loop))              $config->loop =   array();
-    if (!isset($config->param_propagation)) $config->param_propagation = array();
+    if (!isset($config->entity)) {
+      $config->entity = NULL;
+    }
+    if (!isset($config->action)) {
+      $config->action = NULL;
+    }
+    if (!isset($config->params)) {
+      $config->params = [];
+    }
+    if (!isset($config->loop)) {
+      $config->loop = [];
+    }
+    if (!isset($config->param_propagation)) {
+      $config->param_propagation = [];
+    }
   }
 
   /**
@@ -62,7 +72,6 @@ class CRM_Banking_PluginImpl_PostProcessor_API extends CRM_Banking_PluginModel_P
     return parent::shouldExecute($match, $matcher, $context, $preview);
   }
 
-
   /**
    * Postprocess the (already executed) match
    *
@@ -76,7 +85,7 @@ class CRM_Banking_PluginImpl_PostProcessor_API extends CRM_Banking_PluginModel_P
 
     if ($this->shouldExecute($match, $matcher, $context)) {
       // compile call parameters
-      $params = array();
+      $params = [];
       foreach ($config->params as $key => $value) {
         if ($value !== NULL) {
           $params[$key] = $value;
@@ -96,13 +105,15 @@ class CRM_Banking_PluginImpl_PostProcessor_API extends CRM_Banking_PluginModel_P
           // there is a loop command in here
           $this->loopCall($context, $config, $params, 1);
 
-        } else {
+        }
+        else {
           // no loop -> just execute
           $this->logMessage("CALLING {$config->entity}.{$config->action} with " . json_encode($params), 'debug');
           civicrm_api3($config->entity, $config->action, $params);
         }
 
-      } catch (Exception $e) {
+      }
+      catch (Exception $e) {
         $this->logMessage("CALLING {$config->entity}.{$config->action} failed: " . $e->getMessage(), 'error');
       }
     }
@@ -113,25 +124,27 @@ class CRM_Banking_PluginImpl_PostProcessor_API extends CRM_Banking_PluginModel_P
    */
   protected function loopCall($context, $config, $params, $level) {
     if ($level <= count($config->loop)) {
-      if (is_object($config->loop[$level-1]) || is_array($config->loop[$level-1])) {
+      if (is_object($config->loop[$level - 1]) || is_array($config->loop[$level - 1])) {
         // ok, all clear -> start looping level $level
-        foreach ($config->loop[$level-1] as $attribute => $source) {
+        foreach ($config->loop[$level - 1] as $attribute => $source) {
           $values = $this->getLoopValues($context, $source);
           // these are the values to loop over in this level
           foreach ($values as $value) {
             $params[$attribute] = $value;
             if ($level < count($config->loop)) {
               // this is not the lowest level -> recursive call
-              $this->loopCall($context, $config, $params, $level+1);
-            } else {
+              $this->loopCall($context, $config, $params, $level + 1);
+            }
+            else {
               // this IS the last level, DO the call
               $this->logMessage("CALLING {$config->entity}.{$config->action} with " . json_encode($params), 'debug');
               civicrm_api3($config->entity, $config->action, $params);
             }
           }
         }
-      } else {
-        $this->logMessage("loop parameter is incorrectly structured.", 'error');
+      }
+      else {
+        $this->logMessage('loop parameter is incorrectly structured.', 'error');
       }
     }
   }
@@ -140,14 +153,16 @@ class CRM_Banking_PluginImpl_PostProcessor_API extends CRM_Banking_PluginModel_P
    * get a list of values from the field
    */
   protected function getLoopValues($context, $source) {
-    $value = $this->getPropagationValue($context->btx, null, $source);
+    $value = $this->getPropagationValue($context->btx, NULL, $source);
 
     if ($value === NULL) {
-      return array();
-    } elseif (is_array($value)) {
+      return [];
+    }
+    elseif (is_array($value)) {
       // oh, this is already an array
       return $value;
-    } else {
+    }
+    else {
       // check if it is JSON data
       $json_list = json_decode($value, TRUE);
       if ($json_list && is_array($json_list)) {
@@ -158,5 +173,5 @@ class CRM_Banking_PluginImpl_PostProcessor_API extends CRM_Banking_PluginModel_P
       return explode(',', $value);
     }
   }
-}
 
+}

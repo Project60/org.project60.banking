@@ -14,13 +14,13 @@
 | written permission from the original author(s).        |
 +--------------------------------------------------------*/
 
-use CRM_Banking_ExtensionUtil as E;
+declare(strict_types = 1);
 
-require_once 'CRM/Core/Page.php';
+use CRM_Banking_ExtensionUtil as E;
 
 class CRM_Banking_Page_Manager extends CRM_Core_Page {
 
-  function run() {
+  public function run() {
     CRM_Utils_System::setTitle(E::ts('Manage CiviBanking Configuration'));
 
     // first: process commands (if any)
@@ -30,8 +30,8 @@ class CRM_Banking_Page_Manager extends CRM_Core_Page {
     $this->processExportCommand();
 
     // load all plugins and sort by
-    $plugin_type_to_instance = array();
-    $plugin_query = CRM_Core_DAO::executeQuery("
+    $plugin_type_to_instance = [];
+    $plugin_query = CRM_Core_DAO::executeQuery('
       SELECT   plugin.id            AS plugin_id,
                plugin.name          AS plugin_name,
                plugin.description   AS plugin_description,
@@ -43,40 +43,40 @@ class CRM_Banking_Page_Manager extends CRM_Core_Page {
       FROM civicrm_bank_plugin_instance plugin
       LEFT JOIN civicrm_option_value type  ON type.id  = plugin_type_id
       LEFT JOIN civicrm_option_value class ON class.id = plugin_class_id
-      ORDER BY plugin.weight ASC");
+      ORDER BY plugin.weight ASC');
 
     while ($plugin_query->fetch()) {
-      $plugin_type_to_instance[$plugin_query->plugin_type][] = array(
+      $plugin_type_to_instance[$plugin_query->plugin_type][] = [
         'id'             => $plugin_query->plugin_id,
         'name'           => $plugin_query->plugin_name,
         'description'    => $plugin_query->plugin_description,
         'enabled'        => $plugin_query->plugin_enabled,
         'class'          => $plugin_query->plugin_class,
         'implementation' => $plugin_query->plugin_class_implementation,
-        'weight'         => $plugin_query->plugin_weight);
+        'weight'         => $plugin_query->plugin_weight,
+      ];
     }
 
     // TODO: enrich data with information from the class,config,...?
 
     // set the type IDs
-    $class_search = civicrm_api3('OptionValue', 'get', array(
+    $class_search = civicrm_api3('OptionValue', 'get', [
       'option_group_id' => 'civicrm_banking.plugin_classes',
-      'options' => array('limit' => 0, 'sort' => "weight"),
-      ));
+      'options' => ['limit' => 0, 'sort' => 'weight'],
+    ]);
     foreach ($class_search['values'] as $optionValue) {
       $this->assign("type_{$optionValue['name']}", $optionValue['id']);
     }
 
     // assign lists to template
-    $this->assign('importers',      CRM_Utils_Array::value('Import plugin',  $plugin_type_to_instance, array()));
-    $this->assign('matchers',       CRM_Utils_Array::value('Match plugin',   $plugin_type_to_instance, array()));
-    $this->assign('postprocessors', CRM_Utils_Array::value('Post Processor', $plugin_type_to_instance, array()));
-    $this->assign('exporters',      CRM_Utils_Array::value('Export plugin',  $plugin_type_to_instance, array()));
+    $this->assign('importers', CRM_Utils_Array::value('Import plugin', $plugin_type_to_instance, []));
+    $this->assign('matchers', CRM_Utils_Array::value('Match plugin', $plugin_type_to_instance, []));
+    $this->assign('postprocessors', CRM_Utils_Array::value('Post Processor', $plugin_type_to_instance, []));
+    $this->assign('exporters', CRM_Utils_Array::value('Export plugin', $plugin_type_to_instance, []));
     $this->assign('baseurl', CRM_Utils_System::url('civicrm/banking/manager'));
 
     parent::run();
   }
-
 
   /**
    * Delete Plugin
@@ -86,11 +86,12 @@ class CRM_Banking_Page_Manager extends CRM_Core_Page {
     $confirmed = CRM_Utils_Request::retrieve('confirmed', 'Integer');
     if ($delete_id) {
       if ($confirmed) {
-        civicrm_api3('BankingPluginInstance', 'delete', array('id' => $delete_id));
-        CRM_Core_Session::setStatus(E::ts("CiviBanking plugin [%1] deleted.", array(1 => $delete_id)), E::ts("Plugin deleted"), "info");
+        civicrm_api3('BankingPluginInstance', 'delete', ['id' => $delete_id]);
+        CRM_Core_Session::setStatus(E::ts('CiviBanking plugin [%1] deleted.', [1 => $delete_id]), E::ts('Plugin deleted'), 'info');
         CRM_Utils_System::redirect(CRM_Utils_System::url('civicrm/banking/manager'));
-      } else {
-        $plugin = civicrm_api3('BankingPluginInstance', 'getsingle', array('id' => $delete_id));
+      }
+      else {
+        $plugin = civicrm_api3('BankingPluginInstance', 'getsingle', ['id' => $delete_id]);
         $this->assign('delete', $plugin);
       }
     }
@@ -116,9 +117,11 @@ class CRM_Banking_Page_Manager extends CRM_Core_Page {
    * Process the order rearrangement commands
    */
   protected function processRearrangeCommand() {
-    foreach (array('top', 'up', 'down', 'bottom') as $cmd) {
+    foreach (['top', 'up', 'down', 'bottom'] as $cmd) {
       $plugin_id = CRM_Utils_Request::retrieve($cmd, 'Integer');
-      if (!$plugin_id) continue;
+      if (!$plugin_id) {
+        continue;
+      }
 
       $plugin_order = $this->getAllPluginSiblings($plugin_id);
       $original_plugin_order = $plugin_order;
@@ -128,15 +131,18 @@ class CRM_Banking_Page_Manager extends CRM_Core_Page {
           case 'top':
             $new_index = 0;
             break;
+
           case 'up':
-            $new_index = max(0, $index-1);
+            $new_index = max(0, $index - 1);
             break;
+
           case 'down':
-            $new_index = min(count($plugin_order)-1, $index+1);
+            $new_index = min(count($plugin_order) - 1, $index + 1);
             break;
+
           default:
           case 'bottom':
-            $new_index = count($plugin_order)-1;
+            $new_index = count($plugin_order) - 1;
             break;
         }
         // copied from https://stackoverflow.com/questions/12624153/move-an-array-element-to-a-new-index-in-php
@@ -166,7 +172,6 @@ class CRM_Banking_Page_Manager extends CRM_Core_Page {
           $exported_data);
     }
 
-
   }
 
   /**
@@ -175,8 +180,10 @@ class CRM_Banking_Page_Manager extends CRM_Core_Page {
    * @return list of plugin IDs in order of weight
    */
   protected function getAllPluginSiblings($plugin_id) {
-    $plugin_order = array();
-    if (!$plugin_id) return $plugin_order;
+    $plugin_order = [];
+    if (!$plugin_id) {
+      return $plugin_order;
+    }
 
     $query = CRM_Core_DAO::executeQuery("
       SELECT id AS plugin_id
@@ -201,4 +208,5 @@ class CRM_Banking_Page_Manager extends CRM_Core_Page {
       $weight = $weight + 10;
     }
   }
+
 }

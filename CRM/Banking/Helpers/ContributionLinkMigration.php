@@ -14,45 +14,46 @@
 | written permission from the original author(s).        |
 +--------------------------------------------------------*/
 
-use CRM_Banking_ExtensionUtil as E;
+declare(strict_types = 1);
 
+use CRM_Banking_ExtensionUtil as E;
 
 /**
  * This is a queue runner to migrate the
  *   legacy contribution link data
  */
-class CRM_Banking_Helpers_ContributionLinkMigration
-{
+class CRM_Banking_Helpers_ContributionLinkMigration {
 
   public $title;
   private $from_tx_id;
   private $to_tx_id;
   private $status_ids;
 
-  public function __construct($from_tx_id, $batch_size)
-  {
+  public function __construct($from_tx_id, $batch_size) {
     $this->from_tx_id = $from_tx_id;
     $this->to_tx_id   = $this->from_tx_id + $batch_size - 1;
-    $this->title      = E::ts("Migrated transactions %1 - %2", [1 => $this->from_tx_id, 2 => $this->to_tx_id]);
+    $this->title      = E::ts('Migrated transactions %1 - %2', [1 => $this->from_tx_id, 2 => $this->to_tx_id]);
     $this->status_ids = implode(',', self::getTxStatusIDs());
   }
 
   /**
    * Run the transaction migration task
    *
-   * @param $context    CRM_Queue_TaskContext
-   * @return bool       success
+   * @param \CRM_Queue_TaskContext $context
+   * @return bool success
+   *
+   * phpcs:disable Generic.Metrics.NestingLevel.TooHigh
    */
-  public function run($context)
-  {
+  public function run($context) {
+  // phpcs:enable
     if (empty($this->status_ids)) {
-      $context->log->err("no status IDs set, this should have been caught before");
-      return false;
+      $context->log->err('no status IDs set, this should have been caught before');
+      return FALSE;
     }
 
     // run a query to the the suggestion strings
     $batch = CRM_Core_DAO::executeQuery(
-        "
+        '
             SELECT
               id          AS tx_id,
               suggestions AS suggestions
@@ -60,11 +61,11 @@ class CRM_Banking_Helpers_ContributionLinkMigration
             WHERE bank_tx.id >= %1
               AND bank_tx.id <= %2
               AND bank_tx.status_id IN (%3)
-          ",
+          ',
         [
-            1 => [(int) $this->from_tx_id, 'Integer'],
-            2 => [(int) $this->to_tx_id, 'Integer'],
-            3 => [$this->status_ids, 'CommaSeparatedIntegers'],
+          1 => [(int) $this->from_tx_id, 'Integer'],
+          2 => [(int) $this->to_tx_id, 'Integer'],
+          3 => [$this->status_ids, 'CommaSeparatedIntegers'],
         ]
     );
 
@@ -72,7 +73,7 @@ class CRM_Banking_Helpers_ContributionLinkMigration
     //   contributions, because each matcher could do their own thing...
     $contribution_id_parameters = ['contribution_id', 'contribution_ids'];
     while ($batch->fetch()) {
-      $suggestions = json_decode($batch->suggestions, true);
+      $suggestions = json_decode($batch->suggestions, TRUE);
       foreach ($suggestions as $suggestion) {
         if (!empty($suggestion['executed'])) {
           // this suggestion has been executed -> find contribution_ids
@@ -94,22 +95,21 @@ class CRM_Banking_Helpers_ContributionLinkMigration
       }
     }
 
-    return true;
+    return TRUE;
   }
 
   /**
    * Get a list of 'completed' status IDs that need to be migrated
    */
-  static function getTxStatusIDs()
-  {
-    static $status_list = null;
-    if ($status_list === null) {
+  public static function getTxStatusIDs() {
+    static $status_list = NULL;
+    if ($status_list === NULL) {
       $status_list = [];
 
       // add processed status
       $status_processed = civicrm_api3('OptionValue', 'get', [
-          'option_group_id' => 'civicrm_banking.bank_tx_status',
-          'name'            => 'processed'
+        'option_group_id' => 'civicrm_banking.bank_tx_status',
+        'name'            => 'processed',
       ]);
       if (!empty($status_processed['id'])) {
         $status_list[] = (int) $status_processed['id'];
@@ -119,4 +119,5 @@ class CRM_Banking_Helpers_ContributionLinkMigration
     }
     return $status_list;
   }
+
 }

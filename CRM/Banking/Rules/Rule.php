@@ -218,7 +218,7 @@ class CRM_Banking_Rules_Rule {
     else {
       // Minimal parsing of conditions.
       if (!is_array($params['conditions'])) {
-        throw new API_Exception("Expect conditions parameter to be an object.");
+        throw new CRM_Core_Exception("Expect conditions parameter to be an object.");
       }
       $conditions = $params['conditions'];
     }
@@ -228,7 +228,7 @@ class CRM_Banking_Rules_Rule {
     else {
       // Minimal parsing of execution.
       if (!is_array($params['execution'])) {
-        throw new API_Exception("Expect execution parameter to be an object.");
+        throw new CRM_Core_Exception("Expect execution parameter to be an object.");
       }
       $executions = $params['execution'];
     }

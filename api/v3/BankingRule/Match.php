@@ -26,7 +26,7 @@ function _civicrm_api3_banking_rule_Match_spec(&$spec) {
  * @return array API result descriptor
  * @see civicrm_api3_create_success
  * @see civicrm_api3_create_error
- * @throws API_Exception
+ * @throws CRM_Core_Exception
  */
 function civicrm_api3_banking_rule_Match($params) {
 
@@ -69,6 +69,6 @@ function civicrm_api3_banking_rule_Match($params) {
       $rule->delete();
     }
 
-    throw new API_Exception($e->getMessage());
+    throw new CRM_Core_Exception($e->getMessage());
   }
 }

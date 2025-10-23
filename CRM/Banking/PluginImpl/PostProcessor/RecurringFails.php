@@ -184,7 +184,7 @@ class CRM_Banking_PluginImpl_PostProcessor_RecurringFails extends CRM_Banking_Pl
    * @param $mandate_stats
    * @param $context
    * @param $match
-   * @throws CiviCRM_API3_Exception
+   * @throws CRM_Core_Exception
    */
   protected function executeRule($rule, $contribution, $mandate_stats, $context, $match) {
     $this->logMessage("Execute rule '{$rule->name}'...", 'debug');

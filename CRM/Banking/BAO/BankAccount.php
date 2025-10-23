@@ -14,6 +14,8 @@
 | written permission from the original author(s).        |
 +--------------------------------------------------------*/
 
+declare(strict_types = 1);
+
 /**
  * Class contains functions for CiviBanking bank accounts
  */
@@ -25,23 +27,24 @@ class CRM_Banking_BAO_BankAccount extends CRM_Banking_DAO_BankAccount {
   protected $_decoded_data_parsed = NULL;
 
   /**
-   * @param array  $params         (reference ) an assoc array of name/value pairs
+   * @param array $params
    *
    * @return object       CRM_Banking_BAO_BankAccount object on success, null otherwise
    * @access public
    * @static
    */
-  static function add(&$params) {
+  public static function add(&$params) {
     // default values
     if (empty($params['id'])) {
       $params['created_date'] = date('YmdHis');
       $params['modified_date'] = date('YmdHis');
-    } else {
+    }
+    else {
       $params['modified_date'] = date('YmdHis');
     }
 
     $hook = empty($params['id']) ? 'create' : 'edit';
-    CRM_Utils_Hook::pre($hook, 'BankAccount', CRM_Utils_Array::value('id', $params), $params);
+    CRM_Utils_Hook::pre($hook, 'BankAccount', $params['id'] ?? NULL, $params);
 
     $dao = new CRM_Banking_DAO_BankAccount();
     $dao->copyValues($params);
@@ -54,7 +57,7 @@ class CRM_Banking_BAO_BankAccount extends CRM_Banking_DAO_BankAccount {
   /**
    * Delete function override: also delete references
    */
-  static function del($ba_id) {
+  public static function del($ba_id) {
     // delete all references...
     CRM_Core_DAO::executeQuery("DELETE FROM civicrm_bank_account_reference WHERE ba_id='$ba_id';");
 
@@ -68,9 +71,9 @@ class CRM_Banking_BAO_BankAccount extends CRM_Banking_DAO_BankAccount {
    * will provide a cached version of the decoded data_parsed field
    * if $update=true is given, it will be parsed again
    */
-  public function getDataParsed($update=false) {
-    if ($this->_decoded_data_parsed==NULL || $update) {
-      $this->_decoded_data_parsed = json_decode($this->data_parsed, true);
+  public function getDataParsed($update = FALSE) {
+    if ($this->_decoded_data_parsed == NULL || $update) {
+      $this->_decoded_data_parsed = json_decode($this->data_parsed, TRUE);
     }
     return $this->_decoded_data_parsed;
   }
@@ -80,20 +83,20 @@ class CRM_Banking_BAO_BankAccount extends CRM_Banking_DAO_BankAccount {
    */
   public function setDataParsed($data) {
     $this->data_parsed = json_encode($data);
-    $this->getDataParsed(true);
+    $this->getDataParsed(TRUE);
   }
 
   /**
    * @return a list of bank_reference arrays for this bank account,
-   *          ordered by the reference types' order in the option group
+   *   ordered by the reference types' order in the option group
    */
   public function getReferences() {
     $bank_account_reference_matching_probability = CRM_Core_BAO_Setting::getItem('CiviBanking', 'reference_matching_probability');
-    if ($bank_account_reference_matching_probability === null) {
+    if ($bank_account_reference_matching_probability === NULL) {
       $bank_account_reference_matching_probability = 1.0;
     }
 
-    $orderedReferences = array();
+    $orderedReferences = [];
     $sql = "SELECT
                 civicrm_option_value.value               AS reference_type,
                 civicrm_option_value.label               AS reference_type_label,
@@ -112,20 +115,21 @@ class CRM_Banking_BAO_BankAccount extends CRM_Banking_DAO_BankAccount {
             ORDER BY civicrm_option_value.weight ASC;";
     $orderedReferenceQuery = CRM_Core_DAO::executeQuery($sql);
     while ($orderedReferenceQuery->fetch()) {
-      $orderedReferences[] = array(  'reference_type'             => $orderedReferenceQuery->reference_type,
-                                     'reference_type_label'       => $orderedReferenceQuery->reference_type_label,
-                                     'reference_type_description' => $orderedReferenceQuery->reference_type_description,
-                                     'reference_type_id'          => $orderedReferenceQuery->reference_type_id,
-                                     'reference'                  => $orderedReferenceQuery->reference,
-                                     'id'                         => $orderedReferenceQuery->reference_id,
-                                     'contact_id'                 => $orderedReferenceQuery->contact_id,
-                                     'contact_ok'                 => ((!empty($orderedReferenceQuery->contact_id))
+      $orderedReferences[] = [
+        'reference_type'             => $orderedReferenceQuery->reference_type,
+        'reference_type_label'       => $orderedReferenceQuery->reference_type_label,
+        'reference_type_description' => $orderedReferenceQuery->reference_type_description,
+        'reference_type_id'          => $orderedReferenceQuery->reference_type_id,
+        'reference'                  => $orderedReferenceQuery->reference,
+        'id'                         => $orderedReferenceQuery->reference_id,
+        'contact_id'                 => $orderedReferenceQuery->contact_id,
+        'contact_ok'                 => ((!empty($orderedReferenceQuery->contact_id))
                                                                      && empty($orderedReferenceQuery->is_deleted)
                                                                      && empty($orderedReferenceQuery->is_deceased)) ? '1' : '0',
-                                    'probability'                 => $bank_account_reference_matching_probability,
-          );
+        'probability'                 => $bank_account_reference_matching_probability,
+      ];
     }
     return $orderedReferences;
   }
-}
 
+}

@@ -14,6 +14,7 @@
 | written permission from the original author(s).        |
 +--------------------------------------------------------*/
 
+declare(strict_types = 1);
 
 /**
  * Class contains functions for CiviBanking bank transactions
@@ -24,14 +25,14 @@ class CRM_Banking_BAO_BankTransaction extends CRM_Banking_DAO_BankTransaction {
    * an array of the structure
    * <probability> => array(<CRM_Banking_Matcher_Suggestion>)
    */
-  protected $suggestion_objects = array();
+  protected $suggestion_objects = [];
 
 
   /**
    * public array listing all 'native' data fields, i.e. data DB columns,
    *  all user defined data beyond that will be stored in the data_parsed blob
    */
-  public static $native_data_fields = array('amount', 'value_date', 'booking_date', 'currency', 'ba_id', 'party_ba_id');
+  public static $native_data_fields = ['amount', 'value_date', 'booking_date', 'currency', 'ba_id', 'party_ba_id'];
 
   /**
    * caches a decoded version of the data_parsed field
@@ -39,15 +40,15 @@ class CRM_Banking_BAO_BankTransaction extends CRM_Banking_DAO_BankTransaction {
   protected $_decoded_data_parsed = NULL;
 
   /**
-   * @param array  $params         (reference ) an assoc array of name/value pairs
+   * @param array $params
    *
    * @return object       CRM_Banking_BAO_BankTransaction object on success, null otherwise
    * @access public
    * @static
    */
-  static function add(&$params) {
+  public static function add(&$params) {
     $hook = empty($params['id']) ? 'create' : 'edit';
-    CRM_Utils_Hook::pre($hook, 'BankTransaction', CRM_Utils_Array::value('id', $params), $params);
+    CRM_Utils_Hook::pre($hook, 'BankTransaction', $params['id'] ?? NULL, $params);
 
     // TODO: convert the arrays (suggestions, data_parsed) back into JSON
     $dao = new CRM_Banking_DAO_BankTransaction();
@@ -58,13 +59,12 @@ class CRM_Banking_BAO_BankTransaction extends CRM_Banking_DAO_BankTransaction {
     return $dao;
   }
 
-
   /**
    * Delete function addendum: update statement's count
    *
    * @see https://github.com/Project60/CiviBanking/issues/59
    */
-  static function del($ba_id) {
+  public static function del($ba_id) {
     // get batch (statement) id
     $ba_bao = new CRM_Banking_BAO_BankTransaction();
     $ba_bao->get('id', $ba_id);
@@ -88,7 +88,8 @@ class CRM_Banking_BAO_BankTransaction extends CRM_Banking_DAO_BankTransaction {
       $bank_bao = new CRM_Banking_BAO_BankAccount();
       $bank_bao->get('id', $this->ba_id);
       return $bank_bao;
-    } else {
+    }
+    else {
       return NULL;
     }
   }
@@ -101,16 +102,18 @@ class CRM_Banking_BAO_BankTransaction extends CRM_Banking_DAO_BankTransaction {
       $bank_bao = new CRM_Banking_BAO_BankAccount();
       $bank_bao->get('id', $this->party_ba_id);
       return $bank_bao;
-    } else {
+    }
+    else {
       return NULL;
     }
   }
 
   /**
-   * an array of the structure
-   * <probability> => array(<CRM_Banking_Matcher_Suggestion>)
+   * @return array<int, list<\CRM_Banking_Matcher_Suggestion>>
+   *   An array of the structure
+   *   <probability> => array(<CRM_Banking_Matcher_Suggestion>)
    *
-   * TODO: after a load/retrieve, need to convert the suggestions/data_parsed from JSON to array
+   * @todo after a load/retrieve, need to convert the suggestions/data_parsed from JSON to array
    */
   public function getSuggestions() {
     return $this->suggestion_objects;
@@ -120,9 +123,9 @@ class CRM_Banking_BAO_BankTransaction extends CRM_Banking_DAO_BankTransaction {
    * will provide a cached version of the decoded data_parsed field
    * if $update=true is given, it will be parsed again
    */
-  public function getDataParsed($update=false) {
-    if ($this->_decoded_data_parsed==NULL || $update) {
-      $this->_decoded_data_parsed = json_decode($this->data_parsed, true);
+  public function getDataParsed($update = FALSE) {
+    if ($this->_decoded_data_parsed == NULL || $update) {
+      $this->_decoded_data_parsed = json_decode($this->data_parsed, TRUE);
     }
     return $this->_decoded_data_parsed;
   }
@@ -140,7 +143,7 @@ class CRM_Banking_BAO_BankTransaction extends CRM_Banking_DAO_BankTransaction {
       WHERE
       id = {$this->id};";
     $dao = CRM_Core_DAO::executeQuery($sql);
-    $this->getDataParsed(true);
+    $this->getDataParsed(TRUE);
   }
 
   /**
@@ -161,9 +164,11 @@ class CRM_Banking_BAO_BankTransaction extends CRM_Banking_DAO_BankTransaction {
    * get a flat list of CRM_Banking_Matcher_Suggestion
    *
    * @see: getSuggestions()
+   *
+   * @return list<\CRM_Banking_Matcher_Suggestion>
    */
   public function getSuggestionList() {
-    $suggestions = array();
+    $suggestions = [];
     krsort($this->suggestion_objects);
     foreach ($this->suggestion_objects as $probability => $list) {
       foreach ($list as $item) {
@@ -174,7 +179,7 @@ class CRM_Banking_BAO_BankTransaction extends CRM_Banking_DAO_BankTransaction {
   }
 
   public function resetSuggestions() {
-    $this->suggestion_objects = array();
+    $this->suggestion_objects = [];
   }
 
   /**
@@ -201,7 +206,7 @@ class CRM_Banking_BAO_BankTransaction extends CRM_Banking_DAO_BankTransaction {
    * TODO: fix problem by which a $bao->save() operation screws up the date values
    */
   public function saveSuggestions() {
-    $sugs = array();
+    $sugs = [];
     krsort($this->suggestion_objects);
     foreach ($this->suggestion_objects as $probability => $list) {
       foreach ($list as $sug) {
@@ -241,10 +246,10 @@ class CRM_Banking_BAO_BankTransaction extends CRM_Banking_DAO_BankTransaction {
    * expising the structure of the Suggestion here
    */
   private function restoreSuggestions() {
-    if ($this->suggestion_objects == null && $this->suggestions) {
+    if ($this->suggestion_objects == NULL && $this->suggestions) {
       $sugs = $this->suggestions;
       if ($sugs != '') {
-        $sugs = json_decode($sugs, true);
+        $sugs = json_decode($sugs, TRUE);
         foreach ($sugs as $sug) {
           $pi_bao = new CRM_Banking_BAO_PluginInstance();
           $pi_bao->get('id', $sug['plugin_id']);
@@ -256,10 +261,11 @@ class CRM_Banking_BAO_BankTransaction extends CRM_Banking_DAO_BankTransaction {
   }
 
   public function get($k = NULL, $v = NULL) {
-    parent::get($k, $v);
+    $rv = parent::get($k, $v);
     $this->restoreSuggestions();
-  }
 
+    return $rv;
+  }
 
   /**
    * Identify the IDs of <n> oldest (by value_date) yet unprocessed bank transactions
@@ -269,9 +275,9 @@ class CRM_Banking_BAO_BankTransaction extends CRM_Banking_DAO_BankTransaction {
    * @return the actual amount of contributions processed
    */
   public static function findUnprocessedIDs($max_count) {
-    $results = array();
+    $results = [];
     $maxcount = (int) $max_count;
-    $status_id_new = (int) banking_helper_optionvalueid_by_groupname_and_name('civicrm_banking.bank_tx_status', 'new');
+    $status_id_new = banking_helper_optionvalueid_by_groupname_and_name('civicrm_banking.bank_tx_status', 'new');
     $sql_query = "SELECT `id` AS txid FROM `civicrm_bank_tx` WHERE `status_id` = '$status_id_new' ORDER BY `value_date` ASC, `id` ASC LIMIT $maxcount";
     $query_results = CRM_Core_DAO::executeQuery($sql_query);
     while ($query_results->fetch()) {
@@ -279,5 +285,5 @@ class CRM_Banking_BAO_BankTransaction extends CRM_Banking_DAO_BankTransaction {
     }
     return $results;
   }
-}
 
+}

@@ -14,32 +14,42 @@
 | written permission from the original author(s).        |
 +--------------------------------------------------------*/
 
-/**
- *
- * @package org.project60.banking
- * @copyright GNU Affero General Public License
- * $Id$
- *
- */
+declare(strict_types = 1);
+
 class CRM_Banking_PluginImpl_Exporter_CSV extends CRM_Banking_PluginModel_Exporter {
 
-  private static $_lookup_cache = array();
+  private static $_lookup_cache = [];
 
   /**
    * class constructor
    */
-  function __construct($config_name) {
+  public function __construct($config_name) {
     parent::__construct($config_name);
 
     // read config, set defaults
     $config = $this->_plugin_config;
-    if (!isset($config->delimiter)) $config->delimiter = ',';
-    if (!isset($config->quotes))    $config->quotes = '"';
-    if (!isset($config->header))    $config->header = 1;
-    if (!isset($config->columns))   $config->columns = array('txbatch_id', 'tx_id');  // TODO: extend
-    if (!isset($config->rules))     $config->rules = array();
-    if (!isset($config->filters))   $config->filters = array();
-    if (!isset($config->name))      $config->name = "CiviBanking Transactions";
+    if (!isset($config->delimiter)) {
+      $config->delimiter = ',';
+    }
+    if (!isset($config->quotes)) {
+      $config->quotes = '"';
+    }
+    if (!isset($config->header)) {
+      $config->header = 1;
+    }
+    // TODO: extend
+    if (!isset($config->columns)) {
+      $config->columns = ['txbatch_id', 'tx_id'];
+    }
+    if (!isset($config->rules)) {
+      $config->rules = [];
+    }
+    if (!isset($config->filters)) {
+      $config->filters = [];
+    }
+    if (!isset($config->name)) {
+      $config->name = 'CiviBanking Transactions';
+    }
   }
 
   /**
@@ -47,8 +57,7 @@ class CRM_Banking_PluginImpl_Exporter_CSV extends CRM_Banking_PluginModel_Export
    *
    * @return string
    */
-  static function displayName()
-  {
+  public static function displayName() {
     return 'CSV Exporter';
   }
 
@@ -57,9 +66,8 @@ class CRM_Banking_PluginImpl_Exporter_CSV extends CRM_Banking_PluginModel_Export
    *
    * @return bool
    */
-  public function does_export_files()
-  {
-    return true;
+  public function does_export_files() {
+    return TRUE;
   }
 
   /**
@@ -67,9 +75,8 @@ class CRM_Banking_PluginImpl_Exporter_CSV extends CRM_Banking_PluginModel_Export
    *
    * @return bool
    */
-  public function does_export_stream()
-  {
-    return false;
+  public function does_export_stream() {
+    return FALSE;
   }
 
   /**
@@ -79,14 +86,14 @@ class CRM_Banking_PluginImpl_Exporter_CSV extends CRM_Banking_PluginModel_Export
    *
    * @return array of the resulting file
    */
-  public function export_file( $txbatch2ids, $parameters ) {
+  public function export_file($txbatch2ids, $parameters) {
     $file = $this->_export($txbatch2ids, $parameters);
-    return array(
+    return [
       'path'           => $file,
       'file_name'      => $this->_plugin_config->name,
       'file_extension' => 'csv',
       'mime_type'      => 'text/csv',
-    );
+    ];
   }
 
   /**
@@ -96,21 +103,23 @@ class CRM_Banking_PluginImpl_Exporter_CSV extends CRM_Banking_PluginModel_Export
    *
    * @return bool TRUE if successful
    */
-  public function export_stream( $txbatch2ids, $parameters ) {
+  public function export_stream($txbatch2ids, $parameters) {
     $file = $this->_export($txbatch2ids, $parameters);
 
     // TODO: upload
 
-    return true;
+    return TRUE;
   }
-
 
   /**
    * This is the main method where the actual export happens
    *
    * It will create a temp file, export to that, and then return the local path
+   *
+   * phpcs:disable Generic.Metrics.CyclomaticComplexity.TooHigh
    */
-  protected function _export($txbatch2ids, $parameters ) {
+  protected function _export($txbatch2ids, $parameters) {
+  // phpcs:enable
     $config = $this->_plugin_config;
 
     // OPEN FILE
@@ -134,14 +143,16 @@ class CRM_Banking_PluginImpl_Exporter_CSV extends CRM_Banking_PluginModel_Export
         if (empty($config->explode_split)) {
           // not set? then it's just one line with the contributions
           $line_count = 1;
-        } else {
+        }
+        else {
           // set? then it's one line per contribution ID
-          $line_count = max(1, (int) CRM_Utils_Array::value('exec_contribution_count', $main_data_blob));
+          $line_count = max(1, (int) $main_data_blob['exec_contribution_count'] ?? NULL);
         }
 
         for ($index = 1; $index <= $line_count; $index++) {
-          $data_blob = $main_data_blob; // copy blob to prevent data from one line to the next
-          $prefix = 'exec_contribution' . (($index>1)?"_{$index}_":'_');
+          // copy blob to prevent data from one line to the next
+          $data_blob = $main_data_blob;
+          $prefix = 'exec_contribution' . (($index > 1) ? "_{$index}_" : '_');
 
           // copy the indexed contribution data into the main contribution
           foreach ($main_data_blob as $key => $value) {
@@ -156,23 +167,31 @@ class CRM_Banking_PluginImpl_Exporter_CSV extends CRM_Banking_PluginModel_Export
           }
 
           // apply filters: [a and b...] or [c and d] or ...  TRUE accepts/passes line
-          $filter_pass = empty($config->filters);  // automatically pass for empty filters
+          // automatically pass for empty filters
+          $filter_pass = empty($config->filters);
           foreach ($config->filters as $AND_clause) {
-            $AND_clause_result = TRUE;  // empty set passes
+            // empty set passes
+            $AND_clause_result = TRUE;
             foreach ($AND_clause as $filter) {
               $AND_clause_result &= $this->runFilter($filter, $data_blob);
             }
             $filter_pass |= $AND_clause_result;
-            if ($filter_pass) break;  // one of the OR clauses is true
+            // one of the OR clauses is true
+            if ($filter_pass) {
+              break;
+            }
           }
-          if (!$filter_pass) continue;
+          if (!$filter_pass) {
+            continue;
+          }
 
           // write row
-          $csv_line = array();
+          $csv_line = [];
           foreach ($config->columns as $column_name) {
             if (isset($data_blob[$column_name])) {
               $csv_line[] = $data_blob[$column_name];
-            } else {
+            }
+            else {
               $csv_line[] = '';
             }
           }
@@ -189,19 +208,23 @@ class CRM_Banking_PluginImpl_Exporter_CSV extends CRM_Banking_PluginModel_Export
 
   /**
    * execute the given rule on the data_blob
+   *
+   * phpcs:disable Generic.Metrics.CyclomaticComplexity.MaxExceeded
    */
   protected function apply_rule($rule, &$data_blob) {
-
+  // phpcs:enable
     // read from value
     $from_value = '';
-    if (!in_array($rule->type, array('setconstant'))) {
+    if (!in_array($rule->type, ['setconstant'])) {
       // this rule requires a from_value
       if (!isset($rule->from)) {
         $this->logMessage("rule's 'from' field not set.", 'warning');
-      } else {
+      }
+      else {
         if (!isset($data_blob[$rule->from])) {
           $this->logMessage("'from' field '{$rule->from}' doesn't exist.", 'debug');
-        } else {
+        }
+        else {
           $from_value = $data_blob[$rule->from];
         }
       }
@@ -214,12 +237,14 @@ class CRM_Banking_PluginImpl_Exporter_CSV extends CRM_Banking_PluginModel_Export
         $data_blob[$rule->to] = $from_value;
       }
 
-    } elseif ($rule->type == 'setconstant') {
+    }
+    elseif ($rule->type == 'setconstant') {
       if (isset($rule->value) && isset($rule->to)) {
         $data_blob[$rule->to] = $rule->value;
       }
 
-    } elseif ($rule->type == 'amount') {
+    }
+    elseif ($rule->type == 'amount') {
       // RULE TYPE 'amount'
       if (isset($from_value)) {
         $amount = $from_value;
@@ -228,7 +253,8 @@ class CRM_Banking_PluginImpl_Exporter_CSV extends CRM_Banking_PluginModel_Export
           // render with currency
           $currency = $data_blob[$rule->currency];
           $data_blob[$rule->to] = CRM_Utils_Money::format($amount, $currency, NULL, FALSE, $value_format);
-        } else {
+        }
+        else {
           // render without currency (caution: onlyNumber TRUE doesn't work)
           $full_value = CRM_Utils_Money::format($amount, NULL, NULL, FALSE, $value_format);
           // extract bare value
@@ -238,32 +264,38 @@ class CRM_Banking_PluginImpl_Exporter_CSV extends CRM_Banking_PluginModel_Export
         }
       }
 
-    } elseif ($rule->type =='sprintf') {
+    }
+    elseif ($rule->type == 'sprintf') {
       // RULE TYPE 'sprintf'
       if (empty($rule->format)) {
         $this->logMessage("No format set for 'sprintf' rule!", 'error');
-      } else {
+      }
+      else {
         // apply sprintf
         $data_blob[$rule->to] = sprintf($rule->format, $from_value);
       }
 
-    } elseif ($rule->type =='date') {
+    }
+    elseif ($rule->type == 'date') {
       // RULE TYPE 'date'
       if (empty($rule->format)) {
         // default format
         $data_blob[$rule->to] = date('Y-m-d H:i:s', strtotime($from_value));
-      } else {
+      }
+      else {
         $data_blob[$rule->to] = date($rule->format, strtotime($from_value));
       }
 
-    } elseif ($rule->type == 'lookup') {
+    }
+    elseif ($rule->type == 'lookup') {
       // RULE TYPE 'lookup'
       if (!empty($from_value)) {
         // compile params
         if (isset($rule->params)) {
           $params = (array) $rule->params;
-        } else {
-          $params = array();
+        }
+        else {
+          $params = [];
         }
         $params[$rule->key] = $data_blob[$rule->from];
 
@@ -284,7 +316,8 @@ class CRM_Banking_PluginImpl_Exporter_CSV extends CRM_Banking_PluginModel_Export
         // Default concat string is " ".
         $data_blob[$rule->to] = $data_blob[$rule->to] . ' ' . $from_value;
       }
-    } else {
+    }
+    else {
       $this->logMessage("rule type '{$rule->type}' unknown, rule ignored.", 'warning');
     }
   }
@@ -302,11 +335,13 @@ class CRM_Banking_PluginImpl_Exporter_CSV extends CRM_Banking_PluginModel_Export
       $this->logMessage("APILookup cache MISS: {$key}", 'debug');
       try {
         self::$_lookup_cache[$key] = civicrm_api3($entity, 'getsingle', $params);
-      } catch (Exception $ex) {
-        $this->logMessage("Error while looking up {$key} - " . $ex->getMessage(), 'warning');
-        self::$_lookup_cache[$key] = array();
       }
-    } else {
+      catch (Exception $ex) {
+        $this->logMessage("Error while looking up {$key} - " . $ex->getMessage(), 'warning');
+        self::$_lookup_cache[$key] = [];
+      }
+    }
+    else {
       $this->logMessage("APILookup cache HIT: {$key}", 'debug');
     }
     return self::$_lookup_cache[$key];
@@ -315,9 +350,12 @@ class CRM_Banking_PluginImpl_Exporter_CSV extends CRM_Banking_PluginModel_Export
   /**
    * run the filter on the given row
    *
-   * @return TRUE if line should be kept
+   * @return bool TRUE if line should be kept
+   *
+   * phpcs:disable Generic.Metrics.CyclomaticComplexity.TooHigh
    */
   protected function runFilter($filter, $data_blob) {
+  // phpcs:enable
     if (empty($filter->type)) {
       $this->logMessage("Incomplete filter with no 'type' detected. Ignored", 'error');
       return TRUE;
@@ -325,28 +363,36 @@ class CRM_Banking_PluginImpl_Exporter_CSV extends CRM_Banking_PluginModel_Export
 
     if ($filter->type == 'compare') {
       // FILTER TYPE 'lookup'
-      $value1 = (isset($data_blob[$filter->value_1]))?$data_blob[$filter->value_1]:'';
-      $value2 = (isset($data_blob[$filter->value_2]))?$data_blob[$filter->value_2]:'';
+      $value1 = (isset($data_blob[$filter->value_1])) ? $data_blob[$filter->value_1] : '';
+      $value2 = (isset($data_blob[$filter->value_2])) ? $data_blob[$filter->value_2] : '';
       if ($filter->comparator == '==') {
         return $value1 == $value2;
-      } elseif ($filter->comparator == '!=') {
+      }
+      elseif ($filter->comparator == '!=') {
         return $value1 != $value2;
-      } elseif ($filter->comparator == '>') {
+      }
+      elseif ($filter->comparator == '>') {
         return $value1 > $value2;
-      } elseif ($filter->comparator == '>=') {
+      }
+      elseif ($filter->comparator == '>=') {
         return $value1 >= $value2;
-      } elseif ($filter->comparator == '<') {
+      }
+      elseif ($filter->comparator == '<') {
         return $value1 < $value2;
-      } elseif ($filter->comparator == '<=') {
+      }
+      elseif ($filter->comparator == '<=') {
         return $value1 <= $value2;
-      } else {
+      }
+      else {
         $this->logMessage("filter type '{$filter->type}' has unknown comparator '{$filter->comparator}'. Ignored", 'error');
         return TRUE;
       }
 
-    } else {
+    }
+    else {
       $this->logMessage("filter type '{$filter->type}' unknown, filter ignored.", 'error');
       return TRUE;
     }
   }
+
 }

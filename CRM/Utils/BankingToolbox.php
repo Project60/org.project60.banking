@@ -14,6 +14,8 @@
 | written permission from the original author(s).        |
 +--------------------------------------------------------*/
 
+declare(strict_types = 1);
+
 
 /**
  * random collection of tools
@@ -21,41 +23,43 @@
 class CRM_Utils_BankingToolbox {
 
   /**
-   * Simple function to check if $string starts with $prefix
-   *
-   * @param $string  string
-   * @param $prefix  string
-   * @return bool
+   * Simple function to check if $string starts with $prefix.
    */
-  public function startsWith($string, $prefix)
-  {
+  public function startsWith(string $string, string $prefix): bool {
     return substr($string, 0, strlen($prefix)) === $prefix;
   }
 
   /**
-   * @param $datetime  string start datetime, strtotime() compatible
-   * @param $offset    string step size, strtotime() compatible
-   * @param $skip      array list of skipped values, see ::skipDateTime()
-   * @param $format    string output format, date()/strtotime() compatible
+   * @param string $datetime start datetime, strtotime() compatible
+   * @param string $offset step size, strtotime() compatible
+   * @param list<string>|string $skip list of skipped values, see ::skipDateTime()
+   * @param string $format output format, date()/strtotime() compatible
+   *
    * @return string aligned datetime
    */
-  public static function alignDateTime($datetime, $offset, $skip, $format = "Y-m-d") {
-    $datetime = date($format, strtotime($datetime));
-
-    // make sure this is an array
-    if (!is_array($skip) && !empty($skip)) {
-      $skip = [$skip];
-    }
+  public static function alignDateTime(
+    string $datetime,
+    string $offset,
+    array|string $skip,
+    string $format = 'Y-m-d'
+  ): string {
+    $time = strtotime($datetime);
+    assert(is_int($time));
+    $datetime = date($format, $time);
 
     // if there is no proper skip params, don't do anything
-    if (empty($skip) || !is_array($skip)) {
+    if ([] === $skip || '' === $skip) {
       return $datetime;
     }
+
+    $skip = (array) $skip;
 
     // loop while skipping
     while (self::skipDateTime($datetime, $skip)) {
       // this datetime should be skipped -> move on
-      $datetime = date($format, strtotime($offset, strtotime($datetime)));
+      $offsetTime = strtotime($offset, strtotime($datetime));
+      assert(is_int($offsetTime));
+      $datetime = date($format, $offsetTime);
     }
     return $datetime;
   }
@@ -63,27 +67,31 @@ class CRM_Utils_BankingToolbox {
   /**
    * Check whether the
    *
-   * @param $skip      array  list of skipped values. can be:
+   * @param string $datetime formatted datetime
+   * @param list<string> $skip list of skipped values. can be:
    *                               'weekend' - skip when weekend
    *                               otherwise: skip if regex matches
-   * @param $datetime  string formatted datetime
+   *
    * @return boolean should the datetime be skipped?
    */
-  protected static function skipDateTime($datetime, &$skip) {
+  protected static function skipDateTime(string $datetime, array $skip): bool {
     foreach ($skip as $index => $skip_value) {
       switch ($skip_value) {
-        case 'skip_one':  // skip one time (can appear multiple times
+        // skip one time (can appear multiple times
+        case 'skip_one':
           unset($skip[$index]);
           return TRUE;
 
-        case 'weekend': // skip upon weekend day
+        // skip upon weekend day
+        case 'weekend':
           $day_of_week = date('N', strtotime($datetime));
           if ($day_of_week > 5) {
             return TRUE;
           }
           break;
 
-        default:        // skip if regex matches
+        // skip if regex matches
+        default:
           if (preg_match($skip_value, $datetime)) {
             return TRUE;
           }
@@ -91,4 +99,5 @@ class CRM_Utils_BankingToolbox {
     }
     return FALSE;
   }
+
 }

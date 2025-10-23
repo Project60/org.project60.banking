@@ -14,6 +14,8 @@
 | written permission from the original author(s).        |
 +--------------------------------------------------------*/
 
+declare(strict_types = 1);
+
 use CRM_Banking_ExtensionUtil as E;
 
 /**
@@ -31,14 +33,16 @@ class CRM_Banking_Form_Configure extends CRM_Core_Form {
     $plugin_id = CRM_Utils_Request::retrieve('pid', 'Integer');
     $type_map = $this->getPluginTypeMap();
     if (empty($plugin_id)) {
-      $this->plugin = array(
-        'name'            => E::ts("Enter name"),
-        'description'     => E::ts("Describe here what this plugin does."),
+      $this->plugin = [
+        'name'            => E::ts('Enter name'),
+        'description'     => E::ts('Describe here what this plugin does.'),
         'config'          => '{}',
         'plugin_type_id'  => CRM_Utils_Request::retrieve('type', 'Integer'),
-        'plugin_class_id' => '');
-    } else {
-      $this->plugin = civicrm_api3('BankingPluginInstance', 'getsingle', array('id' => $plugin_id));
+        'plugin_class_id' => '',
+      ];
+    }
+    else {
+      $this->plugin = civicrm_api3('BankingPluginInstance', 'getsingle', ['id' => $plugin_id]);
     }
 
     // set default editor mode
@@ -49,45 +53,45 @@ class CRM_Banking_Form_Configure extends CRM_Core_Form {
     $this->assign('json_editor_mode', $json_editor_mode);
 
     // set title
-    CRM_Utils_System::setTitle(E::ts('Configure Plugin "%1"', array(1 => $this->plugin['name'])));
+    CRM_Utils_System::setTitle(E::ts('Configure Plugin "%1"', [1 => $this->plugin['name']]));
 
     // add form elements
     $this->addElement('text',
                       'name',
                       E::ts('Plugin Name'),
-                      array('class' => 'huge'),
+                      ['class' => 'huge'],
                       TRUE);
 
     $this->addElement('select',
                       'plugin_type_id',
                       E::ts('Plugin Class'),
-                      $this->getOptionValueList('civicrm_banking.plugin_classes'), // yes, it's swapped
-                      array('class' => 'crm-select2 huge'));
+    // yes, it's swapped
+                      $this->getOptionValueList('civicrm_banking.plugin_classes'),
+                      ['class' => 'crm-select2 huge']);
 
     $this->assign('type_map', json_encode($type_map));
     $this->addElement('select',
                       'plugin_class_id',
                       E::ts('Implementation'),
-                      CRM_Utils_Array::value($this->plugin['plugin_type_id'], $type_map),
-                      array('class' => 'crm-select2 huge'));
+                      $type_map[$this->plugin['plugin_type_id']] ?? NULL,
+                      ['class' => 'crm-select2 huge']);
 
     $this->addElement('textarea',
                       'description',
                       E::ts('Description'),
-                      array('class' => 'huge'),
+                      ['class' => 'huge'],
                       TRUE);
 
     $this->add('hidden', 'configuration', base64_encode(htmlentities($this->plugin['config'])));
     $this->add('hidden', 'pid', $plugin_id);
 
-    $this->addButtons(array(
-      array(
+    $this->addButtons([
+      [
         'type' => 'submit',
         'name' => E::ts('Save'),
         'isDefault' => TRUE,
-      ),
-    ));
-
+      ],
+    ]);
 
     // add JSONEditor resources
     $resources = CRM_Core_Resources::singleton();
@@ -101,31 +105,33 @@ class CRM_Banking_Form_Configure extends CRM_Core_Form {
    * set the default (=current) values in the form
    */
   public function setDefaultValues() {
-    // error_log(json_encode($this->plugin['config']));
     if ($this->plugin) {
-      return array(
+      return [
         'name'            => $this->plugin['name'],
         'description'     => isset($this->plugin['description']) ? $this->plugin['description'] : '',
         'plugin_type_id'  => $this->plugin['plugin_type_id'],
         'plugin_class_id' => $this->plugin['plugin_class_id'],
-      );
+      ];
     }
+
+    return [];
   }
 
   public function postProcess() {
     $values = $this->exportValues();
 
     // create/update
-    $update = array(
+    $update = [
       'plugin_class_id' => $values['plugin_class_id'],
       'plugin_type_id'  => $values['plugin_type_id'],
       'name'            => $values['name'],
       'description'     => $values['description'],
-      );
+    ];
     if (!empty($values['pid'])) {
       // update
       $update['id'] = $values['pid'];
-    } else {
+    }
+    else {
       // create
       $update['enabled'] = 1;
       $update['weight']  = 1000;
@@ -136,13 +142,14 @@ class CRM_Banking_Form_Configure extends CRM_Core_Form {
     // set the config via SQL (API causes issues)
     if (empty($plugin_instance['id'])) {
       throw new Exception("Couldn't store configuration");
-    } else {
-      CRM_Core_DAO::executeQuery("UPDATE civicrm_bank_plugin_instance SET config=%1 WHERE id=%2;", array(
-        1 => array($values['configuration'], 'String'),
-        2 => array($plugin_instance['id'],   'Integer')));
+    }
+    else {
+      CRM_Core_DAO::executeQuery('UPDATE civicrm_bank_plugin_instance SET config=%1 WHERE id=%2;', [
+        1 => [$values['configuration'], 'String'],
+        2 => [$plugin_instance['id'], 'Integer'],
+      ]);
     }
 
-    // parent::postProcess();
     CRM_Utils_System::redirect(CRM_Utils_System::url('civicrm/banking/manager'));
   }
 
@@ -150,11 +157,11 @@ class CRM_Banking_Form_Configure extends CRM_Core_Form {
    *
    */
   protected function getPluginTypeMap() {
-    $class_search = civicrm_api3('OptionValue', 'get', array(
+    $class_search = civicrm_api3('OptionValue', 'get', [
       'option_group_id' => 'civicrm_banking.plugin_classes',
-      'options' => array('limit' => 0, 'sort' => "weight"),
-      ));
-    $class_prefix2id = array();
+      'options' => ['limit' => 0, 'sort' => 'weight'],
+    ]);
+    $class_prefix2id = [];
     foreach ($class_search['values'] as $class_id => $option_value) {
       $class_name = $option_value['name'];
       $class_prefix2id[$class_name] = $class_id;
@@ -163,11 +170,11 @@ class CRM_Banking_Form_Configure extends CRM_Core_Form {
       }
     }
 
-    $type_search = civicrm_api3('OptionValue', 'get', array(
+    $type_search = civicrm_api3('OptionValue', 'get', [
       'option_group_id' => 'civicrm_banking.plugin_types',
-      'options' => array('limit' => 0, 'sort' => "weight"),
-      ));
-    $class_id2type_id2label = array();
+      'options' => ['limit' => 0, 'sort' => 'weight'],
+    ]);
+    $class_id2type_id2label = [];
     foreach ($type_search['values'] as $type_id => $option_value) {
       // determine the class id
       foreach ($class_prefix2id as $prefix => $class_id) {
@@ -185,15 +192,18 @@ class CRM_Banking_Form_Configure extends CRM_Core_Form {
    * get an OptionValue.id => OptionValue.id list for the given group name
    */
   protected function getOptionValueList($option_group_name) {
-    $list = array();
-    $values = civicrm_api3('OptionValue', 'get', array(
+    $list = [];
+    $values = civicrm_api3('OptionValue', 'get', [
       'option_group_id' => $option_group_name,
-      'options' => array('limit' => 0,
-                         'sort' => "weight"),
-      ));
+      'options' => [
+        'limit' => 0,
+        'sort' => 'weight',
+      ],
+    ]);
     foreach ($values['values'] as $option_value) {
       $list[$option_value['id']] = $option_value['label'];
     }
     return $list;
   }
+
 }

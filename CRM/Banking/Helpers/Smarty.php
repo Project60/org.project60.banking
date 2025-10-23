@@ -14,6 +14,8 @@
 | written permission from the original author(s).        |
 +--------------------------------------------------------*/
 
+declare(strict_types = 1);
+
 /**
  * This class is a Smarty wrapper to allow pre 4.6 CiviCRM versions
  *  to use push/pop operations
@@ -21,7 +23,7 @@
 class CRM_Banking_Helpers_Smarty {
 
   protected $smarty       = NULL;
-  protected $backupFrames = array();
+  protected $backupFrames = [];
 
   /**
    * Static instance provider.
@@ -35,7 +37,8 @@ class CRM_Banking_Helpers_Smarty {
       $smarty = CRM_Core_Smarty::singleton();
       $smarty_wrapper = new CRM_Banking_Helpers_Smarty($smarty);
       return $smarty_wrapper;
-    } else {
+    }
+    else {
       // >= 4.6: just use the core smarty implementation
       return CRM_Core_Smarty::singleton();
     }
@@ -48,21 +51,22 @@ class CRM_Banking_Helpers_Smarty {
    */
   private function __construct($smarty) {
     $this->smarty = $smarty;
-    $this->backupFrames = array();
+    $this->backupFrames = [];
   }
 
-  // pass through fetch()
+  /**
+   * pass through fetch()
+   */
   public function fetch($resource_name, $cache_id = NULL, $compile_id = NULL, $display = FALSE) {
     return $this->smarty->fetch($resource_name, $cache_id, $compile_id, $display);
   }
 
-  // DON'T pass through assign(), that messes up the backup frame
+  /**
+   * DON'T pass through assign(), that messes up the backup frame
+   */
   public function assign($key, $value) {
-    throw new Exception("Smarty::assign() is not allowed within a backup frame.");
-    //return $this->smarty->assign($key, $value);
+    throw new \BadMethodCallException('Smarty::assign() is not allowed within a backup frame.');
   }
-
-
 
   /**
    * Temporarily assign a list of variables.
@@ -83,7 +87,7 @@ class CRM_Banking_Helpers_Smarty {
    */
   public function pushScope($vars) {
     $oldVars = $this->smarty->getTemplateVars();
-    $backupFrame = array();
+    $backupFrame = [];
     foreach ($vars as $key => $value) {
       $backupFrame[$key] = isset($oldVars[$key]) ? $oldVars[$key] : NULL;
     }
@@ -116,4 +120,5 @@ class CRM_Banking_Helpers_Smarty {
     }
     return $this;
   }
+
 }

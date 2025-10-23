@@ -14,73 +14,74 @@
 | written permission from the original author(s).        |
 +--------------------------------------------------------*/
 
+declare(strict_types = 1);
+
 use CRM_Banking_ExtensionUtil as E;
 
-/**
- *
- * @package org.project60.banking
- * @copyright GNU Affero General Public License
- * $Id$
- *
- */
 class CRM_Banking_PluginImpl_Importer_XML extends CRM_Banking_PluginModel_Importer {
 
   /**
    * class constructor
    */
-  function __construct($config_name) {
+  public function __construct($config_name) {
     parent::__construct($config_name);
   }
 
   /**
    * @return void
    */
-  public function resetImporter()
-  {
+  public function resetImporter() {
     // read config, set defaults
     parent::resetImporter();
     $config = $this->_plugin_config;
-    $this->document = null;
-    $this->xpath = null;
-    if (!isset($config->defaults))      $config->defaults      = [];
-    if (!isset($config->payments))      $config->payments      = [];
-    if (!isset($config->payment_lines)) $config->payment_lines = [];
+    $this->document = NULL;
+    $this->xpath = NULL;
+    if (!isset($config->defaults)) {
+      $config->defaults = [];
+    }
+    if (!isset($config->payments)) {
+      $config->payments = [];
+    }
+    if (!isset($config->payment_lines)) {
+      $config->payment_lines = [];
+    }
   }
 
   /**
    * parsed XML document
    * @var DOMDocument
    */
-  protected $document = null;
+  protected $document = NULL;
 
   /**
    * XPath query engine on the current path
    * @var DOMXPath
    */
-  protected $xpath = null;
+  protected $xpath = NULL;
 
   /**
    * This will be used to suppress duplicates within the same statement
    *  when automatically generating references
    */
-  protected $bank_reference_cache = array();
+  protected $bank_reference_cache = [];
 
   /**
    * the plugin's user readable name
    *
    * @return string
    */
-  static function displayName()
-  {
+  public static function displayName() {
     return 'XML Importer';
   }
 
   /**
    * will parse and init the XML document access structure
    */
-  function initDocument($file_path, $params ) {
+  public function initDocument($file_path, $params) {
     // TODO: Error handling
-    if ($this->document && $this->document->documentURI == $file_path) return;
+    if ($this->document && $this->document->documentURI == $file_path) {
+      return;
+    }
 
     // document not yet parsed => do it
     $config = $this->_plugin_config;
@@ -100,9 +101,8 @@ class CRM_Banking_PluginImpl_Importer_XML extends CRM_Banking_PluginModel_Import
    *
    * @return bool
    */
-  static function does_import_files()
-  {
-    return true;
+  public static function does_import_files() {
+    return TRUE;
   }
 
   /**
@@ -110,9 +110,8 @@ class CRM_Banking_PluginImpl_Importer_XML extends CRM_Banking_PluginModel_Import
    *
    * @return bool
    */
-  static function does_import_stream()
-  {
-    return false;
+  public static function does_import_stream() {
+    return FALSE;
   }
 
   /**
@@ -121,9 +120,8 @@ class CRM_Banking_PluginImpl_Importer_XML extends CRM_Banking_PluginModel_Import
    * @var
    * @return TODO: data format?
    */
-  function probe_stream( $params )
-  {
-    return false;
+  public function probe_stream($params) {
+    return FALSE;
   }
 
   /**
@@ -131,9 +129,8 @@ class CRM_Banking_PluginImpl_Importer_XML extends CRM_Banking_PluginModel_Import
    *
    * @return TODO: data format?
    */
-  function import_stream( $params )
-  {
-    $this->reportDone(E::ts("Importing streams not supported by this plugin."));
+  public function import_stream($params) {
+    $this->reportDone(E::ts('Importing streams not supported by this plugin.'));
   }
 
   /**
@@ -142,31 +139,32 @@ class CRM_Banking_PluginImpl_Importer_XML extends CRM_Banking_PluginModel_Import
    * @var
    * @return TODO: data format?
    */
-  function probe_file( $file_path, $params )
-  {
+  public function probe_file($file_path, $params) {
     $this->initDocument($file_path, $params);
     // TODO: error handling
 
     if (isset($this->_plugin_config->probe)) {
       $value = $this->xpath->query($this->_plugin_config->probe);
-      if (get_class($value)=='DOMNodeList') {
+      if (get_class($value) == 'DOMNodeList') {
         return $value->length > 0;
-      } else {
+      }
+      else {
         return !empty($value);
       }
-    } else {
+    }
+    else {
       // no probe string set -> done.
-      return true;
+      return TRUE;
     }
   }
-
 
   /**
    * Imports the given XML file
    *
+   * phpcs:disable Generic.Metrics.CyclomaticComplexity.TooHigh
    */
-  function import_file( $file_path, $params )
-  {
+  public function import_file($file_path, $params) {
+  // phpcs:disable
     // Init
     $config = $this->_plugin_config;
     $this->resetImporter();
@@ -196,7 +194,8 @@ class CRM_Banking_PluginImpl_Importer_XML extends CRM_Banking_PluginModel_Import
       // then: run the importer
       $this->importStatement($params);
 
-    } else {
+    }
+    else {
       // stmt_path set => there are multiple statements in here
       $statements = $this->xpath->query($config->stmt_path);
 
@@ -231,21 +230,24 @@ class CRM_Banking_PluginImpl_Importer_XML extends CRM_Banking_PluginModel_Import
    * @param $params       array    parameters
    * @param $index        int      index of last transaction imported
    * @param $context_node DOMNode
+   *
+   * phpcs:disable Generic.Metrics.CyclomaticComplexity.TooHigh
    */
   protected function importStatement($params, &$index = 0, $context_node = NULL) {
+  // phpcs:enable
     $config = $this->_plugin_config;
-    $this->logMessage("Starting new batch.", 'debug');
+    $this->logMessage('Starting new batch.', 'debug');
     $batch = $this->openTransactionBatch();
 
     // execute rules for statement
-    $data =[];
+    $data = [];
     foreach ($config->rules as $rule) {
       $this->apply_rule($rule, $context_node, $data);
     }
 
     // collect payment identifier specs
     //  $config->payments is a single, deprecated spec
-    $payment_specs = array();
+    $payment_specs = [];
     if (!empty($config->payments)) {
       $payment_specs[] = $config->payments;
     }
@@ -257,8 +259,9 @@ class CRM_Banking_PluginImpl_Importer_XML extends CRM_Banking_PluginModel_Import
       // compile filter list
       if (!empty($payment_spec->filters)) {
         $filters = $payment_spec->filters;
-      } else {
-        $filters = array();
+      }
+      else {
+        $filters = [];
       }
       if (!empty($payment_spec->filter)) {
         $filters[] = $payment_spec->filter;
@@ -278,7 +281,9 @@ class CRM_Banking_PluginImpl_Importer_XML extends CRM_Banking_PluginModel_Import
             break;
           }
         }
-        if (!$node_accepted) continue;
+        if (!$node_accepted) {
+          continue;
+        }
 
         // import the line
         $this->import_payment($payment_spec, $payment_node, $data, $index, $params);
@@ -290,19 +295,24 @@ class CRM_Banking_PluginImpl_Importer_XML extends CRM_Banking_PluginModel_Import
       // copy all data entries starting with tx.batch into the batch
       if (!empty($data['tx_batch.reference'])) {
         $this->getCurrentTransactionBatch()->reference = $data['tx_batch.reference'];
-      } else {
-        $this->getCurrentTransactionBatch()->reference = "XML-File {md5}";
+      }
+      else {
+        $this->getCurrentTransactionBatch()->reference = 'XML-File {md5}';
       }
 
-      if (!empty($data['tx_batch.sequence']))
+      if (!empty($data['tx_batch.sequence'])) {
         $this->getCurrentTransactionBatch()->sequence = $data['tx_batch.sequence'];
-      if (!empty($data['tx_batch.starting_date']))
+      }
+      if (!empty($data['tx_batch.starting_date'])) {
         $this->getCurrentTransactionBatch()->starting_date = $data['tx_batch.starting_date'];
-      if (!empty($data['tx_batch.ending_date']))
+      }
+      if (!empty($data['tx_batch.ending_date'])) {
         $this->getCurrentTransactionBatch()->ending_date = $data['tx_batch.ending_date'];
+      }
 
       $this->closeTransactionBatch(TRUE);
-    } else {
+    }
+    else {
       $this->closeTransactionBatch(FALSE);
     }
   }
@@ -319,41 +329,46 @@ class CRM_Banking_PluginImpl_Importer_XML extends CRM_Banking_PluginModel_Import
         return TRUE;
       }
 
-    } elseif ('not_exists:' == substr($filter, 0, 11)) {
+    }
+    elseif ('not_exists:' == substr($filter, 0, 11)) {
       $filter_result = $this->xpath->evaluate(substr($filter, 11), $payment_node);
       if ($filter_result->length > 0) {
         return TRUE;
       }
 
-    } else {
-      // unknown filter spec
-
     }
+    // else: unknown filter spec.
+
     return FALSE;
   }
 
   /**
    * Processes and imports one individual payment node
+   *
+   * phpcs:disable Generic.Metrics.CyclomaticComplexity.TooHigh
    */
   protected function import_payment($payment_spec, $payment_node, $stmt_data, $index, $params) {
+  // phpcs:enable
     $config = $this->_plugin_config;
     $total_tx_count = (float) $params['total_tx_count'] ?? 1.0;
     if ($total_tx_count) {
       $progress = (((float) $index) / $total_tx_count);
-    } else {
+    }
+    else {
       $progress = 0;
     }
 
     $raw_data = $payment_node->ownerDocument->saveXML($payment_node);
-    $raw_data = preg_replace("/>\s+</", "><", $raw_data);      // 'flatten' raw_data
+    // 'flatten' raw_data
+    $raw_data = preg_replace('/>\s+</', '><', $raw_data);
 
     $data = [
-        'version'   => 3,
-        'currency'  => 'EUR',
-        'type_id'   => 0,
-        'status_id' => 0,
-        'data_raw'  => $raw_data,
-        'sequence'  => $index,
+      'version'   => 3,
+      'currency'  => 'EUR',
+      'type_id'   => 0,
+      'status_id' => 0,
+      'data_raw'  => $raw_data,
+      'sequence'  => $index,
     ];
 
     // set default values from config:
@@ -381,14 +396,16 @@ class CRM_Banking_PluginImpl_Importer_XML extends CRM_Banking_PluginModel_Import
       // set MD5 hash as unique reference
       if (isset($stmt_data['tx_reference_seed'])) {
         $bank_reference = md5($raw_data . $stmt_data['tx_reference_seed']);
-      } else {
+      }
+      else {
         $bank_reference = md5($raw_data . json_encode($data));
       }
 
       if (!isset($this->bank_reference_cache[$bank_reference])) {
         // this is a new reference (within this bank statement)
         $this->bank_reference_cache[$bank_reference] = 1;
-      } else {
+      }
+      else {
         // this reference already exists => append number
         $counter = $this->bank_reference_cache[$bank_reference];
         $this->bank_reference_cache[$bank_reference] = $counter + 1;
@@ -396,21 +413,25 @@ class CRM_Banking_PluginImpl_Importer_XML extends CRM_Banking_PluginModel_Import
       }
       $data['bank_reference'] = $bank_reference;
 
-    } else {
+    }
+    else {
       // otherwise use the template
       $bank_reference = $config->bank_reference;
-      $tokens = array();
+      $tokens = [];
       preg_match('/\{([^\}]+)\}/', $bank_reference, $tokens);
       foreach ($tokens as $key => $token_name) {
-        if (!$key) continue;  // match#0 is not relevant
-        $token_value = isset($data[$token_name])?$data[$token_name]:'';
+        // match#0 is not relevant
+        if (!$key) {
+          continue;
+        }
+        $token_value = isset($data[$token_name]) ? $data[$token_name] : '';
         $bank_reference = str_replace("{{$token_name}}", $token_value, $bank_reference);
       }
       $data['bank_reference'] = $bank_reference;
     }
 
     // prepare $btx: put all entries, that are not for the basic object, into parsed data
-    $btx_parsed_data = array();
+    $btx_parsed_data = [];
     foreach ($data as $key => $value) {
       if (!in_array($key, $this->_primary_btx_fields)) {
         // this entry has to be moved to the $btx_parsed_data records
@@ -423,15 +444,18 @@ class CRM_Banking_PluginImpl_Importer_XML extends CRM_Banking_PluginModel_Import
     // and finally write it into the DB
     $duplicate = $this->checkAndStoreBTX($data, $progress, $params);
 
-    $this->reportProgress($progress, sprintf("Imported transaction #%d", $index));
+    $this->reportProgress($progress, sprintf('Imported transaction #%d', $index));
   }
 
   /**
    * executes an import rule
+   *
+   * phpcs:disable Generic.Metrics.CyclomaticComplexity.MaxExceeded
    */
   protected function apply_rule($rule, $context, &$data) {
+  // phpcs:enable
     // evaluate the condition (if present)
-    $this->logMessage("Applying rule: " . json_encode($rule), 'debug');
+    $this->logMessage('Applying rule: ' . json_encode($rule), 'debug');
     if (!$this->checkCondition($rule, $context, $data)) {
       return;
     }
@@ -448,91 +472,108 @@ class CRM_Banking_PluginImpl_Importer_XML extends CRM_Banking_PluginModel_Import
       $value = $this->getValue($rule->from, $data, $context);
       $data[$rule->to] = $value;
 
-    } elseif ($this->startsWith($rule->type, 'append')) {
+    }
+    elseif ($this->startsWith($rule->type, 'append')) {
       // APPEND appends the string to a give value
       $value = $this->getValue($rule->from, $data, $context);
-      if (!isset($data[$rule->to])) $data[$rule->to] = '';
-      $params = explode(":", $rule->type);
+      if (!isset($data[$rule->to])) {
+        $data[$rule->to] = '';
+      }
+      $params = explode(':', $rule->type);
       if (isset($params[1])) {
         // the user defined a concat string
-        $data[$rule->to] = $data[$rule->to].$params[1].$value;
-      } else {
+        $data[$rule->to] = $data[$rule->to] . $params[1] . $value;
+      }
+      else {
         // default concat string is " "
-        $data[$rule->to] = $data[$rule->to]." ".$value;
+        $data[$rule->to] = $data[$rule->to] . ' ' . $value;
       }
 
-    } elseif ($this->startsWith($rule->type, 'trim')) {
+    }
+    elseif ($this->startsWith($rule->type, 'trim')) {
       // TRIM will strip the string of
       $value = $this->getValue($rule->from, $data, $context);
-      $params = explode(":", $rule->type);
+      $params = explode(':', $rule->type);
       if (isset($params[1])) {
         // the user provided a the trim parameters
         $data[$rule->to] = trim($value, $params[1]);
-      } else {
+      }
+      else {
         $data[$rule->to] = trim($value);
       }
 
-    } elseif ($this->startsWith($rule->type, 'unset')) {
+    }
+    elseif ($this->startsWith($rule->type, 'unset')) {
       // UNSET will remove temporary variables
       unset($data[$rule->to]);
 
-    } elseif ($this->startsWith($rule->type, 'replace')) {
+    }
+    elseif ($this->startsWith($rule->type, 'replace')) {
       // REPLACE will replace a substring
       $value = $this->getValue($rule->from, $data, $context);
-      $params = explode(":", $rule->type);
+      $params = explode(':', $rule->type);
       $data[$rule->to] = str_replace($params[1], $params[2], $value);
 
-    } elseif ($this->startsWith($rule->type, 'format')) {
+    }
+    elseif ($this->startsWith($rule->type, 'format')) {
       // will use the sprintf format
       $value = $this->getValue($rule->from, $data, $context);
-      $params = explode(":", $rule->type);
+      $params = explode(':', $rule->type);
       $data[$rule->to] = sprintf($params[1], $value);
 
-    } elseif ($this->startsWith($rule->type, 'constant')) {
+    }
+    elseif ($this->startsWith($rule->type, 'constant')) {
       // will just set a constant string
       $data[$rule->to] = $rule->from;
 
-    } elseif ($this->startsWith($rule->type, 'align_date')) {
+    }
+    elseif ($this->startsWith($rule->type, 'align_date')) {
       // ALIGN a date forwards or backwards
-      $params = explode(":", $rule->type, 2);
-      $offset = ($params[1] == 'backward') ? "-1 day" : "+1 day";
+      $params = explode(':', $rule->type, 2);
+      $offset = ($params[1] == 'backward') ? '-1 day' : '+1 day';
       $btx[$rule->to] = CRM_Utils_BankingToolbox::alignDateTime($value, $offset, explode(',', $rule->skip));
 
-    } elseif ($this->startsWith($rule->type, 'strtotime')) {
+    }
+    elseif ($this->startsWith($rule->type, 'strtotime')) {
       // STRTOTIME is a date parser
       $value = $this->getValue($rule->from, $data, $context);
-      $params = explode(":", $rule->type, 2);
+      $params = explode(':', $rule->type, 2);
       if (isset($params[1])) {
         // the user provided a date format
         $datetime = DateTime::createFromFormat($params[1], $value);
         if ($datetime) {
           $data[$rule->to] = $datetime->format('YmdHis');
         }
-      } else {
+      }
+      else {
         $data[$rule->to] = date('YmdHis', strtotime($value));
       }
 
-    } elseif ($this->startsWith($rule->type, 'amount')) {
+    }
+    elseif ($this->startsWith($rule->type, 'amount')) {
       // AMOUNT will take care of currency issues, like "," instead of "."
       $value = $this->getValue($rule->from, $data, $context);
-      $data[$rule->to] = str_replace(",", ".", $value);
+      $data[$rule->to] = str_replace(',', '.', $value);
 
-    } elseif ($this->startsWith($rule->type, 'regex:')) {
+    }
+    elseif ($this->startsWith($rule->type, 'regex:')) {
       // REGEX will extract certain values from the line
       $value = $this->getValue($rule->from, $data, $context);
       $pattern = substr($rule->type, 6);
-      $matches = array();
+      $matches = [];
       if (preg_match($pattern, $value, $matches)) {
         // we found it!
         $data[$rule->to] = $matches[1];
-      } else {
+      }
+      else {
         if (!empty($rule->warn)) {
           $this->reportProgress(CRM_Banking_PluginModel_Base::REPORT_PROGRESS_NONE,
             sprintf(E::ts("Pattern '%s' was not found in entry '%s'."), $pattern, $value));
         }
       }
 
-    } else {
+    }
+    else {
       error_log("org.project60.banking XMLImporter: rule type '{$rule->type}' unknown.");
     }
   }
@@ -544,23 +585,28 @@ class CRM_Banking_PluginImpl_Importer_XML extends CRM_Banking_PluginModel_Import
     // get value
     if ($this->startsWith($key, '_constant:')) {
       return substr($key, 10);
-    } elseif ($this->startsWith($key, 'xpath:')) {
+    }
+    elseif ($this->startsWith($key, 'xpath:')) {
       $path = substr($key, 6);
       $result = $this->xpath->evaluate($path, $context);
-      if (get_class($result)=='DOMNode') {
+      if (get_class($result) == 'DOMNode') {
         return $result->nodeValue;
-      } elseif (get_class($result)=='DOMNodeList') {
+      }
+      elseif (get_class($result) == 'DOMNodeList') {
         $value = '';
         foreach ($result as $node) {
           $value .= $node->nodeValue;
         }
         return $value;
-      } else {
+      }
+      else {
         return $result;
       }
-    } elseif (isset($data[$key])) {
+    }
+    elseif (isset($data[$key])) {
       return $data[$key];
-    } else {
+    }
+    else {
       error_log("org.project60.banking: XMLImporter - Cannot find source '$key' for rule or filter.");
       return '';
     }
@@ -568,9 +614,14 @@ class CRM_Banking_PluginImpl_Importer_XML extends CRM_Banking_PluginModel_Import
 
   /**
    * Test the rule->if condition.
+   *
+   * phpcs:disable Generic.Metrics.CyclomaticComplexity.TooHigh
    */
   protected function checkCondition($rule, $context, $data) {
-    if (empty($rule->if)) return TRUE;
+  // phpcs:enable
+    if (empty($rule->if)) {
+      return TRUE;
+    }
     $pattern = '#^(?P<term1>[\w:.]+) +(?P<op>=|!=|<|>|>=|<=|IN|!IN) +(?P<term2>[\w:.]+)$#';
     if (preg_match($pattern, $rule->if, $matches)) {
       $term1 = $this->getValue($matches['term1'], $data, $context);
@@ -578,28 +629,37 @@ class CRM_Banking_PluginImpl_Importer_XML extends CRM_Banking_PluginModel_Import
       switch ($matches['op']) {
         case '=':
           return $term1 == $term2;
+
         case '!=':
           return $term1 != $term2;
+
         case '<':
           return $term1 < $term2;
+
         case '>':
           return $term1 > $term2;
+
         case '<=':
           return $term1 <= $term2;
+
         case '>=':
           return $term1 >= $term2;
+
         case 'IN':
           return strstr($term2, $term1);
+
         case '!IN':
           return !strstr($term2, $term1);
+
         default:
           // invalid rule
           return TRUE;
       }
-    } else {
+    }
+    else {
       // invalid rule
       return TRUE;
     }
   }
-}
 
+}

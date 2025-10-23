@@ -14,9 +14,9 @@
 | written permission from the original author(s).        |
 +--------------------------------------------------------*/
 
-use CRM_Banking_ExtensionUtil as E;
+declare(strict_types = 1);
 
-require_once 'CRM/Banking/Helpers/OptionValue.php';
+use CRM_Banking_ExtensionUtil as E;
 
 /**
  * This matcher will offer to create a new contribution if all the required information is present
@@ -26,19 +26,30 @@ class CRM_Banking_PluginImpl_Matcher_CreateContribution extends CRM_Banking_Plug
   /**
    * class constructor
    */
-  function __construct($config_name) {
+  public function __construct($config_name) {
     parent::__construct($config_name);
 
     // read config, set defaults
     $config = $this->_plugin_config;
-    if (!isset($config->auto_exec))              $config->auto_exec = false;
-    if (!isset($config->required_values))        $config->required_values = array("btx.financial_type_id", "btx.campaign_id");
-    if (!isset($config->factor))                 $config->factor = 1.0;
-    if (!isset($config->threshold))              $config->threshold = 0.0;
-    if (!isset($config->source_label))           $config->source_label = E::ts('Source');
-    if (!isset($config->lookup_contact_by_name)) $config->lookup_contact_by_name = array("hard_cap_probability" => 0.9);
+    if (!isset($config->auto_exec)) {
+      $config->auto_exec = FALSE;
+    }
+    if (!isset($config->required_values)) {
+      $config->required_values = ['btx.financial_type_id', 'btx.campaign_id'];
+    }
+    if (!isset($config->factor)) {
+      $config->factor = 1.0;
+    }
+    if (!isset($config->threshold)) {
+      $config->threshold = 0.0;
+    }
+    if (!isset($config->source_label)) {
+      $config->source_label = E::ts('Source');
+    }
+    if (!isset($config->lookup_contact_by_name)) {
+      $config->lookup_contact_by_name = ['hard_cap_probability' => 0.9];
+    }
   }
-
 
   /**
    * Generate a set of suggestions for the given bank transaction
@@ -52,7 +63,9 @@ class CRM_Banking_PluginImpl_Matcher_CreateContribution extends CRM_Banking_Plug
     $data_parsed = $btx->getDataParsed();
 
     // first see if all the required values are there
-    if (!$this->requiredValuesPresent($btx)) return null;
+    if (!$this->requiredValuesPresent($btx)) {
+      return NULL;
+    }
 
     // then look up potential contacts
     $contacts_found = $context->findContacts($threshold, $data_parsed['name'], $config->lookup_contact_by_name);
@@ -60,7 +73,7 @@ class CRM_Banking_PluginImpl_Matcher_CreateContribution extends CRM_Banking_Plug
     // finally generate suggestions
     foreach ($contacts_found as $contact_id => $contact_probability) {
       $suggestion = new CRM_Banking_Matcher_Suggestion($this, $btx);
-      $suggestion->setTitle(E::ts("Create a new contribution"));
+      $suggestion->setTitle(E::ts('Create a new contribution'));
       $suggestion->setId("create-$contact_id");
       $suggestion->setParameter('contact_id', $contact_id);
 
@@ -73,7 +86,7 @@ class CRM_Banking_PluginImpl_Matcher_CreateContribution extends CRM_Banking_Plug
     }
 
     // that's it...
-    return empty($this->_suggestions) ? null : $this->_suggestions;
+    return empty($this->_suggestions) ? NULL : $this->_suggestions;
   }
 
   /**
@@ -89,11 +102,10 @@ class CRM_Banking_PluginImpl_Matcher_CreateContribution extends CRM_Banking_Plug
   public function execute($suggestion, $btx) {
     // create contribution
     $query = $this->get_contribution_data($btx, $suggestion, $suggestion->getParameter('contact_id'));
-    $query['version'] = 3;
-    $result = civicrm_api('Contribution', 'create', $query);
+    $result = civicrm_api3('Contribution', 'create', $query);
     if (isset($result['is_error']) && $result['is_error']) {
-      CRM_Core_Session::setStatus(E::ts("Couldn't create contribution.")."<br/>".E::ts("Error was: ").$result['error_message'], E::ts('Error'), 'error');
-      return true;
+      CRM_Core_Session::setStatus(E::ts("Couldn't create contribution.") . '<br/>' . E::ts('Error was: ') . $result['error_message'], E::ts('Error'), 'error');
+      return TRUE;
     }
 
     $suggestion->setParameter('contribution_id', $result['id']);
@@ -129,34 +141,35 @@ class CRM_Banking_PluginImpl_Matcher_CreateContribution extends CRM_Banking_Plug
    * @val $btx      the bank transaction the match refers to
    * @return html code snippet
    */
-  function visualize_match( CRM_Banking_Matcher_Suggestion $match, $btx) {
-    $smarty_vars = array();
+  public function visualize_match(CRM_Banking_Matcher_Suggestion $match, $btx) {
+    $smarty_vars = [];
 
     $contact_id   = $match->getParameter('contact_id');
     $contribution = $this->get_contribution_data($btx, $match, $contact_id);
 
     // load contact
-    $contact = civicrm_api('Contact', 'getsingle', array('id' => $contact_id, 'version' => 3));
+    $contact = civicrm_api3('Contact', 'getsingle', ['id' => $contact_id]);
     if (!empty($contact['is_error'])) {
       $smarty_vars['error'] = $contact['error_message'];
     }
 
     // look up financial type
-    $financial_types = CRM_Contribute_PseudoConstant::financialType();
+    $financial_types = CRM_Financial_BAO_FinancialType::getAvailableFinancialTypes();
     $contribution['financial_type'] = $financial_types[$contribution['financial_type_id']];
 
     // look up campaign
     if (!empty($contribution['campaign_id'])) {
-      $campaign = civicrm_api('Campaign', 'getsingle', array('id' => $contribution['campaign_id'], 'version' => 3));
+      $campaign = civicrm_api3('Campaign', 'getsingle', ['id' => $contribution['campaign_id']]);
       if (!empty($contact['is_error'])) {
         $smarty_vars['error'] = $campaign['error_message'];
-      } else {
+      }
+      else {
         $smarty_vars['campaign'] = $campaign;
       }
     }
 
     // assign source
-    $smarty_vars['source']       = CRM_Utils_Array::value('source', $contribution);
+    $smarty_vars['source']       = $contribution['source'] ?? NULL;
     $smarty_vars['source_label'] = $this->_plugin_config->source_label;
 
     // assign to smarty and compile HTML
@@ -178,9 +191,9 @@ class CRM_Banking_PluginImpl_Matcher_CreateContribution extends CRM_Banking_Plug
    * @val $btx      the bank transaction the match refers to
    * @return html code snippet
    */
-  function visualize_execution_info( CRM_Banking_Matcher_Suggestion $match, $btx) {
+  public function visualize_execution_info(CRM_Banking_Matcher_Suggestion $match, $btx) {
     // just assign to smarty and compile HTML
-    $smarty_vars = array();
+    $smarty_vars = [];
     $smarty_vars['contribution_id'] = $match->getParameter('contribution_id');
     $smarty_vars['contact_id']      = $match->getParameter('contact_id');
 
@@ -195,8 +208,8 @@ class CRM_Banking_PluginImpl_Matcher_CreateContribution extends CRM_Banking_Plug
   /**
    * compile the contribution data from the BTX and the propagated values
    */
-  function get_contribution_data($btx, $match, $contact_id) {
-    $contribution = array();
+  public function get_contribution_data($btx, $match, $contact_id) {
+    $contribution = [];
     $contribution['contact_id'] = $contact_id;
     $contribution['total_amount'] = $btx->amount;
     $contribution['receive_date'] = $btx->value_date;
@@ -204,5 +217,5 @@ class CRM_Banking_PluginImpl_Matcher_CreateContribution extends CRM_Banking_Plug
     $contribution = array_merge($contribution, $this->getPropagationSet($btx, $match, 'contribution'));
     return $contribution;
   }
-}
 
+}

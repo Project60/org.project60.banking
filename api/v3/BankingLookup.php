@@ -14,6 +14,7 @@
 | written permission from the original author(s).        |
 +--------------------------------------------------------*/
 
+declare(strict_types = 1);
 
 /**
  * File for the CiviCRM APIv3 banking lookup services
@@ -27,28 +28,32 @@ use Civi\Api4\Contact;
  * Will provide a name based lookup for contacts. It is designed to take care of
  *  'tainted' string, i.e. containing abbreviations, initals, titles, etc.
  *
- * @param mode                    which mode to use (default: 'api')
- *                                  'api'      - use Contact.autocomplete API call
- *                                  'getquick' - alias of 'api' for backward compatibility
- *                                  'sql'      - use SQL query
- *                                  'off'      - turn the search off completely
- * @param exact_match_wins        if this is set, the search is cut short if a exact match is found
- * @param name                    the name string to look for
- * @param modifiers               are used to modfiy the string: expects a JSON encoded list
- *                                  of arrays with the following entries:
- *                                  'search':     regex to search (for preg_replace)
- *                                  'replace':    string to replace it with (for preg_replace)
- *                                  'mode':       'entire' (apply to the whole string)
+ * @param array<string, mixed> $params
+ *   'mode' => which mode to use (default: 'api')
+ *            'api'      - use Contact.autocomplete API call
+ *            'getquick' - alias of 'api' for backward compatibility
+ *            'sql'      - use SQL query
+ *            'off'      - turn the search off completely
+ *   'exact_match_wins' => if this is set, the search is cut short if a exact match is found
+ *   'name' => the name string to look for
+ *   'modifiers' => are used to modfiy the string: expects a JSON encoded list
+ *                  of arrays with the following entries:
+ *                  'search':     regex to search (for preg_replace)
+ *                  'replace':    string to replace it with (for preg_replace)
+ *                   'mode':       'entire' (apply to the whole string)
  *                                                'alternative'  (apply to each component, but also keep original)
- * @param hard_cap                will truncate the result list at given index
- * @param hard_cap_probability    will truncate the result list at given probability
- * @param soft_cap_probability    will purge all entries with less that the given probability
- *                                    but will keep the first [soft_cap_min] entries if given
- * @param soft_cap_min            see soft_cap_probability
+ *   'hard_cap' => will truncate the result list at given index
+ *   'hard_cap_probability' => will truncate the result list at given probability
+ *   'soft_cap_probability' => will purge all entries with less that the given probability
+ *                             but will keep the first [soft_cap_min] entries if given
+ *   'soft_cap_min' => see soft_cap_probability
  *
- * @return array(contact_id => probability), where probability is from [0..1)
+ * @return array contact_id => probability), where probability is from [0..1]
+ *
+ * phpcs:disable Generic.Metrics.CyclomaticComplexity.MaxExceeded
  */
 function civicrm_api3_banking_lookup_contactbyname($params) {
+// phpcs:enable
   if (!isset($params['name']) || empty($params['name'])) {
     // no name given, no results:
     return civicrm_api3_create_error("No 'name' parameter given.");
@@ -58,9 +63,10 @@ function civicrm_api3_banking_lookup_contactbyname($params) {
 
   // get modifiers
   if (!isset($params['modifiers']) || empty($params['modifiers'])) {
-    $modifiers = array();
-  } else {
-    $modifiers = json_decode($params['modifiers'], true);
+    $modifiers = [];
+  }
+  else {
+    $modifiers = json_decode($params['modifiers'], TRUE);
   }
 
   // apply 'entire'-modifiers to string
@@ -71,7 +77,7 @@ function civicrm_api3_banking_lookup_contactbyname($params) {
   }
 
   // chop up the name string
-  $name_bits = preg_split("( |,|&|\.)", $name, 0, PREG_SPLIT_NO_EMPTY);
+  $name_bits = preg_split('( |,|&|\.)', $name, 0, PREG_SPLIT_NO_EMPTY);
 
   // apply 'alternative'-modifiers to string
   foreach ($name_bits as $name_bit) {
@@ -86,10 +92,11 @@ function civicrm_api3_banking_lookup_contactbyname($params) {
   }
 
   // keep only the longest 4 entries (for performance reasons)
-  while (count($name_bits)>4) {
+  while (count($name_bits) > 4) {
     $shortest_index = 0;
     $shortest_length = strlen($name_bits[0]);
-    for ($i=1; $i < count($name_bits); $i++) {
+    $nameBitsCount = count($name_bits);
+    for ($i = 1; $i < $nameBitsCount; $i++) {
       if (strlen($name_bits[$i]) < $shortest_length) {
         $shortest_length = strlen($name_bits[$i]);
         $shortest_index = $i;
@@ -100,10 +107,12 @@ function civicrm_api3_banking_lookup_contactbyname($params) {
   }
 
   // prepare all possible 2-tuples to feed to quicksearch
-  $name_mutations = array();
-  $name_mutations[] = $name; // add full name, see https://github.com/Project60/org.project60.banking/issues/157
-  for ($i=0; $i < count($name_bits); $i++) {
-    if (strlen($name_bits[$i])>2) {
+  $name_mutations = [];
+  // add full name, see https://github.com/Project60/org.project60.banking/issues/157
+  $name_mutations[] = $name;
+  $nameBitsCount = count($name_bits);
+  for ($i = 0; $i < $nameBitsCount; $i++) {
+    if (strlen($name_bits[$i]) > 2) {
       $name_mutations[] = $name_bits[$i];
     }
 
@@ -111,18 +120,20 @@ function civicrm_api3_banking_lookup_contactbyname($params) {
     if (empty($params['sort_name_format'])) {
       $config = CRM_Core_Config::singleton();
       if (empty($config->sort_name_format)) {
-        $sort_name_format = "{contact.last_name}{, }{contact.first_name}";
-      } else {
+        $sort_name_format = '{contact.last_name}{, }{contact.first_name}';
+      }
+      else {
         $sort_name_format = $config->sort_name_format;
       }
-    } else {
+    }
+    else {
       $sort_name_format = $params['sort_name_format'];
     }
     // replace stuff
     $sort_name_format = str_replace('{, }', ', ', $sort_name_format);
     $sort_name_format = str_replace('{ }', ' ', $sort_name_format);
 
-    for ($j=$i+1; $j < count($name_bits); $j++) {
+    for ($j = $i + 1; $j < $nameBitsCount; $j++) {
       $mutation = preg_replace('#\{[\w\.]+\}#', $name_bits[$i], $sort_name_format, 1);
       $name_mutations[] = preg_replace('#\{[\w\.]+\}#', $name_bits[$j], $mutation);
 
@@ -131,12 +142,12 @@ function civicrm_api3_banking_lookup_contactbyname($params) {
     }
   }
 
-
   // sort by length, so the longest combination is looked for first
   $name_mutations = array_unique($name_mutations);
   usort($name_mutations, function($a, $b) {
     return strlen($b) - strlen($a);
-  }); // search first for the longest combination
+    // search first for the longest combination
+  });
 
   // respect the exact_match_wins flag:
   if (!empty($params['exact_match_wins'])) {
@@ -171,7 +182,7 @@ function civicrm_api3_banking_lookup_contactbyname($params) {
   if (!empty($params['ignore_contact_types']) && !empty($contacts_found)) {
     // run a SQL filter query instead of loading every contact
     $all_ids = implode(',', array_keys($contacts_found));
-    $ignore_types = '"'.implode('","', explode(',', $params['ignore_contact_types'])).'"';
+    $ignore_types = '"' . implode('","', explode(',', $params['ignore_contact_types'])) . '"';
     $filtered_ids_query = "SELECT id FROM civicrm_contact WHERE id IN ($all_ids) AND (contact_type IN ($ignore_types) OR contact_sub_type IN ($ignore_types));";
     $filtered_ids = CRM_Core_DAO::executeQuery($filtered_ids_query);
     while ($filtered_ids->fetch()) {
@@ -181,8 +192,8 @@ function civicrm_api3_banking_lookup_contactbyname($params) {
 
   // apply hard cap, if given
   if (!empty($params['hard_cap']) && is_numeric($params['hard_cap'])) {
-    if (count($contacts_found) > (int)$params['hard_cap']) {
-      $contacts_found = array_slice($contacts_found, 0, (int) $params['hard_cap'], true);
+    if (count($contacts_found) > (int) $params['hard_cap']) {
+      $contacts_found = array_slice($contacts_found, 0, (int) $params['hard_cap'], TRUE);
     }
   }
 
@@ -224,17 +235,17 @@ function civicrm_api3_banking_lookup_contactbyname($params) {
  * @return array
  */
 function _civicrm_api3_banking_lookup_contactbyname_exact ($name_mutations) {
-  $contacts_found = array();
+  $contacts_found = [];
   $longest_mutation = strlen($name_mutations[0]);
 
   // compile SQL query
-  $sql_clauses = array();
+  $sql_clauses = [];
   foreach ($name_mutations as $name_mutation) {
-    if (strlen($name_mutation) < $longest_mutation)
+    if (strlen($name_mutation) < $longest_mutation) {
       return $contacts_found;
+    }
     $name_mutation = CRM_Utils_Type::escape($name_mutation, 'String');
     $search_query = "SELECT id, sort_name FROM civicrm_contact WHERE is_deleted=0 AND (`sort_name` = '{$name_mutation}');";
-    // error_log($search_query);
     $search_results = CRM_Core_DAO::executeQuery($search_query);
     while ($search_results->fetch()) {
       $contacts_found[$search_results->id] = 1.0;
@@ -249,11 +260,11 @@ function _civicrm_api3_banking_lookup_contactbyname_exact ($name_mutations) {
 function _civicrm_api3_banking_lookup_contactbyname_sql($name_mutations, $params) {
   $max_contacts_on_lookup = CRM_Banking_Config::getMaxContactsOnLookup();
 
-  $contacts_found = array();
+  $contacts_found = [];
   $longest_mutation = 0;
 
   // compile SQL query
-  $sql_clauses = array();
+  $sql_clauses = [];
   $name_mutation = '';
   foreach ($name_mutations as $name_mutation) {
     $name_mutation = CRM_Utils_Type::escape($name_mutation, 'String');
@@ -263,7 +274,6 @@ function _civicrm_api3_banking_lookup_contactbyname_sql($name_mutations, $params
 
   $search_term = implode(' OR ', $sql_clauses);
   $search_query = "SELECT id, sort_name FROM civicrm_contact WHERE is_deleted=0 AND ({$search_term}) LIMIT $max_contacts_on_lookup;";
-  // error_log($search_query);
   $search_results = CRM_Core_DAO::executeQuery($search_query);
   while ($search_results->fetch()) {
     // evaluate each result
@@ -272,9 +282,11 @@ function _civicrm_api3_banking_lookup_contactbyname_sql($name_mutations, $params
     foreach ($name_mutations as $name_mutation) {
       if ($compare_name == $name_mutation) {
         $probability = 1.0;
-      } else {
+      }
+      else {
         // not a full match -> calculate similarity
-        $similarity = 0.0; // value [0..100]
+        // value [0..100]
+        $similarity = 0.0;
         similar_text(strtolower($name_mutation), $compare_name, $similarity);
         $probability = max($probability, $similarity / 100.0);
       }
@@ -298,8 +310,11 @@ function _civicrm_api3_banking_lookup_contactbyname_sql($name_mutations, $params
 
 /**
  * find some contacts via API
+ *
+ * phpcs:disable Generic.Metrics.CyclomaticComplexity.TooHigh
  */
 function _civicrm_api3_banking_lookup_contactbyname_api($name_mutations, $params): array {
+// phpcs:enable
   $max_contacts_on_lookup = CRM_Banking_Config::getMaxContactsOnLookup();
 
   $contacts_probability = [];
@@ -308,7 +323,17 @@ function _civicrm_api3_banking_lookup_contactbyname_api($name_mutations, $params
   foreach ($name_mutations as $name_mutation) {
     $page = 1;
     do {
-      $result = Contact::autocomplete()->setInput($name_mutation)->setPage($page++)->execute();
+      if (version_compare(CRM_Utils_System::version(), '6.6.0', '>=')) {
+        $result = Contact::autocomplete()
+          ->setSearchField('sort_name')
+          ->setInput($name_mutation)
+          ->setExclude(array_keys($occurrence_count))
+          ->execute();
+      }
+      else {
+        // @phpstan-ignore-next-line
+        $result = Contact::autocomplete()->setInput($name_mutation)->setPage($page++)->execute();
+      }
       /** @phpstan-var array{id: int, label: string, icon: string, description: list<string>} $contact_autocomplete */
       foreach ($result as $contact_autocomplete) {
         $contact_id = $contact_autocomplete['id'];
@@ -351,29 +376,35 @@ function _civicrm_api3_banking_lookup_contactbyname_api($name_mutations, $params
  * helper function for civicrm_api3_banking_lookup_contactbyname:
  * will apply penalties to the $contactID2probability list
  *
- * @param contactID2probability list of contact_ids with the currently assigned probability.
+ * @param array $contactID2probability list of contact_ids with the currently assigned probability.
  *                               values will be adjusted by this method
- * @param penalty_specs         penalty specification from the matcher's configuration
+ * @param array $penalty_specs         penalty specification from the matcher's configuration
+ *
+ * phpcs:disable Generic.Metrics.CyclomaticComplexity.TooHigh
  */
 function _civicrm_api3_banking_lookup_contactbyname_penalties(&$contactID2probability, $penalty_specs) {
+// phpcs:enable
   // STEP 1: GATHER DATA
-  $contact2relation = array();
-  $contact2info = array();
-  $relation_type_ids = array();
+  $contact2relation = [];
+  $contact2info = [];
+  $relation_type_ids = [];
   foreach ($penalty_specs as $penalty) {
     if ($penalty->type == 'relation') {
       if ((int) $penalty->relation_type_id) {
         $relation_type_ids[] = (int) $penalty->relation_type_id;
-      } else {
+      }
+      else {
         Civi::log()->debug("org.project60.banking.lookup - invalid or no 'relation_type_id' given in penalty definition.");
       }
-    } elseif ($penalty->type == 'individual_single_name') {
+    }
+    elseif ($penalty->type == 'individual_single_name') {
       if (!empty($contactID2probability)) {
-        $info_query = civicrm_api3('Contact', 'get', array(
-            'id'           => array('IN' => array_keys($contactID2probability)),
-            'return'       => 'first_name,last_name,contact_type',
-            'sequential'   => 0,
-            'option.limit' => 0));
+        $info_query = civicrm_api3('Contact', 'get', [
+          'id'           => ['IN' => array_keys($contactID2probability)],
+          'return'       => 'first_name,last_name,contact_type',
+          'sequential'   => 0,
+          'option.limit' => 0,
+        ]);
         $contact2info = $info_query['values'];
 
       }
@@ -391,7 +422,6 @@ function _civicrm_api3_banking_lookup_contactbyname_penalties(&$contactID2probab
     }
   }
 
-
   // STEP 2: apply penalties
   foreach ($contactID2probability as $contact_id => $probability) {
     foreach ($penalty_specs as $penalty) {
@@ -403,9 +433,10 @@ function _civicrm_api3_banking_lookup_contactbyname_penalties(&$contactID2probab
           $probability = max(0.0, $probability - $probability_penalty);
         }
 
-      } elseif ($penalty->type == 'individual_single_name') {
+      }
+      elseif ($penalty->type == 'individual_single_name') {
         // check if contact is an individual...
-        $info = CRM_Utils_Array::value($contact_id, $contact2info, array());
+        $info = $contact2info[$contact_id] ?? [];
         if (!empty($info['contact_type']) && $info['contact_type'] == 'Individual') {
           // ...and has only one name
           if (empty($info['first_name']) || empty($info['last_name'])) {
@@ -414,7 +445,8 @@ function _civicrm_api3_banking_lookup_contactbyname_penalties(&$contactID2probab
           }
         }
 
-      } else {
+      }
+      else {
         Civi::log()->debug("org.project60.banking.lookup - penalty type not implemented: '{$penalty->type}'. Ignored.");
       }
     }

@@ -14,15 +14,17 @@
 | written permission from the original author(s).        |
 +--------------------------------------------------------*/
 
-/**
- * simple static cache implementation : STATIC VARIABLE
- */
-static $_CRM_Utils_StaticCache = NULL;
+declare(strict_types = 1);
 
 /**
  * simple static cache implementation : ACCESS METHODS
  */
 class CRM_Utils_StaticCache {
+
+  /**
+   * @var array<string, mixed>
+   */
+  private static array $cache = [];
 
   /**
    * Will check if the given key is set in the cache
@@ -31,35 +33,21 @@ class CRM_Utils_StaticCache {
    *
    * @return mixed the previously stored value, or NULL
    */
-  public static function getCachedEntry($key) {
-    // error_log("LOOKING FOR '$key'");
-    global $_CRM_Utils_StaticCache;
-    if ($_CRM_Utils_StaticCache !== NULL) {
-      if (isset($_CRM_Utils_StaticCache[$key])) {
-        // error_log("CACHE HIT '$key'");
-        return $_CRM_Utils_StaticCache[$key];
-      }
-    }
-    // error_log("CACHE MISS '$key'");
-    return NULL;
+  public static function getCachedEntry(string $key): mixed {
+    return self::$cache[$key] ?? NULL;
   }
 
   /**
    * Set the given cache value
    *
    * @todo use CiviCRM caching
-   *
    */
-  public static function setCachedEntry($key, $value) {
-    global $_CRM_Utils_StaticCache;
-    if ($_CRM_Utils_StaticCache === NULL) {
-      $_CRM_Utils_StaticCache = [];
-    }
-    $_CRM_Utils_StaticCache[$key] = $value;
+  public static function setCachedEntry(string $key, mixed $value): void {
+    self::$cache[$key] = $value;
   }
 
-  public static function clearCache() {
-    global $_CRM_Utils_StaticCache;
-    $_CRM_Utils_StaticCache = [];
+  public static function clearCache(): void {
+    self::$cache = [];
   }
+
 }

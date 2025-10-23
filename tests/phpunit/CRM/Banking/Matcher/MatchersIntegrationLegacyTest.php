@@ -14,7 +14,7 @@
 | written permission from the original author(s).        |
 +--------------------------------------------------------*/
 
-use CRM_Banking_ExtensionUtil as E;
+declare(strict_types = 1);
 
 /**
  * Tests for the RegexAnalyser class.
@@ -23,80 +23,89 @@ use CRM_Banking_ExtensionUtil as E;
  *
  * @group headless
  */
-class CRM_Banking_MatchersIntegrationLegacyTest extends CRM_Banking_TestBase
-{
-    /**
-     * Test regex and create contribution matcher in combination.
-     */
-    public function testRegexAndCreateContributionMatcher()
-    {
-        $contactId = $this->createContact();
-        $transactionId = $this->createTransaction(
+class CRM_Banking_MatchersIntegrationLegacyTest extends CRM_Banking_TestBase {
+
+  /**
+   * Test regex and create contribution matcher in combination.
+   */
+  public function testRegexAndCreateContributionMatcher() {
+    $contactId = $this->createContact();
+    $transactionId = $this->createTransaction(
+        [
+          'purpose' => 'This is a donation',
+          'financial_type' => 'CreditCard',
+          'contact_id' => $contactId,
+    // NOTE: Must be set, otherwise there occurs an error while matching CreateContribution.
+          'name' => '',
+        ]
+    );
+
+    $this->createRegexAnalyser(
+        [
             [
-                'purpose' => 'This is a donation',
-                'financial_type' => 'CreditCard',
-                'contact_id' => $contactId,
-                'name' => '', // NOTE: Must be set, otherwise there occurs an error while matching CreateContribution.
-            ]
-        );
-
-        $this->createRegexAnalyser(
+              'fields' => ['financial_type'],
+              'pattern' => '/(?P<pi>CreditCard|DebitCard)/',
+              'actions' => [
+                    [
+                      'from' => 'pi',
+                      'to' => 'payment_instrument_id',
+                      'action' => 'map',
+                      'mapping' => [
+                        'CreditCard' => 1,
+                        'DebitCard' => 2,
+                      ],
+                    ],
+              ],
+            ],
             [
-                [
-                    'fields' => ['financial_type'],
-                    'pattern' => '/(?P<pi>CreditCard|DebitCard)/',
-                    'actions' => [
-                        [
-                            'from' => 'pi',
-                            'to' => 'payment_instrument_id',
-                            'action' => 'map',
-                            'mapping' => [
-                                'CreditCard' => 1,
-                                'DebitCard' => 2,
-                            ]
-                        ]
-                    ]
-                ],
-                [
-                    'fields' => ['purpose'],
-                    'pattern' => '/donation/i',
-                    'actions' => [
-                        [
-                            'action' => 'set',
-                            'value' => 1,
-                            'to' => 'financial_type_id',
-                        ]
-                    ]
-                ]
-            ]
-        );
+              'fields' => ['purpose'],
+              'pattern' => '/donation/i',
+              'actions' => [
+                    [
+                      'action' => 'set',
+                      'value' => 1,
+                      'to' => 'financial_type_id',
+                    ],
+              ],
+            ],
+        ]
+    );
 
-        $createContributionMatcherId = $this->createCreateContributionMatcher();
-        $transactionBeforeRun = $this->getTransaction($transactionId);
-        $this->runMatchers();
+    $createContributionMatcherId = $this->createCreateContributionMatcher();
+    $transactionBeforeRun = $this->getTransaction($transactionId);
+    $this->runMatchers();
 
-        $transactionAfterRun = $this->getTransaction($transactionId);
-        $parsedDataBefore = json_decode($transactionBeforeRun['data_parsed']);
-        $parsedDataAfter = json_decode($transactionAfterRun['data_parsed']);
+    $transactionAfterRun = $this->getTransaction($transactionId);
+    $parsedDataBefore = json_decode($transactionBeforeRun['data_parsed']);
+    $parsedDataAfter = json_decode($transactionAfterRun['data_parsed']);
 
-        static::assertSame('CreditCard', $parsedDataBefore->financial_type, "The transaction's financial type ID is not correct.");
-        static::assertSame(1, $parsedDataAfter->payment_instrument_id, "The transaction's payment instrument ID is not correct.");
+    static::assertSame(
+      'CreditCard',
+      $parsedDataBefore->financial_type,
+      "The transaction's financial type ID is not correct."
+    );
+    static::assertSame(
+      1,
+      $parsedDataAfter->payment_instrument_id,
+      "The transaction's payment instrument ID is not correct."
+    );
 
-        $contribution = $this->getLatestContribution();
-        $this->assertEquals(
-            $contactId,
-            $contribution['contact_id'],
-            E::ts("The contribution's contact ID is not correct.")
-        );
-        $this->assertEquals(
-            1,
-            $contribution['payment_instrument_id'],
-            E::ts("The contributions' payment instrument ID is not correct.")
-        );
-        $this->assertEquals(
-            1,
-            $contribution['financial_type_id'],
-            E::ts("The contributions' financial type ID is not correct.")
-        );
-    }
+    $contribution = $this->getLatestContribution();
+    $this->assertEquals(
+        $contactId,
+        $contribution['contact_id'],
+        "The contribution's contact ID is not correct."
+    );
+    $this->assertEquals(
+        1,
+        $contribution['payment_instrument_id'],
+        "The contributions' payment instrument ID is not correct."
+    );
+    $this->assertEquals(
+        1,
+        $contribution['financial_type_id'],
+        "The contributions' financial type ID is not correct."
+    );
+  }
+
 }

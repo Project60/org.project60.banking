@@ -14,6 +14,8 @@
 | written permission from the original author(s).        |
 +--------------------------------------------------------*/
 
+declare(strict_types = 1);
+
 /**
  * Test ContributionMatcher module
  *
@@ -57,4 +59,5 @@ class CRM_Banking_Matcher_MatchContributionMatcherTest extends CRM_Banking_TestB
 
     $this->assertEquals(1, $completed_contribution['contribution_status_id'], "Contribution wasn't completed.");
   }
+
 }

@@ -1,23 +1,30 @@
 <?php
-use CRM_Banking_ExtensionUtil as E;
 
-require_once 'CRM/Banking/Helpers/URLBuilder.php';
+declare(strict_types = 1);
+
+use CRM_Banking_ExtensionUtil as E;
 
 class CRM_Banking_Page_Statements extends CRM_Core_Page {
 
   protected $_pager;
 
+  /**
+   * @throws \CRM_Core_Exception
+   *
+   * phpcs:disable Generic.Metrics.CyclomaticComplexity.TooHigh
+   */
   public function run() {
+  // phpcs:enable
     $config = CRM_Core_Config::singleton();
     CRM_Utils_System::setTitle(E::ts('Banking statements'));
     $this->assign('can_delete', CRM_Core_Permission::check('administer CiviCRM'));
-    $this->assign('url_export_selected_payments', banking_helper_buildURL('civicrm/banking/export', array('s_list'=>"__selected__")));
+    $this->assign('url_export_selected_payments', banking_helper_buildURL('civicrm/banking/export', ['s_list' => '__selected__']));
 
-    $statements = array();
+    $statements = [];
     // collect an array of target accounts, serving to limit the display
-    $target_accounts = array();
+    $target_accounts = [];
 
-    $statementSelect = "SELECT
+    $statementSelect = 'SELECT
       btxb.id AS id,
       ba.id AS ba_id,
       reference,
@@ -27,27 +34,28 @@ class CRM_Banking_Page_Statements extends CRM_Core_Page {
       tx_count,
       ba.data_parsed AS data_parsed,
       SUM(btx.amount) AS total,
-      btx.currency AS currency";
-    $statementFrom = "FROM civicrm_bank_tx_batch AS btxb
+      btx.currency AS currency';
+    $statementFrom = 'FROM civicrm_bank_tx_batch AS btxb
       LEFT JOIN civicrm_bank_tx AS btx ON btx.tx_batch_id = btxb.id
-      LEFT JOIN civicrm_bank_account AS ba ON ba.id = btx.ba_id";
-    $statementWhere = "WHERE ";
-    $statementGroupBy = "GROUP BY btxb.id, ba_id, reference, btxb.sequence, starting_date, ending_date, tx_count, ba.data_parsed, btx.currency ";
-    $statementOrderBy = "ORDER BY starting_date DESC";
-    $statementLimit = "LIMIT %1, %2";
+      LEFT JOIN civicrm_bank_account AS ba ON ba.id = btx.ba_id';
+    $statementWhere = 'WHERE ';
+    $statementGroupBy = 'GROUP BY btxb.id, ba_id, reference, btxb.sequence, starting_date, ending_date, tx_count, ba.data_parsed, btx.currency ';
+    $statementOrderBy = 'ORDER BY starting_date DESC';
+    $statementLimit = 'LIMIT %1, %2';
     $paramCount = 2;
-    $queryParams = array();
+    $queryParams = [];
 
-    $statementsWhereClauses = array();
-    $statementsWhereClauses[] = "1";
+    $statementsWhereClauses = [];
+    $statementsWhereClauses[] = '1';
 
-    $target_ba_id = CRM_Utils_Request::retrieve('target_ba_id', 'Integer', CRM_Core_DAO::$_nullObject, false, -1);
+    $target_ba_id = CRM_Utils_Request::retrieve('target_ba_id', 'Integer', NULL, FALSE, -1);
     if ($target_ba_id > 0) {
       $paramCount++;
       $statementsWhereClauses[] = "ba_id = %{$paramCount}";
-      $queryParams[$paramCount] = array($target_ba_id, 'Integer');
-    } elseif ($target_ba_id === 0) {
-      $statementsWhereClauses[] = "ba_id IS null";
+      $queryParams[$paramCount] = [$target_ba_id, 'Integer'];
+    }
+    elseif ($target_ba_id === 0) {
+      $statementsWhereClauses[] = 'ba_id IS null';
     }
 
     $include_completed = CRM_Utils_Request::retrieve('include_completed', 'Boolean');
@@ -61,7 +69,7 @@ class CRM_Banking_Page_Statements extends CRM_Core_Page {
       $strDate = CRM_Utils_Date::customFormat($strDate, '%Y-%m-%d');
       $paramCount++;
       $statementsWhereClauses[] = "(starting_date >= %{$paramCount}) AND (ending_date <= %{$paramCount})";
-      $queryParams[$paramCount] = array($strDate, 'String');
+      $queryParams[$paramCount] = [$strDate, 'String'];
     }
 
     $statementWhere .= implode(' AND ', $statementsWhereClauses);
@@ -70,26 +78,26 @@ class CRM_Banking_Page_Statements extends CRM_Core_Page {
 
     $params['total'] = $count;
     $params['currentPage'] = $this->get(CRM_Utils_Pager::PAGE_ID);
-    $params['rowCount'] = CRM_Utils_Pager::ROWCOUNT;
+    $params['rowCount'] = 50;
     $params['status'] = E::ts('Statements %%StatusMessage%%');
     $this->_pager = new CRM_Utils_Pager($params);
 
     $sql = "{$statementSelect} {$statementFrom} {$statementWhere} {$statementGroupBy} {$statementOrderBy} {$statementLimit}";
-    list($offset, $limit) = $this->_pager->getOffsetAndRowCount();
-    $queryParams[1] = array($offset, 'Integer');
-    $queryParams[2] = array($limit, 'Integer');
+    [$offset, $limit] = $this->_pager->getOffsetAndRowCount();
+    $queryParams[1] = [$offset, 'Integer'];
+    $queryParams[2] = [$limit, 'Integer'];
 
     $stmt = CRM_Core_DAO::executeQuery($sql, $queryParams);
-    while($stmt->fetch()) {
+    while ($stmt->fetch()) {
       // look up the target account
-      $target_name = "";
-      $target_info = json_decode($stmt->data_parsed);
+      $target_name = '';
+      $target_info = json_decode($stmt->data_parsed ?? '');
       if (isset($target_info->name)) {
         $target_name = $target_info->name;
       }
 
       // finally, create the data row
-      $row = array(
+      $row = [
         'id' => $stmt->id,
         'reference' => $stmt->reference,
         'sequence' => $stmt->sequence,
@@ -99,13 +107,14 @@ class CRM_Banking_Page_Statements extends CRM_Core_Page {
         'ending_date' => $stmt->ending_date,
         'count' => $stmt->tx_count,
         'target' => $target_name,
-        'status' => array('new' => 0, 'suggestions' => 0, 'processed' => 0, 'ignored' => 0),
-      );
+        'status' => ['new' => 0, 'suggestions' => 0, 'processed' => 0, 'ignored' => 0],
+      ];
       $statements[$stmt->id] = $row;
 
       if ($stmt->ba_id) {
         $target_accounts[$stmt->ba_id] = $target_name;
-      } else {
+      }
+      else {
         $target_accounts[0] = E::ts('Unknown account');
       }
     }
@@ -136,7 +145,7 @@ class CRM_Banking_Page_Statements extends CRM_Core_Page {
 
     // Set attributes for the datepicker
     $dateParams['name'] = 'searchDate';
-    $dateFormat = array();
+    $dateFormat = [];
     CRM_Core_DAO::commonRetrieve('CRM_Core_DAO_PreferencesDate', $dateParams, $dateFormat);
     $dateAttributes['format'] = $dateFormat['date_format'];
     $dateAttributes['startOffset'] = $dateFormat['start'];

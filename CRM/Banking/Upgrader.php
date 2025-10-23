@@ -15,6 +15,8 @@
 | written permission from the original author(s).        |
 +--------------------------------------------------------*/
 
+declare(strict_types = 1);
+
 use CRM_Banking_ExtensionUtil as E;
 
 /**
@@ -48,35 +50,48 @@ class CRM_Banking_Upgrader extends CRM_Extension_Upgrader_Base {
    * @return TRUE on success
    */
   public function upgrade_0611() {
-    Civi::settings()->set('new_ui', false);
+    Civi::settings()->set('new_ui', FALSE);
 
     // Update order of the option group banking_tx_status.
-    $statusApi = civicrm_api3('OptionValue', 'get', array('option_group_id' => 'civicrm_banking.bank_tx_status', 'options' => array('limit' => 0)));
-    $statuses = array();
-    foreach($statusApi['values'] as $status) {
+    $statusApi = civicrm_api3(
+      'OptionValue',
+      'get',
+      ['option_group_id' => 'civicrm_banking.bank_tx_status', 'options' => ['limit' => 0]]
+    );
+    $statuses = [];
+    foreach ($statusApi['values'] as $status) {
       $statuses[$status['name']] = $status;
     }
 
     // Set ignore status the weight from processed
-    CRM_Core_DAO::executeQuery("UPDATE civicrm_option_value SET weight = %1 WHERE id = %2", array(
-      1=> array($statuses['processed']['weight'], 'Integer'),
-      2=> array($statuses['ignored']['id'], 'Integer'),
-    ));
+    CRM_Core_DAO::executeQuery('UPDATE civicrm_option_value SET weight = %1 WHERE id = %2', [
+      1 => [$statuses['processed']['weight'], 'Integer'],
+      2 => [$statuses['ignored']['id'], 'Integer'],
+    ]);
     // Set processed status the weight from suggestions
-    CRM_Core_DAO::executeQuery("UPDATE civicrm_option_value SET weight = %1 WHERE id = %2", array(
-      1=> array($statuses['suggestions']['weight'], 'Integer'),
-      2=> array($statuses['processed']['id'], 'Integer'),
-    ));
+    CRM_Core_DAO::executeQuery('UPDATE civicrm_option_value SET weight = %1 WHERE id = %2', [
+      1 => [$statuses['suggestions']['weight'], 'Integer'],
+      2 => [$statuses['processed']['id'], 'Integer'],
+    ]);
     // Set suggestions status the weight from ignored
-    CRM_Core_DAO::executeQuery("UPDATE civicrm_option_value SET weight = %1 WHERE id = %2", array(
-      1=> array($statuses['ignored']['weight'], 'Integer'),
-      2=> array($statuses['suggestions']['id'], 'Integer'),
-    ));
+    CRM_Core_DAO::executeQuery('UPDATE civicrm_option_value SET weight = %1 WHERE id = %2', [
+      1 => [$statuses['ignored']['weight'], 'Integer'],
+      2 => [$statuses['suggestions']['id'], 'Integer'],
+    ]);
 
     // make sure the new menu is registered with the CMS
-    CRM_Core_Invoke::rebuildMenuAndCaches();
+    if (version_compare(CRM_Utils_System::version(), '6.9.0', '>=')) {
+      Civi::rebuild('navigation');
+    }
+    elseif (version_compare(CRM_Utils_System::version(), '6.1.0', '>=')) {
+      Civi::rebuild('menu');
+    }
+    else {
+      // @phpstan-ignore staticMethod.deprecated
+      CRM_Core_Invoke::rebuildMenuAndCaches();
+    }
 
-    return true;
+    return TRUE;
   }
 
   /**
@@ -93,16 +108,18 @@ class CRM_Banking_Upgrader extends CRM_Extension_Upgrader_Base {
     $this->executeSqlFile('sql/upgrade_importer_path.sql');
 
     // this is an old update for https://github.com/Project60/org.project60.banking/issues/158
-    $index = CRM_Core_DAO::executeQuery("SHOW INDEX FROM civicrm_bank_account_reference WHERE column_name = 'reference'");
+    $index = CRM_Core_DAO::executeQuery(
+      "SHOW INDEX FROM civicrm_bank_account_reference WHERE column_name = 'reference'"
+    );
     if (!$index->fetch()) {
-      CRM_Core_DAO::executeQuery("ALTER TABLE civicrm_bank_account_reference ADD INDEX `reference` (reference);");
+      CRM_Core_DAO::executeQuery('ALTER TABLE civicrm_bank_account_reference ADD INDEX `reference` (reference);');
     }
 
     // update rebuild log tables
     $logging = new CRM_Logging_Schema();
     $logging->fixSchemaDifferences();
 
-    return true;
+    return TRUE;
   }
 
   /**
@@ -115,12 +132,12 @@ class CRM_Banking_Upgrader extends CRM_Extension_Upgrader_Base {
     $this->ctx->log->info('Applying update 0701');
 
     // install default configuration
-    $config_exists = CRM_Core_DAO::singleValueQuery("SELECT COUNT(*) FROM civicrm_bank_plugin_instance;");
+    $config_exists = CRM_Core_DAO::singleValueQuery('SELECT COUNT(*) FROM civicrm_bank_plugin_instance;');
     if (!$config_exists) {
       // install all default files from the default/configuration folder
       $base_folder = E::path('default/configuration');
       foreach (scandir($base_folder) as $config_file) {
-        if (preg_match("#.civibanking$#", $config_file)) {
+        if (preg_match('#.civibanking$#', $config_file)) {
           $data = file_get_contents($base_folder . DIRECTORY_SEPARATOR . $config_file);
           $plugin_bao = new CRM_Banking_BAO_PluginInstance();
           $plugin_bao->updateWithSerialisedData($data);
@@ -129,18 +146,19 @@ class CRM_Banking_Upgrader extends CRM_Extension_Upgrader_Base {
     }
 
     // remove old entries
-    $removed_entries_query = civicrm_api3('OptionValue', 'get', array(
-        'value'           => ['IN' => ['CRM_Banking_PluginImpl_Matcher_Generic']],
-        'option_group_id' => 'civicrm_banking.plugin_types',
-        'return'          => 'id'));
+    $removed_entries_query = civicrm_api3('OptionValue', 'get', [
+      'value'           => ['IN' => ['CRM_Banking_PluginImpl_Matcher_Generic']],
+      'option_group_id' => 'civicrm_banking.plugin_types',
+      'return'          => 'id',
+    ]);
     foreach ($removed_entries_query['values'] as $removed_entry) {
-      civicrm_api3('OptionValue', 'delete', array('id' => $removed_entry['id']));
+      civicrm_api3('OptionValue', 'delete', ['id' => $removed_entry['id']]);
     }
 
     // adjust table
-    CRM_Core_DAO::executeQuery("ALTER TABLE `civicrm_bank_rules` CHANGE `tx_purpose` `tx_purpose` VARCHAR(255);");
+    CRM_Core_DAO::executeQuery('ALTER TABLE `civicrm_bank_rules` CHANGE `tx_purpose` `tx_purpose` VARCHAR(255);');
 
-    return true;
+    return TRUE;
   }
 
   /**
@@ -152,7 +170,7 @@ class CRM_Banking_Upgrader extends CRM_Extension_Upgrader_Base {
   public function upgrade_0702() {
     // update option groups
     // replaced by 0703:  banking_civicrm_install_options(_banking_options());
-    return true;
+    return TRUE;
   }
 
   /**
@@ -164,7 +182,7 @@ class CRM_Banking_Upgrader extends CRM_Extension_Upgrader_Base {
   public function upgrade_0703() {
     // update option groups
     banking_civicrm_install_options(_banking_options());
-    return true;
+    return TRUE;
   }
 
   /**
@@ -174,9 +192,20 @@ class CRM_Banking_Upgrader extends CRM_Extension_Upgrader_Base {
    */
   public function upgrade_0704() {
     // rebuild menu, in particular for the UI
-    CRM_Core_Invoke::rebuildMenuAndCaches();
+    // make sure the new menu is registered with the CMS
+    if (version_compare(CRM_Utils_System::version(), '6.9.0', '>=')) {
+      Civi::rebuild('navigation');
+    }
+    elseif (version_compare(CRM_Utils_System::version(), '6.1.0', '>=')) {
+      Civi::rebuild('menu');
+    }
+    else {
+      // @phpstan-ignore staticMethod.deprecated
+      CRM_Core_Invoke::rebuildMenuAndCaches();
+    }
+
     Civi::settings()->set('reference_matching_probability', 1.0);
-    return true;
+    return TRUE;
   }
 
   /**
@@ -187,7 +216,7 @@ class CRM_Banking_Upgrader extends CRM_Extension_Upgrader_Base {
   public function upgrade_0800() {
     // Set the bank account reference probability to 100%.
     Civi::settings()->set('reference_matching_probability', 1.0);
-    return true;
+    return TRUE;
   }
 
   /**
@@ -201,9 +230,9 @@ class CRM_Banking_Upgrader extends CRM_Extension_Upgrader_Base {
     // adding an index
     if (!CRM_Core_DAO::singleValueQuery("SHOW INDEX FROM civicrm_bank_tx WHERE key_name = 'FK_civicrm_bank_tx_status_id'")) {
       $this->ctx->log->info('Adding status_id index to transaction table.');
-      $this->executeSql("ALTER TABLE civicrm_bank_tx ADD KEY `FK_civicrm_bank_tx_status_id`(`status_id`);");
+      $this->executeSql('ALTER TABLE civicrm_bank_tx ADD KEY `FK_civicrm_bank_tx_status_id`(`status_id`);');
     }
-    return true;
+    return TRUE;
   }
 
   /**
@@ -217,7 +246,7 @@ class CRM_Banking_Upgrader extends CRM_Extension_Upgrader_Base {
     // update option groups
     $this->ctx->log->info('Updated options.');
     banking_civicrm_install_options(_banking_options());
-    return true;
+    return TRUE;
   }
 
   /**
@@ -235,8 +264,8 @@ class CRM_Banking_Upgrader extends CRM_Extension_Upgrader_Base {
 
     // schedule migrating existing transactions ($batch_size at a time)
     $batch_size = 1000;
-    $min_bank_tx_id = CRM_Core_DAO::singleValueQuery("SELECT MIN(id) FROM civicrm_bank_tx;");
-    $max_bank_tx_id = CRM_Core_DAO::singleValueQuery("SELECT MAX(id) FROM civicrm_bank_tx;");
+    $min_bank_tx_id = CRM_Core_DAO::singleValueQuery('SELECT MIN(id) FROM civicrm_bank_tx;');
+    $max_bank_tx_id = CRM_Core_DAO::singleValueQuery('SELECT MAX(id) FROM civicrm_bank_tx;');
     $current_bank_tx_id = $min_bank_tx_id;
     while ($current_bank_tx_id <= $max_bank_tx_id) {
       $this->ctx->queue->createItem(
@@ -248,7 +277,7 @@ class CRM_Banking_Upgrader extends CRM_Extension_Upgrader_Base {
     $logging = new CRM_Logging_Schema();
     $logging->fixSchemaDifferences();
 
-    return true;
+    return TRUE;
   }
 
   /**
@@ -262,8 +291,7 @@ class CRM_Banking_Upgrader extends CRM_Extension_Upgrader_Base {
     // update option groups
     $this->ctx->log->info('Updated options.');
     banking_civicrm_install_options(_banking_options());
-    return true;
+    return TRUE;
   }
-
 
 }

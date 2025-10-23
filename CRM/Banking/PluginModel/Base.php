@@ -14,23 +14,19 @@
 | written permission from the original author(s).        |
 +--------------------------------------------------------*/
 
-use CRM_Banking_ExtensionUtil as E;
+declare(strict_types = 1);
 
 /**
- *
- * @package org.project60.banking
- * @copyright GNU Affero General Public License
- * $Id$
- *
+ * phpcs:disable Generic.NamingConventions.AbstractClassNamePrefix.Missing
  */
 abstract class CRM_Banking_PluginModel_Base {
 
-  CONST REPORT_LEVEL_DEBUG = "DEBUG";
-  CONST REPORT_LEVEL_INFO  = "INFO";
-  CONST REPORT_LEVEL_WARN  = "WARN";
-  CONST REPORT_LEVEL_ERROR = "ERROR";
+  public const REPORT_LEVEL_DEBUG = 'DEBUG';
+  public const REPORT_LEVEL_INFO  = 'INFO';
+  public const REPORT_LEVEL_WARN  = 'WARN';
+  public const REPORT_LEVEL_ERROR = 'ERROR';
 
-  CONST REPORT_PROGRESS_NONE = -1.0;
+  public const REPORT_PROGRESS_NONE = -1.0;
 
   /**
    * The task that the wizard is currently processing
@@ -45,35 +41,37 @@ abstract class CRM_Banking_PluginModel_Base {
   protected $_plugin_title;
   protected $_plugin_config;
   protected $_progress_callback;
-  protected $_progress_log = array();
+  protected $_progress_log = [];
+
+  protected CRM_Banking_Helpers_Logger $logger;
 
   /**
    * the plugin's user readable name
    *
    * @return string
    */
-  static function displayName() {
-    return "Unknown";
+  public static function displayName() {
+    return 'Unknown';
   }
 
   /**
    * class constructor
    */
-  function __construct($plugin_dao) {
-    $this->__setDAO($plugin_dao);
+  public function __construct($plugin_dao) {
+    $this->setDAO($plugin_dao);
     $this->logger = CRM_Banking_Helpers_Logger::getLogger();
   }
 
-  protected function __setDAO($plugin_dao) {
+  private function setDAO($plugin_dao) {
     $this->_plugin_dao    = $plugin_dao;
     $this->_plugin_id     = $plugin_dao->id;
     $this->_plugin_weight = $plugin_dao->weight;
     $this->_plugin_title  = $plugin_dao->description;
     $this->_plugin_name   = $plugin_dao->name;
-    $this->_plugin_config = json_decode( $plugin_dao->config );
-    if ($this->_plugin_config==false) {
-      CRM_Core_Error::fatal("Configuration for CiviBanking plugin (id: ".$plugin_dao->id.") is not a valid JSON string.");
-      $this->_plugin_config = array();
+    $this->_plugin_config = json_decode($plugin_dao->config);
+    if ($this->_plugin_config == FALSE) {
+      CRM_Core_Error::statusBounce('Configuration for CiviBanking plugin (id: ' . $plugin_dao->id . ') is not a valid JSON string.');
+      $this->_plugin_config = [];
     }
   }
 
@@ -97,19 +95,19 @@ abstract class CRM_Banking_PluginModel_Base {
     }
   }
 
-
   // ------------------------------------------------------
   // utility functions provided to the plugin implementations
   // ------------------------------------------------------
+
   /**
    * Set a callback for progress reports (reported by match(), import_*() and export()_*)
    *
    * TODO: data format? float [0..1]?
    */
-  function setProgressCallback($callback) {
+  public function setProgressCallback($callback) {
     // TODO: sanity checks?
     $this->_progress_callback = $callback;
-    $this->_progress_log = array();
+    $this->_progress_log = [];
   }
 
   /**
@@ -117,13 +115,17 @@ abstract class CRM_Banking_PluginModel_Base {
    *
    * TODO: data format? float [0..1]?
    */
-  function reportProgress($progress, $message='', $level=self::REPORT_LEVEL_INFO) {
-    if ($progress==self::REPORT_PROGRESS_NONE) {
+  public function reportProgress($progress, $message = '', $level = self::REPORT_LEVEL_INFO) {
+    if ($progress == self::REPORT_PROGRESS_NONE) {
       // this means, no new progress has been made, simple take the last one
-      $last_entry = array_slice( $this->_progress_log, -1, 1, TRUE );
-      if (count($last_entry)>0) {
-//        $progress = reset($last_entry)[1];    // I have no clue what this does
-      } else {
+      $last_entry = array_slice($this->_progress_log, -1, 1, TRUE);
+      // phpcs:disable Generic.CodeAnalysis.EmptyStatement.DetectedIf
+      if (count($last_entry) > 0) {
+        // phpcs:disable Squiz.PHP.CommentedOutCode.Found
+        //        $progress = reset($last_entry)[1];    // I have no clue what this does
+        // phpcs:enable
+      }
+      else {
         $progress = 0.0;
       }
     }
@@ -131,12 +133,18 @@ abstract class CRM_Banking_PluginModel_Base {
     // normalize progress
     if ($progress < 0) {
       $progress = 0;
-    } elseif ($progress > 1) {
+    }
+    elseif ($progress > 1) {
       $progress = 1;
     }
 
-    if (isset($_progress_callback)) {
-      $_progress_callback->reportProgress($progress, $message, $level);
+    // phpcs:disable Generic.CodeAnalysis.EmptyStatement.DetectedIf
+    if (isset($this->_progress_callback)) {
+    // phpcs:enable
+      // @todo Commented out because the if condition previously always was
+      // false because $this was missing. It's never specified that
+      // _progress_callback is an object with method reportProgress().
+      // $this->_progress_callback->reportProgress($progress, $message, $level);
     }
     // log internally
     $this->_progress_log[] = [date('Y-m-d H:i:s'), $progress, $message, $level];
@@ -145,29 +153,29 @@ abstract class CRM_Banking_PluginModel_Base {
   /**
    * Report completion import/export/matching process
    */
-  function reportDone($error = 'Done') {
-    $this->reportProgress(1.0, $error, ($error=='Done')?self::REPORT_LEVEL_INFO:self::REPORT_LEVEL_ERROR);
+  public function reportDone($error = 'Done') {
+    $this->reportProgress(1.0, $error, ($error == 'Done') ? self::REPORT_LEVEL_INFO : self::REPORT_LEVEL_ERROR);
   }
 
   /**
    * Get the internal log of the last reports. Reset by calling setProgressCallback(None)
    */
-  function getLog() {
+  public function getLog() {
     return $this->_progress_log;
   }
 
-  function getTitle() {
-      return $this->_plugin_title;
+  public function getTitle() {
+    return $this->_plugin_title;
   }
 
-  function getName() {
-      return $this->_plugin_name;
+  public function getName() {
+    return $this->_plugin_name;
   }
 
   /**
    * get the name of the implementation specification (plugin_class_id)
    */
-  function getTypeName() {
+  public function getTypeName() {
     $type_id = $this->_plugin_dao->plugin_class_id;
     return civicrm_api3(
       'OptionValue',
@@ -180,17 +188,18 @@ abstract class CRM_Banking_PluginModel_Base {
     );
   }
 
-  function getPluginID() {
+  public function getPluginID() {
     return $this->_plugin_id;
   }
 
-  function getConfig() {
+  public function getConfig() {
     return $this->_plugin_config;
   }
 
   // -------------------------------------------------------
   // search functions provided to the plugin implementations
   // -------------------------------------------------------
+
   /**
    * Look up contact with the given attributes
    *
@@ -198,9 +207,9 @@ abstract class CRM_Banking_PluginModel_Base {
    *
    * @return array of contacts
    */
-  function findContact($attributes) {
+  public function findContact($attributes) {
     // TODO implement
-    return array();
+    return [];
   }
 
   /**
@@ -210,9 +219,9 @@ abstract class CRM_Banking_PluginModel_Base {
    *
    * @return array of contacts
    */
-  function findContribution($attributes) {
+  public function findContribution($attributes) {
     // TODO implement
-    return array();
+    return [];
   }
 
 }

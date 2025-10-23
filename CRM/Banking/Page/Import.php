@@ -14,14 +14,17 @@
 | written permission from the original author(s).        |
 +--------------------------------------------------------*/
 
+declare(strict_types = 1);
+
 use CRM_Banking_ExtensionUtil as E;
 
-require_once 'CRM/Core/Page.php';
+class CRM_Banking_Page_Import extends CRM_Core_Page {
 
-class CRM_Banking_Page_Import extends CRM_Core_Page
-{
-  function run()
-  {
+  /**
+   * phpcs:disable
+   */
+  public function run() {
+  // phpcs:enable
     // Example: Set the page-title dynamically; alternatively, declare a static title in xml/Menu/*.xml
     CRM_Utils_System::setTitle(E::ts('Bank Transaction Importer'));
 
@@ -36,26 +39,27 @@ class CRM_Banking_Page_Import extends CRM_Core_Page
       $this->assign('plugin_id', $plugin_id);
 
       // assign values
-      $this->assign('dry_run', $_REQUEST['dry_run'] ?? "off");
-      $this->assign('process', $_REQUEST['process'] ?? "off");
-      $plugin = reset($plugin_list); // should be overwritten in the next lines
+      $this->assign('dry_run', $_REQUEST['dry_run'] ?? 'off');
+      $this->assign('process', $_REQUEST['process'] ?? 'off');
+      // should be overwritten in the next lines
+      $plugin = reset($plugin_list);
       foreach ($plugin_list as $plugin) {
         if ($plugin->id == $plugin_id) {
-          $this->assign('plugin_list', array($plugin));
+          $this->assign('plugin_list', [$plugin]);
           break;
         }
       }
 
       // RUN the importer
-      $file_info = $_FILES['uploadFile'] ?? null;
+      $file_info = $_FILES['uploadFile'] ?? NULL;
 
       $this->assign('file_info', $file_info);
       $plugin_instance = $plugin->getInstance();
       $import_parameters = [
-        'dry_run' => ($_REQUEST['dry_run'] ?? "off"),
+        'dry_run' => ($_REQUEST['dry_run'] ?? 'off'),
         'source'  => ($file_info['name'] ?? 'stream'),
       ];
-      if ($file_info != null && $plugin_instance::does_import_files()) {
+      if ($file_info != NULL && $plugin_instance::does_import_files()) {
         // extract files
         $files = $this->getFiles($file_info);
 
@@ -64,29 +68,33 @@ class CRM_Banking_Page_Import extends CRM_Core_Page
           $plugin_instance->resetImporter();
           if ($plugin_instance->probe_file($file, $import_parameters)) {
             $plugin_instance->import_file($file, $import_parameters);
-          } else {
+          }
+          else {
             CRM_Core_Session::setStatus(E::ts('File rejected by importer!'), E::ts('Bad input file'), 'alert');
           }
         }
-      } else {
+      }
+      else {
         if ($plugin_instance::does_import_stream()) {
           // run stream import
           if ($plugin_instance->probe_stream($import_parameters)) {
             $plugin_instance->import_stream($import_parameters);
-          } else {
+          }
+          else {
             CRM_Core_Session::setStatus(
               E::ts('Import stream rejected by importer, maybe not ready!'),
               E::ts('Bad input stream'),
               'alert'
-            );
+                      );
           }
-        } else {
+        }
+        else {
           CRM_Core_Session::setStatus(E::ts('Importer needs a file to proceed.'), E::ts('No input file'), 'alert');
         }
       }
 
       // TODO: RUN the processor
-      if (isset($_REQUEST['process']) && $_REQUEST['process'] == "on") {
+      if (isset($_REQUEST['process']) && $_REQUEST['process'] == 'on') {
         CRM_Core_Session::setStatus(E::ts('Automated running not yet implemented'), E::ts('Not implemented'), 'alert');
       }
 
@@ -98,22 +106,25 @@ class CRM_Banking_Page_Import extends CRM_Core_Page
       foreach ($log as $log_entry) {
         if ($log_entry[3] == CRM_Banking_PluginModel_Base::REPORT_LEVEL_WARN) {
           CRM_Core_Session::setStatus($log_entry[2], E::ts('Import Warning'), 'warn');
-        } elseif ($log_entry[3] == CRM_Banking_PluginModel_Base::REPORT_LEVEL_ERROR) {
+        }
+        elseif ($log_entry[3] == CRM_Banking_PluginModel_Base::REPORT_LEVEL_ERROR) {
           CRM_Core_Session::setStatus($log_entry[2], E::ts('Import Error'), 'error');
         }
       }
-    } else {
+    }
+    else {
       // CONFIGURATION MODE:
       $this->assign('page_mode', 'config');
       $this->assign('plugin_list', $plugin_list);
 
       // extract the sources for the plugins
-      $has_file_source = array();
+      $has_file_source = [];
       foreach ($plugin_list as $plugin) {
         $class = $plugin->getClass();
         if ($class::does_import_files()) {
           $has_file_source[$plugin->id] = 'true';
-        } else {
+        }
+        else {
           $has_file_source[$plugin->id] = 'false';
         }
       }
@@ -124,14 +135,15 @@ class CRM_Banking_Page_Import extends CRM_Core_Page
     $new_ui_enabled = CRM_Core_BAO_Setting::getItem('CiviBanking', 'new_ui');
     if ($new_ui_enabled) {
       $this->assign('url_payments', CRM_Utils_System::url('civicrm/banking/statements'));
-    } else {
+    }
+    else {
       $this->assign(
         'url_payments',
         CRM_Utils_System::url(
           'civicrm/banking/payments',
           'show=statements&recent=' . empty($_REQUEST['recent']) ? 0 : 1
         )
-      );
+          );
     }
     $this->assign('url_action', CRM_Utils_System::url('civicrm/banking/import'));
 
@@ -145,17 +157,16 @@ class CRM_Banking_Page_Import extends CRM_Core_Page
    *    file info of the uploaded file
    *
    * @return array
-   *    list of file infos
+   *   list of file infos
    */
-  public function getFiles(array $file_info): array
-  {
+  public function getFiles(array $file_info): array {
     $uploaded_file = $file_info['tmp_name'];
 
     // try ZIP files
     try {
       $zip = new ZipArchive();
       $res = $zip->open($uploaded_file);
-      if ($res === true) {
+      if ($res === TRUE) {
         // create tmp folder
         $temp_folder = tempnam(sys_get_temp_dir(), 'banking-');
         if (file_exists($temp_folder)) {
@@ -180,11 +191,13 @@ class CRM_Banking_Page_Import extends CRM_Core_Page
           return $file_list;
         }
       }
-    } catch (Exception $ex) {
+    }
+    catch (Exception $ex) {
       // probably not a zip file
     }
 
     // no archive: return the file itself
     return [$uploaded_file];
   }
+
 }

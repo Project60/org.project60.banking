@@ -14,7 +14,8 @@
 | written permission from the original author(s).        |
 +--------------------------------------------------------*/
 
-require_once 'CRM/Core/Form.php';
+declare(strict_types = 1);
+
 use CRM_Banking_ExtensionUtil as E;
 
 /**
@@ -24,43 +25,45 @@ use CRM_Banking_ExtensionUtil as E;
  */
 class CRM_Admin_Form_Setting_BankingSettings extends CRM_Core_Form {
 
-
   public function buildQuickForm() {
     // add new UI (#200) options
-    $ui_options = array(
-        '1' => E::ts("Simplified user interface"),
-        '0' => E::ts("Traditional user interface")
-    );
+    $ui_options = [
+      '1' => E::ts('Simplified user interface'),
+      '0' => E::ts('Traditional user interface'),
+    ];
     $this->add(
         'select',
         'new_ui',
         E::ts('Statement User interface'),
         $ui_options,
-        false // is not required
+    // is not required
+        FALSE
     );
 
     // add Menu Switch
-    $menu_position_options = array(
-      0 => E::ts("In Main Menu"),
-      1 => E::ts("In Contribution Menu"),
-      2 => E::ts("No Menu"));
+    $menu_position_options = [
+      0 => E::ts('In Main Menu'),
+      1 => E::ts('In Contribution Menu'),
+      2 => E::ts('No Menu'),
+    ];
 
     $this->add(
       'select',
       'menu_position',
       E::ts('CiviBanking Menu Position'),
       $menu_position_options,
-      false // is not required
+    // is not required
+      FALSE
     );
 
     // add JSON editor mode
-    $json_editor_mode = array(
-      'view' => E::ts("Tree View"),
-      'text' => E::ts("Simple Text"),
-      'code' => E::ts("JSON Code"),
-      'tree' => E::ts("Tree Editor"),
-      'form' => E::ts("Form Editor"),
-    );
+    $json_editor_mode = [
+      'view' => E::ts('Tree View'),
+      'text' => E::ts('Simple Text'),
+      'code' => E::ts('JSON Code'),
+      'tree' => E::ts('Tree Editor'),
+      'form' => E::ts('Form Editor'),
+    ];
 
     $this->add(
       'select',
@@ -81,15 +84,15 @@ class CRM_Admin_Form_Setting_BankingSettings extends CRM_Core_Form {
     $this->add(
         'select',
         'recently_completed_cutoff',
-        E::ts("Show Completed Statements (Recent)"),
+        E::ts('Show Completed Statements (Recent)'),
         [
           0 => E::ts('disabled'),
           1 => E::ts('last month'),
           3 => E::ts('last quarter'),
-          6 => E::ts('last %1 months', [1 => "6"]),
-          12 => E::ts('last %1 months', [1 => "12"]),
-          24 => E::ts('last %1 years', [1 => "2"]),
-          60 => E::ts('last %1 years', [1 => "5"]),
+          6 => E::ts('last %1 months', [1 => '6']),
+          12 => E::ts('last %1 months', [1 => '12']),
+          24 => E::ts('last %1 years', [1 => '2']),
+          60 => E::ts('last %1 years', [1 => '5']),
         ],
         TRUE
     );
@@ -161,13 +164,13 @@ class CRM_Admin_Form_Setting_BankingSettings extends CRM_Core_Form {
       'positiveInteger'
     );
 
-    $this->addButtons(array(
-      array(
+    $this->addButtons([
+      [
         'type' => 'submit',
-        'name' => E::ts("Save"),
+        'name' => E::ts('Save'),
         'isDefault' => TRUE,
-      ),
-    ));
+      ],
+    ]);
 
     parent::buildQuickForm();
   }
@@ -191,9 +194,9 @@ class CRM_Admin_Form_Setting_BankingSettings extends CRM_Core_Form {
     $defaults['reference_validation']            = Civi::settings()->get('reference_validation');
     $defaults['lenient_dedupe']                  = Civi::settings()->get('lenient_dedupe');
     $defaults[CRM_Banking_Config::SETTING_TRANSACTION_LIST_CUTOFF]
-                                                 = Civi::settings()->get(CRM_Banking_Config::SETTING_TRANSACTION_LIST_CUTOFF);
+      = Civi::settings()->get(CRM_Banking_Config::SETTING_TRANSACTION_LIST_CUTOFF);
 
-    if ($defaults['reference_matching_probability'] === null) {
+    if ($defaults['reference_matching_probability'] === NULL) {
       $defaults['reference_matching_probability'] = '1.0';
     }
 

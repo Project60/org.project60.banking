@@ -1,0 +1,51 @@
+includes:
+	- phpstan-baseline.neon
+
+parameters:
+	paths:
+		- api
+		- Civi
+		- CRM
+		- tests
+		- banking.php
+		- banking_options.php
+	excludePaths:
+		analyse:
+			- CRM/Banking/DAO/*
+			- tests/phpunit/bootstrap.php
+	scanFiles:
+		- banking.civix.php
+		- tools/phpunit/vendor/bin/.phpunit/phpunit/src/Framework/TestCase.php
+	scanDirectories:
+		- tools/phpunit/vendor/bin/.phpunit/phpunit/src/Framework
+		- mixin
+		- packages
+		- ../action-provider
+		- ../dataprocessor
+		- ../org.project60.sepa
+	bootstrapFiles:
+		- tools/phpunit/vendor/bin/.phpunit/phpunit/vendor/autoload.php
+		- phpstanBootstrap.php
+	level: 9
+	universalObjectCratesClasses:
+		- Civi\Core\Event\GenericHookEvent
+		- CRM_Core_Config
+		- CRM_Core_DAO
+	earlyTerminatingMethodCalls:
+		CRM_Queue_Runner:
+		  - runAllViaWeb
+	checkTooWideReturnTypesInProtectedAndPublicMethods: true
+	checkUninitializedProperties: true
+	checkMissingCallableSignature: true
+	treatPhpDocTypesAsCertain: false
+	exceptions:
+		check:
+			missingCheckedExceptionInThrows: true
+			tooWideThrowType: true
+		checkedExceptionClasses:
+			- \Webmozart\Assert\InvalidArgumentException
+		implicitThrows: false
+	ignoreErrors:
+		# Note paths are prefixed with "*/" to work with inspections in PHPStorm because of:
+		# https://youtrack.jetbrains.com/issue/WI-63891/PHPStan-ignoreErrors-configuration-isnt-working-with-inspections
+	tmpDir: .phpstan

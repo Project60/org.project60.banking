@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types = 1);
+
 /*-------------------------------------------------------+
 | Project 60 - CiviBanking - PHPUnit tests               |
 | Copyright (C) 2023 SYSTOPIA                            |
@@ -61,12 +63,12 @@ class CRM_Banking_Analyser_RulesAnalyserTest extends CRM_Banking_TestBase {
     $this->assertNotEquals($state_processed, $current_transaction['status_id'], "The transaction should not have been marked 'processed'.");
     $latest_contribution = $this->getLatestContribution();
     if ($latest_contribution_before) {
-      $this->assertEquals($latest_contribution_before['id'], $latest_contribution['id'], "A contribution should not have been created");
-    } else {
-      $this->assertNull($latest_contribution, "A contribution should not have been created");
+      $this->assertEquals($latest_contribution_before['id'], $latest_contribution['id'], 'A contribution should not have been created');
+    }
+    else {
+      $this->assertNull($latest_contribution, 'A contribution should not have been created');
     }
     CRM_Banking_Matcher_Engine::clearCachedInstance();
-
 
     // now add the rules analyser
     $this->configureCiviBankingModule(
@@ -78,21 +80,24 @@ class CRM_Banking_Analyser_RulesAnalyserTest extends CRM_Banking_TestBase {
         'name'         => $test_contact['display_name'],
         'amount_min'   => 11.10,
         'amount_max'   => 11.12,
+        // phpcs:disable Squiz.PHP.CommentedOutCode.Found
         //'party_ba_ref' => 'todo',
         //'tx_reference' => 'todo',
         //'tx_purpose'   => 'CiviBanking Test',
+        // phpcs:enable
       ],
       [
         ['set_param_name' => 'contact_id', 'set_param_value' => $test_contact['id']],
         ['set_param_name' => 'financial_type_id', 'set_param_value' => 1],
       ]
     );
-    $this->assertNotEmpty($rule_id, "Rule could not be created.");
+    $this->assertNotEmpty($rule_id, 'Rule could not be created.');
 
     // run the matcher again and verify that this time IT WAS executed
     //  if this is the case, it's because the rule was executed and supplied the required attributes
     $this->runMatchers();
     $post_matcher_contribution = $this->getLatestContribution();
-    $this->assertNotNull($post_matcher_contribution, "No contribution was created, the matcher failed.");
+    $this->assertNotNull($post_matcher_contribution, 'No contribution was created, the matcher failed.');
   }
+
 }

@@ -1,5 +1,6 @@
 <?php
-use CRM_Banking_ExtensionUtil as E;
+
+declare(strict_types = 1);
 
 /**
  * BankingPluginInstance.import API specification (optional)
@@ -21,14 +22,14 @@ function _civicrm_api3_banking_plugin_instance_import_spec(&$spec) {
     'api.required' => 1,
     'type'         => CRM_Utils_Type::T_STRING,
     'title'        => 'File Path',
-    'description'  => 'Path to file that should be imported'
+    'description'  => 'Path to file that should be imported',
   ];
   $spec['dry_run'] = [
     'name'         => 'dry_run',
     'api.default'  => FALSE,
     'type'         => CRM_Utils_Type::T_BOOLEAN,
     'title'        => 'Dry Run?',
-    'description'  => 'Perform a dry run of the import?'
+    'description'  => 'Perform a dry run of the import?',
   ];
 }
 
@@ -42,16 +43,19 @@ function _civicrm_api3_banking_plugin_instance_import_spec(&$spec) {
  *
  * @see civicrm_api3_create_success
  *
- * @throws API_Exception
+ * @throws CRM_Core_Exception
+ *
+ * phpcs:disable Generic.Metrics.CyclomaticComplexity.TooHigh
  */
 function civicrm_api3_banking_plugin_instance_import($params) {
+// phpcs:enable
   // Security analysis: This API accepts arbitrary file paths and could (indirectly)
   // leak their content e.g. through logs or specially-crafted import plugins.
   // To avoid scenarios in which untrusted calls use this API, we reject all requests
   // with check_permissions != 0. This is roughly the same security barrier
   // implemented for options.move-file in the Attachment.create API3
   if (!empty($params['check_permissions'])) {
-    throw new API_Exception('API only supported on secure calls');
+    throw new CRM_Core_Exception('API only supported on secure calls');
   }
   $plugin_list = CRM_Banking_BAO_PluginInstance::listInstances('import');
   /**
@@ -63,14 +67,14 @@ function civicrm_api3_banking_plugin_instance_import($params) {
       $plugin_instance = $plugin->getInstance();
     }
   }
-  if (is_null($plugin_instance)) {
-    throw new API_Exception('Unknown plugin id ' . $params['plugin_id']);
+  if (NULL === $plugin_instance) {
+    throw new CRM_Core_Exception('Unknown plugin id ' . $params['plugin_id']);
   }
   if (!$plugin_instance::does_import_files()) {
-    throw new API_Exception('Plugin does not support import files');
+    throw new CRM_Core_Exception('Plugin does not support import files');
   }
   if (!is_readable($params['file_path'])) {
-    throw new API_Exception('file_path is not readable');
+    throw new CRM_Core_Exception('file_path is not readable');
   }
   $import_parameters = [
     'dry_run' => !empty($params['dry_run']) ? 'on' : 'off',
@@ -81,7 +85,7 @@ function civicrm_api3_banking_plugin_instance_import($params) {
     $plugin_instance->import_file($params['file_path'], $import_parameters);
   }
   else {
-    throw new API_Exception('File rejected by importer!');
+    throw new CRM_Core_Exception('File rejected by importer!');
   }
 
   $warnings = [];
@@ -89,7 +93,8 @@ function civicrm_api3_banking_plugin_instance_import($params) {
   foreach ($plugin_instance->getLog() as $log_entry) {
     if ($log_entry[3] == CRM_Banking_PluginModel_Base::REPORT_LEVEL_WARN) {
       $warnings[] = $log_entry[2];
-    } elseif ($log_entry[3] == CRM_Banking_PluginModel_Base::REPORT_LEVEL_ERROR) {
+    }
+    elseif ($log_entry[3] == CRM_Banking_PluginModel_Base::REPORT_LEVEL_ERROR) {
       $errors[] = $log_entry[2];
     }
   }

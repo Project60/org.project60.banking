@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types = 1);
+
 /**
  * BankingRule.Match API specification (optional)
  * This is used for documentation and validation.
@@ -26,7 +28,7 @@ function _civicrm_api3_banking_rule_Match_spec(&$spec) {
  * @return array API result descriptor
  * @see civicrm_api3_create_success
  * @see civicrm_api3_create_error
- * @throws API_Exception
+ * @throws CRM_Core_Exception
  */
 function civicrm_api3_banking_rule_Match($params) {
 
@@ -41,8 +43,9 @@ function civicrm_api3_banking_rule_Match($params) {
     $pi_config = $pi->getConfig();
     if (isset($pi_config->field_mapping)) {
       $pi_mapping = $pi_config->field_mapping;
-    } else {
-      $pi_mapping = array();
+    }
+    else {
+      $pi_mapping = [];
     }
 
     // Create a disabled rule.
@@ -69,6 +72,6 @@ function civicrm_api3_banking_rule_Match($params) {
       $rule->delete();
     }
 
-    throw new API_Exception($e->getMessage());
+    throw new CRM_Core_Exception($e->getMessage());
   }
 }

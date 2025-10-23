@@ -14,6 +14,8 @@
 | written permission from the original author(s).        |
 +--------------------------------------------------------*/
 
+declare(strict_types = 1);
+
 use CRM_Banking_ExtensionUtil as E;
 
 define('CIVIBANKING_RUNNER_JOB_SIZE', 25);
@@ -31,17 +33,21 @@ class CRM_Banking_Helpers_AnalysisRunner {
     $this->btx_ids = $btx_ids;
 
     if ($btx_ids === NULL) {
-      $this->title = E::ts("Initialising analyser...");
-    } else {
-      $start_index = (($batch_number-1) * CIVIBANKING_RUNNER_JOB_SIZE);
-      $this->title = E::ts("Analysing bank transactions %1-%2", array(
-            1 => $start_index,
-            2 => $start_index + count($this->btx_ids)));
+      $this->title = E::ts('Initialising analyser...');
+    }
+    else {
+      $start_index = (($batch_number - 1) * CIVIBANKING_RUNNER_JOB_SIZE);
+      $this->title = E::ts('Analysing bank transactions %1-%2', [
+        1 => $start_index,
+        2 => $start_index + count($this->btx_ids),
+      ]);
     }
   }
 
   public function run($context) {
-    if ($this->btx_ids === NULL) return TRUE;
+    if ($this->btx_ids === NULL) {
+      return TRUE;
+    }
 
     // simply create an engine and match all
     $engine = CRM_Banking_Matcher_Engine::getInstance();
@@ -58,24 +64,24 @@ class CRM_Banking_Helpers_AnalysisRunner {
    */
   public static function createRunner($btx_list, $back_url) {
     // create a queue
-    $queue = CRM_Queue_Service::singleton()->create(array(
+    $queue = CRM_Queue_Service::singleton()->create([
       'type'  => 'Sql',
       'name'  => 'civibanking_analysis_runner',
       'reset' => TRUE,
-    ));
+    ]);
 
     // create the runner items
     // first: "initialising"
     $queue->createItem(new CRM_Banking_Helpers_AnalysisRunner(NULL, NULL));
 
     // then: all others
-    $current_batch = array();
+    $current_batch = [];
     $current_batch_number = 1;
     foreach ($btx_list as $btx_id) {
       $current_batch[] = $btx_id;
       if (count($current_batch) == CIVIBANKING_RUNNER_JOB_SIZE) {
         $queue->createItem(new CRM_Banking_Helpers_AnalysisRunner($current_batch, $current_batch_number));
-        $current_batch = array();
+        $current_batch = [];
         $current_batch_number += 1;
       }
     }
@@ -84,16 +90,17 @@ class CRM_Banking_Helpers_AnalysisRunner {
     }
 
     // create a runner and launch it
-    $runner = new CRM_Queue_Runner(array(
-      'title'     => E::ts("Analysing %1 bank transactions", array(1 => count($btx_list))),
+    $runner = new CRM_Queue_Runner([
+      'title'     => E::ts('Analysing %1 bank transactions', [1 => count($btx_list)]),
       'queue'     => $queue,
       'errorMode' => CRM_Queue_Runner::ERROR_ABORT,
       'onEndUrl'  => $back_url,
-    ));
+    ]);
 
     // Initialise runner and return URL
     $_SESSION['queueRunners'][$runner->qrid] = serialize($runner);
     $url = CRM_Utils_System::url($runner->pathPrefix . '/runner', 'reset=1&qrid=' . urlencode($runner->qrid));
     return $url;
   }
+
 }

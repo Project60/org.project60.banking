@@ -14,6 +14,8 @@
 | written permission from the original author(s).        |
 +--------------------------------------------------------*/
 
+declare(strict_types = 1);
+
 /**
  * Simple CSV Importer tests
  *
@@ -39,13 +41,13 @@ class CRM_Banking_Importer_CSVTest extends CRM_Banking_TestBase {
 
     // load the transactions
     $transactions = $batch->getTransactions();
-    $this->assertEquals(1, count($transactions), "Unexpected amount of transactions received");
+    $this->assertEquals(1, count($transactions), 'Unexpected amount of transactions received');
 
     /** @var $trxn CRM_Banking_BAO_BankTransaction */
     $trxn = reset($transactions);
-    $this->assertEquals(84.00, $trxn['amount'], "The amount is off.");
-    $this->assertEquals(date('Y-m-d', strtotime($trxn['value_date'])), '2022-10-07', "The value date is off.");
-    $this->assertEquals(date('Y-m-d', strtotime($trxn['booking_date'])), '2022-10-07', "The booking date is off.");
+    $this->assertEquals(84.00, $trxn['amount'], 'The amount is off.');
+    $this->assertEquals(date('Y-m-d', strtotime($trxn['value_date'])), '2022-10-07', 'The value date is off.');
+    $this->assertEquals(date('Y-m-d', strtotime($trxn['booking_date'])), '2022-10-07', 'The booking date is off.');
   }
 
   /**
@@ -59,37 +61,37 @@ class CRM_Banking_Importer_CSVTest extends CRM_Banking_TestBase {
     // import the file
     $import_file = $this->getTestResourcePath('importer/data/Test02_UTF8_with_BOM.csv');
     $batch_id = $this->importFile($importer_id, $import_file);
-    $this->assertNotEmpty($batch_id, "Import failed");
+    $this->assertNotEmpty($batch_id, 'Import failed');
     $batch = $this->getBatch($batch_id);
     $this->assertNotEmpty($batch, "Importer failed to read '{$import_file}'.");
 
     // load the transactions
     $transactions = $batch->getTransactions();
-    $this->assertEquals(1, count($transactions), "Unexpected amount of transactions received");
+    $this->assertEquals(1, count($transactions), 'Unexpected amount of transactions received');
 
     /** @var $trxn CRM_Banking_BAO_BankTransaction */
     $trxn = reset($transactions);
-    $this->assertEquals(-9.99, $trxn['amount'], "The amount is off.");
-    $this->assertEquals(date('Y-m-d', strtotime($trxn['value_date'])), '2022-06-07', "The value date is off.");
-    $this->assertEquals(date('Y-m-d', strtotime($trxn['booking_date'])), '2022-06-07', "The booking date is off.");
-
+    $this->assertEquals(-9.99, $trxn['amount'], 'The amount is off.');
+    $this->assertEquals(date('Y-m-d', strtotime($trxn['value_date'])), '2022-06-07', 'The value date is off.');
+    $this->assertEquals(date('Y-m-d', strtotime($trxn['booking_date'])), '2022-06-07', 'The booking date is off.');
 
     // also: check the file without BOM
     $import_file = $this->getTestResourcePath('importer/data/Test02_UTF8_without_BOM.csv');
     $batch_id = $this->importFile($importer_id, $import_file);
-    $this->assertNotEmpty($batch_id, "Import failed");
+    $this->assertNotEmpty($batch_id, 'Import failed');
     $batch = $this->getBatch($batch_id);
     $this->assertNotEmpty($batch, "Importer failed to read '{$import_file}'.");
 
     // load the transactions
     $transactions = $batch->getTransactions();
-    $this->assertEquals(1, count($transactions), "Unexpected amount of transactions received");
+    $this->assertEquals(1, count($transactions), 'Unexpected amount of transactions received');
 
     /** @var $trxn CRM_Banking_BAO_BankTransaction */
     $trxn = reset($transactions);
-    $this->assertEquals(-9.99, $trxn['amount'], "The amount is off.");
-    $this->assertEquals(date('Y-m-d', strtotime($trxn['value_date'])), '2022-06-07', "The value date is off.");
-    $this->assertEquals(date('Y-m-d', strtotime($trxn['booking_date'])), '2022-06-07', "The booking date is off.");
+    $this->assertEquals(-9.99, $trxn['amount'], 'The amount is off.');
+    $this->assertEquals(date('Y-m-d', strtotime($trxn['value_date'])), '2022-06-07', 'The value date is off.');
+    $this->assertEquals(date('Y-m-d', strtotime($trxn['booking_date'])), '2022-06-07', 'The booking date is off.');
 
   }
+
 }

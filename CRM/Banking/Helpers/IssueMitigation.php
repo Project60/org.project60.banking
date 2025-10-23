@@ -14,7 +14,7 @@
 | written permission from the original author(s).        |
 +--------------------------------------------------------*/
 
-use CRM_Banking_ExtensionUtil as E;
+declare(strict_types = 1);
 
 /**
  * Helper class to mitigate some API issues
@@ -29,14 +29,14 @@ class CRM_Banking_Helpers_IssueMitigation {
    *
    * @see https://github.com/Project60/org.project60.banking/issues/358
    */
-  public static function mitigate358(&$call_payload)
-  {
+  public static function mitigate358(&$call_payload) {
     if (empty($call_payload['contact_id']) && !empty($call_payload['id'])) {
       // the contribution id *should* determine the contact_id,
       //   but that seems to go wrong sometimes, so we'll add it explicitly
       $call_payload['contact_id'] = civicrm_api3('Contribution', 'getvalue', [
-          'id' => $call_payload['id'],
-          'return' => 'contact_id']);
+        'id' => $call_payload['id'],
+        'return' => 'contact_id',
+      ]);
     }
     return $call_payload;
   }

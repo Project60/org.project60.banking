@@ -14,6 +14,8 @@
 | written permission from the original author(s).        |
 +--------------------------------------------------------*/
 
+declare(strict_types = 1);
+
 use CRM_Banking_ExtensionUtil as E;
 
 /**
@@ -27,23 +29,48 @@ class CRM_Banking_PluginImpl_Importer_CSV extends CRM_Banking_PluginModel_Import
 
   /**
    * class constructor
-   */ function __construct($config_name) {
+   *
+   * phpcs:disable Generic.Metrics.CyclomaticComplexity.TooHigh
+   */
+  public function __construct($config_name) {
+  // phpcs:enable
     parent::__construct($config_name);
 
     // read config, set defaults
     $config = $this->_plugin_config;
-    if (!isset($config->delimiter))      $config->delimiter = ',';
-    if (!isset($config->enclosure))      $config->enclosure = '"';
-    if (!isset($config->escape))         $config->escape = '\\';
-    if (!isset($config->header))         $config->header = 1;
-    if (!isset($config->warnings))       $config->warnings = true;
-    if (!isset($config->skip))           $config->skip = 0;
-    if (!isset($config->line_filter))    $config->line_filter = NULL;
-    if (!isset($config->defaults))       $config->defaults = array();
-    if (!isset($config->rules))          $config->rules = array();
-    if (!isset($config->drop_columns))   $config->drop_columns = array();
-    if (!isset($config->line_filter_use_delimiter))
+    if (!isset($config->delimiter)) {
+      $config->delimiter = ',';
+    }
+    if (!isset($config->enclosure)) {
+      $config->enclosure = '"';
+    }
+    if (!isset($config->escape)) {
+      $config->escape = '\\';
+    }
+    if (!isset($config->header)) {
+      $config->header = 1;
+    }
+    if (!isset($config->warnings)) {
+      $config->warnings = TRUE;
+    }
+    if (!isset($config->skip)) {
+      $config->skip = 0;
+    }
+    if (!isset($config->line_filter)) {
+      $config->line_filter = NULL;
+    }
+    if (!isset($config->defaults)) {
+      $config->defaults = [];
+    }
+    if (!isset($config->rules)) {
+      $config->rules = [];
+    }
+    if (!isset($config->drop_columns)) {
+      $config->drop_columns = [];
+    }
+    if (!isset($config->line_filter_use_delimiter)) {
       $config->line_filter_use_delimiter = FALSE;
+    }
   }
 
   /**
@@ -51,8 +78,7 @@ class CRM_Banking_PluginImpl_Importer_CSV extends CRM_Banking_PluginModel_Import
    *
    * @return string
    */
-  static function displayName()
-  {
+  public static function displayName() {
     return 'CSV Importer';
   }
 
@@ -61,9 +87,8 @@ class CRM_Banking_PluginImpl_Importer_CSV extends CRM_Banking_PluginModel_Import
    *
    * @return bool
    */
-  static function does_import_files()
-  {
-    return true;
+  public static function does_import_files() {
+    return TRUE;
   }
 
   /**
@@ -71,9 +96,8 @@ class CRM_Banking_PluginImpl_Importer_CSV extends CRM_Banking_PluginModel_Import
    *
    * @return bool
    */
-  static function does_import_stream()
-  {
-    return false;
+  public static function does_import_stream() {
+    return FALSE;
   }
 
   /**
@@ -87,8 +111,7 @@ class CRM_Banking_PluginImpl_Importer_CSV extends CRM_Banking_PluginModel_Import
    *
    * @return boolean true if file is accepted
    */
-  function probe_file( $file_path, $params )
-  {
+  public function probe_file($file_path, $params) {
     $config = $this->_plugin_config;
 
     if (!empty($config->sentinel)) {
@@ -97,8 +120,10 @@ class CRM_Banking_PluginImpl_Importer_CSV extends CRM_Banking_PluginModel_Import
 
       // skip BOM if present
       $possible_bom_hex = bin2hex(fgets($file, 4));
-      if ($possible_bom_hex !== 'efbbbf') { // Skip BOM if present
-        rewind($file); // Or rewind pointer to start of file
+      // Skip BOM if present
+      if ($possible_bom_hex !== 'efbbbf') {
+        // Or rewind pointer to start of file
+        rewind($file);
       }
 
       $probe_data = fgets($file, 1024);
@@ -113,33 +138,33 @@ class CRM_Banking_PluginImpl_Importer_CSV extends CRM_Banking_PluginModel_Import
       $sentinel = mb_convert_encoding($config->sentinel, mb_internal_encoding());
       if (!preg_match($sentinel, $probe_data)) {
         $this->logMessage("Uploaded file's content doesn't match the sentinel.", 'warning');
-        return false;
+        return FALSE;
       }
     }
 
     // check if the file name is accepted
     if (!empty($config->filename_sentinel)) {
       if (empty($params['source'])) {
-        $this->logMessage("filename_sentinel provided, but no file name present!", 'warning');
-      } else {
+        $this->logMessage('filename_sentinel provided, but no file name present!', 'warning');
+      }
+      else {
         if (!preg_match($config->filename_sentinel, $params['source'])) {
           $this->logMessage("Uploaded file's name doesn't match the filename sentinel.", 'warning');
-          return false;
+          return FALSE;
         }
       }
     }
 
-    return true; // all good
+    // all good
+    return TRUE;
   }
-
 
   /**
    * Import the given file
    *
-   * @return TODO: data format?
+   * phpcs:disable Generic.Metrics.CyclomaticComplexity.MaxExceeded, Generic.Metrics.NestingLevel.TooHigh
    */
-  function import_file( $file_path, $params )
-  {
+  public function import_file($file_path, $params) {
     // begin
     $config = $this->_plugin_config;
     $this->reportProgress(0.0, sprintf("Starting to read file '%s'...", $params['source']));
@@ -147,12 +172,14 @@ class CRM_Banking_PluginImpl_Importer_CSV extends CRM_Banking_PluginModel_Import
     $file = fopen($file_path, 'r');
     $line_nr = 0;
     $bytes_read = 0;
-    $header = array();
+    $header = [];
 
     // skip BOM if present
     $possible_bom_hex = bin2hex(fgets($file, 4));
-    if ($possible_bom_hex !== 'efbbbf') { // Skip BOM if present
-      rewind($file); // Or rewind pointer to start of file
+    // Skip BOM if present
+    if ($possible_bom_hex !== 'efbbbf') {
+      // Or rewind pointer to start of file
+      rewind($file);
     }
 
     if (!empty($config->line_filter_use_delimiter)) {
@@ -171,17 +198,24 @@ class CRM_Banking_PluginImpl_Importer_CSV extends CRM_Banking_PluginModel_Import
     while (($line = fgetcsv($file, 0, $config->delimiter, $config->enclosure, $config->escape)) !== FALSE) {
       // update stats
       $line_nr += 1;
-      foreach ($line as $item) $bytes_read += strlen($item);
+      foreach ($line as $item) {
+        // If the line read from the file was empty, $line contains [NULL].
+        // @todo Is this the correct way to handle it?
+        $bytes_read += strlen($item ?? '');
+      }
       $bytes_read += count($line) * strlen($config->delimiter);
 
       // check if we want to skip line (by count)
-      if ($line_nr <= $config->skip) continue;
+      if ($line_nr <= $config->skip) {
+        continue;
+      }
 
       // check if we want to skip line (by filter)
       if (!empty($config->line_filter)) {
         $full_line = trim(implode($separator, $line));
         if (!preg_match($config->line_filter, $full_line)) {
-          $config->header += 1;  // bump line numbers if filtered out
+          // bump line numbers if filtered out
+          $config->header += 1;
           $filtered_out++;
           continue;
         }
@@ -189,13 +223,15 @@ class CRM_Banking_PluginImpl_Importer_CSV extends CRM_Banking_PluginModel_Import
 
       // check encoding if necessary
       if (isset($config->encoding)) {
-        $decoded_line = array();
+        $decoded_line = [];
         foreach ($line as $item) {
           if (in_array($config->encoding, mb_list_encodings())) {
             array_push($decoded_line, mb_convert_encoding($item, mb_internal_encoding(), $config->encoding));
-          } else if (extension_loaded('iconv')) {
+          }
+          elseif (extension_loaded('iconv')) {
             array_push($decoded_line, iconv($config->encoding, mb_internal_encoding(), $item));
-          } else {
+          }
+          else {
             trigger_error("Unknown encoding {$config->encoding}, try enabling the iconv PHP extension", E_USER_ERROR);
           }
         }
@@ -214,12 +250,13 @@ class CRM_Banking_PluginImpl_Importer_CSV extends CRM_Banking_PluginModel_Import
 
       if ($line_nr == $config->header) {
         // parse header
-        if (count($header)==0) {
+        if (count($header) == 0) {
           $header = $line;
         }
-      } else {
+      }
+      else {
         // import line
-        $last_btx = $this->import_line($line, $line_nr, ($bytes_read/$file_size), $header, $params);
+        $last_btx = $this->import_line($line, $line_nr, ($bytes_read / $file_size), $header, $params);
       }
     }
     fclose($file);
@@ -233,7 +270,7 @@ class CRM_Banking_PluginImpl_Importer_CSV extends CRM_Banking_PluginModel_Import
         $reference = $config->title;
         if (isset($last_btx)) {
           // replace tokens from last BTX
-          $last_btx_data = json_decode($last_btx['data_parsed'], true);
+          $last_btx_data = json_decode($last_btx['data_parsed'], TRUE);
           preg_match_all('/\{([^\}]+)\}/', $config->title, $matches);
           if (isset($matches[1])) {
             // exclude the default tokens
@@ -242,7 +279,8 @@ class CRM_Banking_PluginImpl_Importer_CSV extends CRM_Banking_PluginModel_Import
                 $token_value = '';
                 if (isset($last_btx[$token_name])) {
                   $token_value = $last_btx[$token_name];
-                } elseif (isset($last_btx_data[$token_name])) {
+                }
+                elseif (isset($last_btx_data[$token_name])) {
                   $token_value = $last_btx_data[$token_name];
                 }
                 $reference = str_replace("{{$token_name}}", $token_value, $reference);
@@ -253,18 +291,19 @@ class CRM_Banking_PluginImpl_Importer_CSV extends CRM_Banking_PluginModel_Import
         }
         $this->getCurrentTransactionBatch()->reference = $reference;
 
-
-      } else {
-        $this->getCurrentTransactionBatch()->reference = "CSV-File {md5}";
+      }
+      else {
+        $this->getCurrentTransactionBatch()->reference = 'CSV-File {md5}';
       }
 
       $this->closeTransactionBatch(TRUE);
-    } else {
+    }
+    else {
       $this->closeTransactionBatch(FALSE);
     }
 
     if ($filtered_out > 0) {
-        $this->reportProgress(1.0, E::ts('Filtered out %1 lines', [1 => $filtered_out]));
+      $this->reportProgress(1.0, E::ts('Filtered out %1 lines', [1 => $filtered_out]));
     }
     $this->reportDone();
   }
@@ -278,20 +317,25 @@ class CRM_Banking_PluginImpl_Importer_CSV extends CRM_Banking_PluginModel_Import
    * @param array $header
    * @param array $params
    * @return array recent btx data structure
+   *
+   * phpcs:disable Generic.Metrics.CyclomaticComplexity.TooHigh
    */
   protected function import_line($line, $line_nr, $progress, $header, $params) {
+  // phpcs:enable
     $config = $this->_plugin_config;
 
     // generate entry data
-    $raw_data = implode(";", $line);
-    $btx = array(
+    $raw_data = implode(';', $line);
+    $btx = [
       'version' => 3,
       'currency' => 'EUR',
-      'type_id' => 0,                               // TODO: lookup type ?
-      'status_id' => 0,                             // TODO: lookup status new
+    // TODO: lookup type ?
+      'type_id' => 0,
+    // TODO: lookup status new
+      'status_id' => 0,
       'data_raw' => $raw_data,
-      'sequence' => $line_nr-$config->header,
-    );
+      'sequence' => $line_nr - $config->header,
+    ];
 
     // set default values from config:
     foreach ($config->defaults as $key => $value) {
@@ -302,7 +346,8 @@ class CRM_Banking_PluginImpl_Importer_CSV extends CRM_Banking_PluginModel_Import
     foreach ($config->rules as $rule) {
       try {
         $this->apply_rule($rule, $line, $btx, $header, $params);
-      } catch (Exception $e) {
+      }
+      catch (Exception $e) {
         $this->reportProgress($progress, sprintf(E::ts("Rule '%s' failed. Exception was %s"), $rule, $e->getMessage()));
       }
     }
@@ -310,12 +355,12 @@ class CRM_Banking_PluginImpl_Importer_CSV extends CRM_Banking_PluginModel_Import
     // run filters
     if (isset($config->filter) && is_array($config->filter)) {
       foreach ($config->filter as $filter) {
-        if ($filter->type=='string_positive') {
+        if ($filter->type == 'string_positive') {
           // only accept string matches
           $value1 = $this->getValue($filter->value1, $btx, $line, $header, $params);
           $value2 = $this->getValue($filter->value2, $btx, $line, $header, $params);
           if ($value1 != $value2) {
-            $this->reportProgress($progress, sprintf("Skipped line %d", $line_nr-$config->header));
+            $this->reportProgress($progress, sprintf('Skipped line %d', $line_nr - $config->header));
             return $btx;
           }
         }
@@ -329,13 +374,14 @@ class CRM_Banking_PluginImpl_Importer_CSV extends CRM_Banking_PluginModel_Import
     if (!isset($config->bank_reference)) {
       // set MD5 hash as unique reference
       $btx['bank_reference'] = md5($raw_data);
-    } else {
+    }
+    else {
       // otherwise use the template
       $bank_reference = $config->bank_reference;
       preg_match_all('/\{([^\}]+)\}/', $bank_reference, $matches);
       if (isset($matches[1])) {
         foreach ($matches[1] as $token_name) {
-          $token_value = isset($btx[$token_name])?$btx[$token_name]:'';
+          $token_value = isset($btx[$token_name]) ? $btx[$token_name] : '';
           $bank_reference = str_replace("{{$token_name}}", $token_value, $bank_reference);
         }
       }
@@ -343,7 +389,7 @@ class CRM_Banking_PluginImpl_Importer_CSV extends CRM_Banking_PluginModel_Import
     }
 
     // prepare $btx: put all entries, that are not for the basic object, into parsed data
-    $btx_parsed_data = array();
+    $btx_parsed_data = [];
     foreach ($btx as $key => $value) {
       if (!in_array($key, $this->_primary_btx_fields)) {
         // this entry has to be moved to the $btx_parsed_data records
@@ -357,36 +403,42 @@ class CRM_Banking_PluginImpl_Importer_CSV extends CRM_Banking_PluginModel_Import
     $duplicate = $this->checkAndStoreBTX($btx, $progress, $params);
     // TODO: process duplicates or failures?
 
-    $this->reportProgress($progress, sprintf("Imported line %d", $line_nr-$config->header));
+    $this->reportProgress($progress, sprintf('Imported line %d', $line_nr - $config->header));
     return $btx;
   }
 
   /**
    * Extract the value for the given key from the resources (line, btx).
    */
-  protected function getValue($key, $btx, $line=NULL, $header=array(), $params = []) {
+  protected function getValue($key, $btx, $line = NULL, $header = [], $params = []) {
     // get value
     if ($this->startsWith($key, '_constant:')) {
       return substr($key, 10);
-    } else if ($this->startsWith($key, '_params:')) {
-        $param_name = substr($key, 8);
-        return CRM_Utils_Array::value($param_name, $params, '');
-    } else if ($line && is_int($key)) {
+    }
+    elseif ($this->startsWith($key, '_params:')) {
+      $param_name = substr($key, 8);
+      return $params[$param_name] ?? '';
+    }
+    elseif ($line && is_int($key)) {
       return $line[$key];
-    } else {
+    }
+    else {
       $index = array_search($key, $header);
-      if ($index!==FALSE) {
+      if ($index !== FALSE) {
         if (isset($line[$index])) {
           return $line[$index];
-        } else {
+        }
+        else {
           // this means, that the column does exist in the header,
           //  but not in this row => bad CSV
           return NULL;
         }
-      } elseif (isset($btx[$key])) {
+      }
+      elseif (isset($btx[$key])) {
         // this is not in the line, maybe it's already in the btx
         return $btx[$key];
-      } else {
+      }
+      else {
         if ($this->_plugin_config->warnings) {
           error_log("org.project60.banking: CSVImporter - Cannot find source '$key' for rule or filter.");
         }
@@ -397,22 +449,30 @@ class CRM_Banking_PluginImpl_Importer_CSV extends CRM_Banking_PluginModel_Import
 
   /**
    * executes an import rule
+   *
+   * phpcs:disable Generic.Metrics.CyclomaticComplexity.MaxExceeded
    */
   protected function apply_rule($rule, $line, &$btx, $header, $params) {
-
+  // phpcs:enable
     // get value
     $value = $this->getValue($rule->from, $btx, $line, $header, $params);
 
     // check if-clause
     if (isset($rule->if)) {
       if ($this->startsWith($rule->if, 'equalto:')) {
-        $params = explode(":", $rule->if);
-        if ($value != $params[1]) return;
-      } elseif ($this->startsWith($rule->if, 'matches:')) {
-        $params = explode(":", $rule->if, 2);
-        if (!preg_match($params[1], $value)) return;
-      } else {
-        print_r("CONDITION (IF) TYPE NOT YET IMPLEMENTED");
+        $params = explode(':', $rule->if);
+        if ($value != $params[1]) {
+          return;
+        }
+      }
+      elseif ($this->startsWith($rule->if, 'matches:')) {
+        $params = explode(':', $rule->if, 2);
+        if (!preg_match($params[1], $value)) {
+          return;
+        }
+      }
+      else {
+        print_r('CONDITION (IF) TYPE NOT YET IMPLEMENTED');
         return;
       }
     }
@@ -422,86 +482,106 @@ class CRM_Banking_PluginImpl_Importer_CSV extends CRM_Banking_PluginModel_Import
       // SET is a simple copy command:
       $btx[$rule->to] = $value;
 
-    } elseif ($this->startsWith($rule->type, 'append')) {
+    }
+    elseif ($this->startsWith($rule->type, 'append')) {
       // APPEND appends the string to a give value
-      if (!isset($btx[$rule->to])) $btx[$rule->to] = '';
-      $params = explode(":", $rule->type);
+      if (!isset($btx[$rule->to])) {
+        $btx[$rule->to] = '';
+      }
+      $params = explode(':', $rule->type);
       if (isset($params[1])) {
         // the user defined a concat string
-        $btx[$rule->to] = $btx[$rule->to].$params[1].$value;
-      } else {
+        $btx[$rule->to] = $btx[$rule->to] . $params[1] . $value;
+      }
+      else {
         // default concat string is " "
-        $btx[$rule->to] = $btx[$rule->to]." ".$value;
+        $btx[$rule->to] = $btx[$rule->to] . ' ' . $value;
       }
 
-    } elseif ($this->startsWith($rule->type, 'trim')) {
+    }
+    elseif ($this->startsWith($rule->type, 'trim')) {
       // TRIM will strip the string of
-      $params = explode(":", $rule->type);
+      $params = explode(':', $rule->type);
       if (isset($params[1])) {
         // the user provided a the trim parameters
         $btx[$rule->to] = trim($value, $params[1]);
-      } else {
+      }
+      else {
         $btx[$rule->to] = trim($value);
       }
-    } elseif ($this->startsWith($rule->type, 'copy')) {
+    }
+    elseif ($this->startsWith($rule->type, 'copy')) {
       // COPY a value to a new btx field
       $btx[$rule->to] = $value;
 
-    } elseif ($this->startsWith($rule->type, 'replace')) {
+    }
+    elseif ($this->startsWith($rule->type, 'replace')) {
       // REPLACE will replace a substring
-      $params = explode(":", $rule->type);
+      $params = explode(':', $rule->type);
       $btx[$rule->to] = str_replace($params[1], $params[2], $value);
 
-    } elseif ($this->startsWith($rule->type, 'format')) {
+    }
+    elseif ($this->startsWith($rule->type, 'format')) {
       // will use the sprintf format
-      $params = explode(":", $rule->type);
+      $params = explode(':', $rule->type);
       $btx[$rule->to] = sprintf($params[1], $value);
 
-    } elseif ($this->startsWith($rule->type, 'constant')) {
+    }
+    elseif ($this->startsWith($rule->type, 'constant')) {
       // will just set a constant string
       $btx[$rule->to] = $rule->from;
 
-    } elseif ($this->startsWith($rule->type, 'strtotime')) {
+    }
+    elseif ($this->startsWith($rule->type, 'strtotime')) {
       // STRTOTIME is a date parser
-      $params = explode(":", $rule->type, 2);
+      $params = explode(':', $rule->type, 2);
       if (isset($params[1])) {
         // the user provided a date format
         $datetime = DateTime::createFromFormat($params[1], $value);
         if ($datetime) {
           $btx[$rule->to] = $datetime->format('YmdHis');
-        } else {
+        }
+        else {
           if (!empty($value)) {
             $this->logMessage("Couldn't parse date '{$value}'.", 'error');
           }
         }
-      } else {
+      }
+      else {
         $btx[$rule->to] = date('YmdHis', strtotime($value));
       }
 
-    } elseif ($this->startsWith($rule->type, 'align_date')) {
+    }
+    elseif ($this->startsWith($rule->type, 'align_date')) {
       // ALIGN a date forwards or backwards
-      $params = explode(":", $rule->type, 2);
-      $offset = ($params[1] == 'backward') ? "-1 day" : "+1 day";
+      $params = explode(':', $rule->type, 2);
+      $offset = ($params[1] == 'backward') ? '-1 day' : '+1 day';
       $btx[$rule->to] = CRM_Utils_BankingToolbox::alignDateTime($value, $offset, explode(',', $rule->skip));
 
-    } elseif ($this->startsWith($rule->type, 'amount')) {
+    }
+    elseif ($this->startsWith($rule->type, 'amount')) {
       // AMOUNT will take care of currency issues, like "," instead of "."
-      $btx[$rule->to] = str_replace(",", ".", $value);
+      $btx[$rule->to] = str_replace(',', '.', $value);
 
-    } elseif ($this->startsWith($rule->type, 'largeamount')) {
+    }
+    elseif ($this->startsWith($rule->type, 'largeamount')) {
       // AMOUNT will take care of currency issues, like "," instead of "."
-      $value = preg_replace('/\.(?=[\d\.]*,\d{2}\b)/', '', $value); //remove thousand separator dots (e.g. in "10.000,00")
-      $value = preg_replace('/,(?=[\d,]*\.\d{2}\b)/', '', $value); //remove thousand separator commas (e.g. in "10,000.00")
-      $btx[$rule->to] = str_replace(",", ".", $value);
+      //remove thousand separator dots (e.g. in "10.000,00")
+      $value = preg_replace('/\.(?=[\d\.]*,\d{2}\b)/', '', $value);
+      //remove thousand separator commas (e.g. in "10,000.00")
+      $value = preg_replace('/,(?=[\d,]*\.\d{2}\b)/', '', $value);
+      $btx[$rule->to] = str_replace(',', '.', $value);
 
-    } elseif ($this->startsWith($rule->type, 'regex:')) {
+    }
+    elseif ($this->startsWith($rule->type, 'regex:')) {
       // REGEX will extract certain values from the line
       $pattern = substr($rule->type, 6);
-      $matches = array();
+      $matches = [];
       if (preg_match($pattern, $value, $matches)) {
         // we found it!
         $btx[$rule->to] = $matches[1];
-      } else {
+      }
+      else {
         // check, if we should warn: (not set = 'warn' for backward compatibility)
         if (!isset($rule->warn) || $rule->warn) {
           $this->reportProgress(CRM_Banking_PluginModel_Base::REPORT_PROGRESS_NONE,
@@ -509,11 +589,11 @@ class CRM_Banking_PluginImpl_Importer_CSV extends CRM_Banking_PluginModel_Import
         }
       }
 
-    } else {
-      print_r("RULE TYPE NOT YET IMPLEMENTED");
+    }
+    else {
+      print_r('RULE TYPE NOT YET IMPLEMENTED');
     }
   }
-
 
   /**
    * Test if the configured source is available and ready
@@ -521,9 +601,8 @@ class CRM_Banking_PluginImpl_Importer_CSV extends CRM_Banking_PluginModel_Import
    * @var
    * @return TODO: data format?
    */
-  function probe_stream( $params )
-  {
-    return false;
+  public function probe_stream($params) {
+    return FALSE;
   }
 
   /**
@@ -531,9 +610,8 @@ class CRM_Banking_PluginImpl_Importer_CSV extends CRM_Banking_PluginModel_Import
    *
    * @return TODO: data format?
    */
-  function import_stream( $params )
-  {
-    $this->reportDone(E::ts("Importing streams not supported by this plugin."));
+  public function import_stream($params) {
+    $this->reportDone(E::ts('Importing streams not supported by this plugin.'));
   }
-}
 
+}

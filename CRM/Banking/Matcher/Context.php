@@ -1,18 +1,22 @@
 <?php
-/*-------------------------------------------------------+
-| Project 60 - CiviBanking                               |
-| Copyright (C) 2013-2018 SYSTOPIA                       |
-| Author: B. Endres (endres -at- systopia.de)            |
-| http://www.systopia.de/                                |
-+--------------------------------------------------------+
-| This program is released as free software under the    |
-| Affero GPL v3 license. You can redistribute it and/or  |
-| modify it under the terms of this license which you    |
-| can read by viewing the included agpl.txt or online    |
-| at www.gnu.org/licenses/agpl.html. Removal of this     |
-| copyright header is strictly prohibited without        |
-| written permission from the original author(s).        |
-+--------------------------------------------------------*/
+/**
+ * -------------------------------------------------------+
+ * | Project 60 - CiviBanking                               |
+ * | Copyright (C) 2013-2018 SYSTOPIA                       |
+ * | Author: B. Endres (endres -at- systopia.de)            |
+ * | http://www.systopia.de/                                |
+ * +--------------------------------------------------------+
+ * | This program is released as free software under the    |
+ * | Affero GPL v3 license. You can redistribute it and/or  |
+ * | modify it under the terms of this license which you    |
+ * | can read by viewing the included agpl.txt or online    |
+ * | at www.gnu.org/licenses/agpl.html. Removal of this     |
+ * | copyright header is strictly prohibited without        |
+ * | written permission from the original author(s).        |
+ * +--------------------------------------------------------
+ */
+
+declare(strict_types = 1);
 
 class CRM_Banking_Matcher_Context {
 
@@ -23,19 +27,19 @@ class CRM_Banking_Matcher_Context {
   protected $executed_suggestion = NULL;
 
   // will store generic attributes from the various matchers
-  private $_attributes = array();
+  private $_attributes = [];
 
   // will store cached data needed/produced by the helper functions
   private $_caches;
 
-  protected $bank_account_reference_matching_probability = null;
+  protected $bank_account_reference_matching_probability = NULL;
 
-  public function __construct( CRM_Banking_BAO_BankTransaction $btx ) {
+  public function __construct(CRM_Banking_BAO_BankTransaction $btx) {
     $this->btx = $btx;
     $btx->context = $this;
 
     $this->bank_account_reference_matching_probability = CRM_Core_BAO_Setting::getItem('CiviBanking', 'reference_matching_probability');
-    if ($this->bank_account_reference_matching_probability === null) {
+    if ($this->bank_account_reference_matching_probability === NULL) {
       $this->bank_account_reference_matching_probability = 1.0;
     }
   }
@@ -49,29 +53,35 @@ class CRM_Banking_Matcher_Context {
    *
    * If more than one contact has probability 1, then it will be reduced to 0.99
    *
-   * @return array(contact_id => similarity), where similarity is from [0..1]
+   * @return array<int, float>
+   *   contact_id => similarity, where similarity is from [0..1]
+   *
+   * phpcs:disable Generic.Metrics.CyclomaticComplexity.TooHigh
    */
-  public function findContacts($threshold=0.0, $name=NULL, $lookup_by_name_parameters=array()) {
+  public function findContacts($threshold = 0.0, $name = NULL, $lookup_by_name_parameters = []) {
+  // phpcs:enable
     $lookup_by_name_parameters = (array) $lookup_by_name_parameters;
 
     // we'll start with the findContacts method
-    if (!empty($lookup_by_name_parameters['mode']) && $lookup_by_name_parameters['mode']=='off') {
+    if (!empty($lookup_by_name_parameters['mode']) && $lookup_by_name_parameters['mode'] == 'off') {
       // search turned off
-      $contacts = array();
-    } elseif (empty($name)) {
+      $contacts = [];
+    }
+    elseif (empty($name)) {
       // no name given
-      $contacts = array();
-    } else {
+      $contacts = [];
+    }
+    else {
       // all good, let's go:
       $contacts = $this->lookupContactByName($name, $lookup_by_name_parameters);
     }
 
-    // then look for 'contact_id' or 'external_identifier'
+    // then look for 'contact_id' or 'external_identifier'.
     $data_parsed = $this->btx->getDataParsed();
     if (!empty($data_parsed['external_identifier'])) {
       // RUN SQL query instead of API (see BANKING-165)
       $contact_id = CRM_Core_DAO::singleValueQuery('SELECT id FROM civicrm_contact WHERE external_identifier = %1 AND is_deleted=0;',
-          array(1 => array($data_parsed['external_identifier'], 'String')));
+          [1 => [$data_parsed['external_identifier'], 'String']]);
       if ($contact_id) {
         $contacts[$contact_id] = 1.0;
       }
@@ -93,17 +103,21 @@ class CRM_Banking_Matcher_Context {
     // check if multiple 1.0 probabilities are there...
     $perfect_match_count = 0;
     foreach ($contacts as $contact => $probability) {
-      if ($probability == 1.0) $perfect_match_count++;
+      if ($probability == 1.0) {
+        $perfect_match_count++;
+      }
     }
     if ($perfect_match_count > 1) {
       // in this case, we reduce each probability to 0.99
       foreach ($contacts as $contact => $probability) {
-        if ($probability == 1.0) $contacts[$contact] = 0.99;
+        if ($probability == 1.0) {
+          $contacts[$contact] = 0.99;
+        }
       }
     }
 
     // remove all that are under the threshold
-    $selected_contacts = array();
+    $selected_contacts = [];
     foreach ($contacts as $contact => $probability) {
       if ($probability >= $threshold) {
         $selected_contacts[$contact] = $probability;
@@ -123,36 +137,38 @@ class CRM_Banking_Matcher_Context {
    *
    * @return array(contact_id => similarity), where similarity is from [0..1]
    */
-  public function lookupContactByName($name, $parameters=array()) {
+  public function lookupContactByName($name, $parameters = []) {
     $logger = CRM_Banking_Helpers_Logger::getLogger();
     $logger->setTimer('lookupContactByName');
     $parameters = (array) $parameters;
 
     if (!$name) {
       // no name given, no results:
-      return array();
+      return [];
     }
 
     // check the cache first (key has md5 due to different parameters)
-    $cache_key = "banking.matcher.context.name_lookup.".md5(serialize($name).serialize($parameters));
+    $cache_key = 'banking.matcher.context.name_lookup.' . md5(serialize($name) . serialize($parameters));
     $contacts_found = $this->getCachedEntry($cache_key);
-    if ($contacts_found!=NULL) {
-      $logger->logDebug("lookupContactByName: cache hit");
+    if ($contacts_found != NULL) {
+      $logger->logDebug('lookupContactByName: cache hit');
       return $contacts_found;
-    } else {
-      $contacts_found = array();
+    }
+    else {
+      $contacts_found = [];
     }
 
     // call the lookup function (API)
-    $parameters['version'] = 3;
     $parameters['name'] = $name;
-    if (isset($parameters['modifiers']))
+    if (isset($parameters['modifiers'])) {
       $parameters['modifiers'] = json_encode($parameters['modifiers']);
-    $result = civicrm_api('BankingLookup', 'contactbyname', $parameters);
+    }
+    $result = civicrm_api3('BankingLookup', 'contactbyname', $parameters);
     if (isset($result['is_error']) && $result['is_error']) {
       // TODO: more error handling?
-      error_log("org.project60.banking: BankingLookup:contactbyname failed with: ".$result['error_message']);
-    } else {
+      error_log('org.project60.banking: BankingLookup:contactbyname failed with: ' . $result['error_message']);
+    }
+    else {
       $contacts_found = $result['values'];
     }
 
@@ -160,9 +176,8 @@ class CRM_Banking_Matcher_Context {
     $this->setCachedEntry($cache_key, $contacts_found);
 
     $logger->logTime('lookupContactByName', 'lookupContactByName');
-  	return $contacts_found;
+    return $contacts_found;
   }
-
 
   /**
    * If the payment was associated with a (source) account, this
@@ -170,21 +185,24 @@ class CRM_Banking_Matcher_Context {
    */
   public function getAccountContacts() {
     $contact_ids = $this->getCachedEntry('_account_contact_ids');
-    if ($contact_ids===NULL) {
+    if ($contact_ids === NULL) {
       // first, get the account contact
-      $contact_ids = array();
+      $contact_ids = [];
+      // @phpstan-ignore method.deprecated
       $btx_account_contact = $this->getAccountContact();
-      if ($btx_account_contact) array_push($contact_ids, $btx_account_contact);
+      if ($btx_account_contact) {
+        array_push($contact_ids, $btx_account_contact);
+      }
 
       // then, look up party_ba_reference...
       $data_parsed = $this->btx->getDataParsed();
       if (!empty($data_parsed['party_ba_reference'])) {
         // find all accounts references matching the parsed data
-        $account_references = civicrm_api('BankingAccountReference', 'get', array('reference' => $data_parsed['party_ba_reference'], 'version' => 3));
+        $account_references = civicrm_api3('BankingAccountReference', 'get', ['reference' => $data_parsed['party_ba_reference']]);
         if (empty($account_references['is_error'])) {
           foreach ($account_references['values'] as $account_reference) {
             // then load the respective accounts
-            $account = civicrm_api('BankingAccount', 'getsingle', array('id' => $account_reference['ba_id'], 'version' => 3));
+            $account = civicrm_api3('BankingAccount', 'getsingle', ['id' => $account_reference['ba_id']]);
             if (empty($account['is_error'])) {
               // and add the owner
               array_push($contact_ids, $account['contact_id']);
@@ -205,16 +223,18 @@ class CRM_Banking_Matcher_Context {
    */
   public function getAccountContact() {
     $contact_id = $this->getCachedEntry('_account_contact_id');
-    if ($contact_id===NULL) {
+    if ($contact_id === NULL) {
       if ($this->btx->party_ba_id) {
         $account = new CRM_Banking_BAO_BankAccount();
         $account->get('id', $this->btx->party_ba_id);
         if ($account->contact_id) {
           $contact_id = $account->contact_id;
-        } else {
+        }
+        else {
           $contact_id = 0;
         }
-      } else {
+      }
+      else {
         $contact_id = 0;
       }
       $this->setCachedEntry('_account_contact_id', $contact_id);
@@ -239,10 +259,11 @@ class CRM_Banking_Matcher_Context {
     if ($filtered_list === NULL) {
       $filtered_list = [];
       $result = civicrm_api3('Contact', 'get', [
-          'id'         => ['IN' => array_keys($contact2probablility)],
-          'is_deleted' => 0,
-          'return'     => 'id',
-          'sequential' => 1]);
+        'id'         => ['IN' => array_keys($contact2probablility)],
+        'is_deleted' => 0,
+        'return'     => 'id',
+        'sequential' => 1,
+      ]);
       foreach ($result['values'] as $contact) {
         $filtered_list[$contact['id']] = $contact2probablility[$contact['id']];
       }
@@ -259,7 +280,8 @@ class CRM_Banking_Matcher_Context {
   public function getCachedEntry($key) {
     if (isset($this->_caches[$key])) {
       return $this->_caches[$key];
-    } else {
+    }
+    else {
       return NULL;
     }
   }
@@ -292,7 +314,8 @@ class CRM_Banking_Matcher_Context {
   public function destroy() {
     $this->btx = NULL;
     $this->executed_suggestion = NULL;
-    $this->_caches = array();
-    $this->_attributes = array();
+    $this->_caches = [];
+    $this->_attributes = [];
   }
+
 }

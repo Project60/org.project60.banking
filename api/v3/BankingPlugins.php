@@ -13,13 +13,14 @@
 | written permission from the original author(s).        |
 +--------------------------------------------------------*/
 
+declare(strict_types = 1);
+
 /**
  * File for the CiviCRM APIv3 banking_payment functions
  *
  * @package CiviBanking
  *
  */
-
 
 /**
  * Get all plugin classes
@@ -30,44 +31,46 @@
  * @example BankingPlugins.php Standard Create Example
  *
  * @return array API result array
- * {@getfields banking_transaction_create}
+ *   {@getfields banking_transaction_create}
  * @access public
  */
 function civicrm_api3_banking_plugins_list($params) {
   //TODO: read from database
-  $all_classes = array(
-      'CRM_Banking_PluginImpl_Dummy',
-  );
+  $all_classes = [
+    'CRM_Banking_PluginImpl_Dummy',
+  ];
 
   // filter them
   $filter = 'CRM_Banking_PluginModel_Base';
   if (isset($params['type'])) {
-    if ($params['type']=='import') {
+    if ($params['type'] == 'import') {
       $filter = 'CRM_Banking_PluginModel_Importer';
-    } elseif ($params['type']=='export') {
+    }
+    elseif ($params['type'] == 'export') {
       $filter = 'CRM_Banking_PluginModel_Exporter';
-    } elseif ($params['type']=='matcher') {
+    }
+    elseif ($params['type'] == 'matcher') {
       $filter = 'CRM_Banking_PluginModel_Matcher';
     }
   }
 
-  $entries = array();
+  $entries = [];
   foreach ($all_classes as $entry) {
     if (is_subclass_of($entry, $filter)) {
-      array_push($entries, array( 
-                                  'id' => 1,    // TODO: change! 
-                                  'class' => $entry,
-                                  'name' => $entry::displayName(),
-                                  'files' => $entry::does_import_files(),
-                                  'stream' => $entry::does_import_stream(),
-                                )
+      array_push($entries, [
+      // TODO: change!
+        'id' => 1,
+        'class' => $entry,
+        'name' => $entry::displayName(),
+        'files' => $entry::does_import_files(),
+        'stream' => $entry::does_import_stream(),
+      ]
       );
     }
   }
 
-  return array('values'   => $entries,
-               'is_error' => 0);
+  return [
+    'values'   => $entries,
+    'is_error' => 0,
+  ];
 }
-
-
-

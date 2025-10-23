@@ -14,21 +14,27 @@
 | written permission from the original author(s).        |
 +--------------------------------------------------------*/
 
+declare(strict_types = 1);
+
 use CRM_Banking_ExtensionUtil as E;
 
 class CRM_Banking_Helpers_Logger {
 
-  /** singleton */
+  /**
+   * singleton */
   private static $_singleton = NULL;
 
-  /** currenlty active log level */
+  /**
+   * currenlty active log level */
   protected $log_level = 'off';
 
-  /** currenlty active log level */
+  /**
+   * currenlty active log level */
   protected $log_file_handle = NULL;
 
-  /** timers can be used to time stuff */
-  protected $timers = array();
+  /**
+   * timers can be used to time stuff */
+  protected $timers = [];
 
   /**
    * get Logger object
@@ -39,8 +45,6 @@ class CRM_Banking_Helpers_Logger {
     }
     return self::$_singleton;
   }
-
-
 
   /**
    * Constructor
@@ -55,7 +59,7 @@ class CRM_Banking_Helpers_Logger {
     }
 
     // init timers
-    $this->timers = array();
+    $this->timers = [];
 
     // create log file
     $log_file = CRM_Core_BAO_Setting::getItem('CiviBanking', 'banking_log_file');
@@ -105,46 +109,55 @@ class CRM_Banking_Helpers_Logger {
   /**
    * log message
    *
-   * @param $level  one of 'error', 'warn', 'info', 'debug'
+   * @param string $level one of 'error', 'warn', 'info', 'debug'
+   *
+   * phpcs:disable Generic.Metrics.CyclomaticComplexity.TooHigh
    */
   public function log($message, $level = 'info', $reference = NULL) {
-    if ($this->log_level == 'off') return;
+  // phpcs:enable
+    if ($this->log_level == 'off') {
+      return;
+    }
 
     switch ($level) {
       case 'off':
         return;
 
       case 'error':
-        if   ($this->log_level == 'error'
+        if ($this->log_level == 'error'
            || $this->log_level == 'warn'
            || $this->log_level == 'info'
            || $this->log_level == 'debug') {
           break;
-        } else {
+        }
+        else {
           return;
         }
 
       case 'warn':
-        if   ($this->log_level == 'warn'
+        if ($this->log_level == 'warn'
            || $this->log_level == 'info'
            || $this->log_level == 'debug') {
           break;
-        } else {
+        }
+        else {
           return;
         }
 
       case 'info':
-        if   ($this->log_level == 'info'
+        if ($this->log_level == 'info'
            || $this->log_level == 'debug') {
           break;
-        } else {
+        }
+        else {
           return;
         }
 
       case 'debug':
         if ($this->log_level == 'debug') {
           break;
-        } else {
+        }
+        else {
           return;
         }
 
@@ -156,8 +169,9 @@ class CRM_Banking_Helpers_Logger {
     // now log it
     if ($this->log_file_handle) {
       fwrite($this->log_file_handle, date('Y-m-d H:i:s') . ' ' . $message . "\n");
-    } else {
-      error_log("org.project60.banking: " . $message);
+    }
+    else {
+      error_log('org.project60.banking: ' . $message);
     }
   }
 
@@ -165,13 +179,13 @@ class CRM_Banking_Helpers_Logger {
    * get a list of all log levels
    */
   public static function getLoglevels() {
-    return array(
+    return [
       'off'   => E::ts('No Logging'),
       'debug' => E::ts('Debug'),
       'info'  => E::ts('Info'),
       'warn'  => E::ts('Warnings'),
       'error' => E::ts('Errors'),
-    );
+    ];
   }
 
 }

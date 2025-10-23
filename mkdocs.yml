@@ -1,6 +1,7 @@
-site_name: Civi Banking
+site_name: CiviBanking
 site_description: CiviBanking extension
-repo_url: https://github.com/Project60/org.project60.banking
+site_author: SYSTOPIA GmbH
+repo_url: https://github.com/project60/org.project60.banking
 theme:
   name: material
 
@@ -34,3 +35,7 @@ markdown_extensions:
   - pymdownx.tilde
   - pymdownx.betterem
   - pymdownx.mark
+
+plugins:
+  - search:
+      lang: en

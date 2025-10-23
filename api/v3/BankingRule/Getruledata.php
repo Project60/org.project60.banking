@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types = 1);
+
 /**
  * BankingRule.Getruledata API specification (optional)
  * This is used for documentation and validation.
@@ -19,7 +21,7 @@ function _civicrm_api3_banking_rule_Getruledata_spec(&$spec) {
  * @return array API result descriptor
  * @see civicrm_api3_create_success
  * @see civicrm_api3_create_error
- * @throws API_Exception
+ * @throws CRM_Core_Exception
  */
 function civicrm_api3_banking_rule_Getruledata($params) {
 
@@ -33,9 +35,9 @@ function civicrm_api3_banking_rule_Getruledata($params) {
 
   // In order that the editor can know what to set we need the config for this particular plugin.
   $rules_analyser_plugin_id = civicrm_api3('OptionValue', 'getvalue', [
-    'return'          => "id",
-    'option_group_id' => "civicrm_banking.plugin_types",
-    'name'            => "analyser_rules",
+    'return'          => 'id',
+    'option_group_id' => 'civicrm_banking.plugin_types',
+    'name'            => 'analyser_rules',
   ]);
   // load the [first, hopefully only] Matcher of this plugin class type and get its config.
   $pi_bao = new CRM_Banking_BAO_PluginInstance();

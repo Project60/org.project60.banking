@@ -16,6 +16,8 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+declare(strict_types = 1);
+
 namespace Civi\Banking\DataProcessor\FieldoutputHandler;
 
 use Civi\API\Exception\UnauthorizedException;
@@ -54,30 +56,32 @@ class ContactIBANOutputhandler extends AbstractSimpleFieldOutputHandler {
    * @return \Civi\DataProcessor\FieldOutputHandler\FieldOutput
    */
   public function formatField($rawRecord, $formattedRecord) {
-    static $iban_ref_type = null;
+    static $iban_ref_type = NULL;
     $iban = '';
-    if (is_null($iban_ref_type)) {
+    if (NULL === $iban_ref_type) {
       try {
         $iban_ref_type = \Civi\Api4\OptionValue::get(TRUE)
           ->addWhere('option_group_id:name', '=', 'civicrm_banking.reference_types')
           ->addWhere('name', '=', 'IBAN')
           ->execute()
           ->first();
-      } catch (UnauthorizedException|\CRM_Core_Exception $e) {
+      }
+      catch (UnauthorizedException | \CRM_Core_Exception $e) {
 
       }
     }
     if ($iban_ref_type) {
       $contactId = $rawRecord[$this->inputFieldSpec->alias] ?? '';
       if ($contactId) {
-        $sql = "SELECT `civicrm_bank_account_reference`.`reference`, civicrm_bank_account.* FROM `civicrm_bank_account_reference` INNER JOIN `civicrm_bank_account` ON `civicrm_bank_account_reference`.`ba_id` = `civicrm_bank_account`.`id` WHERE `contact_id` = %1 AND `reference_type_id` = %2 ORDER BY `civicrm_bank_account`.`created_date` DESC LIMIT 0,1";
+        $sql = 'SELECT `civicrm_bank_account_reference`.`reference`, civicrm_bank_account.* FROM `civicrm_bank_account_reference` INNER JOIN `civicrm_bank_account` ON `civicrm_bank_account_reference`.`ba_id` = `civicrm_bank_account`.`id` WHERE `contact_id` = %1 AND `reference_type_id` = %2 ORDER BY `civicrm_bank_account`.`created_date` DESC LIMIT 0,1';
         $sqlParams = [
           1 => [$contactId, 'Integer'],
           2 => [$iban_ref_type['id'], 'Integer'],
         ];
         try {
           $iban = \CRM_Core_DAO::singleValueQuery($sql, $sqlParams);
-        } catch (\CRM_Core_Exception $e) {
+        }
+        catch (\CRM_Core_Exception $e) {
           // Do nothing.
         }
       }

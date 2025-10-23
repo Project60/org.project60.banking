@@ -14,6 +14,8 @@
 | written permission from the original author(s).        |
 +--------------------------------------------------------*/
 
+declare(strict_types = 1);
+
 use CRM_Banking_ExtensionUtil as E;
 
 /**
@@ -24,25 +26,60 @@ class CRM_Banking_PluginImpl_PostProcessor_MembershipPayment extends CRM_Banking
 
   /**
    * class constructor
+   *
+   * phpcs:disable Generic.Metrics.CyclomaticComplexity.TooHigh
    */
-  function __construct($config_name) {
+  public function __construct($config_name) {
+  // phpcs:enable
     parent::__construct($config_name);
 
     // read config, set defaults
     $config = $this->_plugin_config;
-    if (!isset($config->membership_id))                  $config->membership_id                   = 'btx.membership_id';
-    if (!isset($config->contribution_recur_id))          $config->contribution_recur_id           = NULL;
-    if (!isset($config->membership_rcur_field))          $config->membership_rcur_field           = NULL;
+    if (!isset($config->membership_id)) {
+      $config->membership_id = 'btx.membership_id';
+    }
+    if (!isset($config->contribution_recur_id)) {
+      $config->contribution_recur_id = NULL;
+    }
+    if (!isset($config->membership_rcur_field)) {
+      $config->membership_rcur_field = NULL;
+    }
 
-    if (!isset($config->set_membership_payment))         $config->set_membership_payment          = 'fill'; // options: 'no', 'fill', 'yes'(=overwrite)
-    if (!isset($config->set_contribution_recur))         $config->set_contribution_recur          = 'fill'; // options: 'no', 'fill', 'yes'(=overwrite)
-    if (!isset($config->set_membership_rcur_field))      $config->set_membership_rcur_field       = 'no';   // options: 'no', 'fill', 'yes'(=overwrite)
+    // phpcs:disable Squiz.PHP.CommentedOutCode.Found
+    // options: 'no', 'fill', 'yes'(=overwrite)
+    // phpcs:enable
+    if (!isset($config->set_membership_payment)) {
+      $config->set_membership_payment = 'fill';
+    }
+    if (!isset($config->set_contribution_recur)) {
+      // phpcs:disable Squiz.PHP.CommentedOutCode.Found
+      // options: 'no', 'fill', 'yes'(=overwrite)
+      // phpcs:enable
+      $config->set_contribution_recur = 'fill';
+    }
+    // phpcs:disable Squiz.PHP.CommentedOutCode.Found
+    // options: 'no', 'fill', 'yes'(=overwrite)
+    // phpcs:enable
+    if (!isset($config->set_membership_rcur_field)) {
+      $config->set_membership_rcur_field = 'no';
+    }
 
-    if (!isset($config->financial_type_ids))             $config->financial_type_ids              = array(2); // Membership Dues
-    if (!isset($config->payment_instrument_ids))         $config->payment_instrument_ids          = NULL;
-    if (!isset($config->payment_instrument_ids_exclude)) $config->payment_instrument_ids_exclude  = NULL;
-    if (!isset($config->contribution_status_ids))        $config->contribution_status_ids         = NULL;
-    if (!isset($config->contribution_fields_required))   $config->contribution_fields_required    = array('id', 'contribution_recur_id');
+    // Membership Dues
+    if (!isset($config->financial_type_ids)) {
+      $config->financial_type_ids = [2];
+    }
+    if (!isset($config->payment_instrument_ids)) {
+      $config->payment_instrument_ids = NULL;
+    }
+    if (!isset($config->payment_instrument_ids_exclude)) {
+      $config->payment_instrument_ids_exclude = NULL;
+    }
+    if (!isset($config->contribution_status_ids)) {
+      $config->contribution_status_ids = NULL;
+    }
+    if (!isset($config->contribution_fields_required)) {
+      $config->contribution_fields_required = ['id', 'contribution_recur_id'];
+    }
   }
 
   /**
@@ -57,7 +94,7 @@ class CRM_Banking_PluginImpl_PostProcessor_MembershipPayment extends CRM_Banking
     if (!$preview) {
       $contributions = $this->getEligibleContributions($context);
       if (empty($contributions)) {
-        $this->logMessage("No eligible contributions found.", "debug");
+        $this->logMessage('No eligible contributions found.', 'debug');
         return FALSE;
       }
     }
@@ -74,8 +111,11 @@ class CRM_Banking_PluginImpl_PostProcessor_MembershipPayment extends CRM_Banking
    * @param $context  CRM_Banking_Matcher_Context     the matcher context contains cache data and context information
    *
    * @throws Exception if anything goes wrong
+   *
+   *  phpcs:disable Generic.Metrics.CyclomaticComplexity.TooHigh
    */
   public function processExecutedMatch(CRM_Banking_Matcher_Suggestion $match, CRM_Banking_PluginModel_Matcher $matcher, CRM_Banking_Matcher_Context $context) {
+  // phpcs:enable
     $config = $this->_plugin_config;
 
     // this is pretty straightforward
@@ -92,7 +132,8 @@ class CRM_Banking_PluginImpl_PostProcessor_MembershipPayment extends CRM_Banking
         $contribution_recur_id = $this->getContributionRecurID($contribution, $membership_id, $match, $matcher, $context);
         if ($contribution_recur_id) {
           $this->logMessage("Contribution [{$contribution['id']}] should be connected to recurring contribution [{$contribution_recur_id}]", 'debug');
-        } else {
+        }
+        else {
           $this->logMessage("Contribution [{$contribution['id']}] should not get recurring contribution", 'debug');
         }
 
@@ -100,16 +141,16 @@ class CRM_Banking_PluginImpl_PostProcessor_MembershipPayment extends CRM_Banking
         if ($config->set_membership_payment == 'fill' || $config->set_membership_payment == 'yes') {
           if ($config->set_membership_payment == 'yes') {
             // overwrite means: remove other existing items
-            CRM_Core_DAO::executeQuery("DELETE FROM civicrm_membership_payment 
-                                                    WHERE contribution_id = {$contribution['id']} 
+            CRM_Core_DAO::executeQuery("DELETE FROM civicrm_membership_payment
+                                                    WHERE contribution_id = {$contribution['id']}
                                                       AND membership_id <> {$membership_id};");
           }
 
           // assign to membership
-          civicrm_api3('MembershipPayment', 'create', array(
-              'contribution_id' => $contribution['id'],
-              'membership_id'   => $membership_id,
-          ));
+          civicrm_api3('MembershipPayment', 'create', [
+            'contribution_id' => $contribution['id'],
+            'membership_id'   => $membership_id,
+          ]);
           $this->logMessage("Contribution [{$contribution['id']}] connected to membership [{$membership_id}].", 'debug');
         }
 
@@ -117,19 +158,22 @@ class CRM_Banking_PluginImpl_PostProcessor_MembershipPayment extends CRM_Banking
         if ($config->set_contribution_recur == 'yes') {
           // definitely write the given status
           if ($contribution_recur_id != $contribution['contribution_recur_id']) {
-            civicrm_api3('Contribution', 'create', array(
-               'id'                    => $contribution['id'],
-               'contribution_recur_id' => $contribution_recur_id ? $contribution_recur_id : ''));
+            civicrm_api3('Contribution', 'create', [
+              'id'                    => $contribution['id'],
+              'contribution_recur_id' => $contribution_recur_id ? $contribution_recur_id : '',
+            ]);
             $this->logMessage("Contribution [{$contribution['id']}] connected to recurring contribution [{$contribution_recur_id}].", 'debug');
           }
-        } else {
+        }
+        else {
           // only write if
           if ($config->set_contribution_recur == 'fill'
                && empty($contribution['contribution_recur_id'])
                && !empty($contribution_recur_id)) {
-            civicrm_api3('Contribution', 'create', array(
-                'id'                    =>  $contribution['id'],
-                'contribution_recur_id' =>  $contribution_recur_id));
+            civicrm_api3('Contribution', 'create', [
+              'id'                    => $contribution['id'],
+              'contribution_recur_id' => $contribution_recur_id,
+            ]);
             $this->logMessage("Contribution [{$contribution['id']}] connected to recurring contribution [{$contribution_recur_id}].", 'debug');
           }
         }
@@ -138,21 +182,25 @@ class CRM_Banking_PluginImpl_PostProcessor_MembershipPayment extends CRM_Banking
         if ($contribution_recur_id && $config->membership_rcur_field) {
           if ($config->set_contribution_recur == 'yes') {
             // definitely (over)write the rcur field
-            civicrm_api3('Membership','create', array(
-                'id'                           => $membership_id,
-                $config->membership_rcur_field => $contribution_recur_id));
+            civicrm_api3('Membership', 'create', [
+              'id'                           => $membership_id,
+              $config->membership_rcur_field => $contribution_recur_id,
+            ]);
             $this->logMessage("Set membership.{$config->membership_rcur_field} to [{$contribution_recur_id}].", 'debug');
           }
 
-        } elseif ($config->set_contribution_recur == 'fill') {
+        }
+        elseif ($config->set_contribution_recur == 'fill') {
           // only fill:
-          $current_value = civicrm_api('Membership', 'getvalue', array(
-              'id'     => $membership_id,
-              'return' => $config->membership_rcur_field));
+          $current_value = civicrm_api3('Membership', 'getvalue', [
+            'id'     => $membership_id,
+            'return' => $config->membership_rcur_field,
+          ]);
           if ($current_value != $contribution_recur_id) {
-            civicrm_api3('Membership','create', array(
-                'id'                           => $membership_id,
-                $config->membership_rcur_field => $contribution_recur_id));
+            civicrm_api3('Membership', 'create', [
+              'id'                           => $membership_id,
+              $config->membership_rcur_field => $contribution_recur_id,
+            ]);
             $this->logMessage("Set membership.{$config->membership_rcur_field} to [{$contribution_recur_id}].", 'debug');
           }
         }
@@ -184,8 +232,8 @@ class CRM_Banking_PluginImpl_PostProcessor_MembershipPayment extends CRM_Banking
     // if it's not, check if the contribution had already been assigned to a membership
     if (!$membership_id) {
       $membership_id = (int) CRM_Core_DAO::singleValueQuery("
-                  SELECT membership_id 
-                    FROM civicrm_membership_payment 
+                  SELECT membership_id
+                    FROM civicrm_membership_payment
                    WHERE contribution_id = {$contribution['id']};");
       if ($membership_id) {
         $this->logMessage("Got membership_id from MembershipPayment: {$membership_id}", 'debug');
@@ -196,13 +244,15 @@ class CRM_Banking_PluginImpl_PostProcessor_MembershipPayment extends CRM_Banking
     if (!$membership_id) {
       if (!empty($config->set_membership_rcur_field) && !empty($contribution['contribution_recur_id'])) {
         try {
-          $membership_id = (int)civicrm_api3('Membership', 'getvalue', array(
-              $config->set_membership_rcur_field => (int)$contribution['contribution_recur_id'],
-              'return' => 'id'));
+          $membership_id = (int) civicrm_api3('Membership', 'getvalue', [
+            $config->set_membership_rcur_field => (int) $contribution['contribution_recur_id'],
+            'return' => 'id',
+          ]);
           if ($membership_id) {
             $this->logMessage("Got membership_id from membership.{$config->set_membership_rcur_field}: {$membership_id}", 'debug');
           }
-        } catch (Exception $ex) {
+        }
+        catch (Exception $ex) {
           $this->logMessage("Couldn't get membership_id from membership.{$config->set_membership_rcur_field}.", 'debug');
         }
       }
@@ -211,7 +261,6 @@ class CRM_Banking_PluginImpl_PostProcessor_MembershipPayment extends CRM_Banking
     // resolve the setting to a value
     return $membership_id;
   }
-
 
   /**
    * Extract the recurring contribution ID
@@ -244,20 +293,21 @@ class CRM_Banking_PluginImpl_PostProcessor_MembershipPayment extends CRM_Banking
     // third stop: get from membership
     if (!$contribution_recur_id && $membership_id && $config->membership_rcur_field) {
       try {
-        $contribution_recur_id = (int) civicrm_api3('Membership', 'getvalue', array(
-            'id'     => $membership_id,
-            'return' => $config->membership_rcur_field));
+        $contribution_recur_id = (int) civicrm_api3('Membership', 'getvalue', [
+          'id'     => $membership_id,
+          'return' => $config->membership_rcur_field,
+        ]);
         if ($contribution_recur_id) {
           $this->logMessage("Got contribution_recur_id from membership.{$config->set_membership_rcur_field}: {$contribution_recur_id}", 'debug');
         }
-      } catch (Exception $ex) {
+      }
+      catch (Exception $ex) {
         $this->logMessage("Couldn't get contribution_recur_id from membership.{$config->set_membership_rcur_field}", 'debug');
       }
     }
 
     return $contribution_recur_id;
   }
-
 
   /**
    * deliver the first of the eligible contributions
@@ -267,7 +317,8 @@ class CRM_Banking_PluginImpl_PostProcessor_MembershipPayment extends CRM_Banking
     $contributions = $this->getEligibleContributions($context);
     if (empty($contributions)) {
       return NULL;
-    } else {
+    }
+    else {
       return reset($contributions);
     }
   }
@@ -278,33 +329,36 @@ class CRM_Banking_PluginImpl_PostProcessor_MembershipPayment extends CRM_Banking
   protected function getEligibleContributions($context) {
     $cache_key = "{$this->_plugin_id}_eligiblecontributions_{$context->btx->id}";
     $cached_result = $context->getCachedEntry($cache_key);
-    if ($cached_result !== NULL) return $cached_result;
+    if ($cached_result !== NULL) {
+      return $cached_result;
+    }
 
     $connected_contribution_ids = $this->getContributionIDs($context);
     if (empty($connected_contribution_ids)) {
-      return array();
+      return [];
     }
 
     // compile a query
     $config = $this->_plugin_config;
-    $contribution_query = array(
-      'id'           => array('IN' => $connected_contribution_ids),
+    $contribution_query = [
+      'id'           => ['IN' => $connected_contribution_ids],
       'option.limit' => 0,
-      'sequential'   => 1);
+      'sequential'   => 1,
+    ];
 
     // add financial types
     if (!empty($config->financial_type_ids && is_array($config->financial_type_ids))) {
-      $contribution_query['financial_type_id'] = array('IN' => $config->financial_type_ids);
+      $contribution_query['financial_type_id'] = ['IN' => $config->financial_type_ids];
     }
 
     // add status ids
     if (!empty($config->contribution_status_ids && is_array($config->contribution_status_ids))) {
-      $contribution_query['contribution_status_id'] = array('IN' => $config->contribution_status_ids);
+      $contribution_query['contribution_status_id'] = ['IN' => $config->contribution_status_ids];
     }
 
     // add status ids
     if (!empty($config->payment_instrument_ids && is_array($config->payment_instrument_ids))) {
-      $contribution_query['payment_instrument_id'] = array('IN' => $config->payment_instrument_id);
+      $contribution_query['payment_instrument_id'] = ['IN' => $config->payment_instrument_id];
     }
 
     // add return clause
@@ -317,9 +371,9 @@ class CRM_Banking_PluginImpl_PostProcessor_MembershipPayment extends CRM_Banking
     $contribution_query['return'] = implode(',', $config->contribution_fields_required);
 
     // query DB
-    $this->logMessage("Find eligible contributions: " . json_encode($contribution_query), 'debug');
+    $this->logMessage('Find eligible contributions: ' . json_encode($contribution_query), 'debug');
     $result = civicrm_api3('Contribution', 'get', $contribution_query);
-    $contributions = array();
+    $contributions = [];
 
     foreach ($result['values'] as $contribution) {
       if (!empty($config->payment_instrument_ids_exclude && is_array($config->payment_instrument_ids_exclude))) {
@@ -336,4 +390,5 @@ class CRM_Banking_PluginImpl_PostProcessor_MembershipPayment extends CRM_Banking
     $context->setCachedEntry($cache_key, $contributions);
     return $contributions;
   }
+
 }

@@ -15,46 +15,47 @@
 | written permission from the original author(s).        |
 +--------------------------------------------------------*/
 
-use CRM_Banking_ExtensionUtil as E;
+declare(strict_types = 1);
 
 /**
- * @covers \Civi\ActionProvider\Action\Contribution\CreateContribution
+ * @covers CRM_Banking_PluginImpl_Matcher_CreateContribution
  *
  * @group headless
  */
-class CRM_Banking_CreateContributionLegacyTest extends CRM_Banking_TestBase
-{
-    public function testSimpleCreateContributionMatcher()
-    {
-        $contactId = $this->createContact();
-        $this->createTransaction(
-            [
-                'contact_id' => $contactId,
-                'name' => '', // NOTE: Must be set, otherwise there occurs an error while matching CreateContribution.
-                'payment_instrument_id' => 1,
-                'financial_type_id' => 1,
-            ]
-        );
+class CRM_Banking_CreateContributionLegacyTest extends CRM_Banking_TestBase {
 
-        $this->createCreateContributionMatcher();
-        $this->runMatchers();
+  public function testSimpleCreateContributionMatcher() {
+    $contactId = $this->createContact();
+    $this->createTransaction(
+        [
+          'contact_id' => $contactId,
+    // NOTE: Must be set, otherwise there occurs an error while matching CreateContribution.
+          'name' => '',
+          'payment_instrument_id' => 1,
+          'financial_type_id' => 1,
+        ]
+    );
 
-        // check results
-        $contribution = $this->getLatestContribution();
-        $this->assertEquals(
-            $contactId,
-            $contribution['contact_id'],
-            E::ts("The contact ID is not correct.")
-        );
-        $this->assertEquals(
-            1,
-            $contribution['payment_instrument_id'],
-            E::ts("The payment instrument ID is not correct.")
-        );
-        $this->assertEquals(
-            1,
-            $contribution['financial_type_id'],
-            E::ts("The financial type ID is not correct.")
-        );
-    }
+    $this->createCreateContributionMatcher();
+    $this->runMatchers();
+
+    // check results
+    $contribution = $this->getLatestContribution();
+    $this->assertEquals(
+        $contactId,
+        $contribution['contact_id'],
+        'The contact ID is not correct.'
+    );
+    $this->assertEquals(
+        1,
+        $contribution['payment_instrument_id'],
+        'The payment instrument ID is not correct.'
+    );
+    $this->assertEquals(
+        1,
+        $contribution['financial_type_id'],
+        'The financial type ID is not correct.'
+    );
+  }
+
 }

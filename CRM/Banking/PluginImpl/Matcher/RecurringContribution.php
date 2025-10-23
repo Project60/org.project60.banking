@@ -841,7 +841,7 @@ class CRM_Banking_PluginImpl_Matcher_RecurringContribution extends CRM_Banking_P
 
           }
           else {
-            if ($rcur2merge[$key] != $virtual_rcur[$key] ?? NULL) {
+            if ($rcur2merge[$key] != ($virtual_rcur[$key] ?? NULL)) {
               $virtual_rcur[$key] = '';
             }
           }

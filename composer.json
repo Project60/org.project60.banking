@@ -2,7 +2,7 @@
     "name": "civicrm/banking",
     "type": "civicrm-ext",
     "description": "Automatic and semi-automatic processing of bank statements and other payment files.",
-    "license": "GNU AGPL v3 or later",
+    "license": "AGPL-3.0-or-later",
     "authors": [
         {
             "name": "Bj&#xF6;rn Endres",

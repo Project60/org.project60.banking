@@ -637,7 +637,7 @@ class CRM_Banking_Rules_Rule {
       case 'amount_min':
       case 'amount_max':
         // Floats
-        $this->$prop = (double) $value;
+        $this->$prop = (float) $value;
         break;
 
       default:

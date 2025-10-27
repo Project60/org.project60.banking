@@ -268,7 +268,7 @@ class CRM_Banking_PluginImpl_Matcher_SepaMandate extends CRM_Banking_PluginModel
 
         if (!$contribution_id) {
           // no contribution found
-          CRM_Core_Session::setStatus(E::ts("There is no contribution for mandate '{$data_parsed['sepa_mandate']}' in group '{$data_parsed['sepa_batch']}'"), E::ts('Error'), 'error');
+          CRM_Core_Session::setStatus(E::ts("There is no contribution for mandate '%1' in group '%2'.", [1 => $data_parsed['sepa_mandate'], 2 => $data_parsed['sepa_batch']]), E::ts('Error'), 'error');
           return NULL;
         }
       }

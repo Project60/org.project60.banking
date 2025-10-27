@@ -102,7 +102,7 @@ class CRM_Banking_PluginImpl_Matcher_CreateCampaignContribution extends CRM_Bank
     $config = $this->_plugin_config;
     $threshold   = $this->getThreshold();
     $penalty     = $this->getPenalty($btx);
-    $activity_with_no_campaign_penalty = (double) $config->activity_with_no_campaign_penalty;
+    $activity_with_no_campaign_penalty = (float) $config->activity_with_no_campaign_penalty;
     $data_parsed = $btx->getDataParsed();
 
     if ($penalty) {

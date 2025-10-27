@@ -896,7 +896,7 @@ class CRM_Banking_PluginImpl_Matcher_RecurringContribution extends CRM_Banking_P
     }
 
     // use the mean date as expected date for the virtual rcontribution
-    $mean_date = $sum_date / (double) count($rcontribution_virtual['virtual']);
+    $mean_date = $sum_date / (float) count($rcontribution_virtual['virtual']);
     return $mean_date;
   }
 

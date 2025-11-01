@@ -366,7 +366,7 @@ that allow you to create or update data.
 * `"from"` - the field name to read the value from
 * `"to"` - the field name to write the result to
 * `"action"` - the CiviCRM API 3 call
-  (schema: `lookup:<entity>:<result_field>:<lookup_field>`) containing:
+  (schema: `lookup:<entity>,<result_field>,<lookup_field>`) containing:
   * `<entity>` - the CiviCRM API 3 entity to call
   * `<result_field>` - the field of the result data to use
   * `<lookup_field>` - the field to search for

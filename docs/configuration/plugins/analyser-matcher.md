@@ -1126,6 +1126,8 @@ parameters and their possible values.
 | `amount_penalty`             | float: `0` - `1.0` | `1.0`   | Penalty to apply to the confidence level if the amount of the contribution does not match the transaction amount.                         |
 | `currency_penalty`           | float: `0` - `1.0` | `0.5`   | Penalty to apply to the confidence level if the currency of the contribution does not match the transaction currency.                     |
 
+The penalties are calculated from the magic fields `value_date`, `payment_instrument` (not: `payment_instrument_id`), `financial_type_id`, `amount` and `currency`. You need to set these fields accordingly to use the penalties.
+
 #### Cancel Reason
 
 | Configuration Parameter              | Type                       | Default           | Description                                                                                        |

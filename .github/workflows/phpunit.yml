@@ -87,9 +87,11 @@ jobs:
           composer require --no-update "civicrm/civicrm-core:${{ inputs.civicrm-version }}" \
             "civicrm/civicrm-packages:${{ inputs.civicrm-version }}"
         fi
+        # --with-all-dependencies is required because downgrades from packages
+        # installed before might be necessary.
         # \PEAR_ErrorStack::singleton() is static since pear/pear-core v1.10.16
-        composer require --no-progress --prefer-dist --${{ matrix.prefer }} --optimize-autoloader \
-          $EXT_COMPOSER_NAME 'pear/pear-core-minimal:>=1.10.16'
+        composer require --with-all-dependencies --no-progress --prefer-dist --${{ matrix.prefer }} \
+          --optimize-autoloader $EXT_COMPOSER_NAME 'pear/pear-core-minimal:>=1.10.16'
 
     - name: Set up CiviCRM
       env:

@@ -116,3 +116,16 @@ We'll assume every set of transactions belongs to a sort of bank statement. This
 Information from accounting systems
 Exports from accounting systems may or may not work with a sequence validation. The main difference is that contrary to a bank statement, the group itself does not contain validation information to avoid duplicates. 
 
+###  Magic fields
+These fields within the btx namespace are special:
+| field				| evaluated by | effect|
+| ----------- 		| ----------- | ----------- |
+| `amount`  	| ExistingContribution matcher 		| used to calculate penalty for amount |
+| `booking_date`  	| ExistingContribution matcher | propagated to the contribution's `receive_date` field, depending on the value of `preserve_receive_date`		|
+| `currency`  	|ExistingContribution matcher 		| used to calculate penalty for currency |
+| `value_date`    	| CreateContribution matcher 		| propagated to the contribution's `receive_date` field |
+| `value_date`    	| ExistingContribution matcher 		| used to calculate penalty for date |
+| `payment_instrument`  	| ExistingContribution matcher 		| used to calculate penalty for payment instrument |
+| `financial_type_id`  	| ExistingContribution matcher 		| used to calculate penalty for financial type |
+
+This list is not complete!

@@ -4,15 +4,17 @@
   <base>CRM/Banking</base>
   <class>PluginInstance</class>
   <name>civicrm_bank_plugin_instance</name>
-  <add>4.3</add>
   <log>true</log>
+
   <field>
     <name>id</name>
     <type>int unsigned</type>
     <required>true</required>
     <comment>ID</comment>
-    <add>4.3</add>
     <export>true</export>
+    <html>
+      <type>Number</type>
+    </html>
   </field>
   <primaryKey>
     <name>id</name>
@@ -26,10 +28,12 @@
     <required>true</required>
     <comment>Link to an option list of plugin types</comment>
     <pseudoconstant>
-        <optionGroupName>civicrm_banking.plugin_types</optionGroupName>
-        <keyColumn>id</keyColumn>
+      <optionGroupName>civicrm_banking.plugin_types</optionGroupName>
+      <keyColumn>id</keyColumn>
     </pseudoconstant>
-    <add>4.3</add>
+    <html>
+      <type>Select</type>
+    </html>
   </field>
 
   <field>
@@ -39,10 +43,12 @@
     <required>true</required>
     <comment>Link to an option list of plugin class names</comment>
     <pseudoconstant>
-        <optionGroupName>civicrm_banking.plugin_classes</optionGroupName>
-        <keyColumn>id</keyColumn>
+      <optionGroupName>civicrm_banking.plugin_classes</optionGroupName>
+      <keyColumn>id</keyColumn>
     </pseudoconstant>
-    <add>4.3</add>
+    <html>
+      <type>Select</type>
+    </html>
   </field>
 
   <field>
@@ -51,7 +57,9 @@
     <type>varchar</type>
     <length>255</length>
     <comment>Name of the plugin</comment>
-    <add>4.3</add>
+    <html>
+      <type>Text</type>
+    </html>
   </field>
 
   <field>
@@ -59,7 +67,9 @@
     <title>Description</title>
     <type>text</type>
     <comment>Short description of what the plugin does</comment>
-    <add>4.3</add>
+    <html>
+      <type>TextArea</type>
+    </html>
   </field>
 
   <field>
@@ -67,8 +77,10 @@
     <type>boolean</type>
     <required>true</required>
     <default>1</default>
-    <add>4.3</add>
     <comment>If this plugin is enabled</comment>
+    <html>
+      <type>CheckBox</type>
+    </html>
   </field>
 
   <field>
@@ -76,22 +88,28 @@
     <type>float</type>
     <required>true</required>
     <default>100.0</default>
-    <add>4.3</add>
     <comment>Relative weight of this plugin</comment>
+    <html>
+      <type>Text</type>
+    </html>
   </field>
 
   <field>
     <name>config</name>
     <type>text</type>
     <comment>Configuration JSON</comment>
-    <add>4.3</add>
+    <html>
+      <type>TextArea</type>
+    </html>
   </field>
 
   <field>
     <name>state</name>
     <type>text</type>
     <comment>State JSON</comment>
-    <add>4.3</add>
+    <html>
+      <type>TextArea</type>
+    </html>
   </field>
 
 </table>

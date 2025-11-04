@@ -1,66 +1,75 @@
 <?xml version="1.0" encoding="iso-8859-1" ?>
 
 <table>
-    <base>CRM/Banking</base>
-    <class>BankAccountReference</class>
-    <name>civicrm_bank_account_reference</name>
-    <add>4.3</add>
-    <log>true</log>
-    <field>
-        <name>id</name>
-        <type>int unsigned</type>
-        <required>true</required>
-        <comment>ID</comment>
-        <add>4.3</add>
-        <export>true</export>
-    </field>
-    <primaryKey>
-        <name>id</name>
-        <autoincrement>true</autoincrement>
-    </primaryKey>
-    <field>
-        <name>reference</name>
-        <title>Reference value</title>
-        <type>varchar</type>
-        <length>255</length>
-        <comment>The value for this account</comment>
-        <add>4.3</add>
-    </field>
-    <index>
-       <name>reference</name>
-       <fieldName>reference</fieldName>
-       <add>4.3</add>
-    </index>
-    <field>
-        <name>reference_type_id</name>
-        <type>int unsigned</type>
-        <title>Reference type</title>
-        <required>true</required>
-        <comment>Link to an option list</comment>
-        <pseudoconstant>
-            <optionGroupName>civicrm_banking.reference_types</optionGroupName>
-            <keyColumn>id</keyColumn>
-        </pseudoconstant>
-        <add>4.3</add>
-    </field>
-    <field>
-        <name>ba_id</name>
-        <title>Bank Account ID</title>
-        <type>int unsigned</type>
-        <comment>FK to bank_account of target account</comment>
-        <add>4.3</add>
-    </field>
-    <foreignKey>
-        <name>ba_id</name>
-        <table>civicrm_bank_account</table>
-        <key>id</key>
-        <add>4.3</add>
-        <onDelete>SET NULL</onDelete>
-    </foreignKey>
-    <index>
-       <name>reftype</name>
-       <fieldName>ba_id</fieldName>
-       <fieldName>reference_type_id</fieldName>
-       <add>4.3</add>
-    </index>
+  <base>CRM/Banking</base>
+  <class>BankAccountReference</class>
+  <name>civicrm_bank_account_reference</name>
+  <log>true</log>
+
+  <field>
+    <name>id</name>
+    <type>int unsigned</type>
+    <required>true</required>
+    <comment>ID</comment>
+    <export>true</export>
+    <html>
+      <type>Number</type>
+    </html>
+  </field>
+  <primaryKey>
+    <name>id</name>
+    <autoincrement>true</autoincrement>
+  </primaryKey>
+
+  <field>
+    <name>reference</name>
+    <title>Reference value</title>
+    <type>varchar</type>
+    <length>255</length>
+    <comment>The value for this account</comment>
+    <html>
+      <type>Text</type>
+    </html>
+  </field>
+  <index>
+    <name>reference</name>
+    <fieldName>reference</fieldName>
+  </index>
+
+  <field>
+    <name>reference_type_id</name>
+    <type>int unsigned</type>
+    <title>Reference type</title>
+    <required>true</required>
+    <comment>Link to an option list</comment>
+    <pseudoconstant>
+      <optionGroupName>civicrm_banking.reference_types</optionGroupName>
+      <keyColumn>id</keyColumn>
+    </pseudoconstant>
+    <html>
+      <type>Select</type>
+    </html>
+  </field>
+
+  <field>
+    <name>ba_id</name>
+    <title>Bank Account ID</title>
+    <type>int unsigned</type>
+    <comment>FK to bank_account of target account</comment>
+    <html>
+      <type>EntityRef</type>
+    </html>
+  </field>
+  <foreignKey>
+    <name>ba_id</name>
+    <table>civicrm_bank_account</table>
+    <key>id</key>
+    <onDelete>SET NULL</onDelete>
+  </foreignKey>
+
+  <index>
+    <name>reftype</name>
+    <fieldName>ba_id</fieldName>
+    <fieldName>reference_type_id</fieldName>
+  </index>
 </table>

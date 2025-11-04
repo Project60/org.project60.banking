@@ -64,8 +64,13 @@ class FindLatestAccount extends AbstractAction {
         }
       }
       catch (\CRM_Core_Exception $ex) {
-        throw new ExecutionException(E::ts('Could not find a bank account for contact') . $contactId
-          . E::ts(', error message from API3 BankingAccount or BankingAccountReference getvalue: ') . $ex->getMessage());
+        throw new ExecutionException(
+          E::ts('Could not find a bank account for contact. Error message from API3 BankingAccount or BankingAccountReference getvalue: %1', [
+            1 => $ex->getMessage(),
+          ]),
+          $ex->getCode(),
+          $ex
+        );
       }
     }
   }
@@ -73,7 +78,7 @@ class FindLatestAccount extends AbstractAction {
   /**
    * Returns the specification of the output parameters of this action.
    *
-   * This function could be overriden by child classes.
+   * This function could be overridden by child classes.
    *
    * @return \Civi\ActionProvider\Parameter\SpecificationBag
    */

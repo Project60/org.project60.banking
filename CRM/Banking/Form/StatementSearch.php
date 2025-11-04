@@ -485,7 +485,7 @@ class CRM_Banking_Form_StatementSearch extends CRM_Core_Form {
         'other_account' => self::renderAccounts($transactionDao->other_account_id, $transactionDao->other_account_data,
                                                 $transactionDao->other_account_references, $data_parsed, FALSE),
         'purpose'       => '<span style="white-space: pre-wrap">' . $purpose . '</span>',
-        'review_link'   => E::ts('<a href="%1" class="crm-popup">[#%2]</a>', [1 => $review_link, 2 => $transactionDao->id]),
+        'review_link'   => sprintf('<a href="%s" class="crm-popup">[#%d]</a>', $review_link, $transactionDao->id),
       ];
     }
 

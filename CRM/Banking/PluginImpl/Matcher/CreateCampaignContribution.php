@@ -436,7 +436,7 @@ class CRM_Banking_PluginImpl_Matcher_CreateCampaignContribution extends CRM_Bank
     }
     $smarty_vars['activity_id']     = $activity['id'] ?? 'n/a';
     $smarty_vars['activity_url']    = CRM_Utils_System::url('civicrm/activity/view', "action=view&reset=1&id={$activity['id']}");
-    $smarty_vars['activity_link']   = E::ts('<a class="crm-popup" href="%1">%2</a>', [1 => $smarty_vars['activity_url'], 2 => $smarty_vars['activity_title']]);
+    $smarty_vars['activity_link']   = sprintf('<a class="crm-popup" href="%s">%s</a>', $smarty_vars['activity_url'], $smarty_vars['activity_title']);
 
     // penalties
     $smarty_vars['no_campaign_penalty_applied'] = (int) (100.0 * $no_campaign_penalty_applied);

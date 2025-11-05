@@ -69,8 +69,15 @@ class AddIban extends AbstractAction {
         ]);
       }
       catch (\CRM_Core_Exception $ex) {
-        throw new ExecutionException(E::ts('Could not add bank account') . $iban . E::ts(' to contact ID ') . $contactId
-          . E::ts(', error message from API3 BankingAccount or BankingAccountReference create: ') . $ex->getMessage());
+        throw new ExecutionException(
+          E::ts('Could not add bank account %1 to contact ID %2. Error message from API3 BankingAccount or BankingAccountReference create: %3', [
+            1 => $iban,
+            2 => $contactId,
+            3 => $ex->getMessage(),
+          ]),
+          $ex->getCode(),
+          $ex
+        );
       }
     }
   }

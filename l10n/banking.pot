@@ -731,10 +731,6 @@ msgid "other"
 msgstr ""
 
 #: CRM/Banking/Form/StatementSearch.php
-msgid "<a href=\"%1\" class=\"crm-popup\">[#%2]</a>"
-msgstr ""
-
-#: CRM/Banking/Form/StatementSearch.php
 msgid "not linked"
 msgstr ""
 
@@ -1198,10 +1194,6 @@ msgstr ""
 msgid "'%1' from %2 days earlier"
 msgstr ""
 
-#: CRM/Banking/PluginImpl/Matcher/CreateCampaignContribution.php
-msgid "<a class=\"crm-popup\" href=\"%1\">%2</a>"
-msgstr ""
-
 #: CRM/Banking/PluginImpl/Matcher/CreateContribution.php
 msgid "Create a new contribution"
 msgstr ""
@@ -1423,6 +1415,10 @@ msgid "There was no matching contribution! Try to configure the plugin with a la
 msgstr ""
 
 #: CRM/Banking/PluginImpl/Matcher/SepaMandate.php
+msgid "There is no contribution for mandate '%1' in group '%2'."
+msgstr ""
+
+#: CRM/Banking/PluginImpl/Matcher/SepaMandate.php
 msgid "The contribution connected to this mandate could not be read."
 msgstr ""
 
@@ -1631,23 +1627,11 @@ msgid "Country ISO Code"
 msgstr ""
 
 #: Civi/Banking/Actions/AddIban.php
-msgid "Could not add bank account"
-msgstr ""
-
-#: Civi/Banking/Actions/AddIban.php
-msgid " to contact ID "
-msgstr ""
-
-#: Civi/Banking/Actions/AddIban.php
-msgid ", error message from API3 BankingAccount or BankingAccountReference create: "
+msgid "Could not add bank account %1 to contact ID %2. Error message from API3 BankingAccount or BankingAccountReference create: %3"
 msgstr ""
 
 #: Civi/Banking/Actions/FindLatestAccount.php
-msgid "Could not find a bank account for contact"
-msgstr ""
-
-#: Civi/Banking/Actions/FindLatestAccount.php
-msgid ", error message from API3 BankingAccount or BankingAccountReference getvalue: "
+msgid "Could not find a bank account for contact. Error message from API3 BankingAccount or BankingAccountReference getvalue: %1"
 msgstr ""
 
 #: Civi/Banking/CompilerPass.php
@@ -1699,11 +1683,11 @@ msgid "About Me"
 msgstr ""
 
 #: ang/banking/Main.html
-msgid "First"
+msgid "First Name"
 msgstr ""
 
-#: ang/banking/Main.html templates/CRM/Banking/PluginImpl/Matcher/Membership.suggestion.tpl
-msgid "Last"
+#: ang/banking/Main.html
+msgid "Last Name"
 msgstr ""
 
 #: ang/banking/Main.js ang/banking/Rule.js ang/banking/Rules.js
@@ -2756,6 +2740,10 @@ msgstr ""
 
 #: templates/CRM/Banking/PluginImpl/Matcher/Membership.suggestion.tpl
 msgid "If you confirm this suggestion, the transaction will be recorded as a fee payment for this membership."
+msgstr ""
+
+#: templates/CRM/Banking/PluginImpl/Matcher/Membership.suggestion.tpl
+msgid "Last"
 msgstr ""
 
 #: templates/CRM/Banking/PluginImpl/Matcher/Membership.suggestion.tpl

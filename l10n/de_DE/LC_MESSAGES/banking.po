@@ -69,7 +69,7 @@ msgstr "Log Level"
 
 #: CRM/Admin/Form/Setting/BankingSettings.php
 msgid "Show Completed Statements (Recent)"
-msgstr ""
+msgstr "Abgeschlossene Kontoauszüge anzeigen (neueste)"
 
 #: CRM/Admin/Form/Setting/BankingSettings.php
 msgid "disabled"
@@ -77,7 +77,7 @@ msgstr "deaktiviert"
 
 #: CRM/Admin/Form/Setting/BankingSettings.php
 msgid "last month"
-msgstr ""
+msgstr "letzter Monat"
 
 #: CRM/Admin/Form/Setting/BankingSettings.php
 msgid "last quarter"
@@ -132,7 +132,7 @@ msgstr "Nicht-strikte Konto-Deduplizierung"
 
 #: CRM/Admin/Form/Setting/BankingSettings.php
 msgid "Transaction limit in view"
-msgstr ""
+msgstr "Sichtbares Transaktionslimit"
 
 #: CRM/Admin/Form/Setting/BankingSettings.php CRM/Banking/Form/AccountsTab.php
 #: CRM/Banking/Form/Configure.php ang/banking/Main.html
@@ -812,11 +812,7 @@ msgstr "Stornogrund (<code>cancel_reason</code>)"
 
 #: CRM/Banking/Form/StatementSearch.php
 msgid "other"
-msgstr ""
-
-#: CRM/Banking/Form/StatementSearch.php
-msgid "<a href=\"%1\" class=\"crm-popup\">[#%2]</a>"
-msgstr ""
+msgstr "andere"
 
 #: CRM/Banking/Form/StatementSearch.php
 msgid "not linked"
@@ -934,8 +930,8 @@ msgstr "Bankkonto Doubletten"
 
 #: CRM/Banking/Page/AccountDedupe.php
 msgid ""
-"%1 errors were encountered when trying to merge duplicate bank accounts, %2/"
-"%3 bank accounts were successfully merged."
+"%1 errors were encountered when trying to merge duplicate bank accounts, "
+"%2/%3 bank accounts were successfully merged."
 msgstr ""
 "%1 Bankkonten konnten nicht automatisch zusammengeführt werden, da sie "
 "widersprüchliche Informationen beinhalten. Insgesamt konnten %2/%3 "
@@ -1095,10 +1091,13 @@ msgid ""
 "statements, or adjust the cut-off value in the settings (<a "
 "href=\"%2#transaction_list_cutoff\">here</a>)."
 msgstr ""
+"Internes Limit (%1) anzuzeigender Transaktionen wurde überschritten. Bitte "
+"nutzen Sie kleinere Kontoauszüge oder passen Sie das Limit in den "
+"Einstellungen an (<a href=\"%2#transaction_list_cutoff\">hier</a>)."
 
 #: CRM/Banking/Page/Payments.php
 msgid "Incomplete Transaction List"
-msgstr ""
+msgstr "Unvollständige Transaktionsliste"
 
 #: CRM/Banking/Page/Review.php
 msgid "<i>unknown date</i>"
@@ -1138,7 +1137,7 @@ msgstr "Verarbeite Zahlung %1 von %2 (noch %3 nicht verbuchte)"
 
 #: CRM/Banking/Page/Review.php
 msgid "Review Bank Transaction [%1]"
-msgstr ""
+msgstr "Banktransaktion prüfen [%1]"
 
 #: CRM/Banking/Page/Review.php
 msgid "The transaction has been analysed again."
@@ -1195,7 +1194,7 @@ msgstr "Unbekanntes Konto"
 
 #: CRM/Banking/PluginImpl/Importer/CSV.php
 msgid "Filtered out %1 lines"
-msgstr ""
+msgstr "%1 Zeilen ausgefiltert"
 
 #: CRM/Banking/PluginImpl/Importer/CSV.php
 msgid "Rule '%s' failed. Exception was %s"
@@ -1214,7 +1213,7 @@ msgstr "Das Importieren von Streams wird von diesem Plugin nicht unterstützt."
 
 #: CRM/Banking/PluginImpl/Importer/XML.php
 msgid "Starting to read file '%1'..."
-msgstr ""
+msgstr "Beginne, Datei '%1' zu lesen..."
 
 #: CRM/Banking/PluginImpl/Matcher/Batches.php
 msgid "Settles a contribution batch"
@@ -1317,15 +1316,11 @@ msgstr "-keine Kampagne-"
 
 #: CRM/Banking/PluginImpl/Matcher/CreateCampaignContribution.php
 msgid "'%1' from the same day"
-msgstr ""
+msgstr "'%1' vom gleichen Tag"
 
 #: CRM/Banking/PluginImpl/Matcher/CreateCampaignContribution.php
 msgid "'%1' from %2 days earlier"
 msgstr "'%1' von %2 Tagen zuvor"
-
-#: CRM/Banking/PluginImpl/Matcher/CreateCampaignContribution.php
-msgid "<a class=\"crm-popup\" href=\"%1\">%2</a>"
-msgstr ""
 
 #: CRM/Banking/PluginImpl/Matcher/CreateContribution.php
 msgid "Create a new contribution"
@@ -1599,6 +1594,10 @@ msgstr ""
 "einer größeren Suchzeitspanne."
 
 #: CRM/Banking/PluginImpl/Matcher/SepaMandate.php
+msgid "There is no contribution for mandate '%1' in group '%2'."
+msgstr "Es gibt keine Zuwendung für Mandat '%1' in Gruppe '%2'."
+
+#: CRM/Banking/PluginImpl/Matcher/SepaMandate.php
 msgid "The contribution connected to this mandate could not be read."
 msgstr ""
 "Die Zuwendung, die mit diesem Mandat verbunden ist, konnte nicht gelesen "
@@ -1844,31 +1843,24 @@ msgid "Country ISO Code"
 msgstr "Land - ISO Code"
 
 #: Civi/Banking/Actions/AddIban.php
-msgid "Could not add bank account"
-msgstr "Bankkonto konnte nicht hinzugefügt werden"
-
-#: Civi/Banking/Actions/AddIban.php
-msgid " to contact ID "
-msgstr "für Kontakt ID"
-
-#: Civi/Banking/Actions/AddIban.php
 msgid ""
-", error message from API3 BankingAccount or BankingAccountReference create: "
+"Could not add bank account %1 to contact ID %2. Error message from API3 "
+"BankingAccount or BankingAccountReference create: %3"
 msgstr ""
-
-#: Civi/Banking/Actions/FindLatestAccount.php
-msgid "Could not find a bank account for contact"
-msgstr "Bankkonto nicht gefunden"
+"Konnte Bankkonto %1 nicht zu Kontakt-ID %2 hinzufügen. Fehlermeldung von "
+"API3 BankingAccount oder BankingAccountReference create: %3"
 
 #: Civi/Banking/Actions/FindLatestAccount.php
 msgid ""
-", error message from API3 BankingAccount or BankingAccountReference "
-"getvalue: "
+"Could not find a bank account for contact. Error message from API3 "
+"BankingAccount or BankingAccountReference getvalue: %1"
 msgstr ""
+"Konnte Bankkonto für Kontakt nicht finden. Fehlermeldung von API3 "
+"BankingAccount oder BankingAccountReference getvalue: %1"
 
 #: Civi/Banking/CompilerPass.php
 msgid "Add IBAN to Contact"
-msgstr ""
+msgstr "IBAN zu Kontakt hinzufügen"
 
 #: Civi/Banking/CompilerPass.php
 msgid "Find Latest Bank Account for Contact"
@@ -1880,11 +1872,11 @@ msgstr ""
 
 #: Civi/Banking/CompilerPass.php
 msgid "CiviBanking: Bank Account"
-msgstr ""
+msgstr "CiviBanking: Bankkonto"
 
 #: Civi/Banking/DataProcessor/FieldoutputHandler/ContactIBANOutputhandler.php
 msgid "Contact ID Field"
-msgstr ""
+msgstr "Kontakt-ID-Feld"
 
 #: ang/banking/Main.html
 msgid "About %1"
@@ -1892,13 +1884,15 @@ msgstr "Über %1"
 
 #: ang/banking/Main.html
 msgid "This is an auto-generated skeletal page."
-msgstr ""
+msgstr "Dies ist ein automatisch generiertes Seitengerüst."
 
 #: ang/banking/Main.html
 msgid ""
 "To view more debugging information, edit the URL and include \"?"
 "angularDebug=1\"."
 msgstr ""
+"Um weitere Fehlerinformationen zu sehen, bearbeiten Sie die URL und fügen "
+"Sie \"?angularDebug=1\" hinzu."
 
 #: ang/banking/Main.html
 msgid "Greeting"
@@ -1917,13 +1911,12 @@ msgid "About Me"
 msgstr "Über mich"
 
 #: ang/banking/Main.html
-msgid "First"
-msgstr ""
+msgid "First Name"
+msgstr "Vorname"
 
 #: ang/banking/Main.html
-#: templates/CRM/Banking/PluginImpl/Matcher/Membership.suggestion.tpl
-msgid "Last"
-msgstr ""
+msgid "Last Name"
+msgstr "Nachname"
 
 #: ang/banking/Main.js ang/banking/Rule.js ang/banking/Rules.js
 msgid "banking"
@@ -2994,16 +2987,21 @@ msgid ""
 "<b>Caution</b>: this contact has one or more <b>active recurring "
 "contribution(s)</b>, so the score of this suggestion has been reduced by %1%."
 msgstr ""
+"<b>Achtung</b>: Dieser Kontakt hat eine oder mehr <b>aktive wiederkehrende "
+"Zuwendung</b>. Deshalb wurde die Bewertung dieses Vorschlage um %1% "
+"reduziert."
 
 #: templates/CRM/Banking/PluginImpl/Matcher/CreateCampaignContribution.suggestion.tpl
 msgid ""
 "<b>Caution</b>: the activity found has <b>no campaign</b>, so the score of "
 "this suggestion has been reduced by %1%."
 msgstr ""
+"<b>Achtung</b>: Die gefundene Aktivität hat <b>keine Kampagne</b>. Deshalb "
+"wurde die Bewertung dieses Vorschlags um %1% reduziert."
 
 #: templates/CRM/Banking/PluginImpl/Matcher/CreateCampaignContribution.suggestion.tpl
 msgid "Based on activity '%1', the following contribution will be created:"
-msgstr ""
+msgstr "Basierend auf Aktivität '%1' wurde die folgende Zuwendung erstellt:"
 
 #: templates/CRM/Banking/PluginImpl/Matcher/CreateCampaignContribution.suggestion.tpl
 #: templates/CRM/Banking/PluginImpl/Matcher/CreateContribution.suggestion.tpl
@@ -3189,6 +3187,10 @@ msgid ""
 msgstr ""
 "Wenn Sie diesen Vorschlag bestätigen, wird diese Zahlung als "
 "Mitgliedsbeitrag für diese Mitgliedschaft verbucht."
+
+#: templates/CRM/Banking/PluginImpl/Matcher/Membership.suggestion.tpl
+msgid "Last"
+msgstr "Letzter"
 
 #: templates/CRM/Banking/PluginImpl/Matcher/Membership.suggestion.tpl
 msgid "(%1 days earlier)"
@@ -3487,280 +3489,3 @@ msgid ""
 "The contact name  should be divided in two parts, the first name and last "
 "name."
 msgstr "Der Kontaktname sollte in Vor- und Nachname unterteilt sein."
-
-#~ msgid "Unnamed"
-#~ msgstr "Ohne Namen"
-
-#~ msgid ""
-#~ "Internal limit of 2000 transactions hit. Please use smaller statements."
-#~ msgstr ""
-#~ "Internes Limit von 2000 Transaktionen erreicht. Bitte kleinere Auszüge "
-#~ "verwenden."
-
-#~ msgid "List incomplete"
-#~ msgstr "Liste unvollständig"
-
-#~ msgid "Upgrade %1 to revision %2"
-#~ msgstr "Upgrade von %1 auf %2"
-
-#~ msgid "Legacy user interface"
-#~ msgstr "Traditionelle Benutzeroberfläche"
-
-#~ msgid "Bank Name"
-#~ msgstr "Bank"
-
-#~ msgid "%d incomplete statments."
-#~ msgstr "%d neue oder unvollständige Kontoauszüge."
-
-#~ msgid "%d analysed statments."
-#~ msgstr "%d analysierte Kontoauszüge."
-
-#~ msgid "the transaction amount is in the range [ "
-#~ msgstr "Die Summe der Transaktion liegt zwischen ["
-
-#~ msgid "the transaction value date is in the range [ "
-#~ msgstr "Das Transaktionsdatum ist zwischen ["
-
-#~ msgid "the transaction purpose matches the expression \"%s\""
-#~ msgstr "Der Verwendungszweck stimmt überein mit: \"%s\""
-
-#~ msgid ""
-#~ "You can get started downloading example plugin configurations from our <a "
-#~ "href=\"%1\" target=\"_blank\">configuration database</a> (using the 'raw' "
-#~ "link), and then upload them with our <a href=\"%2\">IMPORTER</a>."
-#~ msgstr ""
-#~ "Es können weitere Plugins von der <a href=\"%1\" "
-#~ "target=\"_blank\">Beispielkonfigurationen</a> (mit dem 'raw' Link) "
-#~ "heruntergeladen werden, und dann mit dem <a href=\"%2\">IMPORTER</a> "
-#~ "importiert werden."
-
-#~ msgid "Add a new one."
-#~ msgstr "Hinzufügen"
-
-#~ msgid "Couldn't find group '%s'!"
-#~ msgstr "Gruppe nicht gefunden '%s'!"
-
-#~ msgid "Couldn't find type '%s' in group %d!"
-#~ msgstr "Konnte Typ '%s' in Gruppe %d nicht finden!"
-
-#~ msgid "Couldn't query plugin list from API!"
-#~ msgstr "Konnte Plugin-Liste nicht von der API abrufen!"
-
-#~ msgid ""
-#~ "Could not locate the class name for civicrm_banking.plugin_classes member "
-#~ "%d."
-#~ msgstr ""
-#~ "Der Klassenname für 'civicrm_banking.plugin_classes'-Mitglied konnte "
-#~ "nicht gefunden werden."
-
-#~ msgid "This plugin requires class %s which does not seem to exist."
-#~ msgstr ""
-#~ "Dieses Plugin benötigt Klasse %s, die aber aber nicht gefunden werden "
-#~ "konnte."
-
-#~ msgid "Error while looking up option group '%s'!"
-#~ msgstr "Fehler beim Suchen nach option group '%s'!"
-
-#~ msgid "Error while looking up option value '%s'!"
-#~ msgstr "Fehler beim Suchen nach option value '%s'!"
-
-#~ msgid "Error while looking up option values for group '%s'!"
-#~ msgstr "Fehler beim Suchen nach option values für Gruppe '%s'!"
-
-#~ msgid "Accounts"
-#~ msgstr "Konten"
-
-#~ msgid "Manage CiviBanking Components"
-#~ msgstr "CiviBanking-Komponenten verwalten"
-
-#~ msgid "SEPAMandates"
-#~ msgstr "SEPA Mandate"
-
-#~ msgid "Processing CODA statement %s for account %s"
-#~ msgstr "Verarbeite CODA statement %s für Konto %s"
-
-#~ msgid "Sorry, the configuration interface is not yet functional!"
-#~ msgstr "Das Konfigurationsinterface ist leider noch nicht funktional."
-
-#~ msgid "Interface"
-#~ msgstr "Oberfläche"
-
-#~ msgid "Profiles"
-#~ msgstr "Profile"
-
-#~ msgid "Matcher"
-#~ msgstr "Matcher"
-
-#~ msgid "Review Required"
-#~ msgstr "Überprüfung erforderlich"
-
-#~ msgid "Add Profile"
-#~ msgstr "Profil hinzufügen"
-
-#~ msgid "add empty contribution"
-#~ msgstr "Leere Zuwendung erstellen"
-
-#~ msgid ""
-#~ "This transaction created <a href=\"%1\">contribution #%2</a> as an "
-#~ "installment for <a href=\"%3\">recurring contribution #%4</a>."
-#~ msgstr ""
-#~ "Diese Zahlung wurde als <a href=\"%1\">Zuwendung [%2]</a> als Teil der <a "
-#~ "href=\"%3\">Wiederkehrenden Zuwendung [%4]</a> erfasst."
-
-#~ msgid ""
-#~ "%1 maintains a <a href=\"%4\">recurring contribution [%2]</a> since %3."
-#~ msgstr ""
-#~ "%1 hat die <a href=\"%4\">Wiederekehrende Zuwendung [%2]</a> seit %3."
-
-#~ msgid "Error while querying BTX with parameters '%s'!"
-#~ msgstr "Programmfehler: Abfrage von BTX mit Parameter '%s'."
-
-#~ msgid "BIC is too short!"
-#~ msgstr "BIC ist zu kurz!"
-
-#~ msgid "IBAN is wrong!"
-#~ msgstr "IBAN ist falsch!"
-
-#~ msgid ""
-#~ "The mandate, however, will <i>not</i> be cancelled, since this is not the "
-#~ "first of the recurring contributions."
-#~ msgstr ""
-#~ "Das zugehörige Mandat wird allerdings <i>nicht</i> storniert, da dies "
-#~ "nicht der erste Einzug zu diesem Mandat ist."
-
-#~ msgid ""
-#~ "This SEPA transaction was associated with <a href=\"%s\">contribution "
-#~ "#%s</a>."
-#~ msgstr ""
-#~ "Dieser SEPA-Einzug wird mit <a href=\"%s\">Zuwendung #%s</a> verbunden."
-
-#~ msgid "Couldn't find value '%s'!"
-#~ msgstr "Konnte Wert '%s'! nicht finden"
-
-#~ msgid "Bank Payment Importer"
-#~ msgstr "Kontoauszugs-Importer"
-
-#~ msgid "payments"
-#~ msgstr "Zahlungen"
-
-#~ msgid "statements"
-#~ msgstr "Auszüge"
-
-#~ msgid "Failed to delete %d of %d selected %s."
-#~ msgstr "Konnte %d von %d ausgewählten nicht löschen %s."
-
-#~ msgid "Deletion problems"
-#~ msgstr "Probleme beim Löschen"
-
-#~ msgid "Deleted %d selected %s."
-#~ msgstr "Gelöscht %d ausgewählt %s."
-
-#~ msgid "Deletion succesfull"
-#~ msgstr "Erfolgreich gelöscht"
-
-#~ msgid "Analysed %d payments."
-#~ msgstr "%d Zahlungen analysiert."
-
-#~ msgid "Analysis completed."
-#~ msgstr "Analyse abgeschlossen."
-
-#~ msgid "DRY RUN: Did not create bank transaction '%d' (%s %s on %s)"
-#~ msgstr ""
-#~ "PROBELAUF: Keine Banktransaktionen wurden angelegt '%d' (%s %s on %s)"
-
-#~ msgid "dry_run"
-#~ msgstr "Testlauf"
-
-#~ msgid "Show Payments"
-#~ msgstr "Zahlungen anzeigen"
-
-#~ msgid "Select all"
-#~ msgstr "Alle auswählen"
-
-#~ msgid "Select none"
-#~ msgstr "Alle abwählen"
-
-#~ msgid "EXTRA"
-#~ msgstr "ZUSATZINFORMATIONEN"
-
-#~ msgid "Suggestions "
-#~ msgstr "Vorschläge"
-
-#~ msgid "Go ahead"
-#~ msgstr "Fortfahren"
-
-#~ msgid "Go ahead as suggested"
-#~ msgstr "Vorschlag annehmen"
-
-#~ msgid "Internal error while looking up contacts."
-#~ msgstr "Fehler beim Suchen nach Kontakten"
-
-#~ msgid ""
-#~ "Internal limit of 1000 transactions hit. Please use smaller statments."
-#~ msgstr ""
-#~ "Internes Limit von 1000 Transaktionen erreicht. Bitte kleinere Auszüge "
-#~ "verwenden"
-
-#~ msgid ""
-#~ "Please manually process this payment and <b>then</b> add the resulting "
-#~ "contributions to this list."
-#~ msgstr ""
-#~ "Bitte verarbeiten Sie diese zahlung zuerst manuell und fügen <b>erst "
-#~ "dann</b> die daraus resultierenden Zuwendungen zu dieser iste"
-
-#~ msgid "create new"
-#~ msgstr "neu anlegen"
-
-#~ msgid "add by ID"
-#~ msgstr "mit Hilfe von ID hinzufügen"
-
-#~ msgid "Manage Accounts"
-#~ msgstr "Konten verwalten"
-
-#~ msgid "Import Payments"
-#~ msgstr "Zahlungen importieren"
-
-#~ msgid "No valid contact ID given."
-#~ msgstr "Keine gültige Zuwedungs-ID angeben."
-
-#~ msgid "A pending contribution partially matching the paymenty was found."
-#~ msgstr "Eine einigermaßen passende offene Zuwendung wurde gefunden."
-
-#~ msgid "Exit"
-#~ msgstr "Verlassen"
-
-#~ msgid "This payment was"
-#~ msgstr "Diese Zahlung ist"
-
-#~ msgid "Payment count"
-#~ msgstr "Anzahl"
-
-#~ msgid "Internal error while looking up bank account '%s'. Error was: %s"
-#~ msgstr "Fehler beim Suchen des Bankkontos '%s'. Fehler: %s"
-
-#~ msgid "You don't have the permissions to delete statements or payments."
-#~ msgstr ""
-#~ "Sie haben nicht die erforderlichen Berechtigungen, um Zahlungen oder "
-#~ "Auszüge zu löschen."
-
-#~ msgid "Payment closed"
-#~ msgstr "Zahlung verarbeitet"
-
-#~ msgid "Internal error! Cannot find contact #"
-#~ msgstr "Programmfehler: Kontakt nicht auffindbar, ID #"
-
-#~ msgid "address unknown"
-#~ msgstr "unbekannte Adresse"
-
-#~ msgid "%d analysed payments."
-#~ msgstr "%d analysierte Zahlungen."
-
-#~ msgid "%d completed payments."
-#~ msgstr "%d abgeschlossene Zahlungen."
-
-#, fuzzy
-#~ msgid "Payment count<"
-#~ msgstr "Anzahl"
-
-#~ msgid "Analysed<"
-#~ msgstr "Analysiert<"

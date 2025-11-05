@@ -187,11 +187,11 @@ class CRM_Banking_PluginImpl_Matcher_RulesAnalyser extends CRM_Banking_PluginMod
 
     // User wants to create a rule.
     try {
-      $rule = static::createRuleFromRuleMatcherForm($input);
+      static::createRuleFromRuleMatcherForm($input);
       CRM_Core_Session::setStatus(E::ts('New rule created.'), E::ts('Success'), 'success');
     }
     catch (InvalidArgumentException $e) {
-      CRM_Core_Session::setStatus(E::ts($e->getMessage()), E::ts('Error'), 'error');
+      CRM_Core_Session::setStatus($e->getMessage(), E::ts('Error'), 'error');
     }
 
     // return 're-run' to indicate that this transaction needs to

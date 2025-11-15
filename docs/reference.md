@@ -128,6 +128,9 @@ These fields within the btx namespace are special:
 | `payment_instrument`  	| ExistingContribution matcher 		| used to calculate penalty for payment instrument |
 | `financial_type_id`  	| ExistingContribution matcher 		| used to calculate penalty for financial type |
 | `party_ba_reference`  	| most (all?) analysers and matchers 		| used to match a transaction to a contact based on bank accounts stored for contacts |
+| `_party_IBAN`  	| most (all?) matchers 		| used to create a bank account for the matched contact |
+| `_party_BIC`  	| most (all?) matchers 		| used to create a bank account for the matched contact |
 
 This list is not complete!
+
 

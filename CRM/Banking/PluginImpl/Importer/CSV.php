@@ -381,8 +381,8 @@ class CRM_Banking_PluginImpl_Importer_CSV extends CRM_Banking_PluginModel_Import
       preg_match_all('/\{([^\}]+)\}/', $bank_reference, $matches);
       if (isset($matches[1])) {
         foreach ($matches[1] as $token_name) {
-          $token_value = isset($btx[$token_name]) ? $btx[$token_name] : '';
-          $bank_reference = str_replace("{{$token_name}}", $token_value, $bank_reference);
+          $token_value = $btx[$token_name] ?? '';
+          $bank_reference = str_replace('{' . $token_name . '}', (string) $token_value, $bank_reference);
         }
       }
       $btx['bank_reference'] = $bank_reference;

@@ -263,6 +263,7 @@ class CRM_Banking_Matcher_Context {
         'is_deleted' => 0,
         'return'     => 'id',
         'sequential' => 1,
+        'options' => ['limit' => 0],
       ]);
       foreach ($result['values'] as $contact) {
         $filtered_list[$contact['id']] = $contact2probablility[$contact['id']];

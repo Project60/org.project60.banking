@@ -135,7 +135,8 @@ class CRM_Banking_Page_AccountDedupe extends CRM_Core_Page {
     $sql = "SELECT DISTINCT(contact_id) AS contact_id
             FROM civicrm_bank_account_reference
             LEFT JOIN civicrm_bank_account ON ba_id = civicrm_bank_account.id
-            WHERE reference = '{$duplicate['reference']}' AND reference_type_id = {$duplicate['reference_type_id']};";
+            WHERE reference = '{$duplicate['reference']}' AND reference_type_id = {$duplicate['reference_type_id']}
+              AND contact_id IS NOT NULL;";
     $contact_query = CRM_Core_DAO::executeQuery($sql);
     while ($contact_query->fetch()) {
       $contact = civicrm_api3('Contact', 'getsingle', ['id' => $contact_query->contact_id]);

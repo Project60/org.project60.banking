@@ -125,7 +125,11 @@ class CRM_Banking_BAO_BankTransaction extends CRM_Banking_DAO_BankTransaction {
    */
   public function getDataParsed($update = FALSE) {
     if ($this->_decoded_data_parsed == NULL || $update) {
-      $this->_decoded_data_parsed = json_decode($this->data_parsed, TRUE);
+      if (isset($this->data_parsed)) {
+        $this->_decoded_data_parsed = json_decode($this->data_parsed, TRUE);
+      } else {
+        $this->_decoded_data_parsed = [];
+      }
     }
     return $this->_decoded_data_parsed;
   }

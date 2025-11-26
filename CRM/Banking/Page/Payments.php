@@ -265,7 +265,7 @@ class CRM_Banking_Page_Payments extends CRM_Core_Page {
         'sequence' => $stmt->sequence,
         'total' => $stmt->total,
         'currency' => $stmt->currency,
-        'date' => strtotime($stmt->starting_date),
+        'date' => strtotime($stmt->starting_date ?? '2000-01-01 00:00:00'),
         'count' => $stmt->tx_count,
         'target' => $target_name,
         'analysed' => $info['analysed'] . '%',

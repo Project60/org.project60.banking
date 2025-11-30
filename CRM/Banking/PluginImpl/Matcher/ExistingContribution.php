@@ -361,11 +361,13 @@ class CRM_Banking_PluginImpl_Matcher_ExistingContribution extends CRM_Banking_Pl
     // check if this is actually enabled
     if ($config->contribution_search) {
       // find contacts
+      $this->logMessage("Trying to find contacts containing string '{data_parsed['name']}'...", 'debug');
       $contacts_found = $context->findContacts($threshold, $data_parsed['name'], $config->lookup_contact_by_name);
+      $this->logMessage("Identified the following relevant contacts: " . json_encode($contacts_found), LOG_DEBUG);
 
       // with the identified contacts, look up contributions
-      foreach ($contacts_found as $contact_id => $contact_probabiliy) {
-        if ($contact_probabiliy < $threshold) {
+      foreach ($contacts_found as $contact_id => $contact_probability) {
+        if ($contact_probability < $threshold) {
           continue;
         }
 
@@ -385,6 +387,8 @@ class CRM_Banking_PluginImpl_Matcher_ExistingContribution extends CRM_Banking_Pl
             $contributions[$contribution['id']] = $contribution_probability;
             $contribution2contact[$contribution['id']] = $contact_id;
             $contribution2totalamount[$contribution['id']] = $contribution['total_amount'];
+          } else {
+            $this->logMessage("Potentially relevant contribution [{$contribution['id']}] dropped, probability too low.", LOG_DEBUG);
           }
         }
       }

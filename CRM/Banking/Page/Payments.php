@@ -395,7 +395,7 @@ class CRM_Banking_Page_Payments extends CRM_Core_Page {
    */
   public static function getPaymentsForStatements($raw_statement_list) {
     $payments = [];
-    $raw_statements = explode(',', $raw_statement_list);
+    $raw_statements = explode(',', (string) $raw_statement_list);
     if (count($raw_statements) == 0) {
       return '';
     }

@@ -234,14 +234,17 @@ class CRM_Banking_PluginImpl_Matcher_SepaMandate extends CRM_Banking_PluginModel
             WHERE   contribution_recur_id = {$contribution_recur_id}
             AND     receive_date <= DATE('$latest_date')
             AND     receive_date >= DATE('$earliest_date');";
+        $this->logMessage("SepaMandate Query: " . $find_contribution_query, 'debug');
         $found_contribution = CRM_Core_DAO::executeQuery($find_contribution_query);
         while ($found_contribution->fetch()) {
           if (!$contribution_id) {
+            $this->logMessage(E::ts("SEPA Contribution found: {$contribution_id}"), E::ts('Error'), 'debug');
             $contribution_id = $found_contribution->id;
           }
           else {
             // this is the second contribution found!
-            CRM_Core_Session::setStatus(E::ts('There was more than one matching contribution found! Try to configure the plugin with a smaller search time span.'), E::ts('Error'), 'error');
+            CRM_Core_Session::setStatus(E::ts('There was more than one matching contribution found! Try to configure the plugin with a smaller search time span.'), E::ts('Warning'), 'warning');
+            $this->logMessage(E::ts('There was more than one matching contribution found! Try to configure the plugin with a smaller search time span.'), E::ts('Warning'), 'warning');
             return NULL;
           }
         }

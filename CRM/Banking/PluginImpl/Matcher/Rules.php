@@ -57,7 +57,7 @@ class CRM_Banking_PluginImpl_Matcher_Rules extends CRM_Banking_PluginModel_Match
     $penalty     = $this->getPenalty($btx);
 
     // run the rule matcher
-    $rule_matches = CRM_Banking_Rules_Match::matchTransaction($btx, $config->field_mapping, $context, $threshold);
+    $rule_matches = CRM_Banking_Rules_Match::matchTransaction($btx, $config->field_mapping, $context, 1, (float) $threshold);
 
     // generate a suggestion for each match
     foreach ($rule_matches as $rule_match) {

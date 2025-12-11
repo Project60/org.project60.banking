@@ -349,7 +349,7 @@ class CRM_Banking_PluginImpl_Matcher_RegexAnalyser extends CRM_Banking_PluginMod
           // TODO: support for sort, limit, etc.
           // phpcs:disable Generic.CodeAnalysis.EmptyStatement.DetectedIf
           if (is_array($value)) {
-            // TODO: support for LIKE, IN, etc.
+            // @todo: support for LIKE, IN, etc.
           }
           // phpcs:enable
           else {

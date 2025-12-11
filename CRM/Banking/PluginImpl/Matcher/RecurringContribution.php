@@ -662,14 +662,20 @@ class CRM_Banking_PluginImpl_Matcher_RecurringContribution extends CRM_Banking_P
     }
 
     // get some values
-    $cycle_day   = $rcontribution['cycle_day'];
-    $interval    = $rcontribution['frequency_interval'];
+    $cycle_day   = (int) $rcontribution['cycle_day'];
+    $interval    = (int) $rcontribution['frequency_interval'];
     $unit        = $rcontribution['frequency_unit'];
     $target_date = strtotime($btx->booking_date);
 
     if ($recurring_mode == 'static') {
       $start_date = strtotime(date('Y-m-d', strtotime($rcontribution['start_date'])));
-      $next_date = mktime(0, 0, 0, date('n', $start_date) + (date('j', $start_date) > $cycle_day), $cycle_day, date('Y', $start_date));
+      $next_date = mktime(
+        0,
+        0,
+        0,
+        (int) date('n', $start_date) + (int) (date('j', $start_date) > $cycle_day),
+        $cycle_day,
+        (int) date('Y', $start_date));
 
       $closest_date = $next_date;
       while ($next_date <= $max_date) {
@@ -691,8 +697,8 @@ class CRM_Banking_PluginImpl_Matcher_RecurringContribution extends CRM_Banking_P
       }
       $last = strtotime($last_contribution['receive_date']);
       $last_month = strtotime('-1 month', $last);
-      $cycle_day_after  = mktime(0, 0, 0, date('n', $last) + (date('j', $last) > $cycle_day), $cycle_day, date('Y', $last));
-      $cycle_day_before = mktime(0, 0, 0, date('n', $last_month) + (date('j', $last_month) > $cycle_day), $cycle_day, date('Y', $last_month));
+      $cycle_day_after  = mktime(0, 0, 0, (int) date('n', $last) + (int) (date('j', $last) > $cycle_day), $cycle_day, (int) date('Y', $last));
+      $cycle_day_before = mktime(0, 0, 0, (int) date('n', $last_month) + (int) (date('j', $last_month) > $cycle_day), $cycle_day, (int) date('Y', $last_month));
       if (abs($last - $cycle_day_before) < abs($last - $cycle_day_after)) {
         $last_cycle_date = $cycle_day_before;
       }
@@ -721,7 +727,7 @@ class CRM_Banking_PluginImpl_Matcher_RecurringContribution extends CRM_Banking_P
       $cycle_count = (int) ($total_amount / $rcontribution['amount']);
       $unit_count  = $cycle_count * $interval;
       $start_date  = strtotime($rcontribution['start_date']);
-      $start_date  = mktime(0, 0, 0, date('n', $start_date) + (date('j', $start_date) > $cycle_day), $cycle_day, date('Y', $start_date));
+      $start_date  = mktime(0, 0, 0, (int) date('n', $start_date) + ((int) date('j', $start_date) > $cycle_day), $cycle_day, (int) date('Y', $start_date));
 
       $due_date = strtotime("+$unit_count $unit", $start_date);
       if ($due_date < $target_date) {

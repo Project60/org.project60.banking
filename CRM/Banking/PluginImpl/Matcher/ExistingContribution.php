@@ -289,7 +289,7 @@ class CRM_Banking_PluginImpl_Matcher_ExistingContribution extends CRM_Banking_Pl
 
     // check in cache
     $range_back = (int) $config->received_range_days;
-    $cache_key = "_contributions_${contact_id}_{$range_back}_{$config->received_date_check}";
+    $cache_key = "_contributions_{$contact_id}_{$range_back}_{$config->received_date_check}";
     $contributions = $context->getCachedEntry($cache_key);
     if ($contributions != NULL) {
       return $contributions;
@@ -303,7 +303,7 @@ class CRM_Banking_PluginImpl_Matcher_ExistingContribution extends CRM_Banking_Pl
     else {
       $date_restriction = '';
     }
-    $sql = "SELECT * FROM civicrm_contribution WHERE contact_id=${contact_id} AND is_test = 0 ${date_restriction};";
+    $sql = "SELECT * FROM civicrm_contribution WHERE contact_id={$contact_id} AND is_test = 0 {$date_restriction};";
     $contribution = CRM_Contribute_DAO_Contribution::executeQuery($sql);
     while ($contribution->fetch()) {
       array_push($contributions, $contribution->toArray());
@@ -317,7 +317,7 @@ class CRM_Banking_PluginImpl_Matcher_ExistingContribution extends CRM_Banking_Pl
   /**
    * read the IDs of the accepted contribution status from the configuration
    *
-   * @return an array with contribution status IDs
+   * @return array a list of with contribution status IDs
    */
   protected function getAcceptedContributionStatusIDs() {
     $accepted_status_ids = [];

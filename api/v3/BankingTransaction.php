@@ -24,6 +24,40 @@ declare(strict_types = 1);
  */
 
 /**
+ * Adjust Metadata for Reset action
+ *
+ * The metadata is used for setting defaults, documentation & validation
+ * @param array $params array or parameters determined by getfields
+ */
+function _civicrm_api3_banking_transaction_reset_spec(&$params) {
+  $params['trx_id'] = array(
+    'title'       => 'Transaction ID',
+    'description' => 'The transaction ID to perform the status reset',
+    'required'    => TRUE,
+    'type'        => CRM_Utils_Type::T_INT,
+  );
+}
+
+/**
+ * civicrm_api3_banking_transaction_reset
+ * Resets a transaction's status into the status NEW
+ * Will also remove any suggestions stored into this transaction
+ *
+ * @param  mixed $params
+ * @return void
+ */
+function civicrm_api3_banking_transaction_reset($params) {
+  // update the transaction
+  if (is_numeric($params['trx_id'])) {
+    // Get the status ID for new (not-analysed transaction)
+    $status_id_new = (int) banking_helper_optionvalueid_by_groupname_and_name('civicrm_banking.bank_tx_status', 'new');
+    CRM_Core_DAO::executeQuery("UPDATE `civicrm_bank_tx` SET `status_id` = ({$status_id_new}), suggestions = NULL WHERE `id` = '{$params['trx_id']}'");
+    return civicrm_api3_create_success('Status reset complete');
+  }
+
+}
+
+/**
  * Add an BankingTransaction for a contact
  *
  * Allowed @params array keys are:

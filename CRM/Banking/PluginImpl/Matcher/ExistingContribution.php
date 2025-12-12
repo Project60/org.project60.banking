@@ -319,7 +319,7 @@ class CRM_Banking_PluginImpl_Matcher_ExistingContribution extends CRM_Banking_Pl
    *
    * @return array a list of with contribution status IDs
    */
-  protected function getAcceptedContributionStatusIDs() {
+  protected function getAcceptedContributionStatusIDs() : array {
     $accepted_status_ids = [];
     foreach ($this->_plugin_config->accepted_contribution_states as $status_name) {
       $status_id = banking_helper_optionvalue_by_groupname_and_name('contribution_status', $status_name);

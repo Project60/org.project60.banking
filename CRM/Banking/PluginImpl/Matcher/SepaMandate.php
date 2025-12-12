@@ -238,7 +238,7 @@ class CRM_Banking_PluginImpl_Matcher_SepaMandate extends CRM_Banking_PluginModel
         $found_contribution = CRM_Core_DAO::executeQuery($find_contribution_query);
         while ($found_contribution->fetch()) {
           if (!$contribution_id) {
-            $contribution_id = $found_contribution->id;
+            $contribution_id = (int) $found_contribution->id;
             $this->logMessage("SEPA Contribution found: {$contribution_id}", 'debug');
           }
           else {

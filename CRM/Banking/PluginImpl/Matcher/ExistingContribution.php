@@ -176,7 +176,7 @@ class CRM_Banking_PluginImpl_Matcher_ExistingContribution extends CRM_Banking_Pl
   /**
    * Will rate a contribution on whether it would match the bank payment
    *
-   * @return array contribution_id => score, where score is from [0..1]
+   * @return array|int contribution_id => score, where score is from [0..1]
    *
    * phpcs:disable Generic.Metrics.CyclomaticComplexity.TooHigh
    */
@@ -282,9 +282,9 @@ class CRM_Banking_PluginImpl_Matcher_ExistingContribution extends CRM_Banking_Pl
    *
    * caution: will only the contributions of the last year
    *
-   * @return an array with contributions
+   * @return array with contributions
    */
-  public function getPotentialContributionsForContact($contact_id, CRM_Banking_Matcher_Context $context) {
+  public function getPotentialContributionsForContact($contact_id, CRM_Banking_Matcher_Context $context) : array {
     $config = $this->_plugin_config;
 
     // check in cache
@@ -306,7 +306,7 @@ class CRM_Banking_PluginImpl_Matcher_ExistingContribution extends CRM_Banking_Pl
     $sql = "SELECT * FROM civicrm_contribution WHERE contact_id={$contact_id} AND is_test = 0 {$date_restriction};";
     $contribution = CRM_Contribute_DAO_Contribution::executeQuery($sql);
     while ($contribution->fetch()) {
-      array_push($contributions, $contribution->toArray());
+      $contributions[] = $contribution->toArray();
     }
 
     // cache result and return
@@ -324,7 +324,7 @@ class CRM_Banking_PluginImpl_Matcher_ExistingContribution extends CRM_Banking_Pl
     foreach ($this->_plugin_config->accepted_contribution_states as $status_name) {
       $status_id = banking_helper_optionvalue_by_groupname_and_name('contribution_status', $status_name);
       if ($status_id) {
-        array_push($accepted_status_ids, $status_id);
+        $accepted_status_ids[] = $status_id;
       }
     }
     return $accepted_status_ids;

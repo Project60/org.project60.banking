@@ -21,12 +21,12 @@ declare(strict_types = 1);
  */
 abstract class CRM_Banking_PluginModel_Base {
 
-  public const string REPORT_LEVEL_DEBUG = 'DEBUG';
-  public const string REPORT_LEVEL_INFO  = 'INFO';
-  public const string REPORT_LEVEL_WARN  = 'WARN';
-  public const string REPORT_LEVEL_ERROR = 'ERROR';
+  public const REPORT_LEVEL_DEBUG = 'DEBUG';
+  public const REPORT_LEVEL_INFO  = 'INFO';
+  public const REPORT_LEVEL_WARN  = 'WARN';
+  public const REPORT_LEVEL_ERROR = 'ERROR';
 
-  public const float REPORT_PROGRESS_NONE = -1.0;
+  public const REPORT_PROGRESS_NONE = -1.0;
 
   /**
    * The task that the wizard is currently processing

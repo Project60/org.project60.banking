@@ -21,12 +21,12 @@ declare(strict_types = 1);
  */
 abstract class CRM_Banking_PluginModel_Base {
 
-  public const REPORT_LEVEL_DEBUG = 'DEBUG';
-  public const REPORT_LEVEL_INFO  = 'INFO';
-  public const REPORT_LEVEL_WARN  = 'WARN';
-  public const REPORT_LEVEL_ERROR = 'ERROR';
+  public const string REPORT_LEVEL_DEBUG = 'DEBUG';
+  public const string REPORT_LEVEL_INFO  = 'INFO';
+  public const string REPORT_LEVEL_WARN  = 'WARN';
+  public const string REPORT_LEVEL_ERROR = 'ERROR';
 
-  public const REPORT_PROGRESS_NONE = -1.0;
+  public const float REPORT_PROGRESS_NONE = -1.0;
 
   /**
    * The task that the wizard is currently processing
@@ -69,7 +69,7 @@ abstract class CRM_Banking_PluginModel_Base {
     $this->_plugin_title  = $plugin_dao->description;
     $this->_plugin_name   = $plugin_dao->name;
     $this->_plugin_config = json_decode($plugin_dao->config);
-    if ($this->_plugin_config == FALSE) {
+    if (!$this->_plugin_config) {
       CRM_Core_Error::statusBounce('Configuration for CiviBanking plugin (id: ' . $plugin_dao->id . ') is not a valid JSON string.');
       $this->_plugin_config = [];
     }
@@ -78,7 +78,8 @@ abstract class CRM_Banking_PluginModel_Base {
   /**
    * Generic logging function for any plugin
    */
-  public function logMessage($message, $log_level) {
+  public function logMessage($message, $log_level): void
+  {
     // TODO: evaluate log_level
     if (isset($this->_plugin_config->log_level) && $this->_plugin_config->log_level != 'off') {
       $this->logger->log("[{$this->_plugin_id}]: {$message}", $this->_plugin_config->log_level);
@@ -88,7 +89,8 @@ abstract class CRM_Banking_PluginModel_Base {
   /**
    * Generic logging function for any plugin
    */
-  public function logTime($process, $timer) {
+  public function logTime($process, $timer): void
+  {
     // TODO: evaluate log_level
     if (isset($this->_plugin_config->log_level) && $this->_plugin_config->log_level != 'off') {
       $this->logger->logTime("[{$this->_plugin_id}]: {$process}", $timer);
@@ -104,7 +106,8 @@ abstract class CRM_Banking_PluginModel_Base {
    *
    * TODO: data format? float [0..1]?
    */
-  public function setProgressCallback($callback) {
+  public function setProgressCallback($callback): void
+  {
     // TODO: sanity checks?
     $this->_progress_callback = $callback;
     $this->_progress_log = [];
@@ -207,7 +210,8 @@ abstract class CRM_Banking_PluginModel_Base {
    *
    * @return array of contacts
    */
-  public function findContact($attributes) {
+  public function findContact($attributes): array
+  {
     // TODO implement
     return [];
   }
@@ -219,7 +223,8 @@ abstract class CRM_Banking_PluginModel_Base {
    *
    * @return array of contacts
    */
-  public function findContribution($attributes) {
+  public function findContribution($attributes): array
+  {
     // TODO implement
     return [];
   }

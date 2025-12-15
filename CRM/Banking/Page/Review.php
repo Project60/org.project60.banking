@@ -28,7 +28,7 @@ class CRM_Banking_Page_Review extends CRM_Core_Page {
   // phpcs:disable Generic.Metrics.CyclomaticComplexity.MaxExceeded
   public function run() {
   // phpcs:enable
-    //CRM_Core_Resources::singleton()->addStyleFile(E::LONG_NAME, 'css/banking.css');
+    CRM_Core_Resources::singleton()->addStyleFile(E::LONG_NAME, 'css/banking.css');
 
     $new_ui_enabled = CRM_Core_BAO_Setting::getItem('CiviBanking', 'new_ui');
     // set this variable to request a redirect

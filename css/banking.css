@@ -1,5 +1,5 @@
 #btx-details .btxheader.collapsible-closed {
-  /*background: url("{$base_url}/sites/all/modules/civicrm/i/TreeMinus.gif")  4px 4px no-repeat;*/
+  background: url("{$base_url}/sites/all/modules/civicrm/i/TreeMinus.gif")  4px 4px no-repeat;
   background-color: #CCC;
   color: #000;
   font-weight: bold;

@@ -83,11 +83,19 @@ class CRM_Banking_PluginImpl_Matcher_AccountLookup extends CRM_Banking_PluginMod
   }
 
   /**
-   * this function will look up and set the bank account in the btx entity
+   * This function will look up and set the bank account in the btx entity
+   *
+   * @param CRM_Banking_BAO_BankTransaction $btx
+   *  bank transaction
+   *
+   * @param string $ba_attribute
+   *  should either be 'ba_id' (owner's account) or 'party_ba_id' (other party's account)
+   *
+   * @param CRM_Banking_Matcher_Context $context
    *
    * @return bool true iff $btx was changed
    */
-  protected function setAccount($btx, $ba_attribute, $prefix, $context) : bool {
+  protected function setAccount(CRM_Banking_BAO_BankTransaction $btx, string $ba_attribute, $prefix, CRM_Banking_Matcher_Context $context) : bool {
     $data = $btx->getDataParsed();
     $types = $this->getReferenceTypes($context);
     foreach ($types as $type_id => $type_name) {
@@ -150,5 +158,4 @@ class CRM_Banking_PluginImpl_Matcher_AccountLookup extends CRM_Banking_PluginMod
     }
     return $types;
   }
-
 }

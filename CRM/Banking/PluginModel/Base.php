@@ -78,7 +78,7 @@ abstract class CRM_Banking_PluginModel_Base {
   /**
    * Generic logging function for any plugin
    */
-  public function logMessage($message, $log_level): void
+  public function logMessage($message, $log_level = 'debug'): void
   {
     // TODO: evaluate log_level
     if (isset($this->_plugin_config->log_level) && $this->_plugin_config->log_level != 'off') {

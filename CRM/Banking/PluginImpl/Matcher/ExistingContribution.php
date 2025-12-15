@@ -176,11 +176,11 @@ class CRM_Banking_PluginImpl_Matcher_ExistingContribution extends CRM_Banking_Pl
   /**
    * Will rate a contribution on whether it would match the bank payment
    *
-   * @return array|int contribution_id => score, where score is from [0..1]
+   * @return float|int contribution score, where score is from [0..1]
    *
    * phpcs:disable Generic.Metrics.CyclomaticComplexity.TooHigh
    */
-  public function rateContribution($contribution, $context) {
+  public function rateContribution($contribution, $context) : int|float {
   // phpcs:enable
     $config = $this->_plugin_config;
     $parsed_data = $context->btx->getDataParsed();
@@ -278,7 +278,7 @@ class CRM_Banking_PluginImpl_Matcher_ExistingContribution extends CRM_Banking_Pl
   }
 
   /**
-   * Will get a the set of contributions of a given contact
+   * Will get a set of contributions of a given contact
    *
    * caution: will only the contributions of the last year
    *
@@ -297,7 +297,6 @@ class CRM_Banking_PluginImpl_Matcher_ExistingContribution extends CRM_Banking_Pl
 
     $contributions = [];
     if ($config->received_date_check) {
-      $range_back = (int) $config->received_range_days;
       $date_restriction = " AND receive_date > (NOW() - INTERVAL {$range_back} DAY)";
     }
     else {

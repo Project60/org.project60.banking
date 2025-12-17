@@ -362,7 +362,7 @@ class CRM_Banking_PluginImpl_Matcher_ExistingContribution extends CRM_Banking_Pl
       // find contacts
       $this->logMessage("Trying to find contacts containing string '{$data_parsed['name']}'...", 'debug');
       $contacts_found = $context->findContacts($threshold, $data_parsed['name'], $config->lookup_contact_by_name);
-      $this->logMessage("Identified the following relevant contacts: " . json_encode($contacts_found), LOG_DEBUG);
+      $this->logMessage('Identified the following relevant contacts: ' . json_encode($contacts_found), LOG_DEBUG);
 
       // with the identified contacts, look up contributions
       foreach ($contacts_found as $contact_id => $contact_probability) {

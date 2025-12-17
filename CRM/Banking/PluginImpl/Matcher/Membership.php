@@ -356,9 +356,9 @@ class CRM_Banking_PluginImpl_Matcher_Membership extends CRM_Banking_PluginModel_
         $membership_type_clauses[] = "(
           (civicrm_membership.membership_type_id = $membership_type_id)
           AND
-          (BTX_AMOUNT >= ${amount_range[0]})
+          (BTX_AMOUNT >= {$amount_range[0]})
           AND
-          (BTX_AMOUNT <= ${amount_range[1]})
+          (BTX_AMOUNT <= {$amount_range[1]})
           )";
       }
 

@@ -176,11 +176,11 @@ class CRM_Banking_PluginImpl_Matcher_ExistingContribution extends CRM_Banking_Pl
   /**
    * Will rate a contribution on whether it would match the bank payment
    *
-   * @return array contribution_id => score, where score is from [0..1]
+   * @return float|int contribution score, where score is from [0..1]
    *
    * phpcs:disable Generic.Metrics.CyclomaticComplexity.TooHigh
    */
-  public function rateContribution($contribution, $context) {
+  public function rateContribution($contribution, $context) : int|float {
   // phpcs:enable
     $config = $this->_plugin_config;
     $parsed_data = $context->btx->getDataParsed();
@@ -278,18 +278,18 @@ class CRM_Banking_PluginImpl_Matcher_ExistingContribution extends CRM_Banking_Pl
   }
 
   /**
-   * Will get a the set of contributions of a given contact
+   * Will get a set of contributions of a given contact
    *
    * caution: will only the contributions of the last year
    *
-   * @return an array with contributions
+   * @return array with contributions
    */
-  public function getPotentialContributionsForContact($contact_id, CRM_Banking_Matcher_Context $context) {
+  public function getPotentialContributionsForContact($contact_id, CRM_Banking_Matcher_Context $context) : array {
     $config = $this->_plugin_config;
 
     // check in cache
     $range_back = (int) $config->received_range_days;
-    $cache_key = "_contributions_${contact_id}_{$range_back}_{$config->received_date_check}";
+    $cache_key = "_contributions_{$contact_id}_{$range_back}_{$config->received_date_check}";
     $contributions = $context->getCachedEntry($cache_key);
     if ($contributions != NULL) {
       return $contributions;
@@ -297,16 +297,15 @@ class CRM_Banking_PluginImpl_Matcher_ExistingContribution extends CRM_Banking_Pl
 
     $contributions = [];
     if ($config->received_date_check) {
-      $range_back = (int) $config->received_range_days;
       $date_restriction = " AND receive_date > (NOW() - INTERVAL {$range_back} DAY)";
     }
     else {
       $date_restriction = '';
     }
-    $sql = "SELECT * FROM civicrm_contribution WHERE contact_id=${contact_id} AND is_test = 0 ${date_restriction};";
+    $sql = "SELECT * FROM civicrm_contribution WHERE contact_id={$contact_id} AND is_test = 0 {$date_restriction};";
     $contribution = CRM_Contribute_DAO_Contribution::executeQuery($sql);
     while ($contribution->fetch()) {
-      array_push($contributions, $contribution->toArray());
+      $contributions[] = $contribution->toArray();
     }
 
     // cache result and return
@@ -317,14 +316,14 @@ class CRM_Banking_PluginImpl_Matcher_ExistingContribution extends CRM_Banking_Pl
   /**
    * read the IDs of the accepted contribution status from the configuration
    *
-   * @return an array with contribution status IDs
+   * @return array a list of with contribution status IDs
    */
-  protected function getAcceptedContributionStatusIDs() {
+  protected function getAcceptedContributionStatusIDs() : array {
     $accepted_status_ids = [];
     foreach ($this->_plugin_config->accepted_contribution_states as $status_name) {
       $status_id = banking_helper_optionvalue_by_groupname_and_name('contribution_status', $status_name);
       if ($status_id) {
-        array_push($accepted_status_ids, $status_id);
+        $accepted_status_ids[] = $status_id;
       }
     }
     return $accepted_status_ids;
@@ -361,11 +360,13 @@ class CRM_Banking_PluginImpl_Matcher_ExistingContribution extends CRM_Banking_Pl
     // check if this is actually enabled
     if ($config->contribution_search) {
       // find contacts
+      $this->logMessage("Trying to find contacts containing string '{$data_parsed['name']}'...", 'debug');
       $contacts_found = $context->findContacts($threshold, $data_parsed['name'], $config->lookup_contact_by_name);
+      $this->logMessage('Identified the following relevant contacts: ' . json_encode($contacts_found), LOG_DEBUG);
 
       // with the identified contacts, look up contributions
-      foreach ($contacts_found as $contact_id => $contact_probabiliy) {
-        if ($contact_probabiliy < $threshold) {
+      foreach ($contacts_found as $contact_id => $contact_probability) {
+        if ($contact_probability < $threshold) {
           continue;
         }
 
@@ -385,6 +386,8 @@ class CRM_Banking_PluginImpl_Matcher_ExistingContribution extends CRM_Banking_Pl
             $contributions[$contribution['id']] = $contribution_probability;
             $contribution2contact[$contribution['id']] = $contact_id;
             $contribution2totalamount[$contribution['id']] = $contribution['total_amount'];
+          } else {
+            $this->logMessage("Potentially relevant contribution [{$contribution['id']}] dropped, probability too low.", LOG_DEBUG);
           }
         }
       }

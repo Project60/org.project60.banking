@@ -265,7 +265,7 @@ class CRM_Banking_Page_Payments extends CRM_Core_Page {
         'sequence' => $stmt->sequence,
         'total' => $stmt->total,
         'currency' => $stmt->currency,
-        'date' => strtotime($stmt->starting_date),
+        'date' => strtotime($stmt->starting_date ?? '2000-01-01 00:00:00'),
         'count' => $stmt->tx_count,
         'target' => $target_name,
         'analysed' => $info['analysed'] . '%',
@@ -395,7 +395,7 @@ class CRM_Banking_Page_Payments extends CRM_Core_Page {
    */
   public static function getPaymentsForStatements($raw_statement_list) {
     $payments = [];
-    $raw_statements = explode(',', $raw_statement_list);
+    $raw_statements = explode(',', (string) $raw_statement_list);
     if (count($raw_statements) == 0) {
       return '';
     }

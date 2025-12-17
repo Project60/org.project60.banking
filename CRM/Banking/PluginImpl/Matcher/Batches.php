@@ -196,7 +196,7 @@ class CRM_Banking_PluginImpl_Matcher_Batches extends CRM_Banking_PluginModel_Mat
   public function update_parameters(CRM_Banking_Matcher_Suggestion $match, $parameters) {
     // record the override parameter
     $batch_id = $match->getParameter('batch_id');
-    if ($parameters["batches_override_${batch_id}"]) {
+    if ($parameters["batches_override_{$batch_id}"]) {
       $match->setParameter('override_status', 1);
     }
     else {

@@ -83,11 +83,19 @@ class CRM_Banking_PluginImpl_Matcher_AccountLookup extends CRM_Banking_PluginMod
   }
 
   /**
-   * this function will look up and set the bank account in the btx entity
+   * This function will look up and set the bank account in the btx entity
    *
-   * @return true iff $btx was changed
+   * @param CRM_Banking_BAO_BankTransaction $btx
+   *  bank transaction
+   *
+   * @param string $ba_attribute
+   *  should either be 'ba_id' (owner's account) or 'party_ba_id' (other party's account)
+   *
+   * @param CRM_Banking_Matcher_Context $context
+   *
+   * @return bool true iff $btx was changed
    */
-  protected function setAccount($btx, $ba_attribute, $prefix, $context) {
+  protected function setAccount(CRM_Banking_BAO_BankTransaction $btx, string $ba_attribute, $prefix, CRM_Banking_Matcher_Context $context): bool {
     $data = $btx->getDataParsed();
     $types = $this->getReferenceTypes($context);
     foreach ($types as $type_id => $type_name) {
@@ -113,7 +121,7 @@ class CRM_Banking_PluginImpl_Matcher_AccountLookup extends CRM_Banking_PluginMod
   /**
    * cached bank account lookup
    */
-  protected function lookupBankAccount($type_id, $reference, $context) {
+  protected function lookupBankAccount($type_id, string $reference, CRM_Banking_Matcher_Context $context) : ?string {
     $account_cache = $context->getCachedEntry('analyser_account.cached_references');
     if ($account_cache === NULL) {
       $account_cache = [];
@@ -121,21 +129,27 @@ class CRM_Banking_PluginImpl_Matcher_AccountLookup extends CRM_Banking_PluginMod
 
     if (!isset($account_cache[$type_id][$reference])) {
       // look up the account
-      $result = civicrm_api3('BankingAccountReference', 'getsingle', [
-        'reference'         => $reference,
-        'reference_type_id' => $type_id,
-      ]);
-      if (!empty($result['is_error']) || empty($result['ba_id'])) {
-        $account_cache[$type_id][$reference] = NULL;
+      try {
+        $result = civicrm_api3('BankingAccountReference', 'getsingle', [
+          'reference' => $reference,
+          'reference_type_id' => $type_id,
+        ]);
+        if (!empty($result['is_error']) || empty($result['ba_id'])) {
+          $account_cache[$type_id][$reference] = NULL;
+        } else {
+          $account_cache[$type_id][$reference] = $result['ba_id'];
+        }
+        $context->setCachedEntry('analyser_account.cached_references', $account_cache);
+      } catch (CRM_Core_Exception $e) {
+        $this->logMessage("Error while looking up bank account reference: " . $e->getMessage());
+        return null;
       }
-      else {
-        $account_cache[$type_id][$reference] = $result['ba_id'];
-      }
-      $context->setCachedEntry('analyser_account.cached_references', $account_cache);
-    }
 
-    // finally set the account for the btx
-    return $account_cache[$type_id][$reference];
+      // finally set the account for the btx
+      return $account_cache[$type_id][$reference];
+    } else {
+      return null;
+    }
   }
 
   /**
@@ -150,5 +164,4 @@ class CRM_Banking_PluginImpl_Matcher_AccountLookup extends CRM_Banking_PluginMod
     }
     return $types;
   }
-
 }

@@ -28,7 +28,8 @@ abstract class CRM_Banking_PluginModel_BtxBase extends CRM_Banking_PluginModel_B
    *
    * phpcs:disable Generic.Metrics.CyclomaticComplexity.MaxExceeded, Generic.Metrics.NestingLevel.TooHigh
    */
-  public function requiredValuesPresent(CRM_Banking_BAO_BankTransaction &$btx, $required_values_override = NULL) {
+  public function requiredValuesPresent(CRM_Banking_BAO_BankTransaction &$btx, $required_values_override = NULL): bool
+  {
   // phpcs:enable
     $config = $this->_plugin_config;
 
@@ -59,7 +60,7 @@ abstract class CRM_Banking_PluginModel_BtxBase extends CRM_Banking_PluginModel_B
       foreach ($required_values as $required_key => $required_value) {
         $this->logMessage("Evaluating {$required_key}: {$required_value}", 'debug');
         $current_value = $this->getPropagationValue($btx, NULL, $required_key);
-        $split = preg_split('#:#', $required_value, 2);
+        $split = explode(':', $required_value, 2);
         if (count($split) < 2) {
           error_log("org.project60.banking: required_value in config option not properly formatted, plugin id [{$this->_plugin_id}]");
         }
@@ -162,7 +163,7 @@ abstract class CRM_Banking_PluginModel_BtxBase extends CRM_Banking_PluginModel_B
           }
           elseif ($command == 'not_in') {
             $list_value = $this->getPropagationValue($btx, NULL, $parameter);
-            $expected_values = explode(',', $list_value);
+            $expected_values = isset($list_value) ? explode(',', $list_value) : [];
             if (!in_array($current_value, $expected_values)) {
               continue;
             }
@@ -172,7 +173,7 @@ abstract class CRM_Banking_PluginModel_BtxBase extends CRM_Banking_PluginModel_B
 
           }
           else {
-            error_log("org.project60.banking: unknwon command '$command' in required_value in config of plugin id [{$this->_plugin_id}]");
+            error_log("org.project60.banking: unknown command '{$command}' in required_value in config of plugin id [{$this->_plugin_id}]");
           }
         }
       }

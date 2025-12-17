@@ -106,7 +106,7 @@ function civicrm_api3_banking_transaction_deletelist($params) {
 
   // then, delete the (now empty) statmets (tx_batches)
   if (!empty($params['s_list'])) {
-    $tx_batch_ids = explode(',', $params['s_list']);
+    $tx_batch_ids = explode(',', (string) $params['s_list']);
     foreach ($tx_batch_ids as $tx_batch_id) {
       $tx_batch_id = (int) $tx_batch_id;
       if (!empty($tx_batch_id)) {

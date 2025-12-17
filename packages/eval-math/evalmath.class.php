@@ -143,7 +143,7 @@ class EvalMath {
                 }
             }
             $this->f[$fnn] = array('args'=>$args, 'func'=>$stack);
-            return true;
+            return TRUE;
         //===============
         } else {
             return $this->pfx($this->nfx($expr)); // straight up evaluation, woo

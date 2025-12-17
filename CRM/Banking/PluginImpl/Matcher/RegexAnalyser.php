@@ -61,7 +61,7 @@ class CRM_Banking_PluginImpl_Matcher_RegexAnalyser extends CRM_Banking_PluginMod
       foreach ($variables as $variable) {
         if (preg_match("#\[\[$variable\]\]#", $pattern)) {
           $value = $this->getVariable($variable);
-          $pattern = preg_replace("#\[\[$variable\]\]#", print_r($value, 1), $pattern);
+          $pattern = preg_replace("#\[\[$variable\]\]#", print_r($value, true), $pattern);
         }
       }
 
@@ -349,7 +349,7 @@ class CRM_Banking_PluginImpl_Matcher_RegexAnalyser extends CRM_Banking_PluginMod
           // TODO: support for sort, limit, etc.
           // phpcs:disable Generic.CodeAnalysis.EmptyStatement.DetectedIf
           if (is_array($value)) {
-            // TODO: support for LIKE, IN, etc.
+            // @todo: support for LIKE, IN, etc.
           }
           // phpcs:enable
           else {

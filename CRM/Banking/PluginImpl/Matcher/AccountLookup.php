@@ -95,7 +95,7 @@ class CRM_Banking_PluginImpl_Matcher_AccountLookup extends CRM_Banking_PluginMod
    *
    * @return bool true iff $btx was changed
    */
-  protected function setAccount(CRM_Banking_BAO_BankTransaction $btx, string $ba_attribute, $prefix, CRM_Banking_Matcher_Context $context) : bool {
+  protected function setAccount(CRM_Banking_BAO_BankTransaction $btx, string $ba_attribute, $prefix, CRM_Banking_Matcher_Context $context): bool {
     $data = $btx->getDataParsed();
     $types = $this->getReferenceTypes($context);
     foreach ($types as $type_id => $type_name) {
@@ -106,16 +106,16 @@ class CRM_Banking_PluginImpl_Matcher_AccountLookup extends CRM_Banking_PluginMod
           if ($ba_id != $btx->$ba_attribute) {
             // the account differs => set and return
             $btx->$ba_attribute = $ba_id;
-            return true;
+            return TRUE;
           }
           else {
             // the account is the same => return unchanged
-            return false;
+            return FALSE;
           }
         }
       }
     }
-    return false;
+    return FALSE;
   }
 
   /**

@@ -489,13 +489,23 @@ class CRM_Banking_Form_StatementSearch extends CRM_Core_Form {
       ];
     }
 
-    CRM_Utils_JSON::output(
-        [
-          'data'            => $results,
-          'recordsTotal'    => $transaction_count,
-          'recordsFiltered' => $transaction_count,
-        ]
-    );
+    // @phpstan-ignore function.alreadyNarrowedType
+    if (method_exists(CRM_Utils_System::class, 'sendJSONResponse')) {
+      // Available since CiviCRM 6.9.0.
+      CRM_Utils_System::sendJSONResponse([
+        'data'            => $results,
+        'recordsTotal'    => $transaction_count,
+        'recordsFiltered' => $transaction_count,
+      ]);
+    }
+    else {
+      // @phpstan-ignore staticMethod.deprecated
+      CRM_Utils_JSON::output([
+        'data' => $results,
+        'recordsTotal' => $transaction_count,
+        'recordsFiltered' => $transaction_count,
+      ]);
+    }
   }
 
   /**

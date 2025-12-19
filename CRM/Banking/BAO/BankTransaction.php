@@ -127,7 +127,8 @@ class CRM_Banking_BAO_BankTransaction extends CRM_Banking_DAO_BankTransaction {
     if ($this->_decoded_data_parsed == NULL || $update) {
       if (isset($this->data_parsed)) {
         $this->_decoded_data_parsed = json_decode($this->data_parsed, TRUE);
-      } else {
+      }
+      else {
         $this->_decoded_data_parsed = [];
       }
     }

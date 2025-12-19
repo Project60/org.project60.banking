@@ -234,7 +234,7 @@ class CRM_Banking_PluginImpl_Matcher_SepaMandate extends CRM_Banking_PluginModel
             WHERE   contribution_recur_id = {$contribution_recur_id}
             AND     receive_date <= DATE('$latest_date')
             AND     receive_date >= DATE('$earliest_date');";
-        $this->logMessage("SepaMandate Query: " . $find_contribution_query, 'debug');
+        $this->logMessage('SepaMandate Query: ' . $find_contribution_query, 'debug');
         $found_contribution = CRM_Core_DAO::executeQuery($find_contribution_query);
         while ($found_contribution->fetch()) {
           if (!$contribution_id) {

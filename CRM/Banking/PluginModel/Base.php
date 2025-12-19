@@ -69,7 +69,7 @@ abstract class CRM_Banking_PluginModel_Base {
     $this->_plugin_title  = $plugin_dao->description;
     $this->_plugin_name   = $plugin_dao->name;
     $this->_plugin_config = json_decode($plugin_dao->config);
-    if (is_null($this->_plugin_config)) {
+    if (NULL === $this->_plugin_config) {
       CRM_Core_Error::statusBounce('Configuration for CiviBanking plugin (id: ' . $plugin_dao->id . ') is not a valid JSON string.');
       $this->_plugin_config = [];
     }
@@ -78,8 +78,7 @@ abstract class CRM_Banking_PluginModel_Base {
   /**
    * Generic logging function for any plugin
    */
-  public function logMessage($message, $log_level = 'debug'): void
-  {
+  public function logMessage($message, $log_level = 'debug'): void {
     // TODO: evaluate log_level
     if (isset($this->_plugin_config->log_level) && $this->_plugin_config->log_level != 'off') {
       $this->logger->log("[{$this->_plugin_id}]: {$message}", $this->_plugin_config->log_level);
@@ -89,8 +88,7 @@ abstract class CRM_Banking_PluginModel_Base {
   /**
    * Generic logging function for any plugin
    */
-  public function logTime($process, $timer): void
-  {
+  public function logTime($process, $timer): void {
     // TODO: evaluate log_level
     if (isset($this->_plugin_config->log_level) && $this->_plugin_config->log_level != 'off') {
       $this->logger->logTime("[{$this->_plugin_id}]: {$process}", $timer);
@@ -106,8 +104,7 @@ abstract class CRM_Banking_PluginModel_Base {
    *
    * TODO: data format? float [0..1]?
    */
-  public function setProgressCallback($callback): void
-  {
+  public function setProgressCallback($callback): void {
     // TODO: sanity checks?
     $this->_progress_callback = $callback;
     $this->_progress_log = [];
@@ -210,8 +207,7 @@ abstract class CRM_Banking_PluginModel_Base {
    *
    * @return array of contacts
    */
-  public function findContact($attributes): array
-  {
+  public function findContact($attributes): array {
     // TODO implement
     return [];
   }
@@ -223,8 +219,7 @@ abstract class CRM_Banking_PluginModel_Base {
    *
    * @return array of contacts
    */
-  public function findContribution($attributes): array
-  {
+  public function findContribution($attributes): array {
     // TODO implement
     return [];
   }

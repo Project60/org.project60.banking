@@ -785,11 +785,12 @@ class CRM_Banking_PluginImpl_PostProcessor_MembershipExtension extends CRM_Banki
    * Get all eligible contributions wrt the provided filter criteria
    *
    * @param CRM_Banking_Matcher_Context $context
-   * @return array contributions
+   * @return list<array<string, mixed>> contributions
    * @throws CRM_Core_Exception
    */
   protected function getEligibleContributions($context) {
     $cache_key = "{$this->_plugin_id}_eligiblecontributions_{$context->btx->id}";
+    /** @var list<array<string, mixed>>|null $cached_result */
     $cached_result = $context->getCachedEntry($cache_key);
     if ($cached_result !== NULL) {
       return $cached_result;

@@ -184,7 +184,7 @@ abstract class CRM_Banking_PluginModel_PostProcessor extends CRM_Banking_PluginM
    *
    * @param \CRM_Banking_Matcher_Context $context The matcher context contains cache data and context information
    *
-   * @return int contact_id of the unique contact linked to the transaction, NULL if not exists/unique
+   * @return int|null contact_id of the unique contact linked to the transaction, NULL if not exists/unique
    */
   protected function getSoleContactID(CRM_Banking_Matcher_Context $context) {
     $contact_id = NULL;
@@ -195,10 +195,12 @@ abstract class CRM_Banking_PluginModel_PostProcessor extends CRM_Banking_PluginM
         // log: problem
       }
       // phpcs:enable
-      if ($contact_id == NULL) {
-        $contact_id = $contribution['contact_id'];
+      if ($contact_id === NULL) {
+        // @phpstan-ignore cast.int
+        $contact_id = (int) $contribution['contact_id'];
       }
-      elseif ($contact_id == $contribution['contact_id']) {
+      // @phpstan-ignore cast.int
+      elseif ($contact_id === (int) $contribution['contact_id']) {
         continue;
       }
       else {
@@ -246,10 +248,11 @@ abstract class CRM_Banking_PluginModel_PostProcessor extends CRM_Banking_PluginM
    *
    * @param $context  the matcher context contains cache data and context information
    *
-   * @return array    contribution IDs
+   * @return list<array<string, mixed>> contributions
    */
   protected function getContributions(CRM_Banking_Matcher_Context $context) {
     $cache_key = "{$this->_plugin_id}_contributions_{$context->btx->id}";
+    /** @var list<array<string, mixed>>|null $cached_result */
     $cached_result = $context->getCachedEntry($cache_key);
     if ($cached_result !== NULL) {
       return $cached_result;
@@ -285,7 +288,7 @@ abstract class CRM_Banking_PluginModel_PostProcessor extends CRM_Banking_PluginM
   /**
    * Get the first Membership linked the contribution via MembershipPayments
    *
-   * @param $context  the matcher context contains cache data and context information
+   * @param CRM_Banking_Matcher_Context $context the matcher context contains cache data and context information
    *
    * @return array    membership data
    */
@@ -302,12 +305,13 @@ abstract class CRM_Banking_PluginModel_PostProcessor extends CRM_Banking_PluginM
   /**
    * Get the Memberships linked the contribution via MembershipPayments
    *
-   * @param $context  the matcher context contains cache data and context information
+   * @param CRM_Banking_Matcher_Context $context the matcher context contains cache data and context information
    *
-   * @return array    memberships data
+   * @return list<array<string, mixed>> memberships data
    */
   protected function getMemberships(CRM_Banking_Matcher_Context $context) {
     $cache_key = "{$this->_plugin_id}_memberships_{$context->btx->id}";
+    /** @var list<array<string, mixed>>|null $cached_result */
     $cached_result = $context->getCachedEntry($cache_key);
     if ($cached_result !== NULL) {
       return $cached_result;

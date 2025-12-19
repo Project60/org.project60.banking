@@ -102,7 +102,7 @@ class CRM_Banking_PluginImpl_Matcher_AccountLookup extends CRM_Banking_PluginMod
       if (!empty($data[$prefix . $type_name])) {
         // we have an account reference => look it up
         $ba_id = $this->lookupBankAccount($type_id, $data[$prefix . $type_name], $context);
-        if ($ba_id) {
+        if (NULL !== $ba_id) {
           if ($ba_id != $btx->$ba_attribute) {
             // the account differs => set and return
             $btx->$ba_attribute = $ba_id;
@@ -121,7 +121,8 @@ class CRM_Banking_PluginImpl_Matcher_AccountLookup extends CRM_Banking_PluginMod
   /**
    * cached bank account lookup
    */
-  protected function lookupBankAccount($type_id, string $reference, CRM_Banking_Matcher_Context $context): ?string {
+  protected function lookupBankAccount($type_id, string $reference, CRM_Banking_Matcher_Context $context): ?int {
+    /** @var array<int, array<string, int>>|null $account_cache */
     $account_cache = $context->getCachedEntry('analyser_account.cached_references');
     if ($account_cache === NULL) {
       $account_cache = [];
@@ -130,6 +131,7 @@ class CRM_Banking_PluginImpl_Matcher_AccountLookup extends CRM_Banking_PluginMod
     if (!isset($account_cache[$type_id][$reference])) {
       // look up the account
       try {
+        /** @var array{is_error: int, ba_id: string} $result */
         $result = civicrm_api3('BankingAccountReference', 'getsingle', [
           'reference' => $reference,
           'reference_type_id' => $type_id,
@@ -138,7 +140,7 @@ class CRM_Banking_PluginImpl_Matcher_AccountLookup extends CRM_Banking_PluginMod
           $account_cache[$type_id][$reference] = NULL;
         }
         else {
-          $account_cache[$type_id][$reference] = $result['ba_id'];
+          $account_cache[$type_id][$reference] = (int) $result['ba_id'];
         }
         $context->setCachedEntry('analyser_account.cached_references', $account_cache);
       }

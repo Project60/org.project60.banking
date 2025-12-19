@@ -244,29 +244,34 @@ class CRM_Banking_Matcher_Context {
 
   /**
    * Remove such contacts from the list, that are in trash (is_deleted = 1)
-   * @param $contact2probablility array contact_id => probability
-   * @return array contact_id => probability
+   *
+   * @param array<int, int|float> $contact2probability contact_id => probability
+   *
+   * @return array<int, int|float> contact_id => probability
    */
-  public function filterDeletedContacts($contact2probablility) {
+  public function filterDeletedContacts(array $contact2probability): array {
     // if empty, there's nothing to do
-    if (empty($contact2probablility)) {
-      return $contact2probablility;
+    if ([] === $contact2probability) {
+      return [];
     }
 
     // check if this was cached
-    $cache_key = '_filtered_list_' . sha1(serialize($contact2probablility));
+    $cache_key = '_filtered_list_' . sha1(serialize($contact2probability));
+    /** @var array<int, float>|null $filtered_list */
     $filtered_list = $this->getCachedEntry($cache_key);
     if ($filtered_list === NULL) {
       $filtered_list = [];
+      /** @var array{values: list<array{id: string}>} $result */
       $result = civicrm_api3('Contact', 'get', [
-        'id'         => ['IN' => array_keys($contact2probablility)],
+        'id'         => ['IN' => array_keys($contact2probability)],
         'is_deleted' => 0,
         'return'     => 'id',
         'sequential' => 1,
         'options' => ['limit' => 0],
       ]);
       foreach ($result['values'] as $contact) {
-        $filtered_list[$contact['id']] = $contact2probablility[$contact['id']];
+        $contactId = (int) $contact['id'];
+        $filtered_list[$contactId] = $contact2probability[$contactId];
       }
       $this->setCachedEntry($cache_key, $filtered_list);
     }
@@ -276,9 +281,9 @@ class CRM_Banking_Matcher_Context {
   /**
    * Will check if the given key is set in the cache
    *
-   * @return the previously stored value, or NULL
+   * @return mixed the previously stored value, or NULL
    */
-  public function getCachedEntry($key) {
+  public function getCachedEntry($key): mixed {
     if (isset($this->_caches[$key])) {
       return $this->_caches[$key];
     }
@@ -290,7 +295,7 @@ class CRM_Banking_Matcher_Context {
   /**
    * Set the given cache value
    */
-  public function setCachedEntry($key, $value) {
+  public function setCachedEntry($key, mixed $value): void {
     $this->_caches[$key] = $value;
   }
 

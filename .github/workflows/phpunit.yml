@@ -68,18 +68,26 @@ jobs:
       env:
         COMPOSER_COMPILE: all
       run: |
+        if [ "${{ matrix.prefer }}" = "prefer-lowest" ]; then
+          # Actually test with lowest possible versions.
+          export COMPOSER_NO_SECURITY_BLOCKING=1
+        fi
+
         # Prevent this git error: The repository does not have the correct ownership and git refuses to use it
         git config --global --add safe.directory "$PWD"
+
         EXT_DIR=$PWD
         EXT_COMPOSER_NAME=$(composer show --self --name-only)
         composer composer-phpunit -- update --no-progress --prefer-dist --optimize-autoloader
         cd ..
         git clone https://github.com/civicrm/civicrm-standalone.git
         cd civicrm-standalone
+
         composer config --no-plugins allow-plugins.composer/installers true
         composer config --no-plugins allow-plugins.cweagans/composer-patches true
         composer config --json 'extra.installer-paths.ext/{$name}' '["type:civicrm-ext"]'
         composer config repositories.test path $EXT_DIR
+
         # Use civicrm-core and civicrm-packages defined in extension's composer.json.
         composer remove --no-update civicrm/civicrm-core civicrm/civicrm-packages
         composer require composer/installers civicrm/cli-tools
@@ -87,11 +95,15 @@ jobs:
           composer require --no-update "civicrm/civicrm-core:${{ inputs.civicrm-version }}" \
             "civicrm/civicrm-packages:${{ inputs.civicrm-version }}"
         fi
+
         # --with-all-dependencies is required because downgrades from packages
         # installed before might be necessary.
         # \PEAR_ErrorStack::singleton() is static since pear/pear-core v1.10.16
+        # civicrm/composer-compile-plugin v0.22 is the minimum version
+        # compatible with symfony/console >=8.0 used in composer since 2.9.0.
         composer require --with-all-dependencies --no-progress --prefer-dist --${{ matrix.prefer }} \
-          --optimize-autoloader $EXT_COMPOSER_NAME 'pear/pear-core-minimal:>=1.10.16'
+          --optimize-autoloader $EXT_COMPOSER_NAME 'pear/pear-core-minimal:>=1.10.16' \
+          'civicrm/composer-compile-plugin:>=0.22'
 
     - name: Set up CiviCRM
       env:

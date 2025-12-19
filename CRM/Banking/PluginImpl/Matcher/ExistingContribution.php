@@ -180,7 +180,7 @@ class CRM_Banking_PluginImpl_Matcher_ExistingContribution extends CRM_Banking_Pl
    *
    * phpcs:disable Generic.Metrics.CyclomaticComplexity.TooHigh
    */
-  public function rateContribution($contribution, $context) : int|float {
+  public function rateContribution($contribution, $context): int|float {
   // phpcs:enable
     $config = $this->_plugin_config;
     $parsed_data = $context->btx->getDataParsed();
@@ -284,7 +284,7 @@ class CRM_Banking_PluginImpl_Matcher_ExistingContribution extends CRM_Banking_Pl
    *
    * @return array with contributions
    */
-  public function getPotentialContributionsForContact($contact_id, CRM_Banking_Matcher_Context $context) : array {
+  public function getPotentialContributionsForContact($contact_id, CRM_Banking_Matcher_Context $context): array {
     $config = $this->_plugin_config;
 
     // check in cache
@@ -318,7 +318,7 @@ class CRM_Banking_PluginImpl_Matcher_ExistingContribution extends CRM_Banking_Pl
    *
    * @return array a list of with contribution status IDs
    */
-  protected function getAcceptedContributionStatusIDs() : array {
+  protected function getAcceptedContributionStatusIDs(): array {
     $accepted_status_ids = [];
     foreach ($this->_plugin_config->accepted_contribution_states as $status_name) {
       $status_id = banking_helper_optionvalue_by_groupname_and_name('contribution_status', $status_name);
@@ -386,7 +386,8 @@ class CRM_Banking_PluginImpl_Matcher_ExistingContribution extends CRM_Banking_Pl
             $contributions[$contribution['id']] = $contribution_probability;
             $contribution2contact[$contribution['id']] = $contact_id;
             $contribution2totalamount[$contribution['id']] = $contribution['total_amount'];
-          } else {
+          }
+          else {
             $this->logMessage("Potentially relevant contribution [{$contribution['id']}] dropped, probability too low.", LOG_DEBUG);
           }
         }

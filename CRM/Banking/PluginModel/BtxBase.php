@@ -28,8 +28,7 @@ abstract class CRM_Banking_PluginModel_BtxBase extends CRM_Banking_PluginModel_B
    *
    * phpcs:disable Generic.Metrics.CyclomaticComplexity.MaxExceeded, Generic.Metrics.NestingLevel.TooHigh
    */
-  public function requiredValuesPresent(CRM_Banking_BAO_BankTransaction &$btx, $required_values_override = NULL): bool
-  {
+  public function requiredValuesPresent(CRM_Banking_BAO_BankTransaction &$btx, $required_values_override = NULL): bool {
   // phpcs:enable
     $config = $this->_plugin_config;
 

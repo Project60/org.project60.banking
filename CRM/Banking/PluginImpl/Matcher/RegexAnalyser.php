@@ -61,7 +61,7 @@ class CRM_Banking_PluginImpl_Matcher_RegexAnalyser extends CRM_Banking_PluginMod
       foreach ($variables as $variable) {
         if (preg_match("#\[\[$variable\]\]#", $pattern)) {
           $value = $this->getVariable($variable);
-          $pattern = preg_replace("#\[\[$variable\]\]#", print_r($value, true), $pattern);
+          $pattern = preg_replace("#\[\[$variable\]\]#", print_r($value, TRUE), $pattern);
         }
       }
 

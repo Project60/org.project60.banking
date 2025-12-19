@@ -412,10 +412,10 @@ class CRM_Banking_PluginImpl_Importer_CSV extends CRM_Banking_PluginModel_Import
    */
   protected function getValue($key, $btx, $line = NULL, $header = [], $params = []) {
     // get value
-    if ($this->startsWith($key, '_constant:')) {
+    if ($this->startsWith((string) $key, '_constant:')) {
       return substr($key, 10);
     }
-    elseif ($this->startsWith($key, '_params:')) {
+    elseif ($this->startsWith((string) $key, '_params:')) {
       $param_name = substr($key, 8);
       return $params[$param_name] ?? '';
     }
@@ -478,7 +478,10 @@ class CRM_Banking_PluginImpl_Importer_CSV extends CRM_Banking_PluginModel_Import
     }
 
     // execute the rule
-    if ($this->startsWith($rule->type, 'set')) {
+    if (!is_string($rule->type)) {
+      $this->logMessage('Rule type is missing or invalid', 'error');
+    }
+    elseif ($this->startsWith($rule->type, 'set')) {
       // SET is a simple copy command:
       $btx[$rule->to] = $value;
 

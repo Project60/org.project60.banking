@@ -526,8 +526,8 @@ abstract class CRM_Banking_PluginModel_Importer extends CRM_Banking_PluginModel_
   /**
    * helper function for prefix testing
    */
-  protected function startsWith($string, $prefix) {
-    return substr($string, 0, strlen($prefix)) === $prefix;
+  protected function startsWith(string $string, string $prefix): bool {
+    return str_starts_with($string, $prefix);
   }
 
 }

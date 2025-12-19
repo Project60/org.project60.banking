@@ -378,7 +378,7 @@ class CRM_Banking_PluginImpl_Importer_XML extends CRM_Banking_PluginModel_Import
 
     // copy tx. prefixed payment data
     foreach ($stmt_data as $key => $value) {
-      if ($this->startsWith($key, 'tx.')) {
+      if ($this->startsWith((string) $key, 'tx.')) {
         $data[substr($key, 3)] = $value;
       }
     }
@@ -467,7 +467,10 @@ class CRM_Banking_PluginImpl_Importer_XML extends CRM_Banking_PluginModel_Import
     }
 
     // execute the rule
-    if ($this->startsWith($rule->type, 'set')) {
+    if (!is_string($rule->type)) {
+      $this->logMessage('Rule type is missing or invalid', 'error');
+    }
+    elseif ($this->startsWith($rule->type, 'set')) {
       // SET is a simple copy command:
       $value = $this->getValue($rule->from, $data, $context);
       $data[$rule->to] = $value;
@@ -583,10 +586,10 @@ class CRM_Banking_PluginImpl_Importer_XML extends CRM_Banking_PluginModel_Import
    */
   protected function getValue($key, $data, $context = NULL) {
     // get value
-    if ($this->startsWith($key, '_constant:')) {
+    if ($this->startsWith((string) $key, '_constant:')) {
       return substr($key, 10);
     }
-    elseif ($this->startsWith($key, 'xpath:')) {
+    elseif ($this->startsWith((string) $key, 'xpath:')) {
       $path = substr($key, 6);
       $result = $this->xpath->evaluate($path, $context);
       if (get_class($result) == 'DOMNode') {

@@ -97,7 +97,11 @@ function civicrm_api3_banking_transaction_get($params) {
 function civicrm_api3_banking_transaction_deletelist($params) {
   $result = ['tx_count' => 0, 'tx_batch_count' => 0];
 
-  // first, delete the indivdual transactions
+  if (is_int($params['s_list'] ?? NULL)) {
+    $params['s_list'] = (string) $params['s_list'];
+  }
+
+  // first, delete the individual transactions
   $tx_ids = _civicrm_api3_banking_transaction_getTxIDs($params);
   foreach ($tx_ids as $tx_id) {
     civicrm_api3('BankingTransaction', 'delete', ['id' => $tx_id]);

@@ -170,14 +170,14 @@ class CRM_Banking_PluginImpl_Matcher_Membership extends CRM_Banking_PluginModel_
 
     // load last fee
     if (!empty($last_fee_id)) {
-      $last_fee                = civicrm_api3('Contribution', 'getsingle', ['id' => $last_fee_id]);
-      $last_fee['days']        = round((strtotime($btx->booking_date) - (int) strtotime($last_fee['receive_date'])) / (60 * 60 * 24));
+      $last_fee = civicrm_api3('Contribution', 'getsingle', ['id' => $last_fee_id]);
+      $last_fee['days_different'] = $this->getRelativeDays($btx->booking_date, $last_fee['receive_date']);
       $smarty_vars['last_fee'] = $last_fee;
     }
 
     // calculate some stuff
     $date_field = ($config->based_on_start_date) ? 'start_date' : 'join_date';
-    $membership['days'] = round((strtotime($btx->booking_date) - strtotime($membership[$date_field])) / (60 * 60 * 24));
+    $membership['days_different'] = $this->getRelativeDays($btx->booking_date, $membership[$date_field]);
     $membership['percentage_of_minimum'] = round(($btx->amount / (float) $membership_type['minimum_fee']) * 100);
     $membership['title'] = $this->getMembershipOption($membership['membership_type_id'], 'title', $membership_type['name']);
 
@@ -489,6 +489,17 @@ class CRM_Banking_PluginImpl_Matcher_Membership extends CRM_Banking_PluginModel_
     }
 
     return $rating;
+  }
+
+  private function getRelativeDays($fromDate, $toDate) {
+    $days = round((strtotime($fromDate) - (int) strtotime($toDate)) / (60 * 60 * 24));
+    if ($days > 0) {
+      return E::ts('%1 days earlier', [1 => $days]);
+    }
+    if ($days < 0) {
+      return E::ts('%1 days later', [1 => -$days]);
+    }
+    return E::ts('Same day');
   }
 
 }

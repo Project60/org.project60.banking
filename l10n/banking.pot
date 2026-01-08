@@ -1410,6 +1410,10 @@ msgstr ""
 msgid "There was more than one matching contribution found! Try to configure the plugin with a smaller search time span."
 msgstr ""
 
+#: CRM/Banking/PluginImpl/Matcher/SepaMandate.php CRM/Banking/PluginModel/Matcher.php
+msgid "Warning"
+msgstr ""
+
 #: CRM/Banking/PluginImpl/Matcher/SepaMandate.php
 msgid "There was no matching contribution! Try to configure the plugin with a larger search time span."
 msgstr ""
@@ -1588,10 +1592,6 @@ msgstr ""
 
 #: CRM/Banking/PluginModel/Matcher.php
 msgid "The account information of this contact was saved, but it is also used by the following contacts:<br/><ul>%s</ul>"
-msgstr ""
-
-#: CRM/Banking/PluginModel/Matcher.php
-msgid "Warning"
 msgstr ""
 
 #: CRM/Banking/PluginModel/Matcher.php

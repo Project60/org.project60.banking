@@ -1586,6 +1586,11 @@ msgstr ""
 "mit einer kleineren Suchzeitspanne."
 
 #: CRM/Banking/PluginImpl/Matcher/SepaMandate.php
+#: CRM/Banking/PluginModel/Matcher.php
+msgid "Warning"
+msgstr "Warnung"
+
+#: CRM/Banking/PluginImpl/Matcher/SepaMandate.php
 msgid ""
 "There was no matching contribution! Try to configure the plugin with a "
 "larger search time span."
@@ -1805,10 +1810,6 @@ msgid ""
 msgstr ""
 "Die Kontodaten wurden bei dem Kontakt gespeichert, aber das Konto wird "
 "außerdem noch von folgenden Kontakten verwendet:<br/><ul>%s</ul>"
-
-#: CRM/Banking/PluginModel/Matcher.php
-msgid "Warning"
-msgstr "Warnung"
 
 #: CRM/Banking/PluginModel/Matcher.php
 msgid "The account information of this contact was saved."

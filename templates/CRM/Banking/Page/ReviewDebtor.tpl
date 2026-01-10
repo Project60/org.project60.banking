@@ -33,7 +33,7 @@
             </div>
             <div class="btxlabel">{ts domain='org.project60.banking'}Owner{/ts}</div>
             <div class="btxvalue btxl">
-                {$payment_data_parsed.name}{if $payment_data_parsed.email}&nbsp;({$payment_data_parsed.email}){/if}
+                {$payment_data_parsed.name|default:''}{if $payment_data_parsed.email|default:''}&nbsp;({$payment_data_parsed.email}){/if}
             </div>
             {if $contact}
                 <div class="btxlabel">{ts domain='org.project60.banking'}Contact{/ts}</div>

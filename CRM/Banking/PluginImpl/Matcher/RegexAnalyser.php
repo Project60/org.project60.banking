@@ -189,9 +189,9 @@ class CRM_Banking_PluginImpl_Matcher_RegexAnalyser extends CRM_Banking_PluginMod
 
         // execute and log
         $this->logger->setTimer('regex:lookup');
-
-        $this->logMessage("Calling API {$params[0]}.getsingle: " . json_encode($query), 'debug');
-        $result = $this->executeAPIQuery($params[0], 'getsingle', $query, $action);
+        $this->logMessage("Calling API {$params[0]}.get: " . json_encode($query), 'debug');
+        $result = $this->executeAPIQuery($params[0], 'get', $query, $action);
+        $result = $this->removeResultsWithContactInTrash($result);
         $this->logMessage('API result: ' . json_encode($result), 'debug');
         $this->logTime("API {$params[0]}.getsingle", 'regex:lookup');
 
@@ -412,4 +412,46 @@ class CRM_Banking_PluginImpl_Matcher_RegexAnalyser extends CRM_Banking_PluginMod
     return 'civicrm_' . implode('_', $ret);
   }
 
+  /**
+   * Filters out those entries/results that are related to a contact_id,
+   *  but that contact is in trash (is_deleted)
+   *
+   * @param $results
+   *   list of entity results to be filtered
+   *
+   * @return array
+   */
+  protected function removeResultsWithContactInTrash(&$results) : array {
+    $filtered_results = [];
+
+    // collect all contact ids
+    $referenced_contact_ids = [];
+    foreach ($results as $result) {
+      if (!empty($result['contact_id'])) {
+        $referenced_contact_ids[] = $result['contact_id'];
+      }
+    }
+    $referenced_contact_ids = array_unique($referenced_contact_ids);
+    $this->logMessage("lookup action: the following contact_ids are referenced: " . implode(', ', $referenced_contact_ids));
+
+    // find out which ones are in trash
+   $contacts = civicrm_api4('Contact', 'get', [
+      'select' => ['id'],
+      'where' => [
+        ['id', 'IN', $referenced_contact_ids],
+        ['is_deleted', '=', TRUE],
+      ],
+      'checkPermissions' => FALSE,
+    ]);
+
+
+    // extract the contact_ids
+    $entities_in_trash = [];
+    foreach ($results as $result) {
+      $entities_in_trash[] = $result['contact_id'];
+    }
+    $results = array_diff($entities_in_trash, $referenced_contact_ids);
+
+    return $filtered_results;
+  }
 }

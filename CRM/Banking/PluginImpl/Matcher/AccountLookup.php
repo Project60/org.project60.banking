@@ -28,7 +28,7 @@ class CRM_Banking_PluginImpl_Matcher_AccountLookup extends CRM_Banking_PluginMod
     parent::__construct($config_name);
 
     // read config, set defaults
-    $config = $this->_plugin_config;
+    $config = (object) $this->_plugin_config;
 
     // phpcs:disable Squiz.PHP.CommentedOutCode.Found
     // one of 'off', 'fill', 'update'

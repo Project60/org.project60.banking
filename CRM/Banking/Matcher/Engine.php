@@ -182,7 +182,12 @@ class CRM_Banking_Matcher_Engine {
           try {
             // run matchers to generate suggestions
             $logger->setTimer('matcher');
-            $continue = $this->matchPlugin($matcher, $context);
+            try {
+              $continue = $this->matchPlugin($matcher, $context);
+            } catch (Exception $e) {
+              $continue = true; // should this be configurable?
+              $logger->logError("Matcher [{$matcher->getPluginID()}] caused exception: '{$e->getMessage()}' but will be ignored.");
+            }
             $logger->logTime("Matcher [{$matcher->getPluginID()}]", 'matcher');
 
             if (!$continue) {

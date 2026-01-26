@@ -201,6 +201,51 @@ class CRM_Banking_PluginImpl_Matcher_RegexAnalyser extends CRM_Banking_PluginMod
         }
 
       }
+      elseif ($action->action == 'api4') {
+        $api4 = $action->api4;
+
+        $entity = $api4->entity;
+        $action = $api4->action ?? 'get';
+        // convert stdclass => array as required for replaceFieldValues and civicrm_api4
+        $params = json_decode(json_encode($api4->params), TRUE);
+
+        // if not set, use default limit of 1
+        $params['limit'] ??= 1;
+
+        /**
+         * @var array $toField => $fromField
+         * the array values are the keys we need to
+         * fetch from api4
+         **/
+        $resultMap = (array) $api4->result_map;
+        $params['select'] = array_values($resultMap);
+
+        function replaceParamValues (mixed &$a, callable $getValue) {
+          if (is_array($a)) {
+            foreach ($a as &$b) {
+              replaceParamValues($b, $getValue);
+            }
+          }
+          elseif (is_string($a) && substr($a, 0, 1) === '@') {
+            $key = substr($a, 1);
+            $a = $getValue($key);
+          }
+        }
+
+        replaceParamValues($params, fn (string $key) => $this->getValue($key, $match_data, $match_index, $data_parsed, $btx));
+
+        $result = civicrm_api4($entity, $action, $params);
+
+        if (!$result->count()) {
+          return;
+        }
+
+        foreach ($resultMap as $to => $from) {
+          // NOTE: always implode result. if you want to ensure a
+          // single value then pass limit: 1 in the params
+          $data_parsed[$to] = implode(',', $result->column($from));
+        }
+      }
       elseif (substr($action->action, 0, 4) == 'api:') {
         /**
          * Look up parameters via API call

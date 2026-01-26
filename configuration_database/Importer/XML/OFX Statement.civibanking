@@ -1,0 +1,102 @@
+{
+    "plugin_type_name": "import",
+    "plugin_class_name": "importer_xml",
+    "name": "OFX",
+    "description": "Should import basics from OFX bank statements. There may be more metadata in your bank's export that could be added.",
+    "weight": "1000",
+    "config": {
+        "probe": "BANKMSGSRSV1\/STMTTRNRS\/STMTRS",
+        "organisation_contact_ids": "1",
+        "log_level": "info",
+        "stmt_path": "BANKMSGSRSV1\/STMTTRNRS\/STMTRS",
+        "rules": [
+            {
+                "comment": "account type",
+                "from": "xpath:BANKACCTFROM\/ACCTTYPE",
+                "to": "tx_batch._ACCOUNT_TYPE",
+                "type": "set"
+            },
+            {
+                "comment": "UK sort code",
+                "from": "xpath:BANKACCTFROM\/BANKID",
+                "to": "tx_batch._ACCOUNT",
+                "type": "set"
+            },
+            {
+                "comment": "UK account number",
+                "from": "xpath:BANKACCTFROM\/ACCTID",
+                "to": "tx_batch._SORTCODE",
+                "type": "set"
+            },
+            {
+                "comment": "statement start date - TODO: check timezone parsing for non-UTC",
+                "from": "xpath:BANKTRANLIST\/DTSTART",
+                "to": "tx_batch.from_date",
+                "type": "strtotime:YmdHis\\.v\\[\\+\\0\\:e]"
+            },
+            {
+                "comment": "statement end date - TODO: check timezone parsing for non-UTC",
+                "from": "xpath:BANKTRANLIST\/DTEND",
+                "to": "tx_batch.to_date",
+                "type": "strtotime:YmdHis\\.v\\[\\+\\0\\:e]"
+            },
+            {
+                "comment": "statement currency",
+                "from": "xpath:CURDEF",
+                "to": "tx_batch.currency",
+                "type": "set"
+            },
+            {
+                "comment": "transaction currency",
+                "from": "xpath:CURDEF",
+                "to": "tx.currency",
+                "type": "set"
+            }
+        ],
+        "payment_lines": [
+            {
+                "comment": "general lines will be imported per-entry",
+                "path": "BANKTRANLIST\/STMTTRN",
+                "rules": [
+                    {
+                        "comment": "Booking Date - TODO: check timezone parsing for non-UTC",
+                        "from": "xpath:DTPOSTED",
+                        "to": "booking_date",
+                        "type": "strtotime:YmdHis\\.v\\[\\+\\0\\:e]"
+                    },
+                    {
+                        "comment": "Value Date = Booking Date - TODO: check timezone parsing for non-UTC",
+                        "from": "xpath:DTPOSTED",
+                        "to": "value_date",
+                        "type": "strtotime:YmdHis\\.v\\[\\+\\0\\:e]"
+                    },
+                    {
+                        "comment": "Transaction Amount",
+                        "from": "xpath:TRNAMT",
+                        "to": "amount",
+                        "type": "set"
+                    },
+                    {
+                        "comment": "transaction id",
+                        "from": "xpath:FITID",
+                        "to": "trxn_id",
+                        "type": "set"
+                    },
+                    {
+                        "comment": "transaction message",
+                        "from": "xpath:NAME",
+                        "to": "purpose",
+                        "type": "set"
+                    },
+                    {
+                        "comment": "transaction type",
+                        "from": "xpath:TRNTYPE",
+                        "to": "trxn_type",
+                        "type": "set"
+                    }
+                ]
+            }
+        ]
+    },
+    "state": []
+}

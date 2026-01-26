@@ -218,25 +218,14 @@ class CRM_Banking_PluginImpl_Matcher_RegexAnalyser extends CRM_Banking_PluginMod
          * fetch from api4
          **/
         $resultMap = (array) $api4->result_map;
-        $params['select'] = array_values($resultMap);
+        $params['select'] ??= array_values($resultMap);
 
-        function replaceFieldValues (array $fieldValues, mixed &$a) {
-          if (is_array($a)) {
-            foreach ($a as &$b) {
-              replaceFieldValues($fieldValues, $b);
-            }
-          }
-          elseif (is_string($a) && substr($a, 0, 1) === '@') {
-            $a = $fieldValues[substr($a, 1)];
-          }
-        }
-
-        replaceFieldValues($data_parsed, $params);
+        $this->replaceValues($params, $match_data, $match_index, $data_parsed, $btx);
 
         $result = civicrm_api4($entity, $action, $params);
 
         if (!$result->count()) {
-          return;
+          continue;
         }
 
         foreach ($resultMap as $to => $from) {
@@ -356,6 +345,21 @@ class CRM_Banking_PluginImpl_Matcher_RegexAnalyser extends CRM_Banking_PluginMod
           return '';
         }
       }
+    }
+  }
+
+  /**
+   * Recursively replace values keyed with "@" in an array
+   */
+  protected function replaceValues(mixed &$p, $match_data, $match_index, $data_parsed, $btx = NULL) {
+    if (is_array($p)) {
+      foreach ($p as &$q) {
+        $this->replaceValues($q, $match_data, $match_index, $data_parsed, $btx);
+      }
+    }
+    elseif (is_string($p) && substr($p, 0, 1) === '@') {
+      $key = substr($p, 1);
+      $p = $this->getValue($key, $match_data, $match_index, $data_parsed, $btx);
     }
   }
 

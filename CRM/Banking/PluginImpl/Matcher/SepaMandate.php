@@ -563,7 +563,7 @@ class CRM_Banking_PluginImpl_Matcher_SepaMandate extends CRM_Banking_PluginModel
     $this->logger->setTimer('sepa_mandate_cancel_contribution');
     $query = ['id' => $contribution_id];
     $query['contribution_status_id'] = $status_cancelled;
-    $query['cancel_date'] = date('Ymdhis', strtotime($btx->value_date));
+    $query['cancel_date'] = date('Ymdhis', strtotime($btx->booking_date));
     $query['currency'] = $contribution['currency'];
     // add propagated values
     $query = array_merge($query, $this->getPropagationSet($btx, $match, 'contribution', $config->cancellation_value_propagation));

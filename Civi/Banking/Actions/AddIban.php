@@ -145,7 +145,7 @@ class AddIban extends AbstractAction {
    * Method to parse the data for the bank account
    *
    * @param \Civi\ActionProvider\Parameter\ParameterBagInterface $parameters
-   * @return false|int|string
+   * @return false|string
    */
   private function parseBankAccountData(ParameterBagInterface $parameters) {
     $data = [];

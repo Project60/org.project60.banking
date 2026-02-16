@@ -5,7 +5,10 @@ parameters:
 	scanDirectories:
 		- vendor/civicrm/civicrm-core/api
 		- vendor/civicrm/civicrm-core/CRM
-		- vendor/civicrm/civicrm-packages
+		- vendor/civicrm/civicrm-packages/DB
+		- vendor/civicrm/civicrm-packages/HTML
+	excludePaths:
+		- vendor/rubobaquero/phpquery/phpQuery/phpQuery/compat/mbstring.php
 	bootstrapFiles:
 		- vendor/autoload.php
 	# Because we test with different versions in CI we may have unmatched errors.

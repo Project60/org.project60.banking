@@ -138,6 +138,7 @@ class CRM_Banking_Matcher_Engine {
    *   Set this to TRUE if you want to re-match processed transactions. This
    *   will destroy all records of the execution!
    */
+  // phpcs:ignore Generic.Metrics.CyclomaticComplexity.TooHigh
   public function match($btx_id, $override_processed = FALSE) {
     // TODO: timeout is 30s - do we need a setting here?
     $lock_timeout = 30.0;
@@ -184,8 +185,10 @@ class CRM_Banking_Matcher_Engine {
             $logger->setTimer('matcher');
             try {
               $continue = $this->matchPlugin($matcher, $context);
-            } catch (Exception $e) {
-              $continue = true; // should this be configurable?
+            }
+            catch (Exception $e) {
+              // should this be configurable?
+              $continue = TRUE;
               $logger->logError("Matcher [{$matcher->getPluginID()}] caused exception: '{$e->getMessage()}' but will be ignored.");
             }
             $logger->logTime("Matcher [{$matcher->getPluginID()}]", 'matcher');
@@ -206,6 +209,7 @@ class CRM_Banking_Matcher_Engine {
             }
           }
           catch (Exception $e) {
+            // @ignoreException
             $matcher_id = $matcher->getPluginID();
             error_log("org.project60.banking - Exception during the execution of matcher [$matcher_id], error was: " . $e->getMessage());
             $lock->release();
@@ -317,6 +321,7 @@ class CRM_Banking_Matcher_Engine {
               $results[] = $result;
             }
           }
+          // @phpstan-ignore catch.neverThrown
           catch (Exception $e) {
             $matcher_id = $matcher->getPluginID();
             error_log("org.project60.banking - Exception during the visualization of results of postprocessor [$matcher_id], error was: " . $e->getMessage());

@@ -187,6 +187,12 @@ parameters:
 			path: CRM/Banking/BAO/BankAccount.php
 
 		-
+			message: '#^Property CRM_Banking_DAO_BankAccount\:\:\$data_parsed \(string\|null\) does not accept string\|false\.$#'
+			identifier: assign.propertyType
+			count: 1
+			path: CRM/Banking/BAO/BankAccount.php
+
+		-
 			message: '#^Construct empty\(\) is not allowed\. Use more strict comparison\.$#'
 			identifier: empty.notAllowed
 			count: 1
@@ -481,6 +487,12 @@ parameters:
 			path: CRM/Banking/BAO/BankTransaction.php
 
 		-
+			message: '#^Parameter \#1 \$string of method DB_DataObject\:\:escape\(\) expects string, string\|false given\.$#'
+			identifier: argument.type
+			count: 2
+			path: CRM/Banking/BAO/BankTransaction.php
+
+		-
 			message: '#^Parameter \#2 \$v of method DB_DataObject\:\:get\(\) expects string\|null, int\<min, \-1\>\|int\<1, max\>\|string given\.$#'
 			identifier: argument.type
 			count: 2
@@ -523,7 +535,19 @@ parameters:
 			path: CRM/Banking/BAO/BankTransaction.php
 
 		-
+			message: '#^Property CRM_Banking_DAO_BankTransaction\:\:\$data_parsed \(string\|null\) does not accept string\|false\.$#'
+			identifier: assign.propertyType
+			count: 1
+			path: CRM/Banking/BAO/BankTransaction.php
+
+		-
 			message: '#^Property CRM_Banking_DAO_BankTransaction\:\:\$status_id \(int\|string\) does not accept type\.$#'
+			identifier: assign.propertyType
+			count: 1
+			path: CRM/Banking/BAO/BankTransaction.php
+
+		-
+			message: '#^Property CRM_Banking_DAO_BankTransaction\:\:\$suggestions \(string\|null\) does not accept string\|false\.$#'
 			identifier: assign.propertyType
 			count: 1
 			path: CRM/Banking/BAO/BankTransaction.php
@@ -686,12 +710,6 @@ parameters:
 		-
 			message: '#^Do not throw the \\Exception base class\.$#'
 			count: 5
-			path: CRM/Banking/BAO/PluginInstance.php
-
-		-
-			message: '#^Function json_encode invoked with 2 parameters, 1 required\.$#'
-			identifier: arguments.count
-			count: 1
 			path: CRM/Banking/BAO/PluginInstance.php
 
 		-
@@ -10052,6 +10070,12 @@ parameters:
 			path: CRM/Banking/PluginModel/BtxBase.php
 
 		-
+			message: '#^Parameter \#1 \$json of function json_decode expects string, string\|false given\.$#'
+			identifier: argument.type
+			count: 1
+			path: CRM/Banking/PluginModel/BtxBase.php
+
+		-
 			message: '#^Parameter \#1 \$pattern of function preg_match expects string, mixed given\.$#'
 			identifier: argument.type
 			count: 1
@@ -12140,12 +12164,6 @@ parameters:
 			path: api/v3/BankingLookup.php
 
 		-
-			message: '#^Argument of an invalid type list\<string\>\|false supplied for foreach, only iterables are supported\.$#'
-			identifier: foreach.nonIterable
-			count: 1
-			path: api/v3/BankingLookup.php
-
-		-
 			message: '#^Argument of an invalid type mixed supplied for foreach, only iterables are supported\.$#'
 			identifier: foreach.nonIterable
 			count: 2
@@ -12160,12 +12178,6 @@ parameters:
 		-
 			message: '#^Call to function in_array\(\) requires parameter \#3 to be set\.$#'
 			identifier: function.strict
-			count: 1
-			path: api/v3/BankingLookup.php
-
-		-
-			message: '#^Cannot access an offset on list\<string\|null\>\|false\.$#'
-			identifier: offsetAccess.nonOffsetAccessible
 			count: 1
 			path: api/v3/BankingLookup.php
 
@@ -12191,18 +12203,6 @@ parameters:
 			message: '#^Cannot access offset ''values'' on array\|int\.$#'
 			identifier: offsetAccess.nonOffsetAccessible
 			count: 1
-			path: api/v3/BankingLookup.php
-
-		-
-			message: '#^Cannot access offset int\<1, max\> on list\<string\|null\>\|false\.$#'
-			identifier: offsetAccess.nonOffsetAccessible
-			count: 4
-			path: api/v3/BankingLookup.php
-
-		-
-			message: '#^Cannot access offset int\<2, max\> on list\<string\|null\>\|false\.$#'
-			identifier: offsetAccess.nonOffsetAccessible
-			count: 2
 			path: api/v3/BankingLookup.php
 
 		-
@@ -12347,12 +12347,6 @@ parameters:
 			message: '#^Parameter \#1 \$string of function strtolower expects string, mixed given\.$#'
 			identifier: argument.type
 			count: 1
-			path: api/v3/BankingLookup.php
-
-		-
-			message: '#^Parameter \#1 \$value of function count expects array\|Countable, list\<string\|null\>\|false given\.$#'
-			identifier: argument.type
-			count: 2
 			path: api/v3/BankingLookup.php
 
 		-
@@ -12580,6 +12574,12 @@ parameters:
 		-
 			message: '#^Function civicrm_api3_banking_rule_Getruledata\(\) return type has no value type specified in iterable type array\.$#'
 			identifier: missingType.iterableValue
+			count: 1
+			path: api/v3/BankingRule/Getruledata.php
+
+		-
+			message: '#^Parameter \#1 \$json of function json_decode expects string, string\|false given\.$#'
+			identifier: argument.type
 			count: 1
 			path: api/v3/BankingRule/Getruledata.php
 
@@ -13382,12 +13382,6 @@ parameters:
 		-
 			message: '#^Dynamic call to static method PHPUnit\\Framework\\Assert\:\:fail\(\)\.$#'
 			identifier: staticMethod.dynamicCall
-			count: 1
-			path: tests/phpunit/CRM/Banking/Matcher/CreateCampaignContributionTest.php
-
-		-
-			message: '#^Function json_encode invoked with 2 parameters, 1 required\.$#'
-			identifier: arguments.count
 			count: 1
 			path: tests/phpunit/CRM/Banking/Matcher/CreateCampaignContributionTest.php
 

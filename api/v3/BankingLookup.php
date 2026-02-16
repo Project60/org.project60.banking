@@ -78,6 +78,7 @@ function civicrm_api3_banking_lookup_contactbyname($params) {
 
   // chop up the name string
   $name_bits = preg_split('( |,|&|\.)', $name, 0, PREG_SPLIT_NO_EMPTY);
+  assert(FALSE !== $name_bits);
 
   // apply 'alternative'-modifiers to string
   foreach ($name_bits as $name_bit) {

@@ -158,6 +158,10 @@ class CRM_Banking_PluginImpl_Matcher_SepaMandate extends CRM_Banking_PluginModel
       }
       $config->cancellation_value_propagation->{'match.cancel_fee'} = $config->cancellation_cancel_fee_store;
     }
+    // Field containing the cancellation date. The correct value would be
+    // "booking_date". Though to keep previous behavior this defaults to
+    // "value_date".
+    $config->cancellation_date_field ??= 'value_date';
 
     // create activity
     if (!isset($config->cancellation_create_activity)) {
@@ -563,7 +567,7 @@ class CRM_Banking_PluginImpl_Matcher_SepaMandate extends CRM_Banking_PluginModel
     $this->logger->setTimer('sepa_mandate_cancel_contribution');
     $query = ['id' => $contribution_id];
     $query['contribution_status_id'] = $status_cancelled;
-    $query['cancel_date'] = date('Ymdhis', strtotime($btx->value_date));
+    $query['cancel_date'] = date('Ymdhis', strtotime($btx->{$config->cancellation_date_field}));
     $query['currency'] = $contribution['currency'];
     // add propagated values
     $query = array_merge($query, $this->getPropagationSet($btx, $match, 'contribution', $config->cancellation_value_propagation));

@@ -201,6 +201,39 @@ class CRM_Banking_PluginImpl_Matcher_RegexAnalyser extends CRM_Banking_PluginMod
         }
 
       }
+      elseif ($action->action == 'api4') {
+        $api4 = $action->api4;
+
+        $entity = $api4->entity;
+        $action = $api4->action ?? 'get';
+        // convert stdclass => array as required for replaceFieldValues and civicrm_api4
+        $params = json_decode(json_encode($api4->params), TRUE);
+
+        // if not set, use default limit of 1
+        $params['limit'] ??= 1;
+
+        /**
+         * @var array $toField => $fromField
+         * the array values are the keys we need to
+         * fetch from api4
+         **/
+        $resultMap = (array) $api4->result_map;
+        $params['select'] ??= array_values($resultMap);
+
+        $this->replaceValues($params, $match_data, $match_index, $data_parsed, $btx);
+
+        $result = civicrm_api4($entity, $action, $params);
+
+        if (!$result->count()) {
+          continue;
+        }
+
+        foreach ($resultMap as $to => $from) {
+          // NOTE: always implode result. if you want to ensure a
+          // single value then pass limit: 1 in the params
+          $data_parsed[$to] = implode(',', $result->column($from));
+        }
+      }
       elseif (substr($action->action, 0, 4) == 'api:') {
         /**
          * Look up parameters via API call
@@ -312,6 +345,21 @@ class CRM_Banking_PluginImpl_Matcher_RegexAnalyser extends CRM_Banking_PluginMod
           return '';
         }
       }
+    }
+  }
+
+  /**
+   * Recursively replace values keyed with "@" in an array
+   */
+  protected function replaceValues(mixed &$p, $match_data, $match_index, $data_parsed, $btx = NULL) {
+    if (is_array($p)) {
+      foreach ($p as &$q) {
+        $this->replaceValues($q, $match_data, $match_index, $data_parsed, $btx);
+      }
+    }
+    elseif (is_string($p) && substr($p, 0, 1) === '@') {
+      $key = substr($p, 1);
+      $p = $this->getValue($key, $match_data, $match_index, $data_parsed, $btx);
     }
   }
 

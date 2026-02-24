@@ -60,14 +60,8 @@
           <div class="btxvalue">{$last_fee.total_amount|crmMoney:$last_fee.currency}</div>
         </td>
         <td>
-          {capture assign=day_count}{$last_fee.days|abs}{/capture}
-          {if $last_fee.days gt 0}
-            {capture assign=last_fee_days}{ts 1=$day_count domain='org.project60.banking'}(%1 days earlier){/ts}{/capture}
-          {else}
-            {capture assign=last_fee_days}{ts 1=$day_count domain='org.project60.banking'}(%1 days later){/ts}{/capture}
-          {/if}
           <div class="btxlabel">{ts domain='org.project60.banking'}Paid{/ts}:</div>
-          <div class="btxvalue">{$last_fee.receive_date|crmDate:$config->dateformatFull} {$last_fee_days}</div>
+          <div class="btxvalue">{$last_fee.receive_date|crmDate:$config->dateformatFull} ({$last_fee.days_different})</div>
         </td>
         <td>
           <div class="btxlabel">{ts domain='org.project60.banking'}Type{/ts}:</div>
@@ -89,14 +83,8 @@
           <div class="btxvalue"><strong>{ts domain='org.project60.banking'}None{/ts}</strong></div>
         </td>
         <td>
-          {capture assign=day_count}{$membership.days|abs}{/capture}
-          {if $membership.days gt 0}
-            {capture assign=membership_days}{ts 1=$day_count domain='org.project60.banking'}(%1 days earlier){/ts}{/capture}
-          {else}
-            {capture assign=membership_days}{ts 1=$day_count domain='org.project60.banking'}(%1 days later){/ts}{/capture}
-          {/if}
           <div class="btxlabel">{ts domain='org.project60.banking'}Due{/ts}:</div>
-          <div class="btxvalue">{$membership.start_date|crmDate:$config->dateformatFull} {$membership_days}</div>
+          <div class="btxvalue">{$membership.start_date|crmDate:$config->dateformatFull} ({$membership.days_different})</div>
         </td>
         <td>
           <div class="btxlabel">{ts domain='org.project60.banking'}Fee{/ts}:</div>

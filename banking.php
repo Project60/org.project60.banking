@@ -23,16 +23,27 @@ require_once 'CRM/Banking/Helpers/URLBuilder.php';
 require_once 'CRM/Banking/Helpers/OptionValue.php';
 // phpcs:enable
 
-use Symfony\Component\DependencyInjection\ContainerBuilder;
+use Civi\Banking\DependencyInjection\Compiler\ActionProviderPass;
+use Civi\Banking\DependencyInjection\Compiler\RegexAnalyserActionHandlerPass;
+use Civi\Banking\DependencyInjection\Util\ServiceRegistrator;
+use Civi\Banking\Matcher\RegexAnalyser\RegexAnalyserActionHandlerInterface;
 use CRM_Banking_ExtensionUtil as E;
+use Symfony\Component\DependencyInjection\ContainerBuilder;
 
 /**
  * Implements hook_civicrm_container().
  */
 function banking_civicrm_container(ContainerBuilder $container) {
-  if (class_exists('Civi\Banking\CompilerPass')) {
-    $container->addCompilerPass(new Civi\Banking\CompilerPass());
-  }
+  $container->addCompilerPass(new ActionProviderPass());
+  $container->addCompilerPass(new RegexAnalyserActionHandlerPass());
+
+  ServiceRegistrator::autowireAllImplementing(
+      $container,
+    __DIR__ . '/Civi/Banking/Matcher/RegexAnalyser/ActionHandlers',
+      'Civi\\Banking\\Matcher\\RegexAnalyser\\ActionHandlers',
+      RegexAnalyserActionHandlerInterface::class,
+    [RegexAnalyserActionHandlerInterface::class => []]
+  );
 }
 
 /**

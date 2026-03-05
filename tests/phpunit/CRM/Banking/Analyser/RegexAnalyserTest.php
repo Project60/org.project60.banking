@@ -30,8 +30,10 @@ class CRM_Banking_RegexAnalyserTest extends CRM_Banking_TestBase {
 
   /**
    * Test the 'set' action.
+   *
+   * @covers \Civi\Banking\Matcher\RegexAnalyser\ActionHandlers\SetRegexAnalyserActionHandler
    */
-  public function testSetAction() {
+  public function testSetAction(): void {
     $transactionId = $this->createTransaction(
         [
           'purpose' => 'This is a donation',
@@ -64,9 +66,11 @@ class CRM_Banking_RegexAnalyserTest extends CRM_Banking_TestBase {
   }
 
   /**
-   * Test that the 'test' action does not set if not matched.
+   * Test that the 'set' action does not set if not matched.
+   *
+   * @covers \Civi\Banking\Matcher\RegexAnalyser\ActionHandlers\SetRegexAnalyserActionHandler
    */
-  public function testSetActionDoesNotMatch() {
+  public function testSetActionDoesNotMatch(): void {
     $transactionId = $this->createTransaction(
         [
           'purpose' => 'This is a nothing',
@@ -104,8 +108,10 @@ class CRM_Banking_RegexAnalyserTest extends CRM_Banking_TestBase {
 
   /**
    * Test the 'map' action.
+   *
+   * @covers \Civi\Banking\Matcher\RegexAnalyser\ActionHandlers\MapRegexAnalyserActionHandler
    */
-  public function testMapAction() {
+  public function testMapAction(): void {
     $transactionId = $this->createTransaction(
         [
           'financial_type' => 'CreditCard',
@@ -145,8 +151,10 @@ class CRM_Banking_RegexAnalyserTest extends CRM_Banking_TestBase {
 
   /**
    * Test the 'copy' action.
+   *
+   * @covers \Civi\Banking\Matcher\RegexAnalyser\ActionHandlers\CopyRegexAnalyserActionHandler
    */
-  public function testCopyAction() {
+  public function testCopyAction(): void {
     // setup
     $transaction1_id = $this->createTransaction(['purpose' => "here's your code X92873X2323X, alright!?"]);
     $transaction2_id = $this->createTransaction(['purpose' => "here's an invalid code X92873Y2323X, alright!?"]);
@@ -189,8 +197,10 @@ class CRM_Banking_RegexAnalyserTest extends CRM_Banking_TestBase {
 
   /**
    * Test the 'copy_append' action.
+   *
+   * @covers \Civi\Banking\Matcher\RegexAnalyser\ActionHandlers\CopyAppendRegexAnalyserActionHandler
    */
-  public function testCopyAppendAction() {
+  public function testCopyAppendAction(): void {
     // setup
     $transaction_id = $this->createTransaction([
       'purpose'      => "here's your code X92873X2323X, alright!?",
@@ -226,8 +236,10 @@ class CRM_Banking_RegexAnalyserTest extends CRM_Banking_TestBase {
 
   /**
    * Test the 'copy_ltrim_zeros' action.
+   *
+   * @covers \Civi\Banking\Matcher\RegexAnalyser\ActionHandlers\UnsetRegexAnalyserActionHandler
    */
-  public function testSetUnsetAction() {
+  public function testSetUnsetAction(): void {
     // setup
     $transaction_id = $this->createTransaction([
       'field_1' => 'YO',
@@ -261,9 +273,11 @@ class CRM_Banking_RegexAnalyserTest extends CRM_Banking_TestBase {
   }
 
   /**
-   * Test the 'copy_ltrim_zeros' action.
+   * Test the 'strtolower' action.
+   *
+   * @covers \Civi\Banking\Matcher\RegexAnalyser\ActionHandlers\StrtolowerRegexAnalyserActionHandler
    */
-  public function testStrtolowerAction() {
+  public function testStrtolowerAction(): void {
     // setup
     $transaction_id = $this->createTransaction([
       'field_1' => 'YO',
@@ -293,8 +307,10 @@ class CRM_Banking_RegexAnalyserTest extends CRM_Banking_TestBase {
 
   /**
    * Test the 'sha1' action.
+   *
+   * @covers \Civi\Banking\Matcher\RegexAnalyser\ActionHandlers\Sha1RegexAnalyserActionHandler
    */
-  public function testSHA1Action() {
+  public function testSHA1Action(): void {
     // setup
     $transaction_id = $this->createTransaction([
       'data' => 'Neque porro quisquam est qui dolorem ipsum quia dolor sit amet, consectetur, adipisci velit...',
@@ -324,8 +340,10 @@ class CRM_Banking_RegexAnalyserTest extends CRM_Banking_TestBase {
 
   /**
    * Test the 'sprint' action.
+   *
+   * @covers \Civi\Banking\Matcher\RegexAnalyser\ActionHandlers\SprintRegexAnalyserActionHandler
    */
-  public function testSprintfAction() {
+  public function testSprintAction(): void {
     // setup
     $transaction_id = $this->createTransaction([
       'data' => '1.234',
@@ -357,8 +375,10 @@ class CRM_Banking_RegexAnalyserTest extends CRM_Banking_TestBase {
 
   /**
    * Test the 'lookup' action.
+   *
+   * @covers \Civi\Banking\Matcher\RegexAnalyser\ActionHandlers\LookupRegexAnalyserActionHandler
    */
-  public function testLookupAction() {
+  public function testLookupAction(): void {
     // setup
     $contact_id = $this->createContact(['external_identifier' => 'testLookupAction']);
     $contact = civicrm_api3('Contact', 'get', ['id' => $contact_id]);
@@ -390,8 +410,10 @@ class CRM_Banking_RegexAnalyserTest extends CRM_Banking_TestBase {
 
   /**
    * Test the 'api' action.
+   *
+   * @covers \Civi\Banking\Matcher\RegexAnalyser\ActionHandlers\ApiRegexAnalyserActionHandler
    */
-  public function testApiAction() {
+  public function testApiAction(): void {
     // setup
     $contact_id = $this->createContact(['external_identifier' => 'ApiAction', 'first_name' => 'Jenny']);
     $transaction_id = $this->createTransaction([
@@ -425,8 +447,10 @@ class CRM_Banking_RegexAnalyserTest extends CRM_Banking_TestBase {
 
   /**
    * Test the 'api' action via sql
+   *
+   * @covers \Civi\Banking\Matcher\RegexAnalyser\ActionHandlers\ApiRegexAnalyserActionHandler
    */
-  public function testApiActionSql() {
+  public function testApiActionSql(): void {
     // setup
     $contact_id = $this->createContact(['external_identifier' => 'ApiAction', 'first_name' => 'Jenny']);
     $transaction_id = $this->createTransaction([

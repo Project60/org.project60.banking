@@ -148,7 +148,7 @@ class CRM_Banking_PluginImpl_Matcher_RegexAnalyser extends CRM_Banking_PluginMod
         }
         else {
           $subject = $this->getValue($action->from, $match_data, $match_index, $data_parsed, $btx);
-          $data_parsed[$action->to] = preg_replace($action->search_pattern, $action->replace, $subject);
+          $data_parsed[$action->to] = preg_replace($action->search_pattern, $action->replace, (string) $subject);
         }
 
       }
@@ -160,7 +160,7 @@ class CRM_Banking_PluginImpl_Matcher_RegexAnalyser extends CRM_Banking_PluginMod
           // replace variable with value
           $token = trim($matches[0], '{}');
           $value = $this->getValue($token, $match_data, $match_index, $data_parsed, $btx);
-          $expression = preg_replace('#(?P<variable>{[^}]+})#', $value, $expression, 1);
+          $expression = preg_replace('#(?P<variable>{[^}]+})#', (string) $value, $expression, 1);
         }
         // phpcs:disable Drupal.Functions.DiscouragedFunctions.Discouraged
         $data_parsed[$action->to] = eval("return $expression;");

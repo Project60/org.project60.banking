@@ -55,7 +55,7 @@ class CRM_Banking_Page_AccountDedupe extends CRM_Core_Page {
    */
   public function findReferences() {
     // look up reference types
-    $reference_type_group_id = banking_helper_optiongroupid_by_name('civicrm_banking.reference_types');
+    $reference_type_group_id = CRM_Banking_Helpers_OptionValue::banking_helper_optiongroupid_by_name('civicrm_banking.reference_types');
     $reference_types = civicrm_api3('OptionValue', 'get', ['option_group_id' => $reference_type_group_id]);
     $reference_types = $reference_types['values'];
 

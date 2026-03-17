@@ -18,7 +18,7 @@ class CRM_Banking_Page_Statements extends CRM_Core_Page {
     $config = CRM_Core_Config::singleton();
     CRM_Utils_System::setTitle(E::ts('Banking statements'));
     $this->assign('can_delete', CRM_Core_Permission::check('administer CiviCRM'));
-    $this->assign('url_export_selected_payments', banking_helper_buildURL('civicrm/banking/export', ['s_list' => '__selected__']));
+    $this->assign('url_export_selected_payments', CRM_Banking_Helpers_URLBuilder::banking_helper_buildURL('civicrm/banking/export', ['s_list' => '__selected__']));
 
     $statements = [];
     // collect an array of target accounts, serving to limit the display

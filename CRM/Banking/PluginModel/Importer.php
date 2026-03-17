@@ -125,7 +125,7 @@ abstract class CRM_Banking_PluginModel_Importer extends CRM_Banking_PluginModel_
    */
   public function __construct($plugin_dao) {
     parent::__construct($plugin_dao);
-    $this->_default_btx_state_id = banking_helper_optionvalueid_by_groupname_and_name(
+    $this->_default_btx_state_id = CRM_Banking_Helpers_OptionValue::banking_helper_optionvalueid_by_groupname_and_name(
       'civicrm_banking.bank_tx_status',
       'new'
     );

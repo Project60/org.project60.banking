@@ -271,7 +271,7 @@ class CRM_Banking_PluginImpl_Matcher_RecurringContribution extends CRM_Banking_P
       $contribution['payment_instrument_id']      = $rcontribution['payment_instrument_id'] ?? NULL;
       $contribution['campaign_id']                = $rcontribution['campaign_id'] ?? NULL;
       $contribution['contribution_recur_id']      = $rcontribution_id;
-      $contribution['contribution_status_id']     = banking_helper_optionvalue_by_groupname_and_name('contribution_status', $config->created_contribution_status);
+      $contribution['contribution_status_id']     = CRM_Banking_Helpers_OptionValue::banking_helper_optionvalue_by_groupname_and_name('contribution_status', $config->created_contribution_status);
       $contribution = array_merge($contribution, $this->getPropagationSet($btx, $suggestion, 'contribution'));
       $result = civicrm_api3('Contribution', 'create', $contribution);
       if (isset($result['is_error']) && $result['is_error']) {
@@ -292,7 +292,7 @@ class CRM_Banking_PluginImpl_Matcher_RecurringContribution extends CRM_Banking_P
         $contribution['payment_instrument_id']      = $rcontribution['payment_instrument_id'] ?? NULL;
         $contribution['campaign_id']                = $rcontribution['campaign_id'] ?? NULL;
         $contribution['contribution_recur_id']      = $rcontribution['id'];
-        $contribution['contribution_status_id']     = banking_helper_optionvalue_by_groupname_and_name('contribution_status', $config->created_contribution_status);
+        $contribution['contribution_status_id']     = CRM_Banking_Helpers_OptionValue::banking_helper_optionvalue_by_groupname_and_name('contribution_status', $config->created_contribution_status);
         $contribution = array_merge($contribution, $this->getPropagationSet($btx, $suggestion, 'contribution'));
         $result = civicrm_api3('Contribution', 'create', $contribution);
         if (isset($result['is_error']) && $result['is_error']) {
@@ -315,7 +315,7 @@ class CRM_Banking_PluginImpl_Matcher_RecurringContribution extends CRM_Banking_P
     // save the account
     $this->storeAccountWithContact($btx, $suggestion->getParameter('contact_id'));
 
-    $newStatus = banking_helper_optionvalueid_by_groupname_and_name('civicrm_banking.bank_tx_status', 'Processed');
+    $newStatus = CRM_Banking_Helpers_OptionValue::banking_helper_optionvalueid_by_groupname_and_name('civicrm_banking.bank_tx_status', 'Processed');
     $btx->setStatus($newStatus);
     parent::execute($suggestion, $btx);
     return TRUE;

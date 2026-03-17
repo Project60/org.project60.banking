@@ -70,7 +70,7 @@ class CRM_Banking_Matcher_Engine {
   private function getMatchers() {
     if ($this->matchers === NULL) {
       $this->matchers = [];
-      $matcher_type_id = banking_helper_optionvalueid_by_groupname_and_name('civicrm_banking.plugin_classes', 'match');
+      $matcher_type_id = CRM_Banking_Helpers_OptionValue::banking_helper_optionvalueid_by_groupname_and_name('civicrm_banking.plugin_classes', 'match');
       $params = ['plugin_type_id' => $matcher_type_id, 'enabled' => 1];
       $result = civicrm_api3('BankingPluginInstance', 'get', $params);
       if (isset($result['is_error']) && $result['is_error']) {
@@ -104,7 +104,7 @@ class CRM_Banking_Matcher_Engine {
     if ($this->postprocessors == NULL) {
       $this->postprocessors = [];
 
-      $postprocessor_type_id = banking_helper_optionvalueid_by_groupname_and_name('civicrm_banking.plugin_classes', 'postprocess');
+      $postprocessor_type_id = CRM_Banking_Helpers_OptionValue::banking_helper_optionvalueid_by_groupname_and_name('civicrm_banking.plugin_classes', 'postprocess');
       $params = ['plugin_type_id' => $postprocessor_type_id, 'enabled' => 1];
       $result = civicrm_api3('BankingPluginInstance', 'get', $params);
       if (isset($result['is_error']) && $result['is_error']) {
@@ -154,8 +154,8 @@ class CRM_Banking_Matcher_Engine {
 
     if (!$override_processed) {
       // don't match already executed transactions...
-      $processed_status_id = banking_helper_optionvalueid_by_groupname_and_name('civicrm_banking.bank_tx_status', 'Processed');
-      $ignored_status_id = banking_helper_optionvalueid_by_groupname_and_name('civicrm_banking.bank_tx_status', 'Ignored');
+      $processed_status_id = CRM_Banking_Helpers_OptionValue::banking_helper_optionvalueid_by_groupname_and_name('civicrm_banking.bank_tx_status', 'Processed');
+      $ignored_status_id = CRM_Banking_Helpers_OptionValue::banking_helper_optionvalueid_by_groupname_and_name('civicrm_banking.bank_tx_status', 'Ignored');
       if ($btx->status_id == $processed_status_id || $btx->status_id == $ignored_status_id) {
         // will not match already executed transactions
         $lock->release();
@@ -221,7 +221,7 @@ class CRM_Banking_Matcher_Engine {
     $btx->saveSuggestions();
 
     // set the status
-    $newStatus = banking_helper_optionvalueid_by_groupname_and_name('civicrm_banking.bank_tx_status', 'Suggestions');
+    $newStatus = CRM_Banking_Helpers_OptionValue::banking_helper_optionvalueid_by_groupname_and_name('civicrm_banking.bank_tx_status', 'Suggestions');
     $btx->status_id = $newStatus;
     $btx->setStatus($newStatus);
 

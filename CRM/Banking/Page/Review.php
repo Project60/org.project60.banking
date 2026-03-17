@@ -69,7 +69,7 @@ class CRM_Banking_Page_Review extends CRM_Core_Page {
     $btx_bao->get('id', $pid);
 
     // read the list of BTX statuses
-    $choices = banking_helper_optiongroup_id_name_mapping('civicrm_banking.bank_tx_status');
+    $choices = CRM_Banking_Helpers_OptionValue::banking_helper_optiongroup_id_name_mapping('civicrm_banking.bank_tx_status');
 
     // If the execution was triggered, run that first
     if (isset($_REQUEST['execute'])) {
@@ -82,21 +82,21 @@ class CRM_Banking_Page_Review extends CRM_Core_Page {
           if ($new_ui_enabled) {
             // Determine whether we should go back to the statements or statement lines
             if (isset($_REQUEST['list'])) {
-              $url_redirect = banking_helper_buildURL('civicrm/banking/statements/lines', ['s_id' => $btx_bao->tx_batch_id]);
+              $url_redirect = CRM_Banking_Helpers_URLBuilder::banking_helper_buildURL('civicrm/banking/statements/lines', ['s_id' => $btx_bao->tx_batch_id]);
             }
             elseif (isset($_REQUEST['s_list'])) {
-              $url_redirect = banking_helper_buildURL('civicrm/banking/statements', []);
+              $url_redirect = CRM_Banking_Helpers_URLBuilder::banking_helper_buildURL('civicrm/banking/statements', []);
             }
           }
           else {
-            $url_redirect = banking_helper_buildURL('civicrm/banking/payments', $this->_pageParameters());
+            $url_redirect = CRM_Banking_Helpers_URLBuilder::banking_helper_buildURL('civicrm/banking/payments', $this->_pageParameters());
           }
         }
       }
       else {
         // execution failed -> go back
         if (isset($prev_pid)) {
-          $url_redirect = banking_helper_buildURL('civicrm/banking/review', $this->_pageParameters(['id' => $prev_pid]));
+          $url_redirect = CRM_Banking_Helpers_URLBuilder::banking_helper_buildURL('civicrm/banking/review', $this->_pageParameters(['id' => $prev_pid]));
         }
       }
     }
@@ -273,37 +273,37 @@ class CRM_Banking_Page_Review extends CRM_Core_Page {
     // URLs & stats
     $unprocessed_count = 0;
     $this->assign('new_ui_enabled', $new_ui_enabled);
-    $this->assign('url_back', banking_helper_buildURL('civicrm/banking/payments', $this->_pageParameters()));
+    $this->assign('url_back', CRM_Banking_Helpers_URLBuilder::banking_helper_buildURL('civicrm/banking/payments', $this->_pageParameters()));
     if ($new_ui_enabled) {
       // Determine whether we should go back to the statements or statement lines
       if (isset($_REQUEST['list'])) {
-        $this->assign('url_back', banking_helper_buildURL('civicrm/banking/statements/lines', ['s_id' => $btx_bao->tx_batch_id]));
+        $this->assign('url_back', CRM_Banking_Helpers_URLBuilder::banking_helper_buildURL('civicrm/banking/statements/lines', ['s_id' => $btx_bao->tx_batch_id]));
         $this->assign('back_to_statement_lines', TRUE);
       }
       elseif (isset($_REQUEST['s_list'])) {
-        $this->assign('url_back', banking_helper_buildURL('civicrm/banking/statements', []));
+        $this->assign('url_back', CRM_Banking_Helpers_URLBuilder::banking_helper_buildURL('civicrm/banking/statements', []));
         $this->assign('back_to_statement_lines', FALSE);
       }
     }
 
     if (isset($next_pid)) {
-      $this->assign('url_skip_forward', banking_helper_buildURL('civicrm/banking/review', $this->_pageParameters(['id' => $next_pid])));
-      $this->assign('url_execute', banking_helper_buildURL('civicrm/banking/review', $this->_pageParameters(['id' => $next_pid, 'execute' => $pid])));
+      $this->assign('url_skip_forward', CRM_Banking_Helpers_URLBuilder::banking_helper_buildURL('civicrm/banking/review', $this->_pageParameters(['id' => $next_pid])));
+      $this->assign('url_execute', CRM_Banking_Helpers_URLBuilder::banking_helper_buildURL('civicrm/banking/review', $this->_pageParameters(['id' => $next_pid, 'execute' => $pid])));
 
       $unprocessed_info = $this->getUnprocessedInfo($list, $next_pid, $choices);
       if ($unprocessed_info) {
-        $this->assign('url_skip_processed', banking_helper_buildURL('civicrm/banking/review', $this->_pageParameters(['id' => $unprocessed_info['next_unprocessed_pid']])));
+        $this->assign('url_skip_processed', CRM_Banking_Helpers_URLBuilder::banking_helper_buildURL('civicrm/banking/review', $this->_pageParameters(['id' => $unprocessed_info['next_unprocessed_pid']])));
         $unprocessed_count = $unprocessed_info['unprocessed_count'];
       }
     }
     else {
-      $this->assign('url_execute', banking_helper_buildURL('civicrm/banking/review', $this->_pageParameters(['execute' => $pid])));
+      $this->assign('url_execute', CRM_Banking_Helpers_URLBuilder::banking_helper_buildURL('civicrm/banking/review', $this->_pageParameters(['execute' => $pid])));
     }
 
     if (isset($prev_pid)) {
-      $this->assign('url_skip_back', banking_helper_buildURL('civicrm/banking/review', $this->_pageParameters(['id' => $prev_pid])));
+      $this->assign('url_skip_back', CRM_Banking_Helpers_URLBuilder::banking_helper_buildURL('civicrm/banking/review', $this->_pageParameters(['id' => $prev_pid])));
     }
-    $this->assign('url_show_payments', banking_helper_buildURL('civicrm/banking/payments', ['show' => 'payments']));
+    $this->assign('url_show_payments', CRM_Banking_Helpers_URLBuilder::banking_helper_buildURL('civicrm/banking/payments', ['show' => 'payments']));
 
     // phpcs:disable Squiz.PHP.GlobalKeyword.NotAllowed
     global $base_url;

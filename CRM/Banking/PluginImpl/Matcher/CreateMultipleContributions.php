@@ -375,7 +375,7 @@ class CRM_Banking_PluginImpl_Matcher_CreateMultipleContributions extends CRM_Ban
       );
 
       // Wrap it up.
-      $newStatus = banking_helper_optionvalueid_by_groupname_and_name(
+      $newStatus = CRM_Banking_Helpers_OptionValue::banking_helper_optionvalueid_by_groupname_and_name(
         'civicrm_banking.bank_tx_status',
         'Processed'
       );

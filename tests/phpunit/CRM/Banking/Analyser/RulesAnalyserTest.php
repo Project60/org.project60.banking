@@ -33,7 +33,7 @@ class CRM_Banking_Analyser_RulesAnalyserTest extends CRM_Banking_TestBase {
    */
   public function testRulesAnalyserBasic():void {
     // get status IDs
-    $payment_states  = banking_helper_optiongroup_id_name_mapping('civicrm_banking.bank_tx_status');
+    $payment_states  = CRM_Banking_Helpers_OptionValue::banking_helper_optiongroup_id_name_mapping('civicrm_banking.bank_tx_status');
     $state_processed = (int) $payment_states['processed']['id'];
 
     // create a transaction to process

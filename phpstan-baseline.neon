@@ -1774,87 +1774,87 @@ parameters:
 			path: CRM/Banking/Helpers/OptionValue.php
 
 		-
-			message: '#^Function banking_helper_optiongroup_id_name_mapping\(\) has no return type specified\.$#'
+			message: '#^Loose comparison via "\=\=" is not allowed\.$#'
+			identifier: equal.notAllowed
+			count: 2
+			path: CRM/Banking/Helpers/OptionValue.php
+
+		-
+			message: '#^Method CRM_Banking_Helpers_OptionValue\:\:banking_helper_optiongroup_id_name_mapping\(\) has no return type specified\.$#'
 			identifier: missingType.return
 			count: 1
 			path: CRM/Banking/Helpers/OptionValue.php
 
 		-
-			message: '#^Function banking_helper_optiongroup_id_name_mapping\(\) has parameter \$group_name with no type specified\.$#'
+			message: '#^Method CRM_Banking_Helpers_OptionValue\:\:banking_helper_optiongroup_id_name_mapping\(\) has parameter \$group_name with no type specified\.$#'
 			identifier: missingType.parameter
 			count: 1
 			path: CRM/Banking/Helpers/OptionValue.php
 
 		-
-			message: '#^Function banking_helper_optiongroupid_by_name\(\) has parameter \$group_name with no type specified\.$#'
+			message: '#^Method CRM_Banking_Helpers_OptionValue\:\:banking_helper_optiongroupid_by_name\(\) has parameter \$group_name with no type specified\.$#'
 			identifier: missingType.parameter
 			count: 1
 			path: CRM/Banking/Helpers/OptionValue.php
 
 		-
-			message: '#^Function banking_helper_optionvalue_by_groupname_and_name\(\) has parameter \$group_name with no type specified\.$#'
+			message: '#^Method CRM_Banking_Helpers_OptionValue\:\:banking_helper_optionvalue_by_groupname_and_name\(\) has parameter \$group_name with no type specified\.$#'
 			identifier: missingType.parameter
 			count: 1
 			path: CRM/Banking/Helpers/OptionValue.php
 
 		-
-			message: '#^Function banking_helper_optionvalue_by_groupname_and_name\(\) has parameter \$value_name with no type specified\.$#'
+			message: '#^Method CRM_Banking_Helpers_OptionValue\:\:banking_helper_optionvalue_by_groupname_and_name\(\) has parameter \$value_name with no type specified\.$#'
 			identifier: missingType.parameter
 			count: 1
 			path: CRM/Banking/Helpers/OptionValue.php
 
 		-
-			message: '#^Function banking_helper_optionvalue_by_name\(\) has parameter \$group_id with no type specified\.$#'
+			message: '#^Method CRM_Banking_Helpers_OptionValue\:\:banking_helper_optionvalue_by_name\(\) has parameter \$group_id with no type specified\.$#'
 			identifier: missingType.parameter
 			count: 1
 			path: CRM/Banking/Helpers/OptionValue.php
 
 		-
-			message: '#^Function banking_helper_optionvalue_by_name\(\) has parameter \$value_name with no type specified\.$#'
+			message: '#^Method CRM_Banking_Helpers_OptionValue\:\:banking_helper_optionvalue_by_name\(\) has parameter \$value_name with no type specified\.$#'
 			identifier: missingType.parameter
 			count: 1
 			path: CRM/Banking/Helpers/OptionValue.php
 
 		-
-			message: '#^Function banking_helper_optionvalueid_by_groupname_and_name\(\) has parameter \$group_name with no type specified\.$#'
+			message: '#^Method CRM_Banking_Helpers_OptionValue\:\:banking_helper_optionvalueid_by_groupname_and_name\(\) has parameter \$group_name with no type specified\.$#'
 			identifier: missingType.parameter
 			count: 1
 			path: CRM/Banking/Helpers/OptionValue.php
 
 		-
-			message: '#^Function banking_helper_optionvalueid_by_groupname_and_name\(\) has parameter \$value_name with no type specified\.$#'
+			message: '#^Method CRM_Banking_Helpers_OptionValue\:\:banking_helper_optionvalueid_by_groupname_and_name\(\) has parameter \$value_name with no type specified\.$#'
 			identifier: missingType.parameter
 			count: 1
 			path: CRM/Banking/Helpers/OptionValue.php
 
 		-
-			message: '#^Function banking_helper_optionvalueid_by_name\(\) has parameter \$group_id with no type specified\.$#'
+			message: '#^Method CRM_Banking_Helpers_OptionValue\:\:banking_helper_optionvalueid_by_name\(\) has parameter \$group_id with no type specified\.$#'
 			identifier: missingType.parameter
 			count: 1
 			path: CRM/Banking/Helpers/OptionValue.php
 
 		-
-			message: '#^Function banking_helper_optionvalueid_by_name\(\) has parameter \$value_name with no type specified\.$#'
+			message: '#^Method CRM_Banking_Helpers_OptionValue\:\:banking_helper_optionvalueid_by_name\(\) has parameter \$value_name with no type specified\.$#'
 			identifier: missingType.parameter
 			count: 1
 			path: CRM/Banking/Helpers/OptionValue.php
 
 		-
-			message: '#^Function banking_helper_tx_status_closed\(\) has parameter \$tx_status_id with no type specified\.$#'
+			message: '#^Method CRM_Banking_Helpers_OptionValue\:\:banking_helper_tx_status_closed\(\) has parameter \$tx_status_id with no type specified\.$#'
 			identifier: missingType.parameter
 			count: 1
 			path: CRM/Banking/Helpers/OptionValue.php
 
 		-
-			message: '#^Function banking_helper_tx_status_closed\(\) should return true but returns bool\.$#'
+			message: '#^Method CRM_Banking_Helpers_OptionValue\:\:banking_helper_tx_status_closed\(\) should return true but returns bool\.$#'
 			identifier: return.type
 			count: 1
-			path: CRM/Banking/Helpers/OptionValue.php
-
-		-
-			message: '#^Loose comparison via "\=\=" is not allowed\.$#'
-			identifier: equal.notAllowed
-			count: 2
 			path: CRM/Banking/Helpers/OptionValue.php
 
 		-
@@ -1966,43 +1966,43 @@ parameters:
 			path: CRM/Banking/Helpers/Smarty.php
 
 		-
-			message: '#^Function banking_helper_buildURL\(\) has parameter \$base with no type specified\.$#'
-			identifier: missingType.parameter
-			count: 1
-			path: CRM/Banking/Helpers/URLBuilder.php
-
-		-
-			message: '#^Function banking_helper_buildURL\(\) has parameter \$delete_params with no type specified\.$#'
-			identifier: missingType.parameter
-			count: 1
-			path: CRM/Banking/Helpers/URLBuilder.php
-
-		-
-			message: '#^Function banking_helper_buildURL\(\) has parameter \$keep_param_source with no type specified\.$#'
-			identifier: missingType.parameter
-			count: 1
-			path: CRM/Banking/Helpers/URLBuilder.php
-
-		-
-			message: '#^Function banking_helper_buildURL\(\) has parameter \$keep_params with no type specified\.$#'
-			identifier: missingType.parameter
-			count: 1
-			path: CRM/Banking/Helpers/URLBuilder.php
-
-		-
-			message: '#^Function banking_helper_buildURL\(\) has parameter \$set_params with no type specified\.$#'
-			identifier: missingType.parameter
-			count: 1
-			path: CRM/Banking/Helpers/URLBuilder.php
-
-		-
-			message: '#^In function "banking_helper_buildURL", you should not use the \$_REQUEST superglobal\. You should instead rely on your framework that provides you with a "request" object \(for instance a PSR\-7 RequestInterface or a Symfony Request\)\. More info\: http\://bit\.ly/nosuperglobals$#'
+			message: '#^In method "CRM_Banking_Helpers_URLBuilder\:\:banking_helper_buildURL", you should not use the \$_REQUEST superglobal\. You should instead rely on your framework that provides you with a "request" object \(for instance a PSR\-7 RequestInterface or a Symfony Request\)\. More info\: http\://bit\.ly/nosuperglobals$#'
 			count: 1
 			path: CRM/Banking/Helpers/URLBuilder.php
 
 		-
 			message: '#^Loose comparison via "\=\=" is not allowed\.$#'
 			identifier: equal.notAllowed
+			count: 1
+			path: CRM/Banking/Helpers/URLBuilder.php
+
+		-
+			message: '#^Method CRM_Banking_Helpers_URLBuilder\:\:banking_helper_buildURL\(\) has parameter \$base with no type specified\.$#'
+			identifier: missingType.parameter
+			count: 1
+			path: CRM/Banking/Helpers/URLBuilder.php
+
+		-
+			message: '#^Method CRM_Banking_Helpers_URLBuilder\:\:banking_helper_buildURL\(\) has parameter \$delete_params with no type specified\.$#'
+			identifier: missingType.parameter
+			count: 1
+			path: CRM/Banking/Helpers/URLBuilder.php
+
+		-
+			message: '#^Method CRM_Banking_Helpers_URLBuilder\:\:banking_helper_buildURL\(\) has parameter \$keep_param_source with no type specified\.$#'
+			identifier: missingType.parameter
+			count: 1
+			path: CRM/Banking/Helpers/URLBuilder.php
+
+		-
+			message: '#^Method CRM_Banking_Helpers_URLBuilder\:\:banking_helper_buildURL\(\) has parameter \$keep_params with no type specified\.$#'
+			identifier: missingType.parameter
+			count: 1
+			path: CRM/Banking/Helpers/URLBuilder.php
+
+		-
+			message: '#^Method CRM_Banking_Helpers_URLBuilder\:\:banking_helper_buildURL\(\) has parameter \$set_params with no type specified\.$#'
+			identifier: missingType.parameter
 			count: 1
 			path: CRM/Banking/Helpers/URLBuilder.php
 
@@ -6226,6 +6226,12 @@ parameters:
 			path: CRM/Banking/PluginImpl/Matcher/CreateCampaignContribution.php
 
 		-
+			message: '#^Parameter \#2 \$array of function implode expects array\<string\>, array\<mixed\> given\.$#'
+			identifier: argument.type
+			count: 1
+			path: CRM/Banking/PluginImpl/Matcher/CreateCampaignContribution.php
+
+		-
 			message: '#^Parameter \#2 \$btx \(CRM_Banking_BAO_BankTransaction\) of method CRM_Banking_PluginImpl_Matcher_CreateCampaignContribution\:\:execute\(\) should be contravariant with parameter \$btx \(mixed\) of method CRM_Banking_PluginModel_Matcher\:\:execute\(\)$#'
 			identifier: method.childParameterType
 			count: 1
@@ -6843,12 +6849,6 @@ parameters:
 		-
 			message: '#^Variable \$amount_delta might not be defined\.$#'
 			identifier: variable.undefined
-			count: 1
-			path: CRM/Banking/PluginImpl/Matcher/ExistingContribution.php
-
-		-
-			message: '#^Variable property access on mixed\.$#'
-			identifier: property.dynamicName
 			count: 1
 			path: CRM/Banking/PluginImpl/Matcher/ExistingContribution.php
 
@@ -8134,12 +8134,6 @@ parameters:
 			path: CRM/Banking/PluginImpl/Matcher/RulesAnalyser.php
 
 		-
-			message: '#^Variable property access on mixed\.$#'
-			identifier: property.dynamicName
-			count: 2
-			path: CRM/Banking/PluginImpl/Matcher/RulesAnalyser.php
-
-		-
 			message: '#^Access to an undefined property object\:\:\$contribution_status_id\.$#'
 			identifier: property.notFound
 			count: 1
@@ -8429,7 +8423,7 @@ parameters:
 		-
 			message: '#^Parameter \#2 \$timestamp of function date expects int\|null, int\|false given\.$#'
 			identifier: argument.type
-			count: 2
+			count: 1
 			path: CRM/Banking/PluginImpl/Matcher/SepaMandate.php
 
 		-
@@ -8447,7 +8441,7 @@ parameters:
 		-
 			message: '#^Variable property access on mixed\.$#'
 			identifier: property.dynamicName
-			count: 3
+			count: 2
 			path: CRM/Banking/PluginImpl/Matcher/SepaMandate.php
 
 		-
@@ -9386,6 +9380,12 @@ parameters:
 			message: '#^Only booleans are allowed in an if condition, int given\.$#'
 			identifier: if.condNotBoolean
 			count: 6
+			path: CRM/Banking/PluginImpl/PostProcessor/MembershipPayment.php
+
+		-
+			message: '#^Parameter \#2 \$array of function implode expects array\<string\>, array\<mixed\> given\.$#'
+			identifier: argument.type
+			count: 1
 			path: CRM/Banking/PluginImpl/PostProcessor/MembershipPayment.php
 
 		-
@@ -11582,7 +11582,7 @@ parameters:
 		-
 			message: '#^Variable property access on \$this\(CRM_Banking_Rules_Rule\)\.$#'
 			identifier: property.dynamicName
-			count: 14
+			count: 9
 			path: CRM/Banking/Rules/Rule.php
 
 		-

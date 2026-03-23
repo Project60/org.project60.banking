@@ -139,7 +139,7 @@ class CRM_Banking_PluginImpl_Matcher_Batches extends CRM_Banking_PluginModel_Mat
 
     if ($suggestion->getParameter('override_status') || !count($this->getNonPendingContributionIDs($batch_id))) {
       // all seems fine, lets set all these contributions to 'completed'
-      $contribution_status_completed = banking_helper_optionvalue_by_groupname_and_name('contribution_status', 'Completed');
+      $contribution_status_completed = CRM_Banking_Helpers_OptionValue::banking_helper_optionvalue_by_groupname_and_name('contribution_status', 'Completed');
 
       // first, get all contributions:
       $contributionIDs = [];
@@ -162,7 +162,7 @@ class CRM_Banking_PluginImpl_Matcher_Batches extends CRM_Banking_PluginModel_Mat
       }
 
       // update the batch
-      $batch_status_received = banking_helper_optionvalue_by_groupname_and_name('batch_status', 'Received');
+      $batch_status_received = CRM_Banking_Helpers_OptionValue::banking_helper_optionvalue_by_groupname_and_name('batch_status', 'Received');
       $update_batch_query = ['id' => $batch_id, 'modified_date' => date('YmdHis'), 'status_id' => $batch_status_received];
       $result = civicrm_api3('Batch', 'create', $update_batch_query);
       if ($result['is_error']) {
@@ -173,7 +173,7 @@ class CRM_Banking_PluginImpl_Matcher_Batches extends CRM_Banking_PluginModel_Mat
       CRM_Core_Session::setStatus(sprintf(E::ts('Completed all %d contributions.'), count($contributionIDs)), E::ts('Batch completed'), 'info');
 
       // complete by setting the status to 'processed'
-      $newStatus = banking_helper_optionvalueid_by_groupname_and_name('civicrm_banking.bank_tx_status', 'Processed');
+      $newStatus = CRM_Banking_Helpers_OptionValue::banking_helper_optionvalueid_by_groupname_and_name('civicrm_banking.bank_tx_status', 'Processed');
       $btx->setStatus($newStatus);
       parent::execute($suggestion, $btx);
       return TRUE;
@@ -299,7 +299,7 @@ class CRM_Banking_PluginImpl_Matcher_Batches extends CRM_Banking_PluginModel_Mat
    */
   public function getNonPendingContributionIDs($batch_id) {
     $nonPendingContributionIDs = [];
-    $contribution_status_pending = banking_helper_optionvalue_by_groupname_and_name('contribution_status', 'Pending');
+    $contribution_status_pending = CRM_Banking_Helpers_OptionValue::banking_helper_optionvalue_by_groupname_and_name('contribution_status', 'Pending');
     $query =
       'SELECT contribution.id as contribution_id FROM civicrm_entity_batch AS batch ' .
       "INNER JOIN civicrm_entity_financial_trxn  AS trxn2c       ON batch.entity_id=trxn2c.financial_trxn_id AND batch.entity_table='civicrm_financial_trxn' " .

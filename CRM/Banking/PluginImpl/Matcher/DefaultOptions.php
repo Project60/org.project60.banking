@@ -180,8 +180,8 @@ class CRM_Banking_PluginImpl_Matcher_DefaultOptions extends CRM_Banking_PluginMo
       $cids = $suggestion->getParameter('contribution_ids');
       $contribution_count = 0;
       if ($cids) {
-        $completed_status = banking_helper_optionvalue_by_groupname_and_name('contribution_status', 'Completed');
-        $cancelled_status = banking_helper_optionvalue_by_groupname_and_name('contribution_status', 'Cancelled');
+        $completed_status = CRM_Banking_Helpers_OptionValue::banking_helper_optionvalue_by_groupname_and_name('contribution_status', 'Completed');
+        $cancelled_status = CRM_Banking_Helpers_OptionValue::banking_helper_optionvalue_by_groupname_and_name('contribution_status', 'Cancelled');
 
         foreach ($cids as $cid) {
           if ($cid) {
@@ -231,7 +231,7 @@ class CRM_Banking_PluginImpl_Matcher_DefaultOptions extends CRM_Banking_PluginMo
         }
 
         if ($contribution_count > 0) {
-          $newStatus = banking_helper_optionvalueid_by_groupname_and_name('civicrm_banking.bank_tx_status', 'Processed');
+          $newStatus = CRM_Banking_Helpers_OptionValue::banking_helper_optionvalueid_by_groupname_and_name('civicrm_banking.bank_tx_status', 'Processed');
           $btx->setStatus($newStatus);
           parent::execute($suggestion, $btx);
         }
@@ -248,7 +248,7 @@ class CRM_Banking_PluginImpl_Matcher_DefaultOptions extends CRM_Banking_PluginMo
     }
     else {
       // this is the IGNORE action. Simply set the status to ignored
-      $newStatus = banking_helper_optionvalueid_by_groupname_and_name('civicrm_banking.bank_tx_status', 'Ignored');
+      $newStatus = CRM_Banking_Helpers_OptionValue::banking_helper_optionvalueid_by_groupname_and_name('civicrm_banking.bank_tx_status', 'Ignored');
       $btx->setStatus($newStatus);
       parent::execute($suggestion, $btx);
     }
@@ -292,7 +292,7 @@ class CRM_Banking_PluginImpl_Matcher_DefaultOptions extends CRM_Banking_PluginMo
     $smarty_vars['injected_contribution_ids'] = $match->getParameter('injected_contribution_ids');
     $smarty_vars['ignore_message'] = $this->_plugin_config->ignore_message;
     $smarty_vars['booking_date'] = date('YmdHis', strtotime($btx->booking_date));
-    $smarty_vars['status_pending'] = banking_helper_optionvalue_by_groupname_and_name('contribution_status', 'Pending');
+    $smarty_vars['status_pending'] = CRM_Banking_Helpers_OptionValue::banking_helper_optionvalue_by_groupname_and_name('contribution_status', 'Pending');
     $smarty_vars['manual_default_source'] = $this->_plugin_config->manual_default_source;
     $smarty_vars['manual_default_financial_type_id'] = $this->_plugin_config->manual_default_financial_type_id;
     $smarty_vars['create_propagation'] = $this->getPropagationSet($btx, $match, 'contribution', $this->_plugin_config->createnew_value_propagation);

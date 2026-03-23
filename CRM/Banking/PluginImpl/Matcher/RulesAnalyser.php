@@ -19,10 +19,6 @@ declare(strict_types = 1);
 
 use CRM_Banking_ExtensionUtil as E;
 
-// phpcs:disable PSR1.Files.SideEffects.FoundWithSymbols
-require_once 'CRM/Banking/Helpers/OptionValue.php';
-// phpcs:enable
-
 define('BANKING_MATCHER_RULE_TYPE_ANALYSER', 1);
 define('BANKING_MATCHER_RULE_TYPE_MATCHER', 2);
 

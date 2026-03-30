@@ -69,13 +69,13 @@ abstract class CRM_Banking_TestBase extends TestCase implements HeadlessInterfac
       ->apply();
   }
 
-  public function setUp(): void {
+  protected function setUp(): void {
     parent::setUp();
     CRM_Utils_StaticCache::clearCache();
     CRM_Banking_Matcher_Engine::clearCachedInstance();
   }
 
-  public function tearDown(): void {
+  protected function tearDown(): void {
     parent::tearDown();
   }
 

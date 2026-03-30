@@ -22,10 +22,10 @@ namespace Civi\Banking\DependencyInjection\Compiler;
 
 use Civi\Banking\Matcher\RegexAnalyser\RegexAnalyserActionHandlerCollector;
 use Civi\Banking\Matcher\RegexAnalyser\RegexAnalyserActionHandlerInterface;
+use Civi\Core\ClassScanner;
 use Symfony\Component\DependencyInjection\Compiler\CompilerPassInterface;
 use Symfony\Component\DependencyInjection\Compiler\ServiceLocatorTagPass;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
-use Symfony\Component\DependencyInjection\Exception\RuntimeException;
 use Symfony\Component\DependencyInjection\Reference;
 
 final class RegexAnalyserActionHandlerPass implements CompilerPassInterface {
@@ -33,59 +33,39 @@ final class RegexAnalyserActionHandlerPass implements CompilerPassInterface {
   public function process(ContainerBuilder $container): void {
     $services = [];
 
-    foreach ($container->findTaggedServiceIds(RegexAnalyserActionHandlerInterface::class) as $id => $tags) {
-      foreach ($tags as $attributes) {
-        $actionName = $this->getActionName($container, $id, $attributes);
-        if (isset($services[$actionName])) {
-          throw new RuntimeException(
-            sprintf(
-              'Duplicate service with tag "%s" and action name "%s" (IDs: %s, %s)',
-              RegexAnalyserActionHandlerInterface::class,
-              $actionName,
-              (string) $services[$actionName],
-              $id,
-            )
-          );
-        }
-
-        $services[$actionName] = new Reference($id);
+    foreach (ClassScanner::get(['interface' => RegexAnalyserActionHandlerInterface::class]) as $class) {
+      if (RegexAnalyserActionHandlerCollector::class === $class) {
+        continue;
       }
+
+      $constantName = $class . '::NAME';
+      if (!defined($constantName)) {
+        throw new \RuntimeException(sprintf('Constant "NAME" is missing in class "%s"', $class));
+      }
+
+      /** @var string $actionName */
+      $actionName = constant($constantName);
+      if (isset($services[$actionName])) {
+        throw new \RuntimeException(
+          sprintf(
+            'Duplicate action handler with action name "%s" (%s, %s)',
+            $actionName,
+            (string) $services[$actionName],
+            $class,
+          )
+        );
+      }
+
+      if (!$container->has($class)) {
+        $container->autowire($class);
+      }
+
+      $services[$actionName] = new Reference($class);
     }
 
     $container->register(RegexAnalyserActionHandlerInterface::class, RegexAnalyserActionHandlerCollector::class)
       ->addArgument(ServiceLocatorTagPass::register($container, $services))
       ->setPublic(TRUE);
-  }
-
-  /**
-   * @param array{name?: string} $attributes
-   *
-   * @throws \RuntimeException
-   */
-  private function getActionName(ContainerBuilder $container, string $id, array $attributes): string {
-    if (array_key_exists('name', $attributes)) {
-      return $attributes['name'];
-    }
-
-    $constantName = $this->getServiceClass($container, $id) . '::NAME';
-    if (defined($constantName)) {
-      // @phpstan-ignore return.type
-      return constant($constantName);
-    }
-
-    throw new \RuntimeException(sprintf('Could not find action name for service "%s"', $id));
-  }
-
-  /**
-   * @phpstan-return class-string
-   */
-  private function getServiceClass(ContainerBuilder $container, string $id): string {
-    $definition = $container->getDefinition($id);
-
-    /** @phpstan-var class-string $class */
-    $class = $definition->getClass() ?? $id;
-
-    return $class;
   }
 
 }

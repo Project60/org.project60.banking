@@ -27,6 +27,7 @@ use Civi\Banking\DependencyInjection\Compiler\ActionProviderPass;
 use Civi\Banking\DependencyInjection\Compiler\RegexAnalyserActionHandlerPass;
 use Civi\Banking\DependencyInjection\Util\ServiceRegistrator;
 use Civi\Banking\Matcher\RegexAnalyser\RegexAnalyserActionHandlerInterface;
+use Civi\Core\ClassScanner;
 use CRM_Banking_ExtensionUtil as E;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 
@@ -93,6 +94,14 @@ function banking_civicrm_pageRun(&$page) {
   if ($pageName == 'CRM_Contribute_Page_Tab') {
     CRM_Banking_BAO_BankTransactionContribution::injectLinkedTransactions($page);
   }
+}
+
+/**
+ * @param list<string> $classes
+ */
+function banking_civicrm_scanClasses(array &$classes): void {
+  // @phpstan-ignore parameterByRef.type
+  ClassScanner::scanFolders($classes, __DIR__, 'Civi/Banking/Matcher', '\\');
 }
 
 /**

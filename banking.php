@@ -44,6 +44,10 @@ function banking_civicrm_container(ContainerBuilder $container) {
       RegexAnalyserActionHandlerInterface::class,
     [RegexAnalyserActionHandlerInterface::class => []]
   );
+
+  if (function_exists('_banking_test_civicrm_container')) {
+    _banking_test_civicrm_container($container);
+  }
 }
 
 /**

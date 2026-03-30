@@ -90,7 +90,7 @@ class CRM_Banking_PluginImpl_Matcher_RulesAnalyser extends CRM_Banking_PluginMod
    * Suggestion listing the currently matched rules and/or
    *  offer to create new ones
    *
-   * @return array(match structures)
+   * @inheritDoc
    */
   public function match(CRM_Banking_BAO_BankTransaction $btx, CRM_Banking_Matcher_Context $context) {
 
@@ -157,9 +157,11 @@ class CRM_Banking_PluginImpl_Matcher_RulesAnalyser extends CRM_Banking_PluginMod
       $suggestion->setParameter('contact_id_found', $contact_id_found);
 
       $btx->addSuggestion($suggestion);
+
+      return [$suggestion];
     }
 
-    return $this->_suggestions;
+    return [];
   }
 
   /**
@@ -170,12 +172,9 @@ class CRM_Banking_PluginImpl_Matcher_RulesAnalyser extends CRM_Banking_PluginMod
   }
 
   /**
-   * Handle the different actions, should probably be handles at base class level ...
-   *
-   * @param type $match
-   * @param type $btx
+   * @inheritDoc
    */
-  public function execute($match, $btx) {
+  public function execute($suggestion, $btx) {
     // Is this this correct way to do it?
     $input = $_POST;
 
@@ -235,12 +234,12 @@ class CRM_Banking_PluginImpl_Matcher_RulesAnalyser extends CRM_Banking_PluginMod
    * @val $btx      the bank transaction the match refers to
    * @return string html code snippet
    */
-  public function visualize_match(CRM_Banking_Matcher_Suggestion $match, $btx) {
+  public function visualize_match(CRM_Banking_Matcher_Suggestion $suggestion, $btx) {
     $config = $this->_plugin_config;
     $smarty_vars = [];
 
     // add rule render information
-    $matched_rules = $match->getParameter('matched_rules');
+    $matched_rules = $suggestion->getParameter('matched_rules');
     $rules_data    = [];
     foreach ($matched_rules as $rule_id => $confidence) {
       try {
@@ -268,7 +267,7 @@ class CRM_Banking_PluginImpl_Matcher_RulesAnalyser extends CRM_Banking_PluginMod
     $smarty_vars['param_hidden']  = $this->getParamStatus('hidden', $btx->getDataParsed());
 
     // Store the contacts found for use later in the visualize_match function.
-    $smarty_vars['contact_id_found'] = $match->getParameter('contact_id_found');
+    $smarty_vars['contact_id_found'] = $suggestion->getParameter('contact_id_found');
 
     // render template
     $smarty = CRM_Banking_Helpers_Smarty::singleton();

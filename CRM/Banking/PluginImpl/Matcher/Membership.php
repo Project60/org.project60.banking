@@ -54,6 +54,7 @@ class CRM_Banking_PluginImpl_Matcher_Membership extends CRM_Banking_PluginModel_
    * @return array(match structures)
    */
   public function match(CRM_Banking_BAO_BankTransaction $btx, CRM_Banking_Matcher_Context $context) {
+    $suggestions = [];
     $config = $this->_plugin_config;
     $threshold   = $this->getThreshold();
     $data_parsed = $btx->getDataParsed();
@@ -79,10 +80,10 @@ class CRM_Banking_PluginImpl_Matcher_Membership extends CRM_Banking_PluginModel_
       $suggestion->setParameter('last_fee_id', $membership['last_fee_id']);
       $suggestion->setProbability($membership['probability']);
       $btx->addSuggestion($suggestion);
+      $suggestions[] = $suggestion;
     }
 
-    // that's it...
-    return empty($this->_suggestions) ? NULL : $this->_suggestions;
+    return $suggestions;
   }
 
   /**
@@ -153,13 +154,13 @@ class CRM_Banking_PluginImpl_Matcher_Membership extends CRM_Banking_PluginModel_
    * @val $btx      the bank transaction the match refers to
    * @return html code snippet
    */
-  public function visualize_match(CRM_Banking_Matcher_Suggestion $match, $btx) {
+  public function visualize_match(CRM_Banking_Matcher_Suggestion $suggestion, $btx) {
     $config = $this->_plugin_config;
     $smarty_vars = [];
 
     // load the contribution
-    $membership_id = $match->getParameter('membership_id');
-    $last_fee_id   = $match->getParameter('last_fee_id');
+    $membership_id = $suggestion->getParameter('membership_id');
+    $last_fee_id   = $suggestion->getParameter('last_fee_id');
 
     // LOAD entities
     // TODO: error handling
@@ -201,12 +202,12 @@ class CRM_Banking_PluginImpl_Matcher_Membership extends CRM_Banking_PluginModel_
    * @val $btx      the bank transaction the match refers to
    * @return string html code snippet
    */
-  public function visualize_execution_info(CRM_Banking_Matcher_Suggestion $match, $btx) {
+  public function visualize_execution_info(CRM_Banking_Matcher_Suggestion $suggestion, $btx) {
     // just assign to smarty and compile HTML
     $smarty_vars = [];
-    $smarty_vars['membership_id']    = $match->getParameter('membership_id');
-    $smarty_vars['contribution_id']  = $match->getParameter('contribution_id');
-    $smarty_vars['contact_id']       = $match->getParameter('contact_id');
+    $smarty_vars['membership_id']    = $suggestion->getParameter('membership_id');
+    $smarty_vars['contribution_id']  = $suggestion->getParameter('contribution_id');
+    $smarty_vars['contact_id']       = $suggestion->getParameter('contact_id');
 
     $smarty = CRM_Banking_Helpers_Smarty::singleton();
     $smarty->pushScope($smarty_vars);

@@ -52,6 +52,7 @@ class CRM_Banking_PluginImpl_Matcher_Rules extends CRM_Banking_PluginModel_Match
    * @return array(match structures)
    */
   public function match(CRM_Banking_BAO_BankTransaction $btx, CRM_Banking_Matcher_Context $context) {
+    $suggestions = [];
     $config      = $this->_plugin_config;
     $threshold   = $this->getThreshold();
     $penalty     = $this->getPenalty($btx);
@@ -66,6 +67,7 @@ class CRM_Banking_PluginImpl_Matcher_Rules extends CRM_Banking_PluginModel_Match
       $suggestion->setParameter('rule_id', $rule_match->getRule()->getID());
       $suggestion->setProbability($rule_match->getConfidence() - $penalty);
       $btx->addSuggestion($suggestion);
+      $suggestions[] = $suggestion;
     }
 
     // if there has been no matches, add a 'create rule' match
@@ -73,18 +75,16 @@ class CRM_Banking_PluginImpl_Matcher_Rules extends CRM_Banking_PluginModel_Match
       $suggestion = new CRM_Banking_Matcher_Suggestion($this, $btx);
       $suggestion->setParameter('mode', 'new');
       $btx->addSuggestion($suggestion);
+      $suggestions[] = $suggestion;
     }
 
-    return $this->_suggestions;
+    return $suggestions;
   }
 
   /**
-   * Handle the different actions, should probably be handles at base class level ...
-   *
-   * @param type $match
-   * @param type $btx
+   * @inheritDoc
    */
-  public function execute($match, $btx) {
+  public function execute($suggestion, $btx) {
     // phpcs:disable Squiz.PHP.CommentedOutCode.Found
     /* @todo What happened here?
     if (!$rule) {
@@ -93,17 +93,17 @@ class CRM_Banking_PluginImpl_Matcher_Rules extends CRM_Banking_PluginModel_Match
     }*/
     // phpcs:enable
 
-    $rule_id = $match->getParameter('rule_id');
+    $rule_id = $suggestion->getParameter('rule_id');
     $rule = CRM_Banking_Rules_Rule::get($rule_id);
 
     // execute rule
     $rule_match = new CRM_Banking_Rules_Match($rule, $btx, []);
-    $rule_match->execute($match);
+    $rule_match->execute($suggestion);
 
     // update status
     $newStatus = banking_helper_optionvalueid_by_groupname_and_name('civicrm_banking.bank_tx_status', 'Processed');
     $btx->setStatus($newStatus);
-    parent::execute($match, $btx);
+    parent::execute($suggestion, $btx);
     return TRUE;
   }
 
@@ -137,16 +137,16 @@ class CRM_Banking_PluginImpl_Matcher_Rules extends CRM_Banking_PluginModel_Match
    * @val $btx      the bank transaction the match refers to
    * @return html code snippet
    */
-  public function visualize_match(CRM_Banking_Matcher_Suggestion $match, $btx) {
+  public function visualize_match(CRM_Banking_Matcher_Suggestion $suggestion, $btx) {
     $config = $this->_plugin_config;
     $smarty_vars = [];
 
     // add mode
-    $smarty_vars['mode']    = $match->getParameter('mode');
-    $smarty_vars['rule_id'] = $match->getParameter('rule_id');
+    $smarty_vars['mode']    = $suggestion->getParameter('mode');
+    $smarty_vars['rule_id'] = $suggestion->getParameter('rule_id');
 
     // load the rule
-    $rule_id = $match->getParameter('rule_id');
+    $rule_id = $suggestion->getParameter('rule_id');
     $rule = CRM_Banking_Rules_Rule::get($rule_id);
     if ($rule) {
       $rule->addRenderParameters($smarty_vars);
@@ -167,11 +167,11 @@ class CRM_Banking_PluginImpl_Matcher_Rules extends CRM_Banking_PluginModel_Match
    * @val $btx      the bank transaction the match refers to
    * @return string html code snippet
    */
-  public function visualize_execution_info(CRM_Banking_Matcher_Suggestion $match, $btx) {
+  public function visualize_execution_info(CRM_Banking_Matcher_Suggestion $suggestion, $btx) {
     // just assign to smarty and compile HTML
     $smarty_vars = [];
-    $smarty_vars['contribution_id'] = $match->getParameter('contribution_id');
-    $smarty_vars['rule_id'] = $match->getParameter('rule_id');
+    $smarty_vars['contribution_id'] = $suggestion->getParameter('contribution_id');
+    $smarty_vars['rule_id'] = $suggestion->getParameter('rule_id');
 
     $smarty = CRM_Banking_Helpers_Smarty::singleton();
     $smarty->pushScope($smarty_vars);

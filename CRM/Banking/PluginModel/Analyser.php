@@ -39,14 +39,14 @@ abstract class CRM_Banking_PluginModel_Analyser extends CRM_Banking_PluginModel_
   abstract public function analyse(CRM_Banking_BAO_BankTransaction $btx, CRM_Banking_Matcher_Context $context);
 
   /**
-   * Generate a set of suggestions for the given bank transaction
-   *
-   * @return array(match structures)
+   * @return array{}
    */
   public function match(CRM_Banking_BAO_BankTransaction $btx, CRM_Banking_Matcher_Context $context) {
     // call the analyser function
-    $this->analyse($btx, $context);
-    return NULL;
+    if ($this->requiredValuesPresent($btx)) {
+      $this->analyse($btx, $context);
+    }
+    return [];
   }
 
   /**
@@ -56,7 +56,7 @@ abstract class CRM_Banking_PluginModel_Analyser extends CRM_Banking_PluginModel_
    * @val $btx      the bank transaction the match refers to
    * @return html code snippet
    */
-  public function visualize_match(CRM_Banking_Matcher_Suggestion $match, $btx) {
+  public function visualize_match(CRM_Banking_Matcher_Suggestion $suggestion, $btx) {
     // Analysers don't have suggestions
     return NULL;
   }
@@ -68,7 +68,7 @@ abstract class CRM_Banking_PluginModel_Analyser extends CRM_Banking_PluginModel_
    * @val $btx      the bank transaction the match refers to
    * @return string|null html code snippet
    */
-  public function visualize_execution_info(CRM_Banking_Matcher_Suggestion $match, $btx) {
+  public function visualize_execution_info(CRM_Banking_Matcher_Suggestion $suggestion, $btx) {
     // Analysers don't get executed
     return NULL;
   }

@@ -28,6 +28,9 @@ class CRM_Banking_PluginImpl_Matcher_Yes extends CRM_Banking_PluginModel_Matcher
     parent::__construct($config_name);
   }
 
+  /**
+   * @inheritDoc
+   */
   public function match(CRM_Banking_BAO_BankTransaction $btx, CRM_Banking_Matcher_Context $context) {
     $suggestion = new CRM_Banking_Matcher_Suggestion($this, $btx);
     $suggestion->addEvidence(1.0, 'Yes we can');
@@ -35,16 +38,13 @@ class CRM_Banking_PluginImpl_Matcher_Yes extends CRM_Banking_PluginModel_Matcher
   }
 
   /**
-   * Handle the different actions, should probably be handles at base class level ...
-   *
-   * @param type $match
-   * @param type $btx
+   * @inheritDoc
    */
-  public function execute($match, $btx) {
+  public function execute($suggestion, $btx) {
     return TRUE;
   }
 
-  public function visualize_match(CRM_Banking_Matcher_Suggestion $match, $btx) {
+  public function visualize_match(CRM_Banking_Matcher_Suggestion $suggestion, $btx) {
     return '<div style="background-color:gray;text-align:center">
             <font size="+1">
             <font color="#ccff66">Y</font>
@@ -64,7 +64,7 @@ class CRM_Banking_PluginImpl_Matcher_Yes extends CRM_Banking_PluginModel_Matcher
    * @val $btx      the bank transaction the match refers to
    * @return string html code snippet
    */
-  public function visualize_execution_info(CRM_Banking_Matcher_Suggestion $match, $btx) {
+  public function visualize_execution_info(CRM_Banking_Matcher_Suggestion $suggestion, $btx) {
     return '<p>Why? Because.</p>';
   }
 

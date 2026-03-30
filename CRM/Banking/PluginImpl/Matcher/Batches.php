@@ -57,8 +57,10 @@ class CRM_Banking_PluginImpl_Matcher_Batches extends CRM_Banking_PluginModel_Mat
     }
   }
 
+  /**
+   * @inheritDoc
+   */
   public function match(CRM_Banking_BAO_BankTransaction $btx, CRM_Banking_Matcher_Context $context) {
-
     // get list of existing batches (cache in context)
     $existing_batches = $context->getCachedEntry('banking.pluginimpl.matcher.batch');
     if ($existing_batches == NULL) {
@@ -109,6 +111,7 @@ class CRM_Banking_PluginImpl_Matcher_Batches extends CRM_Banking_PluginModel_Mat
       $matching_batches[$batch['id']] = $time_penalty * $amount_penalty * $status_penalty;
     }
 
+    $suggestions = [];
     // for each matched batch, create a suggestion
     foreach ($matching_batches as $batch_id => $batch_probability) {
       $suggestion = new CRM_Banking_Matcher_Suggestion($this, $btx);
@@ -117,17 +120,14 @@ class CRM_Banking_PluginImpl_Matcher_Batches extends CRM_Banking_PluginModel_Mat
       $suggestion->setId('batch-' . $batch_id);
       $suggestion->setProbability($batch_probability);
       $btx->addSuggestion($suggestion);
+      $suggestions[] = $suggestion;
     }
 
-    // that's it...
-    return empty($this->_suggestions) ? NULL : $this->_suggestions;
+    return $suggestions;
   }
 
   /**
-   * Handle the different actions, should probably be handles at base class level ...
-   *
-   * @param type $suggestion
-   * @param type $btx
+   * @inheritDoc
    */
   public function execute($suggestion, $btx) {
     // load the batch
@@ -211,12 +211,12 @@ class CRM_Banking_PluginImpl_Matcher_Batches extends CRM_Banking_PluginModel_Mat
    * @val $btx      the bank transaction the match refers to
    * @return html code snippet
    */
-  public function visualize_match(CRM_Banking_Matcher_Suggestion $match, $btx) {
+  public function visualize_match(CRM_Banking_Matcher_Suggestion $suggestion, $btx) {
     // load the batch
-    $batch_id = $match->getParameter('batch_id');
+    $batch_id = $suggestion->getParameter('batch_id');
     $result = civicrm_api3('Batch', 'getsingle', ['id' => $batch_id]);
     if ($result['is_error']) {
-      return E::ts('Internal error! Cannot find batch #') . $match->getParameter('batch_id');
+      return E::ts('Internal error! Cannot find batch #') . $suggestion->getParameter('batch_id');
     }
     else {
       // prepare the information
@@ -256,8 +256,8 @@ class CRM_Banking_PluginImpl_Matcher_Batches extends CRM_Banking_PluginModel_Mat
    * @val $btx      the bank transaction the match refers to
    * @return string html code snippet
    */
-  public function visualize_execution_info(CRM_Banking_Matcher_Suggestion $match, $btx) {
-    $batch_id = $match->getParameter('batch_id');
+  public function visualize_execution_info(CRM_Banking_Matcher_Suggestion $suggestion, $btx) {
+    $batch_id = $suggestion->getParameter('batch_id');
     $batch_link = CRM_Utils_System::url('civicrm/batchtransaction', "reset=1&bid=$batch_id");
     return '<p>' . sprintf(E::ts('This transaction was associated with <a href="%s">payment batch #%s</a>.'), $batch_link, $batch_id) . '</p>';
   }

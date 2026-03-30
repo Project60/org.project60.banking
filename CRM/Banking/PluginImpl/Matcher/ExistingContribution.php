@@ -332,14 +332,13 @@ class CRM_Banking_PluginImpl_Matcher_ExistingContribution extends CRM_Banking_Pl
   }
 
   /**
-   * Generate a set of suggestions for the given bank transaction
-   *
-   * @return array match structures
+   * @inheritDoc
    *
    * phpcs:disable Generic.Metrics.CyclomaticComplexity.MaxExceeded, Generic.Metrics.NestingLevel.TooHigh
    */
   public function match(CRM_Banking_BAO_BankTransaction $btx, CRM_Banking_Matcher_Context $context) {
   // phpcs:enable
+    $suggestions = [];
     $config = $this->_plugin_config;
     $threshold   = $this->getThreshold();
     $penalty     = $this->getPenalty($btx);
@@ -514,21 +513,17 @@ class CRM_Banking_PluginImpl_Matcher_ExistingContribution extends CRM_Banking_Pl
       }
 
       $btx->addSuggestion($suggestion);
+      $suggestions[] = $suggestion;
     }
 
-    // that's it...
-    return empty($this->_suggestions) ? NULL : $this->_suggestions;
+    return $suggestions;
   }
 
   /**
    * Execute the previously generated suggestion,
    *   and close the transaction
    *
-   * @param CRM_Banking_Matcher_Suggestion $suggestion
-   *   the suggestion to be executed
-   *
-   * @param CRM_Banking_BAO_BankTransaction $btx
-   *   the bank transaction this is related to
+   * @inheritDoc
    */
   public function execute($suggestion, $btx) {
     $config = $this->_plugin_config;
@@ -617,12 +612,12 @@ class CRM_Banking_PluginImpl_Matcher_ExistingContribution extends CRM_Banking_Pl
    * @val $btx      the bank transaction the match refers to
    * @return html code snippet
    */
-  public function visualize_match(CRM_Banking_Matcher_Suggestion $match, $btx) {
+  public function visualize_match(CRM_Banking_Matcher_Suggestion $suggestion, $btx) {
     $config = $this->_plugin_config;
     $smarty_vars = [];
 
     // load the data
-    $contribution_id = $match->getParameter('contribution_id');
+    $contribution_id = $suggestion->getParameter('contribution_id');
     $smarty_vars['contribution_id'] = $contribution_id;
 
     $contribution = civicrm_api3('Contribution', 'getsingle', ['id' => $contribution_id]);
@@ -641,18 +636,18 @@ class CRM_Banking_PluginImpl_Matcher_ExistingContribution extends CRM_Banking_Pl
       $smarty_vars['error'] = $contribution['error_message'];
     }
 
-    $smarty_vars['reasons'] = $match->getEvidence();
+    $smarty_vars['reasons'] = $suggestion->getEvidence();
 
     // add cancellation extra parameters
     if ($config->mode == 'cancellation') {
       $smarty_vars['cancellation_cancel_reason'] = $config->cancellation_cancel_reason;
       if ($config->cancellation_cancel_reason) {
-        $smarty_vars['cancel_reason'] = $match->getParameter('cancel_reason');
+        $smarty_vars['cancel_reason'] = $suggestion->getParameter('cancel_reason');
         $smarty_vars['cancel_reason_edit'] = $config->cancellation_cancel_reason_edit;
       }
       $smarty_vars['cancellation_cancel_fee'] = $config->cancellation_cancel_fee;
       if ($config->cancellation_cancel_fee) {
-        $smarty_vars['cancel_fee'] = $match->getParameter('cancel_fee');
+        $smarty_vars['cancel_fee'] = $suggestion->getParameter('cancel_fee');
         $smarty_vars['cancel_fee_edit'] = $config->cancellation_cancel_fee_edit;
       }
     }
@@ -672,15 +667,15 @@ class CRM_Banking_PluginImpl_Matcher_ExistingContribution extends CRM_Banking_Pl
    * @val $btx      the bank transaction the match refers to
    * @return string html code snippet
    */
-  public function visualize_execution_info(CRM_Banking_Matcher_Suggestion $match, $btx) {
+  public function visualize_execution_info(CRM_Banking_Matcher_Suggestion $suggestion, $btx) {
     // just assign to smarty and compile HTML
     $smarty_vars = [];
 
-    $smarty_vars['contribution_id']  = $match->getParameter('contribution_id');
-    $smarty_vars['contact_id']       = $match->getParameter('contact_id');
-    $smarty_vars['mode']             = $match->getParameter('mode');
-    $smarty_vars['cancel_fee']       = $match->getParameter('cancel_fee');
-    $smarty_vars['cancel_reason']    = $match->getParameter('cancel_reason');
+    $smarty_vars['contribution_id']  = $suggestion->getParameter('contribution_id');
+    $smarty_vars['contact_id']       = $suggestion->getParameter('contact_id');
+    $smarty_vars['mode']             = $suggestion->getParameter('mode');
+    $smarty_vars['cancel_fee']       = $suggestion->getParameter('cancel_fee');
+    $smarty_vars['cancel_reason']    = $suggestion->getParameter('cancel_reason');
 
     // assign to smarty and compile HTML
     $smarty = CRM_Banking_Helpers_Smarty::singleton();

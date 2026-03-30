@@ -274,7 +274,7 @@ class CRM_Banking_Matcher_Suggestion {
    *
    * @param $btx CRM_Banking_BAO_BankTransaction
    *
-   * @return boolean
+   * @return bool|"re-run"
    */
   public function execute($btx) {
     // only execute if not completed yet

@@ -91,9 +91,7 @@ class CRM_Banking_PluginImpl_Matcher_CreateCampaignContribution extends CRM_Bank
   }
 
   /**
-   * Generate a set of suggestions for the given bank transaction
-   *
-   * @return array match structures
+   * @inheritDoc
    *
    * phpcs:disable Generic.Metrics.CyclomaticComplexity.MaxExceeded
    */
@@ -238,6 +236,7 @@ class CRM_Banking_PluginImpl_Matcher_CreateCampaignContribution extends CRM_Bank
       }
     }
 
+    $finalSuggestions = [];
     // if there's more than one suggestion with 100% confidence, reduce
     if ($activity_count_with_confidence_100 > 1) {
       $this->logMessage("{$activity_count_with_confidence_100} suggestions with 100% confidence generated, will apply temporal distance penalties.", 'debug');
@@ -257,17 +256,18 @@ class CRM_Banking_PluginImpl_Matcher_CreateCampaignContribution extends CRM_Bank
         $suggestion->setProbability($adjusted_confidence);
         $this->logMessage("Adjusted confidence for suggestion from {$confidence} to {$adjusted_confidence}.", 'debug');
         $btx->addSuggestion($suggestion);
+        $finalSuggestions[] = $suggestion;
       }
     }
     else {
       // no more than one 100% suggestions from our end, so everything can go ahead without changes
       foreach ($suggestions as $suggestion) {
         $btx->addSuggestion($suggestion);
+        $finalSuggestions[] = $suggestion;
       }
     }
 
-    // that's it...
-    return empty($this->_suggestions) ? NULL : $this->_suggestions;
+    return $finalSuggestions;
   }
 
   protected function get_contribution_data($btx, $suggestion, $contact_id) {
@@ -385,15 +385,15 @@ class CRM_Banking_PluginImpl_Matcher_CreateCampaignContribution extends CRM_Bank
    * @val $btx      the bank transaction the match refers to
    * @return html code snippet
    */
-  public function visualize_match(CRM_Banking_Matcher_Suggestion $match, $btx) {
+  public function visualize_match(CRM_Banking_Matcher_Suggestion $suggestion, $btx) {
     $smarty_vars = [];
 
-    $contact_id      = $match->getParameter('contact_id');
-    $activity_id     = $match->getParameter('activity_id');
-    $no_campaign_penalty_applied = $match->getParameter('no_campaign_penalty_applied');
+    $contact_id      = $suggestion->getParameter('contact_id');
+    $activity_id     = $suggestion->getParameter('activity_id');
+    $no_campaign_penalty_applied = $suggestion->getParameter('no_campaign_penalty_applied');
     $multiple_recurring_contributions_penalty_applied
-      = $match->getParameter('multiple_recurring_contributions_penalty_applied');
-    $contribution = $this->get_contribution_data($btx, $match, $contact_id);
+      = $suggestion->getParameter('multiple_recurring_contributions_penalty_applied');
+    $contribution = $this->get_contribution_data($btx, $suggestion, $contact_id);
 
     // load contact
     $contact = civicrm_api3('Contact', 'getsingle', ['id' => $contact_id]);
@@ -463,11 +463,11 @@ class CRM_Banking_PluginImpl_Matcher_CreateCampaignContribution extends CRM_Bank
    * @val $btx      the bank transaction the match refers to
    * @return string html code snippet
    */
-  public function visualize_execution_info(CRM_Banking_Matcher_Suggestion $match, $btx) {
+  public function visualize_execution_info(CRM_Banking_Matcher_Suggestion $suggestion, $btx) {
     // just assign to smarty and compile HTML
     $smarty_vars = [];
-    $smarty_vars['contribution_id'] = $match->getParameter('contribution_id');
-    $smarty_vars['contact_id']      = $match->getParameter('contact_id');
+    $smarty_vars['contribution_id'] = $suggestion->getParameter('contribution_id');
+    $smarty_vars['contact_id']      = $suggestion->getParameter('contact_id');
 
     // assign to smarty and compile HTML
     $smarty = CRM_Banking_Helpers_Smarty::singleton();

@@ -52,9 +52,7 @@ class CRM_Banking_PluginImpl_Matcher_CreateContribution extends CRM_Banking_Plug
   }
 
   /**
-   * Generate a set of suggestions for the given bank transaction
-   *
-   * @return array(match structures)
+   * @inheritDoc
    */
   public function match(CRM_Banking_BAO_BankTransaction $btx, CRM_Banking_Matcher_Context $context) {
     $config = $this->_plugin_config;
@@ -64,13 +62,14 @@ class CRM_Banking_PluginImpl_Matcher_CreateContribution extends CRM_Banking_Plug
 
     // first see if all the required values are there
     if (!$this->requiredValuesPresent($btx)) {
-      return NULL;
+      return [];
     }
 
     // then look up potential contacts
     $contacts_found = $context->findContacts($threshold, $data_parsed['name'], $config->lookup_contact_by_name);
 
     // finally generate suggestions
+    $suggestions = [];
     foreach ($contacts_found as $contact_id => $contact_probability) {
       $suggestion = new CRM_Banking_Matcher_Suggestion($this, $btx);
       $suggestion->setTitle(E::ts('Create a new contribution'));
@@ -82,22 +81,18 @@ class CRM_Banking_PluginImpl_Matcher_CreateContribution extends CRM_Banking_Plug
       if ($contact_probability >= $threshold) {
         $suggestion->setProbability($contact_probability);
         $btx->addSuggestion($suggestion);
+        $suggestions[] = $suggestion;
       }
     }
 
-    // that's it...
-    return empty($this->_suggestions) ? NULL : $this->_suggestions;
+    return $suggestions;
   }
 
   /**
    * Execute the previously generated suggestion,
    *   and close the transaction
    *
-   * @param CRM_Banking_Matcher_Suggestion $suggestion
-   *   the suggestion to be executed
-   *
-   * @param CRM_Banking_BAO_BankTransaction $btx
-   *   the bank transaction this is related to
+   * @inheritDoc
    */
   public function execute($suggestion, $btx) {
     // create contribution
@@ -141,11 +136,11 @@ class CRM_Banking_PluginImpl_Matcher_CreateContribution extends CRM_Banking_Plug
    * @val $btx      the bank transaction the match refers to
    * @return html code snippet
    */
-  public function visualize_match(CRM_Banking_Matcher_Suggestion $match, $btx) {
+  public function visualize_match(CRM_Banking_Matcher_Suggestion $suggestion, $btx) {
     $smarty_vars = [];
 
-    $contact_id   = $match->getParameter('contact_id');
-    $contribution = $this->get_contribution_data($btx, $match, $contact_id);
+    $contact_id   = $suggestion->getParameter('contact_id');
+    $contribution = $this->get_contribution_data($btx, $suggestion, $contact_id);
 
     // load contact
     $contact = civicrm_api3('Contact', 'getsingle', ['id' => $contact_id]);
@@ -191,11 +186,11 @@ class CRM_Banking_PluginImpl_Matcher_CreateContribution extends CRM_Banking_Plug
    * @val $btx      the bank transaction the match refers to
    * @return string html code snippet
    */
-  public function visualize_execution_info(CRM_Banking_Matcher_Suggestion $match, $btx) {
+  public function visualize_execution_info(CRM_Banking_Matcher_Suggestion $suggestion, $btx) {
     // just assign to smarty and compile HTML
     $smarty_vars = [];
-    $smarty_vars['contribution_id'] = $match->getParameter('contribution_id');
-    $smarty_vars['contact_id']      = $match->getParameter('contact_id');
+    $smarty_vars['contribution_id'] = $suggestion->getParameter('contribution_id');
+    $smarty_vars['contact_id']      = $suggestion->getParameter('contact_id');
 
     // assign to smarty and compile HTML
     $smarty = CRM_Banking_Helpers_Smarty::singleton();

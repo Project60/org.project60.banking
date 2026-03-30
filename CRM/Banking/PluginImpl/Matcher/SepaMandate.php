@@ -183,9 +183,7 @@ class CRM_Banking_PluginImpl_Matcher_SepaMandate extends CRM_Banking_PluginModel
   }
 
   /**
-   * Generate a set of suggestions for the given bank transaction
-   *
-   * @return array match structures
+   * @inheritDoc
    *
    * phpcs:disable Generic.Metrics.CyclomaticComplexity.MaxExceeded
    */
@@ -200,7 +198,7 @@ class CRM_Banking_PluginImpl_Matcher_SepaMandate extends CRM_Banking_PluginModel
 
     // look for the 'sepa_mandate' key
     if (empty($data_parsed['sepa_mandate'])) {
-      return NULL;
+      return [];
     }
 
     // now load the mandate
@@ -208,7 +206,7 @@ class CRM_Banking_PluginImpl_Matcher_SepaMandate extends CRM_Banking_PluginModel
     $mandate = civicrm_api3('SepaMandate', 'getsingle', ['reference' => $mandate_reference]);
     if (!empty($mandate['is_error'])) {
       CRM_Core_Session::setStatus(sprintf(E::ts("Couldn't load SEPA mandate for reference %s"), $mandate_reference), E::ts('Error'), 'error');
-      return NULL;
+      return [];
     }
 
     // find the contribution
@@ -249,13 +247,13 @@ class CRM_Banking_PluginImpl_Matcher_SepaMandate extends CRM_Banking_PluginModel
             // this is the second contribution found!
             CRM_Core_Session::setStatus(E::ts('There was more than one matching contribution found! Try to configure the plugin with a smaller search time span.'), E::ts('Warning'), 'warning');
             $this->logMessage(E::ts('There was more than one matching contribution found! Try to configure the plugin with a smaller search time span.'), 'warning');
-            return NULL;
+            return [];
           }
         }
         if (!$contribution_id) {
           // no contribution found
           CRM_Core_Session::setStatus(E::ts('There was no matching contribution! Try to configure the plugin with a larger search time span.'), E::ts('Error'), 'error');
-          return NULL;
+          return [];
         }
 
       }
@@ -276,26 +274,26 @@ class CRM_Banking_PluginImpl_Matcher_SepaMandate extends CRM_Banking_PluginModel
         if (!$contribution_id) {
           // no contribution found
           CRM_Core_Session::setStatus(E::ts("There is no contribution for mandate '%1' in group '%2'.", [1 => $data_parsed['sepa_mandate'], 2 => $data_parsed['sepa_batch']]), E::ts('Error'), 'error');
-          return NULL;
+          return [];
         }
       }
 
     }
     else {
       $this->logMessage('Bad mandate type.', 'warn');
-      return NULL;
+      return [];
     }
 
     // now, let's have a look at this contribution and its contact...
     $contribution = civicrm_api3('Contribution', 'getsingle', ['id' => $contribution_id]);
     if (!empty($contribution['is_error'])) {
       CRM_Core_Session::setStatus(E::ts('The contribution connected to this mandate could not be read.'), E::ts('Error'), 'error');
-      return NULL;
+      return [];
     }
     $contact = civicrm_api3('Contact', 'getsingle', ['id' => $contribution['contact_id']]);
     if (!empty($contact['is_error'])) {
       CRM_Core_Session::setStatus(E::ts('The contact connected to this mandate could not be read.'), E::ts('Error'), 'error');
-      return NULL;
+      return [];
     }
 
     // now: create a suggestion
@@ -347,7 +345,7 @@ class CRM_Banking_PluginImpl_Matcher_SepaMandate extends CRM_Banking_PluginModel
       if ($cancellation_status_penalty === NULL) {
         // the status is not in the list => don't even create a suggestion
         $this->logMessage("Unmapped contributions status [{$contribution_status_id}] encountered. No suggestion generated!", 'warn');
-        return NULL;
+        return [];
       }
       $probability -= $cancellation_status_penalty;
 
@@ -405,14 +403,14 @@ class CRM_Banking_PluginImpl_Matcher_SepaMandate extends CRM_Banking_PluginModel
     $suggestion->setProbability($probability);
     $btx->addSuggestion($suggestion);
 
-    return $this->_suggestions;
+    return [$suggestion];
   }
 
   /**
    * Execute the previously generated suggestion,
    *   and close the transaction
    *
-   * @param CRM_Banking_Matcher_Suggestion $match
+   * @param CRM_Banking_Matcher_Suggestion $suggestion
    *   the suggestion to be executed
    *
    * @param CRM_Banking_BAO_BankTransaction $btx
@@ -420,16 +418,16 @@ class CRM_Banking_PluginImpl_Matcher_SepaMandate extends CRM_Banking_PluginModel
    *
    * phpcs:disable Generic.Metrics.CyclomaticComplexity.TooHigh
    */
-  public function execute($match, $btx) {
+  public function execute($suggestion, $btx) {
   // phpcs:enable
     $this->contribution = NULL;
-    $cancellation_mode = $match->getParameter('cancellation_mode');
+    $cancellation_mode = $suggestion->getParameter('cancellation_mode');
     if (!empty($cancellation_mode)) {
       // CANCELLATION is an entirely different process...
-      return $this->executeCancellation($match, $btx);
+      return $this->executeCancellation($suggestion, $btx);
     }
 
-    $contribution_id = $match->getParameter('contribution_id');
+    $contribution_id = $suggestion->getParameter('contribution_id');
     $status_pending = banking_helper_optionvalue_by_groupname_and_name('contribution_status', 'Pending');
     $status_inprogress = banking_helper_optionvalue_by_groupname_and_name('contribution_status', 'In Progress');
     $status_completed = banking_helper_optionvalue_by_groupname_and_name('contribution_status', 'Completed');
@@ -458,7 +456,7 @@ class CRM_Banking_PluginImpl_Matcher_SepaMandate extends CRM_Banking_PluginModel
     $txgroup_query = civicrm_api3('SepaContributionGroup', 'getsingle', ['contribution_id' => $contribution_id]);
     if (!empty($txgroup_query['is_error'])) {
       CRM_Core_Session::setStatus(E::ts('Contribution is NOT member in exactly one SEPA transaction group!'), E::ts('Error'), 'error');
-      return;
+      return FALSE;
     }
     $txgroup_id = $txgroup_query['txgroup_id'];
 
@@ -467,7 +465,7 @@ class CRM_Banking_PluginImpl_Matcher_SepaMandate extends CRM_Banking_PluginModel
     $query['contribution_status_id'] = $status_completed;
     $query['receive_date'] = date('Ymdhis', strtotime($btx->value_date));
     // add propagated values
-    $query = array_merge($query, $this->getPropagationSet($btx, $match, 'contribution'));
+    $query = array_merge($query, $this->getPropagationSet($btx, $suggestion, 'contribution'));
     CRM_Banking_Helpers_IssueMitigation::mitigate358($query);
     $result = civicrm_api3('Contribution', 'create', $query);
 
@@ -508,12 +506,12 @@ class CRM_Banking_PluginImpl_Matcher_SepaMandate extends CRM_Banking_PluginModel
           $close_result = civicrm_api3('SepaTransactionGroup', 'create', $txgroup_query);
           if (!empty($close_result['is_error'])) {
             CRM_Core_Session::setStatus(sprintf('Cannot mark transaction group [%s] received. Error: %s', $txgroup_id, $close_result['error_message']), E::ts('Error'), 'error');
-            return;
+            return FALSE;
           }
           $txgroup = civicrm_api3('SepaTransactionGroup', 'getsingle', $txgroup_query);
           if (!empty($txgroup['is_error'])) {
             CRM_Core_Session::setStatus(sprintf('Cannot mark transaction group [%s] received. Error: %s', $txgroup_id, $txgroup['error_message']), E::ts('Error'), 'error');
-            return;
+            return FALSE;
           }
           CRM_Core_Session::setStatus(sprintf(E::ts("SEPA transaction group '%s' was marked as received."), $txgroup['reference']), E::ts('Success'), 'info');
         }
@@ -522,7 +520,7 @@ class CRM_Banking_PluginImpl_Matcher_SepaMandate extends CRM_Banking_PluginModel
 
     $newStatus = banking_helper_optionvalueid_by_groupname_and_name('civicrm_banking.bank_tx_status', 'Processed');
     $btx->setStatus($newStatus);
-    parent::execute($match, $btx);
+    parent::execute($suggestion, $btx);
     return TRUE;
   }
 
@@ -817,15 +815,15 @@ class CRM_Banking_PluginImpl_Matcher_SepaMandate extends CRM_Banking_PluginModel
    * @val $btx      the bank transaction the match refers to
    * @return html code snippet
    */
-  public function visualize_match(CRM_Banking_Matcher_Suggestion $match, $btx) {
+  public function visualize_match(CRM_Banking_Matcher_Suggestion $suggestion, $btx) {
     $config = $this->_plugin_config;
     $smarty_vars = [];
 
     // load the contribution
-    $contribution_id   = $match->getParameter('contribution_id');
-    $mandate_id        = $match->getParameter('mandate_id');
-    $mandate_reference = $match->getParameter('mandate_reference');
-    $cancellation_mode = $match->getParameter('cancellation_mode');
+    $contribution_id   = $suggestion->getParameter('contribution_id');
+    $mandate_id        = $suggestion->getParameter('mandate_id');
+    $mandate_reference = $suggestion->getParameter('mandate_reference');
+    $cancellation_mode = $suggestion->getParameter('cancellation_mode');
     $cancellation_mode = !(empty($cancellation_mode));
 
     $smarty_vars['contribution_id']   = $contribution_id;
@@ -847,18 +845,18 @@ class CRM_Banking_PluginImpl_Matcher_SepaMandate extends CRM_Banking_PluginModel
       $smarty_vars['create_activity']   = $config->cancellation_create_activity;
 
       // add warnings, if any
-      $smarty_vars['warnings'] = $match->getEvidence();
+      $smarty_vars['warnings'] = $suggestion->getEvidence();
 
       // add cancellation extra parameters
       if ($cancellation_mode) {
         $smarty_vars['cancellation_cancel_reason'] = $config->cancellation_cancel_reason;
         if ($config->cancellation_cancel_reason) {
-          $smarty_vars['cancel_reason']      = $match->getParameter('cancel_reason');
+          $smarty_vars['cancel_reason']      = $suggestion->getParameter('cancel_reason');
           $smarty_vars['cancel_reason_edit'] = $config->cancellation_cancel_reason_edit;
         }
         $smarty_vars['cancellation_cancel_fee'] = $config->cancellation_cancel_fee;
         if ($config->cancellation_cancel_fee) {
-          $smarty_vars['cancel_fee']         = $match->getParameter('cancel_fee');
+          $smarty_vars['cancel_fee']         = $suggestion->getParameter('cancel_fee');
           $smarty_vars['cancel_fee_edit']    = $config->cancellation_cancel_fee_edit;
         }
       }
@@ -866,7 +864,7 @@ class CRM_Banking_PluginImpl_Matcher_SepaMandate extends CRM_Banking_PluginModel
     }
     else {
       // CONTRIBUTION NOT FOUND!
-      $smarty_vars['error'] = E::ts('Internal error! Cannot find contribution #') . $match->getParameter('contribution_id');
+      $smarty_vars['error'] = E::ts('Internal error! Cannot find contribution #') . $suggestion->getParameter('contribution_id');
     }
 
     $smarty = CRM_Banking_Helpers_Smarty::singleton();
@@ -883,14 +881,14 @@ class CRM_Banking_PluginImpl_Matcher_SepaMandate extends CRM_Banking_PluginModel
    * @val $btx      the bank transaction the match refers to
    * @return string html code snippet
    */
-  public function visualize_execution_info(CRM_Banking_Matcher_Suggestion $match, $btx) {
+  public function visualize_execution_info(CRM_Banking_Matcher_Suggestion $suggestion, $btx) {
     // just assign to smarty and compile HTML
     $smarty_vars = [];
-    $smarty_vars['contribution_id'] = $match->getParameter('contribution_id');
-    $contact_id = $match->getParameter('contact_id');
+    $smarty_vars['contribution_id'] = $suggestion->getParameter('contribution_id');
+    $contact_id = $suggestion->getParameter('contact_id');
     if (empty($contact_id)) {
       // this information has not been stored (old matcher version)
-      $result = civicrm_api3('Contribution', 'get', ['id' => $match->getParameter('contribution_id')]);
+      $result = civicrm_api3('Contribution', 'get', ['id' => $suggestion->getParameter('contribution_id')]);
       if (isset($result['id'])) {
         $contribution = $result['values'][$result['id']];
         $contact_id   = $contribution['contact_id'];
@@ -904,9 +902,9 @@ class CRM_Banking_PluginImpl_Matcher_SepaMandate extends CRM_Banking_PluginModel
     else {
       $smarty_vars['contact_id'] = $contact_id;
     }
-    $smarty_vars['cancellation_mode'] = $match->getParameter('cancellation_mode');
-    $smarty_vars['cancel_fee']        = $match->getParameter('cancel_fee');
-    $smarty_vars['cancel_reason']     = $match->getParameter('cancel_reason');
+    $smarty_vars['cancellation_mode'] = $suggestion->getParameter('cancellation_mode');
+    $smarty_vars['cancel_fee']        = $suggestion->getParameter('cancel_fee');
+    $smarty_vars['cancel_reason']     = $suggestion->getParameter('cancel_reason');
 
     $smarty = CRM_Banking_Helpers_Smarty::singleton();
     $smarty->pushScope($smarty_vars);

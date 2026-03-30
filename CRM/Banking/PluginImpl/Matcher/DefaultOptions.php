@@ -104,8 +104,11 @@ class CRM_Banking_PluginImpl_Matcher_DefaultOptions extends CRM_Banking_PluginMo
     return FALSE;
   }
 
+  /**
+   * @inheritDoc
+   */
   public function match(CRM_Banking_BAO_BankTransaction $btx, CRM_Banking_Matcher_Context $context) {
-
+    $suggestions = [];
     $config = $this->_plugin_config;
 
     // create 'manually processed' suggestion, if applicable
@@ -142,6 +145,7 @@ class CRM_Banking_PluginImpl_Matcher_DefaultOptions extends CRM_Banking_PluginMo
         }
 
         $btx->addSuggestion($manually_processed);
+        $suggestions[] = $manually_processed;
       }
     }
 
@@ -153,22 +157,18 @@ class CRM_Banking_PluginImpl_Matcher_DefaultOptions extends CRM_Banking_PluginMo
         $not_relevant->setTitle($config->ignore_title);
         $not_relevant->setId('ignore');
         $btx->addSuggestion($not_relevant);
+        $suggestions[] = $not_relevant;
       }
     }
 
-    // that's it...
-    return empty($this->_suggestions) ? NULL : $this->_suggestions;
+    return $suggestions;
   }
 
   /**
    * Execute the previously generated suggestion,
    *   and close the transaction
    *
-   * @param CRM_Banking_Matcher_Suggestion $suggestion
-   *   the suggestion to be executed
-   *
-   * @param CRM_Banking_BAO_BankTransaction $btx
-   *   the bank transaction this is related to
+   * @inheritDoc
    *
    * phpcs:disable Generic.Metrics.CyclomaticComplexity.TooHigh, Generic.Metrics.NestingLevel.TooHigh
    */
@@ -219,7 +219,7 @@ class CRM_Banking_PluginImpl_Matcher_DefaultOptions extends CRM_Banking_PluginMo
             $result = civicrm_api3('Contribution', 'create', $query);
             if (isset($result['is_error']) && $result['is_error']) {
               CRM_Core_Session::setStatus(sprintf(E::ts("Couldn't modify contribution #%s"), $cid), E::ts('Error'), 'error');
-              return NULL;
+              return FALSE;
             }
             else {
               $contribution_count += 1;
@@ -237,13 +237,13 @@ class CRM_Banking_PluginImpl_Matcher_DefaultOptions extends CRM_Banking_PluginMo
         }
         else {
           CRM_Core_Session::setStatus(E::ts('The contribution is not valid. The transaction is NOT completed.'), E::ts('Transaction NOT completed.'), 'alert');
-          return NULL;
+          return FALSE;
         }
 
       }
       else {
         CRM_Core_Session::setStatus(E::ts('No contribution given. The transaction is NOT completed.'), E::ts('Transaction NOT completed.'), 'alert');
-        return NULL;
+        return FALSE;
       }
     }
     else {
@@ -278,7 +278,7 @@ class CRM_Banking_PluginImpl_Matcher_DefaultOptions extends CRM_Banking_PluginMo
    * @val $btx      the bank transaction the match refers to
    * @return html code snippet
    */
-  public function visualize_match(CRM_Banking_Matcher_Suggestion $match, $btx) {
+  public function visualize_match(CRM_Banking_Matcher_Suggestion $suggestion, $btx) {
 
     $smarty_vars = [];
 
@@ -286,16 +286,16 @@ class CRM_Banking_PluginImpl_Matcher_DefaultOptions extends CRM_Banking_PluginMo
     CRM_Core_DAO::storeValues($btx, $btx_data);
 
     $smarty_vars['btx'] = $btx_data;
-    $smarty_vars['mode'] = $match->getId();
-    $smarty_vars['contact_ids'] = $match->getParameter('contact_ids');
-    $smarty_vars['contact_ids2probability'] = $match->getParameter('contact_ids2probability');
-    $smarty_vars['injected_contribution_ids'] = $match->getParameter('injected_contribution_ids');
+    $smarty_vars['mode'] = $suggestion->getId();
+    $smarty_vars['contact_ids'] = $suggestion->getParameter('contact_ids');
+    $smarty_vars['contact_ids2probability'] = $suggestion->getParameter('contact_ids2probability');
+    $smarty_vars['injected_contribution_ids'] = $suggestion->getParameter('injected_contribution_ids');
     $smarty_vars['ignore_message'] = $this->_plugin_config->ignore_message;
     $smarty_vars['booking_date'] = date('YmdHis', strtotime($btx->booking_date));
     $smarty_vars['status_pending'] = banking_helper_optionvalue_by_groupname_and_name('contribution_status', 'Pending');
     $smarty_vars['manual_default_source'] = $this->_plugin_config->manual_default_source;
     $smarty_vars['manual_default_financial_type_id'] = $this->_plugin_config->manual_default_financial_type_id;
-    $smarty_vars['create_propagation'] = $this->getPropagationSet($btx, $match, 'contribution', $this->_plugin_config->createnew_value_propagation);
+    $smarty_vars['create_propagation'] = $this->getPropagationSet($btx, $suggestion, 'contribution', $this->_plugin_config->createnew_value_propagation);
 
     // the behaviour for Contribution.get has changed in a weird way with 4.7
     if (version_compare(CRM_Utils_System::version(), '4.7', '>=')) {
@@ -321,9 +321,9 @@ class CRM_Banking_PluginImpl_Matcher_DefaultOptions extends CRM_Banking_PluginMo
    * @val $btx      the bank transaction the match refers to
    * @return string html code snippet
    */
-  public function visualize_execution_info(CRM_Banking_Matcher_Suggestion $match, $btx) {
-    if ($match->getId() === 'manual') {
-      $cids = $match->getParameter('contribution_ids');
+  public function visualize_execution_info(CRM_Banking_Matcher_Suggestion $suggestion, $btx) {
+    if ($suggestion->getId() === 'manual') {
+      $cids = $suggestion->getParameter('contribution_ids');
       $text = '<p>' . E::ts('This transaction was manually matched to the following contributions:') . '<ul>';
       foreach ($cids as $contribution_id) {
         if ($contribution_id) {

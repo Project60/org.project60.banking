@@ -375,17 +375,8 @@ class CRM_Banking_Matcher_Engine {
    * Run a single plugin to check for a match.
    */
   protected function matchPlugin(CRM_Banking_PluginModel_Matcher $plugin, CRM_Banking_Matcher_Context $context) {
+    $plugin->match($context->btx, $context);
 
-    $btx = $context->btx;
-
-    // match() returns an instance of CRM_Banking_Matcher_Suggestion
-    $suggestions = $plugin->match($btx, $context);
-    if ($suggestions !== NULL) {
-      // handle the possibility to get multiple matches in return
-      if (!is_array($suggestions)) {
-        $suggestions = [$suggestions->probability => $suggestions];
-      }
-    }
     return TRUE;
   }
 

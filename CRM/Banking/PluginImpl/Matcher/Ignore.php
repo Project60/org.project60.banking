@@ -84,10 +84,11 @@ class CRM_Banking_PluginImpl_Matcher_Ignore extends CRM_Banking_PluginModel_Matc
 
     if ($suggestion->getProbability() >= $threshold) {
       $btx->addSuggestion($suggestion);
+
+      return [$suggestion];
     }
 
-    // that's it...
-    return empty($this->_suggestions) ? NULL : $this->_suggestions;
+    return [];
   }
 
   /**
@@ -150,9 +151,9 @@ class CRM_Banking_PluginImpl_Matcher_Ignore extends CRM_Banking_PluginModel_Matc
    * @val $btx      the bank transaction the match refers to
    * @return string html code snippet
    */
-  public function visualize_execution_info(CRM_Banking_Matcher_Suggestion $match, $btx) {
+  public function visualize_execution_info(CRM_Banking_Matcher_Suggestion $suggestion, $btx) {
     $html = '<p>' . E::ts('Because :') . '<ul>';
-    $evidence = $match->getEvidence();
+    $evidence = $suggestion->getEvidence();
     foreach ($evidence as $ev) {
       $html .= '<li>' . $ev . '</li>';
     }

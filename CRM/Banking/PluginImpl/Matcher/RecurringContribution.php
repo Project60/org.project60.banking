@@ -137,9 +137,7 @@ class CRM_Banking_PluginImpl_Matcher_RecurringContribution extends CRM_Banking_P
   }
 
   /**
-   * Generate a set of suggestions for the given bank transaction
-   *
-   * @return array match structures
+   * @inheritDoc
    *
    * phpcs:disable Generic.Metrics.CyclomaticComplexity.TooHigh
    */
@@ -193,6 +191,7 @@ class CRM_Banking_PluginImpl_Matcher_RecurringContribution extends CRM_Banking_P
     }
 
     // apply penalties and threshold
+    $finalSuggestions = [];
     foreach ($suggestions as $suggestion) {
       $probability = $suggestion->getProbability();
       $probability -= $penalty;
@@ -202,29 +201,22 @@ class CRM_Banking_PluginImpl_Matcher_RecurringContribution extends CRM_Banking_P
         }
         $suggestion->setProbability($probability);
         $btx->addSuggestion($suggestion);
+        $finalSuggestions[] = $suggestion;
       }
     }
 
-    // that's it...
-    return empty($this->_suggestions) ? NULL : $this->_suggestions;
+    return $finalSuggestions;
   }
 
   /**
    * Execute the previously generated suggestion,
    *   and close the transaction
    *
-   * @param CRM_Banking_Matcher_Suggestion $suggestion
-   *   the suggestion to be executed
-   *
-   * @param CRM_Banking_BAO_BankTransaction $btx
-   *   the bank transaction this is related to
-   *
-   * phpcs:disable Generic.Metrics.CyclomaticComplexity.TooHigh
+   * @inheritDoc
    */
+  // phpcs:ignore phpcs:disable Generic.Metrics.CyclomaticComplexity.TooHigh
   public function execute($suggestion, $btx) {
-  // phpcs:enable
     $config      = $this->_plugin_config;
-    $smarty_vars = [];
 
     // load the recurring contribution(s)
     $rcontribution_id_list = $suggestion->getParameter('recurring_contribution_ids');
@@ -339,7 +331,7 @@ class CRM_Banking_PluginImpl_Matcher_RecurringContribution extends CRM_Banking_P
    * @val $btx      the bank transaction the match refers to
    * @return html code snippet
    */
-  public function visualize_match(CRM_Banking_Matcher_Suggestion $match, $btx) {
+  public function visualize_match(CRM_Banking_Matcher_Suggestion $suggestion, $btx) {
     $config      = $this->_plugin_config;
     $smarty_vars = [];
 
@@ -347,7 +339,7 @@ class CRM_Banking_PluginImpl_Matcher_RecurringContribution extends CRM_Banking_P
     $rcontributions = [];
     $contacts = [];
 
-    $rcontribution_ids = $match->getParameter('recurring_contribution_ids');
+    $rcontribution_ids = $suggestion->getParameter('recurring_contribution_ids');
     $rcontribution_ids = explode(',', $rcontribution_ids);
     foreach ($rcontribution_ids as $rcontribution_id) {
       // load recurring contribution
@@ -378,7 +370,7 @@ class CRM_Banking_PluginImpl_Matcher_RecurringContribution extends CRM_Banking_P
     // assign to smarty and compile HTML
     $smarty_vars['recurring_contributions'] = $rcontributions;
     $smarty_vars['contacts']                = $contacts;
-    $smarty_vars['penalties']               = $match->getEvidence();
+    $smarty_vars['penalties']               = $suggestion->getEvidence();
 
     $smarty = CRM_Banking_Helpers_Smarty::singleton();
     $smarty->pushScope($smarty_vars);
@@ -394,11 +386,11 @@ class CRM_Banking_PluginImpl_Matcher_RecurringContribution extends CRM_Banking_P
    * @val $btx      the bank transaction the match refers to
    * @return string html code snippet
    */
-  public function visualize_execution_info(CRM_Banking_Matcher_Suggestion $match, $btx) {
-    $contribution_id_list = $match->getParameter('contribution_ids');
+  public function visualize_execution_info(CRM_Banking_Matcher_Suggestion $suggestion, $btx) {
+    $contribution_id_list = $suggestion->getParameter('contribution_ids');
     if ($contribution_id_list == NULL) {
       // legacy
-      $contribution_id_list = $match->getParameter('contribution_id');
+      $contribution_id_list = $suggestion->getParameter('contribution_id');
     }
 
     $contribution_ids = explode(',', $contribution_id_list);

@@ -174,18 +174,6 @@ class CRM_Banking_Upgrader extends CRM_Extension_Upgrader_Base {
   }
 
   /**
-   * Upgrader for 0.7.alpha5 release
-   *  - update options/matchers/etc.
-   *
-   * @return TRUE on success
-   */
-  public function upgrade_0703() {
-    // update option groups
-    banking_civicrm_install_options(_banking_options());
-    return TRUE;
-  }
-
-  /**
    * Upgrader for 0.7.alpha7 release
    *
    * @return TRUE on success
@@ -236,20 +224,6 @@ class CRM_Banking_Upgrader extends CRM_Extension_Upgrader_Base {
   }
 
   /**
-   * Upgrader for 0.8 / BANKING-323:
-   *
-   * Update options/matchers/etc.
-   *
-   * @return TRUE on success
-   */
-  public function upgrade_0802() {
-    // update option groups
-    $this->ctx->log->info('Updated options.');
-    banking_civicrm_install_options(_banking_options());
-    return TRUE;
-  }
-
-  /**
    * Upgrader for 0.8 / BANKING-312:
    *
    * Add new civicrm_bank_tx_contribution table
@@ -277,20 +251,6 @@ class CRM_Banking_Upgrader extends CRM_Extension_Upgrader_Base {
     $logging = new CRM_Logging_Schema();
     $logging->fixSchemaDifferences();
 
-    return TRUE;
-  }
-
-  /**
-   * Upgrader for 0.8 / BANKING-296:
-   *
-   * Update options/matchers/etc.
-   *
-   * @return TRUE on success
-   */
-  public function upgrade_0805() {
-    // update option groups
-    $this->ctx->log->info('Updated options.');
-    banking_civicrm_install_options(_banking_options());
     return TRUE;
   }
 

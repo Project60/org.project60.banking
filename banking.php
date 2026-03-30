@@ -22,6 +22,7 @@ require_once 'banking_options.php';
 // phpcs:enable
 
 use Civi\Banking\DependencyInjection\Compiler\ActionProviderPass;
+use Civi\Banking\DependencyInjection\Compiler\CustomActionHandlerPass;
 use Civi\Banking\DependencyInjection\Compiler\RegexAnalyserActionHandlerPass;
 use Civi\Banking\Matcher\Helper\Api4ParamsFactory;
 use Civi\Banking\Matcher\Helper\Api4ResultMapper;
@@ -35,11 +36,16 @@ use Symfony\Component\ExpressionLanguage\ExpressionLanguage;
  */
 function banking_civicrm_container(ContainerBuilder $container): void {
   $container->addCompilerPass(new ActionProviderPass());
+  $container->addCompilerPass(new CustomActionHandlerPass());
   $container->addCompilerPass(new RegexAnalyserActionHandlerPass());
 
   $container->autowire(ExpressionLanguage::class);
   $container->autowire(Api4ParamsFactory::class);
   $container->autowire(Api4ResultMapper::class);
+
+  if (function_exists('_banking_test_civicrm_container')) {
+    _banking_test_civicrm_container($container);
+  }
 }
 
 /**
@@ -58,9 +64,6 @@ function banking_civicrm_install() {
   $sqlfile = dirname(__FILE__) . '/sql/banking.sql';
   CRM_Utils_File::sourceSQLFile($config->dsn, $sqlfile, NULL, FALSE);
 
-  //add the required option groups
-  banking_civicrm_install_options(_banking_options());
-
   // Set the bank account reference probability to 100%.
   Civi::settings()->set('reference_matching_probability', 1.0);
 
@@ -71,14 +74,7 @@ function banking_civicrm_install() {
  * Implements hook_civicrm_enable().
  */
 function banking_civicrm_enable() {
-  //add the required option groups
-  banking_civicrm_install_options(_banking_options());
-
   _banking_civix_civicrm_enable();
-}
-
-function banking_civicrm_angularModules(&$angularModules) {
-  return;
 }
 
 /**

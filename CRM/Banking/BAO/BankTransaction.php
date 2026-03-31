@@ -282,7 +282,7 @@ class CRM_Banking_BAO_BankTransaction extends CRM_Banking_DAO_BankTransaction {
   public static function findUnprocessedIDs($max_count) {
     $results = [];
     $maxcount = (int) $max_count;
-    $status_id_new = banking_helper_optionvalueid_by_groupname_and_name('civicrm_banking.bank_tx_status', 'new');
+    $status_id_new = CRM_Banking_Helpers_OptionValue::banking_helper_optionvalueid_by_groupname_and_name('civicrm_banking.bank_tx_status', 'new');
     $sql_query = "SELECT `id` AS txid FROM `civicrm_bank_tx` WHERE `status_id` = '$status_id_new' ORDER BY `value_date` ASC, `id` ASC LIMIT $maxcount";
     $query_results = CRM_Core_DAO::executeQuery($sql_query);
     while ($query_results->fetch()) {

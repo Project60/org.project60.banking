@@ -25,7 +25,7 @@ class CRM_Banking_Page_Payments extends CRM_Core_Page {
     CRM_Utils_System::setTitle(E::ts('Bank Transactions'));
 
     // look up the payment states
-    $payment_states = banking_helper_optiongroup_id_name_mapping('civicrm_banking.bank_tx_status');
+    $payment_states = CRM_Banking_Helpers_OptionValue::banking_helper_optiongroup_id_name_mapping('civicrm_banking.bank_tx_status');
 
     if (!isset($_REQUEST['status_ids'])) {
       $_REQUEST['status_ids'] = $payment_states['new']['id'];
@@ -50,15 +50,15 @@ class CRM_Banking_Page_Payments extends CRM_Core_Page {
     // phpcs:enable
     $this->assign('base_url', $base_url);
 
-    $this->assign('url_show_payments', banking_helper_buildURL('civicrm/banking/payments', ['show' => 'payments', $list_type => '__selected__'], ['status_ids', 'recent']));
-    $this->assign('url_show_statements', banking_helper_buildURL('civicrm/banking/payments', ['show' => 'statements'], ['status_ids', 'recent']));
+    $this->assign('url_show_payments', CRM_Banking_Helpers_URLBuilder::banking_helper_buildURL('civicrm/banking/payments', ['show' => 'payments', $list_type => '__selected__'], ['status_ids', 'recent']));
+    $this->assign('url_show_statements', CRM_Banking_Helpers_URLBuilder::banking_helper_buildURL('civicrm/banking/payments', ['show' => 'statements'], ['status_ids', 'recent']));
 
-    $this->assign('url_show_payments_new', banking_helper_buildURL('civicrm/banking/payments', $this->_pageParameters(['status_ids' => $payment_states['new']['id']])));
-    $this->assign('url_show_payments_analysed', banking_helper_buildURL('civicrm/banking/payments', $this->_pageParameters(['status_ids' => $payment_states['suggestions']['id']])));
-    $this->assign('url_show_payments_completed', banking_helper_buildURL('civicrm/banking/payments', $this->_pageParameters(['status_ids' => $payment_states['processed']['id'] . ',' . $payment_states['ignored']['id']])));
+    $this->assign('url_show_payments_new', CRM_Banking_Helpers_URLBuilder::banking_helper_buildURL('civicrm/banking/payments', $this->_pageParameters(['status_ids' => $payment_states['new']['id']])));
+    $this->assign('url_show_payments_analysed', CRM_Banking_Helpers_URLBuilder::banking_helper_buildURL('civicrm/banking/payments', $this->_pageParameters(['status_ids' => $payment_states['suggestions']['id']])));
+    $this->assign('url_show_payments_completed', CRM_Banking_Helpers_URLBuilder::banking_helper_buildURL('civicrm/banking/payments', $this->_pageParameters(['status_ids' => $payment_states['processed']['id'] . ',' . $payment_states['ignored']['id']])));
 
-    $this->assign('url_review_selected_payments', banking_helper_buildURL('civicrm/banking/review', [$list_type => '__selected__']));
-    $this->assign('url_export_selected_payments', banking_helper_buildURL('civicrm/banking/export', [$list_type => '__selected__']));
+    $this->assign('url_review_selected_payments', CRM_Banking_Helpers_URLBuilder::banking_helper_buildURL('civicrm/banking/review', [$list_type => '__selected__']));
+    $this->assign('url_export_selected_payments', CRM_Banking_Helpers_URLBuilder::banking_helper_buildURL('civicrm/banking/export', [$list_type => '__selected__']));
 
     $this->assign('can_delete', CRM_Core_Permission::check('administer CiviCRM'));
 
@@ -102,7 +102,7 @@ class CRM_Banking_Page_Payments extends CRM_Core_Page {
     // evaluate statement
     $recently_closed_cutoff = CRM_Banking_Config::getRecentlyCompletedStatementCutoff();
     if ($recently_closed_cutoff) {
-      $this->assign('url_show_payments_recently_completed', banking_helper_buildURL('civicrm/banking/payments', $this->_pageParameters(['recent' => 1, 'status_ids' => $payment_states['processed']['id'] . ',' . $payment_states['ignored']['id']])));
+      $this->assign('url_show_payments_recently_completed', CRM_Banking_Helpers_URLBuilder::banking_helper_buildURL('civicrm/banking/payments', $this->_pageParameters(['recent' => 1, 'status_ids' => $payment_states['processed']['id'] . ',' . $payment_states['ignored']['id']])));
     }
 
     // FIRST: CALCULATE COUNTS

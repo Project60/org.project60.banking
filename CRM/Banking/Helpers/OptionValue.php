@@ -16,140 +16,144 @@
 
 declare(strict_types = 1);
 
-/**
- * looks up an option group ID
- *
- * the implementation is probably not optimal, but it'll do for the moment
- *
- */
-function banking_helper_optiongroupid_by_name($group_name): int {
-  $result = civicrm_api3('OptionGroup', 'get', ['name' => $group_name]);
+class CRM_Banking_Helpers_OptionValue {
 
-  if (empty($result['id'])) {
-    Civi::log()->debug("org.project60.banking: Couldn't find option group '{$group_name}'!");
-    return 0;
-  }
-  else {
-    return (int) $result['id'];
-  }
-}
+  /**
+   * looks up an option group ID
+   *
+   * the implementation is probably not optimal, but it'll do for the moment
+   *
+   */
+  public static function banking_helper_optiongroupid_by_name($group_name): int {
+    $result = civicrm_api3('OptionGroup', 'get', ['name' => $group_name]);
 
-/**
- * looks up an option value
- *
- * the implementation is probably not optimal, but it'll do for the moment
- *
- */
-function banking_helper_optionvalueid_by_name($group_id, $value_name): int {
-  $result = civicrm_api3('OptionValue', 'get', [
-    'name'            => $value_name,
-    'option_group_id' => $group_id,
-  ]);
-
-  if (empty($result['id'])) {
-    Civi::log()->debug("org.project60.banking: Couldn't find option value '{$value_name}'!");
-    return 0;
-  }
-  else {
-    return (int) $result['id'];
-  }
-}
-
-/**
- * looks up an option value
- *
- * the implementation is probably not optimal, but it'll do for the moment
- *
- * @return string|0
- */
-function banking_helper_optionvalue_by_name($group_id, $value_name): string|int {
-  $result = civicrm_api3('OptionValue', 'get', [
-    'name'            => $value_name,
-    'option_group_id' => $group_id,
-  ]);
-
-  if (empty($result['id'])) {
-    Civi::log()->debug("org.project60.banking: Couldn't find option value '{$value_name}'!");
-    return 0;
-  }
-  else {
-    return $result['values'][$result['id']]['value'];
-  }
-}
-
-/**
- * looks up an option value ID by group name and value name
- *
- * the implementation is probably not optimal, but it'll do for the moment
- *
- */
-function banking_helper_optionvalueid_by_groupname_and_name($group_name, $value_name): int {
-  $group_id = banking_helper_optiongroupid_by_name($group_name);
-  if ($group_id) {
-    return banking_helper_optionvalueid_by_name($group_id, $value_name);
-  }
-  else {
-    return 0;
-  }
-}
-
-/**
- * looks up an option value by group name and value name
- *
- * the implementation is probably not optimal, but it'll do for the moment
- *
- * @return string|0
- */
-function banking_helper_optionvalue_by_groupname_and_name($group_name, $value_name): string|int {
-  $group_id = banking_helper_optiongroupid_by_name($group_name);
-  if ($group_id) {
-    return banking_helper_optionvalue_by_name($group_id, $value_name);
-  }
-  else {
-    return 0;
-  }
-}
-
-/**
- * creates an id/name => object mapping for the given option group
- *
- * the implementation is probably not optimal, but it'll do for the moment
- *
- * @package org.project60.banking
- * @copyright GNU Affero General Public License
- * $Id$
- *
- */
-function banking_helper_optiongroup_id_name_mapping($group_name) {
-  $group_id = banking_helper_optiongroupid_by_name($group_name);
-
-  if ($group_id) {
-    $result = civicrm_api3('OptionValue', 'get', ['option_group_id' => $group_id]);
-    $mapping = [];
-    foreach ($result['values'] as $entry) {
-      $mapping[$entry['id']] = $entry;
-      $mapping[$entry['name']] = $entry;
+    if (empty($result['id'])) {
+      Civi::log()->debug("org.project60.banking: Couldn't find option group '{$group_name}'!");
+      return 0;
     }
-
-    // inject 'new' value as id 0 for convenience
-    $mapping[0] = $mapping['new'];
-
-    return $mapping;
-
+    else {
+      return (int) $result['id'];
+    }
   }
-  else {
-    return [];
-  }
-}
 
-/**
- * will check if the given tx_status_id is closed,
- *  i.e. marked as 'processed' or 'ignored'
- *
- * @return TRUE if closed, FALSE otherwise
- */
-function banking_helper_tx_status_closed($tx_status_id) {
-  $status = banking_helper_optiongroup_id_name_mapping('civicrm_banking.bank_tx_status');
-  return $status[$tx_status_id]['name'] == 'processed'
-        || $status[$tx_status_id]['name'] == 'ignored';
+  /**
+   * looks up an option value
+   *
+   * the implementation is probably not optimal, but it'll do for the moment
+   *
+   */
+  public static function banking_helper_optionvalueid_by_name($group_id, $value_name): int {
+    $result = civicrm_api3('OptionValue', 'get', [
+      'name'            => $value_name,
+      'option_group_id' => $group_id,
+    ]);
+
+    if (empty($result['id'])) {
+      Civi::log()->debug("org.project60.banking: Couldn't find option value '{$value_name}'!");
+      return 0;
+    }
+    else {
+      return (int) $result['id'];
+    }
+  }
+
+  /**
+   * looks up an option value
+   *
+   * the implementation is probably not optimal, but it'll do for the moment
+   *
+   * @return string|0
+   */
+  public static function banking_helper_optionvalue_by_name($group_id, $value_name): string|int {
+    $result = civicrm_api3('OptionValue', 'get', [
+      'name'            => $value_name,
+      'option_group_id' => $group_id,
+    ]);
+
+    if (empty($result['id'])) {
+      Civi::log()->debug("org.project60.banking: Couldn't find option value '{$value_name}'!");
+      return 0;
+    }
+    else {
+      return $result['values'][$result['id']]['value'];
+    }
+  }
+
+  /**
+   * looks up an option value ID by group name and value name
+   *
+   * the implementation is probably not optimal, but it'll do for the moment
+   *
+   */
+  public static function banking_helper_optionvalueid_by_groupname_and_name($group_name, $value_name): int {
+    $group_id = self::banking_helper_optiongroupid_by_name($group_name);
+    if ($group_id) {
+      return self::banking_helper_optionvalueid_by_name($group_id, $value_name);
+    }
+    else {
+      return 0;
+    }
+  }
+
+  /**
+   * looks up an option value by group name and value name
+   *
+   * the implementation is probably not optimal, but it'll do for the moment
+   *
+   * @return string|0
+   */
+  public static function banking_helper_optionvalue_by_groupname_and_name($group_name, $value_name): string|int {
+    $group_id = CRM_Banking_Helpers_OptionValue::banking_helper_optiongroupid_by_name($group_name);
+    if ($group_id) {
+      return CRM_Banking_Helpers_OptionValue::banking_helper_optionvalue_by_name($group_id, $value_name);
+    }
+    else {
+      return 0;
+    }
+  }
+
+  /**
+   * creates an id/name => object mapping for the given option group
+   *
+   * the implementation is probably not optimal, but it'll do for the moment
+   *
+   * @package org.project60.banking
+   * @copyright GNU Affero General Public License
+   * $Id$
+   *
+   */
+  public static function banking_helper_optiongroup_id_name_mapping($group_name) {
+    $group_id = CRM_Banking_Helpers_OptionValue::banking_helper_optiongroupid_by_name($group_name);
+
+    if ($group_id) {
+      $result = civicrm_api3('OptionValue', 'get', ['option_group_id' => $group_id]);
+      $mapping = [];
+      foreach ($result['values'] as $entry) {
+        $mapping[$entry['id']] = $entry;
+        $mapping[$entry['name']] = $entry;
+      }
+
+      // inject 'new' value as id 0 for convenience
+      $mapping[0] = $mapping['new'];
+
+      return $mapping;
+
+    }
+    else {
+      return [];
+    }
+  }
+
+  /**
+   * will check if the given tx_status_id is closed,
+   *  i.e. marked as 'processed' or 'ignored'
+   *
+   * @return TRUE if closed, FALSE otherwise
+   */
+  public static function banking_helper_tx_status_closed($tx_status_id) {
+    $status = CRM_Banking_Helpers_OptionValue::banking_helper_optiongroup_id_name_mapping('civicrm_banking.bank_tx_status');
+    return $status[$tx_status_id]['name'] == 'processed'
+      || $status[$tx_status_id]['name'] == 'ignored';
+  }
+
 }

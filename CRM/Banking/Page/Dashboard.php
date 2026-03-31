@@ -30,7 +30,7 @@ class CRM_Banking_Page_Dashboard extends CRM_Core_Page {
     $now = strtotime('now');
     $week_count = 7;
     $oldest_week = date('YW', strtotime("now -$week_count weeks"));
-    $payment_states = banking_helper_optiongroup_id_name_mapping('civicrm_banking.bank_tx_status');
+    $payment_states = CRM_Banking_Helpers_OptionValue::banking_helper_optiongroup_id_name_mapping('civicrm_banking.bank_tx_status');
     $account_names = [];
 
     // get the week based data

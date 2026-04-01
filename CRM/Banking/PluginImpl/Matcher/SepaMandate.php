@@ -19,7 +19,7 @@ declare(strict_types = 1);
 use CRM_Banking_ExtensionUtil as E;
 
 // phpcs:disable PSR1.Files.SideEffects.FoundWithSymbols
-require_once 'packages/eval-math/evalmath.class.php';
+require_once E::path('packages/eval-math/evalmath.class.php');
 // phpcs:enable
 
 /**
@@ -314,7 +314,7 @@ class CRM_Banking_PluginImpl_Matcher_SepaMandate extends CRM_Banking_PluginModel
         $suggestion->addEvidence($config->deviation_penalty, E::ts('The contribution does not feature the expected amount.'));
         $probability -= $config->deviation_penalty;
       }
-      $status_inprogress = banking_helper_optionvalue_by_groupname_and_name('contribution_status', 'In Progress');
+      $status_inprogress = CRM_Banking_Helpers_OptionValue::banking_helper_optionvalue_by_groupname_and_name('contribution_status', 'In Progress');
       if ($contribution['contribution_status_id'] != $status_inprogress) {
         $suggestion->addEvidence($config->deviation_penalty, E::ts("The contribution does not have the expected status 'in Progress'."));
         $probability -= $config->deviation_penalty;
@@ -430,9 +430,9 @@ class CRM_Banking_PluginImpl_Matcher_SepaMandate extends CRM_Banking_PluginModel
     }
 
     $contribution_id = $match->getParameter('contribution_id');
-    $status_pending = banking_helper_optionvalue_by_groupname_and_name('contribution_status', 'Pending');
-    $status_inprogress = banking_helper_optionvalue_by_groupname_and_name('contribution_status', 'In Progress');
-    $status_completed = banking_helper_optionvalue_by_groupname_and_name('contribution_status', 'Completed');
+    $status_pending = CRM_Banking_Helpers_OptionValue::banking_helper_optionvalue_by_groupname_and_name('contribution_status', 'Pending');
+    $status_inprogress = CRM_Banking_Helpers_OptionValue::banking_helper_optionvalue_by_groupname_and_name('contribution_status', 'In Progress');
+    $status_completed = CRM_Banking_Helpers_OptionValue::banking_helper_optionvalue_by_groupname_and_name('contribution_status', 'Completed');
 
     // Compatibility with CiviCRM < 4.7.0
     if (version_compare(CRM_Utils_System::version(), '4.7.0', '<')) {
@@ -502,7 +502,7 @@ class CRM_Banking_PluginImpl_Matcher_SepaMandate extends CRM_Banking_PluginModel
       $result = CRM_Core_DAO::executeQuery($open_contributions_in_group_sql);
       if ($result->fetch() && $result->open_count == 0) {
         // set this group's status to 'received'
-        $group_status_id_received = banking_helper_optionvalue_by_groupname_and_name('batch_status', 'Received');
+        $group_status_id_received = CRM_Banking_Helpers_OptionValue::banking_helper_optionvalue_by_groupname_and_name('batch_status', 'Received');
         if ($group_status_id_received) {
           $txgroup_query = ['id' => $txgroup_id, 'status_id' => $group_status_id_received];
           $close_result = civicrm_api3('SepaTransactionGroup', 'create', $txgroup_query);
@@ -520,7 +520,7 @@ class CRM_Banking_PluginImpl_Matcher_SepaMandate extends CRM_Banking_PluginModel
       }
     }
 
-    $newStatus = banking_helper_optionvalueid_by_groupname_and_name('civicrm_banking.bank_tx_status', 'Processed');
+    $newStatus = CRM_Banking_Helpers_OptionValue::banking_helper_optionvalueid_by_groupname_and_name('civicrm_banking.bank_tx_status', 'Processed');
     $btx->setStatus($newStatus);
     parent::execute($match, $btx);
     return TRUE;
@@ -561,7 +561,7 @@ class CRM_Banking_PluginImpl_Matcher_SepaMandate extends CRM_Banking_PluginModel
       $status_cancelled = $config->cancelled_contribution_status_id;
     }
     else {
-      $status_cancelled = banking_helper_optionvalue_by_groupname_and_name('contribution_status', 'Cancelled');
+      $status_cancelled = CRM_Banking_Helpers_OptionValue::banking_helper_optionvalue_by_groupname_and_name('contribution_status', 'Cancelled');
     }
 
     $this->logger->setTimer('sepa_mandate_cancel_contribution');
@@ -765,7 +765,7 @@ class CRM_Banking_PluginImpl_Matcher_SepaMandate extends CRM_Banking_PluginModel
     // link contribution
     CRM_Banking_BAO_BankTransactionContribution::linkContribution($btx->id, $contribution_id);
 
-    $newStatus = banking_helper_optionvalueid_by_groupname_and_name('civicrm_banking.bank_tx_status', 'Processed');
+    $newStatus = CRM_Banking_Helpers_OptionValue::banking_helper_optionvalueid_by_groupname_and_name('civicrm_banking.bank_tx_status', 'Processed');
     $btx->setStatus($newStatus);
     parent::execute($match, $btx);
     return TRUE;

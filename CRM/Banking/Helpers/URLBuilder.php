@@ -1,7 +1,4 @@
 <?php
-
-declare(strict_types = 1);
-
 /**
  * -------------------------------------------------------+
  * | Project 60 - CiviBanking                               |
@@ -18,37 +15,44 @@ declare(strict_types = 1);
  * | written permission from the original author(s).        |
  * +--------------------------------------------------------
  */
-function banking_helper_buildURL($base, $set_params, $keep_params = [], $delete_params = [], $keep_param_source = NULL): string {
-  if ($keep_param_source == NULL) {
-    $keep_param_source = $_REQUEST;
-  }
 
-  $params = [];
-  // take over selected parameters from source
-  foreach ($keep_params as $key) {
-    if (isset($keep_param_source[$key])) {
-      $params[$key] = $keep_param_source[$key];
+declare(strict_types = 1);
+
+class CRM_Banking_Helpers_URLBuilder {
+
+  public static function banking_helper_buildURL($base, $set_params, $keep_params = [], $delete_params = [], $keep_param_source = NULL): string {
+    if ($keep_param_source == NULL) {
+      $keep_param_source = $_REQUEST;
     }
-  }
 
-  // add (and override) the parameters
-  foreach ($set_params as $key => $value) {
-    $params[$key] = $value;
-  }
-
-  // remove requested parameters
-  foreach ($delete_params as $key) {
-    unset($params[$key]);
-  }
-
-  // build string:
-  $pstring = '';
-  foreach ($params as $key => $value) {
-    if (strlen($pstring) > 0) {
-      $pstring = $pstring . '&';
+    $params = [];
+    // take over selected parameters from source
+    foreach ($keep_params as $key) {
+      if (isset($keep_param_source[$key])) {
+        $params[$key] = $keep_param_source[$key];
+      }
     }
-    $pstring = $pstring . $key . '=' . $value;
+
+    // add (and override) the parameters
+    foreach ($set_params as $key => $value) {
+      $params[$key] = $value;
+    }
+
+    // remove requested parameters
+    foreach ($delete_params as $key) {
+      unset($params[$key]);
+    }
+
+    // build string:
+    $pstring = '';
+    foreach ($params as $key => $value) {
+      if (strlen($pstring) > 0) {
+        $pstring = $pstring . '&';
+      }
+      $pstring = $pstring . $key . '=' . $value;
+    }
+
+    return CRM_Utils_System::url($base, $pstring, FALSE, NULL, FALSE);
   }
 
-  return CRM_Utils_System::url($base, $pstring, FALSE, NULL, FALSE);
 }

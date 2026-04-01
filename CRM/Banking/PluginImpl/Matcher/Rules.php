@@ -101,7 +101,7 @@ class CRM_Banking_PluginImpl_Matcher_Rules extends CRM_Banking_PluginModel_Match
     $rule_match->execute($match);
 
     // update status
-    $newStatus = banking_helper_optionvalueid_by_groupname_and_name('civicrm_banking.bank_tx_status', 'Processed');
+    $newStatus = CRM_Banking_Helpers_OptionValue::banking_helper_optionvalueid_by_groupname_and_name('civicrm_banking.bank_tx_status', 'Processed');
     $btx->setStatus($newStatus);
     parent::execute($match, $btx);
     return TRUE;

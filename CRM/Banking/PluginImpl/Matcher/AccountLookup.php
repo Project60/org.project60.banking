@@ -163,7 +163,7 @@ class CRM_Banking_PluginImpl_Matcher_AccountLookup extends CRM_Banking_PluginMod
   protected function getReferenceTypes($context) {
     $types = $context->getCachedEntry('analyser_account.reference_types');
     if ($types === NULL) {
-      $group_id = banking_helper_optiongroupid_by_name('civicrm_banking.reference_types');
+      $group_id = CRM_Banking_Helpers_OptionValue::banking_helper_optiongroupid_by_name('civicrm_banking.reference_types');
       $types = CRM_Core_OptionGroup::valuesByID($group_id, $flip = TRUE, $grouping = FALSE, $localize = FALSE, $labelColumnName = 'id', $onlyActive = TRUE, $fresh = FALSE);
       $context->setCachedEntry('analyser_account.reference_types', $types);
     }

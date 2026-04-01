@@ -129,7 +129,7 @@ class CRM_Banking_PluginImpl_Matcher_Membership extends CRM_Banking_PluginModel_
     $this->storeAccountWithContact($btx, $membership['contact_id']);
     CRM_Banking_BAO_BankTransactionContribution::linkContribution($btx->id, $contribution['id']);
 
-    $newStatus = banking_helper_optionvalueid_by_groupname_and_name('civicrm_banking.bank_tx_status', 'Processed');
+    $newStatus = CRM_Banking_Helpers_OptionValue::banking_helper_optionvalueid_by_groupname_and_name('civicrm_banking.bank_tx_status', 'Processed');
     $btx->setStatus($newStatus);
     parent::execute($suggestion, $btx);
     return TRUE;

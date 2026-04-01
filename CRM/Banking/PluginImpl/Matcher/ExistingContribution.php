@@ -19,7 +19,7 @@ declare(strict_types = 1);
 use CRM_Banking_ExtensionUtil as E;
 
 // phpcs:disable PSR1.Files.SideEffects.FoundWithSymbols
-require_once 'packages/eval-math/evalmath.class.php';
+require_once E::path('packages/eval-math/evalmath.class.php');
 // phpcs:enable
 
 /**
@@ -244,7 +244,7 @@ class CRM_Banking_PluginImpl_Matcher_ExistingContribution extends CRM_Banking_Pl
     if ($config->payment_instrument_penalty
         &&  isset($contribution['payment_instrument_id'])
         &&  isset($parsed_data['payment_instrument'])) {
-      $contribution_payment_instrument_id = banking_helper_optionvalue_by_groupname_and_name('payment_instrument', $parsed_data['payment_instrument']);
+      $contribution_payment_instrument_id = CRM_Banking_Helpers_OptionValue::banking_helper_optionvalue_by_groupname_and_name('payment_instrument', $parsed_data['payment_instrument']);
       if ($contribution_payment_instrument_id != $contribution['payment_instrument_id']) {
         $payment_instrument_penalty = $config->payment_instrument_penalty;
       }
@@ -322,7 +322,7 @@ class CRM_Banking_PluginImpl_Matcher_ExistingContribution extends CRM_Banking_Pl
   protected function getAcceptedContributionStatusIDs(): array {
     $accepted_status_ids = [];
     foreach ($this->_plugin_config->accepted_contribution_states as $status_name) {
-      $status_id = banking_helper_optionvalue_by_groupname_and_name('contribution_status', $status_name);
+      $status_id = CRM_Banking_Helpers_OptionValue::banking_helper_optionvalue_by_groupname_and_name('contribution_status', $status_name);
       if ($status_id) {
         // @todo Are these integerish strings? Should they be cast to int?
         $accepted_status_ids[] = $status_id;
@@ -551,13 +551,13 @@ class CRM_Banking_PluginImpl_Matcher_ExistingContribution extends CRM_Banking_Pl
 
     // depending on mode...
     if ($this->_plugin_config->mode != 'cancellation') {
-      $query['contribution_status_id'] = banking_helper_optionvalue_by_groupname_and_name('contribution_status', 'Completed');
+      $query['contribution_status_id'] = CRM_Banking_Helpers_OptionValue::banking_helper_optionvalue_by_groupname_and_name('contribution_status', 'Completed');
       if (!$config->preserve_receive_date) {
         $query['receive_date'] = date('YmdHis', strtotime($btx->booking_date));
       }
     }
     else {
-      $query['contribution_status_id'] = banking_helper_optionvalue_by_groupname_and_name('contribution_status', 'Cancelled');
+      $query['contribution_status_id'] = CRM_Banking_Helpers_OptionValue::banking_helper_optionvalue_by_groupname_and_name('contribution_status', 'Cancelled');
       $query['cancel_date'] = date('YmdHis', strtotime($btx->booking_date));
       if ($config->cancellation_cancel_reason) {
         $query['cancel_reason'] = $suggestion->getParameter('cancel_reason');
@@ -584,7 +584,7 @@ class CRM_Banking_PluginImpl_Matcher_ExistingContribution extends CRM_Banking_Pl
       }
     }
 
-    $newStatus = banking_helper_optionvalueid_by_groupname_and_name('civicrm_banking.bank_tx_status', 'Processed');
+    $newStatus = CRM_Banking_Helpers_OptionValue::banking_helper_optionvalueid_by_groupname_and_name('civicrm_banking.bank_tx_status', 'Processed');
     $btx->setStatus($newStatus);
     parent::execute($suggestion, $btx);
     return TRUE;

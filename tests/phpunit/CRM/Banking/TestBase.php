@@ -573,7 +573,7 @@ abstract class CRM_Banking_TestBase extends TestCase implements HeadlessInterfac
   public function getTxStatusID($status) {
     static $status_list = [];
     if (!isset($status_list[$status])) {
-      $status_entry = banking_helper_optionvalueid_by_groupname_and_name('civicrm_banking.bank_tx_status', $status);
+      $status_entry = CRM_Banking_Helpers_OptionValue::banking_helper_optionvalueid_by_groupname_and_name('civicrm_banking.bank_tx_status', $status);
       $status_list[$status] = $status_entry;
     }
     return $status_list[$status];

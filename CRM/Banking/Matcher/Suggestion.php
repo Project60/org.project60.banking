@@ -260,7 +260,7 @@ class CRM_Banking_Matcher_Suggestion {
     }
 
     // only update if transaction still open (see BANKING-232)
-    if (!banking_helper_tx_status_closed($this->_btx->status_id)) {
+    if (!CRM_Banking_Helpers_OptionValue::banking_helper_tx_status_closed($this->_btx->status_id)) {
       $this->_plugin->update_parameters($this, $parameters);
       $this->_btx->saveSuggestions();
       return TRUE;
@@ -278,7 +278,7 @@ class CRM_Banking_Matcher_Suggestion {
    */
   public function execute($btx) {
     // only execute if not completed yet
-    if (!banking_helper_tx_status_closed($btx->status_id)) {
+    if (!CRM_Banking_Helpers_OptionValue::banking_helper_tx_status_closed($btx->status_id)) {
       // perform execute
       $result = $this->_plugin->execute($this, $btx);
       if ($result && ($result !== 're-run')) {

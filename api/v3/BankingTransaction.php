@@ -142,7 +142,7 @@ function civicrm_api3_banking_transaction_analyselist($params) {
   }
 
   // filter for non-closed statements
-  $payment_states  = banking_helper_optiongroup_id_name_mapping('civicrm_banking.bank_tx_status');
+  $payment_states  = CRM_Banking_Helpers_OptionValue::banking_helper_optiongroup_id_name_mapping('civicrm_banking.bank_tx_status');
   $state_ignored   = (int) $payment_states['ignored']['id'];
   $state_processed = (int) $payment_states['processed']['id'];
   $list_string = implode(',', $tx_ids);

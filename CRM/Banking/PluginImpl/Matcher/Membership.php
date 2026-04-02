@@ -163,6 +163,15 @@ class CRM_Banking_PluginImpl_Matcher_Membership extends CRM_Banking_PluginModel_
 
     // LOAD entities
     // TODO: error handling
+    /**
+     * @var array{
+     *   contact_id: int|numeric-string,
+     *   membership_type_id: int|numeric-string,
+     *   status_id: int|numeric-string,
+     *   start_date: string|null,
+     *   join_date: string|null,
+     *   ...
+     * } $membership */
     $membership        = civicrm_api3('Membership', 'getsingle', ['id' => $membership_id]);
     $membership_type   = civicrm_api3('MembershipType', 'getsingle', ['id' => $membership['membership_type_id']]);
     $membership_status = civicrm_api3('MembershipStatus', 'getsingle', ['id' => $membership['status_id']]);
@@ -170,14 +179,15 @@ class CRM_Banking_PluginImpl_Matcher_Membership extends CRM_Banking_PluginModel_
 
     // load last fee
     if (!empty($last_fee_id)) {
-      $last_fee                = civicrm_api3('Contribution', 'getsingle', ['id' => $last_fee_id]);
-      $last_fee['days']        = round((strtotime($btx->booking_date) - (int) strtotime($last_fee['receive_date'])) / (60 * 60 * 24));
+      /** @var array{receive_date: string|null, ...} $last_fee */
+      $last_fee = civicrm_api3('Contribution', 'getsingle', ['id' => $last_fee_id]);
+      $last_fee['days_different'] = $this->getRelativeDays($btx->booking_date, $last_fee['receive_date'] ?? '');
       $smarty_vars['last_fee'] = $last_fee;
     }
 
     // calculate some stuff
     $date_field = ($config->based_on_start_date) ? 'start_date' : 'join_date';
-    $membership['days'] = round((strtotime($btx->booking_date) - strtotime($membership[$date_field])) / (60 * 60 * 24));
+    $membership['days_different'] = $this->getRelativeDays($btx->booking_date, $membership[$date_field] ?? '');
     $membership['percentage_of_minimum'] = round(($btx->amount / (float) $membership_type['minimum_fee']) * 100);
     $membership['title'] = $this->getMembershipOption($membership['membership_type_id'], 'title', $membership_type['name']);
 
@@ -489,6 +499,29 @@ class CRM_Banking_PluginImpl_Matcher_Membership extends CRM_Banking_PluginModel_
     }
 
     return $rating;
+  }
+
+  /**
+   * Helper function to render a human-readable date difference
+   * @param string $fromDate
+   * @param string $toDate
+   * @return string localised human-readable difference - e.g. "2 days earlier"
+   */
+  private function getRelativeDays(string $fromDate, string $toDate): string {
+    $fromTime = strtotime($fromDate);
+    $toTime = strtotime($toDate);
+    if (FALSE === $fromTime || FALSE === $toTime) {
+      return '';
+    }
+
+    $days = round(($fromTime - $toTime) / (60 * 60 * 24));
+    if ($days > 0) {
+      return E::ts('%1 days earlier', [1 => $days]);
+    }
+    if ($days < 0) {
+      return E::ts('%1 days later', [1 => -$days]);
+    }
+    return E::ts('Same day');
   }
 
 }

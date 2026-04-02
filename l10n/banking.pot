@@ -1318,6 +1318,18 @@ msgstr ""
 msgid "Record as Membership Fee"
 msgstr ""
 
+#: CRM/Banking/PluginImpl/Matcher/Membership.php
+msgid "%1 days earlier"
+msgstr ""
+
+#: CRM/Banking/PluginImpl/Matcher/Membership.php
+msgid "%1 days later"
+msgstr ""
+
+#: CRM/Banking/PluginImpl/Matcher/Membership.php
+msgid "Same day"
+msgstr ""
+
 #: CRM/Banking/PluginImpl/Matcher/RecurringContribution.php
 msgid "A general penalty was applied."
 msgstr ""
@@ -2744,14 +2756,6 @@ msgstr ""
 
 #: templates/CRM/Banking/PluginImpl/Matcher/Membership.suggestion.tpl
 msgid "Last"
-msgstr ""
-
-#: templates/CRM/Banking/PluginImpl/Matcher/Membership.suggestion.tpl
-msgid "(%1 days earlier)"
-msgstr ""
-
-#: templates/CRM/Banking/PluginImpl/Matcher/Membership.suggestion.tpl
-msgid "(%1 days later)"
 msgstr ""
 
 #: templates/CRM/Banking/PluginImpl/Matcher/Membership.suggestion.tpl

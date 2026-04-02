@@ -930,8 +930,8 @@ msgstr "Bankkonto Doubletten"
 
 #: CRM/Banking/Page/AccountDedupe.php
 msgid ""
-"%1 errors were encountered when trying to merge duplicate bank accounts, "
-"%2/%3 bank accounts were successfully merged."
+"%1 errors were encountered when trying to merge duplicate bank accounts, %2/"
+"%3 bank accounts were successfully merged."
 msgstr ""
 "%1 Bankkonten konnten nicht automatisch zusammengeführt werden, da sie "
 "widersprüchliche Informationen beinhalten. Insgesamt konnten %2/%3 "
@@ -1478,6 +1478,18 @@ msgstr "Begründung:"
 #: CRM/Banking/PluginImpl/Matcher/Membership.php
 msgid "Record as Membership Fee"
 msgstr "Mitgliedsbeitrag erfassen"
+
+#: CRM/Banking/PluginImpl/Matcher/Membership.php
+msgid "%1 days earlier"
+msgstr "%1 Tage früher"
+
+#: CRM/Banking/PluginImpl/Matcher/Membership.php
+msgid "%1 days later"
+msgstr "%1 Tage später"
+
+#: CRM/Banking/PluginImpl/Matcher/Membership.php
+msgid "Same day"
+msgstr "Gleicher Tag"
 
 #: CRM/Banking/PluginImpl/Matcher/RecurringContribution.php
 msgid "A general penalty was applied."
@@ -3192,14 +3204,6 @@ msgstr ""
 #: templates/CRM/Banking/PluginImpl/Matcher/Membership.suggestion.tpl
 msgid "Last"
 msgstr "Letzter"
-
-#: templates/CRM/Banking/PluginImpl/Matcher/Membership.suggestion.tpl
-msgid "(%1 days earlier)"
-msgstr "(%1 Tage früher)"
-
-#: templates/CRM/Banking/PluginImpl/Matcher/Membership.suggestion.tpl
-msgid "(%1 days later)"
-msgstr "(%1 Tage später)"
 
 #: templates/CRM/Banking/PluginImpl/Matcher/Membership.suggestion.tpl
 msgid "Paid"

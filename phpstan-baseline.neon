@@ -7005,13 +7005,7 @@ parameters:
 		-
 			message: '#^Cannot access offset ''contact_id'' on array\|int\.$#'
 			identifier: offsetAccess.nonOffsetAccessible
-			count: 4
-			path: CRM/Banking/PluginImpl/Matcher/Membership.php
-
-		-
-			message: '#^Cannot access offset ''days'' on array\|int\.$#'
-			identifier: offsetAccess.nonOffsetAccessible
-			count: 2
+			count: 3
 			path: CRM/Banking/PluginImpl/Matcher/Membership.php
 
 		-
@@ -7027,15 +7021,9 @@ parameters:
 			path: CRM/Banking/PluginImpl/Matcher/Membership.php
 
 		-
-			message: '#^Cannot access offset ''join_date''\|''start_date'' on array\|int\.$#'
-			identifier: offsetAccess.nonOffsetAccessible
-			count: 1
-			path: CRM/Banking/PluginImpl/Matcher/Membership.php
-
-		-
 			message: '#^Cannot access offset ''membership_type_id'' on array\|int\.$#'
 			identifier: offsetAccess.nonOffsetAccessible
-			count: 2
+			count: 1
 			path: CRM/Banking/PluginImpl/Matcher/Membership.php
 
 		-
@@ -7046,18 +7034,6 @@ parameters:
 
 		-
 			message: '#^Cannot access offset ''name'' on array\|int\.$#'
-			identifier: offsetAccess.nonOffsetAccessible
-			count: 1
-			path: CRM/Banking/PluginImpl/Matcher/Membership.php
-
-		-
-			message: '#^Cannot access offset ''receive_date'' on array\|int\.$#'
-			identifier: offsetAccess.nonOffsetAccessible
-			count: 1
-			path: CRM/Banking/PluginImpl/Matcher/Membership.php
-
-		-
-			message: '#^Cannot access offset ''status_id'' on array\|int\.$#'
 			identifier: offsetAccess.nonOffsetAccessible
 			count: 1
 			path: CRM/Banking/PluginImpl/Matcher/Membership.php

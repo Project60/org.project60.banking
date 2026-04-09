@@ -7621,67 +7621,8 @@ parameters:
 			path: CRM/Banking/PluginImpl/Matcher/RecurringContribution.php
 
 		-
-			message: '#^Access to an undefined property object\:\:\$from\.$#'
-			identifier: property.notFound
-			count: 1
-			path: CRM/Banking/PluginImpl/Matcher/RegexAnalyser.php
-
-		-
-			message: '#^Access to an undefined property object\:\:\$replace\.$#'
-			identifier: property.notFound
-			count: 1
-			path: CRM/Banking/PluginImpl/Matcher/RegexAnalyser.php
-
-		-
-			message: '#^Access to an undefined property object\:\:\$to\.$#'
-			identifier: property.notFound
-			count: 2
-			path: CRM/Banking/PluginImpl/Matcher/RegexAnalyser.php
-
-		-
-			message: '#^Call to an undefined method object\:\:fetch\(\)\.$#'
-			identifier: method.notFound
-			count: 2
-			path: CRM/Banking/PluginImpl/Matcher/RegexAnalyser.php
-
-		-
-			message: '#^Call to an undefined method object\:\:toArray\(\)\.$#'
-			identifier: method.notFound
-			count: 2
-			path: CRM/Banking/PluginImpl/Matcher/RegexAnalyser.php
-
-		-
-			message: '#^Call to function in_array\(\) requires parameter \#3 to be set\.$#'
-			identifier: function.strict
-			count: 1
-			path: CRM/Banking/PluginImpl/Matcher/RegexAnalyser.php
-
-		-
 			message: '#^Construct empty\(\) is not allowed\. Use more strict comparison\.$#'
 			identifier: empty.notAllowed
-			count: 10
-			path: CRM/Banking/PluginImpl/Matcher/RegexAnalyser.php
-
-		-
-			message: '#^Foreach overwrites \$value with its value variable\.$#'
-			identifier: foreach.valueOverwrite
-			count: 1
-			path: CRM/Banking/PluginImpl/Matcher/RegexAnalyser.php
-
-		-
-			message: '#^In method "CRM_Banking_PluginImpl_Matcher_RegexAnalyser\:\:processMatch", caught "Exception" must be rethrown\. Either catch a more specific exception, add a "throw" clause in the "catch" block to propagate the exception or add a "// @ignoreException" comment\.$#'
-			count: 1
-			path: CRM/Banking/PluginImpl/Matcher/RegexAnalyser.php
-
-		-
-			message: '#^Loose comparison via "\=\=" is not allowed\.$#'
-			identifier: equal.notAllowed
-			count: 23
-			path: CRM/Banking/PluginImpl/Matcher/RegexAnalyser.php
-
-		-
-			message: '#^Method CRM_Banking_PluginImpl_Matcher_RegexAnalyser\:\:__construct\(\) has parameter \$config_name with no type specified\.$#'
-			identifier: missingType.parameter
 			count: 1
 			path: CRM/Banking/PluginImpl/Matcher/RegexAnalyser.php
 
@@ -7692,135 +7633,9 @@ parameters:
 			path: CRM/Banking/PluginImpl/Matcher/RegexAnalyser.php
 
 		-
-			message: '#^Method CRM_Banking_PluginImpl_Matcher_RegexAnalyser\:\:executeAPIQuery\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: CRM/Banking/PluginImpl/Matcher/RegexAnalyser.php
-
-		-
-			message: '#^Method CRM_Banking_PluginImpl_Matcher_RegexAnalyser\:\:executeAPIQuery\(\) has parameter \$action with no type specified\.$#'
-			identifier: missingType.parameter
-			count: 1
-			path: CRM/Banking/PluginImpl/Matcher/RegexAnalyser.php
-
-		-
-			message: '#^Method CRM_Banking_PluginImpl_Matcher_RegexAnalyser\:\:executeAPIQuery\(\) has parameter \$command with no type specified\.$#'
-			identifier: missingType.parameter
-			count: 1
-			path: CRM/Banking/PluginImpl/Matcher/RegexAnalyser.php
-
-		-
-			message: '#^Method CRM_Banking_PluginImpl_Matcher_RegexAnalyser\:\:executeAPIQuery\(\) has parameter \$entity with no type specified\.$#'
-			identifier: missingType.parameter
-			count: 1
-			path: CRM/Banking/PluginImpl/Matcher/RegexAnalyser.php
-
-		-
-			message: '#^Method CRM_Banking_PluginImpl_Matcher_RegexAnalyser\:\:executeAPIQuery\(\) has parameter \$query with no type specified\.$#'
-			identifier: missingType.parameter
-			count: 1
-			path: CRM/Banking/PluginImpl/Matcher/RegexAnalyser.php
-
-		-
-			message: '#^Method CRM_Banking_PluginImpl_Matcher_RegexAnalyser\:\:getTableName\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: CRM/Banking/PluginImpl/Matcher/RegexAnalyser.php
-
-		-
-			message: '#^Method CRM_Banking_PluginImpl_Matcher_RegexAnalyser\:\:getTableName\(\) has parameter \$entity with no type specified\.$#'
-			identifier: missingType.parameter
-			count: 1
-			path: CRM/Banking/PluginImpl/Matcher/RegexAnalyser.php
-
-		-
-			message: '#^Method CRM_Banking_PluginImpl_Matcher_RegexAnalyser\:\:getValue\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: CRM/Banking/PluginImpl/Matcher/RegexAnalyser.php
-
-		-
-			message: '#^Method CRM_Banking_PluginImpl_Matcher_RegexAnalyser\:\:getValue\(\) has parameter \$btx with no type specified\.$#'
-			identifier: missingType.parameter
-			count: 1
-			path: CRM/Banking/PluginImpl/Matcher/RegexAnalyser.php
-
-		-
-			message: '#^Method CRM_Banking_PluginImpl_Matcher_RegexAnalyser\:\:getValue\(\) has parameter \$data_parsed with no type specified\.$#'
-			identifier: missingType.parameter
-			count: 1
-			path: CRM/Banking/PluginImpl/Matcher/RegexAnalyser.php
-
-		-
-			message: '#^Method CRM_Banking_PluginImpl_Matcher_RegexAnalyser\:\:getValue\(\) has parameter \$key with no type specified\.$#'
-			identifier: missingType.parameter
-			count: 1
-			path: CRM/Banking/PluginImpl/Matcher/RegexAnalyser.php
-
-		-
-			message: '#^Method CRM_Banking_PluginImpl_Matcher_RegexAnalyser\:\:getValue\(\) has parameter \$match_data with no type specified\.$#'
-			identifier: missingType.parameter
-			count: 1
-			path: CRM/Banking/PluginImpl/Matcher/RegexAnalyser.php
-
-		-
-			message: '#^Method CRM_Banking_PluginImpl_Matcher_RegexAnalyser\:\:getValue\(\) has parameter \$match_index with no type specified\.$#'
-			identifier: missingType.parameter
-			count: 1
-			path: CRM/Banking/PluginImpl/Matcher/RegexAnalyser.php
-
-		-
-			message: '#^Method CRM_Banking_PluginImpl_Matcher_RegexAnalyser\:\:processMatch\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: CRM/Banking/PluginImpl/Matcher/RegexAnalyser.php
-
-		-
-			message: '#^Method CRM_Banking_PluginImpl_Matcher_RegexAnalyser\:\:processMatch\(\) has parameter \$btx with no type specified\.$#'
-			identifier: missingType.parameter
-			count: 1
-			path: CRM/Banking/PluginImpl/Matcher/RegexAnalyser.php
-
-		-
-			message: '#^Method CRM_Banking_PluginImpl_Matcher_RegexAnalyser\:\:processMatch\(\) has parameter \$data_parsed with no type specified\.$#'
-			identifier: missingType.parameter
-			count: 1
-			path: CRM/Banking/PluginImpl/Matcher/RegexAnalyser.php
-
-		-
-			message: '#^Method CRM_Banking_PluginImpl_Matcher_RegexAnalyser\:\:processMatch\(\) has parameter \$match_data with no type specified\.$#'
-			identifier: missingType.parameter
-			count: 1
-			path: CRM/Banking/PluginImpl/Matcher/RegexAnalyser.php
-
-		-
-			message: '#^Method CRM_Banking_PluginImpl_Matcher_RegexAnalyser\:\:processMatch\(\) has parameter \$match_index with no type specified\.$#'
-			identifier: missingType.parameter
-			count: 1
-			path: CRM/Banking/PluginImpl/Matcher/RegexAnalyser.php
-
-		-
-			message: '#^Method CRM_Banking_PluginImpl_Matcher_RegexAnalyser\:\:processMatch\(\) has parameter \$rule with no type specified\.$#'
-			identifier: missingType.parameter
-			count: 1
-			path: CRM/Banking/PluginImpl/Matcher/RegexAnalyser.php
-
-		-
-			message: '#^Negated boolean expression is always false\.$#'
-			identifier: booleanNot.alwaysFalse
-			count: 1
-			path: CRM/Banking/PluginImpl/Matcher/RegexAnalyser.php
-
-		-
 			message: '#^Only booleans are allowed in an if condition, int\|false given\.$#'
 			identifier: if.condNotBoolean
 			count: 1
-			path: CRM/Banking/PluginImpl/Matcher/RegexAnalyser.php
-
-		-
-			message: '#^Variable property access on mixed\.$#'
-			identifier: property.dynamicName
-			count: 2
 			path: CRM/Banking/PluginImpl/Matcher/RegexAnalyser.php
 
 		-
@@ -9651,12 +9466,6 @@ parameters:
 			path: CRM/Banking/PluginModel/Base.php
 
 		-
-			message: '#^Method CRM_Banking_PluginModel_Base\:\:__construct\(\) has parameter \$plugin_dao with no type specified\.$#'
-			identifier: missingType.parameter
-			count: 1
-			path: CRM/Banking/PluginModel/Base.php
-
-		-
 			message: '#^Method CRM_Banking_PluginModel_Base\:\:findContact\(\) has parameter \$attributes with no type specified\.$#'
 			identifier: missingType.parameter
 			count: 1
@@ -10274,12 +10083,6 @@ parameters:
 			path: CRM/Banking/PluginModel/Exporter.php
 
 		-
-			message: '#^Method CRM_Banking_PluginModel_IOPlugin\:\:__construct\(\) has parameter \$plugin_dao with no type specified\.$#'
-			identifier: missingType.parameter
-			count: 1
-			path: CRM/Banking/PluginModel/IOPlugin.php
-
-		-
 			message: '#^Binary operation "\+\=" between int\|string and 1 results in an error\.$#'
 			identifier: assignOp.invalid
 			count: 1
@@ -10349,12 +10152,6 @@ parameters:
 			message: '#^Loose comparison via "\=\=" is not allowed\.$#'
 			identifier: equal.notAllowed
 			count: 7
-			path: CRM/Banking/PluginModel/Importer.php
-
-		-
-			message: '#^Method CRM_Banking_PluginModel_Importer\:\:__construct\(\) has parameter \$plugin_dao with no type specified\.$#'
-			identifier: missingType.parameter
-			count: 1
 			path: CRM/Banking/PluginModel/Importer.php
 
 		-
@@ -10658,12 +10455,6 @@ parameters:
 			path: CRM/Banking/PluginModel/Matcher.php
 
 		-
-			message: '#^Method CRM_Banking_PluginModel_Matcher\:\:__construct\(\) has parameter \$plugin_dao with no type specified\.$#'
-			identifier: missingType.parameter
-			count: 1
-			path: CRM/Banking/PluginModel/Matcher.php
-
-		-
 			message: '#^Method CRM_Banking_PluginModel_Matcher\:\:addSuggestion\(\) has no return type specified\.$#'
 			identifier: missingType.return
 			count: 1
@@ -10811,12 +10602,6 @@ parameters:
 			message: '#^Construct empty\(\) is not allowed\. Use more strict comparison\.$#'
 			identifier: empty.notAllowed
 			count: 9
-			path: CRM/Banking/PluginModel/PostProcessor.php
-
-		-
-			message: '#^Method CRM_Banking_PluginModel_PostProcessor\:\:__construct\(\) has parameter \$plugin_dao with no type specified\.$#'
-			identifier: missingType.parameter
-			count: 1
 			path: CRM/Banking/PluginModel/PostProcessor.php
 
 		-
@@ -11919,6 +11704,54 @@ parameters:
 			path: Civi/Banking/DataProcessor/Source/BankAccount.php
 
 		-
+			message: '#^Argument of an invalid type mixed supplied for foreach, only iterables are supported\.$#'
+			identifier: foreach.nonIterable
+			count: 1
+			path: Civi/Banking/Matcher/RegexAnalyser/ActionHandlers/ApiRegexAnalyserActionHandler.php
+
+		-
+			message: '#^Cannot access offset string on mixed\.$#'
+			identifier: offsetAccess.nonOffsetAccessible
+			count: 2
+			path: Civi/Banking/Matcher/RegexAnalyser/ActionHandlers/ApiRegexAnalyserActionHandler.php
+
+		-
+			message: '#^Cannot cast mixed to string\.$#'
+			identifier: cast.string
+			count: 2
+			path: Civi/Banking/Matcher/RegexAnalyser/ActionHandlers/ApiRegexAnalyserActionHandler.php
+
+		-
+			message: '#^Construct empty\(\) is not allowed\. Use more strict comparison\.$#'
+			identifier: empty.notAllowed
+			count: 3
+			path: Civi/Banking/Matcher/RegexAnalyser/ActionHandlers/ApiRegexAnalyserActionHandler.php
+
+		-
+			message: '#^Loose comparison via "\=\=" is not allowed\.$#'
+			identifier: equal.notAllowed
+			count: 1
+			path: Civi/Banking/Matcher/RegexAnalyser/ActionHandlers/ApiRegexAnalyserActionHandler.php
+
+		-
+			message: '#^Parameter \#1 \$array of function reset expects array\|object, mixed given\.$#'
+			identifier: argument.type
+			count: 1
+			path: Civi/Banking/Matcher/RegexAnalyser/ActionHandlers/ApiRegexAnalyserActionHandler.php
+
+		-
+			message: '#^Part \$query\[''limit''\] \(mixed\) of encapsed string cannot be cast to string\.$#'
+			identifier: encapsedStringPart.nonString
+			count: 1
+			path: Civi/Banking/Matcher/RegexAnalyser/ActionHandlers/ApiRegexAnalyserActionHandler.php
+
+		-
+			message: '#^Part \$select_clause \(mixed\) of encapsed string cannot be cast to string\.$#'
+			identifier: encapsedStringPart.nonString
+			count: 1
+			path: Civi/Banking/Matcher/RegexAnalyser/ActionHandlers/ApiRegexAnalyserActionHandler.php
+
+		-
 			message: '#^Cannot access offset ''bic'' on mixed\.$#'
 			identifier: offsetAccess.nonOffsetAccessible
 			count: 1
@@ -12978,12 +12811,6 @@ parameters:
 			path: banking.php
 
 		-
-			message: '#^Function banking_civicrm_container\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: banking.php
-
-		-
 			message: '#^Function banking_civicrm_enable\(\) has no return type specified\.$#'
 			identifier: missingType.return
 			count: 1
@@ -13173,78 +13000,6 @@ parameters:
 			message: '#^Dynamic call to static method PHPUnit\\Framework\\Assert\:\:assertEquals\(\)\.$#'
 			identifier: staticMethod.dynamicCall
 			count: 10
-			path: tests/phpunit/CRM/Banking/Analyser/RegexAnalyserTest.php
-
-		-
-			message: '#^Method CRM_Banking_RegexAnalyserTest\:\:testApiAction\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: tests/phpunit/CRM/Banking/Analyser/RegexAnalyserTest.php
-
-		-
-			message: '#^Method CRM_Banking_RegexAnalyserTest\:\:testApiActionSql\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: tests/phpunit/CRM/Banking/Analyser/RegexAnalyserTest.php
-
-		-
-			message: '#^Method CRM_Banking_RegexAnalyserTest\:\:testCopyAction\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: tests/phpunit/CRM/Banking/Analyser/RegexAnalyserTest.php
-
-		-
-			message: '#^Method CRM_Banking_RegexAnalyserTest\:\:testCopyAppendAction\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: tests/phpunit/CRM/Banking/Analyser/RegexAnalyserTest.php
-
-		-
-			message: '#^Method CRM_Banking_RegexAnalyserTest\:\:testLookupAction\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: tests/phpunit/CRM/Banking/Analyser/RegexAnalyserTest.php
-
-		-
-			message: '#^Method CRM_Banking_RegexAnalyserTest\:\:testMapAction\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: tests/phpunit/CRM/Banking/Analyser/RegexAnalyserTest.php
-
-		-
-			message: '#^Method CRM_Banking_RegexAnalyserTest\:\:testSHA1Action\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: tests/phpunit/CRM/Banking/Analyser/RegexAnalyserTest.php
-
-		-
-			message: '#^Method CRM_Banking_RegexAnalyserTest\:\:testSetAction\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: tests/phpunit/CRM/Banking/Analyser/RegexAnalyserTest.php
-
-		-
-			message: '#^Method CRM_Banking_RegexAnalyserTest\:\:testSetActionDoesNotMatch\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: tests/phpunit/CRM/Banking/Analyser/RegexAnalyserTest.php
-
-		-
-			message: '#^Method CRM_Banking_RegexAnalyserTest\:\:testSetUnsetAction\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: tests/phpunit/CRM/Banking/Analyser/RegexAnalyserTest.php
-
-		-
-			message: '#^Method CRM_Banking_RegexAnalyserTest\:\:testSprintfAction\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: tests/phpunit/CRM/Banking/Analyser/RegexAnalyserTest.php
-
-		-
-			message: '#^Method CRM_Banking_RegexAnalyserTest\:\:testStrtolowerAction\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
 			path: tests/phpunit/CRM/Banking/Analyser/RegexAnalyserTest.php
 
 		-

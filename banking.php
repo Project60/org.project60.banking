@@ -19,20 +19,20 @@ declare(strict_types = 1);
 // phpcs:disable PSR1.Files.SideEffects.FoundWithSymbols
 require_once 'banking.civix.php';
 require_once 'banking_options.php';
-require_once 'CRM/Banking/Helpers/URLBuilder.php';
-require_once 'CRM/Banking/Helpers/OptionValue.php';
 // phpcs:enable
 
-use Symfony\Component\DependencyInjection\ContainerBuilder;
+use Civi\Banking\DependencyInjection\Compiler\ActionProviderPass;
+use Civi\Banking\DependencyInjection\Compiler\RegexAnalyserActionHandlerPass;
+use Civi\Core\ClassScanner;
 use CRM_Banking_ExtensionUtil as E;
+use Symfony\Component\DependencyInjection\ContainerBuilder;
 
 /**
  * Implements hook_civicrm_container().
  */
-function banking_civicrm_container(ContainerBuilder $container) {
-  if (class_exists('Civi\Banking\CompilerPass')) {
-    $container->addCompilerPass(new Civi\Banking\CompilerPass());
-  }
+function banking_civicrm_container(ContainerBuilder $container): void {
+  $container->addCompilerPass(new ActionProviderPass());
+  $container->addCompilerPass(new RegexAnalyserActionHandlerPass());
 }
 
 /**
@@ -82,6 +82,14 @@ function banking_civicrm_pageRun(&$page) {
   if ($pageName == 'CRM_Contribute_Page_Tab') {
     CRM_Banking_BAO_BankTransactionContribution::injectLinkedTransactions($page);
   }
+}
+
+/**
+ * @param list<string> $classes
+ */
+function banking_civicrm_scanClasses(array &$classes): void {
+  // @phpstan-ignore parameterByRef.type
+  ClassScanner::scanFolders($classes, __DIR__, 'Civi/Banking/Matcher', '\\');
 }
 
 /**

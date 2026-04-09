@@ -56,6 +56,8 @@ abstract class CRM_Banking_PluginModel_Base {
 
   /**
    * class constructor
+   *
+   * @param \CRM_Banking_DAO_PluginInstance $plugin_dao
    */
   public function __construct($plugin_dao) {
     $this->setDAO($plugin_dao);

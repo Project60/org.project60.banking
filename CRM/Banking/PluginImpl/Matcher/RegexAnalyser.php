@@ -90,7 +90,7 @@ class CRM_Banking_PluginImpl_Matcher_RegexAnalyser extends CRM_Banking_PluginMod
   /**
    * execute all the action defined by the rule to the given match
    *
-   * @param array<int|string, list<string>> $matchData
+   * @param array<string, list<string>> $matchData
    *   Matches of preg_match_all().
    *
    * @throws \CRM_Core_Exception

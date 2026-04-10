@@ -23,9 +23,12 @@ require_once 'banking_options.php';
 
 use Civi\Banking\DependencyInjection\Compiler\ActionProviderPass;
 use Civi\Banking\DependencyInjection\Compiler\RegexAnalyserActionHandlerPass;
+use Civi\Banking\Matcher\Helper\Api4ParamsFactory;
+use Civi\Banking\Matcher\Helper\Api4ResultMapper;
 use Civi\Core\ClassScanner;
 use CRM_Banking_ExtensionUtil as E;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
+use Symfony\Component\ExpressionLanguage\ExpressionLanguage;
 
 /**
  * Implements hook_civicrm_container().
@@ -33,6 +36,10 @@ use Symfony\Component\DependencyInjection\ContainerBuilder;
 function banking_civicrm_container(ContainerBuilder $container): void {
   $container->addCompilerPass(new ActionProviderPass());
   $container->addCompilerPass(new RegexAnalyserActionHandlerPass());
+
+  $container->autowire(ExpressionLanguage::class);
+  $container->autowire(Api4ParamsFactory::class);
+  $container->autowire(Api4ResultMapper::class);
 }
 
 /**

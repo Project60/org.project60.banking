@@ -22,6 +22,7 @@ namespace Civi\Banking\Matcher;
 
 use Civi\Banking\Matcher\CustomAction\CustomActionContext;
 use Civi\Banking\Matcher\CustomAction\CustomActionHandlerInterface;
+use CRM_Banking_ExtensionUtil as E;
 
 /**
  * This matcher allows to execute custom actions.
@@ -93,20 +94,8 @@ class CustomActionsMatcher extends \CRM_Banking_PluginModel_Matcher {
    * @param \CRM_Banking_BAO_BankTransaction $btx the bank transaction the suggestion refers to
    * @return string html code snippet
    */
-  public function visualize_match(\CRM_Banking_Matcher_Suggestion $suggestion, $btx) {
-    return parent::visualize_match($suggestion, $btx);
-
-    $smartyVars = [];
-
-    // assign to smarty and compile HTML
-    $smarty = \CRM_Banking_Helpers_Smarty::singleton();
-    $smarty->pushScope($smartyVars);
-    try {
-      return $smarty->fetch('Civi/Banking/Matcher/CustomActions.suggestion.tpl');
-    }
-    finally {
-      $smarty->popScope();
-    }
+  public function visualize_match(\CRM_Banking_Matcher_Suggestion $suggestion, $btx): string {
+    return '<p>' . $suggestion->getTitle() . '</p>';
   }
 
   /**
@@ -115,19 +104,8 @@ class CustomActionsMatcher extends \CRM_Banking_PluginModel_Matcher {
    * @param \CRM_Banking_BAO_BankTransaction $btx the bank transaction the suggestion refers to
    * @return string html code snippet
    */
-  public function visualize_execution_info(\CRM_Banking_Matcher_Suggestion $suggestion, $btx) {
-    return parent::visualize_execution_info($suggestion, $btx);
-
-    $smartyVars = [];
-
-    $smarty = \CRM_Banking_Helpers_Smarty::singleton();
-    $smarty->pushScope($smartyVars);
-    try {
-      return $smarty->fetch('Civi/Banking/Matcher/CustomActions.execution.tpl');
-    }
-    finally {
-      $smarty->popScope();
-    }
+  public function visualize_execution_info(\CRM_Banking_Matcher_Suggestion $suggestion, $btx): string {
+    return '<p>' . $suggestion->getTitle() . '</p>';
   }
 
 }

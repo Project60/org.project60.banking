@@ -122,7 +122,7 @@ return [
         'label' => E::ts('Custom Actions Matcher'),
         'value' => CustomActionsMatcher::class,
         'name' => CustomActionsMatcher::NAME,
-        'description' => E::ts('Will perform custom actions.'),
+        'description' => E::ts('Performs custom actions.'),
       ],
       'match' => [
         'option_group_id',

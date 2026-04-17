@@ -22,6 +22,7 @@
         "php": "^8.1",
         "civicrm/civicrm-core": ">=5.76",
         "civicrm/civicrm-packages": ">=5.76",
+        "symfony/expression-language": "^5.4 || ^6 || ^7",
         "webmozart/assert": "^1 || ^2"
     },
     "autoload": {

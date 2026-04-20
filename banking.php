@@ -81,6 +81,22 @@ function banking_civicrm_pageRun(&$page) {
   $pageName = $page->getVar('_name');
   if ($pageName == 'CRM_Contribute_Page_Tab') {
     CRM_Banking_BAO_BankTransactionContribution::injectLinkedTransactions($page);
+    return;
+  }
+
+  if ($pageName === CRM_Banking_Page_Import::class) {
+    $importUi = \Civi::settings()->get('banking_importer');
+
+    switch ($importUi) {
+      case 'quick':
+        \Civi::resources()->addScriptFile(E::LONG_NAME, 'elements/civi-banking-import.js');
+        \Civi::resources()->addBundle('bootstrap3');
+
+        \CRM_Core_Region::instance('page-body')->clear();
+        \CRM_Core_Region::instance('page-body')->addMarkup('<civi-banking-import />');
+        return;
+    }
+    return;
   }
 }
 

@@ -259,7 +259,8 @@ function deleteStatement(statement_id) {
     // call the API to delete the items
     var query = {'q': 'civicrm/ajax/rest', 'sequential': 1};
     // set the list or s_list parameter depending on the page mode
-    query['s_list'] = statement_id;
+    // NOTE: api3 expects the param as a string
+    query['s_list'] = `${statement_id}`;
     CRM.api('BankingTransaction', 'deletelist', query,
       {success: function(data) {
           if (!data['is_error']) {

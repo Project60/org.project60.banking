@@ -6,7 +6,7 @@
     <h3>{ts domain='org.project60.banking'}Filter lines{/ts}</h3>
     <table class="form-layout">
       <tbody>
-      <tr>        
+      <tr>
         <td>
         <strong>{ts domain='org.project60.banking'}Status{/ts}</strong>&nbsp;
         {foreach from=$statuses item=status key=status_id}
@@ -16,7 +16,7 @@
         </td>
       </tr>
     </table>
-    
+
     <div class="crm-submit-buttons">
     <input type="submit" class="crm-form-submit" value="{ts escape='htmlattribute' domain='org.project60.banking'}Filter{/ts}">
     </div>
@@ -187,7 +187,8 @@ function deleteLine(line_id) {
     // call the API to delete the items
     var query = {'q': 'civicrm/ajax/rest', 'sequential': 1};
     // set the list or s_list parameter depending on the page mode
-    query['list'] = line_id;
+    // NOTE: api3 expects the param as a string
+    query['list'] = `${line_id}`;
     CRM.api('BankingTransaction', 'deletelist', query,
       {success: function(data) {
           if (!data['is_error']) {

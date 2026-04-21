@@ -105,11 +105,11 @@
     buildOptionSelector(param, labelText, options) {
       const select = document.createElement('select');
 
-      select.append(...options.map((value) => {
+      select.append(...options.map((o) => {
         const option = document.createElement('option');
-        option.value = value;
-        option.innerText = value;
-        option.selected = (value === this.apiParams[param])
+        option.value = o.value;
+        option.innerText = o.label;
+        option.selected = (o.value === this.apiParams[param])
         return option;
       }));
 
@@ -135,11 +135,27 @@
     }
 
     renderParamInputs() {
+      const columnOptions = [
+        {
+          label: '- auto -',
+          value: '',
+        },
+        ...this.previewResult.headerColumns.map((col) => ({
+          label: col,
+          value: col
+        }))
+      ];
+
+      const dateFormatOptions = ['Y-m-d', 'm/d/Y', 'd/m/Y'].map((format) => ({
+        label: format,
+        value: format
+      }));
+
       this.querySelector('fieldset').replaceChildren(
-        this.buildOptionSelector('dateColumn', ts('Date Column'), this.previewResult.columnOptions),
-        this.buildOptionSelector('dateFormat', ts('Date Format'), ['Y-m-d', 'm/d/Y', 'd/m/Y']),
-        this.buildOptionSelector('amountColumn', ts('Amount Column'), this.previewResult.columnOptions),
-        this.buildOptionSelector('referenceColumn', ts('Reference Column'), this.previewResult.columnOptions),
+        this.buildOptionSelector('dateColumn', ts('Date Column'), columnOptions),
+        this.buildOptionSelector('dateFormat', ts('Date Format'), dateFormatOptions),
+        this.buildOptionSelector('amountColumn', ts('Amount Column'), columnOptions),
+        this.buildOptionSelector('referenceColumn', ts('Reference Column'), columnOptions),
     //    this.buildTextInput('statementTitle', ts('Statement Title'))
       );
     }

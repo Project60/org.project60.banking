@@ -22,7 +22,7 @@ class Preview extends ImportBase {
       'amountColumn' => $this->amountColumn,
     ];
 
-    $result['columnOptions'] = array_keys($transactions[0]['data_parsed']);
+    $result['headerColumns'] = array_keys($transactions[0]['data_parsed']);
   }
 
 }

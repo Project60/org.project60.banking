@@ -146,7 +146,7 @@
         }))
       ];
 
-      const dateFormatOptions = ['Y-m-d', 'm/d/Y', 'd/m/Y'].map((format) => ({
+      const dateFormatOptions = this.previewResult.dateFormats.map((format) => ({
         label: format,
         value: format
       }));

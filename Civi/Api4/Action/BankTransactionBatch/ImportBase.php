@@ -248,7 +248,7 @@ abstract class ImportBase extends \Civi\Api4\Generic\AbstractAction {
   protected function autodetectDateFormat(array $transactions) {
     $dateValues = array_map(fn ($tx) => $tx['data_parsed'][$this->dateColumn], $transactions);
 
-    $formats = ['Y-m-d', 'd/m/Y', 'm/d/Y'];
+    $formats = $this->getDateFormats();
     $bestScore = 0;
 
     foreach ($formats as $format) {
@@ -300,6 +300,10 @@ abstract class ImportBase extends \Civi\Api4\Generic\AbstractAction {
     // @todo could we autodetect thousands separator?
     $rawAmount = $tx['data_parsed'][$this->amountColumn];
     return ($rawAmount !== '') ? (float) \str_replace($this->thousandsSeparator, '', $rawAmount) : NULL;
+  }
+
+  protected function getDateFormats(): array {
+    return ['Y-m-d', 'd/m/Y', 'm/d/Y', 'd M Y'];
   }
 
 }

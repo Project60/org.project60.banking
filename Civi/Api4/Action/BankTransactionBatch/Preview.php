@@ -23,6 +23,7 @@ class Preview extends ImportBase {
     ];
 
     $result['headerColumns'] = array_keys($transactions[0]['data_parsed']);
+    $result['dateFormats'] = $this->getDateFormats();
   }
 
 }

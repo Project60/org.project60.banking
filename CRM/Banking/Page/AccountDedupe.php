@@ -255,10 +255,10 @@ class CRM_Banking_Page_AccountDedupe extends CRM_Core_Page {
 
         // first, find the account IDs to merge
         $bank_account_ids = [];
+        // use the oldest (lowest ID) as merge target
         $sql = "SELECT ba_id
                 FROM civicrm_bank_account_reference
                 WHERE reference = (SELECT reference FROM civicrm_bank_account_reference WHERE id=$reference_id)
-// use the oldest (lowest ID) as merge target
                 ORDER BY ba_id ASC;";
         $bank_account_query = CRM_Core_DAO::executeQuery($sql);
         while ($bank_account_query->fetch()) {

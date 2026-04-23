@@ -20,13 +20,13 @@ declare(strict_types = 1);
 
 namespace Civi\Banking\Matcher\Helper;
 
-use Symfony\Component\ExpressionLanguage\ExpressionLanguage;
+use Civi\Banking\ExpressionLanguage\BankingExpressionLanguage;
 use Webmozart\Assert\Assert;
 
 final class Api4ParamsFactory {
 
   public function __construct(
-    private readonly ExpressionLanguage $expressionLanguage
+    private readonly BankingExpressionLanguage $expressionLanguage
   ) {}
 
   /**
@@ -34,6 +34,8 @@ final class Api4ParamsFactory {
    *   action: string,
    *   params?: \stdClass,
    *   result_map?: \stdClass,
+   *   use_all_results?: bool,
+   *   index_by?: string,
    * } $actionDefinition
    *
    * @param array<string, mixed> $expressionValues
@@ -55,27 +57,30 @@ final class Api4ParamsFactory {
       $params = [];
     }
 
-    if ('get' === $actionDefinition->action && !isset($params['select'])) {
-      if (property_exists($actionDefinition, 'result_map')) {
+    if ('get' === $actionDefinition->action) {
+      if (!isset($params['select']) && property_exists($actionDefinition, 'result_map')) {
         $params['select'] = [];
+        if (property_exists($actionDefinition, 'index_by')) {
+          $params['select'][] = $actionDefinition->index_by;
+        }
+
+        $resultMapHasExpression = FALSE;
         Assert::isInstanceOf($actionDefinition->result_map, \stdClass::class);
         $resultMap = (array) $actionDefinition->result_map;
-        foreach ($resultMap as $source) {
-          if (is_string($source)) {
-            $fieldNameOrExpression = $source;
-          }
-          else {
-            Assert::notNull($source->field, 'Source field name in result map is missing');
-            Assert::string($source->field, 'Expected string as source field name in result map, got %s');
-            $fieldNameOrExpression = $source->field;
-          }
-
+        foreach ($resultMap as $fieldNameOrExpression) {
+          Assert::string($fieldNameOrExpression, 'APIv4 field name or expression expected in result map, got %s');
           if (str_starts_with($fieldNameOrExpression, '@=')) {
+            // Select all fields if an expression is used.
             $params['select'] = [];
+            $resultMapHasExpression = TRUE;
             break;
           }
 
           $params['select'][] = $fieldNameOrExpression;
+        }
+
+        if (!($actionDefinition->use_all_results ?? FALSE) && !$resultMapHasExpression) {
+          $params['limit'] ??= 1;
         }
       }
     }

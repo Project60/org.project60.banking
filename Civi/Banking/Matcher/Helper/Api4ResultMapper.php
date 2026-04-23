@@ -21,102 +21,51 @@ declare(strict_types = 1);
 namespace Civi\Banking\Matcher\Helper;
 
 use Civi\Api4\Generic\Result;
+use Civi\Banking\ExpressionLanguage\BankingExpressionLanguage;
 use Symfony\Component\ExpressionLanguage\ExpressionLanguage;
-use Webmozart\Assert\Assert;
 
-/**
- * @phpstan-type resultMapT array<string, string|object{
- *   field: string,
- *   filter?: 'first'|'last',
- *   value_separator?: string,
- * }>
- */
-final class Api4ResultMapper {
+class Api4ResultMapper {
 
   public function __construct(
-    private readonly ExpressionLanguage $expressionLanguage
+    private readonly BankingExpressionLanguage $expressionLanguage
   ) {}
 
   /**
-   * @phpstan-param resultMapT $resultMap
-   *   Mapping of target field name to an APIv4 field name, an expression or an
-   *   object containing the APIv4 field name.
-   * @param callable(string, mixed): void $setValueCallback
+   * @phpstan-param array<string, string> $resultMap
+   *   Mapping of target field to an APIv4 field name or an expression starting with "@=".
+   *
+   * @return iterable<string, mixed>
+   *
+   * @throws \CRM_Core_Exception
    */
-  public function mapResult(Result $result, array $resultMap, callable $setValueCallback): void {
-    if (0 === $result->countFetched()) {
+  public function applyResultMap(Result $result, array $resultMap, Api4ResultMapOptions $options): iterable {
+    if (0 === $result->countFetched() && $options->skipEmptyResult) {
       return;
     }
 
+    if (NULL !== $options->indexBy) {
+      $result->indexBy($options->indexBy);
+    }
+
     foreach ($resultMap as $to => $from) {
-      if (!is_string($from) && !$from instanceof \stdClass) {
-        throw new \InvalidArgumentException(sprintf('Invalid source definition for field "%s" in result map', $to));
-      }
-
-      $setValueCallback($to, $this->getValue($result, $from));
+      yield $to => $this->getValue($result, $options, $from);
     }
   }
 
-  private function applyFilter(mixed $value, string $filter): mixed {
-    if ('first' === $filter) {
-      if (is_array($value)) {
-        return [] === $value ? NULL : reset($value);
-      }
-
-      return $value;
+  private function getValue(Result $result, Api4ResultMapOptions $options, string $fieldNameOrExpression): mixed {
+    if (str_starts_with($fieldNameOrExpression, '@=')) {
+      return $this->getValueForExpression($result, substr($fieldNameOrExpression, 2));
     }
 
-    if ('last' === $filter) {
-      if (is_array($value)) {
-        return [] === $value ? NULL : end($value);
-      }
-
-      return $value;
-    }
-
-    throw new \InvalidArgumentException(sprintf('Unknown filter "%s"', $filter));
-  }
-
-  private function applyModifications(mixed $value, \stdClass $source): mixed {
-    if (property_exists($source, 'filter')) {
-      Assert::string('Filter has to be a string in source definition of result map');
-      $value = $this->applyFilter($value, $source->filter);
-    }
-
-    return $value;
-  }
-
-  private function getValue(Result $result, string|\stdClass $source): mixed {
-    if (is_string($source)) {
-      if (str_starts_with($source, '@=')) {
-        return $this->getValueForExpression($result, substr($source, 2));
-      }
-
-      return $this->getValueForFieldName($result, $source);
-    }
-
-    $fieldName = $source->field;
-    Assert::notNull($fieldName, 'Source field name in result map is missing');
-    Assert::string($fieldName, 'Expected string as source field name in result map, got %s');
-
-    $valueSeparator = $source->value_separator ?? ',';
-    Assert::string($valueSeparator, 'Expected string as value separator in result map, got %s');
-
-    return $this->applyModifications(
-      $this->getValueForFieldName($result, $fieldName, $valueSeparator),
-      $source
-    );
+    return $this->getValueForFieldName($result, $options, $fieldNameOrExpression);
   }
 
   private function getValueForExpression(Result $result, string $expression): mixed {
     return $this->expressionLanguage->evaluate($expression, ['result' => $result]);
   }
 
-  private function getValueForFieldName(Result $result, string $fieldName, string $valueSeparator = ','): mixed {
-    return match ($result->countFetched()) {
-      1 => $result->single()[$fieldName],
-      default => implode($valueSeparator, $result->column($fieldName)),
-    };
+  private function getValueForFieldName(Result $result, Api4ResultMapOptions $options, string $fieldName): mixed {
+    return $options->useAllResults ? $result->column($fieldName) : ($result->first()[$fieldName] ?? NULL);
   }
 
 }

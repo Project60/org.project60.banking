@@ -21,31 +21,31 @@ declare(strict_types = 1);
 namespace Civi\Banking\Matcher\RegexAnalyser\ActionHandlers;
 
 use Civi\Api4\Generic\Result;
+use Civi\Banking\Api4Mock;
+use Civi\Banking\ExpressionLanguage\BankingExpressionLanguage;
 use Civi\Banking\Matcher\Helper\Api4ParamsFactory;
 use Civi\Banking\Matcher\Helper\Api4ResultMapper;
 use Civi\Banking\Matcher\RegexAnalyser\RegexAnalyserMatchContext;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
-use Symfony\Component\ExpressionLanguage\ExpressionLanguage;
 
 /**
  * @covers \Civi\Banking\Matcher\RegexAnalyser\ActionHandlers\Api4RegexAnalyserActionHandler
  */
 final class Api4RegexAnalyserActionHandlerTest extends TestCase {
 
-  private MockObject $api4Mock;
+  private Api4Mock&MockObject $api4Mock;
 
   private Api4RegexAnalyserActionHandler $handler;
 
   protected function setUp(): void {
     parent::setUp();
-    $this->api4Mock = $this->createPartialMock(\stdClass::class, ['execute']);
-    $expressionLanguage = new ExpressionLanguage();
+    $this->api4Mock = $this->createMock(Api4Mock::class);
+    $expressionLanguage = new BankingExpressionLanguage();
     $this->handler = new Api4RegexAnalyserActionHandler(
       new Api4ParamsFactory($expressionLanguage),
       new Api4ResultMapper($expressionLanguage),
-      // @phpstan-ignore method.notFound
-      fn (...$args) => $this->api4Mock->execute(...$args),
+      $this->api4Mock
     );
   }
 
@@ -69,14 +69,52 @@ final class Api4RegexAnalyserActionHandlerTest extends TestCase {
     $contextMock = $this->createMock(RegexAnalyserMatchContext::class);
 
     $this->api4Mock->expects(static::once())
-      ->method('execute')
+      ->method('__invoke')
       ->with('SomeEntity', 'get', [
         'where' => [['foo', '=', 'bar']],
         'select' => ['baz'],
+        'limit' => 1,
       ])
       ->willReturn(new Result([]));
 
     $contextMock->expects(static::never())->method('setValue');
+
+    $this->handler->execute($action, $contextMock);
+  }
+
+  public function testExecuteDontSkipEmptyResult(): void {
+    $action = (object) [
+      'action' => 'api4',
+      'api4' => (object) [
+        'entity' => 'SomeEntity',
+        'action' => 'get',
+        'params' => (object) [
+          'where' => [
+            ['foo', '=', 'bar'],
+          ],
+        ],
+        'skip_empty_result' => FALSE,
+        'result_map' => (object) [
+          'btx.some_value' => 'baz',
+        ],
+      ],
+    ];
+
+    $contextMock = $this->createMock(RegexAnalyserMatchContext::class);
+
+    $this->api4Mock->expects(static::once())
+      ->method('__invoke')
+      ->with('SomeEntity', 'get', [
+        'where' => [['foo', '=', 'bar']],
+        'select' => ['baz'],
+        'limit' => 1,
+      ])
+      ->willReturn(new Result([]));
+
+    $contextMock
+      ->expects(static::once())
+      ->method('setValue')
+      ->with('btx.some_value', NULL);
 
     $this->handler->execute($action, $contextMock);
   }
@@ -103,17 +141,18 @@ final class Api4RegexAnalyserActionHandlerTest extends TestCase {
     $contextMock->method('getValue')->with('btx.foo')->willReturn(3);
 
     $this->api4Mock->expects(static::once())
-      ->method('execute')
+      ->method('__invoke')
       ->with('SomeEntity', 'get', [
         'where' => [['foo', '=', 5]],
         'select' => ['bar'],
+        'limit' => 1,
       ])
-      ->willReturn(new Result([['bar' => 'test1'], ['bar' => 'test2']]));
+      ->willReturn(new Result([['bar' => 123]]));
 
     $contextMock
       ->expects(static::once())
       ->method('setValue')
-      ->with('btx.some_value', 'test1,test2');
+      ->with('btx.some_value', 123);
 
     $this->handler->execute($action, $contextMock);
   }
@@ -129,6 +168,8 @@ final class Api4RegexAnalyserActionHandlerTest extends TestCase {
             ['foo', '=', "@=foo + party_ba['foo.foo']"],
           ],
         ],
+        'use_all_results' => TRUE,
+        'index_by' => 'id',
         'result_map' => (object) [
           'btx.some_value' => 'bar',
         ],
@@ -140,20 +181,20 @@ final class Api4RegexAnalyserActionHandlerTest extends TestCase {
     $contextMock->method('getValue')->with('party_ba.foo.foo')->willReturn(3);
 
     $this->api4Mock->expects(static::once())
-      ->method('execute')
+      ->method('__invoke')
       ->with('SomeEntity', 'get', [
         'where' => [['foo', '=', 5]],
-        'select' => ['bar'],
+        'select' => ['id', 'bar'],
       ])
       ->willReturn(new Result([
-        ['bar' => 'test1'],
-        ['bar' => 'test2'],
+        ['id' => 12, 'bar' => 'test1'],
+        ['id' => 34, 'bar' => 'test2'],
       ]));
 
     $contextMock
       ->expects(static::once())
       ->method('setValue')
-      ->with('btx.some_value', 'test1,test2');
+      ->with('btx.some_value', [12 => 'test1', 34 => 'test2']);
 
     $this->handler->execute($action, $contextMock);
   }
@@ -180,7 +221,7 @@ final class Api4RegexAnalyserActionHandlerTest extends TestCase {
     $contextMock->method('getValue')->with('btx.foo')->willReturn(3);
 
     $this->api4Mock->expects(static::once())
-      ->method('execute')
+      ->method('__invoke')
       ->with('SomeEntity', 'get', [
         'where' => [['foo', '=', 5]],
         'select' => [],

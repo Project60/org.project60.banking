@@ -40,7 +40,7 @@ final class ExpressionLanguagePass implements CompilerPassInterface {
     }
 
     $container->register(BankingExpressionLanguage::class, BankingExpressionLanguage::class)
-      ->setArgument('$providers', $providerServices);
+      ->setArguments([NULL, $providerServices]);
   }
 
 }

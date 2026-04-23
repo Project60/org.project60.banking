@@ -21,6 +21,7 @@ declare(strict_types = 1);
 namespace Civi\Banking\Matcher\RegexAnalyser\ActionHandlers;
 
 use Civi\Banking\Matcher\Helper\Api4ParamsFactory;
+use Civi\Banking\Matcher\Helper\Api4ResultMapOptions;
 use Civi\Banking\Matcher\Helper\Api4ResultMapper;
 use Civi\Banking\Matcher\Helper\ExpressionLanguageValuesGenerator;
 use Civi\Banking\Matcher\RegexAnalyser\RegexAnalyserActionHandlerInterface;
@@ -78,11 +79,11 @@ final class Api4RegexAnalyserActionHandler implements RegexAnalyserActionHandler
 
     if (property_exists($api4, 'result_map')) {
       Assert::isInstanceOf($api4->result_map, \stdClass::class, 'Result map has to be an object, got %s');
-      $this->resultMapper->mapResult(
-        $result,
-        (array) $api4->result_map,
-        fn($key, $value) => $matchContext->setValue($key, $value)
-      );
+      $resultMap = (array) $api4->result_map;
+      $resultMapOptions = Api4ResultMapOptions::fromObject($api4);
+      foreach ($this->resultMapper->applyResultMap($result, $resultMap, $resultMapOptions) as $key => $value) {
+        $matchContext->setValue($key, $value);
+      };
     }
   }
 

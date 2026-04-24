@@ -340,7 +340,8 @@ function deleteSelected() {
     // call the API to delete the items
     var query = {'q': 'civicrm/ajax/rest', 'sequential': 1};
     // set the list or s_list parameter depending on the page mode
-    query['{/literal}{if $show eq 'statements'}s_list{else}list{/if}{literal}'] = selected_string;
+    // NOTE: api3 expects the param as a string
+    query['{/literal}{if $show eq 'statements'}s_list{else}list{/if}{literal}'] = `${selected_string}`;
     CRM.api('BankingTransaction', 'deletelist', query,
       {success: function(data) {
           if (!data['is_error']) {

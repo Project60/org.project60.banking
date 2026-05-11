@@ -78,6 +78,10 @@ class CRM_Banking_PluginImpl_Matcher_CreateCampaignContribution extends CRM_Bank
       // ...default for which is: only activities with campaigns
       $config->activity_with_no_campaign_penalty = 1.00;
     }
+    // penalty for disabled campaigns
+    if (!isset($config->disabled_campaign_penalty)) {
+      $config->disabled_campaign_penalty = 0.00;
+    }
     // default status is 'in Progress'
     if (!isset($config->active_recurring_contribution_status_ids)) {
       $config->active_recurring_contribution_status_ids = ['In Progress'];
@@ -203,6 +207,7 @@ class CRM_Banking_PluginImpl_Matcher_CreateCampaignContribution extends CRM_Bank
           $activity_confidence = max($contacts_found[$contact_id], 0.0);
           $this->logMessage("Found [{$contact_id}] with confidence {$activity_confidence} (including penalty of {$penalty})", 'debug');
           $multiple_recurring_contributions_penalty_applied = $this->adjustRatingOfRecurringContributions($contact_id, $activity_confidence, $btx);
+          $disabled_campaign_penalty_applied = 0.0;
 
           // also: add a penalty for activities without campaign (if configured this way)
           if ($activity_with_no_campaign_penalty > 0.0) {
@@ -211,6 +216,12 @@ class CRM_Banking_PluginImpl_Matcher_CreateCampaignContribution extends CRM_Bank
               $this->logMessage("Added a penalty of {$activity_with_no_campaign_penalty} because the activity [{$activity_id}] has no campaign.", 'debug');
               $no_campaign_penalty_applied = $activity_with_no_campaign_penalty;
             }
+          }
+          if (!empty($activity['campaign_id'])) {
+            $disabled_campaign_penalty_applied = $this->adjustRatingOfDisabledCampaign(
+              $activity['campaign_id'],
+              $activity_confidence
+            );
           }
 
           // apply the general penalty
@@ -226,6 +237,7 @@ class CRM_Banking_PluginImpl_Matcher_CreateCampaignContribution extends CRM_Bank
             $suggestion->setParameter('activity_id', $activity_id);
             $suggestion->setParameter('multiple_recurring_contributions_penalty_applied', $multiple_recurring_contributions_penalty_applied);
             $suggestion->setParameter('no_campaign_penalty_applied', $no_campaign_penalty_applied);
+            $suggestion->setParameter('disabled_campaign_penalty_applied', $disabled_campaign_penalty_applied);
             $suggestion->setParameter('time_after_activity', strtotime("{$btx->booking_date}") - strtotime($activity['activity_date_time']));
             $suggestion->setProbability($activity_confidence);
             if ($activity_confidence == 1.0) {
@@ -368,6 +380,48 @@ class CRM_Banking_PluginImpl_Matcher_CreateCampaignContribution extends CRM_Bank
   }
 
   /**
+   * This will reduce the probability of a campaign contribution if
+   * the referenced campaign is disabled.
+   *
+   * @param int|string|null $campaign_id
+   *   Campaign ID.
+   * @param float $contact_probability
+   *   The probability of the contact to be adjusted.
+   *
+   * @return float
+   *   Penalty added to the contact's rating.
+   */
+  public function adjustRatingOfDisabledCampaign($campaign_id, &$contact_probability) {
+    $disabled_campaign_penalty = (float) ($this->_plugin_config->disabled_campaign_penalty ?? 0);
+    if ($disabled_campaign_penalty <= 0 || empty($campaign_id)) {
+      return 0.0;
+    }
+
+    static $campaign_is_active = [];
+    $campaign_id = (int) $campaign_id;
+
+    if (!array_key_exists($campaign_id, $campaign_is_active)) {
+      try {
+        $campaign = civicrm_api3('Campaign', 'getsingle', ['id' => $campaign_id]);
+      }
+      catch (Exception $ex) {
+        $this->logMessage("Campaign [{$campaign_id}] could not be loaded, disabled-campaign penalty skipped.", 'warn');
+        return 0.0;
+      }
+      $campaign_is_active[$campaign_id] = !empty($campaign['is_active']);
+    }
+
+    if ($campaign_is_active[$campaign_id]) {
+      $this->logMessage("Campaign [{$campaign_id}] is active, no disabled-campaign penalty applied.", 'debug');
+      return 0.0;
+    }
+
+    $contact_probability = max(0.0, $contact_probability - $disabled_campaign_penalty);
+    $this->logMessage("Campaign [{$campaign_id}] is disabled, suggestion will be reduced by a penalty of {$disabled_campaign_penalty}.", 'info');
+    return $disabled_campaign_penalty;
+  }
+
+  /**
    * If the user has modified the input fields provided by the "visualize" html code,
    * the new values will be passed here BEFORE execution
    *
@@ -391,6 +445,7 @@ class CRM_Banking_PluginImpl_Matcher_CreateCampaignContribution extends CRM_Bank
     $contact_id      = $match->getParameter('contact_id');
     $activity_id     = $match->getParameter('activity_id');
     $no_campaign_penalty_applied = $match->getParameter('no_campaign_penalty_applied');
+    $disabled_campaign_penalty_applied = $match->getParameter('disabled_campaign_penalty_applied');
     $multiple_recurring_contributions_penalty_applied
       = $match->getParameter('multiple_recurring_contributions_penalty_applied');
     $contribution = $this->get_contribution_data($btx, $match, $contact_id);
@@ -440,6 +495,7 @@ class CRM_Banking_PluginImpl_Matcher_CreateCampaignContribution extends CRM_Bank
 
     // penalties
     $smarty_vars['no_campaign_penalty_applied'] = (int) (100.0 * $no_campaign_penalty_applied);
+    $smarty_vars['disabled_campaign_penalty_applied'] = (int) (100.0 * $disabled_campaign_penalty_applied);
     $smarty_vars['multiple_recurring_contributions_penalty_applied']
       = (int) (100.0 * $multiple_recurring_contributions_penalty_applied);
 

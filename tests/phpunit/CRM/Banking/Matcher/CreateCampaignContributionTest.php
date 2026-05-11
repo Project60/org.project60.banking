@@ -128,4 +128,60 @@ class CRM_Banking_Matcher_CreateCampaignContributionMatcherTest extends CRM_Bank
     );
   }
 
+  /**
+   * Disabled campaigns can reduce the suggestion score if configured.
+   */
+  public function testCampaignMatcherAppliesDisabledCampaignPenalty(): void {
+    $activity_type_id_used_in_matcher_config = 4;
+    try {
+      civicrm_api3('OptionValue', 'getsingle', [
+        'option_group_id' => 'activity_type',
+        'value' => $activity_type_id_used_in_matcher_config,
+      ]);
+    }
+    catch (Exception $ex) {
+      $this->fail("This test requires activity type [{$activity_type_id_used_in_matcher_config}] to exist.");
+    }
+
+    $contact_id = $this->createContact();
+    $campaign_id = $this->createCampaign([
+      'is_active' => 0,
+    ]);
+    $this->createActivity([
+      'target_id' => $contact_id,
+      'activity_status_id' => 'Completed',
+      'campaign_id' => $campaign_id,
+      'activity_type_id' => $activity_type_id_used_in_matcher_config,
+    ]);
+
+    $config = json_decode(
+      file_get_contents($this->getTestResourcePath('matcher/configuration/CampaignMatcher-01.civibanking')),
+      TRUE,
+      flags: JSON_THROW_ON_ERROR
+    );
+    $config['config']['campaign_id'] = $campaign_id;
+    $config['config']['auto_exec'] = 0;
+    $config['config']['threshold'] = 0.5;
+    $config['config']['disabled_campaign_penalty'] = 0.25;
+    $this->configureCiviBankingModuleWithConfig(json_encode($config, JSON_THROW_ON_ERROR));
+
+    $transaction_id = $this->createTransaction([
+      'purpose' => 'This transaction should create a suggestion with a reduced score',
+      'campaign_id' => $campaign_id,
+      'contact_id' => $contact_id,
+    ]);
+
+    $this->runMatchers([$transaction_id]);
+
+    $transaction = $this->getTransactionInstance($transaction_id);
+    $this->assertNotNull($transaction, 'The test transaction could not be loaded again.');
+
+    $suggestions = $transaction->getSuggestionList();
+    $this->assertCount(1, $suggestions, 'Expected one campaign contribution suggestion.');
+
+    $suggestion = reset($suggestions);
+    $this->assertEqualsWithDelta(0.25, (float) $suggestion->getParameter('disabled_campaign_penalty_applied'), 0.00001);
+    $this->assertEqualsWithDelta(0.75, (float) $suggestion->getProbability(), 0.00001);
+  }
+
 }

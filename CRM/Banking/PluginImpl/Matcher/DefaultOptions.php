@@ -170,6 +170,8 @@ class CRM_Banking_PluginImpl_Matcher_DefaultOptions extends CRM_Banking_PluginMo
    * @param CRM_Banking_BAO_BankTransaction $btx
    *   the bank transaction this is related to
    *
+   * @return bool|null
+   *
    * phpcs:disable Generic.Metrics.CyclomaticComplexity.TooHigh, Generic.Metrics.NestingLevel.TooHigh
    */
   public function execute($suggestion, $btx) {

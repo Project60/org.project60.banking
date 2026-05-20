@@ -458,7 +458,7 @@ class CRM_Banking_PluginImpl_Matcher_SepaMandate extends CRM_Banking_PluginModel
     $txgroup_query = civicrm_api3('SepaContributionGroup', 'getsingle', ['contribution_id' => $contribution_id]);
     if (!empty($txgroup_query['is_error'])) {
       CRM_Core_Session::setStatus(E::ts('Contribution is NOT member in exactly one SEPA transaction group!'), E::ts('Error'), 'error');
-      return;
+      return NULL;
     }
     $txgroup_id = $txgroup_query['txgroup_id'];
 
@@ -508,12 +508,12 @@ class CRM_Banking_PluginImpl_Matcher_SepaMandate extends CRM_Banking_PluginModel
           $close_result = civicrm_api3('SepaTransactionGroup', 'create', $txgroup_query);
           if (!empty($close_result['is_error'])) {
             CRM_Core_Session::setStatus(sprintf('Cannot mark transaction group [%s] received. Error: %s', $txgroup_id, $close_result['error_message']), E::ts('Error'), 'error');
-            return;
+            return NULL;
           }
           $txgroup = civicrm_api3('SepaTransactionGroup', 'getsingle', $txgroup_query);
           if (!empty($txgroup['is_error'])) {
             CRM_Core_Session::setStatus(sprintf('Cannot mark transaction group [%s] received. Error: %s', $txgroup_id, $txgroup['error_message']), E::ts('Error'), 'error');
-            return;
+            return NULL;
           }
           CRM_Core_Session::setStatus(sprintf(E::ts("SEPA transaction group '%s' was marked as received."), $txgroup['reference']), E::ts('Success'), 'info');
         }

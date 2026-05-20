@@ -37,8 +37,7 @@ class CRM_Banking_PluginImpl_Matcher_Yes extends CRM_Banking_PluginModel_Matcher
   /**
    * Handle the different actions, should probably be handles at base class level ...
    *
-   * @param type $match
-   * @param type $btx
+   * @return TRUE
    */
   public function execute($match, $btx) {
     return TRUE;

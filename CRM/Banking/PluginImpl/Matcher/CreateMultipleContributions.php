@@ -339,9 +339,6 @@ class CRM_Banking_PluginImpl_Matcher_CreateMultipleContributions extends CRM_Ban
    *
    * @param CRM_Banking_Matcher_Suggestion $suggestion
    * @param CRM_Banking_BAO_BankTransaction $btx
-   *
-   * @return bool
-   *   TRUE when execution finished successfully.
    */
   public function execute($suggestion, $btx) {
     $transaction = new CRM_Core_Transaction();

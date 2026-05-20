@@ -167,9 +167,6 @@ class CRM_Banking_PluginImpl_Matcher_RulesAnalyser extends CRM_Banking_PluginMod
 
   /**
    * Handle the different actions, should probably be handles at base class level ...
-   *
-   * @param type $match
-   * @param type $btx
    */
   public function execute($match, $btx) {
     // Is this this correct way to do it?

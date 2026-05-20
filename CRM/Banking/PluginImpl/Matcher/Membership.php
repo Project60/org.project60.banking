@@ -188,7 +188,7 @@ class CRM_Banking_PluginImpl_Matcher_Membership extends CRM_Banking_PluginModel_
     // calculate some stuff
     $date_field = ($config->based_on_start_date) ? 'start_date' : 'join_date';
     $membership['days_different'] = $this->getRelativeDays($btx->booking_date, $membership[$date_field] ?? '');
-    $membership['percentage_of_minimum'] = round(($btx->amount / (float) $membership_type['minimum_fee']) * 100);
+    $membership['percentage_of_minimum'] = round(((float) $btx->amount / (float) $membership_type['minimum_fee']) * 100);
     $membership['title'] = $this->getMembershipOption($membership['membership_type_id'], 'title', $membership_type['name']);
 
     // assign to smarty and compile HTML

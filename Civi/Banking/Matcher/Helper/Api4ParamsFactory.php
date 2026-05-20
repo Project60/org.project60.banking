@@ -23,6 +23,15 @@ namespace Civi\Banking\Matcher\Helper;
 use Civi\Banking\ExpressionLanguage\BankingExpressionLanguage;
 use Webmozart\Assert\Assert;
 
+/**
+ * @phpstan-type actionDefinitionT object{
+ *   action: string,
+ *   params?: \stdClass,
+ *   result_map?: \stdClass,
+ *   use_all_results?: bool,
+ *   index_by?: string,
+ * }
+ */
 final class Api4ParamsFactory {
 
   public function __construct(
@@ -30,14 +39,7 @@ final class Api4ParamsFactory {
   ) {}
 
   /**
-   * @phpstan-param object{
-   *   action: string,
-   *   params?: \stdClass,
-   *   result_map?: \stdClass,
-   *   use_all_results?: bool,
-   *   index_by?: string,
-   * } $actionDefinition
-   *
+   * @phpstan-param actionDefinitionT $actionDefinition
    * @param array<string, mixed> $expressionValues
    *
    * @return array<string, mixed>
@@ -57,37 +59,51 @@ final class Api4ParamsFactory {
       $params = [];
     }
 
-    if ('get' === $actionDefinition->action) {
-      if (!isset($params['select']) && property_exists($actionDefinition, 'result_map')) {
-        $params['select'] = [];
-        if (property_exists($actionDefinition, 'index_by')) {
-          $params['select'][] = $actionDefinition->index_by;
-        }
-
-        $resultMapHasExpression = FALSE;
-        Assert::isInstanceOf($actionDefinition->result_map, \stdClass::class);
-        $resultMap = (array) $actionDefinition->result_map;
-        foreach ($resultMap as $fieldNameOrExpression) {
-          Assert::string($fieldNameOrExpression, 'APIv4 field name or expression expected in result map, got %s');
-          if (str_starts_with($fieldNameOrExpression, '@=')) {
-            // Select all fields if an expression is used.
-            $params['select'] = [];
-            $resultMapHasExpression = TRUE;
-            break;
-          }
-
-          $params['select'][] = $fieldNameOrExpression;
-        }
-
-        if (!($actionDefinition->use_all_results ?? FALSE) && !$resultMapHasExpression) {
-          $params['limit'] ??= 1;
-        }
-      }
-    }
-
-    self::evaluateExpressions($params, $expressionValues);
+    $this->determineSelectAndLimit($params, $actionDefinition);
+    $this->evaluateExpressions($params, $expressionValues);
 
     return $params;
+  }
+
+  /**
+   * @param array<string, mixed> $params
+   * @phpstan-param actionDefinitionT $actionDefinition
+   */
+  private function determineSelectAndLimit(array &$params, object $actionDefinition): void {
+    if (
+      'get' === $actionDefinition->action
+      && property_exists($actionDefinition, 'result_map')
+      && (
+        !isset($params['select'])
+        || !isset($params['limit']) && !($actionDefinition->use_all_results ?? FALSE)
+      )
+    ) {
+      $select = [];
+      if (property_exists($actionDefinition, 'index_by')) {
+        $select[] = $actionDefinition->index_by;
+      }
+
+      $resultMapHasExpression = FALSE;
+      Assert::isInstanceOf($actionDefinition->result_map, \stdClass::class);
+      $resultMap = (array) $actionDefinition->result_map;
+      foreach ($resultMap as $fieldNameOrExpression) {
+        Assert::string($fieldNameOrExpression, 'APIv4 field name or expression expected in result map, got %s');
+        if (str_starts_with($fieldNameOrExpression, '@=')) {
+          // Select all fields if an expression is used.
+          $select = [];
+          $resultMapHasExpression = TRUE;
+          break;
+        }
+
+        $select[] = $fieldNameOrExpression;
+      }
+
+      $params['select'] ??= $select;
+
+      if (!($actionDefinition->use_all_results ?? FALSE) && !$resultMapHasExpression) {
+        $params['limit'] ??= 1;
+      }
+    }
   }
 
   /**
@@ -100,7 +116,7 @@ final class Api4ParamsFactory {
   private function evaluateExpressions(array &$array, array $expressionValues): void {
     foreach ($array as &$value) {
       if (is_array($value)) {
-        self::evaluateExpressions($value, $expressionValues);
+        $this->evaluateExpressions($value, $expressionValues);
       }
       elseif (is_string($value) && str_starts_with($value, '@=')) {
         $expression = substr($value, 2);

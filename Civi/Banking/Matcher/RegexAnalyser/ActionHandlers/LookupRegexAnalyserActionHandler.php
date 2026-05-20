@@ -25,6 +25,8 @@ use Civi\Banking\Matcher\RegexAnalyser\RegexAnalyserMatchContext;
 
 /**
  * LOOK UP values via API::getsingle.
+ *
+ *  Note: There is also the {@link Api4RegexAnalyserActionHandler} available.
  */
 final class LookupRegexAnalyserActionHandler implements RegexAnalyserActionHandlerInterface {
 

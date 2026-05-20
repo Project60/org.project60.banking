@@ -36,6 +36,8 @@ use Civi\Banking\Matcher\RegexAnalyser\RegexAnalyserMatchContext;
  *  further attributes can be given as follows:
  *   const_<param>    set the API parameter to a constant, e.g. const_contact_type = 'Individual'
  *   param_<param>    set the API parameter to the value of another field, e.g. const_first_name = 'first_name'
+ *
+ * Note: There is also the {@link Api4RegexAnalyserActionHandler} available.
  */
 final class ApiRegexAnalyserActionHandler implements RegexAnalyserActionHandlerInterface {
 

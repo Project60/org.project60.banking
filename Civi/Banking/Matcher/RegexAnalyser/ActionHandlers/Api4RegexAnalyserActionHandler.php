@@ -28,6 +28,9 @@ use Civi\Banking\Matcher\RegexAnalyser\RegexAnalyserActionHandlerInterface;
 use Civi\Banking\Matcher\RegexAnalyser\RegexAnalyserMatchContext;
 use Webmozart\Assert\Assert;
 
+/**
+ * Execute any APIv4 action.
+ */
 final class Api4RegexAnalyserActionHandler implements RegexAnalyserActionHandlerInterface {
 
   public const NAME = 'api4';

@@ -378,6 +378,7 @@ class CRM_Banking_PluginImpl_Matcher_RecurringContribution extends CRM_Banking_P
     // assign to smarty and compile HTML
     $smarty_vars['recurring_contributions'] = $rcontributions;
     $smarty_vars['contacts']                = $contacts;
+    $smarty_vars['contact_id']              = array_key_first($contacts);
     $smarty_vars['penalties']               = $match->getEvidence();
 
     $smarty = CRM_Banking_Helpers_Smarty::singleton();

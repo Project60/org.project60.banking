@@ -30,10 +30,17 @@ use Civi\Core\ClassScanner;
 use CRM_Banking_ExtensionUtil as E;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 
+function _banking_composer_autoload(): void {
+  if (file_exists(__DIR__ . '/vendor/autoload.php')) {
+    require_once __DIR__ . '/vendor/autoload.php';
+  }
+}
+
 /**
  * Implements hook_civicrm_container().
  */
 function banking_civicrm_container(ContainerBuilder $container): void {
+  _banking_composer_autoload();
   $container->addCompilerPass(new ActionProviderPass());
   $container->addCompilerPass(new ExpressionLanguagePass());
   $container->addCompilerPass(new RegexAnalyserActionHandlerPass());
@@ -45,7 +52,8 @@ function banking_civicrm_container(ContainerBuilder $container): void {
 /**
  * Implements hook_civicrm_config().
  */
-function banking_civicrm_config(\CRM_Core_Config $config) {
+function banking_civicrm_config(\CRM_Core_Config $config): void {
+  _banking_composer_autoload();
   _banking_civix_civicrm_config($config);
 }
 

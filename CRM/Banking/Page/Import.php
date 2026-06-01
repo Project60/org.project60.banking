@@ -141,7 +141,7 @@ class CRM_Banking_Page_Import extends CRM_Core_Page {
         'url_payments',
         CRM_Utils_System::url(
           'civicrm/banking/payments',
-          'show=statements&recent=' . empty($_REQUEST['recent']) ? 0 : 1
+          'show=statements&recent=' . (empty($_REQUEST['recent']) ? 0 : 1)
         )
           );
     }

@@ -529,6 +529,8 @@ class CRM_Banking_PluginImpl_Matcher_ExistingContribution extends CRM_Banking_Pl
    *
    * @param CRM_Banking_BAO_BankTransaction $btx
    *   the bank transaction this is related to
+   *
+   * @return bool
    */
   public function execute($suggestion, $btx) {
     $config = $this->_plugin_config;

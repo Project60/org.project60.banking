@@ -16,7 +16,6 @@
 <div>
   <p>
   {if $recurring_contributions|@count eq 1}
-    {assign var=contact_id value=$contacts|@key}
     {assign var=contact value=$contacts.$contact_id}
     {capture assign=address_text}{if $contact.city}{$contact.street_address}, {$contact.city}{else}{ts domain='org.project60.banking'}Address incomplete{/ts}{/if}{/capture}
     {capture assign=contact_link}<a title="{$address_text}" href="{crmURL p="civicrm/contact/view" q="reset=1&cid=$contact_id"}">{$contact.display_name} [{$contact.id}]</a>{/capture}
@@ -27,7 +26,6 @@
   {else}
     {assign var=recurring_contribution_count value=$recurring_contributions|@count}
     {if $contacts|@count eq 1}
-      {assign var=contact_id value=$contacts|@key}
       {assign var=contact value=$contacts.$contact_id}
       {capture assign=address_text}{if $contact.city}{$contact.street_address}, {$contact.city}{else}{ts domain='org.project60.banking'}Address incomplete{/ts}{/if}{/capture}
       {capture assign=contact_link}<a title="{$address_text}" href="{crmURL p="civicrm/contact/view" q="reset=1&cid=$contact_id"}">{$contact.display_name} [{$contact.id}]</a>{/capture}

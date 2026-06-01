@@ -7409,12 +7409,6 @@ parameters:
 			path: CRM/Banking/PluginImpl/Matcher/SepaMandate.php
 
 		-
-			message: '#^Argument of an invalid type array\|int supplied for foreach, only iterables are supported\.$#'
-			identifier: foreach.nonIterable
-			count: 1
-			path: CRM/Banking/PluginImpl/Matcher/SepaMandate.php
-
-		-
 			message: '#^Call to an undefined method object\:\:fetch\(\)\.$#'
 			identifier: method.notFound
 			count: 3
@@ -7460,18 +7454,6 @@ parameters:
 			message: '#^Cannot access offset ''error_message'' on array\|int\.$#'
 			identifier: offsetAccess.nonOffsetAccessible
 			count: 1
-			path: CRM/Banking/PluginImpl/Matcher/SepaMandate.php
-
-		-
-			message: '#^Cannot access offset ''frequency_interval'' on array\|int\.$#'
-			identifier: offsetAccess.nonOffsetAccessible
-			count: 3
-			path: CRM/Banking/PluginImpl/Matcher/SepaMandate.php
-
-		-
-			message: '#^Cannot access offset ''frequency_unit'' on array\|int\.$#'
-			identifier: offsetAccess.nonOffsetAccessible
-			count: 5
 			path: CRM/Banking/PluginImpl/Matcher/SepaMandate.php
 
 		-
@@ -7525,6 +7507,12 @@ parameters:
 		-
 			message: '#^Dead catch \- Exception is never thrown in the try block\.$#'
 			identifier: catch.neverThrown
+			count: 1
+			path: CRM/Banking/PluginImpl/Matcher/SepaMandate.php
+
+		-
+			message: '#^Equal\: Condition between 1 and numeric\-string are falsy, please do not mix types\.$#'
+			identifier: voku.Equal
 			count: 1
 			path: CRM/Banking/PluginImpl/Matcher/SepaMandate.php
 

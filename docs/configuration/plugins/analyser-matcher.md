@@ -95,12 +95,13 @@ flavour.
 ### Regex Analyser Actions
 
 * [`align_date`](#align_date-action) - aligns a date forwards or backwards
-* [`api`](#api-action) - use any CiviCRM API3
+* [`api`](#api-action) - execute any CiviCRM APIv3 action (legacy, use [`api4`](#api4-action) instead)
+* [`api4`](#api4-action) - execute any CiviCRM APIv4 action
 * [`calculate`](#calculate-action) - runs a PHP expression (CAUTION!)
 * [`copy`](#copy-action) - copies a field value
 * [`copy_append`](#copy_append-action) - appends the value to an existing field
 * [`copy_ltrim_zeros`](#copy_ltrim_zeros-action) - removes leading zeros
-* [`lookup`](#lookup-action) - look up a value via `getsingle` APIv3 action
+* [`lookup`](#lookup-action) - look up a value via `getsingle` APIv3 action (legacy, use [`api4`](#api4-action) instead)
 * [`map`](#map-action) - maps from the matched value to a new value
 * [`preg_replace`](#preg_replace-action) - substitutes part of the string using a regular expression
 * [`set`](#set-action) - sets an attribute to a specified value
@@ -197,8 +198,10 @@ Skip the 1st of April as `receive_date`:
 
 #### `api` Action
 
-The `api` Action allows you to call any CiviCRM API version 3 with any action 
-and set the result(s) to one or more fields in the transaction data. 
+Note: This is a legacy action consider using the [`api4`](#api4-action) instead.
+
+The `api` action allows you to call any CiviCRM API version 3 with any action
+and set the result(s) to one or more fields in the transaction data.
 
 In contrast to the `lookup` action, the `api` action can also call actions 
 other than `getsingle`. Therefor it is possible to retrieve multiple results,
@@ -258,6 +261,112 @@ searches for the words `memory` or `honor` followed by `John Doe` in the
 type `Memorial` for the donor. The return value of the API call is the ID of 
 the newly created activity, which is set to the `btx.activity_id` field but 
 isn't used any further.
+
+#### `api4` Action
+
+The `api4` action allows to execute any
+[CiviCRM APIv4 action](https://docs.civicrm.org/dev/en/latest/api/v4/usage/)
+and map the result to the transaction data.
+
+You might want to use the APIv4 explorer at URL path `/civicrm/api4` to build
+and test the action and then transfer it to the configuration.
+
+##### Parameters
+
+* `"api4"` - Contains the following parameters:
+  * `"entity"` - The APIv4 entity, e.g. `"Contact"`.
+  * `"action"` - The entity action, e.g. `"get"`.
+  * `"params"` - The APIv4 action parameters. It's possible to access values
+    from the matched pattern or transaction data e.g. `@=named_pattern` or
+    `@=btx.purpose`. A string starting with `@=` is interpreted as expression.
+    Expressions are explained below.
+  * `"result_map"` - Allows to map APIv4 result data into transaction data. The
+    keys are the target field (e.g. `"btx.contact_id"`) and the values are APIv4
+    result fields (e.g. `"id"`) or expressions to retrieve the required value
+    from the result object (e.g. `"@=result.first()['contact_sub_type'][0] ?? NULL"`). Expressions are explained below.
+  * `"result_map_options"` - Options for the `result_map`:
+    * `"use_all_results"` - `true` to retrieve all values of a field as array,
+      otherwise only the value of the first result is used. (Default: `false`)
+    * `"index_by"` - An APIv4 field name the resulting array is indexed by when
+      `use_all_results` is enabled or the `column()` method is used in an
+      expression (e.g. `"@=result.column('some_field')"`).
+    * `"skip_empty_result"` - `false` to set `NULL` or the expression result to
+       the transaction data, if the APIv4 call returned an empty result. By
+       default, the transaction data is unchanged in that case.
+
+If the `result_map` contains no expression and the called action is `get` the
+APIv4 parameters `select` and `limit` will be determined automatically, if not
+specified.
+
+Apart from `btx` data can be read from fields of `ba` and `party_ba`, if they
+have been determined before.
+
+##### Example
+<a id="api4-example"></a>
+
+```json
+{
+  "comment": "Look for previous contributions with matching bank name and amount",
+  "fields": [
+    "bank_name"
+  ],
+  "pattern": "/.+/",
+  "action": "api4",
+  "api4": {
+    "entity": "Contribution",
+    "action": "get",
+    "params": {
+      "select": ["id", "financial_type_id"],
+      "orderBy": {
+        "receive_date": "DESC"
+      },
+      "where": [
+        [
+          "Donor_Information.Bank_Name",
+          "=",
+          "@=btx.bank_name"
+        ],
+        [
+          "total_amount",
+          "=",
+          "@=btx.amount"
+        ]
+      ]
+    },
+    "result_map": {
+      "btx.previous_contribution_ids": "@=implode(',', result.column()['id'])",
+      "btx.financial_type_id": "financial_type_id"
+    },
+    "result_map_options": {
+      "skip_empty_result": false
+    }
+  }
+}
+```
+
+In this example all contributions where the custom field
+`Donor_Information.Bank_Name` is equal to the `bank_name` field in the
+transaction data and the `total_amount` is equal to the `amount` in the
+transaction data are fetched in descendant order by `receive_date`.
+
+The IDs of the fetched contribution will be set comma-separated in
+`btx.previous_contribution_ids` and the `financial_type_id` of the first fetched
+contribution (i.e. the matching contribution with the latest `receive_date`)
+will be set in `btx.financial_type_id`.
+
+Because the result map option `skip_empty_result` is set to `false`, an empty
+array will be set to `btx.previous_contribution_ids` and `NULL` will be set to
+`btx.financial_type_id`, if no matching contribution is found.
+
+##### Expressions
+
+Strings starting with `@=` in the APIv4 `params` and the `result_map` are
+interpreted using the Symfony Expression Language. So there are many more
+possibilities available than used in the [example](#api4-example) above. Please
+have a look at the
+[syntax documentation](https://symfony.com/doc/current/reference/formats/expression_language.html)
+for more details. Additionally, the function `implode()` is available (see the
+[example](#api4-example)).
 
 #### `calculate` Action
 
@@ -350,6 +459,8 @@ the value of the `bank_account_number` field to the `bank_account_number` field
 and removes the leading zeros.
 
 #### `lookup` Action
+
+Note: This is a legacy action consider using the [`api4`](#api4-action) instead.
 
 The `lookup` action allows you to look up a CiviCRM API entity based on a given
 parameter. The action can be used to look up any CiviCRM APIv3 entity, but it 

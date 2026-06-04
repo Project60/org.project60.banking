@@ -31,56 +31,47 @@
   <input type="hidden" id="manual_match_contacts" name="manual_match_contacts" value="{$contact_ids}"/>
 </div>
 
-</div>
-  <div style="float:left;">
-    <a class="button" onclick="manual_match_create_contribution();"><span><div class="icon add-icon ui-icon-circle-plus"></div>{ts domain='org.project60.banking'}add new contribution for:{/ts}</span></a>
-    <select  id="manual_match_contact_selector"></select>
+<div style="display: flex; gap: 25px; flex-direction: column;">
+  <div style="display: flex; gap: 10px; align-items: center;">
+    <button type="button" class="crm-button" onclick="manual_match_create_contribution();"><i role="img" aria-hidden="true" class="crm-i fa-plus-circle"></i>{ts domain='org.project60.banking'}add new contribution for:{/ts}</button>
+    <select style="width: unset;" id="manual_match_contact_selector"></select>
+    <i role="link" title="Open Contact" onclick="manual_match_show_selected_contact();" class="crm-i fa-solid fa-circle-arrow-right"></i>
+    <div style="display: inline-block;">
+      <button type="button" class="crm-button" onclick="manual_match_add_contact();"><i role="img" aria-hidden="true" class="crm-i fa-plus-circle"></i>{ts domain='org.project60.banking'}add contact ID to list{/ts}:</button>
+      <input id="manual_match_add_contact_input" onkeydown="if (event.keyCode == 13) return manual_match_add_contact();" type="text" class="crm-form-text"></input>
+    </div>
   </div>
-  <div onclick="manual_match_show_selected_contact();" class="ui-icon ui-icon-circle-arrow-e" style="float:left;"></div>
-  <div style="float:left;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</div>
-  <div style="display: inline-block;">
-    <a class="button" onclick="manual_match_add_contact();">
-      <span>
-        <div class="icon add-icon ui-icon-circle-plus"></div>
-        {ts domain='org.project60.banking'}add contact ID to list{/ts}:
-      </span>
-    </a>
-  <input id="manual_match_add_contact_input" onkeydown="if (event.keyCode == 13) return manual_match_add_contact();" type="text" style="width: 4em; height: 1.4em;"></input>
-</div>
 
-<br/><br/>
-
-<div>
-  <a class="button" onclick="manual_match_refresh_list();"><span><div class="icon refresh-icon ui-icon-refresh"></div>{ts domain='org.project60.banking'}refresh{/ts}</span></a>
-  <a class="button" onclick="manual_match_open_create_new_contribution();"><span><div class="icon add-icon ui-icon-circle-plus"></div>{ts domain='org.project60.banking'}create empty contribution{/ts}</span></a>
-  <a class="button" onclick="manual_match_add_contribution();"><span><div class="icon add-icon ui-icon-circle-plus"></div>{ts domain='org.project60.banking'}add existing contribution by ID{/ts}</span></a>
-  <input id="manual_match_add" onkeydown="if (event.keyCode == 13) return manual_match_add_contribution();" type="text" style="width: 4em; height: 1.4em;"></input>
-  <div style="float:right;">
-    <span id="manual_match_contribution_sum" align="right" style="color: red; font-weight: bold;"><b>{ts domain='org.project60.banking'}sum{/ts}: 0.00 EUR</b></span>
+  <div style="display: flex; gap: 10px; align-items: center;">
+      <button type="button" class="crm-button" onclick="manual_match_refresh_list();"><i class="crm-i fa-solid fa-arrows-rotate"></i>{ts domain='org.project60.banking'}refresh{/ts}</button>
+      <button type="button" class="crm-button" onclick="manual_match_open_create_new_contribution();"><i role="img" aria-hidden="true" class="crm-i fa-plus-circle"></i>{ts domain='org.project60.banking'}create empty contribution{/ts}</button>
+      <button type="button" class="crm-button" onclick="manual_match_add_contribution();"><i role="img" aria-hidden="true" class="crm-i fa-plus-circle"></i>{ts domain='org.project60.banking'}add existing contribution by ID{/ts}</button>
+    <input id="manual_match_add" onkeydown="if (event.keyCode == 13) return manual_match_add_contribution();" type="text" class="big crm-form-text"></input>
+    <div style="margin-left: auto;">
+      <span id="manual_match_contribution_sum" align="right" style="color: red; font-weight: bold;"><b>{ts domain='org.project60.banking'}sum{/ts}: 0.00 EUR</b></span>
+    </div>
   </div>
-</div>
 
 {if $btx.amount lt 0}
 <br/><div>{ts domain='org.project60.banking'}<strong>WARNING:</strong> This is a negative amount, so all contributions below will be <strong>cancelled</strong>.{/ts}</div>
 {/if}
 
-<br/>
-<table>
-  <th></th>
-  <th>{ts domain='org.project60.banking'}Contact{/ts}</th>
-  <th>{ts domain='org.project60.banking'}Type{/ts}</th>
-  <th>{ts domain='org.project60.banking'}Date{/ts}</th>
-  <th>{ts domain='org.project60.banking'}Status{/ts}</th>
-  <th align="right">{ts domain='org.project60.banking'}Amount{/ts}</th>
-  <tbody id="manual_match_contribution_table">
-  <tr class="manual-match-placeholder">
-    <td colspan="5" align="center" style="font-size: larger; padding: 1em;">
-      <span>{ts domain='org.project60.banking'}DROP ANY CONTRIBUTION LINK IN HERE TO RECONCILE{/ts}</span>
-    </td>
-  </tr>
-  </tbody>
-</table>
-
+  <table>
+    <th></th>
+    <th>{ts domain='org.project60.banking'}Contact{/ts}</th>
+    <th>{ts domain='org.project60.banking'}Type{/ts}</th>
+    <th>{ts domain='org.project60.banking'}Date{/ts}</th>
+    <th>{ts domain='org.project60.banking'}Status{/ts}</th>
+    <th align="right">{ts domain='org.project60.banking'}Amount{/ts}</th>
+    <tbody id="manual_match_contribution_table">
+    <tr class="manual-match-placeholder">
+      <td colspan="5" align="center" style="font-size: larger; padding: 1em;">
+        <span>{ts domain='org.project60.banking'}DROP ANY CONTRIBUTION LINK IN HERE TO RECONCILE{/ts}</span>
+      </td>
+    </tr>
+    </tbody>
+  </table>
+</div>
 
 
 
@@ -160,7 +151,7 @@
             if (contact.street_address || contact.city) {
               item_label += " (" + contact.street_address + ", " + contact.city + ")";
             } else {
-              item_label += " ({/literal}{ts escape='htmlattribute' domain='org.project60.banking'}unknown address{/ts}{literal})";
+              item_label += " ({/literal}{ts domain='org.project60.banking'}unknown address{/ts}{literal})";
             }
             hook_label = cj(document).triggerHandler('banking_contact_option_element', [item_label, contact]);
             if (typeof hook_label != 'undefined') {
@@ -283,8 +274,10 @@
   function manual_match_create_contribution() {
     // get selected contact
     let contact_id = cj("#manual_match_contact_selector").val();
+    console.log(contact_id);
     if (!contact_id) {
       // TODO: set/translate message
+      console.log("contact not found")
       alert("No ID set!");
       return;
     }

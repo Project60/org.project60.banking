@@ -216,7 +216,7 @@ function banking_deleteaccount(ba_id) {
         if (data['is_error'] == 0) {
           CRM.alert("{/literal}{ts domain='org.project60.banking'}The bank account has been deleted{/ts}", "{ts domain='org.project60.banking'}Success{/ts}{literal}", "success");
           var contentId = cj('#tab_bank_accounts').attr('aria-controls');
-          cj('#' + contentId).load(CRM.url('civicrm/banking/accounts_tab', {'reset': 1, 'snippet': 1, 'force': 1, 'cid':{/literal}{$contact_id}{literal}}));
+          CRM.loadPage(CRM.url('civicrm/banking/accounts_tab', {'reset': 1, 'snippet': 1, 'force': 1, 'cid':{/literal}{$contact_id}{literal}}), {'target': '#' + contentId});
         }else{
           CRM.alert("{/literal}" + data['error_message'], "{ts domain='org.project60.banking'}Error{/ts}{literal}", "error");
         }
@@ -240,7 +240,7 @@ function banking_deletereference(ba_id, ref_id) {
         if (data['is_error'] == 0) {
           CRM.alert("{/literal}{ts domain='org.project60.banking'}The bank account reference has been deleted{/ts}", "{ts escape='htmlattribute' domain='org.project60.banking'}Success{/ts}{literal}", "success");
           var contentId = cj('#tab_bank_accounts').attr('aria-controls');
-          cj('#' + contentId).load(CRM.url('civicrm/banking/accounts_tab', {'reset': 1, 'snippet': 1, 'force': 1, 'cid':{/literal}{$contact_id}{literal}}));
+          CRM.loadPage(CRM.url('civicrm/banking/accounts_tab', {'reset': 1, 'snippet': 1, 'force': 1, 'cid':{/literal}{$contact_id}{literal}}), {'target': '#' + contentId});
         }else{
           CRM.alert("{/literal}" + data['error_message'], "{ts escape='htmlattribute' domain='org.project60.banking'}Error{/ts}{literal}", "error");
         }

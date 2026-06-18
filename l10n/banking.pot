@@ -1646,24 +1646,24 @@ msgstr ""
 msgid "Could not find a bank account for contact. Error message from API3 BankingAccount or BankingAccountReference getvalue: %1"
 msgstr ""
 
-#: Civi/Banking/CompilerPass.php
+#: Civi/Banking/DataProcessor/FieldoutputHandler/ContactIBANOutputhandler.php
+msgid "Contact ID Field"
+msgstr ""
+
+#: Civi/Banking/DependencyInjection/Compiler/ActionProviderPass.php
 msgid "Add IBAN to Contact"
 msgstr ""
 
-#: Civi/Banking/CompilerPass.php
+#: Civi/Banking/DependencyInjection/Compiler/ActionProviderPass.php
 msgid "Find Latest Bank Account for Contact"
 msgstr ""
 
-#: Civi/Banking/CompilerPass.php
+#: Civi/Banking/DependencyInjection/Compiler/ActionProviderPass.php
 msgid "IBAN (Banking)"
 msgstr ""
 
-#: Civi/Banking/CompilerPass.php
+#: Civi/Banking/DependencyInjection/Compiler/ActionProviderPass.php
 msgid "CiviBanking: Bank Account"
-msgstr ""
-
-#: Civi/Banking/DataProcessor/FieldoutputHandler/ContactIBANOutputhandler.php
-msgid "Contact ID Field"
 msgstr ""
 
 #: ang/banking/Main.html

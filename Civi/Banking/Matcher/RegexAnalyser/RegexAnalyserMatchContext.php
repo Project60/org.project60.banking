@@ -20,10 +20,10 @@ declare(strict_types = 1);
 
 namespace Civi\Banking\Matcher\RegexAnalyser;
 
-final class RegexAnalyserMatchContext {
+class RegexAnalyserMatchContext {
 
   /**
-   * @param array<int|string, list<string>> $matchData
+   * @param array<string, list<string>> $matchData
    *   Matches of preg_match_all().
    */
   public function __construct(
@@ -87,6 +87,13 @@ final class RegexAnalyserMatchContext {
     return $this->matchData[$key][$this->matchIndex] ?? NULL;
   }
 
+  /**
+   * @return array<string, string>
+   */
+  public function getMatchedValues(): array {
+    return array_map(fn (array $values) => $values[$this->matchIndex], $this->matchData);
+  }
+
   public function getParsedValue(string $key): mixed {
     return $this->btx->getDataParsed()[$key] ?? NULL;
   }
@@ -99,6 +106,32 @@ final class RegexAnalyserMatchContext {
 
   public function setParsedValue(string $key, mixed $value): void {
     $this->btx->setDataParsed([$key => $value] + $this->btx->getDataParsed());
+  }
+
+  public function setValue(string $key, mixed $value): void {
+    [$keyPrefix, $key] = explode('.', $key, 2) + ['', NULL];
+    if (NULL === $key) {
+      $key = $keyPrefix;
+      $keyPrefix = 'btx';
+    }
+
+    if ('ba' === $keyPrefix) {
+      $data = $this->btx->getBankAccount()?->getDataParsed();
+      if (NULL !== $data) {
+        $data[$key] = $value;
+        $this->btx->getBankAccount()->setDataParsed($data);
+      }
+    }
+    elseif ('party_ba' === $keyPrefix) {
+      $data = $this->btx->getPartyBankAccount()?->getDataParsed();
+      if (NULL !== $data) {
+        $data[$key] = $value;
+        $this->btx->getPartyBankAccount()->setDataParsed($data);
+      }
+    }
+    else {
+      $this->setParsedValue($key, $value);
+    }
   }
 
   /**

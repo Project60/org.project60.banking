@@ -26,6 +26,20 @@ use CRM_Banking_ExtensionUtil as E;
 class CRM_Admin_Form_Setting_BankingSettings extends CRM_Core_Form {
 
   public function buildQuickForm() {
+    $importerOptions = [
+      'standard' => E::ts('Standard'),
+      'quick' => E::ts('Quick'),
+      // 'both' => E::ts('Both'),
+    ];
+    $this->add(
+        'select',
+        'banking_importer',
+        E::ts('Importer'),
+        $importerOptions,
+    // is not required
+        FALSE
+    );
+
     // add new UI (#200) options
     $ui_options = [
       '1' => E::ts('Simplified user interface'),
@@ -181,6 +195,7 @@ class CRM_Admin_Form_Setting_BankingSettings extends CRM_Core_Form {
    */
   public function setDefaultValues() {
     $defaults = [];
+    $defaults['banking_importer']                = Civi::settings()->get('banking_importer');
     $defaults['new_ui']                          = Civi::settings()->get('new_ui');
     $defaults['menu_position']                   = Civi::settings()->get('menu_position');
     $defaults['json_editor_mode']                = Civi::settings()->get('json_editor_mode');
@@ -249,6 +264,8 @@ class CRM_Admin_Form_Setting_BankingSettings extends CRM_Core_Form {
     // log results
     $logger = CRM_Banking_Helpers_Logger::getLogger();
     $logger->logDebug("Log level changed to '{$values['banking_log_level']}', file is: {$values['banking_log_file']}");
+
+    Civi::settings()->set('banking_importer', $values['banking_importer']);
 
     parent::postProcess();
   }

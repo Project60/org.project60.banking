@@ -260,19 +260,14 @@ class CRM_Banking_Matcher_Context {
     /** @var array<int, float>|null $filtered_list */
     $filtered_list = $this->getCachedEntry($cache_key);
     if ($filtered_list === NULL) {
-      $filtered_list = [];
-      /** @var array{values: list<array{id: string}>} $result */
-      $result = civicrm_api3('Contact', 'get', [
-        'id'         => ['IN' => array_keys($contact2probability)],
-        'is_deleted' => 0,
-        'return'     => 'id',
-        'sequential' => 1,
-        'options' => ['limit' => 0],
-      ]);
-      foreach ($result['values'] as $contact) {
-        $contactId = (int) $contact['id'];
-        $filtered_list[$contactId] = $contact2probability[$contactId];
-      }
+      $notDeleted = \Civi\Api4\Contact::get(FALSE)
+	->addSelect('id')
+        ->addWhere('id', 'IN', array_keys($contact2probability))
+        ->addWhere('is_deleted', '=', FALSE)
+        ->execute()
+        ->column('id');
+
+      $filtered_list = array_filter($contact2probability, fn ($id) => in_array($id, $notDeleted), ARRAY_FILTER_USE_KEY);
       $this->setCachedEntry($cache_key, $filtered_list);
     }
     return $filtered_list;

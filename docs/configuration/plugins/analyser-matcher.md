@@ -957,8 +957,66 @@ the [Contribution Matcher section](#contribution-matcher).
 
 ## Account Lookup Analyser
 
-> [!NOTE]
-> This section is yet to be completed.
+This plugin associates a transaction with a `BankAccount`. For an
+account reference from the currently analysed transaction, it looks up if this
+account reference already exists as a CiviCRM `BankAccountReference`. It then
+stores the internal CiviCRM-ID for the `BankAccount` in a field
+`party_ba_id` (for the party's account reference) or in a field `ba_id` (for the
+organization's account reference). This field gets evaluated by several matcher
+plugins, including `CreateContribution` and `ExistingContribution`.
+
+Additionaly, this plugin can look up the CiviCRM `BankAccount` for the
+organization's account reference and store it's id in a field `ba_id`.
+
+The field name to provide an account reference from the currently analysed
+transaction can be configured. The field name comprises two parts:
+
+1. a prefix, default for the party's account reference is `_party_` and for the
+organization's account reference is `_`.
+2. any CiviBanking bank account reference type option value, for example `IBAN`
+or `NBAN_PP`.
+
+In its default configuration, the plugin evaluates the field `_party_IBAN` for
+IBAN references and the field `_party_NBAN_PP` for PayPal references, for
+example. It also evaluates the field `_IBAN`, for example, and stores the id for
+the `BankAccount` in a field `ba_id`. Later, `ba_id` gets stored in the
+`BankTransaction` and also can be evaluated by other CiviBanking-Plugins.
+
+In a typical setup, your importer plugin writes the account reference to the
+field `_party_IBAN` or `_party_NBAN_PP`. The Account Lookup Analyser
+evaluates the field and writes to a field `party_ba_id`, which later can
+be evaluated by a matcher plugin.
+
+The base probability of the resulting suggestions is a fixed value. You can
+configure that value in the CiviBanking settings ("Probability of contact
+matching based on bank account"). For a specific suggestion, this base
+probability may be manipulated by the matcher plugin that creates the
+suggestion, for example by applying penalties to it.
+
+Below is an example configuration for this plugin:
+
+```JSON
+{
+    "plugin_type_name": "match",
+    "plugin_class_name": "analyser_account",
+    "name": "Account Lookup",
+    "description": "Associates transaction with bank account, based on account lookups",
+    "weight": "20",
+    "config": {},
+    "state": {}
+}
+```
+
+Below is a comprehensive list of config parameters:
+
+| Configuration Parameter      | Type               | Default | Description                                                                                                                               |
+|------------------------------|--------------------|---------|-------------------------------------------------------------------------------------------------------------------------------------------|
+| `lookup_org_account_mode`               | string: `"update"`, `"fill"` or `"off"`   | `"off"`   | Fill the magic field `_ba_id`, if it is empty (`"fill"`) or fill it even if it is not empty (`"update"`) or don't fill it `"off"`.                             |
+| `lookup_donor_account_mode` | string: `"update"`, `"fill"` or `"off"` | `"update"`     | Fill the magic field `_party_ba_id`, if it is empty (`"fill"`) or fill it even if it is not empty (`"update"`) or don't fill it `"off"`.  |
+| `lookup_org_account_prefix`     | string | `"_"`     | First part of the field name that is evaluated to lookup the organization's account. |
+| `lookup_donor_account_prefix`             | string | `"_party_"`   | First part of the field name that is evaluated to lookup the donor's account.                         |
+ 
+
 
 # Matchers
 

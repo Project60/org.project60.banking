@@ -1253,14 +1253,14 @@ Below is a list of config parameters:
  | `cancellation_cancel_fee` | boolean: `0` or `1` | `0` | Set to `1` to enable the extended cancellation feature "fee". |
  | `cancellation_cancel_fee_edit` | boolean: `0` or `1` | `1` | Set to `0` to disable user input. |
  | `cancellation_cancel_fee_source` | string | `"cancellation_fee` | Name of field to be evaluated for source. |
- | `cancellation_cancel_fee_store` | string | `"match.cancel_fee"` | Where to store the calculated fee, for syntax see value_propagation. |
- | `cancellation_date_field` | | |  |
+ | `cancellation_cancel_fee_store` | string | `"match.cancel_fee"` | Where to store the calculated fee, for syntax see `value_propagation`. |
+ | `cancellation_date_field` | string | `"value_date"` | Field containing the cancellation date. The correct value would be `"booking_date"`. Though to keep previous behavior this defaults to`"value_date"`. |
  | `cancellation_create_activity` | boolean: `true` or `false` | `false` |  |
  | `cancellation_create_activity_type_id` | integer | `37` |  |
  | `cancellation_create_activity_subject` | string | `"Follow-up SEPA Cancellation"` (translateable string) |  |
- | `cancellation_create_activity_assignee_id` | |  |  |
- | `cancellation_create_activity_text` | string | `""` (empty string) |  |
-
+ | `cancellation_create_activity_assignee_id` | integer | The contact ID of the logged in user |  |
+ | `cancellation_create_activity_text` | string | template from `templates/CRM/Banking/PluginImpl/Matcher/SepaMandate.activity.tpl`|  |
+| `value_propagation` | JSON object: `{"key": "value"}` | - | Fields which should be copied from the `btx` namespace to the contribution. |
 
 ## Membership Matcher
 

@@ -1203,7 +1203,9 @@ identified by an analyser:
 
 ## SEPA Matcher Plugin
 
-This plugin is for SEPA DD transactions. It creates suggestions to match a
+This plugin is for SEPA DD transactions. It depends on the CiviCRM extension
+[CiviSEPA](https://docs.civicrm.org/civisepa/en/latest/). It creates suggestions
+to match a
 transaction to an already existing contribution in CiviCRM. It evaluates the
 magic field `sepa_mandate` and looks up if there is a `SepaMandate` with the
 corresponding reference. For OOFF transactions, it identifies the contribution

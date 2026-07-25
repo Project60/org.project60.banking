@@ -1,0 +1,83 @@
+{
+    "plugin_type_name": "match",
+    "plugin_class_name": "matcher_create_contact",
+    "name": "710_Create-contact-and-contribution",
+    "description": "Erstellt eine neue Zuwendung",
+    "weight": "710",
+    "config": {
+        "lookup_contact_by_name": {
+            "modifiers": [
+                {
+                    "search": ":ss:",
+                    "mode": "alternative",
+                    "replace": "\u00df"
+                },
+                {
+                    "search": ":ue:",
+                    "mode": "alternative",
+                    "replace": "\u00fc"
+                },
+                {
+                    "search": ":oe:",
+                    "mode": "alternative",
+                    "replace": "\u00f6"
+                },
+                {
+                    "search": ":ae:",
+                    "mode": "alternative",
+                    "replace": "\u00e4"
+                }
+            ],
+            "soft_cap_min": 4,
+            "soft_cap_probability": 1,
+            "hard_cap_probability": 0.85
+        },
+        "value_propagation": {
+            "btx.receive_date": "contribution.receive_date",
+            "btx.financial_type_id": "contribution.financial_type_id",
+            "btx.payment_instrument": "contribution.payment_instrument_id",
+            "btx.source_contribution": "contribution.source",
+            "btx.source_contact": "contact.source"
+        },
+        "auto_exec": false,
+        "required_values": [
+            "btx.financial_type_id",
+            "btx.payment_instrument"
+        ],
+        "factor": 1,
+        "organization_regex": [
+            "/gmbh/",
+            "/beratung/",
+            "/coaching/",
+            "/training/",
+            "/consulting/",
+            "/agentur/",
+            "/büro/",
+            "/buero/",
+            "/development/",
+            "/agile/",
+            "/system/",
+            "/service/",
+            "/academy/",
+            "/institut/",
+            "/marketing/",
+            "/dienstleistung/",
+            "/stiftung/",
+            "/praxis/",
+            "/club/",
+            "/e\\.\\s*v\\./",
+            "/ mbh /",
+            "/e\\.\\s*k\\./",
+            "/ gbr /",
+            "/ ag /",
+            "/ gug /",
+            "/ ug /",
+            "/ lab /"
+        ],
+        "formal_titles": [
+            "/prof\\.\\s+dr\\./",
+            "/dr\\./"
+        ]
+    },
+    "state": []
+}

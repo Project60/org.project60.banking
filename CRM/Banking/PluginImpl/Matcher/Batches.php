@@ -126,8 +126,7 @@ class CRM_Banking_PluginImpl_Matcher_Batches extends CRM_Banking_PluginModel_Mat
   /**
    * Handle the different actions, should probably be handles at base class level ...
    *
-   * @param type $suggestion
-   * @param type $btx
+   * @return bool
    */
   public function execute($suggestion, $btx) {
     // load the batch

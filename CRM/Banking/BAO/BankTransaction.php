@@ -55,7 +55,7 @@ class CRM_Banking_BAO_BankTransaction extends CRM_Banking_DAO_BankTransaction {
     $dao->copyValues($params);
     $dao->save();
 
-    CRM_Utils_Hook::post($hook, 'BankTransaction', $dao->id, $dao);
+    CRM_Utils_Hook::post($hook, 'BankTransaction', (int) $dao->id, $dao);
     return $dao;
   }
 
@@ -231,7 +231,7 @@ class CRM_Banking_BAO_BankTransaction extends CRM_Banking_DAO_BankTransaction {
    * Update this BTX's status. Does not use the $bao>save() technique because of the
    * issue described above.
    *
-   * @param type $status_id
+   * @param int $status_id
    */
   public function setStatus($status_id) {
     $sql = "

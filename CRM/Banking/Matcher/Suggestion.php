@@ -274,7 +274,10 @@ class CRM_Banking_Matcher_Suggestion {
    *
    * @param $btx CRM_Banking_BAO_BankTransaction
    *
-   * @return boolean
+   * @return bool|null|'re-run' the execution result:
+   *   - TRUE if successful
+   *   - NULL/FALSE if not successful
+   *   - 're-run' if the analysis should be re-run (UI only)
    */
   public function execute($btx) {
     // only execute if not completed yet
@@ -295,7 +298,7 @@ class CRM_Banking_Matcher_Suggestion {
   /**
    * Visualize this suggestion
    */
-  public function visualize(?CRM_Banking_BAO_BankTransaction $btx = NULL, ?CRM_Banking_PluginModel_Matcher $plugin = NULL) {
+  public function visualize(CRM_Banking_BAO_BankTransaction $btx, ?CRM_Banking_PluginModel_Matcher $plugin = NULL) {
     // if btx/plugin is not supplied (by the matcher engine), recreate it
     $this->_updateObjects($btx, $plugin);
     $visualisation = $this->_plugin->visualize_match($this, $btx);
@@ -328,7 +331,7 @@ class CRM_Banking_Matcher_Suggestion {
   /**
    * Visualize this execution
    */
-  public function visualize_execution(?CRM_Banking_BAO_BankTransaction $btx = NULL, ?CRM_Banking_PluginModel_Matcher $plugin = NULL) {
+  public function visualize_execution(CRM_Banking_BAO_BankTransaction $btx, ?CRM_Banking_PluginModel_Matcher $plugin = NULL) {
     // if btx/plugin is not supplied (by the matcher engine), recreate it
     $this->_updateObjects($btx, $plugin);
     $visualisation = $this->_plugin->visualize_execution_info($this, $btx);

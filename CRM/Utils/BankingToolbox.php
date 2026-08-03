@@ -84,7 +84,7 @@ class CRM_Utils_BankingToolbox {
 
         // skip upon weekend day
         case 'weekend':
-          $day_of_week = date('N', strtotime($datetime));
+          $day_of_week = (int) date('N', strtotime($datetime));
           if ($day_of_week > 5) {
             return TRUE;
           }

@@ -48,7 +48,7 @@ class CRM_Banking_BAO_BankAccountReference extends CRM_Banking_DAO_BankAccountRe
     $dao->copyValues($params);
     $dao->save();
 
-    CRM_Utils_Hook::post($hook, 'BankAccountReference', $dao->id, $dao);
+    CRM_Utils_Hook::post($hook, 'BankAccountReference', (int) $dao->id, $dao);
     return $dao;
   }
 

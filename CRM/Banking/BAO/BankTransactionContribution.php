@@ -39,7 +39,7 @@ class CRM_Banking_BAO_BankTransactionContribution extends CRM_Banking_DAO_BankTr
     $dao->copyValues($params);
     $dao->save();
 
-    CRM_Utils_Hook::post($hook, 'BankTransactionContribution', $dao->id, $dao);
+    CRM_Utils_Hook::post($hook, 'BankTransactionContribution', (int) $dao->id, $dao);
     return $dao;
   }
 

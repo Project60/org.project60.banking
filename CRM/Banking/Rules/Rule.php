@@ -209,7 +209,7 @@ class CRM_Banking_Rules_Rule {
       $sql[] = 'conditions LIKE %' . ($c++);
     }
 
-    $where = $sql ? 'WHERE ' . implode(' AND ', $sql) : '';
+    $where = $sql !== [] ? 'WHERE ' . implode(' AND ', $sql) : '';
 
     // parse sort.
     $sort = '';

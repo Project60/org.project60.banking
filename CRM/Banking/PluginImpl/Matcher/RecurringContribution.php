@@ -219,6 +219,8 @@ class CRM_Banking_PluginImpl_Matcher_RecurringContribution extends CRM_Banking_P
    * @param CRM_Banking_BAO_BankTransaction $btx
    *   the bank transaction this is related to
    *
+   * @return bool
+   *
    * phpcs:disable Generic.Metrics.CyclomaticComplexity.TooHigh
    */
   public function execute($suggestion, $btx) {
@@ -378,6 +380,7 @@ class CRM_Banking_PluginImpl_Matcher_RecurringContribution extends CRM_Banking_P
     // assign to smarty and compile HTML
     $smarty_vars['recurring_contributions'] = $rcontributions;
     $smarty_vars['contacts']                = $contacts;
+    $smarty_vars['contact_id']              = array_key_first($contacts);
     $smarty_vars['penalties']               = $match->getEvidence();
 
     $smarty = CRM_Banking_Helpers_Smarty::singleton();
@@ -673,7 +676,7 @@ class CRM_Banking_PluginImpl_Matcher_RecurringContribution extends CRM_Banking_P
         0,
         0,
         0,
-        (int) date('n', $start_date) + (int) (date('j', $start_date) > $cycle_day),
+        (int) date('n', $start_date) + (int) ((int) date('j', $start_date) > $cycle_day),
         $cycle_day,
         (int) date('Y', $start_date));
 
@@ -697,8 +700,22 @@ class CRM_Banking_PluginImpl_Matcher_RecurringContribution extends CRM_Banking_P
       }
       $last = strtotime($last_contribution['receive_date']);
       $last_month = strtotime('-1 month', $last);
-      $cycle_day_after  = mktime(0, 0, 0, (int) date('n', $last) + (int) (date('j', $last) > $cycle_day), $cycle_day, (int) date('Y', $last));
-      $cycle_day_before = mktime(0, 0, 0, (int) date('n', $last_month) + (int) (date('j', $last_month) > $cycle_day), $cycle_day, (int) date('Y', $last_month));
+      $cycle_day_after  = mktime(
+        0,
+        0,
+        0,
+        (int) date('n', $last) + (int) ((int) date('j', $last) > $cycle_day),
+        $cycle_day,
+        (int) date('Y', $last)
+      );
+      $cycle_day_before = mktime(
+        0,
+        0,
+        0,
+        (int) date('n', $last_month) + (int) ((int) date('j', $last_month) > $cycle_day),
+        $cycle_day,
+        (int) date('Y', $last_month)
+      );
       if (abs($last - $cycle_day_before) < abs($last - $cycle_day_after)) {
         $last_cycle_date = $cycle_day_before;
       }

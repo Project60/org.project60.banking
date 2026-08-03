@@ -80,9 +80,6 @@ class CRM_Banking_PluginImpl_Matcher_Rules extends CRM_Banking_PluginModel_Match
 
   /**
    * Handle the different actions, should probably be handles at base class level ...
-   *
-   * @param type $match
-   * @param type $btx
    */
   public function execute($match, $btx) {
     // phpcs:disable Squiz.PHP.CommentedOutCode.Found

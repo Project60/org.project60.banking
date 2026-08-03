@@ -93,10 +93,12 @@ final class Api4RegexAnalyserActionHandlerTest extends TestCase {
             ['foo', '=', 'bar'],
           ],
         ],
-        'skip_empty_result' => FALSE,
         'result_map' => (object) [
           'btx.some_value' => 'baz',
         ],
+        'result_map_options' => (object) [
+          'skip_empty_result' => FALSE,
+        ]
       ],
     ];
 
@@ -168,10 +170,12 @@ final class Api4RegexAnalyserActionHandlerTest extends TestCase {
             ['foo', '=', "@=foo + party_ba['foo.foo']"],
           ],
         ],
-        'use_all_results' => TRUE,
-        'index_by' => 'id',
         'result_map' => (object) [
           'btx.some_value' => 'bar',
+        ],
+        'result_map_options' => (object) [
+          'use_all_results' => TRUE,
+          'index_by' => 'id',
         ],
       ],
     ];

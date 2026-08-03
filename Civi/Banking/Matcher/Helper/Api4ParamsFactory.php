@@ -24,12 +24,13 @@ use Civi\Banking\ExpressionLanguage\BankingExpressionLanguage;
 use Webmozart\Assert\Assert;
 
 /**
+ * @phpstan-import-type resultMapOptionsT from Api4ResultMapOptions
+ *
  * @phpstan-type actionDefinitionT object{
  *   action: string,
  *   params?: \stdClass,
  *   result_map?: \stdClass,
- *   use_all_results?: bool,
- *   index_by?: string,
+ *   result_map_options?: resultMapOptionsT,
  * }
  */
 final class Api4ParamsFactory {
@@ -70,17 +71,18 @@ final class Api4ParamsFactory {
    * @phpstan-param actionDefinitionT $actionDefinition
    */
   private function determineSelectAndLimit(array &$params, object $actionDefinition): void {
+    $resultMapOptions = Api4ResultMapOptions::fromObject($actionDefinition->result_map_options ?? NULL);
     if (
       'get' === $actionDefinition->action
       && property_exists($actionDefinition, 'result_map')
       && (
         !isset($params['select'])
-        || !isset($params['limit']) && !($actionDefinition->use_all_results ?? FALSE)
+        || !isset($params['limit']) && !$resultMapOptions->useAllResults
       )
     ) {
       $select = [];
-      if (property_exists($actionDefinition, 'index_by')) {
-        $select[] = $actionDefinition->index_by;
+      if (NULL !== $resultMapOptions->indexBy) {
+        $select[] = $resultMapOptions->indexBy;
       }
 
       $resultMapHasExpression = FALSE;
@@ -100,7 +102,7 @@ final class Api4ParamsFactory {
 
       $params['select'] ??= $select;
 
-      if (!($actionDefinition->use_all_results ?? FALSE) && !$resultMapHasExpression) {
+      if (!$resultMapOptions->useAllResults && !$resultMapHasExpression) {
         $params['limit'] ??= 1;
       }
     }

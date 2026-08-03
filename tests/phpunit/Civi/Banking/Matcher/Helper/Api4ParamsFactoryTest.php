@@ -95,9 +95,11 @@ final class Api4ParamsFactoryTest extends TestCase {
     $actionDefinition = (object) [
       'entity' => 'SomeEntity',
       'action' => 'get',
-      'use_all_results' => TRUE,
       'result_map' => (object) [
         'btx.some_value' => 'baz',
+      ],
+      'result_map_options' => (object) [
+        'use_all_results' => TRUE,
       ],
     ];
 
@@ -111,10 +113,12 @@ final class Api4ParamsFactoryTest extends TestCase {
     $actionDefinition = (object) [
       'entity' => 'SomeEntity',
       'action' => 'get',
-      'use_all_results' => TRUE,
-      'index_by' => 'bar',
       'result_map' => (object) [
         'btx.some_value' => 'baz',
+      ],
+      'result_map_options' => (object) [
+        'use_all_results' => TRUE,
+        'index_by' => 'bar',
       ],
     ];
 

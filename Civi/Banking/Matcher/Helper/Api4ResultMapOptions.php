@@ -20,16 +20,19 @@ declare(strict_types = 1);
 
 namespace Civi\Banking\Matcher\Helper;
 
+/**
+ * @phpstan-type resultMapOptionsT object{
+ *      use_all_results?: bool,
+ *      index_by?: string,
+ *      skip_empty_result?: bool,
+ *    }&\stdClass
+ */
 final class Api4ResultMapOptions {
 
   /**
-   * @phpstan-param object{
-   *   use_all_results?: bool,
-   *   index_by?: string,
-   *   skip_empty_result?: bool,
-   * }&\stdClass $action
+   * @phpstan-param ?resultMapOptionsT $action
    */
-  public static function fromObject(\stdClass $action): self {
+  public static function fromObject(?\stdClass $action): self {
     return new self(
       $action->use_all_results ?? FALSE,
       $action->index_by ?? NULL,

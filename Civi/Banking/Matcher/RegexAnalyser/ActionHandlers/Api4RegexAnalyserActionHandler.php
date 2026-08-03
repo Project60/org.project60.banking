@@ -83,7 +83,7 @@ final class Api4RegexAnalyserActionHandler implements RegexAnalyserActionHandler
     if (property_exists($api4, 'result_map')) {
       Assert::isInstanceOf($api4->result_map, \stdClass::class, 'Result map has to be an object, got %s');
       $resultMap = (array) $api4->result_map;
-      $resultMapOptions = Api4ResultMapOptions::fromObject($api4);
+      $resultMapOptions = Api4ResultMapOptions::fromObject($api4->result_map_options ?? NULL);
       foreach ($this->resultMapper->applyResultMap($result, $resultMap, $resultMapOptions) as $key => $value) {
         $matchContext->setValue($key, $value);
       };

@@ -39,7 +39,7 @@ abstract class CRM_Banking_PluginModel_Base {
   protected $_plugin_weight;
   protected $_plugin_name;
   protected $_plugin_title;
-  protected $_plugin_config;
+  protected \stdClass $_plugin_config;
   protected $_progress_callback;
   protected $_progress_log = [];
 
@@ -70,11 +70,13 @@ abstract class CRM_Banking_PluginModel_Base {
     $this->_plugin_weight = $plugin_dao->weight;
     $this->_plugin_title  = $plugin_dao->description;
     $this->_plugin_name   = $plugin_dao->name;
-    $this->_plugin_config = json_decode($plugin_dao->config);
-    if (NULL === $this->_plugin_config) {
+    $config = json_decode($plugin_dao->config);
+
+    if (!$config instanceof \stdClass) {
       CRM_Core_Error::statusBounce('Configuration for CiviBanking plugin (id: ' . $plugin_dao->id . ') is not a valid JSON string.');
-      $this->_plugin_config = [];
     }
+
+    $this->_plugin_config = $config;
   }
 
   /**
@@ -194,7 +196,7 @@ abstract class CRM_Banking_PluginModel_Base {
     return $this->_plugin_id;
   }
 
-  public function getConfig() {
+  public function getConfig(): \stdClass {
     return $this->_plugin_config;
   }
 

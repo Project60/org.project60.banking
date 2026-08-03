@@ -31,9 +31,15 @@ parameters:
 		- Civi\Core\Event\GenericHookEvent
 		- CRM_Core_Config
 		- CRM_Core_DAO
+		- civicrm_api3
 	earlyTerminatingMethodCalls:
+		CRM_Core_Error:
+			- statusBounce
+		CRM_Utils_System:
+			- civiExit
+			- redirect
 		CRM_Queue_Runner:
-		  - runAllViaWeb
+			- runAllViaWeb
 	checkTooWideReturnTypesInProtectedAndPublicMethods: true
 	checkUninitializedProperties: true
 	checkMissingCallableSignature: true

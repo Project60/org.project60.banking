@@ -51,7 +51,7 @@ class CRM_Banking_BAO_BankTransactionBatch extends CRM_Banking_DAO_BankTransacti
     $dao->copyValues($params);
     $dao->save();
 
-    CRM_Utils_Hook::post($hook, 'BankTransactionBatch', $dao->id, $dao);
+    CRM_Utils_Hook::post($hook, 'BankTransactionBatch', (int) $dao->id, $dao);
     return $dao;
   }
 

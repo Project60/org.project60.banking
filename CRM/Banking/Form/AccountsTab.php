@@ -188,7 +188,6 @@ class CRM_Banking_Form_AccountsTab extends CRM_Core_Form {
     }
     else {
       CRM_Utils_System::redirect(CRM_Utils_System::url('civicrm/contact/view', 'reset=1&cid=2&selectedChild=bank_accounts'));
-      return FALSE;
     }
   }
 

@@ -98,7 +98,7 @@ final class Api4RegexAnalyserActionHandlerTest extends TestCase {
         ],
         'result_map_options' => (object) [
           'skip_empty_result' => FALSE,
-        ]
+        ],
       ],
     ];
 

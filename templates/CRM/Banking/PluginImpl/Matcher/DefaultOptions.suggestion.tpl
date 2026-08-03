@@ -274,10 +274,8 @@
   function manual_match_create_contribution() {
     // get selected contact
     let contact_id = cj("#manual_match_contact_selector").val();
-    console.log(contact_id);
     if (!contact_id) {
       // TODO: set/translate message
-      console.log("contact not found")
       alert("No ID set!");
       return;
     }

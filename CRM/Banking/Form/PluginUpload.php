@@ -108,7 +108,6 @@ class CRM_Banking_Form_PluginUpload extends CRM_Core_Form {
     }
 
     CRM_Utils_System::redirect(CRM_Utils_System::url('civicrm/banking/manager'));
-    parent::postProcess();
   }
 
 }

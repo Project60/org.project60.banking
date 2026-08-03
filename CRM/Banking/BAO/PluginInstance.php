@@ -38,7 +38,7 @@ class CRM_Banking_BAO_PluginInstance extends CRM_Banking_DAO_PluginInstance {
     $dao->copyValues($params);
     $dao->save();
 
-    CRM_Utils_Hook::post($hook, 'PluginInstance', $dao->id, $dao);
+    CRM_Utils_Hook::post($hook, 'PluginInstance', (int) $dao->id, $dao);
     return $dao;
   }
 
@@ -182,6 +182,7 @@ class CRM_Banking_BAO_PluginInstance extends CRM_Banking_DAO_PluginInstance {
         }
 
         if (!in_array($field, $skip_fields)) {
+          // @phpstan-ignore-next-line
           $this->$field = $value;
         }
       }
@@ -189,7 +190,7 @@ class CRM_Banking_BAO_PluginInstance extends CRM_Banking_DAO_PluginInstance {
       $this->save();
     }
     catch (Exception $ex) {
-      throw new Exception('Import failed: ' . $ex->getMessage());
+      throw new Exception('Import failed: ' . $ex->getMessage(), $ex->getCode(), $ex);
     }
   }
 

@@ -785,24 +785,6 @@ parameters:
 			path: CRM/Banking/BAO/PluginInstance.php
 
 		-
-			message: '#^Property CRM_Banking_DAO_PluginInstance\:\:\$config \(string\|null\) does not accept mixed\.$#'
-			identifier: assign.propertyType
-			count: 1
-			path: CRM/Banking/BAO/PluginInstance.php
-
-		-
-			message: '#^Property CRM_Banking_DAO_PluginInstance\:\:\$description \(string\|null\) does not accept mixed\.$#'
-			identifier: assign.propertyType
-			count: 1
-			path: CRM/Banking/BAO/PluginInstance.php
-
-		-
-			message: '#^Property CRM_Banking_DAO_PluginInstance\:\:\$name \(string\|null\) does not accept mixed\.$#'
-			identifier: assign.propertyType
-			count: 1
-			path: CRM/Banking/BAO/PluginInstance.php
-
-		-
 			message: '#^Property CRM_Banking_DAO_PluginInstance\:\:\$plugin_class_id \(int\|string\) does not accept array\|int\.$#'
 			identifier: assign.propertyType
 			count: 1
@@ -811,23 +793,6 @@ parameters:
 		-
 			message: '#^Property CRM_Banking_DAO_PluginInstance\:\:\$plugin_type_id \(int\|string\) does not accept array\|int\.$#'
 			identifier: assign.propertyType
-			count: 1
-			path: CRM/Banking/BAO/PluginInstance.php
-
-		-
-			message: '#^Property CRM_Banking_DAO_PluginInstance\:\:\$state \(string\|null\) does not accept mixed\.$#'
-			identifier: assign.propertyType
-			count: 1
-			path: CRM/Banking/BAO/PluginInstance.php
-
-		-
-			message: '#^Property CRM_Banking_DAO_PluginInstance\:\:\$weight \(float\|string\) does not accept mixed\.$#'
-			identifier: assign.propertyType
-			count: 1
-			path: CRM/Banking/BAO/PluginInstance.php
-
-		-
-			message: '#^Thrown exceptions in a catch block must bundle the previous exception \(see throw statement line 192\)\.$#'
 			count: 1
 			path: CRM/Banking/BAO/PluginInstance.php
 
@@ -3621,6 +3586,12 @@ parameters:
 			path: CRM/Banking/Page/Payments.php
 
 		-
+			message: '#^Parameter \#1 \$string of function strlen expects string, mixed given\.$#'
+			identifier: argument.type
+			count: 1
+			path: CRM/Banking/Page/Payments.php
+
+		-
 			message: '#^Parameter \#2 \$string of function explode expects string, mixed given\.$#'
 			identifier: argument.type
 			count: 3
@@ -4280,27 +4251,9 @@ parameters:
 			path: CRM/Banking/PluginImpl/Dummy.php
 
 		-
-			message: '#^Access to an undefined property object\:\:\$columns\.$#'
-			identifier: property.notFound
-			count: 1
-			path: CRM/Banking/PluginImpl/Exporter/CSV.php
-
-		-
 			message: '#^Access to an undefined property object\:\:\$comparator\.$#'
 			identifier: property.notFound
 			count: 7
-			path: CRM/Banking/PluginImpl/Exporter/CSV.php
-
-		-
-			message: '#^Access to an undefined property object\:\:\$delimiter\.$#'
-			identifier: property.notFound
-			count: 1
-			path: CRM/Banking/PluginImpl/Exporter/CSV.php
-
-		-
-			message: '#^Access to an undefined property object\:\:\$quotes\.$#'
-			identifier: property.notFound
-			count: 1
 			path: CRM/Banking/PluginImpl/Exporter/CSV.php
 
 		-
@@ -4529,18 +4482,6 @@ parameters:
 			identifier: isset.variable
 			count: 2
 			path: CRM/Banking/PluginImpl/Exporter/CSV.php
-
-		-
-			message: '#^Access to an undefined property object\:\:\$delimiter\.$#'
-			identifier: property.notFound
-			count: 1
-			path: CRM/Banking/PluginImpl/Importer/CSV.php
-
-		-
-			message: '#^Access to an undefined property object\:\:\$header\.$#'
-			identifier: property.notFound
-			count: 2
-			path: CRM/Banking/PluginImpl/Importer/CSV.php
 
 		-
 			message: '#^Call to function array_search\(\) requires parameter \#3 to be set\.$#'
@@ -5217,12 +5158,6 @@ parameters:
 			message: '#^Variable \$pos_from might not be defined\.$#'
 			identifier: variable.undefined
 			count: 1
-			path: CRM/Banking/PluginImpl/Importer/Fixed.php
-
-		-
-			message: '#^Variable property access on mixed\.$#'
-			identifier: property.dynamicName
-			count: 3
 			path: CRM/Banking/PluginImpl/Importer/Fixed.php
 
 		-
@@ -6118,12 +6053,6 @@ parameters:
 			path: CRM/Banking/PluginImpl/Matcher/CreateMultipleContributions.php
 
 		-
-			message: '#^Access to an undefined property object\:\:\$defaults\.$#'
-			identifier: property.notFound
-			count: 1
-			path: CRM/Banking/PluginImpl/Matcher/CreateMultipleContributions.php
-
-		-
 			message: '#^Access to an undefined property object\:\:\$max_amount_penalty\.$#'
 			identifier: property.notFound
 			count: 4
@@ -6300,12 +6229,6 @@ parameters:
 			identifier: method.childReturnType
 			count: 1
 			path: CRM/Banking/PluginImpl/Matcher/DefaultOptions.php
-
-		-
-			message: '#^Access to an undefined property object\:\:\$value_propagation\.$#'
-			identifier: property.notFound
-			count: 1
-			path: CRM/Banking/PluginImpl/Matcher/ExistingContribution.php
 
 		-
 			message: '#^Call to an undefined method object\:\:fetch\(\)\.$#'
@@ -6491,12 +6414,6 @@ parameters:
 			identifier: variable.undefined
 			count: 1
 			path: CRM/Banking/PluginImpl/Matcher/ExistingContribution.php
-
-		-
-			message: '#^Access to an undefined property object\:\:\$dont_ignore\.$#'
-			identifier: property.notFound
-			count: 1
-			path: CRM/Banking/PluginImpl/Matcher/Ignore.php
 
 		-
 			message: '#^Construct empty\(\) is not allowed\. Use more strict comparison\.$#'
@@ -7755,18 +7672,6 @@ parameters:
 			path: CRM/Banking/PluginImpl/PostProcessor/API.php
 
 		-
-			message: '#^Access to an undefined property object\:\:\$mode\.$#'
-			identifier: property.notFound
-			count: 1
-			path: CRM/Banking/PluginImpl/PostProcessor/Accounts.php
-
-		-
-			message: '#^Access to an undefined property object\:\:\$own_contact_id\.$#'
-			identifier: property.notFound
-			count: 1
-			path: CRM/Banking/PluginImpl/PostProcessor/Accounts.php
-
-		-
 			message: '#^Cannot access offset ''id'' on array\|int\.$#'
 			identifier: offsetAccess.nonOffsetAccessible
 			count: 1
@@ -7855,18 +7760,6 @@ parameters:
 			identifier: missingType.property
 			count: 1
 			path: CRM/Banking/PluginImpl/PostProcessor/Accounts.php
-
-		-
-			message: '#^Access to an undefined property object\:\:\$create_diff\.$#'
-			identifier: property.notFound
-			count: 3
-			path: CRM/Banking/PluginImpl/PostProcessor/AddressUpdate.php
-
-		-
-			message: '#^Access to an undefined property object\:\:\$create_if_missing\.$#'
-			identifier: property.notFound
-			count: 1
-			path: CRM/Banking/PluginImpl/PostProcessor/AddressUpdate.php
 
 		-
 			message: '#^Call to function in_array\(\) requires parameter \#3 to be set\.$#'
@@ -8848,12 +8741,6 @@ parameters:
 			path: CRM/Banking/PluginModel/Base.php
 
 		-
-			message: '#^Method CRM_Banking_PluginModel_Base\:\:getConfig\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: CRM/Banking/PluginModel/Base.php
-
-		-
 			message: '#^Method CRM_Banking_PluginModel_Base\:\:getLog\(\) has no return type specified\.$#'
 			identifier: missingType.return
 			count: 1
@@ -8958,12 +8845,6 @@ parameters:
 		-
 			message: '#^Method CRM_Banking_PluginModel_Base\:\:setProgressCallback\(\) has parameter \$callback with no type specified\.$#'
 			identifier: missingType.parameter
-			count: 1
-			path: CRM/Banking/PluginModel/Base.php
-
-		-
-			message: '#^Property CRM_Banking_PluginModel_Base\:\:\$_plugin_config has no type specified\.$#'
-			identifier: missingType.property
 			count: 1
 			path: CRM/Banking/PluginModel/Base.php
 

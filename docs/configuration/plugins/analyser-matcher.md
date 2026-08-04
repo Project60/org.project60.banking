@@ -1207,10 +1207,10 @@ This plugin is for SEPA DD transactions. It depends on the CiviCRM extension
 [CiviSEPA](https://docs.civicrm.org/civisepa/en/latest/). It creates suggestions
 to match a
 transaction to an already existing contribution in CiviCRM. It evaluates the
-magic field `sepa_mandate` and looks up if there is a `SepaMandate` with the
+field `sepa_mandate` and looks up if there is a `SepaMandate` with the
 corresponding reference. For OOFF transactions, it identifies the contribution
 by matching the `SepaMandate` reference. For recurring transactions, it also
-evaluates the magic field `sepa_batch` (if present) to identify the
+evaluates the field `sepa_batch` (if present) to identify the
 contribution. If `sepa_batch` is not set, it tries to identify the contribution
 by it's field `receive_date`. All contribution are considered, which have a
 `receive_date` not too different from the transactions `value_date`. This may

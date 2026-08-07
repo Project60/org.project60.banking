@@ -1203,12 +1203,66 @@ identified by an analyser:
 
 ## SEPA Matcher Plugin
 
-You can see example configurations in the configuration database.
+This plugin is for SEPA DD transactions. It depends on the CiviCRM extension
+[CiviSEPA](https://docs.civicrm.org/civisepa/en/latest/). It creates suggestions
+to match a
+transaction to an already existing contribution in CiviCRM. It evaluates the
+field `sepa_mandate` and looks up if there is a `SepaMandate` with the
+corresponding reference. For OOFF transactions, it identifies the contribution
+by matching the `SepaMandate` reference. For recurring transactions, it also
+evaluates the field `sepa_batch` (if present) to identify the
+contribution. If `sepa_batch` is not set, it tries to identify the contribution
+by it's field `receive_date`. All contribution are considered, which have a
+`receive_date` not too different from the transactions `value_date`. This may
+leed to several matching contributions, which makes the plugin to log a warning
+and use only one contribution to create one suggestion.
+
+A typical value for `sepa_mandate` would be `SEPA-1-RCUR-2026-RW85J34H14Z`,
+which is the reference of a `SepaMandate`. A typical value for
+`sepa_batch` would be `TXG-1-OOFF-2026-07-16`, which is the reference of the
+SEPA group (also displayed as it's name).
 
 You can see example configurations in the configuration database.
 
-> [!NOTE]
-> This section is yet to be completed.
+Below is a list of config parameters:
+
+| Configuration Parameter      | Type               | Default | Description                                                                                                                               |
+|------------------------------|--------------------|---------|-------------------------------------------------------------------------------------------------------------------------------------------|
+| `threshold` | float: `0` - `1.0` | `0.5` | |
+| `received_date_minimum` | string | `"-10 days"` | Only consider contributions with a `receive_date` greater or equal to (the transactions `value_date` plus `received_date_minimum`) |
+| `received_date_maximum` | string | `"+10 days"` | Only consider contributions with a `receive_date` smaller or equal to (the transactions `value_date` plus `received_date_maximum`). |
+ | `deviation_penalty` | float | `0.1` | This penalty is added to the overall penalty, if the transaction's amount doesn't match the contribution's amount. The penalty is also added, if the contribution's status does not match the status `In Progress`. The penalty is also added, if the corresponding contact is marked as deleted. |
+| `cancellation_enabled` | boolean: `true` or `false` | `false` | If set to `true`, the plugin will create cancellation suggestions for transactions with negative amount. |
+| `cancelled_contribution_status_id` | | |  |
+| `cancellation_general_penalty` | float | `0.0` | This penalty is applied to all cancellation suggestions. |
+| `cancellation_update_mandate_status_OOFF` | string | `"INVALID"` |  |
+| `cancellation_update_mandate_status_RCUR` |  |  |  |
+| `cancellation_default_reason` | string | `"Unspecified SEPA cancellation"` |  |
+| `cancellation_date_minimum` | string | `"-10 days"` | Only consider contributions with a `receive_date` greater or equal to (the transactions `value_date` plus `cancellation_date_minimum`). Only applies to cancellation suggestions (used instead of `received_date_minimum`). |
+| `cancellation_date_maximum` | string | `"+30 days"` | Only consider contributions with a `receive_date` smaller or equal to (the transactions `value_date` plus `cancellation_date_maximum`). Only applies to cancellation suggestions (used instead of `received_date_maximum`). |
+| `cancellation_status_penalty` | mapping | `['1' => 0.0, '5' => 0.2]` | Is a mapping of "contribution status id" => "penalty". If status not in list, no suggestion will be generated. (Always) adds a penalty to the suggestion, based on the contribution status. |
+ | `cancellation_amount_relative_minimum` | float | `1.0` | Used to calculate a penalty, if the transaction amount doesn't match the contribution amount. Only applies to cancellation suggestions. |
+ | `cancellation_amount_relative_maximum` | float | `1.0` | Used to calculate a penalty, if the transaction amount doesn't match the contribution amount. Only applies to cancellation suggestions. |
+ | `cancellation_amount_absolute_minimum` | float | `1.0` | Used to calculate a penalty, if the transaction amount doesn't match the contribution amount. Only applies to cancellation suggestions. |
+ | `cancellation_amount_absolute_maximum` | string | `1.0` | Used to calculate a penalty, if the transaction amount doesn't match the contribution amount. Only applies to cancellation suggestions. |
+ | `cancellation_amount_penalty` | float | value from `deviation_penalty` | Used to calculate a penalty, if the transaction amount doesn't match the contribution amount. Only applies to cancellation suggestions. |
+ | `cancellation_penalty_threshold` | float | value from `deviation_penalty` | The amount penalty only applies if the calculated penalty is above `cancellation_penalty_threshold`. Only applies to cancellation suggestions. |
+ | `cancellation_value_propagation` | mapping | value from `value_propagation` |  |
+ | `cancellation_cancel_reason` | boolean: `0` or `1` | `0` | Set to `1` to enabel extended cancellation features. |
+ | `cancellation_cancel_reason_edit` | boolean: `0` or `1` | `1` | Set to `0` to disable user input. |
+ | `cancellation_cancel_reason_source` | string | `"cancel_reason"` |  |
+ | `cancellation_cancel_reason_default` | string | `"-10 days"` | `"Unknown"` (translateable string) |
+ | `cancellation_cancel_fee` | boolean: `0` or `1` | `0` | Set to `1` to enable the extended cancellation feature "fee". |
+ | `cancellation_cancel_fee_edit` | boolean: `0` or `1` | `1` | Set to `0` to disable user input. |
+ | `cancellation_cancel_fee_source` | string | `"cancellation_fee` | Name of field to be evaluated for source. |
+ | `cancellation_cancel_fee_store` | string | `"match.cancel_fee"` | Where to store the calculated fee, for syntax see `value_propagation`. |
+ | `cancellation_date_field` | string | `"value_date"` | Field containing the cancellation date. The correct value would be `"booking_date"`. Though to keep previous behavior this defaults to`"value_date"`. |
+ | `cancellation_create_activity` | boolean: `true` or `false` | `false` |  |
+ | `cancellation_create_activity_type_id` | integer | `37` |  |
+ | `cancellation_create_activity_subject` | string | `"Follow-up SEPA Cancellation"` (translateable string) |  |
+ | `cancellation_create_activity_assignee_id` | integer | The contact ID of the logged in user |  |
+ | `cancellation_create_activity_text` | string | template from `templates/CRM/Banking/PluginImpl/Matcher/SepaMandate.activity.tpl`|  |
+| `value_propagation` | JSON object: `{"key": "value"}` | - | Fields which should be copied from the `btx` namespace to the contribution. |
 
 ## Membership Matcher
 

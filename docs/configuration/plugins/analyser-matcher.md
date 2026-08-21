@@ -92,6 +92,9 @@ such as [https://regex101.com](https://regex101.com) is helpful for testing your
 regular expressions - and explaining someone else's! Check that you use the PCRE
 flavour.
 
+This analyser plugin also supports `required_values` like the
+[Create Contribution Matcher](#create-contribution-matcher).
+
 ### Regex Analyser Actions
 
 * [`align_date`](#align_date-action) - aligns a date forwards or backwards

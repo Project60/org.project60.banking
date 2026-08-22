@@ -210,10 +210,10 @@ class CRM_Admin_Form_Setting_BankingSettings extends CRM_Core_Form {
     $values = $this->exportValues();
 
     // process menu relevant entries
-    $old_menu_position = (int) CRM_Core_BAO_Setting::getItem('CiviBanking', 'menu_position');
+    $old_menu_position = (int) Civi::settings()->get('menu_position');
     $new_menu_position = (int) $values['menu_position'];
 
-    $old_ui_style = (int) CRM_Core_BAO_Setting::getItem('CiviBanking', 'new_ui');
+    $old_ui_style = (int) Civi::settings()->get('new_ui');
     $new_ui_style = (int) $values['new_ui'];
 
     if ($old_menu_position != $new_menu_position || $old_ui_style != $new_ui_style) {

@@ -38,7 +38,7 @@ class CRM_Banking_Config {
    * @return boolean
    */
   public static function lenientDedupe() {
-    $value = CRM_Core_BAO_Setting::getItem('CiviBanking', 'lenient_dedupe');
+    $value = Civi::settings()->get('lenient_dedupe');
     if (empty($value)) {
       return FALSE;
     }

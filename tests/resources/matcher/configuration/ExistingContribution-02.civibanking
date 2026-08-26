@@ -1,0 +1,26 @@
+{
+    "plugin_type_name": "match",
+    "plugin_class_name": "matcher_contribution",
+    "name": "Existing Contribution (auto-exec below 1.0)",
+    "description": "Reconciles pending contributions automatically from probability 0.8 upwards, so several candidates can qualify.",
+    "weight": "20",
+    "config": {
+        "auto_exec": 0.8,
+        "threshold": 0.1,
+        "mode": "default",
+        "accepted_contribution_states": [
+            "Pending"
+        ],
+        "received_date_minimum": "-60 days",
+        "received_date_maximum": "+1 days",
+        "date_penalty": 0.2,
+        "request_amount_confirmation": false,
+        "payment_instrument_penalty": 0,
+        "amount_relative_minimum": 1,
+        "amount_relative_maximum": 1,
+        "amount_absolute_minimum": 0,
+        "amount_absolute_maximum": 0,
+        "amount_penalty": 1
+    },
+    "state": {}
+}

@@ -71,8 +71,8 @@ class CRM_Banking_PluginImpl_PostProcessor_Accounts extends CRM_Banking_PluginMo
     CRM_Banking_Matcher_Suggestion $match,
     CRM_Banking_PluginModel_Matcher $matcher,
     CRM_Banking_Matcher_Context $context,
-    $preview = FALSE
-  ) {
+    bool $preview = FALSE
+  ): bool {
     $config = $this->_plugin_config;
     $btx = $context->btx;
 
@@ -107,17 +107,16 @@ class CRM_Banking_PluginImpl_PostProcessor_Accounts extends CRM_Banking_PluginMo
   }
 
   /**
-   * Postprocess the (already executed) match
-   *
-   * @param $match    the executed match
-   * @param $btx      the related transaction
-   * @param $context  the matcher context contains cache data and context information
-   *
+   * @inheritDoc
    */
-  public function processExecutedMatch(CRM_Banking_Matcher_Suggestion $match, CRM_Banking_PluginModel_Matcher $matcher, CRM_Banking_Matcher_Context $context) {
+  public function processExecutedMatch(
+    CRM_Banking_Matcher_Suggestion $match,
+    CRM_Banking_PluginModel_Matcher $matcher,
+    CRM_Banking_Matcher_Context $context
+  ): ?bool {
     if (!$this->shouldExecute($match, $matcher, $context)) {
       $this->logMessage('Accounts PostProcessor not executing', 'info');
-      return;
+      return FALSE;
     }
 
     // compile update
@@ -141,7 +140,7 @@ class CRM_Banking_PluginImpl_PostProcessor_Accounts extends CRM_Banking_PluginMo
 
     if (empty($update)) {
       // there's nothing to update
-      return;
+      return NULL;
     }
 
     // get the entity ID
@@ -152,7 +151,7 @@ class CRM_Banking_PluginImpl_PostProcessor_Accounts extends CRM_Banking_PluginMo
       $object = $this->getPropagationObject($config->target, $context->btx);
       if (empty($object['id'])) {
         $this->logMessage("Related object '{$config->target}' could not be (uniquely) identified.", 'warn');
-        return;
+        return NULL;
       }
       else {
         $update['id'] = $object['id'];
@@ -162,6 +161,8 @@ class CRM_Banking_PluginImpl_PostProcessor_Accounts extends CRM_Banking_PluginMo
       $this->logMessage("Accounts Post Processor calling {$config->target}.create: " . json_encode($update), 'debug');
       civicrm_api3($config->target, 'create', $update);
     }
+
+    return NULL;
   }
 
   /**

@@ -226,7 +226,6 @@ class CRM_Banking_Matcher_Engine {
     $btx->setStatus($newStatus);
 
     $lock->release();
-    $context->destroy();
     $logger->logTime("Matching of btx [{$btx_id}]", 'matcher');
     return FALSE;
   }
@@ -297,7 +296,6 @@ class CRM_Banking_Matcher_Engine {
     }
 
     $logger->logTime("Postprocessing of btx [{$btx->id}]", 'postprocessing');
-    $context->destroy();
   }
 
   /**

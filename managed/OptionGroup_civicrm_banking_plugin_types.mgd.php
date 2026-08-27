@@ -1,5 +1,6 @@
 <?php
 
+use Civi\Banking\PostProcessor\CustomActionsPostProcessor;
 use CRM_Banking_ExtensionUtil as E;
 
 return [
@@ -532,6 +533,27 @@ return [
         'value' => 'CRM_Banking_PluginImpl_PostProcessor_MembershipExtension',
         'name' => 'postprocessor_membership_extension',
         'description' => E::ts('Will automatically extend memberships if the right contribution is processed'),
+      ],
+      'match' => [
+        'option_group_id',
+        'name',
+        'value',
+      ],
+    ],
+  ],
+  [
+    'name' => 'OptionGroup_civicrm_banking_plugin_types_OptionValue_' . CustomActionsPostProcessor::NAME,
+    'entity' => 'OptionValue',
+    'cleanup' => 'unused',
+    'update' => 'unmodified',
+    'params' => [
+      'version' => 4,
+      'values' => [
+        'option_group_id.name' => 'civicrm_banking.plugin_types',
+        'label' => CustomActionsPostProcessor::title(),
+        'value' => CustomActionsPostProcessor::class,
+        'name' => CustomActionsPostProcessor::NAME,
+        'description' => CustomActionsPostProcessor::description(),
       ],
       'match' => [
         'option_group_id',

@@ -16,6 +16,8 @@
 
 declare(strict_types = 1);
 
+use Webmozart\Assert\Assert;
+
 /**
  * This PostProcessor will mark the matched contact as 'deceased'
  */
@@ -42,63 +44,62 @@ class CRM_Banking_PluginImpl_PostProcessor_ContactDeceased extends CRM_Banking_P
   }
 
   /**
-   * Postprocess the (already executed) match
-   *
-   * @param $match    the executed match
-   * @param $btx      the related transaction
-   * @param $context  the matcher context contains cache data and context information
-   *
+   * @inheritDoc
    */
-  public function processExecutedMatch(CRM_Banking_Matcher_Suggestion $match, CRM_Banking_PluginModel_Matcher $matcher, CRM_Banking_Matcher_Context $context) {
+  public function processExecutedMatch(
+    CRM_Banking_Matcher_Suggestion $match,
+    CRM_Banking_PluginModel_Matcher $matcher,
+    CRM_Banking_Matcher_Context $context
+  ): ?bool {
     $config = $this->_plugin_config;
 
     if ($this->shouldExecute($match, $matcher, $context)) {
-      // first: identify contact(s)
-      $contact_id = NULL;
-      $contributions = $this->getContributions($context);
-      foreach ($contributions as $contribution) {
-        if ($contact_id == NULL) {
-          $contact_id = $contribution['contact_id'];
+      $contact_id = $this->getSoleContactID($context);
+      assert(NULL !== $contact_id);
+
+      $contact_lookup = civicrm_api3('Contact', 'get', [
+        'id'     => $contact_id,
+        'return' => 'is_deceased,is_deleted,deceased_date,id',
+      ]);
+      if ($contact_lookup['id']) {
+        // mark contact as deceased
+        $contact = reset($contact_lookup['values']);
+        if (!$contact['is_deceased']) {
+          $contact_update = [
+            'id'            => $contact['id'],
+            'is_deceased'   => 1,
+          ];
+
+          // calculate the deceased date
+          $deceased_date = $this->getPropagationValue($context->btx, $match, $config->set_deceased_date);
+          if ($deceased_date) {
+            $contact_update['deceased_date'] = date('YmdHis', strtotime($deceased_date));
+          }
+          civicrm_api3('Contact', 'create', $contact_update);
+          $this->logMessage("Contact [{$contact['id']}] marked as deceased.", 'info');
         }
-        elseif ($contact_id != $contribution['contact_id']) {
-          // there are multiple contacts connected to this match
-          $this->logMessage('Multiple contacts connected to this match, cannot proceed', 'error');
-          return;
+
+        // set Tag in any case
+        if (is_array($config->tag_contact)) {
+          Assert::allString($config->tag_contact);
+          $this->tagContact($contact_id, $config->tag_contact);
         }
       }
 
-      // if we have a contact:
-      if ($contact_id) {
-        $contact_lookup = civicrm_api3('Contact', 'get', [
-          'id'     => $contact_id,
-          'return' => 'is_deceased,is_deleted,deceased_date,id',
-        ]);
-        if ($contact_lookup['id']) {
-
-          // mark contact as deceased
-          $contact = reset($contact_lookup['values']);
-          if (!$contact['is_deceased']) {
-            $contact_update = [
-              'id'            => $contact['id'],
-              'is_deceased'   => 1,
-            ];
-
-            // calculate the deceased date
-            $deceased_date = $this->getPropagationValue($context->btx, $match, $config->set_deceased_date);
-            if ($deceased_date) {
-              $contact_update['deceased_date'] = date('YmdHis', strtotime($deceased_date));
-            }
-            civicrm_api3('Contact', 'create', $contact_update);
-            $this->logMessage("Contact [{$contact['id']}] marked as deceased.", 'info');
-          }
-
-          // set Tag in any case
-          if (is_array($config->tag_contact)) {
-            $this->tagContact($contact_id, $config->tag_contact);
-          }
-        }
-      }
+      return NULL;
     }
+
+    return FALSE;
+  }
+
+  public function shouldExecute(
+    CRM_Banking_Matcher_Suggestion $match,
+    CRM_Banking_PluginModel_Matcher $matcher,
+    CRM_Banking_Matcher_Context $context,
+    bool $preview = FALSE
+  ): bool {
+    return parent::shouldExecute($match, $matcher, $context, $preview)
+      && ($preview || NULL !== $this->getSoleContactID($context));
   }
 
 }

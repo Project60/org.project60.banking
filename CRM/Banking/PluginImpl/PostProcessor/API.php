@@ -54,8 +54,8 @@ class CRM_Banking_PluginImpl_PostProcessor_API extends CRM_Banking_PluginModel_P
     CRM_Banking_Matcher_Suggestion $match,
     CRM_Banking_PluginModel_Matcher $matcher,
     CRM_Banking_Matcher_Context $context,
-    $preview = FALSE
-  ) {
+    bool $preview = FALSE
+  ): bool {
     $config = $this->_plugin_config;
 
     // check if an entity is set
@@ -73,14 +73,13 @@ class CRM_Banking_PluginImpl_PostProcessor_API extends CRM_Banking_PluginModel_P
   }
 
   /**
-   * Postprocess the (already executed) match
-   *
-   * @param $match    the executed match
-   * @param $btx      the related transaction
-   * @param $context  the matcher context contains cache data and context information
-   *
+   * @inheritDoc
    */
-  public function processExecutedMatch(CRM_Banking_Matcher_Suggestion $match, CRM_Banking_PluginModel_Matcher $matcher, CRM_Banking_Matcher_Context $context) {
+  public function processExecutedMatch(
+    CRM_Banking_Matcher_Suggestion $match,
+    CRM_Banking_PluginModel_Matcher $matcher,
+    CRM_Banking_Matcher_Context $context
+  ): ?bool {
     $config = $this->_plugin_config;
 
     if ($this->shouldExecute($match, $matcher, $context)) {
@@ -116,7 +115,11 @@ class CRM_Banking_PluginImpl_PostProcessor_API extends CRM_Banking_PluginModel_P
       catch (Exception $e) {
         $this->logMessage("CALLING {$config->entity}.{$config->action} failed: " . $e->getMessage(), 'error');
       }
+
+      return NULL;
     }
+
+    return FALSE;
   }
 
   /**

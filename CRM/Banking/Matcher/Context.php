@@ -20,22 +20,20 @@ declare(strict_types = 1);
 
 class CRM_Banking_Matcher_Context {
 
-  // reference to the BTX being processed
-  public $btx;
-
   // set to the executed suggestion
-  protected $executed_suggestion = NULL;
+  private ?CRM_Banking_Matcher_Suggestion $executed_suggestion = NULL;
 
-  // will store generic attributes from the various matchers
-  private $_attributes = [];
+  /**
+   * will store cached data needed/produced by the helper functions
+   * @var array<string, mixed>
+   */
+  private array $cache = [];
 
-  // will store cached data needed/produced by the helper functions
-  private $_caches;
+  private $bank_account_reference_matching_probability = NULL;
 
-  protected $bank_account_reference_matching_probability = NULL;
-
-  public function __construct(CRM_Banking_BAO_BankTransaction $btx) {
-    $this->btx = $btx;
+  public function __construct(
+    public readonly CRM_Banking_BAO_BankTransaction $btx
+  ) {
     $btx->context = $this;
 
     $this->bank_account_reference_matching_probability = Civi::settings()->get('reference_matching_probability');
@@ -226,9 +224,9 @@ class CRM_Banking_Matcher_Context {
     if ($contact_id === NULL) {
       if ($this->btx->party_ba_id) {
         $account = new CRM_Banking_BAO_BankAccount();
-        $account->get('id', $this->btx->party_ba_id);
-        if ($account->contact_id) {
-          $contact_id = $account->contact_id;
+        $account->get('id', (string) $this->btx->party_ba_id);
+        if (NULL !== $account->contact_id) {
+          $contact_id = (int) $account->contact_id;
         }
         else {
           $contact_id = 0;
@@ -283,26 +281,21 @@ class CRM_Banking_Matcher_Context {
    *
    * @return mixed the previously stored value, or NULL
    */
-  public function getCachedEntry($key): mixed {
-    if (isset($this->_caches[$key])) {
-      return $this->_caches[$key];
-    }
-    else {
-      return NULL;
-    }
+  public function getCachedEntry(string $key): mixed {
+    return $this->cache[$key] ?? NULL;
   }
 
   /**
    * Set the given cache value
    */
-  public function setCachedEntry($key, mixed $value): void {
-    $this->_caches[$key] = $value;
+  public function setCachedEntry(string $key, mixed $value): void {
+    $this->cache[$key] = $value;
   }
 
   /**
    * Set the executed suggestion
    */
-  public function setExecutedSuggestion($suggestion) {
+  public function setExecutedSuggestion(CRM_Banking_Matcher_Suggestion $suggestion): void {
     $this->executed_suggestion = $suggestion;
   }
 
@@ -310,18 +303,8 @@ class CRM_Banking_Matcher_Context {
    * Get the executed suggestion.
    * Will be NULL if non has been executed yet
    */
-  public function getExecutedSuggestion() {
+  public function getExecutedSuggestion(): ?CRM_Banking_Matcher_Suggestion {
     return $this->executed_suggestion;
-  }
-
-  /**
-   * remove the internal values, so the GC can pick it up
-   */
-  public function destroy() {
-    $this->btx = NULL;
-    $this->executed_suggestion = NULL;
-    $this->_caches = [];
-    $this->_attributes = [];
   }
 
 }

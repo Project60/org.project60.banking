@@ -61,8 +61,8 @@ class CRM_Banking_PluginImpl_PostProcessor_RecurringFails extends CRM_Banking_Pl
     CRM_Banking_Matcher_Suggestion $match,
     CRM_Banking_PluginModel_Matcher $matcher,
     CRM_Banking_Matcher_Context $context,
-    $preview = FALSE
-  ) {
+    bool $preview = FALSE
+  ): bool {
     $config = $this->_plugin_config;
 
     // check if there are rules
@@ -83,15 +83,13 @@ class CRM_Banking_PluginImpl_PostProcessor_RecurringFails extends CRM_Banking_Pl
   }
 
   /**
-   * Post-process the (already executed) match
-   *
-   * @param $match    CRM_Banking_Matcher_Suggestion  the executed match
-   * @param $matcher  CRM_Banking_PluginModel_Matcher the related transaction
-   * @param $context  CRM_Banking_Matcher_Context     the matcher context contains cache data and context information
-   *
-   * @throws Exception
+   * @inheritDoc
    */
-  public function processExecutedMatch(CRM_Banking_Matcher_Suggestion $match, CRM_Banking_PluginModel_Matcher $matcher, CRM_Banking_Matcher_Context $context) {
+  public function processExecutedMatch(
+    CRM_Banking_Matcher_Suggestion $match,
+    CRM_Banking_PluginModel_Matcher $matcher,
+    CRM_Banking_Matcher_Context $context
+  ): ?bool {
     $config = $this->_plugin_config;
 
     if ($this->shouldExecute($match, $matcher, $context)) {
@@ -118,7 +116,11 @@ class CRM_Banking_PluginImpl_PostProcessor_RecurringFails extends CRM_Banking_Pl
           }
         }
       }
+
+      return NULL;
     }
+
+    return FALSE;
   }
 
   /**

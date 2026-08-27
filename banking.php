@@ -23,6 +23,7 @@ require_once 'banking_options.php';
 
 use Civi\Banking\DependencyInjection\Compiler\ActionProviderPass;
 use Civi\Banking\DependencyInjection\Compiler\ExpressionLanguagePass;
+use Civi\Banking\DependencyInjection\Compiler\PostProcessorCustomActionHandlerPass;
 use Civi\Banking\DependencyInjection\Compiler\RegexAnalyserActionHandlerPass;
 use Civi\Banking\Matcher\Helper\Api4ParamsFactory;
 use Civi\Banking\Matcher\Helper\Api4ResultMapper;
@@ -42,11 +43,16 @@ function _banking_composer_autoload(): void {
 function banking_civicrm_container(ContainerBuilder $container): void {
   _banking_composer_autoload();
   $container->addCompilerPass(new ActionProviderPass());
+  $container->addCompilerPass(new PostProcessorCustomActionHandlerPass());
   $container->addCompilerPass(new ExpressionLanguagePass());
   $container->addCompilerPass(new RegexAnalyserActionHandlerPass());
 
   $container->autowire(Api4ParamsFactory::class);
   $container->autowire(Api4ResultMapper::class);
+
+  if (function_exists('_banking_test_civicrm_container')) {
+    _banking_test_civicrm_container($container);
+  }
 }
 
 /**
@@ -94,9 +100,11 @@ function banking_civicrm_pageRun(&$page) {
  */
 function banking_civicrm_scanClasses(array &$classes): void {
   // @phpstan-ignore parameterByRef.type
+  ClassScanner::scanFolders($classes, __DIR__, 'Civi/Banking/ExpressionLanguage', '\\');
+  // @phpstan-ignore parameterByRef.type
   ClassScanner::scanFolders($classes, __DIR__, 'Civi/Banking/Matcher', '\\');
   // @phpstan-ignore parameterByRef.type
-  ClassScanner::scanFolders($classes, __DIR__, 'Civi/Banking/ExpressionLanguage', '\\');
+  ClassScanner::scanFolders($classes, __DIR__, 'Civi/Banking/PostProcessor', '\\');
 }
 
 /**

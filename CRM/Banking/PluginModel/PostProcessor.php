@@ -29,30 +29,29 @@ abstract class CRM_Banking_PluginModel_PostProcessor extends CRM_Banking_PluginM
     // read config, set defaults
     $config = $this->_plugin_config;
 
-    if (!isset($config->require_btx_status_list)) {
-      $config->require_btx_status_list = ['processed'];
-    }
-    if (!isset($config->contribution_fields_required)) {
-      $config->contribution_fields_required = '';
-    }
-    if (!isset($config->membership_fields_required)) {
-      $config->membership_fields_required = '';
-    }
+    $config->require_btx_status_list ??= ['processed'];
+    $config->contribution_fields_required ??= '';
+    $config->membership_fields_required ??= '';
   }
 
   /**
    * Postprocess the (already executed) match
    *
-   * @param $match    the executed match
-   * @param $btx      the related transaction
-   * @param $matcher  the matcher plugin executed
-   * @param $context  the matcher context contains cache data and context information
+   * @param \CRM_Banking_Matcher_Suggestion $match the executed match
+   * @param \CRM_Banking_PluginModel_Matcher $matcher the matcher plugin executed
+   * @param \CRM_Banking_Matcher_Context $context the matcher context contains cache data and context information
    *
-   * @return array | FALSE | NULL
+   * @return array<mixed>|FALSE|NULL
    *   The result of the execution, or FALSE when it has not been executed, or
    *   NULL when it might have been executed.
+   *
+   * @throws \CRM_Core_Exception
    */
-  abstract public function processExecutedMatch(CRM_Banking_Matcher_Suggestion $match, CRM_Banking_PluginModel_Matcher $matcher, CRM_Banking_Matcher_Context $context);
+  abstract public function processExecutedMatch(
+    CRM_Banking_Matcher_Suggestion $match,
+    CRM_Banking_PluginModel_Matcher $matcher,
+    CRM_Banking_Matcher_Context $context
+  ): array|bool|null;
 
   /**
    * Visualizes the post processing result for the (already executed) match.
@@ -60,11 +59,14 @@ abstract class CRM_Banking_PluginModel_PostProcessor extends CRM_Banking_PluginM
    * @param CRM_Banking_Matcher_Suggestion $match
    * @param CRM_Banking_PluginModel_Matcher $matcher
    * @param CRM_Banking_Matcher_Context $context
-   * @param array $result
-   *
-   * @return mixed
+   * @param array<mixed>|null $result
    */
-  public function visualizeExecutedMatch(CRM_Banking_Matcher_Suggestion $match, CRM_Banking_PluginModel_Matcher $matcher, CRM_Banking_Matcher_Context $context, $result) {
+  public function visualizeExecutedMatch(
+    CRM_Banking_Matcher_Suggestion $match,
+    CRM_Banking_PluginModel_Matcher $matcher,
+    CRM_Banking_Matcher_Context $context,
+    ?array $result
+  ): string {
     return E::ts('%1 might have been executed.', [1 => $this->getName()]);
   }
 
@@ -91,7 +93,7 @@ abstract class CRM_Banking_PluginModel_PostProcessor extends CRM_Banking_PluginM
     CRM_Banking_Matcher_Suggestion $match,
     CRM_Banking_PluginModel_Matcher $matcher,
     CRM_Banking_Matcher_Context $context
-  ) {
+  ): ?string {
     return $this->shouldExecute(
       $match,
       $matcher,
@@ -115,14 +117,14 @@ abstract class CRM_Banking_PluginModel_PostProcessor extends CRM_Banking_PluginM
    * @return bool
    *   Whether this postprocessor is to be executed.
    *
-   * @throws Exception
+   * @throws \CRM_Core_Exception
    */
   protected function shouldExecute(
     CRM_Banking_Matcher_Suggestion $match,
     CRM_Banking_PluginModel_Matcher $matcher,
     CRM_Banking_Matcher_Context $context,
-    $preview = FALSE
-  ) {
+    bool $preview = FALSE
+  ): bool {
     if (!$preview) {
       // check if the btx status is accepted
       $config = $this->_plugin_config;
@@ -135,7 +137,7 @@ abstract class CRM_Banking_PluginModel_PostProcessor extends CRM_Banking_PluginM
           'id' => $context->btx->status_id,
         ]
       );
-      if (!in_array($btx_status_name, $config->require_btx_status_list)) {
+      if (!in_array($btx_status_name, $config->require_btx_status_list, TRUE)) {
         // TODO: log: NOT IN STATUS
         $this->logMessage('Not executing, not in status ' . json_encode($config->require_btx_status_list), 'debug');
         return FALSE;
@@ -152,11 +154,7 @@ abstract class CRM_Banking_PluginModel_PostProcessor extends CRM_Banking_PluginM
   }
 
   /**
-   * Fetch a named propagation object.
-   *
-   * @param string $name
-   *
-   * @see CRM_Banking_PluginModel_BtxBase::getPropagationValue
+   * @inheritDoc
    */
   public function getPropagationObject($name, $btx) {
     // in this default implementation, no extra objects are provided
@@ -186,7 +184,7 @@ abstract class CRM_Banking_PluginModel_PostProcessor extends CRM_Banking_PluginM
    *
    * @return int|null contact_id of the unique contact linked to the transaction, NULL if not exists/unique
    */
-  protected function getSoleContactID(CRM_Banking_Matcher_Context $context) {
+  protected function getSoleContactID(CRM_Banking_Matcher_Context $context): ?int {
     $contact_id = NULL;
     $contributions = $this->getContributions($context);
     foreach ($contributions as $contribution) {
@@ -215,13 +213,14 @@ abstract class CRM_Banking_PluginModel_PostProcessor extends CRM_Banking_PluginM
    * Get the ONE contact this transaction has been associated with. If there are
    *  multiple candidates, NULL is returned
    *
-   * @param $context  the matcher context contains cache data and context information
+   * @param \CRM_Banking_Matcher_Context $context the matcher context contains cache data and context information
    *
-   * @return contact  contact data or NULL
+   * @return array<string, mixed>|null contact data or NULL
    */
-  protected function getSoleContact(CRM_Banking_Matcher_Context $context) {
+  protected function getSoleContact(CRM_Banking_Matcher_Context $context): ?array {
     $contact_id = $this->getSoleContactID($context);
     if ($contact_id) {
+      /** @var array<string, mixed> */
       return civicrm_api3('Contact', 'getsingle', ['id' => $contact_id]);
     }
     else {
@@ -232,25 +231,23 @@ abstract class CRM_Banking_PluginModel_PostProcessor extends CRM_Banking_PluginM
   /**
    * deliver the first of the eligible contributions
    * overwrites parent::getFirstContribution()
+   *
+   * @return array<string, mixed>|null
    */
-  protected function getFirstContribution($context) {
+  protected function getFirstContribution(CRM_Banking_Matcher_Context $context): ?array {
     $contributions = $this->getContributions($context);
-    if (empty($contributions)) {
-      return NULL;
-    }
-    else {
-      return reset($contributions);
-    }
+
+    return [] === $contributions ? NULL : reset($contributions);
   }
 
   /**
    * Get the list of contributions linked to this trxn ID
    *
-   * @param $context  the matcher context contains cache data and context information
+   * @param \CRM_Banking_Matcher_Context $context the matcher context contains cache data and context information
    *
    * @return list<array<string, mixed>> contributions
    */
-  protected function getContributions(CRM_Banking_Matcher_Context $context) {
+  protected function getContributions(CRM_Banking_Matcher_Context $context): array {
     $cache_key = "{$this->_plugin_id}_contributions_{$context->btx->id}";
     /** @var list<array<string, mixed>>|null $cached_result */
     $cached_result = $context->getCachedEntry($cache_key);
@@ -290,16 +287,12 @@ abstract class CRM_Banking_PluginModel_PostProcessor extends CRM_Banking_PluginM
    *
    * @param CRM_Banking_Matcher_Context $context the matcher context contains cache data and context information
    *
-   * @return array    membership data
+   * @return array<string, mixed>|null membership data
    */
-  protected function getFirstMembership(CRM_Banking_Matcher_Context $context) {
+  protected function getFirstMembership(CRM_Banking_Matcher_Context $context): ?array {
     $memberships = $this->getMemberships($context);
-    if (empty($memberships)) {
-      return NULL;
-    }
-    else {
-      return reset($memberships);
-    }
+
+    return [] === $memberships ? NULL : reset($memberships);
   }
 
   /**
@@ -309,7 +302,7 @@ abstract class CRM_Banking_PluginModel_PostProcessor extends CRM_Banking_PluginM
    *
    * @return list<array<string, mixed>> memberships data
    */
-  protected function getMemberships(CRM_Banking_Matcher_Context $context) {
+  protected function getMemberships(CRM_Banking_Matcher_Context $context): array {
     $cache_key = "{$this->_plugin_id}_memberships_{$context->btx->id}";
     /** @var list<array<string, mixed>>|null $cached_result */
     $cached_result = $context->getCachedEntry($cache_key);
@@ -367,19 +360,19 @@ abstract class CRM_Banking_PluginModel_PostProcessor extends CRM_Banking_PluginM
   /**
    * Get the list of contributions linked to this trxn ID
    *
-   * @param $context  the matcher context contains cache data and context information
+   * @param \CRM_Banking_Matcher_Context $context the matcher context contains cache data and context information
    *
-   * @return array    contribution IDs
+   * @return list<int> contribution IDs
    */
-  protected function getContributionIDs(CRM_Banking_Matcher_Context $context) {
+  protected function getContributionIDs(CRM_Banking_Matcher_Context $context): array {
     $match = $context->getExecutedSuggestion();
     $contribution_ids = [];
 
-    if ($match) {
+    if (NULL !== $match) {
       // get the single-style ('contribution_id')
       $single_id = $match->getParameter('contribution_id');
       if (is_numeric($single_id)) {
-        $contribution_ids[$single_id] = 1;
+        $contribution_ids[(int) $single_id] = 1;
       }
 
       // get the multi-style ('contribution_ids')
@@ -387,7 +380,7 @@ abstract class CRM_Banking_PluginModel_PostProcessor extends CRM_Banking_PluginM
       if (is_array($multi_ids)) {
         foreach ($multi_ids as $contribution_id) {
           if (is_numeric($contribution_id)) {
-            $contribution_ids[$contribution_id] = 1;
+            $contribution_ids[(int) $contribution_id] = 1;
           }
         }
       }
@@ -398,8 +391,10 @@ abstract class CRM_Banking_PluginModel_PostProcessor extends CRM_Banking_PluginM
 
   /**
    * Add all given tags to the given contact
+   *
+   * @param array<string> $tag_names
    */
-  protected function tagContact($contact_id, $tag_names) {
+  protected function tagContact(int|string $contact_id, array $tag_names): void {
     foreach ($tag_names as $tag_name) {
       $tag = civicrm_api3('Tag', 'get', [
         'name'     => $tag_name,

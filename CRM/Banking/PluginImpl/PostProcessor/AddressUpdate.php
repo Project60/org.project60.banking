@@ -17,6 +17,7 @@
 declare(strict_types = 1);
 
 use CRM_Banking_ExtensionUtil as E;
+use Webmozart\Assert\Assert;
 
 /**
  * This PostProcessor can update the contact's address with the one from the bank statement
@@ -83,8 +84,8 @@ class CRM_Banking_PluginImpl_PostProcessor_AddressUpdate extends CRM_Banking_Plu
     CRM_Banking_Matcher_Suggestion $match,
     CRM_Banking_PluginModel_Matcher $matcher,
     CRM_Banking_Matcher_Context $context,
-    $preview = FALSE
-  ) {
+    bool $preview = FALSE
+  ): bool {
     $config = $this->_plugin_config;
 
     // check if there is a single contact
@@ -114,7 +115,7 @@ class CRM_Banking_PluginImpl_PostProcessor_AddressUpdate extends CRM_Banking_Plu
     CRM_Banking_Matcher_Suggestion $match,
     CRM_Banking_PluginModel_Matcher $matcher,
     CRM_Banking_Matcher_Context $context
-  ) {
+  ): ?string {
     $preview = NULL;
     $config = $this->_plugin_config;
     if (
@@ -148,19 +149,19 @@ class CRM_Banking_PluginImpl_PostProcessor_AddressUpdate extends CRM_Banking_Plu
   }
 
   /**
-   * Postprocess the (already executed) match
-   *
-   * @param $match    the executed match
-   * @param $btx      the related transaction
-   * @param $context  the matcher context contains cache data and context information
+   * @inheritDoc
    *
    * phpcs:disable Generic.Metrics.CyclomaticComplexity.TooHigh
    */
-  public function processExecutedMatch(CRM_Banking_Matcher_Suggestion $match, CRM_Banking_PluginModel_Matcher $matcher, CRM_Banking_Matcher_Context $context) {
+  public function processExecutedMatch(
+    CRM_Banking_Matcher_Suggestion $match,
+    CRM_Banking_PluginModel_Matcher $matcher,
+    CRM_Banking_Matcher_Context $context
+  ): ?bool {
   // phpcs:enable
     if (!$this->shouldExecute($match, $matcher, $context)) {
       // TODO: log: not executing...
-      return;
+      return FALSE;
     }
 
     $config = $this->_plugin_config;
@@ -169,10 +170,7 @@ class CRM_Banking_PluginImpl_PostProcessor_AddressUpdate extends CRM_Banking_Plu
 
     // this matcher only makes sense for individuals
     $contact_id = $this->getSoleContactID($context);
-    if (empty($contact_id)) {
-      // this shouldn't happen, since it's checked in shouldExecute
-      return;
-    }
+    assert(is_int($contact_id));
 
     // compile what we have
     $address_fields = ['location_type_id', 'postal_code', 'street_address', 'city', 'country_id', 'is_primary', 'is_billing'];
@@ -207,6 +205,7 @@ class CRM_Banking_PluginImpl_PostProcessor_AddressUpdate extends CRM_Banking_Plu
 
       // and tag it
       if (is_array($config->tag_create)) {
+        Assert::allString($config->tag_create);
         $this->tagContact($contact_id, $config->tag_create);
       }
 
@@ -240,6 +239,8 @@ class CRM_Banking_PluginImpl_PostProcessor_AddressUpdate extends CRM_Banking_Plu
       // there's multiple addresses
       $this->logMessage('Multiple addresses found. Not doing anything.', 'error');
     }
+
+    return NULL;
   }
 
   /**

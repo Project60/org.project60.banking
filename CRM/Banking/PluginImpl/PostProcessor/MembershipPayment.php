@@ -89,8 +89,8 @@ class CRM_Banking_PluginImpl_PostProcessor_MembershipPayment extends CRM_Banking
     CRM_Banking_Matcher_Suggestion $match,
     CRM_Banking_PluginModel_Matcher $matcher,
     CRM_Banking_Matcher_Context $context,
-    $preview = FALSE
-  ) {
+    bool $preview = FALSE
+  ): bool {
     if (!$preview) {
       $contributions = $this->getEligibleContributions($context);
       if (empty($contributions)) {
@@ -104,17 +104,15 @@ class CRM_Banking_PluginImpl_PostProcessor_MembershipPayment extends CRM_Banking
   }
 
   /**
-   * Postprocess the (already executed) match
-   *
-   * @param $match    CRM_Banking_Matcher_Suggestion  the executed match
-   * @param $matcher  CRM_Banking_PluginModel_Matcher the related transaction
-   * @param $context  CRM_Banking_Matcher_Context     the matcher context contains cache data and context information
-   *
-   * @throws Exception if anything goes wrong
+   * @inheritDoc
    *
    *  phpcs:disable Generic.Metrics.CyclomaticComplexity.TooHigh
    */
-  public function processExecutedMatch(CRM_Banking_Matcher_Suggestion $match, CRM_Banking_PluginModel_Matcher $matcher, CRM_Banking_Matcher_Context $context) {
+  public function processExecutedMatch(
+    CRM_Banking_Matcher_Suggestion $match,
+    CRM_Banking_PluginModel_Matcher $matcher,
+    CRM_Banking_Matcher_Context $context
+  ): ?bool {
   // phpcs:enable
     $config = $this->_plugin_config;
 
@@ -205,7 +203,11 @@ class CRM_Banking_PluginImpl_PostProcessor_MembershipPayment extends CRM_Banking
           }
         }
       }
+
+      return NULL;
     }
+
+    return FALSE;
   }
 
   /**
@@ -313,7 +315,7 @@ class CRM_Banking_PluginImpl_PostProcessor_MembershipPayment extends CRM_Banking
    * deliver the first of the eligible contributions
    * overwrites parent::getFirstContribution()
    */
-  protected function getFirstContribution($context) {
+  protected function getFirstContribution(CRM_Banking_Matcher_Context $context): ?array {
     $contributions = $this->getEligibleContributions($context);
     if (empty($contributions)) {
       return NULL;

@@ -157,8 +157,8 @@ class CRM_Banking_PluginImpl_PostProcessor_MembershipExtension extends CRM_Banki
     CRM_Banking_Matcher_Suggestion $match,
     CRM_Banking_PluginModel_Matcher $matcher,
     CRM_Banking_Matcher_Context $context,
-    $preview = FALSE
-  ) {
+    bool $preview = FALSE
+  ): bool {
     if (!$preview) {
       $contributions = $this->getEligibleContributions($context);
       if (empty($contributions)) {
@@ -190,7 +190,7 @@ class CRM_Banking_PluginImpl_PostProcessor_MembershipExtension extends CRM_Banki
     CRM_Banking_Matcher_Suggestion $match,
     CRM_Banking_PluginModel_Matcher $matcher,
     CRM_Banking_Matcher_Context $context
-  ) {
+  ): ?string {
   // phpcs:enable
     $preview = NULL;
     $config = $this->_plugin_config;
@@ -404,12 +404,16 @@ class CRM_Banking_PluginImpl_PostProcessor_MembershipExtension extends CRM_Banki
    *
    * @throws Exception if anything goes wrong
    */
-  public function processExecutedMatch(CRM_Banking_Matcher_Suggestion $match, CRM_Banking_PluginModel_Matcher $matcher, CRM_Banking_Matcher_Context $context) {
-    $result = NULL;
+  public function processExecutedMatch(
+    CRM_Banking_Matcher_Suggestion $match,
+    CRM_Banking_PluginModel_Matcher $matcher,
+    CRM_Banking_Matcher_Context $context
+  ): bool|array {
     $config = $this->_plugin_config;
 
     // this is pretty straightforward
     if ($this->shouldExecute($match, $matcher, $context)) {
+      $result = ['memberships' => []];
       $contributions = $this->getEligibleContributions($context);
       foreach ($contributions as $contribution) {
         // get memberships
@@ -465,10 +469,12 @@ class CRM_Banking_PluginImpl_PostProcessor_MembershipExtension extends CRM_Banki
     CRM_Banking_Matcher_Suggestion $match,
     CRM_Banking_PluginModel_Matcher $matcher,
     CRM_Banking_Matcher_Context $context,
-    $result
-  ) {
+    ?array $result
+  ): string {
     $return = $this->getName() . '<ul>';
-    foreach ($result['memberships'] as $membership) {
+    /** @var list<array{id: int|numeric-string, ...}> $memberships */
+    $memberships = $result['memberships'] ?? [];
+    foreach ($memberships as $membership) {
       $url = CRM_Utils_System::url(
         'civicrm/contact/view/membership',
         [

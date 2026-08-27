@@ -353,7 +353,7 @@ class CRM_Banking_PluginImpl_Matcher_SepaMandate extends CRM_Banking_PluginModel
 
       // calculate penalties (based on CRM_Banking_PluginImpl_Matcher_ExistingContribution::rateContribution)
       $contribution_amount = $contribution['total_amount'];
-      $target_amount = -$context->btx->amount;
+      $target_amount = -(float) $context->btx->amount;
       $amount_range_rel = $contribution_amount * ($config->cancellation_amount_relative_maximum - $config->cancellation_amount_relative_minimum);
       $amount_range_abs = $config->cancellation_amount_absolute_maximum - $config->cancellation_amount_absolute_minimum;
       $amount_range = max($amount_range_rel, $amount_range_abs);

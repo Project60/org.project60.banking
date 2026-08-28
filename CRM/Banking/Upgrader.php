@@ -169,7 +169,7 @@ class CRM_Banking_Upgrader extends CRM_Extension_Upgrader_Base {
    */
   public function upgrade_0702() {
     // update option groups
-    // replaced by 0703:  banking_civicrm_install_options(_banking_options());
+    // replaced by managed entities
     return TRUE;
   }
 
@@ -181,7 +181,7 @@ class CRM_Banking_Upgrader extends CRM_Extension_Upgrader_Base {
    */
   public function upgrade_0703() {
     // update option groups
-    banking_civicrm_install_options(_banking_options());
+    // replaced by managed entities
     return TRUE;
   }
 
@@ -244,8 +244,7 @@ class CRM_Banking_Upgrader extends CRM_Extension_Upgrader_Base {
    */
   public function upgrade_0802() {
     // update option groups
-    $this->ctx->log->info('Updated options.');
-    banking_civicrm_install_options(_banking_options());
+    // replaced by managed entities
     return TRUE;
   }
 
@@ -289,8 +288,7 @@ class CRM_Banking_Upgrader extends CRM_Extension_Upgrader_Base {
    */
   public function upgrade_0805() {
     // update option groups
-    $this->ctx->log->info('Updated options.');
-    banking_civicrm_install_options(_banking_options());
+    // replaced by managed entities
     return TRUE;
   }
 

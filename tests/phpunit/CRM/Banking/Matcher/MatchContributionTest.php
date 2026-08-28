@@ -60,4 +60,55 @@ class CRM_Banking_Matcher_MatchContributionMatcherTest extends CRM_Banking_TestB
     $this->assertEquals(1, $completed_contribution['contribution_status_id'], "Contribution wasn't completed.");
   }
 
+  /**
+   * With several candidates above the auto-exec threshold, the most probable
+   * one must be executed — not the one the database happened to return first.
+   */
+  public function testAutoExecutionPicksMostProbableSuggestion(): void {
+    $contact_id = $this->createContact();
+    $financial_type_id = $this->getRandomFinancialTypeID();
+    $payment_instrument_id = $this->getRandomOptionValue('payment_instrument');
+    $shared = [
+      'contact_id'             => $contact_id,
+      'contribution_status_id' => 'Pending',
+      'total_amount'           => 42.0,
+      'financial_type_id'      => $financial_type_id,
+      'payment_instrument_id'  => $payment_instrument_id,
+    ];
+    // The older contribution is created first, i.e. gets the lower id and is
+    // returned first by the candidate query; the date penalty leaves it at ~0.9.
+    $older_contribution = $this->createContribution($shared + ['receive_date' => date('Y-m-d', strtotime('-30 days'))]);
+    $recent_contribution = $this->createContribution($shared + ['receive_date' => date('Y-m-d')]);
+
+    $this->createTransaction([
+      'purpose'      => 'Late-then-on-time donor',
+      'name'         => "doesn't matter",
+      'amount'       => 42.0,
+      'contact_id'   => $contact_id,
+      'booking_date' => date('Y-m-d'),
+      'value_date'   => date('Y-m-d'),
+      'currency'     => $recent_contribution['currency'],
+    ]);
+    $this->configureCiviBankingModule(
+      $this->getTestResourcePath('matcher/configuration/ExistingContribution-02.civibanking'));
+
+    $this->runMatchers();
+
+    // get() restores the stored suggestions, find()/fetch() would not.
+    $transaction = new CRM_Banking_BAO_BankTransaction();
+    $transaction->get('id', (string) $this->getLatestTransactionId());
+    static::assertEquals($this->getTxStatusID('processed'), $transaction->status_id, 'Transaction was not processed automatically.');
+    $probabilities = [];
+    foreach ($transaction->getSuggestionList() as $suggestion) {
+      $probabilities[$suggestion->getParameter('contribution_id')] = $suggestion->getProbability();
+    }
+    static::assertCount(2, $probabilities, 'Both pending contributions should have been suggested.');
+    static::assertGreaterThan($probabilities[$older_contribution['id']], $probabilities[$recent_contribution['id']]);
+
+    $recent = $this->callAPISuccess('Contribution', 'getsingle', ['id' => $recent_contribution['id']]);
+    $older = $this->callAPISuccess('Contribution', 'getsingle', ['id' => $older_contribution['id']]);
+    static::assertEquals(1, $recent['contribution_status_id'], 'The most probable contribution was not completed.');
+    static::assertEquals(2, $older['contribution_status_id'], 'The less probable contribution was reconciled instead.');
+  }
+
 }

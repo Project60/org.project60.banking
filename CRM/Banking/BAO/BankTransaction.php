@@ -116,7 +116,11 @@ class CRM_Banking_BAO_BankTransaction extends CRM_Banking_DAO_BankTransaction {
    * @todo after a load/retrieve, need to convert the suggestions/data_parsed from JSON to array
    */
   public function getSuggestions() {
-    return $this->suggestion_objects;
+    // Auto-execution runs the first suggestion above its threshold,
+    // so the most probable ones have to come first.
+    $suggestions = $this->suggestion_objects;
+    krsort($suggestions);
+    return $suggestions;
   }
 
   /**
@@ -174,8 +178,7 @@ class CRM_Banking_BAO_BankTransaction extends CRM_Banking_DAO_BankTransaction {
    */
   public function getSuggestionList() {
     $suggestions = [];
-    krsort($this->suggestion_objects);
-    foreach ($this->suggestion_objects as $probability => $list) {
+    foreach ($this->getSuggestions() as $probability => $list) {
       foreach ($list as $item) {
         array_push($suggestions, $item);
       }
@@ -212,8 +215,7 @@ class CRM_Banking_BAO_BankTransaction extends CRM_Banking_DAO_BankTransaction {
    */
   public function saveSuggestions() {
     $sugs = [];
-    krsort($this->suggestion_objects);
-    foreach ($this->suggestion_objects as $probability => $list) {
+    foreach ($this->getSuggestions() as $probability => $list) {
       foreach ($list as $sug) {
         $sugs[] = $sug->prepForJson();
       }

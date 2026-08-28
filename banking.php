@@ -18,7 +18,6 @@ declare(strict_types = 1);
 
 // phpcs:disable PSR1.Files.SideEffects.FoundWithSymbols
 require_once 'banking.civix.php';
-require_once 'banking_options.php';
 // phpcs:enable
 
 use Civi\Banking\DependencyInjection\Compiler\ActionProviderPass;
@@ -66,9 +65,6 @@ function banking_civicrm_install() {
   $sqlfile = dirname(__FILE__) . '/sql/banking.sql';
   CRM_Utils_File::sourceSQLFile($config->dsn, $sqlfile, NULL, FALSE);
 
-  //add the required option groups
-  banking_civicrm_install_options(_banking_options());
-
   // Set the bank account reference probability to 100%.
   Civi::settings()->set('reference_matching_probability', 1.0);
 
@@ -78,15 +74,8 @@ function banking_civicrm_install() {
 /**
  * Implements hook_civicrm_enable().
  */
-function banking_civicrm_enable() {
-  //add the required option groups
-  banking_civicrm_install_options(_banking_options());
-
+function banking_civicrm_enable(): void {
   _banking_civix_civicrm_enable();
-}
-
-function banking_civicrm_angularModules(&$angularModules) {
-  return;
 }
 
 /**

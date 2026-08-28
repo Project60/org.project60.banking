@@ -18,6 +18,7 @@ declare(strict_types = 1);
 
 // phpcs:disable PSR1.Files.SideEffects.FoundWithSymbols
 require_once 'banking.civix.php';
+require_once 'banking_options.php';
 // phpcs:enable
 
 use Civi\Banking\DependencyInjection\Compiler\ActionProviderPass;

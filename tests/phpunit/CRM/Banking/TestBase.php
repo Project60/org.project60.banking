@@ -411,6 +411,26 @@ abstract class CRM_Banking_TestBase extends TestCase implements HeadlessInterfac
   }
 
   /**
+   * Get the latest contact.
+   *
+   * @return array<string> The contact.
+   */
+  protected function getLatestContact() {
+    $contacts = civicrm_api4('Contact', 'get', [
+      'orderBy' => [
+        'id' => 'DESC',
+      ],
+      'limit' => 1,
+    ]);
+    if (count($contacts) > 0) {
+      return $contacts[0];
+    }
+    else {
+      return [];
+    }
+  }
+
+  /**
    * Create a matcher and return its ID.
    *
    * @param string $type The matcher/analyser type, e.g. "match".

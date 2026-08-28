@@ -18,6 +18,7 @@ Analysers & Matchers
 * [Matchers](#matchers)
   * [Default Options Matcher](#default-options-matcher)
   * [Create Contribution Matcher](#create-contribution-matcher)
+  * [Create Contact And Contribution Matcher](#create-contact-and-contribution-matcher)
   * [Contributions Matcher](#contribution-matcher)
     * [Configuration Parameters](#configuration-parameters)
     * [Contribution Matcher Example](#contribution-matcher-example)
@@ -1231,6 +1232,59 @@ the usual "assign `contribution.financial_type_id` to `btx.financial_type_id`".
 
 The amount, currency and date are automatically propagated to the contribution
 namespace.
+
+## Create Contact And Contribution Matcher
+
+This matcher does the same as the `Create Contribution Matcher`, except for that
+it does not match the transaction to an existing contact but creates a new
+contact.
+
+It provides the same configuration options as the `Create Contribution Matcher`
+plus the following additional options:
+
+* `organization_regex` - array of regular expressions that are matched against
+the transactions `name`. If any of the provided regular expressions matches
+against the transactions `name`, the contact will be created as type
+`Organization`. Otherwise it will be created as type `Individual`. The contact
+type `Household` is currently not implemented. You have to double-escape, for
+example use `\\.` to match a dot `.`. 
+
+* `formal_titles` - array of regular expressions that are matched against the
+transactions `name`. If the contact is of type `Individual` and if any of the
+provided regular expressions match against a part of the transactions `name`,
+this part will be extracted and propagated to the contacts `formal_title` field.
+Only the first match takes effect. If they are more matches, they are ignored.
+
+See the configuration database for a comprehensive example.
+
+For a created contact of type `Organization`, the transactions field `name` is
+propagated to the contacts field `organization_name`.
+
+For a created contact of type `Individual`, the transactions field `name` is
+propagated to the contacs fields `first_name` and `last_name`. This happens
+in different ways, depending on the number of words within the `name`. If a
+`formal_title` is extracted from `name`, this part of the name does not count
+into the word counting.
+
+* `name` consists of one word: The matcher does not fire / create a suggestion.
+
+* `name` consists of two words, separated by a comma `,` (example:
+`Donor, Dan`): The first word is propageted to `last_name` (without the `,`) and
+the second word is propagated to `first_name`.
+
+* `name` consists of two words, not separated by `,`: The first word is
+propagated to `first_name` and the second word is propagated to `last_name`.
+
+* `name` consists of three or more words: The first two words are propagated
+to `first_name`, all remaining words are propagated to `last_name`.
+
+If you want to propagate the same `source` value to both the created
+contribution and the created contact, use two different `btx` fields to make
+that happen. For example, propagate a field `btx.source_contact` to the contact
+and a field `btx.source_contribution` to the contribution. If you would
+propagate the same field `btx.source` to both the contact and the contribution,
+they will not both get propagated, as you cannot use the same field `btx.source`
+twice within the `value_propagation`.
 
 ## Contribution Matcher
 

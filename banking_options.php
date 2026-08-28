@@ -58,6 +58,11 @@ function _banking_options() {
           'value' => 'CRM_Banking_PluginImpl_Matcher_CreateContribution',
           'is_default' => 0,
         ],
+        'matcher_create_contact' => [
+          'label' => 'Create Contact And Contribution Matcher Plugin',
+          'value' => 'CRM_Banking_PluginImpl_Matcher_CreateContactAndContribution',
+          'is_default' => 0,
+        ],
         'matcher_create_campaign' => [
           'label' => 'Create Campaign Contribution Matcher Plugin',
           'value' => 'CRM_Banking_PluginImpl_Matcher_CreateCampaignContribution',

@@ -84,8 +84,8 @@ class CRM_Banking_Form_AccountsTab extends CRM_Core_Form {
     }
 
     // load settings
-    $this->assign('reference_normalisation', (int) CRM_Core_BAO_Setting::getItem('CiviBanking', 'reference_normalisation'));
-    $this->assign('reference_validation', (int) CRM_Core_BAO_Setting::getItem('CiviBanking', 'reference_validation'));
+    $this->assign('reference_normalisation', (int) Civi::settings()->get('reference_normalisation'));
+    $this->assign('reference_validation', (int) Civi::settings()->get('reference_validation'));
 
     // ACCOUNT REFRENCE ITEMS
     $this->add('hidden', 'contact_id', $contact_id);
@@ -100,7 +100,7 @@ class CRM_Banking_Form_AccountsTab extends CRM_Core_Form {
         TRUE
     );
     // set last value
-    $reference_type->setSelected(CRM_Core_BAO_Setting::getItem('CiviBanking', 'account.default_reference_id'));
+    $reference_type->setSelected(Civi::settings()->get('account.default_reference_id'));
 
     $reference_type = $this->add(
         'text',
@@ -137,7 +137,7 @@ class CRM_Banking_Form_AccountsTab extends CRM_Core_Form {
         FALSE
     );
     // set last value
-    $country->setSelected(CRM_Core_BAO_Setting::getItem('CiviBanking', 'account.default_country'));
+    $country->setSelected(Civi::settings()->get('account.default_country'));
 
     $this->addButtons([
       [
@@ -161,8 +161,8 @@ class CRM_Banking_Form_AccountsTab extends CRM_Core_Form {
   public function validate() {
     $error = parent::validate();
     $values = $this->exportValues();
-    $normalise = CRM_Core_BAO_Setting::getItem('CiviBanking', 'reference_normalisation');
-    $validate  = CRM_Core_BAO_Setting::getItem('CiviBanking', 'reference_validation');
+    $normalise = Civi::settings()->get('reference_normalisation');
+    $validate  = Civi::settings()->get('reference_validation');
 
     if (!empty($values['reference_type']) && !empty($values['reference'])) {
       if ($validate || $normalise) {

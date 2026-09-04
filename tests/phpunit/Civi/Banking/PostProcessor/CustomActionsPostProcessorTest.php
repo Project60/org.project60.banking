@@ -66,7 +66,7 @@ final class CustomActionsPostProcessorTest extends \CRM_Banking_TestBase {
     $match = new \CRM_Banking_Matcher_Suggestion($matcherMock, $btxBao);
     $matcherContext = new \CRM_Banking_Matcher_Context($btxBao);
 
-    $postProcessor->processExecutedMatch($match, $matcherMock, $matcherContext);
+    static::assertTrue($postProcessor->processExecutedMatch($match, $matcherMock, $matcherContext));
     static::assertCount(1, TestCustomActionHandler::getTestCalls());
     static::assertEquals((object) ['type' => 'test', 'foo' => 'bar'], TestCustomActionHandler::getTestCalls()[0][0]);
   }

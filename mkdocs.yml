@@ -19,7 +19,7 @@ nav:
         - Fixed Width Text Importer: configuration/plugins/importers/fixed_width_text.md
         - Dummy Data Importer: configuration/plugins/importers/dummy_data.md
     - Analysers and Matchers: configuration/plugins/analyser-matcher.md
-    - Postprocessors: configuration/plugins/postprocessor.md
+    - Post Processors: configuration/plugins/postprocessor.md
     - Importer actions: configuration/plugins/importer-actions.md
 - Developer Guide: developer-guide.md
 - Reference: reference.md

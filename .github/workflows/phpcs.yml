@@ -1,5 +1,7 @@
 name: PHP_CodeSniffer
 
+permissions: {}
+
 on:
   pull_request:
     paths:
@@ -8,36 +10,42 @@ on:
       - phpcs.xml.dist
       - .github/workflows/phpcs.yml
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
 jobs:
   phpcs:
     runs-on: ubuntu-latest
     name: PHP_CodeSniffer
 
     steps:
-    - uses: actions/checkout@v4
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
 
-    - name: Setup PHP
-      uses: shivammathur/setup-php@v2
-      with:
-        php-version: 8.3
-        coverage: none
-        tools: cs2pr
-      env:
-        fail-fast: true
+      - name: Setup PHP
+        uses: shivammathur/setup-php@f3e473d116dcccaddc5834248c87452386958240 # 2.37.2
+        with:
+          php-version: 8.5
+          coverage: none
+          tools: cs2pr
+        env:
+          fail-fast: true
 
-    - name: Get composer cache directory
-      id: composer-cache
-      run: echo "dir=$(composer config cache-files-dir)" >> $GITHUB_OUTPUT
+      - name: Get composer cache directory
+        id: composer-cache
+        run: echo "dir=$(composer config cache-files-dir)" >> $GITHUB_OUTPUT
 
-    - name: Cache dependencies
-      uses: actions/cache@v4
-      with:
-        path: ${{ steps.composer-cache.outputs.dir }}
-        key: ${{ runner.os }}-composer-${{ hashFiles('tools/phpcs/composer.json') }}
-        restore-keys: ${{ runner.os }}-composer-
+      - name: Cache dependencies
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: ${{ steps.composer-cache.outputs.dir }}
+          key: ${{ runner.os }}-composer-${{ hashFiles('tools/phpcs/composer.json') }}
+          restore-keys: ${{ runner.os }}-composer-
 
-    - name: Install dependencies
-      run: composer composer-phpcs -- update --no-progress --prefer-dist
+      - name: Install dependencies
+        run: composer composer-phpcs -- update --no-progress --prefer-dist
 
-    - name: Run PHP_CodeSniffer
-      run: composer phpcs -- -q --report=checkstyle | cs2pr
+      - name: Run PHP_CodeSniffer
+        run: composer phpcs -- -q --report=checkstyle | cs2pr

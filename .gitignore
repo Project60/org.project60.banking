@@ -6,3 +6,4 @@
 /tools/*/vendor/
 /tools/*/composer.lock
 /vendor/
+/tests/phpunit/bootstrap.local.php

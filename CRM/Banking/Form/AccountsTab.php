@@ -54,7 +54,7 @@ class CRM_Banking_Form_AccountsTab extends CRM_Core_Form {
         $bank_account_data = $bank_account->toArray();
         $bank_account_data['references']  = $bank_account->getReferences();
         $bank_account_data['data_parsed'] = json_decode($bank_account->data_parsed, TRUE);
-        $bank_accounts[$bank_account->id] = $bank_account_data;
+        $bank_accounts[(int) $bank_account->id] = $bank_account_data;
       }
     }
 

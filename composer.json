@@ -25,6 +25,9 @@
         "symfony/expression-language": "^5.4 || ^6 || ^7",
         "webmozart/assert": "^1 || ^2"
     },
+    "require-dev": {
+        "project60/org.project60.sepa": "^1.13"
+    },
     "autoload": {
         "classmap": ["ComposerHelper.php"]
     },
@@ -64,6 +67,15 @@
             "@phpunit"
         ]
     },
+    "conflict": {
+        "pear/mail_mime": "<1.10.2",
+        "pear/pear-core-minimal": "<1.10.16",
+        "symfony/polyfill-php82": "<1.28"
+    },
+    "_comment": [
+      "PEAR_ErrorStack::singleton() overridden in CRM_Core_Error is static since pear/pear-core v1.10.16",
+      "symfony/polyfill-php82 >=1.28 is required for the ini_parse_quantity() polyfill that CiviCRM core calls during bootstrap; civicrm-core only requires ^1.0, so prefer-lowest would otherwise pick v1.27.0 (without the polyfill) and break PHPUnit on PHP 8.1"
+    ],
     "extra": {
         "branch-alias": {
             "dev-master": "1.5.x-dev"

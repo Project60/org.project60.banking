@@ -106,5 +106,3 @@ Below is an example configuration for this post processor.
 
 !!! note
     This section is yet to be completed.
-
-

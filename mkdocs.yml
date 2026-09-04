@@ -2,6 +2,7 @@ site_name: CiviBanking
 site_description: CiviBanking extension
 site_author: SYSTOPIA GmbH
 repo_url: https://github.com/project60/org.project60.banking
+
 theme:
   name: material
 

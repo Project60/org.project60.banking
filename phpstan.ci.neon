@@ -2,11 +2,6 @@ includes:
 	- phpstan.neon.dist
 
 parameters:
-	scanDirectories:
-		- vendor/civicrm/civicrm-core/api
-		- vendor/civicrm/civicrm-core/CRM
-		- vendor/civicrm/civicrm-packages/DB
-		- vendor/civicrm/civicrm-packages/HTML
 	excludePaths:
 		- vendor/rubobaquero/phpquery/phpQuery/phpQuery/compat/mbstring.php
 	bootstrapFiles:

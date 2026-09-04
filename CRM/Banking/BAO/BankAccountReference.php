@@ -16,8 +16,6 @@
 
 declare(strict_types = 1);
 
-use CRM_Banking_ExtensionUtil as E;
-
 /**
  * Class contains functions for CiviBanking bank account references
  *

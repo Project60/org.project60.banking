@@ -1,0 +1,43 @@
+name: 'Close stale issues and PRs'
+on:
+  schedule:
+    - cron: '30 1 * * *'
+
+permissions:
+  actions: write
+  issues: write
+  pull-requests: write
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  stale:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/stale@4391f3da665fdf50b6810c1a66712fb9ba21aa93 # v11.0.0
+        with:
+          days-before-stale: 90
+          days-before-close: 30
+          any-of-labels: 'status:needs work,status:needs more info'
+          exempt-issue-labels: 'important'
+          exempt-pr-labels: 'important'
+          exempt-all-milestones: true
+          exempt-assignees: true
+          exempt-draft-pr: true
+          stale-issue-message: |
+            There has been no activity for some time. Therefore, this issue is
+            marked as stale. It will be closed automatically in 30 days, if
+            there's no activity (e.g. new comments).
+          stale-pr-message: |
+            There has been no activity for some time. Therefore, this PR is
+            marked as stale. It will be closed automatically in 30 days, if
+            there's no activity (e.g. new commits or new comments).
+          close-issue-message: |
+            This issue is now closed because of inactivity. In case it is still
+            relevant it can be reopened.
+          close-pr-message: |
+            This PR is now closed because of inactivity. In case it is still
+            relevant it can be reopened.
+          operations-per-run: 30

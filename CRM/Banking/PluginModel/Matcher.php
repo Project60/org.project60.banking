@@ -323,15 +323,15 @@ abstract class CRM_Banking_PluginModel_Matcher extends CRM_Banking_PluginModel_B
           }
 
           // consider this bank account to be ours if the contact id matches
-          if (!$contact_bank_account_id && ($ba_bao->contact_id == $contact_id)) {
-            $contact_bank_account_id = $ba_bao->id;
+          if (NULL === $contact_bank_account_id && ($ba_bao->contact_id == $contact_id)) {
+            $contact_bank_account_id = (int) $ba_bao->id;
           }
         }
       }
     }
 
     // create new account if it does not yet exist
-    if (!$contact_bank_account_id) {
+    if (NULL === $contact_bank_account_id) {
       $ba_bao = new CRM_Banking_BAO_BankAccount();
       $ba_bao->contact_id = $contact_id;
       $ba_bao->description = E::ts('created by CiviBanking');
@@ -341,7 +341,7 @@ abstract class CRM_Banking_PluginModel_Matcher extends CRM_Banking_PluginModel_B
       $ba_bao->data_parsed = '{}';
       $ba_bao->save();
 
-      $contact_bank_account_id = $ba_bao->id;
+      $contact_bank_account_id = (int) $ba_bao->id;
       $bank_accounts[$contact_bank_account_id] = $ba_bao;
       $contact_bank_account_created = TRUE;
     }

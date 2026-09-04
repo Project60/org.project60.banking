@@ -20,7 +20,7 @@ EOD
 
 if [ $# -eq 1 ]; then
   usage
-  if [ $1 = -h ] || [ $1 = --help ]; then
+  if [ "$1" = -h ] || [ "$1" = --help ]; then
     exit
   fi
   exit 1

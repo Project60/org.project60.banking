@@ -5,6 +5,10 @@ on:
     tags:
       - '*.*.*'
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
 jobs:
   release:
     runs-on: ubuntu-latest
@@ -13,7 +17,9 @@ jobs:
     name: Create GitHub release
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
 
       - name: Package extension
         id: package-extension
@@ -26,21 +32,21 @@ jobs:
             exit 1
           fi
 
-          FILENAME="$EXT_LONG_NAME-${{ github.ref_name }}.zip"
-          git archive --prefix "$EXT_LONG_NAME/" --output="$FILENAME" --worktree-attributes "${{ github.ref_name }}"
+          FILENAME="$EXT_LONG_NAME-${GITHUB_REF_NAME}.zip"
+          git archive --prefix "$EXT_LONG_NAME/" --output="$FILENAME" --worktree-attributes "${GITHUB_REF_NAME}"
           echo "FILENAME=$FILENAME" >> "$GITHUB_OUTPUT"
 
       - name: Parse git tag
         id: version
         run: |
-          if echo ${{ github.ref_name }} | grep -Eq '^[1-9][0-9]*\.[0-9]+\.[0-9]+$'; then
+          if echo ${GITHUB_REF_NAME} | grep -Eq '^[1-9][0-9]*\.[0-9]+\.[0-9]+$'; then
             echo "PRERELEASE=false" >> "$GITHUB_OUTPUT"
           else
             echo "PRERELEASE=true" >> "$GITHUB_OUTPUT"
           fi
 
       - name: Create GitHub release
-        uses: ncipollo/release-action@v1
+        uses: ncipollo/release-action@339a81892b84b4eeb0f6e744e4574d79d0d9b8dd # v1.21.0
         with:
           artifactErrorsFailBuild: true
           draft: true

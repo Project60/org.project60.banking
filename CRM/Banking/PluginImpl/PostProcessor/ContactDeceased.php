@@ -16,6 +16,7 @@
 
 declare(strict_types = 1);
 
+use Civi\Api4\Contact;
 use Webmozart\Assert\Assert;
 
 /**
@@ -50,48 +51,47 @@ class CRM_Banking_PluginImpl_PostProcessor_ContactDeceased extends CRM_Banking_P
     CRM_Banking_Matcher_Suggestion $match,
     CRM_Banking_PluginModel_Matcher $matcher,
     CRM_Banking_Matcher_Context $context
-  ): ?bool {
+  ): bool {
     $config = $this->_plugin_config;
 
-    if ($this->shouldExecute($match, $matcher, $context)) {
-      $contact_id = $this->getSoleContactID($context);
-      assert(NULL !== $contact_id);
+    $contactId = $this->getSoleContactID($context);
+    assert(NULL !== $contactId);
 
-      $contact_lookup = civicrm_api3('Contact', 'get', [
-        'id'     => $contact_id,
-        'return' => 'is_deceased,is_deleted,deceased_date,id',
-      ]);
-      if ($contact_lookup['id']) {
-        // mark contact as deceased
-        $contact = reset($contact_lookup['values']);
-        if (!$contact['is_deceased']) {
-          $contact_update = [
-            'id'            => $contact['id'],
-            'is_deceased'   => 1,
-          ];
+    /** @var array{is_deceased: bool} $contact */
+    $contact = Contact::get(FALSE)
+      ->addSelect('is_deceased')
+      ->addWhere('id', '=', $contactId)
+      ->execute()
+      ->single();
 
-          // calculate the deceased date
-          $deceased_date = $this->getPropagationValue($context->btx, $match, $config->set_deceased_date);
-          if ($deceased_date) {
-            $contact_update['deceased_date'] = date('YmdHis', strtotime($deceased_date));
-          }
-          civicrm_api3('Contact', 'create', $contact_update);
-          $this->logMessage("Contact [{$contact['id']}] marked as deceased.", 'info');
-        }
+    if (!$contact['is_deceased']) {
+      // mark contact as deceased
+      $contactUpdate = Contact::update(FALSE)
+        ->addWhere('id', '=', $contactId)
+        ->addValue('is_deceased', TRUE);
 
-        // set Tag in any case
-        if (is_array($config->tag_contact)) {
-          Assert::allString($config->tag_contact);
-          $this->tagContact($contact_id, $config->tag_contact);
-        }
+      // calculate the deceased date
+      $deceasedDate = $this->getPropagationValue($context->btx, $match, $config->set_deceased_date);
+      if ($deceasedDate) {
+        $contactUpdate->addValue('deceased_date', date('YmdHis', strtotime($deceasedDate)));
       }
 
-      return NULL;
+      $contactUpdate->execute();
+      $this->logMessage("Contact [$contactId] marked as deceased.", 'info');
     }
 
-    return FALSE;
+    // set Tag in any case
+    if (is_array($config->tag_contact)) {
+      Assert::allString($config->tag_contact);
+      $this->tagContact($contactId, $config->tag_contact);
+    }
+
+    return TRUE;
   }
 
+  /**
+   * @inheritDoc
+   */
   public function shouldExecute(
     CRM_Banking_Matcher_Suggestion $match,
     CRM_Banking_PluginModel_Matcher $matcher,

@@ -1942,12 +1942,6 @@ parameters:
 			path: CRM/Banking/Matcher/Context.php
 
 		-
-			message: '#^Method CRM_Banking_Matcher_Context\:\:destroy\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: CRM/Banking/Matcher/Context.php
-
-		-
 			message: '#^Method CRM_Banking_Matcher_Context\:\:findContacts\(\) has parameter \$lookup_by_name_parameters with no type specified\.$#'
 			identifier: missingType.parameter
 			count: 1
@@ -1978,18 +1972,6 @@ parameters:
 			path: CRM/Banking/Matcher/Context.php
 
 		-
-			message: '#^Method CRM_Banking_Matcher_Context\:\:getCachedEntry\(\) has parameter \$key with no type specified\.$#'
-			identifier: missingType.parameter
-			count: 1
-			path: CRM/Banking/Matcher/Context.php
-
-		-
-			message: '#^Method CRM_Banking_Matcher_Context\:\:getExecutedSuggestion\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: CRM/Banking/Matcher/Context.php
-
-		-
 			message: '#^Method CRM_Banking_Matcher_Context\:\:lookupContactByName\(\) has no return type specified\.$#'
 			identifier: missingType.return
 			count: 1
@@ -2003,24 +1985,6 @@ parameters:
 
 		-
 			message: '#^Method CRM_Banking_Matcher_Context\:\:lookupContactByName\(\) has parameter \$parameters with no type specified\.$#'
-			identifier: missingType.parameter
-			count: 1
-			path: CRM/Banking/Matcher/Context.php
-
-		-
-			message: '#^Method CRM_Banking_Matcher_Context\:\:setCachedEntry\(\) has parameter \$key with no type specified\.$#'
-			identifier: missingType.parameter
-			count: 1
-			path: CRM/Banking/Matcher/Context.php
-
-		-
-			message: '#^Method CRM_Banking_Matcher_Context\:\:setExecutedSuggestion\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: CRM/Banking/Matcher/Context.php
-
-		-
-			message: '#^Method CRM_Banking_Matcher_Context\:\:setExecutedSuggestion\(\) has parameter \$suggestion with no type specified\.$#'
 			identifier: missingType.parameter
 			count: 1
 			path: CRM/Banking/Matcher/Context.php
@@ -2044,37 +2008,7 @@ parameters:
 			path: CRM/Banking/Matcher/Context.php
 
 		-
-			message: '#^Property CRM_Banking_Matcher_Context\:\:\$_attributes has no type specified\.$#'
-			identifier: missingType.property
-			count: 1
-			path: CRM/Banking/Matcher/Context.php
-
-		-
-			message: '#^Property CRM_Banking_Matcher_Context\:\:\$_attributes is never read, only written\.$#'
-			identifier: property.onlyWritten
-			count: 1
-			path: CRM/Banking/Matcher/Context.php
-
-		-
-			message: '#^Property CRM_Banking_Matcher_Context\:\:\$_caches has no type specified\.$#'
-			identifier: missingType.property
-			count: 1
-			path: CRM/Banking/Matcher/Context.php
-
-		-
 			message: '#^Property CRM_Banking_Matcher_Context\:\:\$bank_account_reference_matching_probability has no type specified\.$#'
-			identifier: missingType.property
-			count: 1
-			path: CRM/Banking/Matcher/Context.php
-
-		-
-			message: '#^Property CRM_Banking_Matcher_Context\:\:\$btx has no type specified\.$#'
-			identifier: missingType.property
-			count: 1
-			path: CRM/Banking/Matcher/Context.php
-
-		-
-			message: '#^Property CRM_Banking_Matcher_Context\:\:\$executed_suggestion has no type specified\.$#'
 			identifier: missingType.property
 			count: 1
 			path: CRM/Banking/Matcher/Context.php
@@ -2094,13 +2028,13 @@ parameters:
 		-
 			message: '#^Construct empty\(\) is not allowed\. Use more strict comparison\.$#'
 			identifier: empty.notAllowed
-			count: 4
+			count: 3
 			path: CRM/Banking/Matcher/Engine.php
 
 		-
 			message: '#^Dead catch \- Exception is never thrown in the try block\.$#'
 			identifier: catch.neverThrown
-			count: 3
+			count: 1
 			path: CRM/Banking/Matcher/Engine.php
 
 		-
@@ -2191,36 +2125,6 @@ parameters:
 
 		-
 			message: '#^Method CRM_Banking_Matcher_Engine\:\:matchPlugin\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: CRM/Banking/Matcher/Engine.php
-
-		-
-			message: '#^Method CRM_Banking_Matcher_Engine\:\:previewPostProcessors\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: CRM/Banking/Matcher/Engine.php
-
-		-
-			message: '#^Method CRM_Banking_Matcher_Engine\:\:runPostProcessors\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: CRM/Banking/Matcher/Engine.php
-
-		-
-			message: '#^Method CRM_Banking_Matcher_Engine\:\:runPostProcessors\(\) has parameter \$btx with no type specified\.$#'
-			identifier: missingType.parameter
-			count: 1
-			path: CRM/Banking/Matcher/Engine.php
-
-		-
-			message: '#^Method CRM_Banking_Matcher_Engine\:\:runPostProcessors\(\) has parameter \$matcher with no type specified\.$#'
-			identifier: missingType.parameter
-			count: 1
-			path: CRM/Banking/Matcher/Engine.php
-
-		-
-			message: '#^Method CRM_Banking_Matcher_Engine\:\:visualizePostProcessorResults\(\) has no return type specified\.$#'
 			identifier: missingType.return
 			count: 1
 			path: CRM/Banking/Matcher/Engine.php
@@ -7433,18 +7337,6 @@ parameters:
 			path: CRM/Banking/PluginImpl/Matcher/SepaMandate.php
 
 		-
-			message: '#^Method CRM_Banking_PluginImpl_Matcher_SepaMandate\:\:getPropagationObject\(\) has parameter \$btx with no type specified\.$#'
-			identifier: missingType.parameter
-			count: 1
-			path: CRM/Banking/PluginImpl/Matcher/SepaMandate.php
-
-		-
-			message: '#^Method CRM_Banking_PluginImpl_Matcher_SepaMandate\:\:getPropagationObject\(\) has parameter \$name with no type specified\.$#'
-			identifier: missingType.parameter
-			count: 1
-			path: CRM/Banking/PluginImpl/Matcher/SepaMandate.php
-
-		-
 			message: '#^Method CRM_Banking_PluginImpl_Matcher_SepaMandate\:\:match\(\) return type has no value type specified in iterable type array\.$#'
 			identifier: missingType.iterableValue
 			count: 1
@@ -7559,11 +7451,6 @@ parameters:
 			path: CRM/Banking/PluginImpl/PostProcessor/API.php
 
 		-
-			message: '#^In method "CRM_Banking_PluginImpl_PostProcessor_API\:\:processExecutedMatch", caught "Exception" must be rethrown\. Either catch a more specific exception, add a "throw" clause in the "catch" block to propagate the exception or add a "// @ignoreException" comment\.$#'
-			count: 1
-			path: CRM/Banking/PluginImpl/PostProcessor/API.php
-
-		-
 			message: '#^Method CRM_Banking_PluginImpl_PostProcessor_API\:\:__construct\(\) has parameter \$config_name with no type specified\.$#'
 			identifier: missingType.parameter
 			count: 1
@@ -7618,18 +7505,6 @@ parameters:
 			path: CRM/Banking/PluginImpl/PostProcessor/API.php
 
 		-
-			message: '#^Method CRM_Banking_PluginImpl_PostProcessor_API\:\:processExecutedMatch\(\) return type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: CRM/Banking/PluginImpl/PostProcessor/API.php
-
-		-
-			message: '#^Method CRM_Banking_PluginImpl_PostProcessor_API\:\:processExecutedMatch\(\) should return array\|false\|null but return statement is missing\.$#'
-			identifier: return.missing
-			count: 2
-			path: CRM/Banking/PluginImpl/PostProcessor/API.php
-
-		-
 			message: '#^Only booleans are allowed in &&, mixed given on the left side\.$#'
 			identifier: booleanAnd.leftNotBoolean
 			count: 1
@@ -7644,7 +7519,7 @@ parameters:
 		-
 			message: '#^Construct empty\(\) is not allowed\. Use more strict comparison\.$#'
 			identifier: empty.notAllowed
-			count: 9
+			count: 8
 			path: CRM/Banking/PluginImpl/PostProcessor/Accounts.php
 
 		-
@@ -7690,36 +7565,6 @@ parameters:
 			path: CRM/Banking/PluginImpl/PostProcessor/Accounts.php
 
 		-
-			message: '#^Method CRM_Banking_PluginImpl_PostProcessor_Accounts\:\:processExecutedMatch\(\) never returns array so it can be removed from the return type\.$#'
-			identifier: return.unusedType
-			count: 1
-			path: CRM/Banking/PluginImpl/PostProcessor/Accounts.php
-
-		-
-			message: '#^Method CRM_Banking_PluginImpl_PostProcessor_Accounts\:\:processExecutedMatch\(\) never returns false so it can be removed from the return type\.$#'
-			identifier: return.unusedType
-			count: 1
-			path: CRM/Banking/PluginImpl/PostProcessor/Accounts.php
-
-		-
-			message: '#^Method CRM_Banking_PluginImpl_PostProcessor_Accounts\:\:processExecutedMatch\(\) return type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: CRM/Banking/PluginImpl/PostProcessor/Accounts.php
-
-		-
-			message: '#^Method CRM_Banking_PluginImpl_PostProcessor_Accounts\:\:processExecutedMatch\(\) should return array\|false\|null but empty return statement found\.$#'
-			identifier: return.empty
-			count: 3
-			path: CRM/Banking/PluginImpl/PostProcessor/Accounts.php
-
-		-
-			message: '#^Method CRM_Banking_PluginImpl_PostProcessor_Accounts\:\:processExecutedMatch\(\) should return array\|false\|null but return statement is missing\.$#'
-			identifier: return.missing
-			count: 2
-			path: CRM/Banking/PluginImpl/PostProcessor/Accounts.php
-
-		-
 			message: '#^Property CRM_Banking_PluginImpl_PostProcessor_Accounts\:\:\$_account_cache has no type specified\.$#'
 			identifier: missingType.property
 			count: 1
@@ -7758,7 +7603,7 @@ parameters:
 		-
 			message: '#^Construct empty\(\) is not allowed\. Use more strict comparison\.$#'
 			identifier: empty.notAllowed
-			count: 11
+			count: 9
 			path: CRM/Banking/PluginImpl/PostProcessor/AddressUpdate.php
 
 		-
@@ -7838,36 +7683,6 @@ parameters:
 			path: CRM/Banking/PluginImpl/PostProcessor/AddressUpdate.php
 
 		-
-			message: '#^Method CRM_Banking_PluginImpl_PostProcessor_AddressUpdate\:\:processExecutedMatch\(\) never returns array so it can be removed from the return type\.$#'
-			identifier: return.unusedType
-			count: 1
-			path: CRM/Banking/PluginImpl/PostProcessor/AddressUpdate.php
-
-		-
-			message: '#^Method CRM_Banking_PluginImpl_PostProcessor_AddressUpdate\:\:processExecutedMatch\(\) never returns false so it can be removed from the return type\.$#'
-			identifier: return.unusedType
-			count: 1
-			path: CRM/Banking/PluginImpl/PostProcessor/AddressUpdate.php
-
-		-
-			message: '#^Method CRM_Banking_PluginImpl_PostProcessor_AddressUpdate\:\:processExecutedMatch\(\) return type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: CRM/Banking/PluginImpl/PostProcessor/AddressUpdate.php
-
-		-
-			message: '#^Method CRM_Banking_PluginImpl_PostProcessor_AddressUpdate\:\:processExecutedMatch\(\) should return array\|false\|null but empty return statement found\.$#'
-			identifier: return.empty
-			count: 2
-			path: CRM/Banking/PluginImpl/PostProcessor/AddressUpdate.php
-
-		-
-			message: '#^Method CRM_Banking_PluginImpl_PostProcessor_AddressUpdate\:\:processExecutedMatch\(\) should return array\|false\|null but return statement is missing\.$#'
-			identifier: return.missing
-			count: 3
-			path: CRM/Banking/PluginImpl/PostProcessor/AddressUpdate.php
-
-		-
 			message: '#^Method CRM_Banking_PluginImpl_PostProcessor_AddressUpdate\:\:resolveCountryID\(\) has no return type specified\.$#'
 			identifier: missingType.return
 			count: 1
@@ -7886,62 +7701,8 @@ parameters:
 			path: CRM/Banking/PluginImpl/PostProcessor/AddressUpdate.php
 
 		-
-			message: '#^Cannot access offset ''id'' on array\|int\.$#'
-			identifier: offsetAccess.nonOffsetAccessible
-			count: 1
-			path: CRM/Banking/PluginImpl/PostProcessor/ContactDeceased.php
-
-		-
-			message: '#^Loose comparison via "\!\=" is not allowed\.$#'
-			identifier: notEqual.notAllowed
-			count: 1
-			path: CRM/Banking/PluginImpl/PostProcessor/ContactDeceased.php
-
-		-
-			message: '#^Loose comparison via "\=\=" is not allowed\.$#'
-			identifier: equal.notAllowed
-			count: 1
-			path: CRM/Banking/PluginImpl/PostProcessor/ContactDeceased.php
-
-		-
 			message: '#^Method CRM_Banking_PluginImpl_PostProcessor_ContactDeceased\:\:__construct\(\) has parameter \$config_name with no type specified\.$#'
 			identifier: missingType.parameter
-			count: 1
-			path: CRM/Banking/PluginImpl/PostProcessor/ContactDeceased.php
-
-		-
-			message: '#^Method CRM_Banking_PluginImpl_PostProcessor_ContactDeceased\:\:processExecutedMatch\(\) never returns array so it can be removed from the return type\.$#'
-			identifier: return.unusedType
-			count: 1
-			path: CRM/Banking/PluginImpl/PostProcessor/ContactDeceased.php
-
-		-
-			message: '#^Method CRM_Banking_PluginImpl_PostProcessor_ContactDeceased\:\:processExecutedMatch\(\) never returns false so it can be removed from the return type\.$#'
-			identifier: return.unusedType
-			count: 1
-			path: CRM/Banking/PluginImpl/PostProcessor/ContactDeceased.php
-
-		-
-			message: '#^Method CRM_Banking_PluginImpl_PostProcessor_ContactDeceased\:\:processExecutedMatch\(\) return type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: CRM/Banking/PluginImpl/PostProcessor/ContactDeceased.php
-
-		-
-			message: '#^Method CRM_Banking_PluginImpl_PostProcessor_ContactDeceased\:\:processExecutedMatch\(\) should return array\|false\|null but empty return statement found\.$#'
-			identifier: return.empty
-			count: 1
-			path: CRM/Banking/PluginImpl/PostProcessor/ContactDeceased.php
-
-		-
-			message: '#^Method CRM_Banking_PluginImpl_PostProcessor_ContactDeceased\:\:processExecutedMatch\(\) should return array\|false\|null but return statement is missing\.$#'
-			identifier: return.missing
-			count: 2
-			path: CRM/Banking/PluginImpl/PostProcessor/ContactDeceased.php
-
-		-
-			message: '#^Only booleans are allowed in an if condition, mixed given\.$#'
-			identifier: if.condNotBoolean
 			count: 1
 			path: CRM/Banking/PluginImpl/PostProcessor/ContactDeceased.php
 
@@ -7953,12 +7714,6 @@ parameters:
 
 		-
 			message: '#^Cannot access offset ''id'' on array\|int\.$#'
-			identifier: offsetAccess.nonOffsetAccessible
-			count: 1
-			path: CRM/Banking/PluginImpl/PostProcessor/MembershipExtension.php
-
-		-
-			message: '#^Cannot access offset ''memberships'' on array\{memberships\: non\-empty\-list\<mixed\>\}\|false\|null\.$#'
 			identifier: offsetAccess.nonOffsetAccessible
 			count: 1
 			path: CRM/Banking/PluginImpl/PostProcessor/MembershipExtension.php
@@ -8139,18 +7894,6 @@ parameters:
 			path: CRM/Banking/PluginImpl/PostProcessor/MembershipExtension.php
 
 		-
-			message: '#^Method CRM_Banking_PluginImpl_PostProcessor_MembershipExtension\:\:processExecutedMatch\(\) return type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: CRM/Banking/PluginImpl/PostProcessor/MembershipExtension.php
-
-		-
-			message: '#^Method CRM_Banking_PluginImpl_PostProcessor_MembershipExtension\:\:visualizeExecutedMatch\(\) has parameter \$result with no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: CRM/Banking/PluginImpl/PostProcessor/MembershipExtension.php
-
-		-
 			message: '#^NotEqual\: Condition between ''1''\|''10''\|''11''\|''12''\|''13''\|''14''\|''15''\|''16''\|''17''\|''18''\|''19''\|''2''\|''20''\|''21''\|''22''\|''23''\|''24''\|''25''\|''26''\|''27''\|''28''\|''29''\|''3''\|''30''\|''31''\|''4''\|''5''\|''6''\|''7''\|''8''\|''9'' and 1 are falsy, please do not mix types\.$#'
 			identifier: voku.NotEqual
 			count: 1
@@ -8275,12 +8018,6 @@ parameters:
 			path: CRM/Banking/PluginImpl/PostProcessor/MembershipPayment.php
 
 		-
-			message: '#^Loose comparison via "\=\=" is not allowed\.$#'
-			identifier: equal.notAllowed
-			count: 7
-			path: CRM/Banking/PluginImpl/PostProcessor/MembershipPayment.php
-
-		-
 			message: '#^Method CRM_Banking_PluginImpl_PostProcessor_MembershipPayment\:\:__construct\(\) has parameter \$config_name with no type specified\.$#'
 			identifier: missingType.parameter
 			count: 1
@@ -8329,18 +8066,6 @@ parameters:
 			path: CRM/Banking/PluginImpl/PostProcessor/MembershipPayment.php
 
 		-
-			message: '#^Method CRM_Banking_PluginImpl_PostProcessor_MembershipPayment\:\:getFirstContribution\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: CRM/Banking/PluginImpl/PostProcessor/MembershipPayment.php
-
-		-
-			message: '#^Method CRM_Banking_PluginImpl_PostProcessor_MembershipPayment\:\:getFirstContribution\(\) has parameter \$context with no type specified\.$#'
-			identifier: missingType.parameter
-			count: 1
-			path: CRM/Banking/PluginImpl/PostProcessor/MembershipPayment.php
-
-		-
 			message: '#^Method CRM_Banking_PluginImpl_PostProcessor_MembershipPayment\:\:getMembershipID\(\) has parameter \$context with no type specified\.$#'
 			identifier: missingType.parameter
 			count: 1
@@ -8362,18 +8087,6 @@ parameters:
 			message: '#^Method CRM_Banking_PluginImpl_PostProcessor_MembershipPayment\:\:getMembershipID\(\) has parameter \$matcher with no type specified\.$#'
 			identifier: missingType.parameter
 			count: 1
-			path: CRM/Banking/PluginImpl/PostProcessor/MembershipPayment.php
-
-		-
-			message: '#^Method CRM_Banking_PluginImpl_PostProcessor_MembershipPayment\:\:processExecutedMatch\(\) return type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: CRM/Banking/PluginImpl/PostProcessor/MembershipPayment.php
-
-		-
-			message: '#^Method CRM_Banking_PluginImpl_PostProcessor_MembershipPayment\:\:processExecutedMatch\(\) should return array\|false\|null but return statement is missing\.$#'
-			identifier: return.missing
-			count: 2
 			path: CRM/Banking/PluginImpl/PostProcessor/MembershipPayment.php
 
 		-
@@ -8582,18 +8295,6 @@ parameters:
 			message: '#^Method CRM_Banking_PluginImpl_PostProcessor_RecurringFails\:\:getSepaRecurringPaymentInstrumentIDs\(\) return type has no value type specified in iterable type array\.$#'
 			identifier: missingType.iterableValue
 			count: 1
-			path: CRM/Banking/PluginImpl/PostProcessor/RecurringFails.php
-
-		-
-			message: '#^Method CRM_Banking_PluginImpl_PostProcessor_RecurringFails\:\:processExecutedMatch\(\) return type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: CRM/Banking/PluginImpl/PostProcessor/RecurringFails.php
-
-		-
-			message: '#^Method CRM_Banking_PluginImpl_PostProcessor_RecurringFails\:\:processExecutedMatch\(\) should return array\|false\|null but return statement is missing\.$#'
-			identifier: return.missing
-			count: 2
 			path: CRM/Banking/PluginImpl/PostProcessor/RecurringFails.php
 
 		-
@@ -8946,18 +8647,6 @@ parameters:
 		-
 			message: '#^Method CRM_Banking_PluginModel_BtxBase\:\:getPropagationObject\(\) has no return type specified\.$#'
 			identifier: missingType.return
-			count: 1
-			path: CRM/Banking/PluginModel/BtxBase.php
-
-		-
-			message: '#^Method CRM_Banking_PluginModel_BtxBase\:\:getPropagationObject\(\) has parameter \$btx with no type specified\.$#'
-			identifier: missingType.parameter
-			count: 1
-			path: CRM/Banking/PluginModel/BtxBase.php
-
-		-
-			message: '#^Method CRM_Banking_PluginModel_BtxBase\:\:getPropagationObject\(\) has parameter \$name with no type specified\.$#'
-			identifier: missingType.parameter
 			count: 1
 			path: CRM/Banking/PluginModel/BtxBase.php
 
@@ -9760,12 +9449,6 @@ parameters:
 			path: CRM/Banking/PluginModel/Matcher.php
 
 		-
-			message: '#^Call to function in_array\(\) requires parameter \#3 to be set\.$#'
-			identifier: function.strict
-			count: 1
-			path: CRM/Banking/PluginModel/PostProcessor.php
-
-		-
 			message: '#^Cannot access offset ''values'' on array\|int\.$#'
 			identifier: offsetAccess.nonOffsetAccessible
 			count: 3
@@ -9774,37 +9457,7 @@ parameters:
 		-
 			message: '#^Construct empty\(\) is not allowed\. Use more strict comparison\.$#'
 			identifier: empty.notAllowed
-			count: 9
-			path: CRM/Banking/PluginModel/PostProcessor.php
-
-		-
-			message: '#^Method CRM_Banking_PluginModel_PostProcessor\:\:getContributionIDs\(\) return type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: CRM/Banking/PluginModel/PostProcessor.php
-
-		-
-			message: '#^Method CRM_Banking_PluginModel_PostProcessor\:\:getFirstContribution\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: CRM/Banking/PluginModel/PostProcessor.php
-
-		-
-			message: '#^Method CRM_Banking_PluginModel_PostProcessor\:\:getFirstContribution\(\) has parameter \$context with no type specified\.$#'
-			identifier: missingType.parameter
-			count: 1
-			path: CRM/Banking/PluginModel/PostProcessor.php
-
-		-
-			message: '#^Method CRM_Banking_PluginModel_PostProcessor\:\:getFirstMembership\(\) return type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: CRM/Banking/PluginModel/PostProcessor.php
-
-		-
-			message: '#^Method CRM_Banking_PluginModel_PostProcessor\:\:getFirstMembership\(\) should return array but returns null\.$#'
-			identifier: return.type
-			count: 1
+			count: 7
 			path: CRM/Banking/PluginModel/PostProcessor.php
 
 		-
@@ -9814,75 +9467,9 @@ parameters:
 			path: CRM/Banking/PluginModel/PostProcessor.php
 
 		-
-			message: '#^Method CRM_Banking_PluginModel_PostProcessor\:\:getPropagationObject\(\) has parameter \$btx with no type specified\.$#'
-			identifier: missingType.parameter
-			count: 1
-			path: CRM/Banking/PluginModel/PostProcessor.php
-
-		-
-			message: '#^Method CRM_Banking_PluginModel_PostProcessor\:\:getSoleContact\(\) has invalid return type contact\.$#'
-			identifier: class.notFound
-			count: 1
-			path: CRM/Banking/PluginModel/PostProcessor.php
-
-		-
-			message: '#^Method CRM_Banking_PluginModel_PostProcessor\:\:getSoleContact\(\) should return contact but returns array\|int\.$#'
-			identifier: return.type
-			count: 1
-			path: CRM/Banking/PluginModel/PostProcessor.php
-
-		-
-			message: '#^Method CRM_Banking_PluginModel_PostProcessor\:\:getSoleContact\(\) should return contact but returns null\.$#'
-			identifier: return.type
-			count: 1
-			path: CRM/Banking/PluginModel/PostProcessor.php
-
-		-
-			message: '#^Method CRM_Banking_PluginModel_PostProcessor\:\:processExecutedMatch\(\) return type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: CRM/Banking/PluginModel/PostProcessor.php
-
-		-
-			message: '#^Method CRM_Banking_PluginModel_PostProcessor\:\:tagContact\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: CRM/Banking/PluginModel/PostProcessor.php
-
-		-
-			message: '#^Method CRM_Banking_PluginModel_PostProcessor\:\:tagContact\(\) has parameter \$contact_id with no type specified\.$#'
-			identifier: missingType.parameter
-			count: 1
-			path: CRM/Banking/PluginModel/PostProcessor.php
-
-		-
-			message: '#^Method CRM_Banking_PluginModel_PostProcessor\:\:tagContact\(\) has parameter \$tag_names with no type specified\.$#'
-			identifier: missingType.parameter
-			count: 1
-			path: CRM/Banking/PluginModel/PostProcessor.php
-
-		-
-			message: '#^Method CRM_Banking_PluginModel_PostProcessor\:\:visualizeExecutedMatch\(\) has parameter \$result with no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: CRM/Banking/PluginModel/PostProcessor.php
-
-		-
 			message: '#^Only booleans are allowed in an if condition, int\|null given\.$#'
 			identifier: if.condNotBoolean
 			count: 1
-			path: CRM/Banking/PluginModel/PostProcessor.php
-
-		-
-			message: '#^Parameter \#1 \$name \(string\) of method CRM_Banking_PluginModel_PostProcessor\:\:getPropagationObject\(\) should be contravariant with parameter \$name \(mixed\) of method CRM_Banking_PluginModel_BtxBase\:\:getPropagationObject\(\)$#'
-			identifier: method.childParameterType
-			count: 1
-			path: CRM/Banking/PluginModel/PostProcessor.php
-
-		-
-			message: '#^Possibly invalid array key type float\|int\|string\.$#'
-			identifier: offsetAccess.invalidOffset
-			count: 2
 			path: CRM/Banking/PluginModel/PostProcessor.php
 
 		-

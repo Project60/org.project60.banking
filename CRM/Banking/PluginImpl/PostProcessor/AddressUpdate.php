@@ -80,7 +80,7 @@ class CRM_Banking_PluginImpl_PostProcessor_AddressUpdate extends CRM_Banking_Plu
   /**
    * @inheritDoc
    */
-  protected function shouldExecute(
+  public function shouldExecute(
     CRM_Banking_Matcher_Suggestion $match,
     CRM_Banking_PluginModel_Matcher $matcher,
     CRM_Banking_Matcher_Context $context,
@@ -111,6 +111,9 @@ class CRM_Banking_PluginImpl_PostProcessor_AddressUpdate extends CRM_Banking_Plu
     return parent::shouldExecute($match, $matcher, $context, $preview);
   }
 
+  /**
+   * @inheritDoc
+   */
   public function previewMatch(
     CRM_Banking_Matcher_Suggestion $match,
     CRM_Banking_PluginModel_Matcher $matcher,
@@ -150,23 +153,16 @@ class CRM_Banking_PluginImpl_PostProcessor_AddressUpdate extends CRM_Banking_Plu
 
   /**
    * @inheritDoc
-   *
-   * phpcs:disable Generic.Metrics.CyclomaticComplexity.TooHigh
    */
+  // phpcs:ignore Generic.Metrics.CyclomaticComplexity.TooHigh
   public function processExecutedMatch(
     CRM_Banking_Matcher_Suggestion $match,
     CRM_Banking_PluginModel_Matcher $matcher,
     CRM_Banking_Matcher_Context $context
-  ): ?bool {
-  // phpcs:enable
-    if (!$this->shouldExecute($match, $matcher, $context)) {
-      // TODO: log: not executing...
-      return FALSE;
-    }
-
+  ): bool {
     $config = $this->_plugin_config;
     $prefix = $config->btx_field_prefix;
-    $data   = $context->btx->getDataParsed();
+    $data = $context->btx->getDataParsed();
 
     // this matcher only makes sense for individuals
     $contact_id = $this->getSoleContactID($context);
@@ -209,8 +205,10 @@ class CRM_Banking_PluginImpl_PostProcessor_AddressUpdate extends CRM_Banking_Plu
         $this->tagContact($contact_id, $config->tag_create);
       }
 
+      return TRUE;
     }
-    elseif (
+
+    if (
       ($existing_addresses['count'] == 0 && $config->create_diff_if_missing)
       || !empty($existing_addresses['id'])
     ) {
@@ -226,7 +224,7 @@ class CRM_Banking_PluginImpl_PostProcessor_AddressUpdate extends CRM_Banking_Plu
       }
 
       // only continue if there is a difference
-      if (!empty($diff)) {
+      if ([] !== $diff) {
         if (is_array($config->create_diff)) {
           foreach ($config->create_diff as $action) {
             $this->createDiff($action, $contact_id, $diff, $existing_address, $address_data);
@@ -234,13 +232,13 @@ class CRM_Banking_PluginImpl_PostProcessor_AddressUpdate extends CRM_Banking_Plu
         }
       }
 
-    }
-    else {
-      // there's multiple addresses
-      $this->logMessage('Multiple addresses found. Not doing anything.', 'error');
+      return TRUE;
     }
 
-    return NULL;
+    // there's multiple addresses
+    $this->logMessage('Multiple addresses found. Not doing anything.', 'error');
+
+    return FALSE;
   }
 
   /**

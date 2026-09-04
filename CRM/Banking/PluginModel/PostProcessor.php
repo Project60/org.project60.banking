@@ -41,9 +41,12 @@ abstract class CRM_Banking_PluginModel_PostProcessor extends CRM_Banking_PluginM
    * @param \CRM_Banking_PluginModel_Matcher $matcher the matcher plugin executed
    * @param \CRM_Banking_Matcher_Context $context the matcher context contains cache data and context information
    *
-   * @return array<mixed>|FALSE|NULL
-   *   The result of the execution, or FALSE when it has not been executed, or
-   *   NULL when it might have been executed.
+   * @return mixed
+   *   JSON serializable result of the execution. It is passed to
+   *   {@link visualizeExecutedMatch()}. If there's need to display the result,
+   *   an own implementation is required. NULL should be avoided as return value
+   *   if the method is not overridden. (See implementation of the method for
+   *   details.)
    *
    * @throws \CRM_Core_Exception
    */
@@ -51,7 +54,7 @@ abstract class CRM_Banking_PluginModel_PostProcessor extends CRM_Banking_PluginM
     CRM_Banking_Matcher_Suggestion $match,
     CRM_Banking_PluginModel_Matcher $matcher,
     CRM_Banking_Matcher_Context $context
-  ): array|bool|null;
+  ): mixed;
 
   /**
    * Visualizes the post processing result for the (already executed) match.
@@ -59,15 +62,21 @@ abstract class CRM_Banking_PluginModel_PostProcessor extends CRM_Banking_PluginM
    * @param CRM_Banking_Matcher_Suggestion $match
    * @param CRM_Banking_PluginModel_Matcher $matcher
    * @param CRM_Banking_Matcher_Context $context
-   * @param array<mixed>|null $result
+   * @param scalar|array<mixed>|\stdClass|null $result
+   *   The JSON decoded result returned by {@link processExecutedMatch()}.
    */
   public function visualizeExecutedMatch(
     CRM_Banking_Matcher_Suggestion $match,
     CRM_Banking_PluginModel_Matcher $matcher,
     CRM_Banking_Matcher_Context $context,
-    ?array $result
+    bool|int|float|string|array|\stdClass|null $result
   ): string {
-    return E::ts('%1 might have been executed.', [1 => $this->getName()]);
+    // For historical reasons: NULL used to mean that it's unknown if the postprocessor was actually executed.
+    if (NULL === $result) {
+      return E::ts('%1 might have been executed.', [1 => $this->getName()]);
+    }
+
+    return E::ts('%1 has been executed.', [1 => $this->getName()]);
   }
 
   /**
@@ -88,6 +97,8 @@ abstract class CRM_Banking_PluginModel_PostProcessor extends CRM_Banking_PluginM
    *   processor will process the executed match, return something describing
    *   that uncertainty and only return NULL if it really will not spring into
    *   action.
+   *
+   * @throws \CRM_Core_Exception
    */
   public function previewMatch(
     CRM_Banking_Matcher_Suggestion $match,
@@ -119,7 +130,7 @@ abstract class CRM_Banking_PluginModel_PostProcessor extends CRM_Banking_PluginM
    *
    * @throws \CRM_Core_Exception
    */
-  protected function shouldExecute(
+  public function shouldExecute(
     CRM_Banking_Matcher_Suggestion $match,
     CRM_Banking_PluginModel_Matcher $matcher,
     CRM_Banking_Matcher_Context $context,

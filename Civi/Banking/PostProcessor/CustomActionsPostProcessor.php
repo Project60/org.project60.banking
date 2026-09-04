@@ -54,11 +54,7 @@ final class CustomActionsPostProcessor extends \CRM_Banking_PluginModel_PostProc
     CRM_Banking_Matcher_Suggestion $match,
     CRM_Banking_PluginModel_Matcher $matcher,
     CRM_Banking_Matcher_Context $context
-  ): ?bool {
-    if (!$this->shouldExecute($match, $matcher, $context)) {
-      return FALSE;
-    }
-
+  ): bool {
     $config = $this->getConfig();
 
     /** @var \Civi\Banking\PostProcessor\CustomAction\CustomActionHandlerInterface<object> $actionHandler */
@@ -68,7 +64,17 @@ final class CustomActionsPostProcessor extends \CRM_Banking_PluginModel_PostProc
       $actionHandler->execute($action, $customActionContext);
     }
 
-    return NULL;
+    return TRUE;
+  }
+
+  public function shouldExecute(
+    CRM_Banking_Matcher_Suggestion $match,
+    CRM_Banking_PluginModel_Matcher $matcher,
+    CRM_Banking_Matcher_Context $context,
+    bool $preview = FALSE
+  ): bool {
+    return [] !== $this->getConfig()->actions
+      && parent::shouldExecute($match, $matcher, $context, $preview);
   }
 
 }

@@ -23,7 +23,7 @@
         "civicrm/civicrm-core": ">=5.76",
         "civicrm/civicrm-packages": ">=5.76",
         "symfony/expression-language": "^5.4 || ^6 || ^7",
-        "webmozart/assert": "^1.1 || ^2"
+        "webmozart/assert": "^1.11 || ^2"
     },
     "require-dev": {
         "project60/org.project60.sepa": "^1.13"

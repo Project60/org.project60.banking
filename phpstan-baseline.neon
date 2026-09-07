@@ -7064,12 +7064,6 @@ parameters:
 			path: CRM/Banking/PluginImpl/Matcher/RegexAnalyser.php
 
 		-
-			message: '#^Method CRM_Banking_PluginImpl_Matcher_RegexAnalyser\:\:analyse\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: CRM/Banking/PluginImpl/Matcher/RegexAnalyser.php
-
-		-
 			message: '#^Only booleans are allowed in an if condition, int\|false given\.$#'
 			identifier: if.condNotBoolean
 			count: 1

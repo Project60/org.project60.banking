@@ -47,7 +47,11 @@ class CRM_Banking_PluginImpl_Matcher_RegexAnalyser extends CRM_Banking_PluginMod
    *
    * @throws \CRM_Core_Exception
    */
-  public function analyse(CRM_Banking_BAO_BankTransaction $btx, CRM_Banking_Matcher_Context $context) {
+  public function analyse(CRM_Banking_BAO_BankTransaction $btx, CRM_Banking_Matcher_Context $context): void {
+    if (!$this->requiredValuesPresent($btx)) {
+      return;
+    }
+
     // iterate through all rules
     foreach ($this->_plugin_config->rules as $rule) {
       if (empty($rule->fields)) {

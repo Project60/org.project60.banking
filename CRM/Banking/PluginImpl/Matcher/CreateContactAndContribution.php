@@ -92,7 +92,7 @@ class CRM_Banking_PluginImpl_Matcher_CreateContactAndContribution extends CRM_Ba
     $btx->addSuggestion($suggestion);
 
     // that's it...
-    return (count($this->_suggestions) > 0) ? NULL : $this->_suggestions;
+    return (count($this->_suggestions) > 0) ? $this->_suggestions : NULL;
   }
 
   /**

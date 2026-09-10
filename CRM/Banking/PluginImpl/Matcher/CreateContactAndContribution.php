@@ -109,18 +109,18 @@ class CRM_Banking_PluginImpl_Matcher_CreateContactAndContribution extends CRM_Ba
     // create contact
     $contact = $this->get_contact_data($btx, $suggestion);
     $query = $this->get_query($contact);
-    $result = civicrm_api4('Contact', 'create', $query);
-    if (isset($result['is_error']) && ($result['is_error'] === 1) && is_string($result['error_message'])) {
-      CRM_Core_Session::setStatus(E::ts("Couldn't create contact.") . '<br/>' . E::ts('Error was: ') . $result['error_message'], E::ts('Error'), 'error');
+    try{
+      $result = civicrm_api4('Contact', 'create', $query);
+    }
+    catch (CRM_Core_Exception $e) {
+      CRM_Core_Session::setStatus(E::ts("Couldn't create contact."), E::ts('Error'), 'error');
       return TRUE;
     }
     if (is_array($result[0]) and is_int($result[0]['id'])) {
       $contact_id = $result[0]['id'];
     }
     else {
-      if (is_string($result['error_message'])) {
-        CRM_Core_Session::setStatus(E::ts("Couldn't create contact.") . '<br/>' . E::ts('Error was: ') . $result['error_message'], E::ts('Error'), 'error');
-      }
+      CRM_Core_Session::setStatus(E::ts("Couldn't create contact."), E::ts('Error'), 'error');
       return TRUE;
     }
 
@@ -128,18 +128,18 @@ class CRM_Banking_PluginImpl_Matcher_CreateContactAndContribution extends CRM_Ba
     $contribution = $this->get_contribution_data($btx, $suggestion);
     $contribution['contact_id'] = $contact_id;
     $query = $this->get_query($contribution);
-    $result = civicrm_api4('Contribution', 'create', $query);
-    if (isset($result['is_error']) && ($result['is_error'] === 1) && is_string($result['error_message'])) {
-      CRM_Core_Session::setStatus(E::ts("Couldn't create contribution.") . '<br/>' . E::ts('Error was: ') . $result['error_message'], E::ts('Error'), 'error');
+    try{
+      $result = civicrm_api4('Contribution', 'create', $query);
+    }
+    catch (CRM_Core_Exception $e) {
+      CRM_Core_Session::setStatus(E::ts("Couldn't create contribution."), E::ts('Error'), 'error');
       return TRUE;
     }
     if (is_array($result[0]) and is_int($result[0]['id'])) {
       $contribution_id = $result[0]['id'];
     }
     else {
-      if (is_string($result['error_message'])) {
-        CRM_Core_Session::setStatus(E::ts("Couldn't create contribution.") . '<br/>' . E::ts('Error was: ') . $result['error_message'], E::ts('Error'), 'error');
-      }
+      CRM_Core_Session::setStatus(E::ts("Couldn't create contribution."), E::ts('Error'), 'error');
       return TRUE;
     }
 

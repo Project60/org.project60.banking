@@ -254,7 +254,7 @@ class CRM_Banking_PluginImpl_Matcher_CreateContactAndContribution extends CRM_Ba
   private function get_query($values) {
     $query = [
       'values' => $values,
-      'checkPermissions' => TRUE,
+      'checkPermissions' => FALSE,
     ];
     return $query;
   }

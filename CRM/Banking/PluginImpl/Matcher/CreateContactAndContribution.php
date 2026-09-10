@@ -175,13 +175,6 @@ class CRM_Banking_PluginImpl_Matcher_CreateContactAndContribution extends CRM_Ba
     $smarty_vars = [];
 
     $contact = $this->get_contact_data($btx, $suggestion);
-
-    $contribution = [];
-    $contribution['total_amount'] = $btx->amount;
-    $contribution['receive_date'] = $btx->value_date;
-    $contribution['currency'] = $btx->currency;
-    $contribution = array_merge($contribution, $this->getPropagationSet($btx, $suggestion, 'contribution'));
-
     $contribution = $this->get_contribution_data($btx, $suggestion);
 
     // look up financial type

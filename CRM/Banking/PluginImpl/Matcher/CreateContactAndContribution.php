@@ -342,7 +342,7 @@ class CRM_Banking_PluginImpl_Matcher_CreateContactAndContribution extends CRM_Ba
     // build contact data
     $contact = [];
     $contact['contact_type'] = $contact_type;
-    if ($formal_title === NULL) {
+    if ($formal_title !== NULL) {
       $contact['formal_title'] = $formal_title;
     }
 

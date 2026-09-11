@@ -85,12 +85,12 @@ class CRM_Banking_PluginImpl_PostProcessor_MembershipPayment extends CRM_Banking
   /**
    * @inheritDoc
    */
-  protected function shouldExecute(
+  public function shouldExecute(
     CRM_Banking_Matcher_Suggestion $match,
     CRM_Banking_PluginModel_Matcher $matcher,
     CRM_Banking_Matcher_Context $context,
-    $preview = FALSE
-  ) {
+    bool $preview = FALSE
+  ): bool {
     if (!$preview) {
       $contributions = $this->getEligibleContributions($context);
       if (empty($contributions)) {
@@ -104,108 +104,102 @@ class CRM_Banking_PluginImpl_PostProcessor_MembershipPayment extends CRM_Banking
   }
 
   /**
-   * Postprocess the (already executed) match
-   *
-   * @param $match    CRM_Banking_Matcher_Suggestion  the executed match
-   * @param $matcher  CRM_Banking_PluginModel_Matcher the related transaction
-   * @param $context  CRM_Banking_Matcher_Context     the matcher context contains cache data and context information
-   *
-   * @throws Exception if anything goes wrong
-   *
-   *  phpcs:disable Generic.Metrics.CyclomaticComplexity.TooHigh
+   * @inheritDoc
    */
-  public function processExecutedMatch(CRM_Banking_Matcher_Suggestion $match, CRM_Banking_PluginModel_Matcher $matcher, CRM_Banking_Matcher_Context $context) {
-  // phpcs:enable
+  // phpcs:ignore Generic.Metrics.CyclomaticComplexity.TooHigh
+  public function processExecutedMatch(
+    CRM_Banking_Matcher_Suggestion $match,
+    CRM_Banking_PluginModel_Matcher $matcher,
+    CRM_Banking_Matcher_Context $context
+  ): bool {
     $config = $this->_plugin_config;
 
-    // this is pretty straightforward
-    if ($this->shouldExecute($match, $matcher, $context)) {
-      $contributions = $this->getEligibleContributions($context);
-      foreach ($contributions as $contribution) {
-        $membership_id = $this->getMembershipID($contribution, $match, $matcher, $context);
-        if (!$membership_id) {
-          $this->logMessage("Contribution [{$contribution['id']}] is not related to a membership", 'debug');
-          continue;
+    $contributions = $this->getEligibleContributions($context);
+    foreach ($contributions as $contribution) {
+      $membershipId = $this->getMembershipID($contribution, $match, $matcher, $context);
+      if (!$membershipId) {
+        $this->logMessage("Contribution [{$contribution['id']}] is not related to a membership", 'debug');
+        continue;
+      }
+
+      // get contribution ID
+      $contributionRecurId = $this->getContributionRecurID($contribution, $membershipId, $match, $matcher, $context);
+      if ($contributionRecurId) {
+        $this->logMessage("Contribution [{$contribution['id']}] should be connected to recurring contribution [{$contributionRecurId}]", 'debug');
+      }
+      else {
+        $this->logMessage("Contribution [{$contribution['id']}] should not get recurring contribution", 'debug');
+      }
+
+      // update MembershipPayment:
+      if ($config->set_membership_payment === 'fill' || $config->set_membership_payment === 'yes') {
+        if ($config->set_membership_payment === 'yes') {
+          // overwrite means: remove other existing items
+          CRM_Core_DAO::executeQuery("DELETE FROM civicrm_membership_payment
+                                                  WHERE contribution_id = {$contribution['id']}
+                                                    AND membership_id <> {$membershipId};");
         }
 
-        // get contribution ID
-        $contribution_recur_id = $this->getContributionRecurID($contribution, $membership_id, $match, $matcher, $context);
-        if ($contribution_recur_id) {
-          $this->logMessage("Contribution [{$contribution['id']}] should be connected to recurring contribution [{$contribution_recur_id}]", 'debug');
-        }
-        else {
-          $this->logMessage("Contribution [{$contribution['id']}] should not get recurring contribution", 'debug');
-        }
+        // assign to membership
+        civicrm_api3('MembershipPayment', 'create', [
+          'contribution_id' => $contribution['id'],
+          'membership_id'   => $membershipId,
+        ]);
+        $this->logMessage("Contribution [{$contribution['id']}] connected to membership [{$membershipId}].", 'debug');
+      }
 
-        // update MembershipPayment:
-        if ($config->set_membership_payment == 'fill' || $config->set_membership_payment == 'yes') {
-          if ($config->set_membership_payment == 'yes') {
-            // overwrite means: remove other existing items
-            CRM_Core_DAO::executeQuery("DELETE FROM civicrm_membership_payment
-                                                    WHERE contribution_id = {$contribution['id']}
-                                                      AND membership_id <> {$membership_id};");
-          }
-
-          // assign to membership
-          civicrm_api3('MembershipPayment', 'create', [
-            'contribution_id' => $contribution['id'],
-            'membership_id'   => $membership_id,
+      // update contribution <-> contribution_recur connection
+      if ($config->set_contribution_recur === 'yes') {
+        // definitely write the given status
+        if ($contributionRecurId != $contribution['contribution_recur_id']) {
+          civicrm_api3('Contribution', 'create', [
+            'id' => $contribution['id'],
+            'contribution_recur_id' => $contributionRecurId ? $contributionRecurId : '',
           ]);
-          $this->logMessage("Contribution [{$contribution['id']}] connected to membership [{$membership_id}].", 'debug');
+          $this->logMessage("Contribution [{$contribution['id']}] connected to recurring contribution [{$contributionRecurId}].", 'debug');
         }
-
-        // update contribution <-> contribution_recur connection
-        if ($config->set_contribution_recur == 'yes') {
-          // definitely write the given status
-          if ($contribution_recur_id != $contribution['contribution_recur_id']) {
-            civicrm_api3('Contribution', 'create', [
-              'id'                    => $contribution['id'],
-              'contribution_recur_id' => $contribution_recur_id ? $contribution_recur_id : '',
-            ]);
-            $this->logMessage("Contribution [{$contribution['id']}] connected to recurring contribution [{$contribution_recur_id}].", 'debug');
-          }
-        }
-        else {
-          // only write if
-          if ($config->set_contribution_recur == 'fill'
-               && empty($contribution['contribution_recur_id'])
-               && !empty($contribution_recur_id)) {
-            civicrm_api3('Contribution', 'create', [
-              'id'                    => $contribution['id'],
-              'contribution_recur_id' => $contribution_recur_id,
-            ]);
-            $this->logMessage("Contribution [{$contribution['id']}] connected to recurring contribution [{$contribution_recur_id}].", 'debug');
-          }
-        }
-
-        // update membership's contribution_recur field
-        if ($contribution_recur_id && $config->membership_rcur_field) {
-          if ($config->set_contribution_recur == 'yes') {
-            // definitely (over)write the rcur field
-            civicrm_api3('Membership', 'create', [
-              'id'                           => $membership_id,
-              $config->membership_rcur_field => $contribution_recur_id,
-            ]);
-            $this->logMessage("Set membership.{$config->membership_rcur_field} to [{$contribution_recur_id}].", 'debug');
-          }
-
-        }
-        elseif ($config->set_contribution_recur == 'fill') {
-          // only fill:
-          $current_value = civicrm_api3('Membership', 'getvalue', [
-            'id'     => $membership_id,
-            'return' => $config->membership_rcur_field,
+      }
+      else {
+        // only write if
+        if ($config->set_contribution_recur === 'fill'
+             && empty($contribution['contribution_recur_id'])
+             && !empty($contributionRecurId)) {
+          civicrm_api3('Contribution', 'create', [
+            'id'                    => $contribution['id'],
+            'contribution_recur_id' => $contributionRecurId,
           ]);
-          if ($current_value != $contribution_recur_id) {
-            civicrm_api3('Membership', 'create', [
-              'id'                           => $membership_id,
-              $config->membership_rcur_field => $contribution_recur_id,
-            ]);
-            $this->logMessage("Set membership.{$config->membership_rcur_field} to [{$contribution_recur_id}].", 'debug');
-          }
+          $this->logMessage("Contribution [{$contribution['id']}] connected to recurring contribution [{$contributionRecurId}].", 'debug');
+        }
+      }
+
+      // update membership's contribution_recur field
+      if ($contributionRecurId && $config->membership_rcur_field) {
+        if ($config->set_contribution_recur === 'yes') {
+          // definitely (over)write the rcur field
+          civicrm_api3('Membership', 'create', [
+            'id'                           => $membershipId,
+            $config->membership_rcur_field => $contributionRecurId,
+          ]);
+          $this->logMessage("Set membership.{$config->membership_rcur_field} to [{$contributionRecurId}].", 'debug');
+        }
+      }
+      elseif ($config->set_contribution_recur === 'fill') {
+        // only fill:
+        $current_value = civicrm_api3('Membership', 'getvalue', [
+          'id' => $membershipId,
+          'return' => $config->membership_rcur_field,
+        ]);
+        if ($current_value != $contributionRecurId) {
+          civicrm_api3('Membership', 'create', [
+            'id'                           => $membershipId,
+            $config->membership_rcur_field => $contributionRecurId,
+          ]);
+          $this->logMessage("Set membership.{$config->membership_rcur_field} to [{$contributionRecurId}].", 'debug');
         }
       }
     }
+
+    return TRUE;
   }
 
   /**
@@ -313,7 +307,7 @@ class CRM_Banking_PluginImpl_PostProcessor_MembershipPayment extends CRM_Banking
    * deliver the first of the eligible contributions
    * overwrites parent::getFirstContribution()
    */
-  protected function getFirstContribution($context) {
+  protected function getFirstContribution(CRM_Banking_Matcher_Context $context): ?array {
     $contributions = $this->getEligibleContributions($context);
     if (empty($contributions)) {
       return NULL;

@@ -57,12 +57,12 @@ class CRM_Banking_PluginImpl_PostProcessor_RecurringFails extends CRM_Banking_Pl
   /**
    * @inheritDoc
    */
-  protected function shouldExecute(
+  public function shouldExecute(
     CRM_Banking_Matcher_Suggestion $match,
     CRM_Banking_PluginModel_Matcher $matcher,
     CRM_Banking_Matcher_Context $context,
-    $preview = FALSE
-  ) {
+    bool $preview = FALSE
+  ): bool {
     $config = $this->_plugin_config;
 
     // check if there are rules
@@ -83,42 +83,40 @@ class CRM_Banking_PluginImpl_PostProcessor_RecurringFails extends CRM_Banking_Pl
   }
 
   /**
-   * Post-process the (already executed) match
-   *
-   * @param $match    CRM_Banking_Matcher_Suggestion  the executed match
-   * @param $matcher  CRM_Banking_PluginModel_Matcher the related transaction
-   * @param $context  CRM_Banking_Matcher_Context     the matcher context contains cache data and context information
-   *
-   * @throws Exception
+   * @inheritDoc
    */
-  public function processExecutedMatch(CRM_Banking_Matcher_Suggestion $match, CRM_Banking_PluginModel_Matcher $matcher, CRM_Banking_Matcher_Context $context) {
+  public function processExecutedMatch(
+    CRM_Banking_Matcher_Suggestion $match,
+    CRM_Banking_PluginModel_Matcher $matcher,
+    CRM_Banking_Matcher_Context $context
+  ): bool {
     $config = $this->_plugin_config;
 
-    if ($this->shouldExecute($match, $matcher, $context)) {
-      // do this for each contribution (usually just one):
-      $cancelled_contributions = $this->getEligibleContributions($context);
-      foreach ($cancelled_contributions as $cancelled_contribution) {
-        // get some information on the recurring information
-        $mandate_stats = $this->getRecurringContributionStats($cancelled_contribution);
-        if (empty($mandate_stats)) {
-          $this->logMessage("No RecurringContribution for contribution [{$cancelled_contribution['id']}] found. No further actions possible.", 'warn');
-          continue;
-        }
+    // do this for each contribution (usually just one):
+    $cancelled_contributions = $this->getEligibleContributions($context);
+    foreach ($cancelled_contributions as $cancelled_contribution) {
+      // get some information on the recurring information
+      $mandate_stats = $this->getRecurringContributionStats($cancelled_contribution);
+      if (empty($mandate_stats)) {
+        $this->logMessage("No RecurringContribution for contribution [{$cancelled_contribution['id']}] found. No further actions possible.", 'warn');
+        continue;
+      }
 
-        // run the rules
-        foreach ($config->rules as $rule) {
-          if ($this->ruleShouldExecute($rule, $cancelled_contribution, $mandate_stats)) {
-            // rule matches the criteria -> execute
-            $this->executeRule($rule, $cancelled_contribution, $mandate_stats, $context, $match);
+      // run the rules
+      foreach ($config->rules as $rule) {
+        if ($this->ruleShouldExecute($rule, $cancelled_contribution, $mandate_stats)) {
+          // rule matches the criteria -> execute
+          $this->executeRule($rule, $cancelled_contribution, $mandate_stats, $context, $match);
 
-            // only if instructed to do so, continue with the next rule
-            if (empty($rule->continue)) {
-              break;
-            }
+          // only if instructed to do so, continue with the next rule
+          if (empty($rule->continue)) {
+            break;
           }
         }
       }
     }
+
+    return TRUE;
   }
 
   /**

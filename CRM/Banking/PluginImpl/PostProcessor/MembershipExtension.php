@@ -153,12 +153,12 @@ class CRM_Banking_PluginImpl_PostProcessor_MembershipExtension extends CRM_Banki
   /**
    * @inheritDoc
    */
-  protected function shouldExecute(
+  public function shouldExecute(
     CRM_Banking_Matcher_Suggestion $match,
     CRM_Banking_PluginModel_Matcher $matcher,
     CRM_Banking_Matcher_Context $context,
-    $preview = FALSE
-  ) {
+    bool $preview = FALSE
+  ): bool {
     if (!$preview) {
       $contributions = $this->getEligibleContributions($context);
       if (empty($contributions)) {
@@ -178,11 +178,7 @@ class CRM_Banking_PluginImpl_PostProcessor_MembershipExtension extends CRM_Banki
   }
 
   /**
-   * @param \CRM_Banking_Matcher_Suggestion $match
-   * @param \CRM_Banking_PluginModel_Matcher $matcher
-   * @param \CRM_Banking_Matcher_Context $context
-   *
-   * @throws \CRM_Core_Exception
+   * @inheritDoc
    *
    * @phpcs:disable Generic.Metrics.CyclomaticComplexity.TooHigh
    */
@@ -190,7 +186,7 @@ class CRM_Banking_PluginImpl_PostProcessor_MembershipExtension extends CRM_Banki
     CRM_Banking_Matcher_Suggestion $match,
     CRM_Banking_PluginModel_Matcher $matcher,
     CRM_Banking_Matcher_Context $context
-  ) {
+  ): ?string {
   // phpcs:enable
     $preview = NULL;
     $config = $this->_plugin_config;
@@ -396,79 +392,81 @@ class CRM_Banking_PluginImpl_PostProcessor_MembershipExtension extends CRM_Banki
   }
 
   /**
-   * Postprocess the (already executed) match
+   * @inheritDoc
    *
-   * @param $match    CRM_Banking_Matcher_Suggestion  the executed match
-   * @param $matcher  CRM_Banking_PluginModel_Matcher the related transaction
-   * @param $context  CRM_Banking_Matcher_Context     the matcher context contains cache data and context information
-   *
-   * @throws Exception if anything goes wrong
+   * @return array{'memberships': list<array{id: int|numeric-string, ...}>}
    */
-  public function processExecutedMatch(CRM_Banking_Matcher_Suggestion $match, CRM_Banking_PluginModel_Matcher $matcher, CRM_Banking_Matcher_Context $context) {
-    $result = NULL;
+  public function processExecutedMatch(
+    CRM_Banking_Matcher_Suggestion $match,
+    CRM_Banking_PluginModel_Matcher $matcher,
+    CRM_Banking_Matcher_Context $context
+  ): array {
     $config = $this->_plugin_config;
 
-    // this is pretty straightforward
-    if ($this->shouldExecute($match, $matcher, $context)) {
-      $contributions = $this->getEligibleContributions($context);
-      foreach ($contributions as $contribution) {
-        // get memberships
-        $memberships = $this->getEligibleMemberships($contribution, $match, $context);
-        $membership = NULL;
-        if (empty($memberships)) {
-          // no membership found
-          if (
-            $config->create_if_not_found
-            && !empty($create_type_id = $this->getMembershipExtensionAttribute(
-              'create_type_id',
-              [
-                'create_type_id' => $config->create_type_id,
-                'btx' => $context->btx,
-                'match' => $match,
-              ]
-            ))
-          ) {
-            $this->logMessage("No membership identified for contribution [{$contribution['id']}]. Creating one...", 'debug');
-            $membership = $this->createMembership($contribution, $create_type_id);
-          }
-          else {
-            $this->logMessage("No membership identified for contribution [{$contribution['id']}].", 'debug');
-            $result = FALSE;
-          }
-
+    $result = ['memberships' => []];
+    $contributions = $this->getEligibleContributions($context);
+    foreach ($contributions as $contribution) {
+      // get memberships
+      $memberships = $this->getEligibleMemberships($contribution, $match, $context);
+      $membership = NULL;
+      if (empty($memberships)) {
+        // no membership found
+        if (
+          $config->create_if_not_found
+          && !empty($create_type_id = $this->getMembershipExtensionAttribute(
+            'create_type_id',
+            [
+              'create_type_id' => $config->create_type_id,
+              'btx' => $context->btx,
+              'match' => $match,
+            ]
+          ))
+        ) {
+          $this->logMessage("No membership identified for contribution [{$contribution['id']}]. Creating one...", 'debug');
+          $membership = $this->createMembership($contribution, $create_type_id);
         }
         else {
-          // memberships found
-          if (count($memberships) > 1) {
-            $this->logMessage("More than one membership identified for contribution [{$contribution['id']}]. Processing first!", 'debug');
-            $result = FALSE;
-          }
+          $this->logMessage("No membership identified for contribution [{$contribution['id']}].", 'debug');
+        }
 
-          // extend membership
-          $membership = reset($memberships);
-          $this->extendMembership($membership, $contribution);
+      }
+      else {
+        // memberships found
+        if (count($memberships) > 1) {
+          $this->logMessage("More than one membership identified for contribution [{$contribution['id']}]. Processing first!", 'debug');
         }
-        if (NULL !== $membership) {
-          // TODO: Add more information on what exactly has been done with the
-          //   membership, depending on configuration and actual results.
-          $result['memberships'][] = $membership;
-        }
+
+        // extend membership
+        $membership = reset($memberships);
+        $this->extendMembership($membership, $contribution);
+      }
+      if (NULL !== $membership) {
+        // TODO: Add more information on what exactly has been done with the
+        //   membership, depending on configuration and actual results.
+        $result['memberships'][] = $membership;
       }
     }
-    else {
-      $result = FALSE;
-    }
+
     return $result;
   }
 
+  /**
+   * @inheritDoc
+   */
   public function visualizeExecutedMatch(
     CRM_Banking_Matcher_Suggestion $match,
     CRM_Banking_PluginModel_Matcher $matcher,
     CRM_Banking_Matcher_Context $context,
-    $result
-  ) {
+    bool|int|float|string|array|\stdClass|null $result
+  ): string {
+    if (!is_array($result)) {
+      return parent::visualizeExecutedMatch($match, $matcher, $context, $result);
+    }
+
     $return = $this->getName() . '<ul>';
-    foreach ($result['memberships'] as $membership) {
+    /** @var list<array{id: int|numeric-string, ...}> $memberships */
+    $memberships = $result['memberships'] ?? [];
+    foreach ($memberships as $membership) {
       $url = CRM_Utils_System::url(
         'civicrm/contact/view/membership',
         [
@@ -484,6 +482,7 @@ class CRM_Banking_PluginImpl_PostProcessor_MembershipExtension extends CRM_Banki
         . '</li>';
     }
     $return .= '</ul>';
+
     return $return;
   }
 

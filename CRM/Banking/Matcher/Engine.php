@@ -226,7 +226,6 @@ class CRM_Banking_Matcher_Engine {
     $btx->setStatus($newStatus);
 
     $lock->release();
-    $context->destroy();
     $logger->logTime("Matching of btx [{$btx_id}]", 'matcher');
     return FALSE;
   }
@@ -234,29 +233,31 @@ class CRM_Banking_Matcher_Engine {
   /**
    * Previews the execution of post processors on a given suggestion.
    *
-   * @param CRM_Banking_Matcher_Suggestion $suggestion
-   * @param CRM_Banking_BAO_BankTransaction $btx
-   * @param CRM_Banking_PluginModel_Matcher $matcher
+   * @return array<string, string>
    */
-  public function previewPostProcessors($suggestion, $btx, $matcher) {
+  public function previewPostProcessors(
+    \CRM_Banking_Matcher_Suggestion $suggestion,
+    \CRM_Banking_BAO_BankTransaction $btx,
+    \CRM_Banking_PluginModel_Matcher $matcher
+  ): array {
     $context = new CRM_Banking_Matcher_Context($btx);
-    $all_postprocessors = $this->getPostprocessors();
+    $postProcessorsByWeight = $this->getPostprocessors();
     $previews = [];
-    foreach ($all_postprocessors as $weight => $postprocessors) {
-      foreach ($postprocessors as $postprocessor) {
+    foreach ($postProcessorsByWeight as $postProcessors) {
+      foreach ($postProcessors as $postProcessor) {
         try {
+          $preview = $postProcessor->previewMatch($suggestion, $matcher, $context);
           // Check for NULL. An empty string is considered a valid preview.
-          if (NULL !== ($preview = $postprocessor->previewMatch(
-            $suggestion,
-            $matcher,
-            $context
-          ))) {
-            $previews[$postprocessor->getName()] = $preview;
+          if (NULL !== $preview) {
+            $previews[$postProcessor->getName()] = $preview;
           }
         }
         catch (Exception $e) {
-          $matcher_id = $matcher->getPluginID();
-          error_log("org.project60.banking - Exception during the preview of postprocessor [$matcher_id], error was: " . $e->getMessage());
+          \Civi::log()->error(
+            "org.project60.banking - Exception during the preview of postprocessor [{$matcher->getPluginID()}], error was: "
+            . $e->getMessage(),
+            ['exception' => $e]
+          );
         }
       }
     }
@@ -265,66 +266,76 @@ class CRM_Banking_Matcher_Engine {
 
   /**
    * will run the postprocessors on the recently executed match
-   *
-   * @param \CRM_Banking_Matcher_Suggestion $suggestion
    */
-  public function runPostProcessors($suggestion, $btx, $matcher) {
+  public function runPostProcessors(
+    \CRM_Banking_Matcher_Suggestion $suggestion,
+    \CRM_Banking_BAO_BankTransaction $btx,
+    \CRM_Banking_PluginModel_Matcher $matcher
+  ): void {
     // run through the list of matchers
     $logger = CRM_Banking_Helpers_Logger::getLogger();
     $logger->setTimer('postprocessing');
 
     $context = new CRM_Banking_Matcher_Context($btx);
     $context->setExecutedSuggestion($suggestion);
-    $all_postprocessors = $this->getPostprocessors();
-    foreach ($all_postprocessors as $weight => $postprocessors) {
-      foreach ($postprocessors as $postprocessor) {
+    $postProcessorsByWeight = $this->getPostprocessors();
+    foreach ($postProcessorsByWeight as $postProcessors) {
+      foreach ($postProcessors as $postProcessor) {
         try {
           $logger->setTimer('postprocessor');
-          $logger->logDebug("Calling PostProcessor [{$postprocessor->getName()}]...");
-          $result = $postprocessor->processExecutedMatch($suggestion, $matcher, $context);
-          if ($result !== FALSE) {
-            $suggestion->setExecutedPostprocessor($postprocessor, $result);
+          $logger->logDebug("Calling PostProcessor [{$postProcessor->getName()}]...");
+          if ($postProcessor->shouldExecute($suggestion, $matcher, $context)) {
+            $result = $postProcessor->processExecutedMatch($suggestion, $matcher, $context);
+            $suggestion->setExecutedPostprocessor($postProcessor, $result);
             $btx->saveSuggestions();
           }
-          $logger->logTime("Postprocessor [{$postprocessor->getPluginID()}]", 'postprocessor');
-
+          else {
+            $logger->logDebug("PostProcessor [{$postProcessor->getName()}] does not need to be executed.");
+          }
+          $logger->logTime("PostProcessor [{$postProcessor->getPluginID()}]", 'postprocessor');
         }
         catch (Exception $e) {
-          $matcher_id = $matcher->getPluginID();
-          error_log("org.project60.banking - Exception during the execution of postprocessor [$matcher_id], error was: " . $e->getMessage());
+          \Civi::log()->error(
+            "org.project60.banking - Exception during the execution of postprocessor [{$matcher->getPluginID()}], error was: "
+            . $e->getMessage(),
+            ['exception' => $e]
+          );
         }
       }
     }
 
     $logger->logTime("Postprocessing of btx [{$btx->id}]", 'postprocessing');
-    $context->destroy();
   }
 
   /**
    * Visualizes the execution of post processors on a given suggestion.
    *
-   * @param CRM_Banking_Matcher_Suggestion $suggestion
-   * @param CRM_Banking_BAO_BankTransaction $btx
-   * @param CRM_Banking_PluginModel_Matcher $matcher
+   * @return list<string>
    */
-  public function visualizePostProcessorResults($suggestion, $btx, $matcher) {
+  public function visualizePostProcessorResults(
+    \CRM_Banking_Matcher_Suggestion $suggestion,
+    \CRM_Banking_BAO_BankTransaction $btx,
+    \CRM_Banking_PluginModel_Matcher $matcher
+  ): array {
     $context = new CRM_Banking_Matcher_Context($btx);
     $results = [];
-    $all_postprocessors = $this->getPostprocessors();
-    $executed_postprocessors = $suggestion->getExecutedPostprocessors() ?: [];
-    foreach ($all_postprocessors as $weight => $postprocessors) {
-      foreach ($postprocessors as $postprocessor) {
-        if (array_key_exists($plugin_id = $postprocessor->getPluginID(), $executed_postprocessors)) {
-          $result = $executed_postprocessors[$plugin_id];
+    $postProcessorsByWeight = $this->getPostprocessors();
+    $executedPostProcessors = $suggestion->getExecutedPostprocessors() ?: [];
+    foreach ($postProcessorsByWeight as $postProcessors) {
+      foreach ($postProcessors as $postProcessor) {
+        $pluginId = $postProcessor->getPluginID();
+        if (array_key_exists($pluginId, $executedPostProcessors)) {
+          $postProcessorResult = $executedPostProcessors[$pluginId];
           try {
-            if (!empty($result = $postprocessor->visualizeExecutedMatch($suggestion, $matcher, $context, $result))) {
-              $results[] = $result;
-            }
+            $results[] = $postProcessor->visualizeExecutedMatch($suggestion, $matcher, $context, $postProcessorResult);
           }
           // @phpstan-ignore catch.neverThrown
           catch (Exception $e) {
-            $matcher_id = $matcher->getPluginID();
-            error_log("org.project60.banking - Exception during the visualization of results of postprocessor [$matcher_id], error was: " . $e->getMessage());
+            \Civi::log()->error(
+              "org.project60.banking - Exception during the visualization of results of postprocessor [{$matcher->getPluginID()}], error was: "
+              . $e->getMessage(),
+              ['exception' => $e]
+            );
           }
         }
       }

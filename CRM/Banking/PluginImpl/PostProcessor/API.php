@@ -50,12 +50,12 @@ class CRM_Banking_PluginImpl_PostProcessor_API extends CRM_Banking_PluginModel_P
   /**
    * @inheritDoc
    */
-  protected function shouldExecute(
+  public function shouldExecute(
     CRM_Banking_Matcher_Suggestion $match,
     CRM_Banking_PluginModel_Matcher $matcher,
     CRM_Banking_Matcher_Context $context,
-    $preview = FALSE
-  ) {
+    bool $preview = FALSE
+  ): bool {
     $config = $this->_plugin_config;
 
     // check if an entity is set
@@ -73,50 +73,42 @@ class CRM_Banking_PluginImpl_PostProcessor_API extends CRM_Banking_PluginModel_P
   }
 
   /**
-   * Postprocess the (already executed) match
-   *
-   * @param $match    the executed match
-   * @param $btx      the related transaction
-   * @param $context  the matcher context contains cache data and context information
-   *
+   * @inheritDoc
    */
-  public function processExecutedMatch(CRM_Banking_Matcher_Suggestion $match, CRM_Banking_PluginModel_Matcher $matcher, CRM_Banking_Matcher_Context $context) {
+  public function processExecutedMatch(
+    CRM_Banking_Matcher_Suggestion $match,
+    CRM_Banking_PluginModel_Matcher $matcher,
+    CRM_Banking_Matcher_Context $context
+  ): ?bool {
     $config = $this->_plugin_config;
 
-    if ($this->shouldExecute($match, $matcher, $context)) {
-      // compile call parameters
-      $params = [];
-      foreach ($config->params as $key => $value) {
-        if ($value !== NULL) {
-          $params[$key] = $value;
-        }
-      }
-
-      foreach ($config->param_propagation as $value_source => $value_key) {
-        $value = $this->getPropagationValue($context->btx, $match, $value_source);
-        if ($value !== NULL) {
-          $params[$value_key] = $value;
-        }
-      }
-
-      // perform the call(s)
-      try {
-        if (!empty($config->loop) && is_array($config->loop)) {
-          // there is a loop command in here
-          $this->loopCall($context, $config, $params, 1);
-
-        }
-        else {
-          // no loop -> just execute
-          $this->logMessage("CALLING {$config->entity}.{$config->action} with " . json_encode($params), 'debug');
-          civicrm_api3($config->entity, $config->action, $params);
-        }
-
-      }
-      catch (Exception $e) {
-        $this->logMessage("CALLING {$config->entity}.{$config->action} failed: " . $e->getMessage(), 'error');
+    // compile call parameters
+    $params = [];
+    foreach ($config->params as $key => $value) {
+      if ($value !== NULL) {
+        $params[$key] = $value;
       }
     }
+
+    foreach ($config->param_propagation as $value_source => $value_key) {
+      $value = $this->getPropagationValue($context->btx, $match, $value_source);
+      if ($value !== NULL) {
+        $params[$value_key] = $value;
+      }
+    }
+
+    // perform the call(s)
+    if (!empty($config->loop) && is_array($config->loop)) {
+      // there is a loop command in here
+      $this->loopCall($context, $config, $params, 1);
+    }
+    else {
+      // no loop -> just execute
+      $this->logMessage("CALLING {$config->entity}.{$config->action} with " . json_encode($params), 'debug');
+      civicrm_api3($config->entity, $config->action, $params);
+    }
+
+    return TRUE;
   }
 
   /**

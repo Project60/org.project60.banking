@@ -1,6 +1,8 @@
 <?php
 declare(strict_types = 1);
 
+use Civi\Banking\PostProcessor\CustomAction\ActionHandlers\TestCustomActionHandler;
+use Civi\Banking\PostProcessor\CustomAction\CustomActionHandlerInterface;
 use Composer\Autoload\ClassLoader;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 
@@ -46,6 +48,8 @@ if (!function_exists('ts')) {
  * Modify DI container for tests.
  */
 function _banking_test_civicrm_container(ContainerBuilder $container): void {
+  $container->autowire(TestCustomActionHandler::class)
+    ->setDecoratedService(CustomActionHandlerInterface::class);
 }
 
 function addExtensionToClassLoader(ClassLoader $loader, string $extension): void {

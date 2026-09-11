@@ -67,12 +67,12 @@ class CRM_Banking_PluginImpl_PostProcessor_Accounts extends CRM_Banking_PluginMo
   /**
    * @inheritDoc
    */
-  protected function shouldExecute(
+  public function shouldExecute(
     CRM_Banking_Matcher_Suggestion $match,
     CRM_Banking_PluginModel_Matcher $matcher,
     CRM_Banking_Matcher_Context $context,
-    $preview = FALSE
-  ) {
+    bool $preview = FALSE
+  ): bool {
     $config = $this->_plugin_config;
     $btx = $context->btx;
 
@@ -107,61 +107,41 @@ class CRM_Banking_PluginImpl_PostProcessor_Accounts extends CRM_Banking_PluginMo
   }
 
   /**
-   * Postprocess the (already executed) match
-   *
-   * @param $match    the executed match
-   * @param $btx      the related transaction
-   * @param $context  the matcher context contains cache data and context information
-   *
+   * @inheritDoc
    */
-  public function processExecutedMatch(CRM_Banking_Matcher_Suggestion $match, CRM_Banking_PluginModel_Matcher $matcher, CRM_Banking_Matcher_Context $context) {
-    if (!$this->shouldExecute($match, $matcher, $context)) {
-      $this->logMessage('Accounts PostProcessor not executing', 'info');
-      return;
-    }
-
+  public function processExecutedMatch(
+    CRM_Banking_Matcher_Suggestion $match,
+    CRM_Banking_PluginModel_Matcher $matcher,
+    CRM_Banking_Matcher_Context $context
+  ): bool {
     // compile update
     $config = $this->_plugin_config;
-    $update = [];
+    $update = $this->generateUpdateData($context);
 
-    if (!empty($config->own_account)) {
-      $own_account_reference = $this->getAccountData($context, $config->own_contact_id, '_', TRUE);
-      if ($own_account_reference) {
-        $update[$config->own_account] = $own_account_reference;
-      }
-    }
-
-    if (!empty($config->party_account)) {
-      $contact_id = $this->getSoleContactID($context);
-      $party_account_reference = $this->getAccountData($context, $contact_id, '_party_');
-      if ($party_account_reference) {
-        $update[$config->party_account] = $party_account_reference;
-      }
-    }
-
-    if (empty($update)) {
-      // there's nothing to update
-      return;
-    }
-
-    // get the entity ID
     // 'createonly' means: just store the BA with the contact,
     // which is already done by the getAccountData() calls.
-    if ($config->target !== 'createonly') {
-      // now if this is a proper entity, we'll have to store it
-      $object = $this->getPropagationObject($config->target, $context->btx);
-      if (empty($object['id'])) {
-        $this->logMessage("Related object '{$config->target}' could not be (uniquely) identified.", 'warn');
-        return;
-      }
-      else {
-        $update['id'] = $object['id'];
-      }
-
-      // execute update to store the bank accounts
-      $this->logMessage("Accounts Post Processor calling {$config->target}.create: " . json_encode($update), 'debug');
-      civicrm_api3($config->target, 'create', $update);
+    if ($config->target === 'createonly') {
+      return TRUE;
     }
+
+    if ([] === $update) {
+      return FALSE;
+    }
+
+    $object = $this->getPropagationObject($config->target, $context->btx);
+    if (empty($object['id'])) {
+      $this->logMessage("Related object '{$config->target}' could not be (uniquely) identified.", 'warn');
+
+      return FALSE;
+    }
+
+    $update['id'] = $object['id'];
+
+    // execute update to store the bank accounts
+    $this->logMessage("Accounts Post Processor calling {$config->target}.create: " . json_encode($update), 'debug');
+    civicrm_api3($config->target, 'create', $update);
+
+    return TRUE;
   }
 
   /**
@@ -211,6 +191,31 @@ class CRM_Banking_PluginImpl_PostProcessor_Accounts extends CRM_Banking_PluginMo
     }
 
     return $value;
+  }
+
+  /**
+   * @return array<string, mixed>
+   */
+  private function generateUpdateData(CRM_Banking_Matcher_Context $context): array {
+    $config = $this->_plugin_config;
+    $update = [];
+
+    if (!empty($config->own_account)) {
+      $own_account_reference = $this->getAccountData($context, $config->own_contact_id, '_', TRUE);
+      if ($own_account_reference) {
+        $update[$config->own_account] = $own_account_reference;
+      }
+    }
+
+    if (!empty($config->party_account)) {
+      $contact_id = $this->getSoleContactID($context);
+      $party_account_reference = $this->getAccountData($context, $contact_id, '_party_');
+      if ($party_account_reference) {
+        $update[$config->party_account] = $party_account_reference;
+      }
+    }
+
+    return $update;
   }
 
 }

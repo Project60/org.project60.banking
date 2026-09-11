@@ -73,7 +73,7 @@ function banking_civicrm_install() {
   CRM_Utils_File::sourceSQLFile($config->dsn, $sqlfile, NULL, FALSE);
 
   // Set the bank account reference probability to 100%.
-  Civi::settings()->set('reference_matching_probability', 1.0);
+  Civi::settings()->set('banking_reference_matching_probability', 1.0);
 
   _banking_civix_civicrm_install();
 }
@@ -216,7 +216,7 @@ function banking_civicrm_entityTypes(&$entityTypes) {
  */
 function banking_civicrm_navigationMenu(&$menu) {
   // check if we want the menu to be built at all
-  $menu_position = (int) Civi::settings()->get('menu_position');
+  $menu_position = (int) Civi::settings()->get('banking_menu_position');
   switch ($menu_position) {
     case 2:
       // menu is off, see CRM_Admin_Form_Setting_BankingSettings
@@ -239,7 +239,7 @@ function banking_civicrm_navigationMenu(&$menu) {
 
   // Determine the url for the statements/payments (new ui or old ui).
   $statementUrl = 'civicrm/banking/statements';
-  if (!Civi::settings()->get('new_ui')) {
+  if (!Civi::settings()->get('banking_new_ui')) {
     $statementUrl = 'civicrm/banking/payments';
   }
 

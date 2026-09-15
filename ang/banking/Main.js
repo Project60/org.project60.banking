@@ -1,4 +1,4 @@
-(function(angular, $, _) {
+(function(angular, $) {
 
   angular.module('banking').config(function($routeProvider) {
       $routeProvider.when('/banking', {
@@ -45,4 +45,4 @@
     };
   });
 
-})(angular, CRM.$, CRM._);
+})(angular, CRM.$);

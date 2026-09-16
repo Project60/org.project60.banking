@@ -9,7 +9,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Generator: Poedit 3.0.1\n"
+"X-Generator: Poedit 3.4.2\n"
 
 #: CRM/Admin/Form/Setting/BankingSettings.php
 msgid "Simplified user interface"
@@ -627,6 +627,7 @@ msgstr "Keine Konfigurationsdateien gewählt"
 
 #: CRM/Banking/Form/PluginUpload.php CRM/Banking/Page/Review.php
 #: CRM/Banking/PluginImpl/Matcher/Batches.php
+#: CRM/Banking/PluginImpl/Matcher/CreateContactAndContribution.php
 #: CRM/Banking/PluginImpl/Matcher/CreateContribution.php
 #: CRM/Banking/PluginImpl/Matcher/CreateMultipleContributions.php
 #: CRM/Banking/PluginImpl/Matcher/DefaultOptions.php
@@ -684,6 +685,7 @@ msgstr "CiviBanking-Transaktionen"
 #: templates/CRM/Banking/Page/StatementLine.tpl
 #: templates/CRM/Banking/Page/Statements.tpl
 #: templates/CRM/Banking/PluginImpl/Matcher/CreateCampaignContribution.suggestion.tpl
+#: templates/CRM/Banking/PluginImpl/Matcher/CreateContactAndContribution.suggestion.tpl
 #: templates/CRM/Banking/PluginImpl/Matcher/CreateContribution.suggestion.tpl
 #: templates/CRM/Banking/PluginImpl/Matcher/CreateMultipleContributions.suggestion.tpl
 #: templates/CRM/Banking/PluginImpl/Matcher/DefaultOptions.suggestion.tpl
@@ -1286,6 +1288,7 @@ msgstr ""
 "Diese Zahlung wurde mit <a href=\"%s\">Zuwendungsgruppe #%s</a> verbunden."
 
 #: CRM/Banking/PluginImpl/Matcher/CreateCampaignContribution.php
+#: CRM/Banking/PluginImpl/Matcher/CreateContactAndContribution.php
 #: CRM/Banking/PluginImpl/Matcher/CreateContribution.php
 #: CRM/Banking/PluginImpl/Matcher/CreateMultipleContributions.php
 msgid "Source"
@@ -1304,6 +1307,7 @@ msgid "Error was: %1"
 msgstr "Fehler war: %1"
 
 #: CRM/Banking/PluginImpl/Matcher/CreateCampaignContribution.php
+#: CRM/Banking/PluginImpl/Matcher/CreateContactAndContribution.php
 #: CRM/Banking/PluginImpl/Matcher/CreateContribution.php
 #: CRM/Banking/PluginImpl/Matcher/Membership.php
 #: CRM/Banking/PluginImpl/Matcher/RecurringContribution.php
@@ -1321,6 +1325,14 @@ msgstr "'%1' vom gleichen Tag"
 #: CRM/Banking/PluginImpl/Matcher/CreateCampaignContribution.php
 msgid "'%1' from %2 days earlier"
 msgstr "'%1' von %2 Tagen zuvor"
+
+#: CRM/Banking/PluginImpl/Matcher/CreateContactAndContribution.php
+msgid "Create new contact and new contribution"
+msgstr "Neuen Kontakt und neue Zuwendung erstellen"
+
+#: CRM/Banking/PluginImpl/Matcher/CreateContactAndContribution.php
+msgid "Couldn't create contact."
+msgstr "Konnte Kontakt nicht erstellen."
 
 #: CRM/Banking/PluginImpl/Matcher/CreateContribution.php
 msgid "Create a new contribution"
@@ -1924,10 +1936,12 @@ msgid "About Me"
 msgstr "Über mich"
 
 #: ang/banking/Main.html
+#: templates/CRM/Banking/PluginImpl/Matcher/CreateContactAndContribution.suggestion.tpl
 msgid "First Name"
 msgstr "Vorname"
 
 #: ang/banking/Main.html
+#: templates/CRM/Banking/PluginImpl/Matcher/CreateContactAndContribution.suggestion.tpl
 msgid "Last Name"
 msgstr "Nachname"
 
@@ -2226,6 +2240,7 @@ msgstr "Zusätzliche Kriterien %1"
 #: templates/CRM/Banking/Page/StatementLine.tpl
 #: templates/CRM/Banking/Page/Statements.tpl
 #: templates/CRM/Banking/PluginImpl/Matcher/CreateCampaignContribution.suggestion.tpl
+#: templates/CRM/Banking/PluginImpl/Matcher/CreateContactAndContribution.suggestion.tpl
 #: templates/CRM/Banking/PluginImpl/Matcher/CreateContribution.suggestion.tpl
 #: templates/CRM/Banking/PluginImpl/Matcher/CreateMultipleContributions.suggestion.tpl
 #: templates/CRM/Banking/PluginImpl/Matcher/DefaultOptions.suggestion.tpl
@@ -2542,6 +2557,7 @@ msgstr "Plugin"
 
 #: templates/CRM/Banking/Page/Manager.tpl
 #: templates/CRM/Banking/PluginImpl/Matcher/CreateCampaignContribution.suggestion.tpl
+#: templates/CRM/Banking/PluginImpl/Matcher/CreateContactAndContribution.suggestion.tpl
 #: templates/CRM/Banking/PluginImpl/Matcher/CreateContribution.suggestion.tpl
 #: templates/CRM/Banking/PluginImpl/Matcher/CreateMultipleContributions.suggestion.tpl
 #: templates/CRM/Banking/PluginImpl/Matcher/DefaultOptions.suggestion.tpl
@@ -2976,6 +2992,7 @@ msgid "Address incomplete"
 msgstr "Adresse unvollständig"
 
 #: templates/CRM/Banking/PluginImpl/Matcher/CreateCampaignContribution.suggestion.tpl
+#: templates/CRM/Banking/PluginImpl/Matcher/CreateContactAndContribution.suggestion.tpl
 #: templates/CRM/Banking/PluginImpl/Matcher/CreateContribution.suggestion.tpl
 #: templates/CRM/Banking/PluginImpl/Matcher/CreateMultipleContributions.suggestion.tpl
 #: templates/CRM/Banking/PluginImpl/Matcher/ExistingContribution.suggestion.tpl
@@ -2984,6 +3001,7 @@ msgid "An error has occurred:"
 msgstr "Ein Fehler ist aufgetreten:"
 
 #: templates/CRM/Banking/PluginImpl/Matcher/CreateCampaignContribution.suggestion.tpl
+#: templates/CRM/Banking/PluginImpl/Matcher/CreateContactAndContribution.suggestion.tpl
 #: templates/CRM/Banking/PluginImpl/Matcher/CreateContribution.suggestion.tpl
 #: templates/CRM/Banking/PluginImpl/Matcher/CreateMultipleContributions.suggestion.tpl
 #: templates/CRM/Banking/PluginImpl/Matcher/ExistingContribution.suggestion.tpl
@@ -3024,20 +3042,31 @@ msgid "Donor"
 msgstr "Spender"
 
 #: templates/CRM/Banking/PluginImpl/Matcher/CreateCampaignContribution.suggestion.tpl
+#: templates/CRM/Banking/PluginImpl/Matcher/CreateContactAndContribution.suggestion.tpl
 #: templates/CRM/Banking/PluginImpl/Matcher/CreateContribution.suggestion.tpl
 #: templates/CRM/Banking/PluginImpl/Matcher/CreateMultipleContributions.suggestion.tpl
 msgid "Campaign"
 msgstr "Kampagne"
 
+#: templates/CRM/Banking/PluginImpl/Matcher/CreateContactAndContribution.execution.tpl
 #: templates/CRM/Banking/PluginImpl/Matcher/CreateContribution.execution.tpl
 msgid ""
 "This transaction was associated with the new <a href=\"%1\">contribution "
 "#%2</a>."
 msgstr "Diese Zahlung wurde mit <a href=\"%1\">Zuwendung #%2</a> verknüpft."
 
+#: templates/CRM/Banking/PluginImpl/Matcher/CreateContactAndContribution.suggestion.tpl
 #: templates/CRM/Banking/PluginImpl/Matcher/CreateContribution.suggestion.tpl
 msgid "The following contribution will be created:"
 msgstr "Folgende Zuwendung wird erstellt:"
+
+#: templates/CRM/Banking/PluginImpl/Matcher/CreateContactAndContribution.suggestion.tpl
+msgid "Organization Name"
+msgstr "Organisationsname"
+
+#: templates/CRM/Banking/PluginImpl/Matcher/CreateContactAndContribution.suggestion.tpl
+msgid "Formal Title"
+msgstr "Formeller Titel"
 
 #: templates/CRM/Banking/PluginImpl/Matcher/CreateMultipleContributions.execution.tpl
 msgid "This transaction was associated with these new contributions:"

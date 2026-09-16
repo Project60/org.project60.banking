@@ -91,7 +91,7 @@ class CRM_Banking_BAO_BankAccount extends CRM_Banking_DAO_BankAccount {
    *   ordered by the reference types' order in the option group
    */
   public function getReferences() {
-    $bank_account_reference_matching_probability = Civi::settings()->get('reference_matching_probability');
+    $bank_account_reference_matching_probability = Civi::settings()->get('banking_reference_matching_probability');
     if ($bank_account_reference_matching_probability === NULL) {
       $bank_account_reference_matching_probability = 1.0;
     }

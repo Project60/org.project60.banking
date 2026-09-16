@@ -36,7 +36,7 @@ class CRM_Banking_Matcher_Context {
   ) {
     $btx->context = $this;
 
-    $this->bank_account_reference_matching_probability = Civi::settings()->get('reference_matching_probability');
+    $this->bank_account_reference_matching_probability = Civi::settings()->get('banking_reference_matching_probability');
     if ($this->bank_account_reference_matching_probability === NULL) {
       $this->bank_account_reference_matching_probability = 1.0;
     }

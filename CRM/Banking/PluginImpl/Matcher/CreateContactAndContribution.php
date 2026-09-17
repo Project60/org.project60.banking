@@ -106,6 +106,8 @@ class CRM_Banking_PluginImpl_Matcher_CreateContactAndContribution extends CRM_Ba
    *   the bank transaction this is related to
    */
   public function execute($suggestion, $btx) {
+    $tx = new CRM_Core_Transaction();
+
     // create contact
     $contact = $this->get_contact_data($btx, $suggestion);
     $query = $this->get_query($contact);
@@ -114,14 +116,16 @@ class CRM_Banking_PluginImpl_Matcher_CreateContactAndContribution extends CRM_Ba
     }
     catch (CRM_Core_Exception $e) {
       CRM_Core_Session::setStatus(E::ts("Couldn't create contact."), E::ts('Error'), 'error');
-      return TRUE;
+      $tx->rollback();
+      return FALSE;
     }
     if (is_array($result[0]) and is_int($result[0]['id'])) {
       $contact_id = $result[0]['id'];
     }
     else {
       CRM_Core_Session::setStatus(E::ts("Couldn't create contact."), E::ts('Error'), 'error');
-      return TRUE;
+      $tx->rollback();
+      return FALSE;
     }
 
     // create contribution
@@ -133,14 +137,16 @@ class CRM_Banking_PluginImpl_Matcher_CreateContactAndContribution extends CRM_Ba
     }
     catch (CRM_Core_Exception $e) {
       CRM_Core_Session::setStatus(E::ts("Couldn't create contribution."), E::ts('Error'), 'error');
-      return TRUE;
+      $tx->rollback();
+      return FALSE;
     }
     if (is_array($result[0]) and is_int($result[0]['id'])) {
       $contribution_id = $result[0]['id'];
     }
     else {
       CRM_Core_Session::setStatus(E::ts("Couldn't create contribution."), E::ts('Error'), 'error');
-      return TRUE;
+      $tx->rollback();
+      return FALSE;
     }
 
     $suggestion->setParameter('contribution_id', $contribution_id);

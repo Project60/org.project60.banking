@@ -104,6 +104,8 @@ class CRM_Banking_PluginImpl_Matcher_CreateContactAndContribution extends CRM_Ba
    *
    * @param CRM_Banking_BAO_BankTransaction $btx
    *   the bank transaction this is related to
+   * 
+   * @return bool
    */
   public function execute($suggestion, $btx) {
     $tx = new CRM_Core_Transaction();
@@ -111,7 +113,7 @@ class CRM_Banking_PluginImpl_Matcher_CreateContactAndContribution extends CRM_Ba
     // create contact
     $contact = $this->get_contact_data($btx, $suggestion);
     $query = $this->get_query($contact);
-    try{
+    try {
       $result = civicrm_api4('Contact', 'create', $query);
     }
     catch (CRM_Core_Exception $e) {
@@ -132,7 +134,7 @@ class CRM_Banking_PluginImpl_Matcher_CreateContactAndContribution extends CRM_Ba
     $contribution = $this->get_contribution_data($btx, $suggestion);
     $contribution['contact_id'] = $contact_id;
     $query = $this->get_query($contribution);
-    try{
+    try {
       $result = civicrm_api4('Contribution', 'create', $query);
     }
     catch (CRM_Core_Exception $e) {

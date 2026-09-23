@@ -413,7 +413,7 @@ abstract class CRM_Banking_TestBase extends TestCase implements HeadlessInterfac
   /**
    * Get the latest contact.
    *
-   * @return array<string> The contact.
+   * @return array The contact.
    */
   protected function getLatestContact() {
     $contacts = civicrm_api4('Contact', 'get', [

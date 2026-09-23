@@ -291,5 +291,5 @@ class CRM_Banking_Upgrader extends CRM_Extension_Upgrader_Base {
     // replaced by managed entities
     return TRUE;
   }
-  
+
 }

@@ -3,19 +3,18 @@
 // in CiviCRM. See also:
 // http://wiki.civicrm.org/confluence/display/CRMDOC/hook_civicrm_angularModules
 
+declare(strict_types = 1);
+
 return [
-  'js' => 
-  [
+  'js' => [
     0 => 'ang/banking.js',
     1 => 'ang/banking/*.js',
     2 => 'ang/banking/*/*.js',
   ],
-  'css' => 
-  [
+  'css' => [
     0 => 'ang/banking.css',
   ],
-  'partials' => 
-  [
+  'partials' => [
     0 => 'ang/banking',
   ],
 ];

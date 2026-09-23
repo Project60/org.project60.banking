@@ -15,6 +15,7 @@ parameters:
 			- dataprocessor
 			- org.project60.sepa
 	paths:
+		- ang
 		- api
 		- Civi
 		- CRM

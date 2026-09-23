@@ -127,6 +127,26 @@ return [
     ],
   ],
   [
+    'name' => 'OptionGroup_civicrm_banking_plugin_types_OptionValue_matcher_create_contact',
+    'entity' => 'OptionValue',
+    'cleanup' => 'unused',
+    'update' => 'unmodified',
+    'params' => [
+      'version' => 4,
+      'values' => [
+        'option_group_id.name' => 'civicrm_banking.plugin_types',
+        'label' => E::ts('Create Contact And Contribution Matcher Plugin'),
+        'value' => 'CRM_Banking_PluginImpl_Matcher_CreateContactAndContribution',
+        'name' => 'matcher_create',
+      ],
+      'match' => [
+        'option_group_id',
+        'name',
+        'value',
+      ],
+    ],
+  ],
+  [
     'name' => 'OptionGroup_civicrm_banking_plugin_types_OptionValue_matcher_create_campaign',
     'entity' => 'OptionValue',
     'cleanup' => 'unused',

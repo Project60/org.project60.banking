@@ -36,6 +36,11 @@
     {ts 1=$no_campaign_penalty_applied}<b>Caution</b>: the activity found has <b>no campaign</b>, so the score of this suggestion has been reduced by %1%.{/ts}
     <br/><br/>
   {/if}
+  {if $disabled_campaign_penalty_applied}
+    <br/>
+    {ts 1=$disabled_campaign_penalty_applied}<b>Caution</b>: the selected <b>campaign is disabled</b>, so the score of this suggestion has been reduced by %1%.{/ts}
+    <br/><br/>
+  {/if}
   {ts 1=$activity_link}Based on activity '%1', the following contribution will be created:{/ts}
   <br/>
   <div>

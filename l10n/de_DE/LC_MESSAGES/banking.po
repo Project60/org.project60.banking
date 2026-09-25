@@ -9,7 +9,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Generator: Poedit 3.0.1\n"
+"X-Generator: Poedit 3.4.2\n"
 
 #: CRM/Admin/Form/Setting/BankingSettings.php
 msgid "Simplified user interface"
@@ -343,6 +343,7 @@ msgid "Numbering local to the tx_batch_id"
 msgstr "Nummerierung innerhalb der Stapel-ID (tx_batch_id)"
 
 #: CRM/Banking/DAO/BankTransaction.php
+#: managed/OptionGroup_civicrm_banking_bank_tx_status.mgd.php
 msgid "Suggestions"
 msgstr "Vorschläge"
 
@@ -1293,7 +1294,7 @@ msgstr "Quelle"
 
 #: CRM/Banking/PluginImpl/Matcher/CreateCampaignContribution.php
 msgid "n/a"
-msgstr ""
+msgstr "n. z."
 
 #: CRM/Banking/PluginImpl/Matcher/CreateCampaignContribution.php
 msgid "Create Campaign Contribution"
@@ -1835,6 +1836,10 @@ msgstr "Kontodaten gespeichert"
 msgid "%1 might have been executed."
 msgstr "%1 könnte ausgeführt worden sein."
 
+#: CRM/Banking/PluginModel/PostProcessor.php
+msgid "%1 has been executed."
+msgstr "%1 wurde ausgeführt."
+
 #: CRM/Banking/RuleMatchIndicators.php
 msgid "Matching Rule"
 msgstr "Zuordnugnsregel"
@@ -1890,6 +1895,14 @@ msgstr ""
 #: Civi/Banking/DependencyInjection/Compiler/ActionProviderPass.php
 msgid "CiviBanking: Bank Account"
 msgstr "CiviBanking: Bankkonto"
+
+#: Civi/Banking/PostProcessor/CustomActionsPostProcessor.php
+msgid "Executes custom actions."
+msgstr "Führt benutzerdefinierte Aktionen aus."
+
+#: Civi/Banking/PostProcessor/CustomActionsPostProcessor.php
+msgid "Custom Actions PostProcessor"
+msgstr ""
 
 #: ang/banking/Main.html
 msgid "About %1"
@@ -1999,11 +2012,257 @@ msgstr "Bankkonto Doubletten"
 msgid "Configuration Manager"
 msgstr "Konfigurationsmanager"
 
-#: banking_options.php
+#: managed/OptionGroup_civicrm_banking_bank_tx_status.mgd.php
+msgid "CiviBanking bank transaction processing status"
+msgstr "CiviBanking Transaktionsstatus"
+
+#: managed/OptionGroup_civicrm_banking_bank_tx_status.mgd.php
+msgid ""
+"The set of possible processing statuses for a CiviBanking bank transaction"
+msgstr ""
+"Die Menge der möglichen Verarbeitungsstatus für eine CiviBanking "
+"Banktransaktion"
+
+#: managed/OptionGroup_civicrm_banking_bank_tx_status.mgd.php
+#: templates/CRM/Banking/Page/Payments.tpl
+msgid "New"
+msgstr "Neu"
+
+#: managed/OptionGroup_civicrm_banking_bank_tx_status.mgd.php
+msgid "Ignored"
+msgstr "Ignoriert"
+
+#: managed/OptionGroup_civicrm_banking_bank_tx_status.mgd.php
+msgid "Processed"
+msgstr "Ausgeführt"
+
+#: managed/OptionGroup_civicrm_banking_plugin_classes.mgd.php
+msgid "CiviBanking plugin classes"
+msgstr "CiviBanking Plugin-Klassen"
+
+#: managed/OptionGroup_civicrm_banking_plugin_classes.mgd.php
+msgid "The set of existing CiviBanking plugin types"
+msgstr "Die Menge der verfügbaren CiviBanking Plugin-Typen"
+
+#: managed/OptionGroup_civicrm_banking_plugin_classes.mgd.php
+msgid "Import plugin"
+msgstr "Import-Plugin"
+
+#: managed/OptionGroup_civicrm_banking_plugin_classes.mgd.php
+msgid "Match plugin"
+msgstr "Zuordnungs-Plugin"
+
+#: managed/OptionGroup_civicrm_banking_plugin_classes.mgd.php
+msgid "Post Processor"
+msgstr "Post-Prozessor"
+
+#: managed/OptionGroup_civicrm_banking_plugin_classes.mgd.php
+msgid "Export plugin"
+msgstr "Export-Plugin"
+
+#: managed/OptionGroup_civicrm_banking_plugin_types.mgd.php
+msgid "CiviBanking plugin types"
+msgstr "CiviBanking Plugin-Typen"
+
+#: managed/OptionGroup_civicrm_banking_plugin_types.mgd.php
+msgid "The set of possible CiviBanking plugin types"
+msgstr "Die Menge der möglichen CiviBanking Plugin-Typen"
+
+#: managed/OptionGroup_civicrm_banking_plugin_types.mgd.php
+msgid "Dummy Data Importer Plugin"
+msgstr ""
+
+#: managed/OptionGroup_civicrm_banking_plugin_types.mgd.php
+msgid "For testing purposes only"
+msgstr ""
+
+#: managed/OptionGroup_civicrm_banking_plugin_types.mgd.php
+msgid "Configurable CSV Importer"
+msgstr ""
+
+#: managed/OptionGroup_civicrm_banking_plugin_types.mgd.php
+msgid "This importer should be configurable to import any CSV based data."
+msgstr ""
+
+#: managed/OptionGroup_civicrm_banking_plugin_types.mgd.php
+msgid "Configurable XML Importer"
+msgstr ""
+
+#: managed/OptionGroup_civicrm_banking_plugin_types.mgd.php
+msgid ""
+"This importer should be configurable to import a variety of XML based data."
+msgstr ""
+
+#: managed/OptionGroup_civicrm_banking_plugin_types.mgd.php
+msgid "Fixed Width TXT Importer"
+msgstr ""
+
+#: managed/OptionGroup_civicrm_banking_plugin_types.mgd.php
+msgid ""
+"This importer should be configurable for most fixed-width txt standards."
+msgstr ""
+
+#: managed/OptionGroup_civicrm_banking_plugin_types.mgd.php
+msgid "Create Contribution Matcher Plugin"
+msgstr ""
+
+#: managed/OptionGroup_civicrm_banking_plugin_types.mgd.php
+msgid "Create Campaign Contribution Matcher Plugin"
+msgstr ""
+
+#: managed/OptionGroup_civicrm_banking_plugin_types.mgd.php
+msgid "Create Multiple Contributions Matcher Plugin"
+msgstr ""
+
+#: managed/OptionGroup_civicrm_banking_plugin_types.mgd.php
+msgid "Recurring Contribution Matcher Plugin"
+msgstr ""
+
+#: managed/OptionGroup_civicrm_banking_plugin_types.mgd.php
+msgid "Membership Matcher Plugin"
+msgstr ""
+
+#: managed/OptionGroup_civicrm_banking_plugin_types.mgd.php
+msgid "Dummy Matcher Test Plugin"
+msgstr ""
+
+#: managed/OptionGroup_civicrm_banking_plugin_types.mgd.php
+msgid "Default Options Matcher"
+msgstr ""
+
+#: managed/OptionGroup_civicrm_banking_plugin_types.mgd.php
+msgid "Generates default options, namely \"ignore\" and \"process manually\""
+msgstr ""
+
+#: managed/OptionGroup_civicrm_banking_plugin_types.mgd.php
+msgid "Ignore Matcher"
+msgstr ""
+
+#: managed/OptionGroup_civicrm_banking_plugin_types.mgd.php
+msgid ""
+"Can be configured to ignore a transaction when certain patterns are detected."
+msgstr ""
+
+#: managed/OptionGroup_civicrm_banking_plugin_types.mgd.php
+msgid "Contribution Matcher"
+msgstr ""
+
+#: managed/OptionGroup_civicrm_banking_plugin_types.mgd.php
+msgid "Will match the transaction to existing (pending) contributions."
+msgstr ""
+
+#: managed/OptionGroup_civicrm_banking_plugin_types.mgd.php
+msgid "Batch Matcher"
+msgstr ""
+
+#: managed/OptionGroup_civicrm_banking_plugin_types.mgd.php
+msgid "Tries to identify transactions that settle contribution batches."
+msgstr ""
+
+#: managed/OptionGroup_civicrm_banking_plugin_types.mgd.php
+msgid "SEPA Matcher"
+msgstr ""
+
+#: managed/OptionGroup_civicrm_banking_plugin_types.mgd.php
+msgid ""
+"Will match SEPA DD transactions to contributions created by the org."
+"project60.sepa module."
+msgstr ""
+
+#: managed/OptionGroup_civicrm_banking_plugin_types.mgd.php
+msgid "RegEx Analyser"
+msgstr ""
+
+#: managed/OptionGroup_civicrm_banking_plugin_types.mgd.php
+msgid ""
+"Analyses and enriches the transactions information using regular expressions."
+msgstr ""
+
+#: managed/OptionGroup_civicrm_banking_plugin_types.mgd.php
+msgid "Account Lookup Analyser"
+msgstr ""
+
+#: managed/OptionGroup_civicrm_banking_plugin_types.mgd.php
+msgid "Rule Analyser Plugin"
+msgstr ""
+
+#: managed/OptionGroup_civicrm_banking_plugin_types.mgd.php
+msgid "Bank Accounts PostProcessor"
+msgstr ""
+
+#: managed/OptionGroup_civicrm_banking_plugin_types.mgd.php
+msgid "Allows you to store the bank accounts with the contact or contribution"
+msgstr ""
+
+#: managed/OptionGroup_civicrm_banking_plugin_types.mgd.php
+msgid "Update Address PostProcessor"
+msgstr ""
+
+#: managed/OptionGroup_civicrm_banking_plugin_types.mgd.php
+msgid "MembershipPayment PostProcessor"
+msgstr ""
+
+#: managed/OptionGroup_civicrm_banking_plugin_types.mgd.php
+msgid "Assigns newly created contributions to memberships"
+msgstr ""
+
+#: managed/OptionGroup_civicrm_banking_plugin_types.mgd.php
+msgid "API PostProcessor"
+msgstr ""
+
+#: managed/OptionGroup_civicrm_banking_plugin_types.mgd.php
+msgid "Triggers any API action"
+msgstr ""
+
+#: managed/OptionGroup_civicrm_banking_plugin_types.mgd.php
+msgid "Contact Deceased PostProcessor"
+msgstr ""
+
+#: managed/OptionGroup_civicrm_banking_plugin_types.mgd.php
+msgid "Marks a contact as \"deceased\""
+msgstr ""
+
+#: managed/OptionGroup_civicrm_banking_plugin_types.mgd.php
+msgid "Recurring Contribution Fails PostProcessor"
+msgstr ""
+
+#: managed/OptionGroup_civicrm_banking_plugin_types.mgd.php
+msgid ""
+"Processes contribution fails and cancellations for recurring contributions, "
+"including CiviSEPA DDs"
+msgstr ""
+
+#: managed/OptionGroup_civicrm_banking_plugin_types.mgd.php
+msgid "Membership Extension PostProcessor"
+msgstr ""
+
+#: managed/OptionGroup_civicrm_banking_plugin_types.mgd.php
+msgid ""
+"Will automatically extend memberships if the right contribution is processed"
+msgstr ""
+
+#: managed/OptionGroup_civicrm_banking_plugin_types.mgd.php
+msgid "Configurable CSV Exporter"
+msgstr ""
+
+#: managed/OptionGroup_civicrm_banking_plugin_types.mgd.php
+msgid ""
+"This exporter should be configurable to export paymetns to a CSV format."
+msgstr ""
+
+#: managed/OptionGroup_civicrm_banking_reference_types.mgd.php
+msgid "CiviBanking bank account reference types"
+msgstr "CiviBanking Bankkontoreferenztypen"
+
+#: managed/OptionGroup_civicrm_banking_reference_types.mgd.php
+msgid "The set of possible CiviBanking bank account reference types"
+msgstr "Die Menge der möglichen CiviBanking Bankkontoreferenztypen"
+
+#: managed/OptionGroup_civicrm_banking_reference_types.mgd.php
 msgid "International Bank Account Number"
 msgstr "Internationale Bankkontonummer"
 
-#: banking_options.php
+#: managed/OptionGroup_civicrm_banking_reference_types.mgd.php
 msgid ""
 "Format: see <a href=\"https://en.wikipedia.org/wiki/"
 "International_Bank_Account_Number\">IBAN on WikiPedia<a>."
@@ -2011,11 +2270,11 @@ msgstr ""
 "Format: siehe <a href=\"https://de.wikipedia.org/wiki/IBAN\">IBAN auf "
 "WikiPedia<a>."
 
-#: banking_options.php
+#: managed/OptionGroup_civicrm_banking_reference_types.mgd.php
 msgid "German Bank Account Number"
 msgstr "Deutsche Kontonummer"
 
-#: banking_options.php
+#: managed/OptionGroup_civicrm_banking_reference_types.mgd.php
 msgid ""
 "Format is \"BBBBBBBB/KKKKKKKKKK\", (B=\"BLZ\", K=\"Kontonummer\") eg. "
 "\"12345678/0000123456\""
@@ -2023,11 +2282,11 @@ msgstr ""
 "Format ist: \"BBBBBBBB/KKKKKKKKKK\", (B=\"BLZ\", K=\"Kontonummer\") z.B.: "
 "\"12345678/0000123456\""
 
-#: banking_options.php
+#: managed/OptionGroup_civicrm_banking_reference_types.mgd.php
 msgid "Austrian Bank Account Number"
 msgstr "Österreichische Kontonummer"
 
-#: banking_options.php
+#: managed/OptionGroup_civicrm_banking_reference_types.mgd.php
 msgid ""
 "Format is \"BBBBB/KKKKKKKKKKK\", (B=\"BLZ\", K=\"Kontonummer\") eg. "
 "\"12345/00001234567\""
@@ -2035,23 +2294,23 @@ msgstr ""
 "Format ist \"BBBBB/KKKKKKKKKKK\", (B=\"BLZ\", K=\"Kontonummer\") eg. "
 "\"12345/00001234567\""
 
-#: banking_options.php
+#: managed/OptionGroup_civicrm_banking_reference_types.mgd.php
 msgid "Belgian Bank Account Number"
 msgstr "Belgische Kontonummer"
 
-#: banking_options.php
+#: managed/OptionGroup_civicrm_banking_reference_types.mgd.php
 msgid "Swiss Bank Account Number"
 msgstr "Schweizer Kontonummer"
 
-#: banking_options.php
+#: managed/OptionGroup_civicrm_banking_reference_types.mgd.php
 msgid "Format is XX-XXXXXXXXX-X."
 msgstr "Format ist: XX-XXXXXXXXX-X."
 
-#: banking_options.php
+#: managed/OptionGroup_civicrm_banking_reference_types.mgd.php
 msgid "Czech Bank Account Number"
 msgstr "Tschechische Kontonummer"
 
-#: banking_options.php
+#: managed/OptionGroup_civicrm_banking_reference_types.mgd.php
 msgid ""
 "Format is \"PPPPPP-UUUUUUUUUU/CCCC\" (P=\"predcisli/prefix\", U=\"vlastni "
 "cislo/bank account\", C=\"bank code\") The first part (PPPPPP-) is optional."
@@ -2060,55 +2319,61 @@ msgstr ""
 "cislo/Bankkonto\", C=\"bank code\") Der erste Teil (PPPPPP-) kann "
 "weggelassen werden."
 
-#: banking_options.php
+#: managed/OptionGroup_civicrm_banking_reference_types.mgd.php
 msgid "Fingerprint"
 msgstr "Prüfsumme"
 
-#: banking_options.php
+#: managed/OptionGroup_civicrm_banking_reference_types.mgd.php
 msgid "SHA1 fingerprint of some tell-tale value in the transaction information"
 msgstr "SHA1 Prüfsumme eine signifikanten Teils der Zahlungsinformation"
 
-#: banking_options.php
+#: managed/OptionGroup_civicrm_banking_reference_types.mgd.php
 msgid "Internal Link"
 msgstr "Interne Assoziation"
 
-#: banking_options.php
+#: managed/OptionGroup_civicrm_banking_reference_types.mgd.php
+msgid ""
+"Links a bank account to a CiviCRM entity, reference format is "
+"\"<entity_table>:<entity_id>\""
+msgstr ""
+
+#: managed/OptionGroup_civicrm_banking_reference_types.mgd.php
 msgid "GoCardless"
 msgstr "GoCardless"
 
-#: banking_options.php
+#: managed/OptionGroup_civicrm_banking_reference_types.mgd.php
 msgid "GoCardless customer ID"
 msgstr "GoCardless Kundennummer"
 
-#: banking_options.php
+#: managed/OptionGroup_civicrm_banking_reference_types.mgd.php
 msgid "WorldPay"
 msgstr "WorldPay"
 
-#: banking_options.php
+#: managed/OptionGroup_civicrm_banking_reference_types.mgd.php
 msgid "WorldPay merchant ID"
 msgstr "WorldPay Händlernummer"
 
-#: banking_options.php
+#: managed/OptionGroup_civicrm_banking_reference_types.mgd.php
 msgid "Stewardship"
 msgstr "Stewardship"
 
-#: banking_options.php
+#: managed/OptionGroup_civicrm_banking_reference_types.mgd.php
 msgid "Stewardship merchant ID"
 msgstr "Stewardship Händlernummer (merchant ID)"
 
-#: banking_options.php
+#: managed/OptionGroup_civicrm_banking_reference_types.mgd.php
 msgid "PayPal"
 msgstr "PayPal"
 
-#: banking_options.php
+#: managed/OptionGroup_civicrm_banking_reference_types.mgd.php
 msgid "PayPal account identification (email)"
 msgstr "PayPal Konto (E-Mail)"
 
-#: banking_options.php
+#: managed/OptionGroup_civicrm_banking_reference_types.mgd.php
 msgid "Spanish Bank Account Number"
 msgstr "Spanishe Kontonummer"
 
-#: banking_options.php
+#: managed/OptionGroup_civicrm_banking_reference_types.mgd.php
 msgid "Traditional Spanish bank account number"
 msgstr "Traditionelle Spanishe Kontonummer"
 
@@ -2634,10 +2899,6 @@ msgid ""
 msgstr ""
 "Mit Export Plugins können die bereits verbuchten Transaktionen, zum Beispiel "
 "zusammen mit den zugehörigen Zuwendungen, wieder exportiert werden."
-
-#: templates/CRM/Banking/Page/Payments.tpl
-msgid "New"
-msgstr "Neu"
 
 #: templates/CRM/Banking/Page/Payments.tpl
 msgid "Analysed"

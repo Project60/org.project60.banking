@@ -30,7 +30,7 @@ class CRM_Banking_Page_Review extends CRM_Core_Page {
   // phpcs:enable
     CRM_Core_Resources::singleton()->addStyleFile(E::LONG_NAME, 'css/banking.css');
 
-    $new_ui_enabled = Civi::settings()->get('new_ui');
+    $new_ui_enabled = Civi::settings()->get('banking_new_ui');
     // set this variable to request a redirect
     $url_redirect = NULL;
 

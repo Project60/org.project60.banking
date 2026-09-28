@@ -261,7 +261,7 @@ abstract class CRM_Banking_PluginModel_Matcher extends CRM_Banking_PluginModel_B
   public function storeAccountWithContact($btx, $contact_id) {
   // phpcs:enable
     // check if this has been turned off
-    if (Civi::settings()->get('reference_store_disabled')) {
+    if (Civi::settings()->get('banking_reference_store_disabled')) {
       return;
     }
 

@@ -106,13 +106,13 @@ class CRM_Admin_Form_Setting_BankingSettings extends CRM_Core_Form {
 
     $this->add(
       'number',
-      CRM_Banking_Config::SETTING_MAX_CONTACTS_ON_LOOKUP,
+      'max_contacts_on_lookup',
       E::ts('Maximum number of contacts loaded from database on contact lookup'),
       ['min' => 1],
       TRUE
     );
     $this->addRule(
-      CRM_Banking_Config::SETTING_MAX_CONTACTS_ON_LOOKUP,
+      'max_contacts_on_lookup',
       E::ts('This needs to be a number larger than 0'),
       'positiveInteger'
     );
@@ -155,11 +155,11 @@ class CRM_Admin_Form_Setting_BankingSettings extends CRM_Core_Form {
     // validate bank account references?
     $this->addElement(
       'text',
-      CRM_Banking_Config::SETTING_TRANSACTION_LIST_CUTOFF,
+      'transaction_list_cutoff',
       E::ts('Transaction limit in view')
     );
     $this->addRule(
-      CRM_Banking_Config::SETTING_TRANSACTION_LIST_CUTOFF,
+      'transaction_list_cutoff',
       E::ts('This needs to be a number larger than 0'),
       'positiveInteger'
     );
@@ -181,19 +181,19 @@ class CRM_Admin_Form_Setting_BankingSettings extends CRM_Core_Form {
    */
   public function setDefaultValues() {
     $defaults = [];
-    $defaults['new_ui']                          = Civi::settings()->get('new_ui');
-    $defaults['menu_position']                   = Civi::settings()->get('menu_position');
-    $defaults['json_editor_mode']                = Civi::settings()->get('json_editor_mode');
-    $defaults['banking_log_level']               = Civi::settings()->get('banking_log_level');
-    $defaults['banking_log_file']                = Civi::settings()->get('banking_log_file');
-    $defaults[CRM_Banking_Config::SETTING_MAX_CONTACTS_ON_LOOKUP] = CRM_Banking_Config::getMaxContactsOnLookup();
-    $defaults['reference_store_disabled']        = Civi::settings()->get('reference_store_disabled');
-    $defaults['reference_normalisation']         = Civi::settings()->get('reference_normalisation');
-    $defaults['recently_completed_cutoff']       = Civi::settings()->get('recently_completed_cutoff');
-    $defaults['reference_matching_probability']  = Civi::settings()->get('reference_matching_probability');
-    $defaults['reference_validation']            = Civi::settings()->get('reference_validation');
-    $defaults['lenient_dedupe']                  = Civi::settings()->get('lenient_dedupe');
-    $defaults[CRM_Banking_Config::SETTING_TRANSACTION_LIST_CUTOFF]
+    $defaults['new_ui'] = Civi::settings()->get('banking_new_ui');
+    $defaults['menu_position'] = Civi::settings()->get('banking_menu_position');
+    $defaults['json_editor_mode'] = Civi::settings()->get('banking_json_editor_mode');
+    $defaults['banking_log_level'] = Civi::settings()->get('banking_log_level');
+    $defaults['banking_log_file'] = Civi::settings()->get('banking_log_file');
+    $defaults['max_contacts_on_lookup'] = CRM_Banking_Config::getMaxContactsOnLookup();
+    $defaults['reference_store_disabled'] = Civi::settings()->get('banking_reference_store_disabled');
+    $defaults['reference_normalisation'] = Civi::settings()->get('banking_reference_normalisation');
+    $defaults['recently_completed_cutoff'] = Civi::settings()->get('banking_recently_completed_cutoff');
+    $defaults['reference_matching_probability'] = Civi::settings()->get('banking_reference_matching_probability');
+    $defaults['reference_validation'] = Civi::settings()->get('banking_reference_validation');
+    $defaults['lenient_dedupe'] = Civi::settings()->get('banking_lenient_dedupe');
+    $defaults['transaction_list_cutoff']
       = Civi::settings()->get(CRM_Banking_Config::SETTING_TRANSACTION_LIST_CUTOFF);
 
     if ($defaults['reference_matching_probability'] === NULL) {
@@ -210,20 +210,20 @@ class CRM_Admin_Form_Setting_BankingSettings extends CRM_Core_Form {
     $values = $this->exportValues();
 
     // process menu relevant entries
-    $old_menu_position = (int) Civi::settings()->get('menu_position');
+    $old_menu_position = (int) Civi::settings()->get('banking_menu_position');
     $new_menu_position = (int) $values['menu_position'];
 
-    $old_ui_style = (int) Civi::settings()->get('new_ui');
+    $old_ui_style = (int) Civi::settings()->get('banking_new_ui');
     $new_ui_style = (int) $values['new_ui'];
 
     if ($old_menu_position != $new_menu_position || $old_ui_style != $new_ui_style) {
-      Civi::settings()->set('new_ui', $new_ui_style);
-      Civi::settings()->set('menu_position', $new_menu_position);
+      Civi::settings()->set('banking_new_ui', $new_ui_style);
+      Civi::settings()->set('banking_menu_position', $new_menu_position);
       CRM_Core_BAO_Navigation::resetNavigation();
     }
 
     // process menu entry
-    Civi::settings()->set('json_editor_mode', $values['json_editor_mode']);
+    Civi::settings()->set('banking_json_editor_mode', $values['json_editor_mode']);
 
     // log levels
     Civi::settings()->set('banking_log_level', $values['banking_log_level']);
@@ -231,20 +231,20 @@ class CRM_Admin_Form_Setting_BankingSettings extends CRM_Core_Form {
 
     Civi::settings()->set(
       CRM_Banking_Config::SETTING_MAX_CONTACTS_ON_LOOKUP,
-      (int) $values[CRM_Banking_Config::SETTING_MAX_CONTACTS_ON_LOOKUP]
+      (int) $values['max_contacts_on_lookup']
     );
 
     // process reference normalisation / validation
-    Civi::settings()->set('reference_store_disabled', !empty($values['reference_store_disabled']));
-    Civi::settings()->set('reference_normalisation', !empty($values['reference_normalisation']));
-    Civi::settings()->set('reference_validation', !empty($values['reference_validation']));
-    Civi::settings()->set('lenient_dedupe', !empty($values['lenient_dedupe']));
-    Civi::settings()->set('reference_matching_probability', $values['reference_matching_probability']);
-    Civi::settings()->set('recently_completed_cutoff', $values['recently_completed_cutoff']);
+    Civi::settings()->set('banking_reference_store_disabled', (bool) $values['reference_store_disabled']);
+    Civi::settings()->set('banking_reference_normalisation', (bool) $values['reference_normalisation']);
+    Civi::settings()->set('banking_reference_validation', (bool) $values['reference_validation']);
+    Civi::settings()->set('banking_lenient_dedupe', (bool) $values['lenient_dedupe']);
+    Civi::settings()->set('banking_reference_matching_probability', $values['reference_matching_probability']);
+    Civi::settings()->set('banking_recently_completed_cutoff', $values['recently_completed_cutoff']);
 
     // display settings
     Civi::settings()->set(CRM_Banking_Config::SETTING_TRANSACTION_LIST_CUTOFF,
-      $values[CRM_Banking_Config::SETTING_TRANSACTION_LIST_CUTOFF]);
+      $values['transaction_list_cutoff']);
 
     // log results
     $logger = CRM_Banking_Helpers_Logger::getLogger();

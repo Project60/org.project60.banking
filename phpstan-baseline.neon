@@ -659,6 +659,12 @@ parameters:
 			path: CRM/Banking/BAO/PluginInstance.php
 
 		-
+			message: '#^For loop initial assignment overwrites variable \$index\.$#'
+			identifier: for.variableOverwrite
+			count: 1
+			path: CRM/Banking/BAO/PluginInstance.php
+
+		-
 			message: '#^Loose comparison via "\!\=" is not allowed\.$#'
 			identifier: notEqual.notAllowed
 			count: 3
@@ -3046,12 +3052,6 @@ parameters:
 			path: CRM/Banking/Page/Manager.php
 
 		-
-			message: '#^Cannot access offset ''values'' on array\|int\.$#'
-			identifier: offsetAccess.nonOffsetAccessible
-			count: 1
-			path: CRM/Banking/Page/Manager.php
-
-		-
 			message: '#^Loose comparison via "\!\=" is not allowed\.$#'
 			identifier: notEqual.notAllowed
 			count: 1
@@ -4125,9 +4125,21 @@ parameters:
 			path: CRM/Banking/PluginImpl/Exporter/CSV.php
 
 		-
+			message: '#^Access to an undefined property object\:\:\$entity\.$#'
+			identifier: property.notFound
+			count: 1
+			path: CRM/Banking/PluginImpl/Exporter/CSV.php
+
+		-
+			message: '#^Access to an undefined property object\:\:\$key\.$#'
+			identifier: property.notFound
+			count: 1
+			path: CRM/Banking/PluginImpl/Exporter/CSV.php
+
+		-
 			message: '#^Access to an undefined property object\:\:\$to\.$#'
 			identifier: property.notFound
-			count: 5
+			count: 6
 			path: CRM/Banking/PluginImpl/Exporter/CSV.php
 
 		-
@@ -4564,12 +4576,6 @@ parameters:
 			message: '#^Method CRM_Banking_PluginImpl_Importer_CSV\:\:probe_stream\(\) has parameter \$params with no type specified\.$#'
 			identifier: missingType.parameter
 			count: 1
-			path: CRM/Banking/PluginImpl/Importer/CSV.php
-
-		-
-			message: '#^Offset 1 on array\{list\<string\>, list\<non\-empty\-string\>\} in isset\(\) always exists and is not nullable\.$#'
-			identifier: isset.offset
-			count: 2
 			path: CRM/Banking/PluginImpl/Importer/CSV.php
 
 		-
@@ -6274,12 +6280,6 @@ parameters:
 		-
 			message: '#^Return type \(html\) of method CRM_Banking_PluginImpl_Matcher_ExistingContribution\:\:visualize_match\(\) should be compatible with return type \(string\) of method CRM_Banking_PluginModel_Matcher\:\:visualize_match\(\)$#'
 			identifier: method.childReturnType
-			count: 1
-			path: CRM/Banking/PluginImpl/Matcher/ExistingContribution.php
-
-		-
-			message: '#^Variable \$amount_delta might not be defined\.$#'
-			identifier: variable.undefined
 			count: 1
 			path: CRM/Banking/PluginImpl/Matcher/ExistingContribution.php
 
@@ -9320,12 +9320,6 @@ parameters:
 			message: '#^Construct empty\(\) is not allowed\. Use more strict comparison\.$#'
 			identifier: empty.notAllowed
 			count: 13
-			path: CRM/Banking/PluginModel/Matcher.php
-
-		-
-			message: '#^Foreach overwrites \$ba_bao with its value variable\.$#'
-			identifier: foreach.valueOverwrite
-			count: 1
 			path: CRM/Banking/PluginModel/Matcher.php
 
 		-

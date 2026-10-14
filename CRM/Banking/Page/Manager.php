@@ -16,6 +16,7 @@
 
 declare(strict_types = 1);
 
+use Civi\Api4\OptionValue;
 use CRM_Banking_ExtensionUtil as E;
 
 class CRM_Banking_Page_Manager extends CRM_Core_Page {
@@ -36,7 +37,7 @@ class CRM_Banking_Page_Manager extends CRM_Core_Page {
                plugin.name          AS plugin_name,
                plugin.description   AS plugin_description,
                plugin.enabled       AS plugin_enabled,
-               type.label           AS plugin_type,
+               type.name            AS plugin_type,
                class.label          AS plugin_class,
                class.value          AS plugin_class_implementation,
                plugin.weight        AS plugin_weight
@@ -60,19 +61,23 @@ class CRM_Banking_Page_Manager extends CRM_Core_Page {
     // TODO: enrich data with information from the class,config,...?
 
     // set the type IDs
-    $class_search = civicrm_api3('OptionValue', 'get', [
-      'option_group_id' => 'civicrm_banking.plugin_classes',
-      'options' => ['limit' => 0, 'sort' => 'weight'],
-    ]);
-    foreach ($class_search['values'] as $optionValue) {
-      $this->assign("type_{$optionValue['name']}", $optionValue['id']);
+    /** @var array<int, string> $classOptions */
+    $classOptions = OptionValue::get(FALSE)
+      ->addSelect('id', 'name')
+      ->addWhere('option_group_id.name', '=', 'civicrm_banking.plugin_classes')
+      ->addOrderBy('weight', 'ASC')
+      ->execute()
+      ->indexBy('id')
+      ->column('name');
+    foreach ($classOptions as $classOptionId => $classOptionName) {
+      $this->assign("type_$classOptionName", $classOptionId);
     }
 
     // assign lists to template
-    $this->assign('importers', $plugin_type_to_instance['Import plugin'] ?? []);
-    $this->assign('matchers', $plugin_type_to_instance['Match plugin'] ?? []);
-    $this->assign('postprocessors', $plugin_type_to_instance['Post Processor'] ?? []);
-    $this->assign('exporters', $plugin_type_to_instance['Export plugin'] ?? []);
+    $this->assign('importers', $plugin_type_to_instance['import'] ?? []);
+    $this->assign('matchers', $plugin_type_to_instance['match'] ?? []);
+    $this->assign('postprocessors', $plugin_type_to_instance['postprocess'] ?? []);
+    $this->assign('exporters', $plugin_type_to_instance['export'] ?? []);
     $this->assign('baseurl', CRM_Utils_System::url('civicrm/banking/manager'));
 
     parent::run();

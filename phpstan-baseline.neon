@@ -7,12 +7,6 @@ parameters:
 			path: CRM/Admin/Form/Setting/BankingSettings.php
 
 		-
-			message: '#^Construct empty\(\) is not allowed\. Use more strict comparison\.$#'
-			identifier: empty.notAllowed
-			count: 4
-			path: CRM/Admin/Form/Setting/BankingSettings.php
-
-		-
 			message: '#^Loose comparison via "\!\=" is not allowed\.$#'
 			identifier: notEqual.notAllowed
 			count: 2

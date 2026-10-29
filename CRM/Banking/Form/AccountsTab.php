@@ -84,8 +84,8 @@ class CRM_Banking_Form_AccountsTab extends CRM_Core_Form {
     }
 
     // load settings
-    $this->assign('reference_normalisation', (int) Civi::settings()->get('reference_normalisation'));
-    $this->assign('reference_validation', (int) Civi::settings()->get('reference_validation'));
+    $this->assign('reference_normalisation', (int) Civi::settings()->get('banking_reference_normalisation'));
+    $this->assign('reference_validation', (int) Civi::settings()->get('banking_reference_validation'));
 
     // ACCOUNT REFRENCE ITEMS
     $this->add('hidden', 'contact_id', $contact_id);
@@ -100,7 +100,7 @@ class CRM_Banking_Form_AccountsTab extends CRM_Core_Form {
         TRUE
     );
     // set last value
-    $reference_type->setSelected(Civi::settings()->get('account.default_reference_id'));
+    $reference_type->setSelected(Civi::settings()->get('banking_account.default_reference_id'));
 
     $reference_type = $this->add(
         'text',
@@ -137,7 +137,7 @@ class CRM_Banking_Form_AccountsTab extends CRM_Core_Form {
         FALSE
     );
     // set last value
-    $country->setSelected(Civi::settings()->get('account.default_country'));
+    $country->setSelected(Civi::settings()->get('banking_account.default_country'));
 
     $this->addButtons([
       [
@@ -161,8 +161,8 @@ class CRM_Banking_Form_AccountsTab extends CRM_Core_Form {
   public function validate() {
     $error = parent::validate();
     $values = $this->exportValues();
-    $normalise = Civi::settings()->get('reference_normalisation');
-    $validate  = Civi::settings()->get('reference_validation');
+    $normalise = Civi::settings()->get('banking_reference_normalisation');
+    $validate  = Civi::settings()->get('banking_reference_validation');
 
     if (!empty($values['reference_type']) && !empty($values['reference'])) {
       if ($validate || $normalise) {
@@ -200,10 +200,10 @@ class CRM_Banking_Form_AccountsTab extends CRM_Core_Form {
 
     // save presets
     if (!empty($values['reference_type'])) {
-      Civi::settings()->set('account.default_reference_id', $values['reference_type']);
+      Civi::settings()->set('banking_account.default_reference_id', $values['reference_type']);
     }
     if (!empty($values['country'])) {
-      Civi::settings()->set('account.default_country', $values['country']);
+      Civi::settings()->set('banking_account.default_country', $values['country']);
     }
 
     // create bank account

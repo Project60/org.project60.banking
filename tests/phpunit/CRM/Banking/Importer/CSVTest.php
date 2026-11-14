@@ -94,4 +94,36 @@ class CRM_Banking_Importer_CSVTest extends CRM_Banking_TestBase {
 
   }
 
+  /**
+   * An unknown account is looked up once per import, not once per transaction.
+   */
+  public function testUnknownAccountIsLookedUpOnce(): void {
+    $importer_id = $this->configureCiviBankingModule(
+      $this->getTestResourcePath('importer/configuration/Test01.civibanking'));
+
+    // Count the reference lookups of the importer.
+    $lookups = 0;
+    $listener = function (\Civi\API\Event\PrepareEvent $event) use (&$lookups): void {
+      $request = $event->getApiRequest();
+      if ('BankingAccountReference' === $request['entity'] && 'get' === $request['action']) {
+        $lookups++;
+      }
+    };
+    \Civi::dispatcher()->addListener('civi.api.prepare', $listener);
+    try {
+      // Three transactions, each with the same own and party account, and
+      // neither account is known.
+      $import_file = $this->getTestResourcePath('importer/data/Test01_three_transactions.csv');
+      $batch_id = $this->importFile($importer_id, $import_file);
+    }
+    finally {
+      \Civi::dispatcher()->removeListener('civi.api.prepare', $listener);
+    }
+
+    $batch = $this->getBatch($batch_id);
+    static::assertNotNull($batch, "Importer failed to read '{$import_file}'.");
+    static::assertCount(3, $batch->getTransactions(), 'Unexpected amount of transactions received');
+    static::assertSame(2, $lookups, 'Each unknown account should be looked up once.');
+  }
+
 }

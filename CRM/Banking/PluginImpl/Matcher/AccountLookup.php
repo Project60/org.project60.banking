@@ -148,13 +148,10 @@ class CRM_Banking_PluginImpl_Matcher_AccountLookup extends CRM_Banking_PluginMod
         $this->logMessage('Error while looking up bank account reference: ' . $e->getMessage());
         return NULL;
       }
+    }
 
-      // finally set the account for the btx
-      return $account_cache[$type_id][$reference];
-    }
-    else {
-      return NULL;
-    }
+    // return the account found by this lookup or by an earlier one in this context
+    return $account_cache[$type_id][$reference];
   }
 
   /**

@@ -148,7 +148,7 @@ class CRM_Banking_Matcher_Context {
     // check the cache first (key has md5 due to different parameters)
     $cache_key = 'banking.matcher.context.name_lookup.' . md5(serialize($name) . serialize($parameters));
     $contacts_found = $this->getCachedEntry($cache_key);
-    if ($contacts_found != NULL) {
+    if ($contacts_found !== NULL) {
       $logger->logDebug('lookupContactByName: cache hit');
       return $contacts_found;
     }

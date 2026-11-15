@@ -1936,12 +1936,6 @@ parameters:
 			path: CRM/Banking/Matcher/Context.php
 
 		-
-			message: '#^Loose comparison via "\!\=" is not allowed\.$#'
-			identifier: notEqual.notAllowed
-			count: 1
-			path: CRM/Banking/Matcher/Context.php
-
-		-
 			message: '#^Loose comparison via "\=\=" is not allowed\.$#'
 			identifier: equal.notAllowed
 			count: 3

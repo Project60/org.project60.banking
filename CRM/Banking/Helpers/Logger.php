@@ -52,7 +52,7 @@ class CRM_Banking_Helpers_Logger {
   protected function __construct() {
     // read log level
     $all_levels = self::getLoglevels();
-    $this->log_level = Civi::settings()->get('banking_log_level');
+    $this->log_level = Civi::settings()->get('banking_log_level') ?? 'off';
     if (!isset($all_levels[$this->log_level])) {
       // invalid log level -> fall back to 'off'
       $this->log_level = 'off';

@@ -29,7 +29,7 @@ function banking_transaction_search_update_table_link()
         let field_name = CRM.vars.banking_txsearch_basic_fields[index];
         let field_value = '';
         if (field_name === 'status_select') {
-            field_value = cj([name=status_select]).val();
+            field_value = cj('[name="status_select[]"]').val();
             if (Array.isArray(field_value)) {
                 field_value = field_value.join(',');
             }

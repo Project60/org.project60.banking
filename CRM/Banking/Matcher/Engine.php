@@ -141,9 +141,9 @@ class CRM_Banking_Matcher_Engine {
   // phpcs:ignore Generic.Metrics.CyclomaticComplexity.TooHigh
   public function match($btx_id, $override_processed = FALSE) {
     // TODO: timeout is 30s - do we need a setting here?
-    $lock_timeout = 30.0;
+    $lock_timeout = 30;
     $lock = CRM_Utils_BankingSafeLock::acquireLock('org.project60.banking.tx' . '-' . $btx_id, $lock_timeout);
-    if (empty($lock)) {
+    if (NULL === $lock) {
       error_log("org.project60.banking - couldn't acquire lock. Timeout is $lock_timeout.");
       return FALSE;
     }
@@ -384,6 +384,8 @@ class CRM_Banking_Matcher_Engine {
 
   /**
    * Run a single plugin to check for a match.
+   *
+   * @throws \Exception
    */
   protected function matchPlugin(CRM_Banking_PluginModel_Matcher $plugin, CRM_Banking_Matcher_Context $context) {
 

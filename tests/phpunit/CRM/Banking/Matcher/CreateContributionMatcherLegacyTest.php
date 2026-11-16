@@ -41,6 +41,7 @@ class CRM_Banking_CreateContributionLegacyTest extends CRM_Banking_TestBase {
 
     // check results
     $contribution = $this->getLatestContribution();
+    static::assertNotNull($contribution);
     $this->assertEquals(
         $contactId,
         $contribution['contact_id'],

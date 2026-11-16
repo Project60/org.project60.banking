@@ -25,19 +25,16 @@ declare(strict_types = 1);
  */
 class CRM_Utils_BankingSafeLock {
 
-  private static $_acquired_lock = NULL;
+  private static ?self $acquiredLock = NULL;
 
-  private $lock;
-  private $name;
-  private $counter;
+  private int $counter = 1;
 
-  private function __construct($civilock, $lockname) {
-    $this->lock = $civilock;
-    $this->name = $lockname;
-    $this->counter = 1;
-  }
+  private function __construct(
+    private readonly CRM_Core_Lock $lock,
+    private readonly string $name
+  ) {}
 
-  public function getName() {
+  public function getName(): string {
     return $this->name;
   }
 
@@ -50,40 +47,34 @@ class CRM_Utils_BankingSafeLock {
    * lock multiple times, but you will then have to release them
    * the same amount of times
    *
-   * @return a SafeLock instance or NULL if timed out
+   * @return self|null SafeLock instance or NULL if timed out
    */
-  public static function acquireLock($name, $timeout = 60) {
-    if (self::$_acquired_lock == NULL) {
+  public static function acquireLock(string $name, int $timeout = 60): ?self {
+    if (self::$acquiredLock === NULL) {
       // it's free, we'll try to take it
       $lock = new CRM_Core_Lock($name, $timeout);
-      if (version_compare(CRM_Utils_System::version(), '4.6', '>=')) {
-        // before 4.6, a new lock would be automatically acquired
-        $lock->acquire();
-      }
-      if ($lock != NULL && $lock->isAcquired()) {
+      if ($lock->acquire()) {
         // we got it!
-        self::$_acquired_lock = new CRM_Utils_BankingSafeLock($lock, $name);
-        return self::$_acquired_lock;
+        self::$acquiredLock = new CRM_Utils_BankingSafeLock($lock, $name);
+        return self::$acquiredLock;
       }
       else {
         // timed out
         return NULL;
       }
-
     }
-    elseif (self::$_acquired_lock->getName() == $name) {
+    elseif (self::$acquiredLock->getName() === $name) {
       // this means acquiring 'our' lock again:
-      $lock = self::$_acquired_lock;
+      $lock = self::$acquiredLock;
       $lock->counter += 1;
 
       return $lock;
-
     }
     else {
       // this is the BAD case: somebody's trying to acquire ANOTHER LOCK,
       //  while we still own another one
-      $lock_name = self::$_acquired_lock->getName();
-      throw new Exception("This process cannot acquire more than one lock! It still owns lock '$lock_name'.");
+      $lockName = self::$acquiredLock->getName();
+      throw new RuntimeException("This process cannot acquire more than one lock! It still owns lock '$lockName'.");
     }
 
   }
@@ -92,23 +83,22 @@ class CRM_Utils_BankingSafeLock {
    * Will release a lock with the given name,
    *  if it has been acquired before
    */
-  public static function releaseLock($name) {
-    if (self::$_acquired_lock == NULL) {
+  public static function releaseLock(string $name): void {
+    if (self::$acquiredLock === NULL) {
       // weird, we don't own this lock...
       error_log("org.project60.banking: This process cannot release lock '$name', it has not been acquired.");
-      throw new Exception("This process cannot release lock '$name', it has not been acquired.");
+      throw new RuntimeException("This process cannot release lock '$name', it has not been acquired.");
 
     }
-    elseif (self::$_acquired_lock->getName() == $name) {
+    elseif (self::$acquiredLock->getName() === $name) {
       // we want to release our own lock
-      self::$_acquired_lock->release();
-
+      self::$acquiredLock->release();
     }
     else {
       // somebody is trying to release ANOTHER LOCK
-      $lock_name = self::$_acquired_lock->getName();
-      error_log("org.project60.banking: This process cannot realease lock '$name', it still owns lock '$lock_name'.");
-      throw new Exception("This process cannot realease lock '$name', it still owns lock '$lock_name'.");
+      $lockName = self::$acquiredLock->getName();
+      error_log("org.project60.banking: This process cannot realease lock '$name', it still owns lock '$lockName'.");
+      throw new RuntimeException("This process cannot realease lock '$name', it still owns lock '$lockName'.");
     }
   }
 
@@ -116,22 +106,22 @@ class CRM_Utils_BankingSafeLock {
    * Will release a lock with the given name,
    *  if it has been acquired before
    */
-  public function release() {
+  public function release(): void {
     if ($this->counter > 1) {
       // this is a lock that we acquired multiple times:
       //  simply decrease counter
       $this->counter -= 1;
     }
-    elseif ($this->counter == 1) {
+    elseif ($this->counter === 1) {
       // simply release the lock
       $this->counter = 0;
       $this->lock->release();
-      self::$_acquired_lock = NULL;
+      self::$acquiredLock = NULL;
     }
     else {
       // lock has already been released!
       error_log('org.project60.banking: This process cannot release the lock, it has already been released before.');
-      throw new Exception("This process cannot release the lock', it has already been released before.");
+      throw new RuntimeException("This process cannot release the lock', it has already been released before.");
     }
   }
 

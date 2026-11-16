@@ -2014,12 +2014,6 @@ parameters:
 			path: CRM/Banking/Matcher/Context.php
 
 		-
-			message: '#^Call to method release\(\) on an unknown class a\.$#'
-			identifier: class.notFound
-			count: 5
-			path: CRM/Banking/Matcher/Engine.php
-
-		-
 			message: '#^Cannot access offset ''values'' on array\|int\.$#'
 			identifier: offsetAccess.nonOffsetAccessible
 			count: 2
@@ -2028,7 +2022,7 @@ parameters:
 		-
 			message: '#^Construct empty\(\) is not allowed\. Use more strict comparison\.$#'
 			identifier: empty.notAllowed
-			count: 3
+			count: 2
 			path: CRM/Banking/Matcher/Engine.php
 
 		-
@@ -2761,42 +2755,6 @@ parameters:
 			identifier: encapsedStringPart.nonString
 			count: 2
 			path: CRM/Banking/Page/AccountSearch.php
-
-		-
-			message: '#^Access to an undefined property object\:\:\$count\.$#'
-			identifier: property.notFound
-			count: 4
-			path: CRM/Banking/Page/Dashboard.php
-
-		-
-			message: '#^Access to an undefined property object\:\:\$first_payment\.$#'
-			identifier: property.notFound
-			count: 2
-			path: CRM/Banking/Page/Dashboard.php
-
-		-
-			message: '#^Access to an undefined property object\:\:\$last_payment\.$#'
-			identifier: property.notFound
-			count: 1
-			path: CRM/Banking/Page/Dashboard.php
-
-		-
-			message: '#^Access to an undefined property object\:\:\$status_id\.$#'
-			identifier: property.notFound
-			count: 4
-			path: CRM/Banking/Page/Dashboard.php
-
-		-
-			message: '#^Access to an undefined property object\:\:\$year_week\.$#'
-			identifier: property.notFound
-			count: 1
-			path: CRM/Banking/Page/Dashboard.php
-
-		-
-			message: '#^Call to an undefined method object\:\:fetch\(\)\.$#'
-			identifier: method.notFound
-			count: 2
-			path: CRM/Banking/Page/Dashboard.php
 
 		-
 			message: '#^Construct empty\(\) is not allowed\. Use more strict comparison\.$#'
@@ -4115,7 +4073,7 @@ parameters:
 		-
 			message: '#^Access to an undefined property object\:\:\$comparator\.$#'
 			identifier: property.notFound
-			count: 7
+			count: 1
 			path: CRM/Banking/PluginImpl/Exporter/CSV.php
 
 		-
@@ -7565,12 +7523,6 @@ parameters:
 			path: CRM/Banking/PluginImpl/PostProcessor/AddressUpdate.php
 
 		-
-			message: '#^Cannot access offset ''count'' on array\|int\.$#'
-			identifier: offsetAccess.nonOffsetAccessible
-			count: 3
-			path: CRM/Banking/PluginImpl/PostProcessor/AddressUpdate.php
-
-		-
 			message: '#^Cannot access offset ''id'' on array\|int\.$#'
 			identifier: offsetAccess.nonOffsetAccessible
 			count: 1
@@ -10079,7 +10031,7 @@ parameters:
 		-
 			message: '#^Variable property access on \$this\(CRM_Banking_Rules_Rule\)\.$#'
 			identifier: property.dynamicName
-			count: 9
+			count: 7
 			path: CRM/Banking/Rules/Rule.php
 
 		-
@@ -10105,131 +10057,6 @@ parameters:
 			identifier: if.condNotBoolean
 			count: 1
 			path: CRM/Banking/Upgrader.php
-
-		-
-			message: '#^Do not throw the \\Exception base class\.$#'
-			count: 4
-			path: CRM/Utils/BankingSafeLock.php
-
-		-
-			message: '#^Loose comparison via "\!\=" is not allowed\.$#'
-			identifier: notEqual.notAllowed
-			count: 1
-			path: CRM/Utils/BankingSafeLock.php
-
-		-
-			message: '#^Loose comparison via "\=\=" is not allowed\.$#'
-			identifier: equal.notAllowed
-			count: 5
-			path: CRM/Utils/BankingSafeLock.php
-
-		-
-			message: '#^Method CRM_Utils_BankingSafeLock\:\:__construct\(\) has parameter \$civilock with no type specified\.$#'
-			identifier: missingType.parameter
-			count: 1
-			path: CRM/Utils/BankingSafeLock.php
-
-		-
-			message: '#^Method CRM_Utils_BankingSafeLock\:\:__construct\(\) has parameter \$lockname with no type specified\.$#'
-			identifier: missingType.parameter
-			count: 1
-			path: CRM/Utils/BankingSafeLock.php
-
-		-
-			message: '#^Method CRM_Utils_BankingSafeLock\:\:acquireLock\(\) has invalid return type a\.$#'
-			identifier: class.notFound
-			count: 1
-			path: CRM/Utils/BankingSafeLock.php
-
-		-
-			message: '#^Method CRM_Utils_BankingSafeLock\:\:acquireLock\(\) has parameter \$name with no type specified\.$#'
-			identifier: missingType.parameter
-			count: 1
-			path: CRM/Utils/BankingSafeLock.php
-
-		-
-			message: '#^Method CRM_Utils_BankingSafeLock\:\:acquireLock\(\) has parameter \$timeout with no type specified\.$#'
-			identifier: missingType.parameter
-			count: 1
-			path: CRM/Utils/BankingSafeLock.php
-
-		-
-			message: '#^Method CRM_Utils_BankingSafeLock\:\:acquireLock\(\) should return a but returns CRM_Utils_BankingSafeLock\.$#'
-			identifier: return.type
-			count: 1
-			path: CRM/Utils/BankingSafeLock.php
-
-		-
-			message: '#^Method CRM_Utils_BankingSafeLock\:\:acquireLock\(\) should return a but returns null\.$#'
-			identifier: return.type
-			count: 1
-			path: CRM/Utils/BankingSafeLock.php
-
-		-
-			message: '#^Method CRM_Utils_BankingSafeLock\:\:getName\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: CRM/Utils/BankingSafeLock.php
-
-		-
-			message: '#^Method CRM_Utils_BankingSafeLock\:\:release\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: CRM/Utils/BankingSafeLock.php
-
-		-
-			message: '#^Method CRM_Utils_BankingSafeLock\:\:releaseLock\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: CRM/Utils/BankingSafeLock.php
-
-		-
-			message: '#^Method CRM_Utils_BankingSafeLock\:\:releaseLock\(\) has parameter \$name with no type specified\.$#'
-			identifier: missingType.parameter
-			count: 1
-			path: CRM/Utils/BankingSafeLock.php
-
-		-
-			message: '#^NotEqual\: Condition between null and CRM_Core_Lock are falsy, please do not mix types\.$#'
-			identifier: voku.NotEqual
-			count: 1
-			path: CRM/Utils/BankingSafeLock.php
-
-		-
-			message: '#^NotEqual\: Do not compare objects directly, CRM_Core_Lock and null found\.$#'
-			identifier: voku.NotEqual
-			count: 1
-			path: CRM/Utils/BankingSafeLock.php
-
-		-
-			message: '#^NotEqual\: Possible insane comparison between null and CRM_Core_Lock\.$#'
-			identifier: voku.NotEqual
-			count: 1
-			path: CRM/Utils/BankingSafeLock.php
-
-		-
-			message: '#^Property CRM_Utils_BankingSafeLock\:\:\$_acquired_lock has no type specified\.$#'
-			identifier: missingType.property
-			count: 1
-			path: CRM/Utils/BankingSafeLock.php
-
-		-
-			message: '#^Property CRM_Utils_BankingSafeLock\:\:\$counter has no type specified\.$#'
-			identifier: missingType.property
-			count: 1
-			path: CRM/Utils/BankingSafeLock.php
-
-		-
-			message: '#^Property CRM_Utils_BankingSafeLock\:\:\$lock has no type specified\.$#'
-			identifier: missingType.property
-			count: 1
-			path: CRM/Utils/BankingSafeLock.php
-
-		-
-			message: '#^Property CRM_Utils_BankingSafeLock\:\:\$name has no type specified\.$#'
-			identifier: missingType.property
-			count: 1
-			path: CRM/Utils/BankingSafeLock.php
 
 		-
 			message: '#^Only booleans are allowed in an if condition, int\|false given\.$#'
@@ -10877,12 +10704,6 @@ parameters:
 			path: api/v3/BankingLookup.php
 
 		-
-			message: '#^Parameter \#1 \$string of function strlen expects string, mixed given\.$#'
-			identifier: argument.type
-			count: 1
-			path: api/v3/BankingLookup.php
-
-		-
 			message: '#^Parameter \#1 \$string of function strlen expects string, string\|null given\.$#'
 			identifier: argument.type
 			count: 4
@@ -10946,12 +10767,6 @@ parameters:
 			message: '#^Parameter \#3 \$subject of function str_replace expects array\<string\>\|string, mixed given\.$#'
 			identifier: argument.type
 			count: 1
-			path: api/v3/BankingLookup.php
-
-		-
-			message: '#^Part \$name_mutation \(mixed\) of encapsed string cannot be cast to string\.$#'
-			identifier: encapsedStringPart.nonString
-			count: 2
 			path: api/v3/BankingLookup.php
 
 		-
@@ -11727,12 +11542,6 @@ parameters:
 			path: tests/phpunit/CRM/Banking/Analyser/RulesAnalyserTest.php
 
 		-
-			message: '#^Dynamic call to static method PHPUnit\\Framework\\Assert\:\:assertEquals\(\)\.$#'
-			identifier: staticMethod.dynamicCall
-			count: 1
-			path: tests/phpunit/CRM/Banking/Analyser/RulesAnalyserTest.php
-
-		-
 			message: '#^Dynamic call to static method PHPUnit\\Framework\\Assert\:\:assertNotEmpty\(\)\.$#'
 			identifier: staticMethod.dynamicCall
 			count: 1
@@ -11747,24 +11556,6 @@ parameters:
 		-
 			message: '#^Dynamic call to static method PHPUnit\\Framework\\Assert\:\:assertNotNull\(\)\.$#'
 			identifier: staticMethod.dynamicCall
-			count: 1
-			path: tests/phpunit/CRM/Banking/Analyser/RulesAnalyserTest.php
-
-		-
-			message: '#^Dynamic call to static method PHPUnit\\Framework\\Assert\:\:assertNull\(\)\.$#'
-			identifier: staticMethod.dynamicCall
-			count: 1
-			path: tests/phpunit/CRM/Banking/Analyser/RulesAnalyserTest.php
-
-		-
-			message: '#^If_\: Use a function e\.g\. `count\(\$foo\) \> 0` instead of `\$foo`\.$#'
-			identifier: voku.If
-			count: 1
-			path: tests/phpunit/CRM/Banking/Analyser/RulesAnalyserTest.php
-
-		-
-			message: '#^Only booleans are allowed in an if condition, array given\.$#'
-			identifier: if.condNotBoolean
 			count: 1
 			path: tests/phpunit/CRM/Banking/Analyser/RulesAnalyserTest.php
 
@@ -11844,36 +11635,6 @@ parameters:
 			identifier: missingType.return
 			count: 1
 			path: tests/phpunit/CRM/Banking/Matcher/CreateContributionMatcherLegacyTest.php
-
-		-
-			message: '#^Dynamic call to static method PHPUnit\\Framework\\Assert\:\:assertEmpty\(\)\.$#'
-			identifier: staticMethod.dynamicCall
-			count: 1
-			path: tests/phpunit/CRM/Banking/Matcher/CreateContributionTest.php
-
-		-
-			message: '#^Dynamic call to static method PHPUnit\\Framework\\Assert\:\:assertEquals\(\)\.$#'
-			identifier: staticMethod.dynamicCall
-			count: 3
-			path: tests/phpunit/CRM/Banking/Matcher/CreateContributionTest.php
-
-		-
-			message: '#^Dynamic call to static method PHPUnit\\Framework\\Assert\:\:assertNotEquals\(\)\.$#'
-			identifier: staticMethod.dynamicCall
-			count: 2
-			path: tests/phpunit/CRM/Banking/Matcher/CreateContributionTest.php
-
-		-
-			message: '#^If_\: Use a function e\.g\. `count\(\$foo\) \> 0` instead of `\$foo`\.$#'
-			identifier: voku.If
-			count: 3
-			path: tests/phpunit/CRM/Banking/Matcher/CreateContributionTest.php
-
-		-
-			message: '#^Only booleans are allowed in an if condition, array given\.$#'
-			identifier: if.condNotBoolean
-			count: 3
-			path: tests/phpunit/CRM/Banking/Matcher/CreateContributionTest.php
 
 		-
 			message: '#^Dynamic call to static method PHPUnit\\Framework\\Assert\:\:assertEquals\(\)\.$#'
@@ -12085,12 +11846,6 @@ parameters:
 			path: tests/phpunit/CRM/Banking/TestBase.php
 
 		-
-			message: '#^Dead catch \- Exception is never thrown in the try block\.$#'
-			identifier: catch.neverThrown
-			count: 1
-			path: tests/phpunit/CRM/Banking/TestBase.php
-
-		-
 			message: '#^Do not throw the \\Exception base class\.$#'
 			count: 1
 			path: tests/phpunit/CRM/Banking/TestBase.php
@@ -12122,11 +11877,6 @@ parameters:
 		-
 			message: '#^Dynamic call to static method PHPUnit\\Framework\\Assert\:\:fail\(\)\.$#'
 			identifier: staticMethod.dynamicCall
-			count: 1
-			path: tests/phpunit/CRM/Banking/TestBase.php
-
-		-
-			message: '#^In method "CRM_Banking_TestBase\:\:getLatestContribution", caught "Exception" must be rethrown\. Either catch a more specific exception, add a "throw" clause in the "catch" block to propagate the exception or add a "// @ignoreException" comment\.$#'
 			count: 1
 			path: tests/phpunit/CRM/Banking/TestBase.php
 
@@ -12221,18 +11971,6 @@ parameters:
 			path: tests/phpunit/CRM/Banking/TestBase.php
 
 		-
-			message: '#^Method CRM_Banking_TestBase\:\:getLatestContribution\(\) return type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: tests/phpunit/CRM/Banking/TestBase.php
-
-		-
-			message: '#^Method CRM_Banking_TestBase\:\:getLatestContribution\(\) should return array but returns array\|int\.$#'
-			identifier: return.type
-			count: 1
-			path: tests/phpunit/CRM/Banking/TestBase.php
-
-		-
 			message: '#^Method CRM_Banking_TestBase\:\:getOrCreateTag\(\) has parameter \$name with no type specified\.$#'
 			identifier: missingType.parameter
 			count: 1
@@ -12254,12 +11992,6 @@ parameters:
 			message: '#^Method CRM_Banking_TestBase\:\:getOrCreateTag\(\) should return array but returns array\|int\.$#'
 			identifier: return.type
 			count: 2
-			path: tests/phpunit/CRM/Banking/TestBase.php
-
-		-
-			message: '#^Method CRM_Banking_TestBase\:\:getRandomFinancialTypeID\(\) should return int but returns string\|null\.$#'
-			identifier: return.type
-			count: 1
 			path: tests/phpunit/CRM/Banking/TestBase.php
 
 		-

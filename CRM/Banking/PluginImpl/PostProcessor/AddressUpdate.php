@@ -189,6 +189,7 @@ class CRM_Banking_PluginImpl_PostProcessor_AddressUpdate extends CRM_Banking_Plu
     $this->addCountryName($address_data);
 
     // now: find the given address
+    /** @var array<string, mixed> $existing_addresses */
     $existing_addresses = civicrm_api3('Address', 'get', [
       'location_type_id' => $address_data['location_type_id'],
       'contact_id'       => $contact_id,
@@ -213,6 +214,7 @@ class CRM_Banking_PluginImpl_PostProcessor_AddressUpdate extends CRM_Banking_Plu
       || !empty($existing_addresses['id'])
     ) {
       // CREATE DIFF
+      /** @var array{values: array<array<string, mixed>>} $existing_addresses */
       $existing_address = reset($existing_addresses['values']) ?: [];
       $this->addCountryName($existing_address);
       $diff = [];
@@ -254,6 +256,7 @@ class CRM_Banking_PluginImpl_PostProcessor_AddressUpdate extends CRM_Banking_Plu
         $smarty->popScope();
 
         // check if the same note already exists
+        /** @var array<string, mixed> $existing_note */
         $existing_note = civicrm_api3('Note', 'get', [
           'note'         => $note,
           'subject'      => E::ts('New Address Received'),

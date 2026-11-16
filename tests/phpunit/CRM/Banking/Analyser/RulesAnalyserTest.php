@@ -62,11 +62,12 @@ class CRM_Banking_Analyser_RulesAnalyserTest extends CRM_Banking_TestBase {
     $current_transaction = $this->getTransaction($transaction_id);
     $this->assertNotEquals($state_processed, $current_transaction['status_id'], "The transaction should not have been marked 'processed'.");
     $latest_contribution = $this->getLatestContribution();
-    if ($latest_contribution_before) {
-      $this->assertEquals($latest_contribution_before['id'], $latest_contribution['id'], 'A contribution should not have been created');
+    if (NULL !== $latest_contribution_before) {
+      static::assertNotNull($latest_contribution);
+      static::assertEquals($latest_contribution_before['id'], $latest_contribution['id'], 'A contribution should not have been created');
     }
     else {
-      $this->assertNull($latest_contribution, 'A contribution should not have been created');
+      static::assertNull($latest_contribution, 'A contribution should not have been created');
     }
     CRM_Banking_Matcher_Engine::clearCachedInstance();
 

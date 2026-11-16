@@ -16,6 +16,7 @@
 
 declare(strict_types = 1);
 
+use Civi\Api4\Contribution;
 use Civi\Test\CiviEnvBuilder;
 use Civi\Test\HeadlessInterface;
 use Civi\Test\TransactionalInterface;
@@ -387,27 +388,15 @@ abstract class CRM_Banking_TestBase extends TestCase implements HeadlessInterfac
   }
 
   /**
-   * Get the latest contribution.
-   *
-   * @return array The contribution.
-   *
-   * @author B. Zschiedrich (zschiedrich@systopia.de)
+   * @return array<string, mixed>|null
+   *   The latest contribution or NULL if no contribution exists.
    */
-  protected function getLatestContribution() {
-    try {
-      return $this->callAPISuccessGetSingle(
-          'Contribution',
-          [
-            'options' => [
-              'sort'  => 'id DESC',
-              'limit' => 1,
-            ],
-          ]
-      );
-    }
-    catch (Exception $ex) {
-      return NULL;
-    }
+  protected function getLatestContribution(): ?array {
+    return Contribution::get(FALSE)
+      ->addOrderBy('id', 'DESC')
+      ->setLimit(1)
+      ->execute()
+      ->first();
   }
 
   /**
@@ -716,8 +705,8 @@ abstract class CRM_Banking_TestBase extends TestCase implements HeadlessInterfac
    * @return int
    *   random (valid) financial type ID
    */
-  public function getRandomFinancialTypeID() {
-    return CRM_Core_DAO::singleValueQuery('SELECT id FROM civicrm_financial_type ORDER BY RAND() LIMIT 1;');
+  public function getRandomFinancialTypeID(): int {
+    return (int) CRM_Core_DAO::singleValueQuery('SELECT id FROM civicrm_financial_type ORDER BY RAND() LIMIT 1;');
   }
 
   /**

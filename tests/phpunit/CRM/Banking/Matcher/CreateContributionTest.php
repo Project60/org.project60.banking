@@ -36,7 +36,7 @@ class CRM_Banking_Matcher_CreateContributionMatcherTest extends CRM_Banking_Test
     // create a transaction to process
     $transaction_source = $this->getRandomString();
     $financial_type_id = $this->getRandomFinancialTypeID();
-    $payment_instrument_id = $this->getRandomOptionValue('payment_instrument');
+    $payment_instrument_id = (int) $this->getRandomOptionValue('payment_instrument');
     $this->createTransaction(
       [
         'purpose' => 'This is a donation',
@@ -56,20 +56,25 @@ class CRM_Banking_Matcher_CreateContributionMatcherTest extends CRM_Banking_Test
 
     // check the result
     $created_contribution = $this->getLatestContribution();
-    if ($previous_contribution) {
-      $this->assertNotEquals($created_contribution['id'], $previous_contribution['id'], 'No contribution created!');
+    static::assertNotNull($created_contribution);
+    if (NULL !== $previous_contribution) {
+      static::assertNotEquals($created_contribution['id'], $previous_contribution['id'], 'No contribution created!');
     }
-    static::assertArrayHasKey(
-      'contribution_source',
-      $created_contribution,
+    static::assertSame(
+      $created_contribution['source'],
+      $transaction_source,
       'Source was not passed to the created contribution'
     );
-    $this->assertEquals($created_contribution['contribution_source'], $transaction_source,
-                        'Source was not passed to the created contribution');
-    $this->assertEquals($created_contribution['financial_type_id'], $financial_type_id,
-                        'Financial Type was not passed to the created contribution');
-    $this->assertEquals($created_contribution['payment_instrument_id'], $payment_instrument_id,
-                        'PaymentInstrument was not passed to the created contribution');
+    static::assertSame(
+      $created_contribution['financial_type_id'],
+      $financial_type_id,
+      'Financial Type was not passed to the created contribution'
+    );
+    static::assertSame(
+      $created_contribution['payment_instrument_id'],
+      $payment_instrument_id,
+      'PaymentInstrument was not passed to the created contribution'
+    );
   }
 
   /**
@@ -102,15 +107,17 @@ class CRM_Banking_Matcher_CreateContributionMatcherTest extends CRM_Banking_Test
 
     // check the result
     $last_contribution = $this->getLatestContribution();
-    if ($previous_contribution) {
-      if ($last_contribution) {
-        $this->assertNotEquals($last_contribution['id'], $previous_contribution['id'],
+    if (NULL !== $previous_contribution) {
+      if (NULL !== $last_contribution) {
+        static::assertNotEquals($last_contribution['id'], $previous_contribution['id'],
                                'A new contribution was created, even though a required value was missing.');
       }
     }
     else {
-      $this->assertEmpty($last_contribution,
-                        'A new contribution was created, even though a required value was missing.');
+      static::assertNull(
+        $last_contribution,
+        'A new contribution was created, even though a required value was missing.'
+      );
     }
   }
 

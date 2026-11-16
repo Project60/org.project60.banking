@@ -91,6 +91,7 @@ class CRM_Banking_MatchersIntegrationLegacyTest extends CRM_Banking_TestBase {
     );
 
     $contribution = $this->getLatestContribution();
+    static::assertNotNull($contribution);
     $this->assertEquals(
         $contactId,
         $contribution['contact_id'],

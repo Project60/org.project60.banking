@@ -49,6 +49,7 @@ class CRM_Banking_Page_Dashboard extends CRM_Core_Page {
     GROUP BY
       ba_id, year_week, status_id;
     ';
+    /** @var \CRM_Core_DAO $results */
     $results = CRM_Core_DAO::executeQuery($account_based_data_sql);
     while ($results->fetch()) {
       // get the account
@@ -155,6 +156,7 @@ class CRM_Banking_Page_Dashboard extends CRM_Core_Page {
   	GROUP BY
   	  status_id;
   	";
+    /** @var \CRM_Core_DAO $stats */
     $stats = CRM_Core_DAO::executeQuery($stats_sql);
     while ($stats->fetch()) {
       $data['count'] += $stats->count;

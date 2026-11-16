@@ -156,7 +156,10 @@ abstract class CRM_Banking_PluginModel_Importer extends CRM_Banking_PluginModel_
       // check for NBAN_?? or IBAN endings
       if (preg_match('/^_.*NBAN_..$/', $key) || preg_match('/^_.*IBAN$/', $key)) {
         // this is a *BAN entry -> look it up
-        if (!isset($this->account_cache[$value])) {
+        // array_key_exists, not isset: an unknown account is cached as
+        // NULL, and isset() is FALSE for NULL, so the lookup would repeat
+        // for every transaction that carries the same account.
+        if (!array_key_exists($value, $this->account_cache)) {
           // not cached? ok, do a lookup:
           $reference_search_params = [
             'reference'    => $value,

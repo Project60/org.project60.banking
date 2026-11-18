@@ -81,7 +81,7 @@ msgstr "letzter Monat"
 
 #: CRM/Admin/Form/Setting/BankingSettings.php
 msgid "last quarter"
-msgstr "letztes Qurtal"
+msgstr "letztes Quartal"
 
 #: CRM/Admin/Form/Setting/BankingSettings.php
 msgid "last %1 months"
@@ -111,7 +111,7 @@ msgstr "Bankkonten nicht automatisch speichern"
 
 #: CRM/Admin/Form/Setting/BankingSettings.php
 msgid "Normalise bank account references"
-msgstr "Kontoreferenzen normaliseren"
+msgstr "Kontoreferenzen normalisieren"
 
 #: CRM/Admin/Form/Setting/BankingSettings.php
 msgid "Validate bank account references"
@@ -231,7 +231,7 @@ msgstr "Bankkonto-Referenz"
 
 #: CRM/Banking/DAO/BankAccountReference.php
 msgid "Reference value"
-msgstr "Referez"
+msgstr "Referenz"
 
 #: CRM/Banking/DAO/BankAccountReference.php
 msgid "The value for this account"
@@ -303,7 +303,7 @@ msgstr "Währung"
 
 #: CRM/Banking/DAO/BankTransaction.php
 msgid "Currency for the amount of the transaction"
-msgstr "Währung des Trasnaktionsbetrags"
+msgstr "Währung des Transaktionsbetrags"
 
 #: CRM/Banking/DAO/BankTransaction.php
 msgid "Bank Transaction Type"
@@ -357,7 +357,7 @@ msgstr "Banktransaktions-Stapel"
 
 #: CRM/Banking/DAO/BankTransactionBatch.php
 msgid "Bank Transaction Batch"
-msgstr "bankstransaktions-stapel"
+msgstr "Banktransaktions-Stapel"
 
 #: CRM/Banking/DAO/BankTransactionBatch.php
 msgid "Issue date"
@@ -385,7 +385,7 @@ msgstr "Verwendet zur Sicherstellung von Reihenfolge und Konsistenz"
 
 #: CRM/Banking/DAO/BankTransactionBatch.php
 msgid "Starting Balance"
-msgstr "Startsalso"
+msgstr "Startsaldo"
 
 #: CRM/Banking/DAO/BankTransactionBatch.php
 msgid "Ending Balance"
@@ -927,7 +927,7 @@ msgstr ""
 
 #: CRM/Banking/Page/AccountDedupe.php
 msgid "Dedupe Bank Accounts"
-msgstr "Bankkonto Doubletten"
+msgstr "Bankkonto Dubletten"
 
 #: CRM/Banking/Page/AccountDedupe.php
 msgid ""
@@ -1166,7 +1166,7 @@ msgstr "Die Zahlung konnte nicht abgeschlossen werden."
 
 #: CRM/Banking/Page/Review.php
 msgid "The execution failed, please re-analyse the transaction."
-msgstr "Verbuchung fehlgeschlagen, bitte Transktion erneut analysieren."
+msgstr "Verbuchung fehlgeschlagen, bitte Transaktion erneut analysieren."
 
 #: CRM/Banking/Page/Review.php
 msgid "Selected suggestions disappeared. Suggestion NOT executed!"
@@ -1404,7 +1404,7 @@ msgstr "Zuwendung"
 
 #: CRM/Banking/PluginImpl/Matcher/ExistingContribution.php
 msgid "Contact was positively identified."
-msgstr "Kontakt wurde eindeutig identifizert"
+msgstr "Kontakt wurde eindeutig identifiziert"
 
 #: CRM/Banking/PluginImpl/Matcher/ExistingContribution.php
 msgid "Contact was likely identified."
@@ -1544,7 +1544,7 @@ msgstr "Es wurde bereits eine andere Zuwendung für dieses Intervall erfasst."
 
 #: CRM/Banking/PluginImpl/Matcher/RecurringContribution.php
 msgid "There are already multiple contributions recorded for this interval: "
-msgstr "Es wurden bereits mehrere Zuwendunge für dieses Interval erfasst:"
+msgstr "Es wurden bereits mehrere Zuwendungen für dieses Interval erfasst:"
 
 #: CRM/Banking/PluginImpl/Matcher/RulesAnalyser.php
 msgid "Campaign ID"
@@ -1650,7 +1650,7 @@ msgid ""
 "The cancellation fee, i.e. the deviation from the original amount, is not in "
 "the specified range."
 msgstr ""
-"Die Stornogebühren, also die erkannt Abweichung vom Orignalbetrag, befindet "
+"Die Stornogebühren, also die erkannt Abweichung vom Originalbetrag, befindet "
 "sich außerhalb des eingestellten Toleranzbereichs."
 
 #: CRM/Banking/PluginImpl/Matcher/SepaMandate.php
@@ -1842,7 +1842,7 @@ msgstr "%1 wurde ausgeführt."
 
 #: CRM/Banking/RuleMatchIndicators.php
 msgid "Matching Rule"
-msgstr "Zuordnugnsregel"
+msgstr "Zuordnungsregel"
 
 #: CRM/Banking/RuleMatchIndicators.php
 msgid "%1 Matching Rules"
@@ -2006,7 +2006,7 @@ msgstr "Transaktionen finden"
 
 #: banking.php
 msgid "Dedupe Accounts"
-msgstr "Bankkonto Doubletten"
+msgstr "Bankkonto Dubletten"
 
 #: banking.php
 msgid "Configuration Manager"
@@ -2371,11 +2371,11 @@ msgstr "PayPal Konto (E-Mail)"
 
 #: managed/OptionGroup_civicrm_banking_reference_types.mgd.php
 msgid "Spanish Bank Account Number"
-msgstr "Spanishe Kontonummer"
+msgstr "Spanische Kontonummer"
 
 #: managed/OptionGroup_civicrm_banking_reference_types.mgd.php
 msgid "Traditional Spanish bank account number"
-msgstr "Traditionelle Spanishe Kontonummer"
+msgstr "Traditionelle Spanische Kontonummer"
 
 #: templates/CRM/Admin/Form/Setting/BankingSettings.tpl
 msgid "General Settings"
@@ -2439,7 +2439,7 @@ msgstr "Hinzufügen"
 
 #: templates/CRM/Banking/Form/AccountsTab.tpl
 msgid "Edit Bank Account"
-msgstr "Bankkonto berarbeiten"
+msgstr "Bankkonto bearbeiten"
 
 #: templates/CRM/Banking/Form/AccountsTab.tpl
 msgid "The bank account has been deleted"
@@ -2455,7 +2455,7 @@ msgstr "Ein Konto muss mindestens eine Referenz haben."
 
 #: templates/CRM/Banking/Form/AccountsTab.tpl
 msgid "The bank account reference has been deleted"
-msgstr "Die Kontoreferenze wurde gelöscht"
+msgstr "Die Kontoreferenz wurde gelöscht"
 
 #: templates/CRM/Banking/Form/AccountsTab.tpl
 msgid "Are you sure you want to delete this bank account reference?"
@@ -2853,7 +2853,7 @@ msgstr "Konfiguration Exportieren"
 
 #: templates/CRM/Banking/Page/Manager.tpl
 msgid "Update Configuration"
-msgstr "Konfiguration Aktualiseren"
+msgstr "Konfiguration Aktualisieren"
 
 #: templates/CRM/Banking/Page/Manager.tpl
 msgid "Analyser / Matcher Plugins"
@@ -2869,7 +2869,7 @@ msgstr ""
 "Verbuchungs-Plugins sollen die importieren Transaktionen im System "
 "verbuchen, also z.B. entsprechend Spenden, Mitgliedsbeiträge, o.ä. anlegen. "
 "Falls keine perfekte Verbuchungsoption gefunden wurde, werden dem Benutzer "
-"Verbuchtungsvorschläge generiert."
+"Verbuchungsvorschläge generiert."
 
 #: templates/CRM/Banking/Page/Manager.tpl
 msgid "Execution Order"
@@ -2946,8 +2946,8 @@ msgid ""
 "No statments could be found with the requested status. Try the other status "
 "filter buttons above to find your imported statements."
 msgstr ""
-"Keine Kontoauszüge mit dem gewählten Stats gefunden. Wählen Sie ggf. oben "
-"andere Filter um Ihre importierten Kontoauszüge zu finden."
+"Keine Kontoauszüge mit dem gewählten Status gefunden. Wählen Sie ggf. oben "
+"andere Filter, um Ihre importierten Kontoauszüge zu finden."
 
 #: templates/CRM/Banking/Page/Payments.tpl
 msgid "Party"
@@ -3262,7 +3262,7 @@ msgid ""
 "contribution(s)</b>, so the score of this suggestion has been reduced by %1%."
 msgstr ""
 "<b>Achtung</b>: Dieser Kontakt hat eine oder mehr <b>aktive wiederkehrende "
-"Zuwendung</b>. Deshalb wurde die Bewertung dieses Vorschlage um %1% "
+"Zuwendung</b>. Deshalb wurde die Bewertung dieses Vorschlags um %1% "
 "reduziert."
 
 #: templates/CRM/Banking/PluginImpl/Matcher/CreateCampaignContribution.suggestion.tpl
@@ -3350,7 +3350,7 @@ msgid ""
 "<strong>WARNING:</strong> This is a negative amount, so all contributions "
 "below will be <strong>cancelled</strong>."
 msgstr ""
-"<strong>WARNUNG:</strong> Dies ist eine negativer Betrag, alle unten "
+"<strong>WARNUNG:</strong> Dies ist ein negativer Betrag, alle unten "
 "aufgeführten Zuwendungen werden <strong>storniert</strong>."
 
 #: templates/CRM/Banking/PluginImpl/Matcher/DefaultOptions.suggestion.tpl
@@ -3383,7 +3383,7 @@ msgstr "WARNUNG!"
 
 #: templates/CRM/Banking/PluginImpl/Matcher/DefaultOptions.suggestion.tpl
 msgid "No valid contribution ID given."
-msgstr "Keine gültige Zuwndungs-ID angeben."
+msgstr "Keine gültige Zuwendungs-ID angeben."
 
 #: templates/CRM/Banking/PluginImpl/Matcher/ExistingContribution.execution.tpl
 msgid "This transaction cancelled <a href=\"%1\">contribution #%2</a>."

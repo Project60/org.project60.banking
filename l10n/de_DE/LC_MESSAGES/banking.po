@@ -357,7 +357,7 @@ msgstr "Banktransaktions-Stapel"
 
 #: CRM/Banking/DAO/BankTransactionBatch.php
 msgid "Bank Transaction Batch"
-msgstr "Banktransaktions-stapel"
+msgstr "Banktransaktions-Stapel"
 
 #: CRM/Banking/DAO/BankTransactionBatch.php
 msgid "Issue date"

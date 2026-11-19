@@ -24,13 +24,13 @@ class CRM_Banking_Config {
   /**
    * Setting for the transaction list cutoff
    */
-  public const SETTING_TRANSACTION_LIST_CUTOFF = 'transaction_list_cutoff';
+  public const SETTING_TRANSACTION_LIST_CUTOFF = 'banking_transaction_list_cutoff';
 
   /**
    * Setting key for the maximum number of contacts that are loaded on contact
    * lookup.
    */
-  public const SETTING_MAX_CONTACTS_ON_LOOKUP = 'max_contacts_on_lookup';
+  public const SETTING_MAX_CONTACTS_ON_LOOKUP = 'banking_max_contacts_on_lookup';
 
   /**
    * Should the bank account dedupe be done in a lenient way?
@@ -38,7 +38,7 @@ class CRM_Banking_Config {
    * @return boolean
    */
   public static function lenientDedupe() {
-    $value = Civi::settings()->get('lenient_dedupe');
+    $value = Civi::settings()->get('banking_lenient_dedupe');
     if (empty($value)) {
       return FALSE;
     }
@@ -67,7 +67,7 @@ class CRM_Banking_Config {
    *   SQL interval expression
    */
   public static function getRecentlyCompletedStatementCutoff(): string {
-    $config_setting = (int) Civi::settings()->get('recently_completed_cutoff');
+    $config_setting = (int) Civi::settings()->get('banking_recently_completed_cutoff');
     if (!empty($config_setting)) {
       return "INTERVAL {$config_setting} MONTH";
     }

@@ -39,6 +39,11 @@ class CRM_Banking_Form_StatementSearch extends CRM_Core_Form {
   private const CUSTOM_DATA_KEY_LIST_ELEMENT_PREFIX = 'custom_data_key_list_';
   private const CUSTOM_DATA_VALUE_ELEMENT_PREFIX = 'custom_data_value_';
 
+  /**
+   * The largest page size the result table offers.
+   */
+  private const MAXIMUM_PAGE_SIZE = 100;
+
   public function buildQuickForm() {
     $this->setTitle(E::ts('Find CiviBanking Transactions'));
 
@@ -241,6 +246,9 @@ class CRM_Banking_Form_StatementSearch extends CRM_Core_Form {
 
     $ajaxParameters = CRM_Core_Page_AJAX::defaultSortAndPagerParams();
     $ajaxParameters += CRM_Core_Page_AJAX::validateParams([], $optionalAjaxParameters);
+    // The page size comes from the request. Without a limit, one request could
+    // still sort and join every matching transaction.
+    $ajaxParameters['rp'] = max(1, min((int) $ajaxParameters['rp'], self::MAXIMUM_PAGE_SIZE));
 
     $sortByComponents = explode(' ', $ajaxParameters['sortBy'] ?? '', 3);
 

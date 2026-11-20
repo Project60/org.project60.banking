@@ -249,6 +249,8 @@ class CRM_Banking_Form_StatementSearch extends CRM_Core_Form {
     // The page size comes from the request. Without a limit, one request could
     // still sort and join every matching transaction.
     $ajaxParameters['rp'] = max(1, min((int) $ajaxParameters['rp'], self::MAXIMUM_PAGE_SIZE));
+    // The offset comes from the request as well. SQL accepts no negative offset.
+    $ajaxParameters['offset'] = max(0, (int) $ajaxParameters['offset']);
 
     $sortByComponents = explode(' ', $ajaxParameters['sortBy'] ?? '', 3);
 

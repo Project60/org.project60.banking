@@ -255,7 +255,7 @@ class CRM_Banking_Form_StatementSearch extends CRM_Core_Form {
         break;
 
       case 'other_account':
-        $sortBy = 'other_account';
+        $sortBy = 'tx.party_ba_id';
         break;
 
       case 'amount':
@@ -283,8 +283,15 @@ class CRM_Banking_Form_StatementSearch extends CRM_Core_Form {
     //       "in_array($sortByComponents[0], ['date', 'our_account'])
     //       if the names in the parameter were equal to the ones in the SQL statement.
 
+    $tieBreaker = 'tx.id';
     if (strtoupper($sortByComponents[1]) == 'DESC') {
       $sortBy .= ' DESC';
+      $tieBreaker .= ' DESC';
+    }
+    // Rows with the same sort value come back in no defined order, so a page
+    // could repeat or skip a transaction: the ID breaks the tie.
+    if ($sortByComponents[0] !== 'review_link') {
+      $sortBy .= ", {$tieBreaker}";
     }
 
     $queryParameters = [

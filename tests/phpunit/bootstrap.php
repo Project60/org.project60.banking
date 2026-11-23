@@ -32,7 +32,7 @@ $loader->register();
 addExtensionDirToClassLoader($loader, __DIR__);
 
 // Add classes for tests without booted CiviCRM environment, i.e. simple PHPUnit tests.
-addExtensionToClassLoader($loader, 'org.project60.banking');
+addExtensionDirToClassLoader($loader, __DIR__ . '/../..');
 $simpleXml = simplexml_load_file(__DIR__ . '/../../info.xml');
 foreach ($simpleXml->requires->ext ?? [] as $ext) {
   addExtensionToClassLoader($loader, (string) $ext);

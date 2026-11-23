@@ -26,7 +26,8 @@
         "webmozart/assert": "^1.11 || ^2"
     },
     "require-dev": {
-        "project60/org.project60.sepa": "^1.13"
+        "project60/org.project60.sepa": "^1.13",
+        "systopia/civicrm-test-fixtures": "dev-main"
     },
     "autoload": {
         "classmap": ["ComposerHelper.php"]

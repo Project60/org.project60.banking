@@ -17,6 +17,8 @@ declare(strict_types = 1);
 | written permission from the original author(s).        |
 +--------------------------------------------------------*/
 
+use Systopia\TestFixtures\Fixtures\Builders\FinancialTypeBuilder;
+
 /**
  * @covers CRM_Banking_PluginImpl_Matcher_RulesAnalyser
  *
@@ -76,6 +78,7 @@ class CRM_Banking_Analyser_RulesAnalyserTest extends CRM_Banking_TestBase {
       $this->getTestResourcePath('analyser/configuration/RulesAnalyser-01.civibanking'));
 
     // and add a rule to help us out here
+    $newFinancialTypeId = FinancialTypeBuilder::create();
     $rule_id = CRM_Banking_Rules_Rule::addRule(
       [
         'name'         => $test_contact['display_name'],
@@ -89,7 +92,7 @@ class CRM_Banking_Analyser_RulesAnalyserTest extends CRM_Banking_TestBase {
       ],
       [
         ['set_param_name' => 'contact_id', 'set_param_value' => $test_contact['id']],
-        ['set_param_name' => 'financial_type_id', 'set_param_value' => 1],
+        ['set_param_name' => 'financial_type_id', 'set_param_value' => $newFinancialTypeId],
       ]
     );
     $this->assertNotEmpty($rule_id, 'Rule could not be created.');

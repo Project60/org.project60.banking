@@ -22,6 +22,7 @@ use Civi\Test\HeadlessInterface;
 use Civi\Test\TransactionalInterface;
 use CRM_Banking_ExtensionUtil as E;
 use PHPUnit\Framework\TestCase;
+use Systopia\TestFixtures\Core\FixtureEntityStore;
 
 /**
  * Base class for all CiviBanking tests
@@ -77,6 +78,7 @@ abstract class CRM_Banking_TestBase extends TestCase implements HeadlessInterfac
   }
 
   protected function tearDown(): void {
+    FixtureEntityStore::reset();
     parent::tearDown();
   }
 

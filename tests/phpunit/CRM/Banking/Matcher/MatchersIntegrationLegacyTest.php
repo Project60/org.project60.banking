@@ -16,6 +16,8 @@
 
 declare(strict_types = 1);
 
+use Systopia\TestFixtures\Fixtures\Builders\FinancialTypeBuilder;
+
 /**
  * Tests for the RegexAnalyser class.
  *
@@ -28,18 +30,19 @@ class CRM_Banking_MatchersIntegrationLegacyTest extends CRM_Banking_TestBase {
   /**
    * Test regex and create contribution matcher in combination.
    */
-  public function testRegexAndCreateContributionMatcher() {
+  public function testRegexAndCreateContributionMatcher(): void {
     $contactId = $this->createContact();
     $transactionId = $this->createTransaction(
         [
           'purpose' => 'This is a donation',
           'financial_type' => 'CreditCard',
           'contact_id' => $contactId,
-    // NOTE: Must be set, otherwise there occurs an error while matching CreateContribution.
+          // NOTE: Must be set, otherwise there occurs an error while matching CreateContribution.
           'name' => '',
         ]
     );
 
+    $financialTypeId = FinancialTypeBuilder::create();
     $this->createRegexAnalyser(
         [
             [
@@ -63,7 +66,7 @@ class CRM_Banking_MatchersIntegrationLegacyTest extends CRM_Banking_TestBase {
               'actions' => [
                     [
                       'action' => 'set',
-                      'value' => 1,
+                      'value' => $financialTypeId,
                       'to' => 'financial_type_id',
                     ],
               ],
@@ -103,7 +106,7 @@ class CRM_Banking_MatchersIntegrationLegacyTest extends CRM_Banking_TestBase {
         "The contributions' payment instrument ID is not correct."
     );
     $this->assertEquals(
-        1,
+        $financialTypeId,
         $contribution['financial_type_id'],
         "The contributions' financial type ID is not correct."
     );

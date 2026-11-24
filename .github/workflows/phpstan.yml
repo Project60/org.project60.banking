@@ -70,10 +70,13 @@ jobs:
           MATRIX_EXPERIMENTAL: ${{ matrix.experimental }}
           MATRIX_PREFER: ${{ matrix.prefer }}
         run: |
-          if [ "${MATRIX_PREFER}" = "prefer-lowest" ]; then
-            # Actually test with lowest possible versions.
-            export COMPOSER_NO_BLOCKING=1
-          fi
+          # Note: We used to have this only for prefer-lowest, though if this
+          # flag is omitted it might result in different versions of
+          # civicrm/civicrm-core and civicrm/civicrm-packages being installed.
+          # This is for example the case when PHP 8.1 is used because in
+          # civicrm-core 6.16 smarty/smarty was added as dependency, but the
+          # version compatible with PHP 8.1 has known security issues.
+          export COMPOSER_NO_BLOCKING=1
 
           # Don't enforce all extensions to be installed.
           export COMPOSER_IGNORE_PLATFORM_REQ="ext-*"

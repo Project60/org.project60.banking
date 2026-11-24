@@ -16,6 +16,8 @@
 
 declare(strict_types = 1);
 
+use Systopia\TestFixtures\Fixtures\Builders\FinancialTypeBuilder;
+
 /**
  * Tests for the new CampaignContributionMatcher
  *
@@ -31,7 +33,7 @@ class CRM_Banking_Matcher_CreateCampaignContributionMatcherTest extends CRM_Bank
    * Basic test to see if the contribution matcher fires
    *   and passes on the respective variables
    */
-  public function testCampaignMatcherBasic():void {
+  public function testCampaignMatcherBasic(): void {
     // step zero: we have to make sure the activity type used in the config exists
     $activity_type_id_used_in_matcher_config = 4;
     try {
@@ -57,10 +59,14 @@ class CRM_Banking_Matcher_CreateCampaignContributionMatcherTest extends CRM_Bank
 
     // step 2: configure a simple campaign matcher
     $config = json_decode(
+      // @phpstan-ignore argument.type
       file_get_contents($this->getTestResourcePath('matcher/configuration/CampaignMatcher-01.civibanking')),
       TRUE,
       flags:  JSON_THROW_ON_ERROR);
+    // @phpstan-ignore offsetAccess.nonOffsetAccessible, offsetAccess.nonOffsetAccessible
     $config['config']['campaign_id'] = $campaign_id;
+    // @phpstan-ignore offsetAccess.nonOffsetAccessible
+    $config['config']['financial_type_id'] = FinancialTypeBuilder::create();
     $this->configureCiviBankingModuleWithConfig(json_encode($config, JSON_THROW_ON_ERROR));
 
     // step 3: create a transaction
@@ -88,7 +94,7 @@ class CRM_Banking_Matcher_CreateCampaignContributionMatcherTest extends CRM_Bank
   /**
    * Basic test to see respects
    */
-  public function testCampaignMatcherBasicNegative():void {
+  public function testCampaignMatcherBasicNegative(): void {
     // step 1: create a simple scenario
     $contact_id = $this->createContact();
     $campaign_id = $this->createCampaign();
@@ -100,8 +106,16 @@ class CRM_Banking_Matcher_CreateCampaignContributionMatcherTest extends CRM_Bank
     ]);
 
     // step 2: configure a simple campaign matcher
-    $this->configureCiviBankingModule(
-      $this->getTestResourcePath('matcher/configuration/CampaignMatcher-01.civibanking'));
+    $config = json_decode(
+      // @phpstan-ignore argument.type
+      file_get_contents($this->getTestResourcePath('matcher/configuration/CampaignMatcher-01.civibanking')),
+      TRUE,
+      flags:  JSON_THROW_ON_ERROR);
+    // @phpstan-ignore offsetAccess.nonOffsetAccessible, offsetAccess.nonOffsetAccessible
+    $config['config']['campaign_id'] = $campaign_id;
+    // @phpstan-ignore offsetAccess.nonOffsetAccessible
+    $config['config']['financial_type_id'] = FinancialTypeBuilder::create();
+    $this->configureCiviBankingModuleWithConfig(json_encode($config, JSON_THROW_ON_ERROR));
 
     // step 3: create a transaction
     $transaction1_id = $this->createTransaction([

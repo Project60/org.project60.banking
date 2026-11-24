@@ -67,6 +67,8 @@ foreach ($bootstrapFiles as $bootstrapFile) {
       $loader->add('DB_', [$civiCrmPackagesDir]);
       $loader->add('HTML_', [$civiCrmPackagesDir]);
 
+      // Smarty aliasing is obsolete with CiviCRM 6.20.
+      // https://github.com/civicrm/civicrm-core/pull/36493
       // @phpstan-ignore-next-line
       if ($container->getParameter('civicrm')['implicitSmartyMethodsUsed']) {
         // In CiviCRM <=6.16 the class \Smarty extended by
@@ -114,7 +116,7 @@ foreach ($bootstrapFiles as $bootstrapFile) {
 }
 
 // Ensure that type hint HTML_QuickForm_Element is recognized, though the class name is HTML_QuickForm_element.
-// See https://github.com/civicrm/civicrm-core/pull/36666
+// Obsolete with CiviCRM 6.20 https://github.com/civicrm/civicrm-core/pull/36666
 class_exists('HTML_QuickForm_element');
 
 if (file_exists(__DIR__ . '/vendor/autoload.php')) {

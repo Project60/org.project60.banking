@@ -18,7 +18,7 @@
   <version>1.5.0-dev</version>
   <develStage>dev</develStage>
   <compatibility>
-    <ver>5.76</ver>
+    <ver>6.14</ver>
   </compatibility>
   <requires>
     <ext>civi_contribute</ext>

@@ -11584,18 +11584,6 @@ parameters:
 			path: tests/phpunit/CRM/Banking/Matcher/CreateCampaignContributionTest.php
 
 		-
-			message: '#^Cannot access offset ''campaign_id'' on mixed\.$#'
-			identifier: offsetAccess.nonOffsetAccessible
-			count: 1
-			path: tests/phpunit/CRM/Banking/Matcher/CreateCampaignContributionTest.php
-
-		-
-			message: '#^Cannot access offset ''config'' on mixed\.$#'
-			identifier: offsetAccess.nonOffsetAccessible
-			count: 1
-			path: tests/phpunit/CRM/Banking/Matcher/CreateCampaignContributionTest.php
-
-		-
 			message: '#^Dynamic call to static method PHPUnit\\Framework\\Assert\:\:assertNotNull\(\)\.$#'
 			identifier: staticMethod.dynamicCall
 			count: 2
@@ -11619,21 +11607,9 @@ parameters:
 			path: tests/phpunit/CRM/Banking/Matcher/CreateCampaignContributionTest.php
 
 		-
-			message: '#^Parameter \#1 \$json of function json_decode expects string, string\|false given\.$#'
-			identifier: argument.type
-			count: 1
-			path: tests/phpunit/CRM/Banking/Matcher/CreateCampaignContributionTest.php
-
-		-
 			message: '#^Dynamic call to static method PHPUnit\\Framework\\Assert\:\:assertEquals\(\)\.$#'
 			identifier: staticMethod.dynamicCall
 			count: 3
-			path: tests/phpunit/CRM/Banking/Matcher/CreateContributionMatcherLegacyTest.php
-
-		-
-			message: '#^Method CRM_Banking_CreateContributionLegacyTest\:\:testSimpleCreateContributionMatcher\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
 			path: tests/phpunit/CRM/Banking/Matcher/CreateContributionMatcherLegacyTest.php
 
 		-
@@ -11658,12 +11634,6 @@ parameters:
 			message: '#^Dynamic call to static method PHPUnit\\Framework\\Assert\:\:assertEquals\(\)\.$#'
 			identifier: staticMethod.dynamicCall
 			count: 3
-			path: tests/phpunit/CRM/Banking/Matcher/MatchersIntegrationLegacyTest.php
-
-		-
-			message: '#^Method CRM_Banking_MatchersIntegrationLegacyTest\:\:testRegexAndCreateContributionMatcher\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
 			path: tests/phpunit/CRM/Banking/Matcher/MatchersIntegrationLegacyTest.php
 
 		-

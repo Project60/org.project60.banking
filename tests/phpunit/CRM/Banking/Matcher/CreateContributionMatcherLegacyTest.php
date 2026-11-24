@@ -17,6 +17,8 @@
 
 declare(strict_types = 1);
 
+use Systopia\TestFixtures\Fixtures\Builders\FinancialTypeBuilder;
+
 /**
  * @covers CRM_Banking_PluginImpl_Matcher_CreateContribution
  *
@@ -24,15 +26,16 @@ declare(strict_types = 1);
  */
 class CRM_Banking_CreateContributionLegacyTest extends CRM_Banking_TestBase {
 
-  public function testSimpleCreateContributionMatcher() {
+  public function testSimpleCreateContributionMatcher(): void {
     $contactId = $this->createContact();
+    $financialTypeId = FinancialTypeBuilder::create();
     $this->createTransaction(
         [
           'contact_id' => $contactId,
-    // NOTE: Must be set, otherwise there occurs an error while matching CreateContribution.
+          // NOTE: Must be set, otherwise there occurs an error while matching CreateContribution.
           'name' => '',
           'payment_instrument_id' => 1,
-          'financial_type_id' => 1,
+          'financial_type_id' => $financialTypeId,
         ]
     );
 
@@ -53,7 +56,7 @@ class CRM_Banking_CreateContributionLegacyTest extends CRM_Banking_TestBase {
         'The payment instrument ID is not correct.'
     );
     $this->assertEquals(
-        1,
+        $financialTypeId,
         $contribution['financial_type_id'],
         'The financial type ID is not correct.'
     );

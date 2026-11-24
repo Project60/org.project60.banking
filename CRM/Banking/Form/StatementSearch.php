@@ -39,6 +39,11 @@ class CRM_Banking_Form_StatementSearch extends CRM_Core_Form {
   private const CUSTOM_DATA_KEY_LIST_ELEMENT_PREFIX = 'custom_data_key_list_';
   private const CUSTOM_DATA_VALUE_ELEMENT_PREFIX = 'custom_data_value_';
 
+  /**
+   * The largest page size the result table offers.
+   */
+  private const MAXIMUM_PAGE_SIZE = 100;
+
   public function buildQuickForm() {
     $this->setTitle(E::ts('Find CiviBanking Transactions'));
 
@@ -241,6 +246,11 @@ class CRM_Banking_Form_StatementSearch extends CRM_Core_Form {
 
     $ajaxParameters = CRM_Core_Page_AJAX::defaultSortAndPagerParams();
     $ajaxParameters += CRM_Core_Page_AJAX::validateParams([], $optionalAjaxParameters);
+    // The page size comes from the request. Without a limit, one request could
+    // still sort and join every matching transaction.
+    $ajaxParameters['rp'] = max(1, min((int) $ajaxParameters['rp'], self::MAXIMUM_PAGE_SIZE));
+    // The offset comes from the request as well. SQL accepts no negative offset.
+    $ajaxParameters['offset'] = max(0, (int) $ajaxParameters['offset']);
 
     $sortByComponents = explode(' ', $ajaxParameters['sortBy'] ?? '', 3);
 
@@ -388,6 +398,11 @@ class CRM_Banking_Form_StatementSearch extends CRM_Core_Form {
 
     $whereClausesAsString = implode("\n", $whereClauses);
 
+    // Select the page of transaction IDs on civicrm_bank_tx alone first, and
+    // join the account data to those rows only. Joining the account references
+    // before GROUP BY and LIMIT made MySQL copy every matching transaction,
+    // including data_raw and data_parsed, into a temporary table before the
+    // page was cut; without a filter that is the whole table.
     $data_sql_query =
         "SELECT
             tx.*,
@@ -396,14 +411,44 @@ class CRM_Banking_Form_StatementSearch extends CRM_Core_Form {
             tx_status.label           AS status_label,
             our_account.id            AS our_account_id,
             our_account.data_parsed   AS our_account_data,
-            GROUP_CONCAT(CONCAT(our_account_reference.reference, ',', our_account_reference.reference_type_id))
-                                      AS our_account_references,
+            (
+                SELECT GROUP_CONCAT(CONCAT(our_account_reference.reference, ',', our_account_reference.reference_type_id))
+                FROM civicrm_bank_account_reference AS our_account_reference
+                WHERE our_account_reference.ba_id = tx.ba_id
+            )                         AS our_account_references,
             other_account.id          AS other_account_id,
             other_account.data_parsed AS other_account_data,
-            GROUP_CONCAT(CONCAT(other_account_reference.reference, ',', other_account_reference.reference_type_id))
-                                      AS other_account_references
+            (
+                SELECT GROUP_CONCAT(CONCAT(other_account_reference.reference, ',', other_account_reference.reference_type_id))
+                FROM civicrm_bank_account_reference AS other_account_reference
+                WHERE other_account_reference.ba_id = tx.party_ba_id
+            )                         AS other_account_references
         FROM
+            (
+                SELECT
+                    tx.id,
+                    DATE(tx.value_date) AS `date`,
+                    (
+                        SELECT tx_status.label
+                        FROM civicrm_option_value AS tx_status
+                        WHERE tx_status.id = tx.status_id
+                    )                   AS status_label
+                FROM
+                    civicrm_bank_tx AS tx
+                WHERE
+                    TRUE
+                    {$whereClausesAsString}
+                ORDER BY
+                    {$sortBy}
+                LIMIT
+                    %1
+                OFFSET
+                    %2
+            ) AS page
+        INNER JOIN
             civicrm_bank_tx AS tx
+                ON
+                    tx.id = page.id
         LEFT JOIN
             civicrm_option_value AS tx_status
                 ON
@@ -412,50 +457,19 @@ class CRM_Banking_Form_StatementSearch extends CRM_Core_Form {
             civicrm_bank_account AS our_account
                 ON
                     our_account.id = tx.ba_id
-        LEFT JOIN
-            civicrm_bank_account_reference AS our_account_reference
-                ON
-                    our_account_reference.ba_id = tx.ba_id
         LEFT JOIN
             civicrm_bank_account AS other_account
                 ON
                     other_account.id = tx.party_ba_id
-        LEFT JOIN
-            civicrm_bank_account_reference AS other_account_reference
-                ON
-                    other_account_reference.ba_id = tx.party_ba_id
-        WHERE
-            TRUE
-            {$whereClausesAsString}
-        GROUP BY
-            tx.id
         ORDER BY
-            {$sortBy}
-        LIMIT
-            %1
-        OFFSET
-            %2";
+            {$sortBy}";
 
+    // The filters only use columns of civicrm_bank_tx, so the count needs no
+    // joins.
     $count_sql_query = "
-        SELECT COUNT(DISTINCT(tx.id))
+        SELECT COUNT(*)
         FROM
             civicrm_bank_tx AS tx
-        LEFT JOIN
-            civicrm_option_value AS tx_status
-                ON
-                    tx_status.id = tx.status_id
-        LEFT JOIN
-            civicrm_bank_account AS our_account
-                ON
-                    our_account.id = tx.ba_id
-        LEFT JOIN
-            civicrm_bank_account_reference AS our_account_reference
-                ON
-                    our_account_reference.id = tx.ba_id
-        LEFT JOIN
-            civicrm_bank_account_reference AS other_account
-                ON
-                    other_account.id = tx.party_ba_id
         WHERE
             TRUE
             {$whereClausesAsString}";

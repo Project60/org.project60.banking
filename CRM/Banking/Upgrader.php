@@ -50,7 +50,7 @@ class CRM_Banking_Upgrader extends CRM_Extension_Upgrader_Base {
    * @return TRUE on success
    */
   public function upgrade_0611() {
-    Civi::settings()->set('new_ui', FALSE);
+    Civi::settings()->set('banking_new_ui', FALSE);
 
     // Update order of the option group banking_tx_status.
     $statusApi = civicrm_api3(
@@ -204,7 +204,7 @@ class CRM_Banking_Upgrader extends CRM_Extension_Upgrader_Base {
       CRM_Core_Invoke::rebuildMenuAndCaches();
     }
 
-    Civi::settings()->set('reference_matching_probability', 1.0);
+    Civi::settings()->set('banking_reference_matching_probability', 1.0);
     return TRUE;
   }
 
@@ -215,7 +215,7 @@ class CRM_Banking_Upgrader extends CRM_Extension_Upgrader_Base {
    */
   public function upgrade_0800() {
     // Set the bank account reference probability to 100%.
-    Civi::settings()->set('reference_matching_probability', 1.0);
+    Civi::settings()->set('banking_reference_matching_probability', 1.0);
     return TRUE;
   }
 
@@ -289,6 +289,35 @@ class CRM_Banking_Upgrader extends CRM_Extension_Upgrader_Base {
   public function upgrade_0805() {
     // update option groups
     // replaced by managed entities
+    return TRUE;
+  }
+
+  public function upgrade_0806(): bool {
+    $this->ctx->log->info('Migrate settings keys.');
+    $settingsKeys = [
+      'menu_position',
+      'new_ui',
+      'json_editor_mode',
+      'max_contacts_on_lookup',
+      'reference_store_disabled',
+      'reference_normalisation',
+      'reference_validation',
+      'lenient_dedupe',
+      'reference_matching_probability',
+      'recently_completed_cutoff',
+      'transaction_list_cutoff',
+      'account.default_reference_id',
+      'account.default_country',
+    ];
+
+    foreach ($settingsKeys as $settingsKey) {
+      $settingsValue = Civi::settings()->get($settingsKey);
+      if (NULL !== $settingsValue) {
+        Civi::settings()->set("banking_$settingsKey", $settingsValue);
+        Civi::settings()->revert($settingsKey);
+      }
+    }
+
     return TRUE;
   }
 
